@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -36,7 +37,6 @@ import com.fetch.tv.ui.screens.search.DiscoverScreen
 import com.fetch.tv.ui.screens.search.SearchScreen
 import com.fetch.tv.ui.screens.settings.LicensesAttributionsScreen
 import com.fetch.tv.ui.screens.settings.SettingsScreen
-import com.fetch.tv.ui.screens.settings.TrackingSettingsScreen
 import com.fetch.tv.ui.screens.setup.FirstRunWizardScreen
 import com.fetch.tv.ui.screens.stream.StreamScreen
 import com.fetch.tv.ui.screens.home.ContinueWatchingItem
@@ -47,7 +47,6 @@ import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.screens.tmdb.TmdbEntityBrowseScreen
 import com.fetch.tv.ui.screens.home.DetailInitialSeasonState
 import com.fetch.tv.ui.screens.home.HeroBackdropState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun FetchNavHost(
@@ -864,7 +863,7 @@ private fun PlaybackNavHost(
                     val focusSeason = currentSeason ?: initialSeason
                     val focusEpisode = currentEpisode ?: initialEpisode
                     fun returnToDetail() {
-                        val detailEntry = navController.currentBackStack.value
+                        val detailEntry = navController.backStackEntries()
                             .lastOrNull {
                                 val itemId = it.arguments?.getString("itemId").orEmpty()
                                 val itemType = it.arguments?.getString("itemType").orEmpty()
@@ -982,7 +981,7 @@ private fun PlaybackNavHost(
                     } else {
                         // Back to the detail page after a still-watching or screen time stop.
                         if (exitReason != null) {
-                            val detailEntry = navController.currentBackStack.value
+                            val detailEntry = navController.backStackEntries()
                                 .lastOrNull { it.destination.route?.startsWith("detail/") == true }
                             if (detailEntry != null) {
                                 detailEntry.savedStateHandle["returnFocusSeason"] = null
@@ -1023,7 +1022,7 @@ private fun PlaybackNavHost(
                             val focusSeason = args?.getString("season")?.toIntOrNull()
                             val focusEpisode = args?.getString("episode")?.toIntOrNull()
                             if (contentId.isNotBlank()) {
-                                val detailEntry = navController.currentBackStack.value
+                                val detailEntry = navController.backStackEntries()
                                     .lastOrNull {
                                         val itemId = it.arguments?.getString("itemId").orEmpty()
                                         val itemType = it.arguments?.getString("itemType").orEmpty()
@@ -1197,7 +1196,14 @@ private fun PlaybackNavHost(
                 },
                 onNavigateToSearch = { navController.navigate(Screen.Search.route) { launchSingleTop = true } },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } },
-                onNavigateToTrackingSettings = { navController.navigate(Screen.Tracking.route) { launchSingleTop = true } },
+                onNavigateToTrackingSettings = {
+                    // Settings opens on its Tracking tab; there is no separate tracking screen.
+                    navController.navigate(Screen.Settings.route) { launchSingleTop = true }
+                    runCatching {
+                        navController.getBackStackEntry(Screen.Settings.route)
+                            .savedStateHandle[SETTINGS_OPEN_PAGE_KEY] = com.fetch.tv.ui.screens.settings.SettingsCategory.TRACKING.name
+                    }
+                },
                 onNavigateToStats = { navController.navigate(Screen.Stats.route) { launchSingleTop = true } },
                 onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) { launchSingleTop = true } }
             )
@@ -1241,10 +1247,18 @@ private fun PlaybackNavHost(
             }
         }
 
-        composable(Screen.Settings.route) {
+        composable(Screen.Settings.route) { entry ->
+            // A page another screen asked Settings to open on, read once.
+            val openPage by entry.savedStateHandle
+                .getStateFlow<String?>(SETTINGS_OPEN_PAGE_KEY, null)
+                .collectAsStateWithLifecycle()
             ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
                 SettingsScreen(
                     showBuiltInHeader = !hideBuiltInHeaders,
+                    openPage = openPage?.let { name ->
+                        com.fetch.tv.ui.screens.settings.SettingsCategory.entries.firstOrNull { it.name == name }
+                    },
+                    onOpenPageHandled = { entry.savedStateHandle[SETTINGS_OPEN_PAGE_KEY] = null },
                     onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                     customiseHomeActions = com.fetch.tv.ui.screens.settings.CustomiseHomeActions(
                         openCustomiseHome = { navController.navigate(Screen.CatalogOrder.createRoute()) },
@@ -1275,14 +1289,6 @@ private fun PlaybackNavHost(
                 ProfileSelectionScreen(
                     onProfileSelected = {},
                     screenMode = ProfileSelectionMode.Management,
-                    onBackPress = { navController.popBackStack() }
-                )
-            }
-        }
-
-        composable(Screen.Tracking.route) {
-            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
-                TrackingSettingsScreen(
                     onBackPress = { navController.popBackStack() }
                 )
             }
@@ -1427,7 +1433,7 @@ private fun PlaybackNavHost(
 
             // When coming from search, get the SearchViewModel from the Search back stack entry
             // so we share the same data (existing results + pagination)
-            val searchBackStackEntry = androidx.compose.runtime.remember(fromSearch) {
+            val searchBackStackEntry = androidx.compose.runtime.remember(backStackEntry, fromSearch) {
                 if (fromSearch) {
                     try { navController.getBackStackEntry(Screen.Search.route) } catch (_: Exception) { null }
                 } else null
@@ -1436,7 +1442,7 @@ private fun PlaybackNavHost(
                 if (searchBackStackEntry != null) {
                     androidx.hilt.navigation.compose.hiltViewModel<com.fetch.tv.ui.screens.search.SearchViewModel>(searchBackStackEntry)
                 } else null
-            val homeBackStackEntry = androidx.compose.runtime.remember {
+            val homeBackStackEntry = androidx.compose.runtime.remember(backStackEntry) {
                 try { navController.getBackStackEntry(Screen.Home.route) } catch (_: Exception) { null }
             }
             val homeViewModel: com.fetch.tv.ui.screens.home.HomeViewModel =
@@ -1499,3 +1505,6 @@ private fun PlaybackNavHost(
         }
     }
 }
+
+/** Saved-state key on the Settings entry naming the [com.fetch.tv.ui.screens.settings.SettingsCategory] to open. */
+private const val SETTINGS_OPEN_PAGE_KEY = "settings_open_page"

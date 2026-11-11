@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">繼續觀看</string>
     <string name="type_movie">電影</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">已嘗試的中繼資料擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入中繼資料。</string>
     <string name="error_meta_tried_issues">已嘗試的中繼資料擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入中繼資料。問題：%4$s。</string>
     <string name="error_stream_no_supported_addon">沒有已安裝的擴充套件支援「%1$s」的串流。</string>
-    <string name="error_stream_tried_none">已嘗試的串流擴充套件：%1$s。皆未為 id=%2$s (類型=%3$s) 回傳串流。</string>
-    <string name="error_stream_tried_generic">已嘗試的串流擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入串流。</string>
-    <string name="error_stream_tried_issues">已嘗試的串流擴充套件：%1$s。無法為 id=%2$s (類型=%3$s) 載入串流。問題：%4$s。</string>
+    <string name="error_stream_tried_none">已嘗試的串流擴充套件：%1$s。皆未回傳串流。</string>
+    <string name="error_stream_tried_generic">已嘗試的串流擴充套件：%1$s。無法載入串流。</string>
+    <string name="error_stream_tried_issues">已嘗試的串流擴充套件：%1$s。無法載入串流。問題：%2$s。</string>
 
     <string name="continue_watching">繼續觀看</string>
     <string name="cw_upcoming">即將播出</string>
@@ -154,15 +154,12 @@
     <string name="cw_airs_today">今日播出</string>
     <string name="cw_airs_tomorrow">明日播出</string>
     <plurals name="cw_airs_in_days">
-        <item quantity="one">%d 天後播出</item>
         <item quantity="other">%d 天後播出</item>
     </plurals>
     <!-- 緊湊卡片樣式的簡短版本（寬卡/海報） -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">今天</string>
     <string name="cw_airs_tomorrow_short">明天</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">%d 天後</item>
         <item quantity="other">%d 天後</item>
     </plurals>
     <string name="cw_action_go_to_details">前往詳情</string>
@@ -251,7 +248,6 @@
     <string name="detail_comments_back_hint">點擊返回鍵關閉</string>
     <string name="detail_comments_badge_review">評論</string>
     <string name="detail_comments_badge_spoiler">劇透</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d 個讚</string>
     <string name="tmdb_entity_kind_company">製作公司</string>
     <string name="tmdb_entity_kind_network">頻道</string>
@@ -260,14 +256,12 @@
     <string name="tmdb_entity_rail_recent">最新</string>
     <string name="tmdb_entity_rail_most_voted">最多投票</string>
     <string name="collections_editor_tmdb_watch_region">觀看地區</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 國家代碼，表示該內容可觀看的地區。例如：US、GB。</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 國家代碼，表示該內容可觀看的地區。例如：US、GB。</string>
     <string name="collections_editor_tmdb_quick_watch_regions">快速觀看地區</string>
     <string name="collections_editor_tmdb_watch_providers">觀看平台 ID</string>
     <string name="collections_editor_tmdb_watch_providers_helper">使用 TMDB 觀看平台 ID。多個請用逗號分隔 (AND) 或豎線分隔 (OR)。</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">排除的觀看平台 ID</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">排除在所選地區可由這些 TMDB 觀看平台編號觀看的標題。</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">快速觀看平台</string>
     <string name="tmdb_error_load_source">無法載入 TMDB 來源</string>
     <string name="tmdb_error_list_not_found">找不到 TMDB 清單</string>
@@ -402,12 +396,10 @@
     <string name="licenses_attributions_section_app">應用程式授權</string>
     <string name="licenses_attributions_section_data">資料與服務</string>
     <string name="licenses_attributions_section_playback">Android 播放授權</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch 使用 TMDB API 獲取電影和電視節目的中繼資料、美術圖、預告片、演員、製作細節、收藏和推薦內容。本產品使用 TMDB API，但未經 TMDB 認可或認證。</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch 連線至 Trakt 以進行帳戶驗證、觀看歷史、進度同步、媒體庫資料、評分、清單和評論。Fetch 與 Trakt 無關聯或未經其認可。</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch 連線至 Simkl 以進行帳戶驗證、觀看清單、觀看歷史、播放進度和記錄。電影、電視和動畫追蹤資料由 Simkl 提供。Fetch 與 Simkl 無關聯或未經其認可。</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch 使用 MDBList 獲取評分、觀看歷史和播放追蹤。Fetch 與 MDBList 無關聯或未經其認可。</string>
@@ -454,8 +446,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">選擇 Fetch 從哪裡讀取繼續播放和繼續觀看資料。所有已連接的服務仍會保持記錄。</string>
     <string name="tracking_library_source_dialog_subtitle">選擇 Fetch 從哪裡讀取您的媒體庫。播放記錄會同步到所有已連接的服務。</string>
     <string name="tracking_trakt_progress_required">當 Trakt 為觀看進度來源時可用</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">進階</string>
     <string name="settings_advanced_subtitle">效能、導航、快取與診斷</string>
     <string name="experience_mode_essential">基礎模式</string>
@@ -494,26 +484,11 @@
     <string name="experience_mode_confirm_advanced_title">切換至進階模式？</string>
     <string name="experience_mode_confirm_essential_subtitle">進階設定介面將被隱藏，但您的已儲存設定保持不變。您隨時可以切換回來。</string>
     <string name="experience_mode_confirm_advanced_subtitle">這將顯示完整的設定介面，包括進階設定、目錄、收藏和調校控制項。</string>
-    <string name="network_speed_test_run">執行速度測試</string>
-    <string name="network_speed_test_running">正在執行速度測試</string>
-    <string name="network_speed_test_subtitle">測量下載速度和延遲</string>
-    <string name="network_testing_latency">正在測量延遲</string>
-    <string name="network_testing_download">正在測量下載速度</string>
-    <string name="network_results_title">結果</string>
-    <string name="network_latency_label">延遲</string>
-    <string name="network_download_label">下載</string>
-    <string name="network_error_prefix">錯誤：%1$s</string>
-    <string name="network_powered_by_fast">由 fast.com 提供</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">有線網路</string>
-    <string name="network_connection_offline">離線</string>
     <string name="advanced_section_performance">效能與導航</string>
     <string name="advanced_section_diagnostics">診斷</string>
-    <string name="advanced_playback_issue_reports">播放問題報告</string>
     <string name="advanced_player_stats_hud">播放統計覆蓋層</string>
     <string name="advanced_player_stats_hud_subtitle">在串流資訊中顯示一個按鈕，用於在播放期間切換即時 CPU、記憶體、緩衝、位元率和溫度讀數</string>
     <string name="advanced_section_cache">快取</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">快速水平導航</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">提高 D-pad 在行內的重複速度，同時保留重複節流功能。</string>
     <string name="advanced_fetch_focus_scroll">Fetch 焦點滾動</string>
@@ -555,6 +530,7 @@
     <string name="playback_skip_intro">跳過片頭</string>
     <string name="playback_skip_intro_sub">使用 introdb.app 偵測片頭和前情提要。</string>
     <string name="playback_parental_guide">內容警告</string>
+    <string name="playback_parental_guide_sub">開始播放時顯示內容警告。會將每部作品的 IMDb ID 傳送到 api.tiffara.com 以查詢警告。</string>
     <string name="playback_auto_skip_segments">自動跳過</string>
     <string name="playback_auto_skip_segments_sub">選擇要自動跳過的片段類型。</string>
     <string name="auto_skip_intro">片頭／開場</string>
@@ -572,7 +548,6 @@
     <string name="playback_player_external">外部</string>
     <string name="playback_player_ask">每次都詢問</string>
     <string name="playback_internal_player_engine">內建播放引擎</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (測試版)</string>
     <string name="playback_auto_switch_internal_player_on_error">啟動錯誤時自動切換播放引擎</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">如果串流啟動失敗，自動在 ExoPlayer 和 libmpv 之間切換。</string>
@@ -652,20 +627,6 @@
     <string name="audio_strip_hdr10plus_sub">從串流中移除 HDR10+ 動態中繼資料。當同時啟用「轉換為 DV8.1」時，移除作業在轉換之後執行。</string>
     <string name="audio_dv7_preserve_mapping_title">保留 DV 對應 (DV7 轉 DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">保留創作者原始意圖的色調對應，代價是每幀處理量略增。</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Hi10P G-NEXT 軟體回退 (僅限 MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">當串流詳細資訊識別為 H.264 Hi10P 時使用 G-NEXT 軟體解碼。預設關閉；僅在 Hi10P 播放卡死或失敗時啟用。</string>
     <string name="audio_mpv_hwdec_title">硬體解碼 (僅限 MPV)</string>
@@ -889,7 +850,6 @@
     <string name="web_custom_poster_placeholders_info">佔位符：{id} 傳遞所有內容 ID。{imdb_id}、{tmdb_id}、{tvdb_id}、{kitsu_id} 針對單一 ID 類型 - 如果不可用，則保留原始海報。{imdb_id|tmdb_id|kitsu_id} 宣告支援的 ID 類型 - 使用匹配的那個，否則保留原始海報。新增 ? 使佔位符變為可選，解析為空而非跳過：{imdb_id?}。其他佔位符：{id_type}、{typed_id}、{type}、{shape}。</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">在裝置間同步觀看歷史和播放進度</string>
     <string name="mdblist_connected_as">以 %1$s 身分連線</string>
     <string name="mdblist_account_fallback">MDBList 使用者</string>
@@ -1053,15 +1013,6 @@
     <string name="debug_progress_indicator_default">預設</string>
     <string name="debug_progress_indicator_large">大</string>
     <string name="debug_section_features">功能開關</string>
-    <string name="debug_account_tab_title">帳戶標籤</string>
-    <string name="debug_account_tab_subtitle">在設定導航中顯示帳戶標籤</string>
-    <string name="debug_sync_code_title">同步碼功能</string>
-    <string name="debug_sync_code_subtitle">在帳戶設定中顯示「產生/輸入同步碼」按鈕</string>
-    <string name="debug_member_tier_title">模擬支持者等級</string>
-    <string name="debug_member_tier_subtitle">選擇此除錯版本中回傳的已驗證支持者等級</string>
-    <string name="debug_member_tier_none">無</string>
-    <string name="debug_member_tier_one">支持者</string>
-    <string name="debug_member_tier_two">支持者+</string>
     <string name="debug_buffer_logs_title">啟用 BUFFER 日誌</string>
     <string name="debug_buffer_logs_subtitle">將週期性播放器緩衝診斷輸出到 logcat (預設為停用)</string>
     <string name="debug_error_dialog_title">播放錯誤</string>
@@ -1264,17 +1215,6 @@
     <string name="player_error_title">播放錯誤</string>
     <string name="player_error_choose_source">選擇其他來源</string>
     <string name="player_switch_to_mpv">切換到 MPV 播放器</string>
-    <string name="player_report_issue">報告問題</string>
-    <string name="player_report_issue_sending">正在傳送播放報告...</string>
-    <string name="player_report_issue_sending_button">傳送中...</string>
-    <string name="player_report_issue_sent">報告已傳送：%1$s</string>
-    <string name="player_report_issue_sent_button">已傳送</string>
-    <string name="player_report_issue_failed">無法傳送報告</string>
-    <string name="player_report_loading_issue">報告載入問題</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">已載入 %1$d 秒</item>
-        <item quantity="other">已載入 %1$d 秒</item>
-    </plurals>
     <string name="player_speed_title">播放速度</string>
     <string name="player_error_no_stream_url">此來源沒有串流連結。請選擇其他來源。</string>
 
@@ -1697,7 +1637,6 @@
     <string name="cd_refresh">重新整理</string>
     <string name="cd_remove">移除</string>
     <string name="cd_preview">預覽</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt 標誌</string>
     <string name="cd_trakt_qr">Trakt 啟用 QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1849,7 +1788,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">排除匹配這些 TMDB 類型數字的標題。</string>
     <string name="collections_editor_tmdb_date_from">上映或播出日期從</string>
     <string name="collections_editor_tmdb_date_to">上映或播出日期到</string>
-    <string name="collections_editor_tmdb_date_helper">使用 YYYY-MM-DD，例如 2024-01-01。</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">使用 YYYY-MM-DD，例如 2024-01-01。</string>
     <string name="collections_editor_tmdb_rating_min">最低評分</string>
     <string name="collections_editor_tmdb_rating_max">最高評分</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB 評分範圍 0 到 10。例如：7.0。</string>
@@ -1901,14 +1840,9 @@
     <string name="collections_editor_tmdb_person_placeholder">湯姆·漢克斯為 31，或人物網址</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 或 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 代表動畫</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en、ko、ja、hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US、KR、JP、IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1970,9 +1904,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">湯姆·漢克斯電影、喜愛演員</string>
     <string name="collections_editor_tmdb_director_title_placeholder">克里斯多福·諾蘭電影、喜愛導演</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 代表超級英雄</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 代表漫威影業</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 代表 Netflix</string>
     <string name="folder_detail_not_found">找不到資料夾</string>
     <string name="cast_error_load_details_for">無法載入 %1$s 的詳細資訊</string>
@@ -2167,8 +2099,6 @@
     <string name="network_error_unknown">發生未知錯誤</string>
 
     <!-- 網路設定：fast.com 錯誤 -->
-    <string name="network_fast_error_script_path_missing">fast.com：找不到腳本路徑</string>
-    <string name="network_fast_error_token_missing">fast.com：在 bundle 中找不到權杖</string>
 
     <!-- Torrent 服務 / TorrServer 二進位錯誤 -->
 
@@ -2269,7 +2199,7 @@
     <string name="playback_cache_vod_size">VOD 快取大小</string>
     <string name="playback_cache_vod_size_sub">漸進式 VOD 快取的最大磁碟使用量 (LRU 淘汰)。</string>
     <string name="playback_cache_info_range">範圍：%1$d-%2$d MB。</string>
-    <string name="playback_cache_info_auto">自動模式目標約為可用空間的 10%。</string>
+    <string name="playback_cache_info_auto" formatted="false">自動模式目標約為可用空間的 10%。</string>
     <string name="playback_cache_info_manual_headroom">手動模式保留約 %1$dMB 的餘裕。</string>
     <string name="playback_cache_info_free_disk">可用磁碟空間：%1$s。</string>
     <string name="playback_cache_info_restart">在模式/大小之間切換後，新的快取上限會在應用程式重新啟動後生效。</string>

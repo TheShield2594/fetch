@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">המשך צפייה</string>
     <string name="type_movie">סרט</string>
@@ -136,9 +136,9 @@
     <string name="error_meta_tried_generic">תוספי מטא-דאטה שנוסו: %1$s. לא ניתן לטעון מטא-דאטה עבור id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">תוספי מטא-דאטה שנוסו: %1$s. לא ניתן לטעון מטא-דאטה עבור id=%2$s (type=%3$s). בעיות: %4$s.</string>
     <string name="error_stream_no_supported_addon">אין תוסף מותקן שתומך במקורות עבור \"%1$s\".</string>
-    <string name="error_stream_tried_none">תוספי סטרים שנוסו: %1$s. אף אחד מהם לא החזיר מקורות עבור id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות עבור id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות עבור id=%2$s (type=%3$s). בעיות: %4$s.</string>
+    <string name="error_stream_tried_none">תוספי סטרים שנוסו: %1$s. אף אחד מהם לא החזיר מקורות.</string>
+    <string name="error_stream_tried_generic">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות.</string>
+    <string name="error_stream_tried_issues">תוספי סטרים שנוסו: %1$s. לא ניתן היה לטעון מקורות. בעיות: %2$s.</string>
 
     <string name="continue_watching">המשך בצפייה</string>
     <string name="cw_upcoming">בקרוב</string>
@@ -160,7 +160,6 @@
         <item quantity="other">עולה בעוד %d ימים</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">היום</string>
     <string name="cw_airs_tomorrow_short">מחר</string>
     <plurals name="cw_airs_in_days_short">
@@ -261,7 +260,6 @@
     <string name="detail_comments_back_hint">יש ללחוץ חזרה כדי לסגור</string>
     <string name="detail_comments_badge_review">ביקורת</string>
     <string name="detail_comments_badge_spoiler">ספוילר</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d לייקים</string>
     <string name="tmdb_entity_kind_company">חברת הפקה</string>
     <string name="tmdb_entity_kind_network">רשת שידור</string>
@@ -270,14 +268,12 @@
     <string name="tmdb_entity_rail_recent">חדשים</string>
     <string name="tmdb_entity_rail_most_voted">עם הכי הרבה הצבעות</string>
     <string name="collections_editor_tmdb_watch_region">אזור צפייה</string>
-    <string name="collections_editor_tmdb_watch_region_helper">קוד מדינה בתקן ISO 3166-1 שבו הכותרת זמינה. לדוגמה: US, IL.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">קוד מדינה בתקן ISO 3166-1 שבו הכותרת זמינה. לדוגמה: US, IL.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">אזורי צפייה מהירים</string>
     <string name="collections_editor_tmdb_watch_providers">מזהי ספקי צפייה</string>
     <string name="collections_editor_tmdb_watch_providers_helper">שימוש במזהי ספקי צפייה של TMDB. הפרדה בין מספר מזהים בפסיקים עבור \"וגם\" (AND), או בקו אנכי עבור \"או\" (OR).</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">מזהי ספקי צפייה מוחרגים</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">החרגת כותרות הזמינות אצל מספרי ספקי הצפייה האלה של TMDB, באזור שנבחר.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">ספקי צפייה מהירים</string>
     <string name="tmdb_error_load_source">לא ניתן לטעון מקור TMDB</string>
     <string name="tmdb_error_list_not_found">רשימת TMDB לא נמצאה</string>
@@ -427,12 +423,10 @@
     <string name="licenses_attributions_section_app">רישיון האפליקציה</string>
     <string name="licenses_attributions_section_data">מידע ושירותים</string>
     <string name="licenses_attributions_section_playback">רישיונות הפעלת Android</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch משתמשת ב-API של TMDB עבור מטא-דאטה של סרטים וסדרות, תמונות, טריילרים, שחקנים, פרטי הפקה, אוספים והמלצות. מוצר זה משתמש ב-API של TMDB אך אינו מאושר או מאומת על ידי TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch מתחברת ל-Trakt לצורך אימות חשבון, היסטוריית צפייה, סנכרון התקדמות, נתוני ספרייה, דירוגים, רשימות ותגובות. Fetch אינה קשורה או מאושרת על ידי Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch מתחברת ל-Simkl לצורך אימות חשבון, רשימות צפייה, היסטוריית צפייה, התקדמות צפייה וסקרובלינג. נתוני מעקב סרטים, סדרות ואנימה מסופקים על ידי Simkl. Fetch אינה קשורה או מאושרת על ידי Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch משתמשת ב-MDBList עבור דירוגים ונתוני ספקי ציון חיצוניים. Fetch אינה קשורה או מאושרת על ידי MDBList.</string>
@@ -479,8 +473,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">יש לבחור את השירות ש-Fetch קוראת ממנו להמשך צפייה. הסקרובלינג נשאר פעיל עבור כל שירות מחובר.</string>
     <string name="tracking_library_source_dialog_subtitle">יש לבחור את השירות ש-Fetch קוראת ממנו את הספרייה שלך. הצפייה מסונכרנת לכל שירות מחובר.</string>
     <string name="tracking_trakt_progress_required">זמין כאשר Trakt הוא מקור התקדמות הצפייה</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">מתקדם</string>
     <string name="settings_advanced_subtitle">הפעלת אבחון מהירות רשת</string>
     <string name="experience_mode_essential">בסיסי</string>
@@ -519,22 +511,8 @@
     <string name="experience_mode_confirm_advanced_title">לעבור למצב מתקדם?</string>
     <string name="experience_mode_confirm_essential_subtitle">משטחי הגדרה מתקדמים יוסתרו, אך ההגדרות השמורות שלך יישארו ללא שינוי. ניתן לחזור בכל עת.</string>
     <string name="experience_mode_confirm_advanced_subtitle">פעולה זו חושפת את משטח ההגדרות המלא, כולל הגדרה מתקדמת, קטלוג, אוספים ובקרת כוונון.</string>
-    <string name="network_speed_test_run">הפעלת בדיקת מהירות</string>
-    <string name="network_speed_test_running">בודק מהירות…</string>
-    <string name="network_speed_test_subtitle">מדידת מהירות הורדה וזמן תגובה</string>
-    <string name="network_testing_latency">מודד זמן תגובה</string>
-    <string name="network_testing_download">מודד מהירות הורדה</string>
-    <string name="network_results_title">תוצאות</string>
-    <string name="network_latency_label">זמן תגובה</string>
-    <string name="network_download_label">הורדה</string>
-    <string name="network_error_prefix">שגיאה: %1$s</string>
-    <string name="network_powered_by_fast">מבוסס על fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">רשת קווית</string>
-    <string name="network_connection_offline">אין חיבור</string>
     <string name="advanced_section_performance">ביצועים וניווט</string>
     <string name="advanced_section_diagnostics">אבחון</string>
-    <string name="advanced_playback_issue_reports">דיווחי תקלות הפעלה</string>
     <string name="advanced_player_stats_hud">שכבת נתוני הפעלה</string>
     <string name="advanced_player_stats_hud_subtitle">הצגת כפתור במידע על המקור, להצגת נתוני מעבד, זיכרון, מאגר, קצב סיביות וטמפרטורה בזמן אמת במהלך ההפעלה</string>
     <string name="advanced_section_cache">מטמון</string>
@@ -603,6 +581,7 @@
     <string name="playback_skip_intro">דילוג על ההקדמה</string>
     <string name="playback_skip_intro_sub">שימוש ב-introdb.app לזיהוי הקדמות ותקצירים.</string>
     <string name="playback_parental_guide">אזהרות תוכן</string>
+    <string name="playback_parental_guide_sub">הצגת אזהרות תוכן כשההפעלה מתחילה. שולח את מזהה ה-IMDb של כל כותר אל api.tiffara.com כדי לחפש אותן.</string>
     <string name="playback_auto_skip_segments">דילוג אוטומטי</string>
     <string name="playback_auto_skip_segments_sub">בחירת הקטעים לדילוג אוטומטי.</string>
     <string name="auto_skip_intro">פתיח</string>
@@ -620,7 +599,6 @@
     <string name="playback_player_external">חיצוני</string>
     <string name="playback_player_ask">לשאול בכל פעם</string>
     <string name="playback_internal_player_engine">מנוע פנימי</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (בטא)</string>
     <string name="playback_auto_switch_internal_player_on_error">החלפת מנוע אוטומטית בשגיאת הפעלה</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">אם הפעלת המקור נכשלת, החלפה אוטומטית בין ExoPlayer ל-Libmpv</string>
@@ -965,7 +943,6 @@
     <string name="web_custom_poster_placeholders_info">מציינים: {id} מעביר את כל מזהי התוכן. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} מיועדים לסוג מזהה בודד - אם הוא לא זמין, הפוסטר המקורי נשמר. {imdb_id|tmdb_id|kitsu_id} מציין סוגי מזהים נתמכים - נעשה שימוש בסוג המתאים, או שהפוסטר המקורי נשמר. הוספת ? הופכת מציין לאופציונלי, כך שיוחלף בערך ריק במקום לדלג: {imdb_id?}. מציינים נוספים: {id_type}, {typed_id}, {type}, {shape}.</string>
     
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">סנכרון היסטוריית צפייה והתקדמות הפעלה בין מכשירים</string>
     <string name="mdblist_connected_as">מחובר בתור %1$s</string>
     <string name="mdblist_account_fallback">משתמש MDBList</string>
@@ -1113,7 +1090,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">יש לבחור את מקור ההמלצות המוצגות במסכי הפרטים ואחרי ההפעלה.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">שמור במטמון</string>
     <string name="trakt_stat_movies">סרטים</string>
     <string name="trakt_stat_shows">סדרות</string>
@@ -1139,15 +1115,6 @@
     <string name="debug_progress_indicator_default">ברירת מחדל</string>
     <string name="debug_progress_indicator_large">גדול</string>
     <string name="debug_section_features">הפעלת פיצ׳רים</string>
-    <string name="debug_account_tab_title">לשונית חשבון</string>
-    <string name="debug_account_tab_subtitle">הצגת לשונית החשבון בניווט הגדרות</string>
-    <string name="debug_sync_code_title">פיצ׳רי קוד סנכרון</string>
-    <string name="debug_sync_code_subtitle">הצגת כפתורי יצירה/הזנת קוד סנכרון בהגדרות חשבון</string>
-    <string name="debug_member_tier_title">הדמיית דרגת תומך</string>
-    <string name="debug_member_tier_subtitle">בחירת דרגת התומך המאומתת שתוחזר בגרסת הדיבאג הזו</string>
-    <string name="debug_member_tier_none">ללא</string>
-    <string name="debug_member_tier_one">תומך</string>
-    <string name="debug_member_tier_two">תומך+</string>
     <string name="debug_buffer_logs_title">הפעלת לוגים של BUFFER</string>
     <string name="debug_buffer_logs_subtitle">שליחת אבחוני מאגר נגן תקופתיים ל-logcat (כבוי כברירת מחדל)</string>
     <string name="debug_error_dialog_title">שגיאת הפעלה</string>
@@ -1349,18 +1316,6 @@
     <string name="player_error_title">שגיאת הפעלה</string>
     <string name="player_error_choose_source">יש לבחור מקור אחר</string>
     <string name="player_switch_to_mpv">מעבר לנגן MPV</string>
-    <string name="player_report_issue">דיווח על תקלה</string>
-    <string name="player_report_issue_sending">שולח דוח הפעלה…</string>
-    <string name="player_report_issue_sending_button">שולח…</string>
-    <string name="player_report_issue_sent">הדיווח נשלח: %1$s</string>
-    <string name="player_report_issue_sent_button">הדיווח נשלח</string>
-    <string name="player_report_issue_failed">לא ניתן לשלוח את הדוח</string>
-    <string name="player_report_loading_issue">דיווח על בעיית טעינה</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">עדיין בטעינה אחרי שנייה אחת</item>
-        <item quantity="two">עדיין בטעינה אחרי שתי שניות</item>
-        <item quantity="other">עדיין בטעינה אחרי %1$d שניות</item>
-    </plurals>
     <string name="player_speed_title">מהירות הפעלה</string>
     <string name="player_error_no_stream_url">למקור הזה אין קישור לסטרים. יש לבחור מקור אחר.</string>
 
@@ -1783,7 +1738,6 @@
     <string name="cd_refresh">ריענון</string>
     <string name="cd_remove">הסרה</string>
     <string name="cd_preview">תצוגה מקדימה</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">לוגו Trakt</string>
     <string name="cd_trakt_qr">קוד QR להפעלת Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1936,7 +1890,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">החרגת כותרות התואמות למספרי ז׳אנר אלה של TMDB.</string>
     <string name="collections_editor_tmdb_date_from">תאריך יציאה או שידור מ-</string>
     <string name="collections_editor_tmdb_date_to">תאריך יציאה או שידור עד</string>
-    <string name="collections_editor_tmdb_date_helper">יש להשתמש בפורמט YYYY-MM-DD, לדוגמה 2024-12-31.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">יש להשתמש בפורמט YYYY-MM-DD, לדוגמה 2024-12-31.</string>
     <string name="collections_editor_tmdb_rating_min">דירוג מינימלי</string>
     <string name="collections_editor_tmdb_rating_max">דירוג מקסימלי</string>
     <string name="collections_editor_tmdb_rating_helper">דירוג TMDB בין 0 ל-10. לדוגמה: 6.7.</string>
@@ -1988,14 +1942,9 @@
     <string name="collections_editor_tmdb_person_placeholder">31 עבור Tom Hanks, או כתובת URL של אדם</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 או 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 עבור אנימציה</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, he, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, IL, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2027</string>
@@ -2057,9 +2006,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks Movies, Favorite Actors</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan Movies, Favorite Directors</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 עבור superhero</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 עבור Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 עבור Netflix</string>
     <string name="folder_detail_not_found">התיקייה לא נמצאה</string>
     <string name="cast_error_load_details_for">לא ניתן היה לטעון פרטים עבור %1$s</string>
@@ -2254,8 +2201,6 @@
     <string name="network_error_unknown">אירעה שגיאה לא ידועה</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: נתיב הסקריפט לא נמצא</string>
-    <string name="network_fast_error_token_missing">fast.com: האסימון לא נמצא בחבילה</string>
 
     <!-- Torrent service errors -->
 
@@ -2356,7 +2301,7 @@
     <string name="playback_cache_vod_size">גודל מטמון VOD</string>
     <string name="playback_cache_vod_size_sub">שימוש מקסימלי בדיסק עבור מטמון VOD פרוגרסיבי (מפונה לפי LRU).</string>
     <string name="playback_cache_info_range">טווח: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">מצב אוטומטי מכוון לכ-10% משטח פנוי.</string>
+    <string name="playback_cache_info_auto" formatted="false">מצב אוטומטי מכוון לכ-10% משטח פנוי.</string>
     <string name="playback_cache_info_manual_headroom">מצב ידני שומר כ-%1$dMB שטח אחסון.</string>
     <string name="playback_cache_info_free_disk">שטח דיסק פנוי זמין: %1$s.</string>
     <string name="playback_cache_info_restart">מגבלת המטמון החדשה חלה לאחר הפעלה מחדש של האפליקציה בעת מעבר בין מצבים/גדלים.</string>

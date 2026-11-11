@@ -1,6 +1,7 @@
 package com.fetch.tv.core.streams
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +22,7 @@ open class AddonHealthStore @Inject constructor(
     }
 
     open suspend fun save(health: Map<String, AddonHealth>) {
-        preferences.edit().putString(KEY_HEALTH, encode(health)).apply()
+        preferences.edit { putString(KEY_HEALTH, encode(health)) }
     }
 
     @Serializable

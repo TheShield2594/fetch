@@ -12,14 +12,14 @@ cast|CARD|1
 collection|BUTTON|14
 collection|CARD|10
 detail|BUTTON|3
-detail|CARD|7
+detail|CARD|6
 filterrows|BUTTON|2
 library|CARD|1
 player|BUTTON|7
 player|CARD|24
 profile|BUTTON|33
 settings|BUTTON|29
-settings|CARD|30
+settings|CARD|29
 stats|BUTTON|1
 stats|CARD|1
 stream|BUTTON|1

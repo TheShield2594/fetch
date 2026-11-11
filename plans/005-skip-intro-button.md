@@ -356,10 +356,10 @@ line number. If the text is not there, stop and report.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
     baseline change.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*SkipIntroVisibilityRulesTest*' --tests '*SubtitleLiftRulesTest*'`
+  - `./gradlew :app:testDebugUnitTest --tests '*SkipIntroVisibilityRulesTest*' --tests '*SubtitleLiftRulesTest*'`
     passes.
 - **Feel check** (TV or emulator, an episode with an intro marker, subtitles on):
   - Countdown: let the button sit with controls hidden. The bar drains smoothly from the start

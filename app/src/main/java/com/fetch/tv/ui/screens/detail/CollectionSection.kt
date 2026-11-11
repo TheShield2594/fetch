@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
 import com.fetch.tv.ui.components.FetchCardDefaults
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -79,7 +80,7 @@ fun CollectionSection(
             lastFocusedItemId == null -> firstItemFocusRequester
             lastFocusedItemId == restoreItemId -> restoreFocusRequester
             lastFocusedItemId == items.firstOrNull()?.id -> firstItemFocusRequester
-            else -> itemFocusRequesters.getOrPut(lastFocusedItemId) { FocusRequester() }
+            else -> itemFocusRequesters.focusRequesterFor(lastFocusedItemId)
         }
     }
 
@@ -155,7 +156,7 @@ fun CollectionSection(
                 val focusRequester = when {
                     isRestoreTarget -> restoreFocusRequester
                     isFirstItem -> firstItemFocusRequester
-                    else -> remember(item.id) { itemFocusRequesters.getOrPut(item.id) { FocusRequester() } }
+                    else -> remember(item.id) { itemFocusRequesters.focusRequesterFor(item.id) }
                 }
 
                 Column(

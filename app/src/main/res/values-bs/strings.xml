@@ -102,9 +102,9 @@
     <string name="error_meta_tried_generic">Pokušani meta addoni: %1$s. Nije bilo moguće učitati metapodatke za ID=%2$s (tip=%3$s).</string>
     <string name="error_meta_tried_issues">Pokušani meta addoni: %1$s. Nije bilo moguće učitati metapodatke za ID=%2$s (tip=%3$s). Problemi: %4$s.</string>
     <string name="error_stream_no_supported_addon">Nijedan instalirani addon ne podržava streamove za \"%1$s\".</string>
-    <string name="error_stream_tried_none">Pokušani stream addoni: %1$s. Nijedan od njih nije vratio streamove za ID=%2$s (tip=%3$s).</string>
-    <string name="error_stream_tried_generic">Pokušani stream addoni: %1$s. Nije bilo moguće učitati streamove za ID=%2$s (tip=%3$s).</string>
-    <string name="error_stream_tried_issues">Pokušani stream addoni: %1$s. Nije bilo moguće učitati streamove za ID=%2$s (tip=%3$s). Problemi: %4$s.</string>
+    <string name="error_stream_tried_none">Pokušani stream addoni: %1$s. Nijedan od njih nije vratio streamove.</string>
+    <string name="error_stream_tried_generic">Pokušani stream addoni: %1$s. Nije bilo moguće učitati streamove.</string>
+    <string name="error_stream_tried_issues">Pokušani stream addoni: %1$s. Nije bilo moguće učitati streamove. Problemi: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Nastavi Gledati</string>
@@ -202,7 +202,6 @@
     <string name="detail_comments_back_hint">Kliknite nazad za zatvaranje</string>
     <string name="detail_comments_badge_review">Recenzija</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d lajkova</string>
     <string name="tmdb_entity_kind_company">Produkcijska Kuća</string>
     <string name="tmdb_entity_kind_network">Mreža</string>
@@ -269,19 +268,6 @@
     <string name="settings_playback">Playback</string>
     <string name="settings_advanced">Napredno</string>
     <string name="settings_advanced_subtitle">Pokreni dijagnostiku brzine mreže</string>
-    <string name="network_speed_test_run">Pokreni Test Brzine</string>
-    <string name="network_speed_test_running">Testiranje brzine u toku</string>
-    <string name="network_speed_test_subtitle">Izmjeri brzinu preuzimanja i latenciju</string>
-    <string name="network_testing_latency">Mjerenje latencije</string>
-    <string name="network_testing_download">Mjerenje brzine preuzimanja</string>
-    <string name="network_results_title">Rezultati</string>
-    <string name="network_latency_label">Latencija</string>
-    <string name="network_download_label">Preuzimanje</string>
-    <string name="network_error_prefix">Greška: %1$s</string>
-    <string name="network_powered_by_fast">Omogućava fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">LAN kabel (Ethernet)</string>
-    <string name="network_connection_offline">Van mreže</string>
     <string name="settings_debug">Debug</string>
     <string name="settings_account_section_subtitle">Račun i status sinhronizacije</string>
 
@@ -311,7 +297,6 @@
     <string name="playback_player_external">Eksterni</string>
     <string name="playback_player_ask">Pitaj svaki put</string>
     <string name="playback_internal_player_engine">Interni Engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automatski promijeni engine u slučaju greške</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Ako pokretanje streama ne uspije, automatski se prebaci između ExoPlayer i libmpv.</string>
@@ -588,10 +573,6 @@
     <string name="debug_playback_error_title">Ekran za Grešku Reprodukcije</string>
     <string name="debug_playback_error_subtitle">Prikaži simulirani popup greške tokom reprodukcije</string>
     <string name="debug_section_features">Feature Toggles</string>
-    <string name="debug_account_tab_title">Račun Tab</string>
-    <string name="debug_account_tab_subtitle">Prikaži Račun tab u navigaciji postavki</string>
-    <string name="debug_sync_code_title">Sync Code Opcije</string>
-    <string name="debug_sync_code_subtitle">Prikaži dugmad za Generiši/Unesi Sync Code u postavkama Računa</string>
     <string name="debug_error_dialog_title">Greška Reprodukcije</string>
     <string name="debug_error_dialog_subtitle">Došlo je do greške tokom reprodukcije.\n\nGreška: Simulirana test greška - ovo nije stvarni kvar. Izvor je vratio HTTP 503 (Servis Nedostupan).</string>
     <string name="debug_dismiss">Zatvori</string>
@@ -699,7 +680,7 @@
     <string name="player_loading_buffering">Učitavanje (Buffering)…</string>
     <string name="player_engine_switching_title">Promjena Player Engine-a</string>
     <string name="player_engine_switching_message">Pokretanje nije uspjelo. Prebacivanje na %1$s…</string>
-    <string name="player_engine_switching_manual_message">Prebacivanje na %1$s...</string>
+    <string name="player_engine_switching_manual_message">Prebacivanje na %1$s…</string>
     <string name="playback_show_loading_status">Prikaži status učitavanja</string>
     <string name="playback_show_loading_status_sub">Prikaži korak po korak napredak dok se player inicijalizuje.</string>
 
@@ -945,7 +926,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Učitavanje ocjena epizoda...</string>
+    <string name="ratings_loading">Učitavanje ocjena epizoda…</string>
     <string name="ratings_unavailable">Ocjene epizoda nisu dostupne.</string>
     <string name="ratings_load_error">Nije moguće učitati ocjene epizoda.</string>
     <string name="ratings_season_summary">Sezona %1$d - %2$d epizoda</string>
@@ -953,7 +934,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Otkrij</string>
     <string name="discover_load_more">Učitaj više</string>
-    <string name="discover_loading">Učitavanje...</string>
+    <string name="discover_loading">Učitavanje…</string>
     <string name="discover_filter_genre">Žanr</string>
     <string name="discover_empty_no_content_title">Sadržaj nije pronađen</string>
     <string name="discover_empty_no_content_subtitle">Pokušaj sa drugim žanrom ili katalogom</string>
@@ -1064,7 +1045,6 @@
     <string name="cd_refresh">Osvježi</string>
     <string name="cd_remove">Ukloni</string>
     <string name="cd_preview">Pregled</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt QR za aktivaciju</string>
     <string name="cd_imdb">IMDb</string>
@@ -1634,4 +1614,5 @@
     <string name="screen_time_rest_of_day">Bez ograničenja do kraja dana</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="playback_parental_guide_sub">Prikazuje upozorenja o sadržaju kada reprodukcija počne. Šalje IMDb ID svakog naslova na api.tiffara.com radi pretrage.</string>
 </resources>

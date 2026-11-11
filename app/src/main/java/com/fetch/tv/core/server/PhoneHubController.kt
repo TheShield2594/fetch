@@ -17,6 +17,7 @@ import com.fetch.tv.core.profile.TvBackup
 import com.fetch.tv.core.remote.RemoteCommand
 import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
+import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.core.util.withAppLocale
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
@@ -162,7 +163,7 @@ class PhoneHubController @Inject constructor(
     @Volatile private var simklCode: PhoneHubDeviceCode? = null
 
     private val logoBytes: ByteArray? by lazy {
-        runCatching { context.resources.openRawResource(R.drawable.app_logo_wordmark).use { it.readBytes() } }.getOrNull()
+        context.readWordmarkPngBytes()
     }
 
     /** A message for the phone, in the app's language rather than the system's. */
@@ -533,12 +534,14 @@ class PhoneHubController @Inject constructor(
             _pendingAddon.compareAndSet(request, null)
             return
         }
+        // The profile just checked: the install is held to it (#465).
+        val profileId = addonRepository.addonChangeProfileId()
         val installing = request.copy(installing = true)
         // Only the request on screen: a newer one may have just replaced it.
         if (!_pendingAddon.compareAndSet(request, installing)) return
         scope.launch {
             try {
-                addonProposals[request.id] = when (val outcome = addonRepository.installOrReplace(request.url)) {
+                addonProposals[request.id] = when (val outcome = addonRepository.installOrReplace(request.url, profileId = profileId)) {
                     is AddonInstallOutcome.Installed -> PhoneHubAddonProposal(PhoneHubAddonStatus.INSTALLED, id = request.id, name = request.name)
                     is AddonInstallOutcome.NeedsConfiguration -> PhoneHubAddonProposal(
                         PhoneHubAddonStatus.NEEDS_CONFIGURATION,
@@ -552,6 +555,12 @@ class PhoneHubController @Inject constructor(
                         id = request.id,
                         name = request.name,
                         message = outcome.message.ifBlank { text(R.string.phone_web_addon_install_failed, request.name) }
+                    )
+                    is AddonInstallOutcome.ProfileChanged -> PhoneHubAddonProposal(
+                        PhoneHubAddonStatus.FAILED,
+                        id = request.id,
+                        name = request.name,
+                        message = text(R.string.addon_install_profile_changed, request.name)
                     )
                 }
             } catch (error: CancellationException) {

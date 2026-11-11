@@ -3,6 +3,7 @@ package com.fetch.tv.core.sync.androidtv
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
@@ -12,6 +13,7 @@ import com.fetch.tv.domain.model.WatchProgress
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import android.util.Log
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -52,6 +54,11 @@ class AndroidTvChannelManagerTest {
             val str = firstArg<String?>() ?: ""
             uriMocks.getOrPut(str) { mockk(relaxed = true) }
         }
+
+        // Intent is a stub in unit tests, so its toUri() returns null, which String.toUri()
+        // rejects. Give the channel and program links a real string to parse.
+        mockkConstructor(Intent::class)
+        every { anyConstructed<Intent>().toUri(any()) } returns "intent:#Intent;component=com.fetch.tv/.MainActivity;end"
 
         mockkStatic(TvContract::class)
         every { TvContract.buildChannelUri(any()) } answers {

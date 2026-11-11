@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.collection
 
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.activity.compose.BackHandler
@@ -109,7 +110,7 @@ fun CollectionEditorScreen(
 
     var folderToDelete by remember { mutableStateOf<CollectionFolder?>(null) }
     val scope = rememberCoroutineScope()
-    val addFolderFocusRequester = folderFocusRequesters.getOrPut("add_folder") { FocusRequester() }
+    val addFolderFocusRequester = folderFocusRequesters.focusRequesterFor("add_folder")
     // Set when Save is pressed with no folders; cleared once one exists.
     var showFolderRequired by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.folders.isNotEmpty()) {
@@ -400,7 +401,7 @@ fun CollectionEditorScreen(
             items = uiState.folders,
             key = { _, folder -> folder.id }
         ) { index, folder ->
-            val editFocusRequester = folderFocusRequesters.getOrPut(folder.id) { FocusRequester() }
+            val editFocusRequester = folderFocusRequesters.focusRequesterFor(folder.id)
             Box(modifier = Modifier.padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.sm)) {
                 FolderListItem(
                     folder = folder,

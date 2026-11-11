@@ -27,7 +27,6 @@
     <string name="servers_remove">Supprimer le serveur</string>
     <string name="servers_remove_confirm_title">Supprimer ce serveur&#160;?</string>
     <string name="servers_remove_confirm_message">Cela vous déconnecte de %1$s sur cet appareil. Vous pourrez l’ajouter de nouveau à tout moment.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Désactivé</string>
     <string name="servers_status_auth">Reconnexion requise</string>
     <string name="servers_status_unreachable">Serveur indisponible</string>

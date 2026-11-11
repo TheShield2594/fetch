@@ -1,7 +1,8 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.data.local
 
 import com.fetch.tv.core.player.DisplayCapabilities
-import com.fetch.tv.BuildConfig
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -35,6 +36,7 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.fetch.tv.ui.screens.player.FetchExoPlayerPerformanceHelper
 import com.fetch.tv.ui.screens.settings.MemoryBudget
+import com.fetch.tv.core.util.runSuspendCatching
 
 /**
  * Available subtitle languages
@@ -285,7 +287,6 @@ data class PlayerSettings(
     val secondaryPreferredAudioLanguage: String? = null,
     val loadingOverlayEnabled: Boolean = true,
     val showPlayerLoadingStatus: Boolean = true,
-    val playbackIssueReportsEnabled: Boolean = false,
     val pauseOverlayEnabled: Boolean = true,
     val osdClockEnabled: Boolean = true,
     /** How far one press of Back / rewind goes, in seconds; keys and buttons share it (#407). */
@@ -341,7 +342,7 @@ data class PlayerSettings(
      * Best match: play the best stream found so far as soon as it reaches the preferred quality
      * (and is cached, when cached is preferred) instead of waiting for every addon.
      */
-    val streamAutoPlayStartEarly: Boolean = false,
+    val streamAutoPlayStartEarly: Boolean = true,
     /**
      * When a source won't open in the built-in player (after the other player has been tried),
      * play the next one in the ranking instead of stopping on the error.
@@ -646,7 +647,6 @@ class PlayerSettingsDataStore @Inject constructor(
     private val secondaryPreferredAudioLanguageKey = stringPreferencesKey("secondary_preferred_audio_language")
     private val loadingOverlayEnabledKey = booleanPreferencesKey("loading_overlay_enabled")
     private val showPlayerLoadingStatusKey = booleanPreferencesKey("show_player_loading_status")
-    private val playbackIssueReportsEnabledKey = booleanPreferencesKey("playback_issue_reports_enabled")
     private val pauseOverlayEnabledKey = booleanPreferencesKey("pause_overlay_enabled")
     private val osdClockEnabledKey = booleanPreferencesKey("osd_clock_enabled")
     private val seekBackSecondsKey = intPreferencesKey("seek_back_seconds")
@@ -951,7 +951,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     if (normalized != current) prefs[vodCacheSizeMbKey] = normalized
                 }
                 prefs[vodCacheSizeModeKey]?.let { raw ->
-                    val normalized = runCatching { VodCacheSizeMode.valueOf(raw) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE).name
+                    val normalized = runSuspendCatching { VodCacheSizeMode.valueOf(raw) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE).name
                     if (normalized != raw) prefs[vodCacheSizeModeKey] = normalized
                 }
 
@@ -1074,9 +1074,6 @@ class PlayerSettingsDataStore @Inject constructor(
                     ?.let(::normalizeSecondaryAudioLanguageCode),
                 loadingOverlayEnabled = prefs[loadingOverlayEnabledKey] ?: true,
                 showPlayerLoadingStatus = prefs[showPlayerLoadingStatusKey] ?: true,
-                // Reports only exist when a builder configures their own endpoint; nothing is sent by default.
-                playbackIssueReportsEnabled = BuildConfig.PLAYBACK_REPORTS_BASE_URL.isNotBlank() &&
-                    (prefs[playbackIssueReportsEnabledKey] ?: false),
                 pauseOverlayEnabled = prefs[pauseOverlayEnabledKey] ?: true,
                 osdClockEnabled = prefs[osdClockEnabledKey] ?: true,
                 seekBackSeconds = PlayerSettings.normalizeSeekSeconds(
@@ -1178,7 +1175,7 @@ class PlayerSettingsDataStore @Inject constructor(
                 streamReuseLastLinkEnabled = prefs[streamReuseLastLinkEnabledKey] ?: false,
                 bestMatchPreviewEnabled = prefs[bestMatchPreviewEnabledKey] ?: true,
                 readyCheckEnabled = prefs[readyCheckEnabledKey] ?: true,
-                streamAutoPlayStartEarly = prefs[streamAutoPlayStartEarlyKey] ?: false,
+                streamAutoPlayStartEarly = prefs[streamAutoPlayStartEarlyKey] ?: true,
                 streamAutoPlayNextSourceOnFailure = prefs[streamAutoPlayNextSourceOnFailureKey] ?: true,
                 streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
@@ -1483,12 +1480,6 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setPlaybackIssueReportsEnabled(enabled: Boolean) {
-        store().edit { prefs ->
-            prefs[playbackIssueReportsEnabledKey] = enabled
-        }
-    }
-
     suspend fun setFrameRateMatchingMode(mode: FrameRateMatchingMode) {
         store().edit { prefs ->
             prefs[frameRateMatchingModeKey] = mode.name
@@ -1744,12 +1735,7 @@ class PlayerSettingsDataStore @Inject constructor(
     )
 
     private fun resolveDeviceSubtitleLanguage(): String {
-        val locale = if (android.os.Build.VERSION.SDK_INT >= 24) {
-            android.content.res.Resources.getSystem().configuration.locales[0]
-        } else {
-            @Suppress("DEPRECATION")
-            android.content.res.Resources.getSystem().configuration.locale
-        }
+        val locale = android.content.res.Resources.getSystem().configuration.locales[0]
         
         val rawLanguage = locale?.language.orEmpty()
         val legacyMapped = when (rawLanguage) {

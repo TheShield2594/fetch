@@ -74,6 +74,7 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.abs
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -1122,7 +1123,7 @@ class TraktProgressService @Inject constructor(
         val generation = refreshGeneration.get()
 
         supervisorScope {
-            val hiddenDeferred = async { runCatching { ensureHiddenProgressShows(force = force) } }
+            val hiddenDeferred = async { runSuspendCatching { ensureHiddenProgressShows(force = force) } }
 
             val watchedMoviesDeferred: Deferred<Set<String>>? = if (refetchWatched || watchedMoviesStale || !hasLoadedWatchedMovies) {
                 async {

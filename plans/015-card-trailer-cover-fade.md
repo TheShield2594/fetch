@@ -266,8 +266,8 @@ All paths are under `app/src/main/java/com/fetch/tv/`.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. No
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. No
     literal tween is added or removed.
   - No existing unit test covers ContentCard or TrailerPlayer
     (`grep -rln "ContentCard\|TrailerPlayer" app/src/test` is empty).

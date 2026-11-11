@@ -4,13 +4,9 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
-import com.fetch.tv.data.local.DebugSettingsDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryPreferences
 import com.fetch.tv.data.local.PlayerSettingsDataStore
-import com.fetch.tv.data.local.ThemeDataStore
-import com.fetch.tv.domain.model.AppTheme
-import com.fetch.tv.domain.model.MemberTier
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.SavedLibraryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,10 +22,8 @@ import kotlin.random.Random
 
 @HiltViewModel
 class DebugSettingsViewModel @Inject constructor(
-    private val dataStore: DebugSettingsDataStore,
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
     private val playerSettingsDataStore: PlayerSettingsDataStore,
-    private val themeDataStore: ThemeDataStore,
     private val libraryPreferences: LibraryPreferences,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
@@ -38,21 +32,6 @@ class DebugSettingsViewModel @Inject constructor(
     val uiState: StateFlow<DebugSettingsUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            dataStore.accountTabEnabled.collectLatest { enabled ->
-                _uiState.update { it.copy(accountTabEnabled = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            dataStore.syncCodeFeaturesEnabled.collectLatest { enabled ->
-                _uiState.update { it.copy(syncCodeFeaturesEnabled = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            dataStore.memberTier.collectLatest { tier ->
-                _uiState.update { it.copy(memberTier = tier) }
-            }
-        }
         viewModelScope.launch {
             layoutPreferenceDataStore.composeHighlighterEnabled.collectLatest { enabled ->
                 _uiState.update { it.copy(composeHighlighterEnabled = enabled) }
@@ -68,21 +47,6 @@ class DebugSettingsViewModel @Inject constructor(
 
     fun onEvent(event: DebugSettingsEvent) {
         when (event) {
-            is DebugSettingsEvent.ToggleAccountTab -> {
-                viewModelScope.launch { dataStore.setAccountTabEnabled(event.enabled) }
-            }
-            is DebugSettingsEvent.ToggleSyncCodeFeatures -> {
-                viewModelScope.launch { dataStore.setSyncCodeFeaturesEnabled(event.enabled) }
-            }
-            is DebugSettingsEvent.SelectMemberTier -> {
-                viewModelScope.launch {
-                    val shouldSelectDefaultTheme = _uiState.value.memberTier == null && event.tier != null
-                    dataStore.setMemberTier(event.tier)
-                    if (shouldSelectDefaultTheme) {
-                        themeDataStore.setTheme(AppTheme.GOLD)
-                    }
-                }
-            }
             is DebugSettingsEvent.ToggleComposeHighlighter -> {
                 viewModelScope.launch { layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled) }
             }
@@ -161,9 +125,6 @@ class DebugSettingsViewModel @Inject constructor(
 }
 
 data class DebugSettingsUiState(
-    val accountTabEnabled: Boolean = false,
-    val syncCodeFeaturesEnabled: Boolean = false,
-    val memberTier: MemberTier? = null,
     val composeHighlighterEnabled: Boolean = false,
     val bufferLogsEnabled: Boolean = false,
     val generateLibraryLoading: Boolean = false,
@@ -171,9 +132,6 @@ data class DebugSettingsUiState(
 )
 
 sealed class DebugSettingsEvent {
-    data class ToggleAccountTab(val enabled: Boolean) : DebugSettingsEvent()
-    data class ToggleSyncCodeFeatures(val enabled: Boolean) : DebugSettingsEvent()
-    data class SelectMemberTier(val tier: MemberTier?) : DebugSettingsEvent()
     data class ToggleComposeHighlighter(val enabled: Boolean) : DebugSettingsEvent()
     data class ToggleBufferLogs(val enabled: Boolean) : DebugSettingsEvent()
     data class GenerateLibraryItems(val count: Int) : DebugSettingsEvent()

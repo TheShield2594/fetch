@@ -1,8 +1,10 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.runtime.mutableFloatStateOf
 import com.fetch.tv.ui.components.FetchButton
 import com.fetch.tv.ui.components.FetchButtonStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
@@ -30,6 +32,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -56,8 +59,7 @@ import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -72,6 +74,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -178,8 +181,8 @@ fun SearchScreen(
     var pendingFocusMoveSawSearching by remember { mutableStateOf(false) }
     var pendingFocusMoveHadExistingSearchRows by remember { mutableStateOf(false) }
     var isVoiceListening by remember { mutableStateOf(false) }
-    var voiceRmsLevel by remember { mutableStateOf(0f) }
-    var discoverFocusedItemIndex by rememberSaveable { mutableStateOf(0) }
+    var voiceRmsLevel by remember { mutableFloatStateOf(0f) }
+    var discoverFocusedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
     var pendingDiscoverRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     val restoringSearchFocus = remember { mutableStateOf(viewModel.hasSavedSearchFocus) }
@@ -323,8 +326,11 @@ fun SearchScreen(
     }
 
     val cardRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
-    val posterCardStyle = remember(cardRadius) {
+    // The card-width preference applies here as on Home and Discover.
+    val posterCardStyle = remember(uiState.posterCardWidthDp, cardRadius) {
         PosterCardStyle(
+            width = uiState.posterCardWidthDp.dp,
+            height = (uiState.posterCardWidthDp * 1.5f).roundToInt().dp,
             cornerRadius = cardRadius,
             focusedScale = PosterCardDefaults.Style.focusedScale,
             showRestingBorder = true
@@ -928,8 +934,8 @@ fun SearchScreen(
                                     firstVisibleItemScrollOffset = saved?.second ?: 0
                                 )
                             }
-                            val rowFocusRequester = searchRowFocusRequesters.getOrPut(catalogKey) { FocusRequester() }
-                            val entryFocusRequester = searchRowEntryFocusRequesters.getOrPut(catalogKey) { FocusRequester() }
+                            val rowFocusRequester = searchRowFocusRequesters.focusRequesterFor(catalogKey)
+                            val entryFocusRequester = searchRowEntryFocusRequesters.focusRequesterFor(catalogKey)
 
                             CatalogRowSection(
                                 catalogRow = catalogRow,
@@ -1185,9 +1191,7 @@ private fun RecentSearchesSection(
     val removeFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     var pendingDownwardFocus by remember { mutableStateOf<Pair<String, String>?>(null) }
     // Downward focus enters the query column. The remove buttons are reached with right.
-    val firstSearchFocusRequester = searchFocusRequesters.getOrPut(recentSearches.first()) {
-        FocusRequester()
-    }
+    val firstSearchFocusRequester = searchFocusRequesters.focusRequesterFor(recentSearches.first())
     LaunchedEffect(recentSearches, pendingDownwardFocus) {
         val visibleQueries = recentSearches.toSet()
         searchFocusRequesters.keys.retainAll(visibleQueries)
@@ -1238,19 +1242,15 @@ private fun RecentSearchesSection(
 
         recentSearches.forEachIndexed { index, recentQuery ->
             key(recentQuery) {
-                val searchFocusRequester = searchFocusRequesters.getOrPut(recentQuery) {
-                    FocusRequester()
-                }
-                val removeFocusRequester = removeFocusRequesters.getOrPut(recentQuery) {
-                    FocusRequester()
-                }
+                val searchFocusRequester = searchFocusRequesters.focusRequesterFor(recentQuery)
+                val removeFocusRequester = removeFocusRequesters.focusRequesterFor(recentQuery)
                 val previousRemoveFocusRequester = if (index == 0) {
                     clearHistoryFocusRequester
                 } else {
-                    removeFocusRequesters.getOrPut(recentSearches[index - 1]) { FocusRequester() }
+                    removeFocusRequesters.focusRequesterFor(recentSearches[index - 1])
                 }
                 val nextRemoveFocusRequester = recentSearches.getOrNull(index + 1)?.let {
-                    removeFocusRequesters.getOrPut(it) { FocusRequester() }
+                    removeFocusRequesters.focusRequesterFor(it)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1544,7 +1544,10 @@ private fun SearchInputField(
             Spacer(modifier = Modifier.width(FetchTheme.spacing.md))
         }
 
-        OutlinedTextField(
+        // A plain text field with the app's own border and focus ring, not Material's touch field.
+        var searchFieldFocused by remember { mutableStateOf(false) }
+        val searchFieldShape = RoundedCornerShape(FetchTheme.radii.md)
+        BasicTextField(
             value = query,
             onValueChange = onQueryChanged,
             modifier = Modifier
@@ -1554,6 +1557,7 @@ private fun SearchInputField(
                     canFocus = isScreenActive
                 }
                 .onFocusChanged { focusState ->
+                    searchFieldFocused = focusState.isFocused
                     onSearchFieldFocusChanged(focusState.isFocused)
                 }
                 .onPreviewKeyEvent { keyEvent ->
@@ -1602,30 +1606,39 @@ private fun SearchInputField(
                 }
             ),
             singleLine = true,
-            shape = RoundedCornerShape(FetchTheme.radii.md),
-            placeholder = {
-                Text(
-                    // While voice search is listening, say so in text, not only with the accent.
-                    text = stringResource(
-                        if (isVoiceListening) R.string.search_voice_listening else R.string.search_placeholder
-                    ),
-                    style = androidx.tv.material3.MaterialTheme.typography.bodyLarge,
-                    color = FetchTheme.colors.TextTertiary
-                )
-            },
             // Copy the app type scale so the typed query keeps the selected app font.
             textStyle = androidx.tv.material3.MaterialTheme.typography.bodyLarge.copy(
+                color = FetchTheme.colors.TextPrimary,
                 textDirection = TextDirection.Content
             ),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = FetchTheme.colors.BackgroundCard,
-                unfocusedContainerColor = FetchTheme.colors.BackgroundCard,
-                focusedIndicatorColor = FetchTheme.colors.FocusRing,
-                unfocusedIndicatorColor = FetchTheme.colors.Border,
-                focusedTextColor = FetchTheme.colors.TextPrimary,
-                unfocusedTextColor = FetchTheme.colors.TextPrimary,
-                cursorColor = FetchTheme.colors.FocusRing
-            )
+            cursorBrush = SolidColor(FetchTheme.colors.FocusRing),
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .heightIn(min = FetchTheme.spacing.huge)
+                        .background(FetchTheme.colors.BackgroundCard, searchFieldShape)
+                        .border(
+                            width = if (searchFieldFocused) FetchTheme.spacing.xxs else FetchTheme.spacing.hairline,
+                            color = if (searchFieldFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.Border,
+                            shape = searchFieldShape
+                        )
+                        .padding(horizontal = FetchTheme.spacing.lg),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (query.isEmpty()) {
+                        Text(
+                            // While voice search is listening, say so in text, not only with the accent.
+                            text = stringResource(
+                                if (isVoiceListening) R.string.search_voice_listening else R.string.search_placeholder
+                            ),
+                            style = androidx.tv.material3.MaterialTheme.typography.bodyLarge,
+                            color = FetchTheme.colors.TextTertiary,
+                            maxLines = 1
+                        )
+                    }
+                    innerTextField()
+                }
+            }
         )
 
         // Clear button, requested in review. Placed beside the field rather than as a trailing

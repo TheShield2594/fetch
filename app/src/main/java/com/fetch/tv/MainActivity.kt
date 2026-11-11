@@ -1,9 +1,9 @@
 package com.fetch.tv
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.os.SystemClock
@@ -23,6 +23,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.platform.LocalResources
+import androidx.core.content.edit
+import androidx.core.graphics.drawable.toDrawable
 import androidx.tv.material3.MaterialTheme
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -143,16 +146,13 @@ import com.fetch.tv.core.tracking.TrackingRefreshIntent
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.ThemeDataStore
-import com.fetch.tv.data.repository.MemberAccessRepository
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppTheme
 import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.domain.model.ExperienceMode
-import com.fetch.tv.domain.model.MemberAccess
 import com.fetch.tv.domain.model.ProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveProfileBackgroundSelection
 import com.fetch.tv.domain.model.resolveAppTheme
-import com.fetch.tv.domain.model.resolveCustomThemeColors
 import com.fetch.tv.domain.deeplink.AppDeepLink
 import com.fetch.tv.domain.repository.AddonRepository
 import com.fetch.tv.ui.components.FetchScrollDefaults
@@ -164,7 +164,6 @@ import com.fetch.tv.ui.navigation.FetchNavHost
 import com.fetch.tv.ui.navigation.RootBackAction
 import com.fetch.tv.ui.navigation.rootBackAction
 import com.fetch.tv.ui.navigation.Screen
-import com.fetch.tv.ui.membership.LocalMemberAccess
 import com.fetch.tv.ui.screens.addon.EssentialAddonSetupScreen
 import com.fetch.tv.ui.screens.profile.ProfileSelectionScreen
 import com.fetch.tv.ui.theme.FetchComponents
@@ -224,7 +223,6 @@ private data class SurfaceModes(
 private data class MainUiPrefs(
     val theme: AppTheme = com.fetch.tv.domain.model.DEFAULT_APP_THEME,
     val customThemeColors: CustomThemeColors = CustomThemeColors.Default,
-    val memberAccess: MemberAccess = MemberAccess.None,
     val font: AppFont = AppFont.SCHIBSTED_GROTESK,
     val amoledMode: Boolean = false,
     val amoledSurfacesMode: Boolean = false,
@@ -260,9 +258,6 @@ open class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var experienceModeDataStore: ExperienceModeDataStore
-
-    @Inject
-    lateinit var memberAccessRepository: MemberAccessRepository
 
     @Inject
     lateinit var addonRepository: AddonRepository
@@ -342,7 +337,7 @@ open class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         isFirstResumeAfterCreate = true
-        window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+        window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
 
         // Wire the Activity-level launcher to the tracker
         externalPlaybackTracker.activityLauncher = externalPlayerLauncher
@@ -392,9 +387,13 @@ open class MainActivity : ComponentActivity() {
             var focusedSplashCacheKey by remember { mutableStateOf<String?>(null) }
             var focusedSplashTheme by remember { mutableStateOf<AppTheme?>(null) }
             val context = LocalContext.current
+            val resources = LocalResources.current
 
             val activeProfileId by profileManager.activeProfileId.collectAsStateWithLifecycle()
-            val startupSplashEnabled by profileManager.startupSplashEnabled.collectAsStateWithLifecycle()
+            val startupSplashSetting by profileManager.startupSplashEnabled.collectAsStateWithLifecycle()
+            // The splash belongs to the app's cold start. A profile switch (a new startup session)
+            // goes straight to the picker and then Home, which shows its own loading state.
+            val startupSplashEnabled = startupSplashSetting && startupSession == 0
             val startupLoadingState = remember(activeProfileId, startupSession) { StartupLoadingState() }
             val profiles by profileManager.profiles.collectAsStateWithLifecycle()
             val loadedProfiles by profileManager.loadedProfiles.collectAsStateWithLifecycle()
@@ -443,17 +442,10 @@ open class MainActivity : ComponentActivity() {
                 startupSession,
                 themeDataStore,
                 layoutPreferenceDataStore,
-                experienceModeDataStore,
-                memberAccessRepository
+                experienceModeDataStore
             ) {
-                val activeThemeFlow = combine(
-                    themeDataStore.themeSelection,
-                    memberAccessRepository.access
-                ) { selection, memberAccess ->
-                    selection.copy(
-                        theme = resolveAppTheme(selection.theme, memberAccess.entitlements),
-                        customColors = resolveCustomThemeColors(selection.customColors, memberAccess.tier)
-                    ) to memberAccess
+                val activeThemeFlow = themeDataStore.themeSelection.map { selection ->
+                    selection.copy(theme = resolveAppTheme(selection.theme))
                 }
                 // Group flows into two batches to reduce intermediate flow allocations.
                 // Each batch uses a single combine() instead of chaining .combine() calls,
@@ -470,11 +462,10 @@ open class MainActivity : ComponentActivity() {
                     themeDataStore.selectedFont,
                     surfaceModesFlow,
                     experienceModeDataStore.mode,
-                ) { themeAndAccess, font, (amoledMode, amoledSurfacesMode, highContrast, reduceMotion), experienceMode ->
+                ) { themeSelection, font, (amoledMode, amoledSurfacesMode, highContrast, reduceMotion), experienceMode ->
                     MainUiPrefs(
-                        theme = themeAndAccess.first.theme ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME,
-                        customThemeColors = themeAndAccess.first.customColors,
-                        memberAccess = themeAndAccess.second,
+                        theme = themeSelection.theme ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME,
+                        customThemeColors = themeSelection.customColors,
                         font = font,
                         amoledMode = amoledMode,
                         amoledSurfacesMode = amoledSurfacesMode,
@@ -565,10 +556,7 @@ open class MainActivity : ComponentActivity() {
                 }
                 val highlighterEnabled = BuildConfig.IS_DEBUG_BUILD && mainUiPrefs.composeHighlighterEnabled
                 com.fetch.tv.ui.util.RecompositionHighlighterFlag.enabled = highlighterEnabled
-                val profileBgSelection = resolveProfileBackgroundSelection(
-                    profile = activeProfile,
-                    entitlements = mainUiPrefs.memberAccess.entitlements
-                )
+                val profileBgSelection = resolveProfileBackgroundSelection(activeProfile)
                 // Cache splash background in SharedPreferences so the splash
                 // can show the correct background on cold start when
                 // "remember last profile" skips the profile selection screen.
@@ -587,22 +575,18 @@ open class MainActivity : ComponentActivity() {
                     // Only overwrite bg_url when we have a real value or when
                     // we know the profile has no background at all.
                     if (splashPreferencesReady && colorHex != null) {
-                        splashPrefs.edit().putString("color_$activeProfileId", colorHex).apply()
+                        splashPrefs.edit { putString("color_$activeProfileId", colorHex) }
                     }
                     if (splashPreferencesReady && bgUrl != null) {
-                        splashPrefs.edit()
-                            .putString("bg_url_$activeProfileId", bgUrl)
-                            .apply()
+                        splashPrefs.edit { putString("bg_url_$activeProfileId", bgUrl) }
                     } else if (splashPreferencesReady && activeProfile != null) {
-                        splashPrefs.edit()
-                            .remove("bg_url_$activeProfileId")
-                            .apply()
+                        splashPrefs.edit { remove("bg_url_$activeProfileId") }
                     }
                     val activeTheme = mainUiPrefs.theme
                     if (splashPreferencesReady && activeTheme != com.fetch.tv.domain.model.DEFAULT_APP_THEME) {
-                        splashPrefs.edit().putString("theme_$activeProfileId", activeTheme.name).apply()
+                        splashPrefs.edit { putString("theme_$activeProfileId", activeTheme.name) }
                     } else if (splashPreferencesReady) {
-                        splashPrefs.edit().remove("theme_$activeProfileId").apply()
+                        splashPrefs.edit { remove("theme_$activeProfileId") }
                     }
                     // Fall back to cached values only on cold start (no focused override)
                     val hasFocusedOverride = focusedSplashColor != null
@@ -632,7 +616,6 @@ open class MainActivity : ComponentActivity() {
                     LocalLandscapePosterMode provides mainUiPrefs.landscapePosterMode,
                     LocalAlwaysBackdropWithLogo provides mainUiPrefs.alwaysBackdropWithLogo,
                     com.fetch.tv.ui.components.LocalTrailerCropToFill provides mainUiPrefs.trailerCropToFill,
-                    LocalMemberAccess provides mainUiPrefs.memberAccess,
                     LocalAmbientIdleController provides ambientIdleController,
                     com.fetch.tv.core.player.LocalTrailerPlayerPool provides trailerPlayerPool,
                     LocalSplashBackground provides splashBackground,
@@ -1226,7 +1209,6 @@ open class MainActivity : ComponentActivity() {
         super.onResume()
         ambientIdleController.dismiss()
         if (::jankStats.isInitialized) jankStats.isTrackingEnabled = true
-        memberAccessRepository.refreshIfStale()
         val refreshIntent = if (isFirstResumeAfterCreate) {
             isFirstResumeAfterCreate = false
             TrackingRefreshIntent.INVALIDATED
@@ -1343,6 +1325,14 @@ open class MainActivity : ComponentActivity() {
         }
     }
 
+    // Activity.dispatchKeyEvent is public framework API. androidx.core's ComponentActivity
+    // re-declares it @RestrictTo, so lint flags this override and its super call as
+    // RestrictedApi; that is a lint false positive.
+    // GestureBackNavigation: the Back intercepts below must run before every Compose
+    // BackHandler (see longPressBackHeld above), and they consume the raw DOWN repeats of a
+    // held Back. An OnBackPressedCallback can do neither: the most recently registered
+    // callback wins, and it sees only the completed Back.
+    @SuppressLint("RestrictedApi", "GestureBackNavigation")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (ambientIdleController.consumeKeyEvent(event)) return true
         if (event.keyCode == KeyEvent.KEYCODE_BACK) {
@@ -1491,7 +1481,7 @@ private fun FetchSidebarScaffold(
     var pendingSidebarFocusRequest by remember { mutableStateOf(false) }
     // Bumped on every key event the drawer sees so the auto-collapse timer
     // resets while the user navigates between drawer items.
-    var legacyDrawerInteractionVersion by remember { mutableStateOf(0) }
+    var legacyDrawerInteractionVersion by remember { mutableIntStateOf(0) }
 
 
     // Back on a sidebar page: see rootBackAction. Only Home with the sidebar open leaves the app.

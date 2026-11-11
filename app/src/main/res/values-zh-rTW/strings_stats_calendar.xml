@@ -24,21 +24,17 @@
     <string name="stats_current_streak">目前連續觀看</string>
     <string name="stats_longest_streak">最長連續觀看</string>
     <plurals name="stats_days_value">
-        <item quantity="one">%d 天</item>
         <item quantity="other">%d 天</item>
     </plurals>
     <string name="stats_achievements">成就</string>
     <string name="stats_no_badges">還沒有獲得徽章，繼續看下去吧！</string>
     <plurals name="stats_badge_movies">
-        <item quantity="one">%d 部電影</item>
         <item quantity="other">%d 部電影</item>
     </plurals>
     <plurals name="stats_badge_episodes">
-        <item quantity="one">%d 集</item>
         <item quantity="other">%d 集</item>
     </plurals>
     <plurals name="stats_badge_streak">
-        <item quantity="one">連續 %d 天</item>
         <item quantity="other">連續 %d 天</item>
     </plurals>
     <string name="stats_earned_badges_label">已獲得：%s</string>
@@ -64,11 +60,9 @@
     <string name="calendar_not_paired_title">你的行事曆存放在 Fetch 網站上</string>
     <string name="calendar_failed">無法從 Fetch 網站載入行事曆。</string>
     <plurals name="calendar_range_days">
-        <item quantity="one">%d 天</item>
         <item quantity="other">%d 天</item>
     </plurals>
     <plurals name="calendar_empty_title">
-        <item quantity="one">未來 %d 天內沒有即將播出的集數</item>
         <item quantity="other">未來 %d 天內沒有即將播出的集數</item>
     </plurals>
     <string name="calendar_empty_subtitle">行事曆只會追蹤你已經開始觀看的影集。</string>
@@ -76,7 +70,6 @@
     <string name="calendar_empty_subtitle_watch_history">行事曆會根據你的同步方式或追蹤服務中的觀看紀錄，追蹤你最近觀看的 30 部影集。</string>
     <string name="calendar_failed_watch_history">無法在 TMDB 上查詢即將播出的集數。</string>
     <plurals name="calendar_failed_series">
-        <item quantity="one">TMDB 有 %d 部影集沒有回應，部分集數可能沒有顯示。</item>
         <item quantity="other">TMDB 有 %d 部影集沒有回應，部分集數可能沒有顯示。</item>
     </plurals>
     <string name="calendar_find_series">找一部影集來追</string>
@@ -84,7 +77,6 @@
     <string name="calendar_tomorrow">明天</string>
     <string name="calendar_unknown_date">日期未公布</string>
     <plurals name="calendar_day_count">
-        <item quantity="one">%d 集</item>
         <item quantity="other">%d 集</item>
     </plurals>
 </resources>

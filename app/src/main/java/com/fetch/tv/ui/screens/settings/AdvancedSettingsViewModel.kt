@@ -7,7 +7,6 @@ import com.fetch.tv.data.local.AddonTimeoutPreferences
 import com.fetch.tv.data.local.DeviceLocalPlayerPreferences
 import com.fetch.tv.data.local.ImagePerformancePreferences
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
-import com.fetch.tv.data.local.PlayerSettingsDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,6 @@ data class AdvancedSettingsUiState(
     val fastHorizontalNavigationEnabled: Boolean = false,
     val smoothBringIntoViewEnabled: Boolean = true,
     val composeHighlighterEnabled: Boolean = false,
-    val playbackIssueReportsEnabled: Boolean = false,
     val playerStatsHudEnabled: Boolean = false,
     val rgb565Enabled: Boolean = true,
     val hardwareBitmapsEnabled: Boolean = false,
@@ -33,7 +31,6 @@ sealed class AdvancedSettingsEvent {
     data class SetFastHorizontalNavigationEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetSmoothBringIntoViewEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetComposeHighlighterEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
-    data class SetPlaybackIssueReportsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetPlayerStatsHudEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetRgb565Enabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetHardwareBitmapsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
@@ -44,7 +41,6 @@ sealed class AdvancedSettingsEvent {
 @HiltViewModel
 class AdvancedSettingsViewModel @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
-    private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val deviceLocalPlayerPreferences: DeviceLocalPlayerPreferences,
     private val imagePerformancePreferences: ImagePerformancePreferences,
     private val addonTimeoutPreferences: AddonTimeoutPreferences,
@@ -73,11 +69,6 @@ class AdvancedSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             layoutPreferenceDataStore.composeHighlighterEnabled.collectLatest { enabled ->
                 _uiState.update { it.copy(composeHighlighterEnabled = enabled) }
-            }
-        }
-        viewModelScope.launch {
-            playerSettingsDataStore.playerSettings.collectLatest { settings ->
-                _uiState.update { it.copy(playbackIssueReportsEnabled = settings.playbackIssueReportsEnabled) }
             }
         }
         viewModelScope.launch {
@@ -112,11 +103,6 @@ class AdvancedSettingsViewModel @Inject constructor(
             is AdvancedSettingsEvent.SetComposeHighlighterEnabled -> {
                 viewModelScope.launch {
                     layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled)
-                }
-            }
-            is AdvancedSettingsEvent.SetPlaybackIssueReportsEnabled -> {
-                viewModelScope.launch {
-                    playerSettingsDataStore.setPlaybackIssueReportsEnabled(event.enabled)
                 }
             }
             is AdvancedSettingsEvent.SetPlayerStatsHudEnabled -> {

@@ -2,7 +2,7 @@ package com.fetch.tv.core.player
 
 import android.content.ClipData
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 
 /**
  * Builds the ACTION_VIEW intent handed to external video players. Shared by
@@ -12,7 +12,7 @@ import android.net.Uri
 internal object ExternalPlayerIntents {
 
     fun build(input: ExternalPlayerInput): Intent = Intent(Intent.ACTION_VIEW).apply {
-        setDataAndType(Uri.parse(input.url), "video/*")
+        setDataAndType(input.url.toUri(), "video/*")
 
         input.title?.let {
             putExtra("title", it)
@@ -46,7 +46,7 @@ internal object ExternalPlayerIntents {
 
         val subs = input.subtitles
         if (!subs.isNullOrEmpty()) {
-            val subtitleUris = subs.map { Uri.parse(it.url) }.toTypedArray()
+            val subtitleUris = subs.map { it.url.toUri() }.toTypedArray()
             val subtitleNames = subs.map { it.name }.toTypedArray()
             val subtitleFilenames = subtitleFilenames(subs).toTypedArray()
 

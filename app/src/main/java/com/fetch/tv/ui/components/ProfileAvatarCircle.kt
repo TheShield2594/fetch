@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -36,7 +37,7 @@ fun ProfileAvatarCircle(
     avatarImageUrl: String? = null,
     imageCrossfade: Boolean = true
 ) {
-    val avatarColor = runCatching { Color(android.graphics.Color.parseColor(colorHex)) }
+    val avatarColor = runCatching { Color(colorHex.toColorInt()) }
         .getOrDefault(FetchPrimitives.blue500)
     val initial = remember(name) { profileInitial(name) }
     val fontSize = (size.value * 0.4f).sp

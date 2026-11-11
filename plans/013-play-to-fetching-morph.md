@@ -157,9 +157,9 @@ applied at `FetchLaunchMorph.kt:41`.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*FetchLaunchMorphTest*'` passes.
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:testDebugUnitTest --tests '*FetchLaunchMorphTest*'` passes.
 - **Feel check** (TV or emulator, auto-play on so the Fetching panel shows):
   - Animator duration scale 10x: press Play on a detail page. The accent button grows into
     the panel; the panel text appears while the shape is still settling, not after it.

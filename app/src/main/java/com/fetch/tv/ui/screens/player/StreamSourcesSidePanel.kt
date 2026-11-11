@@ -5,6 +5,8 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableIntStateOf
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -69,14 +71,14 @@ internal fun StreamSourcesSidePanel(
     onReload: () -> Unit,
     onAddonFilterSelected: (String?) -> Unit,
     onStreamSelected: (Stream) -> Unit,
+    modifier: Modifier = Modifier,
     onExpandStreams: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val streamListState = rememberLazyListState()
     var userMovedFromFirstResult by remember { mutableStateOf(false) }
     var firstResultFocusAssigned by remember { mutableStateOf(false) }
-    var firstStreamFocusRequestId by remember { mutableStateOf(0) }
+    var firstStreamFocusRequestId by remember { mutableIntStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var focusJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
@@ -98,7 +100,7 @@ internal fun StreamSourcesSidePanel(
             add(refreshFocusRequester)
             add(allFocusRequester)
             orderedAddonNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
@@ -115,7 +117,7 @@ internal fun StreamSourcesSidePanel(
     val firstStreamKey = streamKeys.firstOrNull()
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     streamKeys.forEach { key ->
-        streamFocusRequesters.getOrPut(key) { FocusRequester() }
+        streamFocusRequesters.focusRequesterFor(key)
     }
     var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
 

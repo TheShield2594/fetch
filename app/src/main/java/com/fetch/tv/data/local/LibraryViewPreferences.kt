@@ -20,6 +20,7 @@ import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 /**
  * How the Library screen is shown: its sort order and the last tab picked. These used to live in
@@ -72,7 +73,7 @@ class LibraryViewPreferences @Inject constructor(
                 val old = legacy.data.first()
                 // Best effort: a deleted profile's stores refuse writes, and the view keys are
                 // only a convenience. Reads still work, so try again next time.
-                val moved = runCatching {
+                val moved = runSuspendCatching {
                     target.edit { preferences ->
                         VIEW_KEYS.forEach { key ->
                             val value = old[key]

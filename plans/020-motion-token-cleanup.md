@@ -316,7 +316,7 @@ check with `grep -n "import com.fetch.tv.ui.theme.FetchMotion" app/src/main/java
    keep the import. Remove an import only if the compiler reports it unused.
 5. If `focusSpring` is deleted and `Spring`, `SpringSpec` or `spring` become unused, delete those
    imports (`MotionFocusTokens.kt:7, 8, 10`).
-6. Compile (`./gradlew :app:compileFullDebugKotlin`). If it fails on a deleted token, restore that
+6. Compile (`./gradlew :app:compileDebugKotlin`). If it fails on a deleted token, restore that
    token. The grep missed an access path. Note it in the PR.
 
 ### Step 8 — Mark the over-budget durations
@@ -357,10 +357,10 @@ directly above its field in `FetchMotionDurations`, filling in the value. For `m
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes, with the
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes, with the
     `Shimmer.kt` and `PlaceholderShimmer.kt` baseline lines gone.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*SearchScreen*'`, if any such test exists
+  - `./gradlew :app:testDebugUnitTest --tests '*SearchScreen*'`, if any such test exists
     (`grep -rln "SearchScreen\|AddonManagerScreen\|TrackingProviderDialog" app/src/test`), passes.
   - `grep -rn "2400\|1600" app/src/main/java/com/fetch/tv/ui/components/Shimmer.kt app/src/main/java/com/fetch/tv/ui/components/PlaceholderShimmer.kt` returns nothing.
   - `grep -rn "AlwaysCrossfadeTransitionFactory\|coil3.request.transitionFactory" app/src/main/java` returns nothing.

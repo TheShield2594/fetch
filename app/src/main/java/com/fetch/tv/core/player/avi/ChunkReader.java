@@ -22,9 +22,11 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.SeekMap;
@@ -39,6 +41,7 @@ import java.lang.annotation.Target;
 import java.util.Arrays;
 
 /** Reads chunks holding sample data. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class ChunkReader {
 
   /** Parser states. */

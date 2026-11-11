@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.data.trailer
 
 import androidx.annotation.OptIn

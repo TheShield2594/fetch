@@ -543,10 +543,10 @@ composable every frame.
 ## Verification (whole plan)
 
 - **Mechanical**, after each sub-section:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with an
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with an
     unchanged baseline.
-  - After (a) and (e), also run `./gradlew :app:testFullDebugUnitTest --tests '*PartySyncTest*'`
+  - After (a) and (e), also run `./gradlew :app:testDebugUnitTest --tests '*PartySyncTest*'`
     as a regression check on the party package.
 - **Feel check**: as listed per sub-section, at 1x, at Animator duration scale 5x or 10x,
   and with "Animation off".

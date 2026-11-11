@@ -1,6 +1,7 @@
 package com.fetch.tv.core.sync
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +34,7 @@ class SyncClientIdentity @Inject constructor(
         }
 
         val generated = generateClientId()
-        preferences.edit().putString("client_instance_id", generated).apply()
+        preferences.edit { putString("client_instance_id", generated) }
         cachedClientId = generated
         return generated
     }

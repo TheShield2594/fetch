@@ -2,10 +2,10 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
@@ -42,7 +42,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
-import com.fetch.tv.ui.components.MemberBrandWordmark
+import com.fetch.tv.ui.components.CrossfadingBrandWordmark
 
 @Composable
 fun AboutSettingsContent(
@@ -97,7 +97,7 @@ fun AboutSettingsContent(
                         CompositionLocalProvider(LocalBringIntoViewSpec provides defaultBringIntoViewSpec) {
                             Spacer(modifier = Modifier.height(FetchTheme.spacing.xs))
 
-                            MemberBrandWordmark(
+                            CrossfadingBrandWordmark(
                                 height = 40.dp,
                                 contentDescription = stringResource(R.string.cd_fetch_logo)
                             )
@@ -130,7 +130,7 @@ fun AboutSettingsContent(
                                 onClick = {
                                     val intent = Intent(
                                         Intent.ACTION_VIEW,
-                                        Uri.parse("https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md")
+                                        "https://github.com/TheShield2594/fetch/blob/main/PRIVACY.md".toUri()
                                     )
                                     context.startActivity(intent)
                                 }

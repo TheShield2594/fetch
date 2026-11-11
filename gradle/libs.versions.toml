@@ -29,7 +29,6 @@ nanohttpd = "2.3.1"
 zxing = "3.5.3"
 kotlinxSerialization = "1.8.0"
 benchmarkMacro = "1.4.1"
-metricsPerformance = "1.0.0"
 androidxTestExtJunit = "1.2.1"
 androidxTestRunner = "1.6.2"
 uiautomator = "2.3.0"
@@ -40,9 +39,20 @@ composeRuntimeAnnotation = "1.11.4"
 javaxInject = "1"
 # Desktop: the built-in player talks to libmpv through JNA.
 jna = "5.18.1"
+desugarJdkLibs = "2.1.4"
+checkerQual = "3.43.0"
+coreSplashscreen = "1.0.1"
+recyclerview = "1.4.0"
+guava = "33.3.1-android"
+assMedia = "0.4.0"
+mpvAndroidLib = "0.1.12"
+metricsPerformance = "1.0.0"
+junit = "4.13.2"
+orgJson = "20240303"
+mockk = "1.13.12"
+robolectric = "4.17"
 
 [libraries]
-androidx-metrics-performance = { group = "androidx.metrics", name = "metrics-performance", version.ref = "metricsPerformance" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
@@ -57,6 +67,15 @@ androidx-tv-material = { group = "androidx.tv", name = "tv-material", version.re
 androidx-tvprovider = { group = "androidx.tvprovider", name = "tvprovider", version.ref = "tvprovider" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-compose-runtime-tracing = { group = "androidx.compose.runtime", name = "runtime-tracing" }
+androidx-metrics-performance = { group = "androidx.metrics", name = "metrics-performance", version.ref = "metricsPerformance" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+checker-qual = { group = "org.checkerframework", name = "checker-qual", version.ref = "checkerQual" }
 
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
@@ -68,7 +87,6 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = 
 retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "retrofit" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
-okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
 moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi" }
 moshi-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshi" }
 
@@ -107,6 +125,11 @@ media3-session = { group = "androidx.media3", name = "media3-session", version.r
 media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
 media3-container = { group = "androidx.media3", name = "media3-container", version.ref = "media3" }
 media3-extractor = { group = "androidx.media3", name = "media3-extractor", version.ref = "media3" }
+guava-android = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+
+# Subtitles (libass) and the mpv player
+ass-media = { group = "io.github.peerless2012", name = "ass-media", version.ref = "assMedia" }
+mpv-android-lib = { group = "io.github.abdallahmehiz", name = "mpv-android-lib", version.ref = "mpvAndroidLib" }
 
 # Local Plugin System
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
@@ -128,6 +151,13 @@ androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profi
 androidx-compose-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "composeRuntimeAnnotation" }
 javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
 jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna" }
+
+# JVM unit tests
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+org-json = { group = "org.json", name = "json", version.ref = "orgJson" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

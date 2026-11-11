@@ -117,8 +117,8 @@ Old image fading over an empty slot (checked):
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
     `ModernHomeHero.kt` is not in `theme-literals-baseline.txt` and no literal `tween(<digits>` is
     added.
   - `grep -n "durations.overlay" app/src/main/java/com/fetch/tv/ui/screens/home/ModernHomeHero.kt`

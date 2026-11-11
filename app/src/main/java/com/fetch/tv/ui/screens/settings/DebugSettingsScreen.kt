@@ -119,31 +119,6 @@ fun DebugSettingsContent(
                 )
             }
 
-            item(key = "debug_toggle_account_tab") {
-                SettingsToggleRow(
-                    title = stringResource(R.string.debug_account_tab_title),
-                    subtitle = stringResource(R.string.debug_account_tab_subtitle),
-                    checked = uiState.accountTabEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleAccountTab(!uiState.accountTabEnabled)) }
-                )
-            }
-
-            item(key = "debug_toggle_sync_code") {
-                SettingsToggleRow(
-                    title = stringResource(R.string.debug_sync_code_title),
-                    subtitle = stringResource(R.string.debug_sync_code_subtitle),
-                    checked = uiState.syncCodeFeaturesEnabled,
-                    onToggle = { viewModel.onEvent(DebugSettingsEvent.ToggleSyncCodeFeatures(!uiState.syncCodeFeaturesEnabled)) }
-                )
-            }
-
-            item(key = "debug_member_tier") {
-                DebugMemberTierCard(
-                    selectedTier = uiState.memberTier,
-                    onTierSelected = { viewModel.onEvent(DebugSettingsEvent.SelectMemberTier(it)) }
-                )
-            }
-
             item(key = "debug_toggle_compose_highlighter") {
                 SettingsToggleRow(
                     title = stringResource(R.string.advanced_compose_highlighter),

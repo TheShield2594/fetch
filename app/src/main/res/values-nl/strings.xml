@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Verder kijken</string>
     <string name="type_movie">Film</string>
@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Plakken</string>
     <string name="web_import_tab_file">Bestand</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Plak hier de JSON van collecties...</string>
+    <string name="web_import_paste_placeholder">Plak hier de JSON van collecties…</string>
     <string name="web_import_file_select">Tik om een .json-bestand te kiezen</string>
     <string name="web_order_send_to_top">Naar boven verplaatsen</string>
     <string name="web_order_send_to_bottom">Naar beneden verplaatsen</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen voor id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen voor id=%2$s (type=%3$s). Problemen: %4$s.</string>
     <string name="error_stream_no_supported_addon">Geen enkele geïnstalleerde add-on ondersteunt streams voor \"%1$s\".</string>
-    <string name="error_stream_tried_none">Geprobeerde stream-add-ons: %1$s. Geen enkele leverde streams voor id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen voor id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen voor id=%2$s (type=%3$s). Problemen: %4$s.</string>
+    <string name="error_stream_tried_none">Geprobeerde stream-add-ons: %1$s. Geen enkele leverde streams.</string>
+    <string name="error_stream_tried_generic">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen.</string>
+    <string name="error_stream_tried_issues">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen. Problemen: %2$s.</string>
 
     <string name="continue_watching">Verder kijken</string>
     <string name="cw_upcoming">Aankomend</string>
@@ -158,7 +158,6 @@
         <item quantity="other">Wordt over %d dagen uitgezonden</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Vandaag</string>
     <string name="cw_airs_tomorrow_short">Morgen</string>
     <plurals name="cw_airs_in_days_short">
@@ -250,7 +249,6 @@
     <string name="detail_comments_back_hint">Druk op terug om te sluiten</string>
     <string name="detail_comments_badge_review">Recensie</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d likes</string>
     <string name="tmdb_entity_kind_company">Productiebedrijf</string>
     <string name="tmdb_entity_kind_network">Netwerk</string>
@@ -259,14 +257,12 @@
     <string name="tmdb_entity_rail_recent">Recent</string>
     <string name="tmdb_entity_rail_most_voted">Meest gestemd</string>
     <string name="collections_editor_tmdb_watch_region">Kijkregio</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1-landcode waar de titel beschikbaar is. Bijvoorbeeld: NL, BE.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1-landcode waar de titel beschikbaar is. Bijvoorbeeld: NL, BE.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Snelle kijkregio\'s</string>
     <string name="collections_editor_tmdb_watch_providers">ID\'s van kijkaanbieders</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Gebruik TMDB-ID\'s van kijkaanbieders. Scheid meerdere met komma\'s voor EN, of met pipes voor OF.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Uitgesloten ID\'s van kijkaanbieders</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Sluit titels uit die in de gekozen regio beschikbaar zijn bij deze TMDB-kijkaanbiedernummers.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Snelle kijkaanbieders</string>
     <string name="tmdb_error_load_source">TMDB-bron kon niet worden geladen</string>
     <string name="tmdb_error_list_not_found">TMDB-lijst niet gevonden</string>
@@ -395,12 +391,10 @@
     <string name="licenses_attributions_section_app">APP-LICENTIE</string>
     <string name="licenses_attributions_section_data">GEGEVENS &amp; SERVICES</string>
     <string name="licenses_attributions_section_playback">ANDROID-AFSPEELLICENTIES</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch gebruikt de TMDB-API voor metadata, illustraties, trailers, cast, productiedetails, collecties en aanbevelingen van films en series. Dit product gebruikt de TMDB-API, maar wordt niet onderschreven of gecertificeerd door TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch maakt verbinding met Trakt voor accountverificatie, kijkgeschiedenis, voortgangssynchronisatie, bibliotheekgegevens, beoordelingen, lijsten en reacties. Fetch is niet verbonden aan of onderschreven door Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch maakt verbinding met Simkl voor accountverificatie, kijklijsten, kijkgeschiedenis, afspeelvoortgang en scrobbelen. Trackinggegevens voor films, series en anime worden geleverd door Simkl. Fetch is niet verbonden aan of onderschreven door Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch gebruikt MDBList voor beoordelingen en gegevens van externe scoreleveranciers. Fetch is niet verbonden aan of onderschreven door MDBList.</string>
@@ -446,8 +440,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Kies de service die Fetch uitleest voor hervatten en Verder kijken. Scrobbelen blijft actief voor elke verbonden service.</string>
     <string name="tracking_library_source_dialog_subtitle">Kies de service die Fetch uitleest voor je bibliotheek. Tijdens het afspelen wordt naar elke verbonden service gescrobbeld.</string>
     <string name="tracking_trakt_progress_required">Beschikbaar wanneer Trakt de bron voor kijkvoortgang is</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Geavanceerd</string>
     <string name="settings_advanced_subtitle">Prestaties, navigatie, cache en diagnostiek</string>
     <string name="experience_mode_essential">Essentieel</string>
@@ -486,22 +478,8 @@
     <string name="experience_mode_confirm_advanced_title">Overschakelen naar Geavanceerd?</string>
     <string name="experience_mode_confirm_essential_subtitle">Geavanceerde instelschermen worden verborgen, maar je opgeslagen instellingen blijven ongewijzigd. Je kunt altijd terugschakelen.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Hiermee worden alle instellingen zichtbaar, inclusief geavanceerde installatie-, catalogus-, collectie- en afstemopties.</string>
-    <string name="network_speed_test_run">Snelheidstest uitvoeren</string>
-    <string name="network_speed_test_running">Snelheidstest wordt uitgevoerd</string>
-    <string name="network_speed_test_subtitle">Meet downloadsnelheid en latentie</string>
-    <string name="network_testing_latency">Latentie meten</string>
-    <string name="network_testing_download">Downloadsnelheid meten</string>
-    <string name="network_results_title">Resultaten</string>
-    <string name="network_latency_label">Latentie</string>
-    <string name="network_download_label">Download</string>
-    <string name="network_error_prefix">Fout: %1$s</string>
-    <string name="network_powered_by_fast">Mogelijk gemaakt door fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Prestaties &amp; navigatie</string>
     <string name="advanced_section_diagnostics">Diagnostiek</string>
-    <string name="advanced_playback_issue_reports">Rapporten over afspeelproblemen</string>
     <string name="advanced_player_stats_hud">Overlay met afspeelstatistieken</string>
     <string name="advanced_player_stats_hud_subtitle">Toon een knop in de streaminfo om live cpu-, geheugen-, buffer-, bitrate- en temperatuurwaarden tijdens het afspelen in of uit te schakelen</string>
     <string name="advanced_section_cache">Cache</string>
@@ -546,6 +524,7 @@
     <string name="playback_skip_intro">Intro overslaan</string>
     <string name="playback_skip_intro_sub">Gebruik introdb.app om intro\'s en samenvattingen te detecteren.</string>
     <string name="playback_parental_guide">Inhoudswaarschuwingen</string>
+    <string name="playback_parental_guide_sub">Toont inhoudswaarschuwingen wanneer het afspelen begint. Stuurt de IMDb-ID van elke titel naar api.tiffara.com om ze op te zoeken.</string>
     <string name="playback_auto_skip_segments">Automatisch overslaan</string>
     <string name="playback_auto_skip_segments_sub">Kies welke segmenten automatisch worden overgeslagen.</string>
     <string name="auto_skip_intro">Intro / opening</string>
@@ -559,7 +538,6 @@
     <string name="playback_player_external">Extern</string>
     <string name="playback_player_ask">Elke keer vragen</string>
     <string name="playback_internal_player_engine">Interne engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (bèta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Engine automatisch wisselen bij opstartfout</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Als het starten van een stream mislukt, wissel dan automatisch tussen ExoPlayer en libmpv.</string>
@@ -977,15 +955,6 @@
     <string name="debug_progress_indicator_default">Standaard</string>
     <string name="debug_progress_indicator_large">Groot</string>
     <string name="debug_section_features">Feature-toggles</string>
-    <string name="debug_account_tab_title">Tabblad Account</string>
-    <string name="debug_account_tab_subtitle">Toon het tabblad Account in de instellingennavigatie</string>
-    <string name="debug_sync_code_title">Functies voor synchronisatiecode</string>
-    <string name="debug_sync_code_subtitle">Toon de knoppen Synchronisatiecode genereren en invoeren in de accountinstellingen</string>
-    <string name="debug_member_tier_title">Ondersteunersniveau simuleren</string>
-    <string name="debug_member_tier_subtitle">Kies het geverifieerde ondersteunersniveau dat in deze debugbuild wordt geretourneerd</string>
-    <string name="debug_member_tier_none">Geen</string>
-    <string name="debug_member_tier_one">Ondersteuner</string>
-    <string name="debug_member_tier_two">Ondersteuner+</string>
     <string name="debug_buffer_logs_title">BUFFER-logs inschakelen</string>
     <string name="debug_buffer_logs_subtitle">Stuur periodiek bufferdiagnostiek van de speler naar logcat (standaard uitgeschakeld)</string>
     <string name="debug_error_dialog_title">Afspeelfout</string>
@@ -1146,7 +1115,7 @@
     <string name="player_loading_buffering">Bufferen…</string>
     <string name="player_engine_switching_title">Spelerengine wisselen</string>
     <string name="player_engine_switching_message">Opstarten mislukt. Overschakelen naar %1$s…</string>
-    <string name="player_engine_switching_manual_message">Overschakelen naar %1$s...</string>
+    <string name="player_engine_switching_manual_message">Overschakelen naar %1$s…</string>
     <string name="playback_show_loading_status">Laadstatus tonen</string>
     <string name="playback_show_loading_status_sub">Toon de voortgang stap voor stap terwijl de speler wordt geïnitialiseerd.</string>
     <string name="player_sync_line">Synchronisatieregel</string>
@@ -1187,17 +1156,6 @@
     <string name="player_subtitle_delay">Ondertitelvertraging</string>
     <string name="player_error_title">Afspeelfout</string>
     <string name="player_error_choose_source">Kies een andere bron</string>
-    <string name="player_report_issue">Probleem melden</string>
-    <string name="player_report_issue_sending">Afspeelrapport verzenden...</string>
-    <string name="player_report_issue_sending_button">Verzenden...</string>
-    <string name="player_report_issue_sent">Rapport verzonden: %1$s</string>
-    <string name="player_report_issue_sent_button">Rapport verzonden</string>
-    <string name="player_report_issue_failed">Kan het rapport niet verzenden</string>
-    <string name="player_report_loading_issue">Laadprobleem melden</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Nog steeds aan het laden na %1$d seconde</item>
-        <item quantity="other">Nog steeds aan het laden na %1$d seconden</item>
-    </plurals>
     <string name="player_speed_title">Afspeelsnelheid</string>
     <string name="player_error_no_stream_url">Deze bron heeft geen streamlink. Kies een andere bron.</string>
 
@@ -1564,11 +1522,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt-lijst niet gevonden of niet openbaar</string>
     <string name="trakt_error_rate_limit_reached">Trakt-verzoeklimiet bereikt</string>
     <string name="trakt_status_enter_activation_code">Voer de code in op trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Synchroniseren...</string>
+    <string name="trakt_status_syncing">Synchroniseren…</string>
     <string name="trakt_status_sync_completed">Synchronisatie voltooid</string>
     <string name="trakt_status_disconnected">Losgekoppeld van Trakt</string>
     <string name="trakt_status_cw_window_updated">Venster voor Verder kijken bijgewerkt</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Verzoeklimiet bereikt, het ophalen wordt vertraagd...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Verzoeklimiet bereikt, het ophalen wordt vertraagd…</string>
     <string name="trakt_user_fallback">Trakt-gebruiker</string>
     <string name="trakt_error_failed_start">Kon Trakt-verificatie niet starten</string>
 
@@ -1617,7 +1575,6 @@
     <string name="cd_refresh">Vernieuwen</string>
     <string name="cd_remove">Verwijderen</string>
     <string name="cd_preview">Voorbeeld</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logo</string>
     <string name="cd_trakt_qr">QR-code voor Trakt-activering</string>
     <string name="cd_imdb">IMDb</string>
@@ -1769,7 +1726,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Sluit titels uit die overeenkomen met deze TMDB-genrenummers.</string>
     <string name="collections_editor_tmdb_date_from">Release- of uitzenddatum vanaf</string>
     <string name="collections_editor_tmdb_date_to">Release- of uitzenddatum tot</string>
-    <string name="collections_editor_tmdb_date_helper">Gebruik JJJJ-MM-DD, bijvoorbeeld 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Gebruik JJJJ-MM-DD, bijvoorbeeld 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimale beoordeling</string>
     <string name="collections_editor_tmdb_rating_max">Maximale beoordeling</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB-beoordeling van 0 tot 10. Voorbeeld: 7.0.</string>
@@ -1820,15 +1777,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 voor Netflix, 49 voor HBO, 2739 voor Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 voor Tom Hanks, of persoons-URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 of 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 voor Animatie</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1857,9 +1809,9 @@
     <string name="collections_editor_placeholder_hero_video">URL van eigen hero-video (optioneel)</string>
     <string name="collections_editor_title_logo">Titellogo (modern startscherm)</string>
     <string name="collections_editor_placeholder_title_logo">URL van eigen titellogo (optioneel)</string>
-    <string name="collections_editor_search_emoji_placeholder">Emoji zoeken...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Actieve bronnen filteren...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Catalogi zoeken...</string>
+    <string name="collections_editor_search_emoji_placeholder">Emoji zoeken…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Actieve bronnen filteren…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Catalogi zoeken…</string>
     <string name="collections_editor_genre_filter">Genrefilter</string>
     <string name="collections_editor_choose_genre">Kiezen</string>
     <string name="collections_editor_select_genre">Genre selecteren</string>
@@ -1890,9 +1842,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Films van Tom Hanks, favoriete acteurs</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Films van Christopher Nolan, favoriete regisseurs</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 voor superheld</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 voor Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 voor Netflix</string>
     <string name="folder_detail_not_found">Map niet gevonden</string>
     <string name="cast_error_load_details_for">Kon de details voor %1$s niet laden</string>
@@ -2087,8 +2037,6 @@
     <string name="network_error_unknown">Er is een onbekende fout opgetreden</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: scriptpad niet gevonden</string>
-    <string name="network_fast_error_token_missing">fast.com: token niet gevonden in de bundel</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -2189,7 +2137,7 @@
     <string name="playback_cache_vod_size">Grootte van VOD-cache</string>
     <string name="playback_cache_vod_size_sub">Maximaal schijfgebruik voor de progressieve VOD-cache (LRU-verwijdering).</string>
     <string name="playback_cache_info_range">Bereik: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">De automatische modus streeft naar ongeveer 10% van de vrije ruimte.</string>
+    <string name="playback_cache_info_auto" formatted="false">De automatische modus streeft naar ongeveer 10% van de vrije ruimte.</string>
     <string name="playback_cache_info_manual_headroom">De handmatige modus houdt ongeveer %1$d MB speling vrij.</string>
     <string name="playback_cache_info_free_disk">Beschikbare vrije schijfruimte: %1$s.</string>
     <string name="playback_cache_info_restart">Bij het wisselen tussen modi/groottes geldt de nieuwe cachelimiet pas na het opnieuw starten van de app.</string>
@@ -2262,12 +2210,12 @@
     <string name="stream_test_card_title">Snelheidstest van laatst afgespeelde stream uitvoeren</string>
     <string name="stream_test_server_label">Server: %1$s</string>
     <string name="stream_test_no_stream">Geen weergave geregistreerd. Speel een video af om diagnostische tests op de host uit te voeren.</string>
-    <string name="stream_test_btn_measuring_baseline">Basiswaarde meten...</string>
-    <string name="stream_test_btn_measuring_parallel1">Parallel meten (1MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Parallel meten (4MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Parallel meten (8MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Parallel meten (16MB)...</string>
-    <string name="stream_test_btn_running">Bezig...</string>
+    <string name="stream_test_btn_measuring_baseline">Basiswaarde meten…</string>
+    <string name="stream_test_btn_measuring_parallel1">Parallel meten (1MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Parallel meten (4MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Parallel meten (8MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Parallel meten (16MB)…</string>
+    <string name="stream_test_btn_running">Bezig…</string>
     <string name="stream_test_label_baseline">Standaard enkele verbinding (basiswaarde)</string>
     <string name="stream_test_label_parallel1">Parallelle verbinding (blokken van 1 MB)</string>
     <string name="stream_test_label_parallel4">Parallelle verbinding (blokken van 4 MB)</string>

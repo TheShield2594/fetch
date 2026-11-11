@@ -60,6 +60,7 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.async
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 internal fun resolveProviderEpisodeProgress(
     contentId: String,
@@ -709,7 +710,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
             connectedProgressProviders().map { provider ->
                 async {
                     provider.applyOptimisticRemoval(contentId, season, episode)
-                    runCatching { provider.removeProgress(contentId, season, episode) }
+                    runSuspendCatching { provider.removeProgress(contentId, season, episode) }
                         .onFailure { error ->
                             Log.w(TAG, "Failed ${provider.providerId.storageId} progress removal", error)
                         }
@@ -910,7 +911,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
                 .filter { writer -> writer.providerId in connectedIds }
                 .map { writer ->
                     async {
-                        runCatching { writer.addToHistory(profileId, items) }
+                        runSuspendCatching { writer.addToHistory(profileId, items) }
                             .onFailure { error ->
                                 Log.w(TAG, "Failed ${writer.providerId.storageId} history add", error)
                             }
@@ -932,7 +933,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
                 .filter { writer -> writer.providerId in connectedIds }
                 .map { writer ->
                     async {
-                        runCatching { writer.removeFromHistory(profileId, items) }
+                        runSuspendCatching { writer.removeFromHistory(profileId, items) }
                             .onFailure { error ->
                                 Log.w(TAG, "Failed ${writer.providerId.storageId} history removal", error)
                             }
@@ -1003,12 +1004,12 @@ class WatchProgressRepositoryImpl @Inject constructor(
             synchronized(hydratedProgressKeys) {
                 hydratedProgressKeys.add(key)
             }
-            runCatching {
+            runSuspendCatching {
                 val metadata = fetchContentMetadata(
                     contentId = progress.contentId,
                     contentType = progress.contentType
-                ) ?: return@runCatching
-                if (profileManager.activeProfileId.value != profileId) return@runCatching
+                ) ?: return@runSuspendCatching
+                if (profileManager.activeProfileId.value != profileId) return@runSuspendCatching
                 val episodeRuntimeMs = if (progress.season != null && progress.episode != null)
                     metadata.episodes[progress.season to progress.episode]?.runtimeMs ?: 0L
                 else 0L
@@ -1021,7 +1022,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
                 var posterToSave = progress.poster ?: metadata.poster
                 if (backdropToSave == null && posterToSave == null) {
                     val tmdbImages = tmdbService.fetchImdbImages(progress.contentId, progress.contentType)
-                    if (profileManager.activeProfileId.value != profileId) return@runCatching
+                    if (profileManager.activeProfileId.value != profileId) return@runSuspendCatching
                     backdropToSave = tmdbImages?.backdropUrl
                     posterToSave = tmdbImages?.posterUrl
                 }

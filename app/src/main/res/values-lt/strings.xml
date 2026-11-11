@@ -455,10 +455,6 @@
     <string name="debug_playback_error_title">Atkūrimo klaidos ekranas</string>
     <string name="debug_playback_error_subtitle">Rodyti simuliuojamą atkūrimo klaidos langą</string>
     <string name="debug_section_features">Funkcijų perjungikliai</string>
-    <string name="debug_account_tab_title">Paskyros skirtukas</string>
-    <string name="debug_account_tab_subtitle">Rodyti „Paskyros“ (Account) skirtuką nustatymų navigacijoje</string>
-    <string name="debug_sync_code_title">Sinchronizavimo kodo funkcijos</string>
-    <string name="debug_sync_code_subtitle">Rodyti „Generuoti/Įvesti sinchronizavimo kodą“ mygtukus paskyros nustatymuose</string>
     <string name="debug_error_dialog_title">Atkūrimo klaida</string>
     <string name="debug_error_dialog_subtitle">Atkūrimo metu įvyko klaida.
 
@@ -1244,4 +1240,5 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="screen_time_rest_of_day">Be ribos iki dienos pabaigos</string>
     <string name="kids_hours">%1$d val.</string>
     <string name="kids_hours_minutes">%1$d val. %2$d min.</string>
+    <string name="playback_parental_guide_sub">Pradėjus atkūrimą rodo turinio įspėjimus. Jiems rasti kiekvieno pavadinimo IMDb ID siunčiamas į api.tiffara.com.</string>
 </resources>

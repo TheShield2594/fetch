@@ -1,75 +1,32 @@
 package com.fetch.tv.domain.model
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ThemeAccessTest {
     @Test
-    fun customThemesAreAvailableWithoutMembership() {
-        val themes = availableAppThemes(CosmeticEntitlements.None)
+    fun everyThemeIsAvailableOnceInPickerOrder() {
+        val themes = availableAppThemes()
 
-        assertEquals(AppTheme.CUSTOM, themes.first())
-        assertEquals(AppTheme.CUSTOM, resolveAppTheme(AppTheme.CUSTOM, CosmeticEntitlements.None))
-        assertEquals(DEFAULT_APP_THEME, resolveAppTheme(null, CosmeticEntitlements.None))
-        assertEquals(themes.size, themes.distinct().size)
-    }
-
-    @Test
-    fun everyoneCanApplyMultipleCustomColors() {
-        val gradient = CustomThemeColors(0xFF0000, 0x00FF00, 0x0000FF)
-        val solid = CustomThemeColors.solid(0x00FF00)
-
-        assertEquals(gradient, resolveCustomThemeColors(gradient, null))
-        assertEquals(solid, resolveCustomThemeColors(solid, null))
-        MemberTier.entries.forEach { tier ->
-            assertEquals(gradient, resolveCustomThemeColors(gradient, tier))
-            assertEquals(solid, resolveCustomThemeColors(solid, tier))
-        }
-    }
-
-    @Test
-    fun standardUsersCannotAccessSupporterThemes() {
-        val availableThemes = availableAppThemes(CosmeticEntitlements.None)
-
-        assertFalse(AppTheme.GOLD in availableThemes)
-        assertFalse(AppTheme.JADE in availableThemes)
-        assertFalse(AppTheme.ROSE_GOLD in availableThemes)
-        assertFalse(AppTheme.ARCTIC_BLUE in availableThemes)
-        assertFalse(AppTheme.GRAPHITE in availableThemes)
-        assertEquals(DEFAULT_APP_THEME, resolveAppTheme(AppTheme.GOLD, CosmeticEntitlements.None))
-    }
-
-    @Test
-    fun supporterAccessUnlocksAllThemesAndDefaultsToGold() {
-        val entitlements = CosmeticEntitlements.SupporterPreview
-        val availableThemes = availableAppThemes(entitlements)
-
-        assertTrue(AppTheme.GOLD in availableThemes)
-        assertTrue(AppTheme.JADE in availableThemes)
-        assertTrue(AppTheme.ROSE_GOLD in availableThemes)
-        assertTrue(AppTheme.ARCTIC_BLUE in availableThemes)
-        assertTrue(AppTheme.GRAPHITE in availableThemes)
-        assertEquals(AppTheme.GOLD, resolveAppTheme(null, entitlements))
-    }
-
-    @Test
-    fun individualThemeEntitlementsCanBeGrantedSeparately() {
-        val entitlements = CosmeticEntitlements(
-            unlocked = setOf(CosmeticEntitlement.ARCTIC_BLUE_THEME)
-        )
-
-        assertTrue(AppTheme.ARCTIC_BLUE in availableAppThemes(entitlements))
-        assertFalse(AppTheme.GOLD in availableAppThemes(entitlements))
-        assertEquals(AppTheme.ARCTIC_BLUE, resolveAppTheme(null, entitlements))
-    }
-
-    @Test
-    fun explicitThemeSelectionIsPreservedForSupporters() {
         assertEquals(
-            AppTheme.OCEAN,
-            resolveAppTheme(AppTheme.OCEAN, CosmeticEntitlements.SupporterPreview)
+            listOf(AppTheme.GOLD, AppTheme.JADE, AppTheme.ROSE_GOLD, AppTheme.ARCTIC_BLUE, AppTheme.GRAPHITE),
+            themes.take(5)
         )
+        assertEquals(AppTheme.CUSTOM, themes[5])
+        assertEquals(listOf(DEFAULT_APP_THEME, AppTheme.WHITE), themes.subList(6, 8))
+        assertEquals(themes.size, themes.distinct().size)
+        assertEquals(AppTheme.entries.toSet(), themes.toSet())
+    }
+
+    @Test
+    fun unsetThemeDefaultsToGold() {
+        assertEquals(AppTheme.GOLD, resolveAppTheme(null))
+    }
+
+    @Test
+    fun explicitThemeSelectionIsPreserved() {
+        AppTheme.entries.forEach { theme ->
+            assertEquals(theme, resolveAppTheme(theme))
+        }
     }
 }

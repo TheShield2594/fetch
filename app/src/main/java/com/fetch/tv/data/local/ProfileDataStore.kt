@@ -62,7 +62,7 @@ class ProfileDataStore @Inject constructor(
     }
 
     val rememberLastProfileEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[rememberLastProfileEnabledKey] ?: false
+        prefs[rememberLastProfileEnabledKey] ?: true
     }
 
     val confirmExitEnabled: Flow<Boolean> = dataStore.data.map { prefs ->

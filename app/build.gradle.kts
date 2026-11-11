@@ -130,34 +130,10 @@ android {
                 }
             }
         }
-        buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(localProperties.getProperty("PLAYBACK_REPORTS_BASE_URL", "")))
 
         // In-app updater (GitHub Releases)
         buildConfigField("String", "GITHUB_OWNER", "\"TheShield2594\"")
         buildConfigField("String", "GITHUB_REPO", "\"fetch\"")
-    }
-
-    flavorDimensions += "distribution"
-    productFlavors {
-        create("full") {
-            dimension = "distribution"
-            buildConfigField("boolean", "FEATURE_PLUGINS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_IN_APP_UPDATES_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_IN_APP_TRAILERS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_TRAILERS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_PLAYBACK_KEEP_ALIVE_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_CUSTOM_SERVER_CONNECTIONS_ENABLED", "true")
-        }
-        create("playstore") {
-            dimension = "distribution"
-            applicationId = "com.fetch.app"
-            buildConfigField("boolean", "FEATURE_PLUGINS_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_IN_APP_UPDATES_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_IN_APP_TRAILERS_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_TRAILERS_ENABLED", "true")
-            buildConfigField("boolean", "FEATURE_EXTERNAL_PLAYBACK_KEEP_ALIVE_ENABLED", "false")
-            buildConfigField("boolean", "FEATURE_CUSTOM_SERVER_CONNECTIONS_ENABLED", "false")
-        }
     }
 
     if (enableDoviNative) {
@@ -193,7 +169,6 @@ android {
             buildConfigField("String", "TRAILER_API_URL", "\"${devProperties.getProperty("TRAILER_API_URL", "")}\"")
             buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "IMDB_RATINGS_API_BASE_URL")))
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
-            buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "PLAYBACK_REPORTS_BASE_URL")))
         }
         release {
             isMinifyEnabled = true
@@ -217,7 +192,6 @@ android {
             buildConfigField("String", "TRAILER_API_URL", "\"${localProperties.getProperty("TRAILER_API_URL", "")}\"")
             buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_RATINGS_API_BASE_URL")))
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
-            buildConfigField("String", "PLAYBACK_REPORTS_BASE_URL", buildConfigString(localProperties.getProperty("PLAYBACK_REPORTS_BASE_URL", "")))
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
@@ -268,6 +242,15 @@ android {
         buildConfig = true
     }
 
+    // CI runs lintFullDebug on every pull request. Errors already in the code are recorded in
+    // lint-baseline.xml, so only new ones fail the build; regenerate it with
+    // `./gradlew :app:updateLintBaselineFullDebug` after fixing a batch of them. Untranslated
+    // strings fall back to English and are filled in later, so they warn instead of failing.
+    lint {
+        baseline = file("lint-baseline.xml")
+        warning += "MissingTranslation"
+    }
+
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs("src/main/jniLibs")
@@ -304,8 +287,7 @@ android {
 
 androidComponents {
     onVariants(selector().withBuildType("debug")) { variant ->
-        val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
-        variant.applicationId.set(if (isPlaystore) "com.fetch.app.debug" else "com.fetch.tv.debug")
+        variant.applicationId.set("com.fetch.tv.debug")
     }
     // res/xml/searchable.xml can't use manifest placeholders, so the system search provider's
     // authority (the manifest's applicationId + ".search") comes in as a string per variant.
@@ -356,32 +338,32 @@ dependencies {
     // Platform-free code shared with the desktop app.
     implementation(project(":shared"))
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-    val composeBom = platform("androidx.compose:compose-bom:2026.05.01")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    val composeBom = platform(libs.androidx.compose.bom)
 
     // Source-retention nullness annotations (MonotonicNonNull / RequiresNonNull /
     // EnsuresNonNull) used by the vendored Matroska extractor in
     // com.fetch.tv.core.player.dvmkv. Media3 keeps these compileOnly in its own
     // build, so they aren't on our classpath via the prebuilt AARs.
-    compileOnly("org.checkerframework:checker-qual:3.43.0")
+    compileOnly(libs.checker.qual)
 
     baselineProfile(project(":baselineprofile"))
     implementation(libs.androidx.core.ktx)
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.profileinstaller)
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation(libs.androidx.recyclerview)
     implementation(composeBom)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.tv.material)
     implementation(libs.androidx.tvprovider)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.activity:activity-compose:1.11.0")
+    implementation(libs.androidx.activity.compose)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -430,15 +412,15 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.media3.container)
     // Guava is used directly (dvmkv extractor), not only through Media3.
-    implementation("com.google.guava:guava:33.3.1-android")
+    implementation(libs.guava.android)
     implementation(libs.media3.ui)
 
     // Local decoder AARs (AV1, IAMF, MPEG-H)
     implementation(files(
         "libs/lib-decoder-av1-release.aar",
+        "libs/lib-decoder-iamf-release.aar",
         "libs/lib-decoder-mpegh-release.aar"
     ))
-    add("fullImplementation", files("libs/lib-decoder-iamf-release.aar"))
     if (useLocalFfmpegDecoder) {
         implementation(project(":ffmpeg-decoder-downmix"))
     } else {
@@ -446,10 +428,10 @@ dependencies {
     }
 
     // libass-android for ASS/SSA subtitle support (from Maven Central)
-    implementation("io.github.peerless2012:ass-media:0.4.0")
+    implementation(libs.ass.media)
     // Local nextlib-mediainfo fork (static FFmpeg; no libav*.so in final AAR)
     implementation(files("libs/nextlib-mediainfo-local.aar"))
-    implementation("io.github.abdallahmehiz:mpv-android-lib:0.1.12")
+    implementation(libs.mpv.android.lib)
 
     implementation(libs.gson)
 
@@ -466,22 +448,21 @@ dependencies {
 
     // Performance profiling
     implementation(libs.androidx.metrics.performance)  // JankStats (debug builds only, see MainActivity)
-    debugImplementation("androidx.compose.runtime:runtime-tracing")
+    debugImplementation(libs.androidx.compose.runtime.tracing)
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
-    testImplementation("junit:junit:4.13.2")
+    testImplementation(libs.junit)
     // Real org.json for JVM tests; android.jar only ships stubs.
-    testImplementation("org.json:json:20240303")
+    testImplementation(libs.org.json)
     testImplementation(libs.coroutines.test)
-    testImplementation("io.mockk:mockk:1.13.12")
-    // Same OkHttp line as the app; a 5.x mockwebserver pulled OkHttp 5 into the unit tests (#454).
+    testImplementation(libs.mockk)
     testImplementation(libs.okhttp.mockwebserver)
-    testImplementation("org.robolectric:robolectric:4.17")
+    testImplementation(libs.robolectric)
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

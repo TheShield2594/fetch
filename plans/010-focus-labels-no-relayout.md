@@ -283,12 +283,12 @@ What goes wrong:
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. Neither file
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. Neither file
     is in `theme-literals-baseline.txt` and no literal `tween(<digits>` is added.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*SidebarFocusEntryTest*'` passes. It covers
+  - `./gradlew :app:testDebugUnitTest --tests '*SidebarFocusEntryTest*'` passes. It covers
     `sidebarFocusEntry` in the same file.
-  - Optional: `FETCH_SCREENSHOTS=1 ./gradlew :app:testFullDebugUnitTest --tests '*ReadmeScreenshots*'`.
+  - Optional: `FETCH_SCREENSHOTS=1 ./gradlew :app:testDebugUnitTest --tests '*ReadmeScreenshots*'`.
     The `sidebar` screenshot focuses "Discover" and advances the clock 1000ms. Its label must
     still render fully opaque.
   - `grep -n "expandHorizontally\|shrinkHorizontally\|animateColorAsState" app/src/main/java/com/fetch/tv/ui/components/FloatingSidebarButton.kt app/src/main/java/com/fetch/tv/ui/screens/detail/HeroSection.kt`

@@ -15,9 +15,12 @@
  */
 package com.fetch.tv.core.player.avi;
 
+import androidx.annotation.OptIn;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 
 /** Parses and contains the name from the STRN chunk. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class StreamNameChunk implements AviChunk {
 
   public static StreamNameChunk parseFrom(ParsableByteArray body) {

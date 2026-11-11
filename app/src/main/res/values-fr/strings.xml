@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Continuer à regarder</string>
     <string name="type_movie">Film</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Addons de métadonnées essayés&#160;: %1$s. Impossible de charger les métadonnées pour l’ID=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Addons de métadonnées essayés&#160;: %1$s. Impossible de charger les métadonnées pour l’ID=%2$s (type=%3$s). Problèmes&#160;: %4$s.</string>
     <string name="error_stream_no_supported_addon">Aucun addon installé ne prend en charge les flux pour «&#160;%1$s&#160;».</string>
-    <string name="error_stream_tried_none">Addons de flux essayés&#160;: %1$s. Aucun n’a renvoyé de flux pour l’ID=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux pour l’ID=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux pour l’ID=%2$s (type=%3$s). Problèmes&#160;: %4$s.</string>
+    <string name="error_stream_tried_none">Addons de flux essayés&#160;: %1$s. Aucun n’a renvoyé de flux.</string>
+    <string name="error_stream_tried_generic">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux.</string>
+    <string name="error_stream_tried_issues">Addons de flux essayés&#160;: %1$s. Impossible de charger les flux. Problèmes&#160;: %2$s.</string>
 
     <string name="continue_watching">Continuer à regarder</string>
     <string name="cw_upcoming">À venir</string>
@@ -155,14 +155,15 @@
     <string name="cw_airs_tomorrow">Diffusion demain</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Diffusion dans %d jour</item>
+        <item quantity="many">Diffusion dans %d jours</item>
         <item quantity="other">Diffusion dans %d jours</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Aujourd’hui</string>
     <string name="cw_airs_tomorrow_short">Demain</string>
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">Dans %d jour</item>
+        <item quantity="many">Dans %d jours</item>
         <item quantity="other">Dans %d jours</item>
     </plurals>
     <string name="cw_action_go_to_details">Voir les détails</string>
@@ -258,7 +259,6 @@
     <string name="detail_comments_back_hint">Appuyez sur «&#160;Retour&#160;» pour fermer</string>
     <string name="detail_comments_badge_review">Critique</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d mentions J’aime</string>
     <string name="tmdb_entity_kind_company">Société de production</string>
     <string name="tmdb_entity_kind_network">Chaîne</string>
@@ -267,14 +267,12 @@
     <string name="tmdb_entity_rail_recent">Récents</string>
     <string name="tmdb_entity_rail_most_voted">Les plus votés</string>
     <string name="collections_editor_tmdb_watch_region">Région de visionnage</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Code pays ISO 3166-1 où le titre est disponible. Exemple&#160;: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Code pays ISO 3166-1 où le titre est disponible. Exemple&#160;: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Régions de visionnage rapides</string>
     <string name="collections_editor_tmdb_watch_providers">ID des fournisseurs de visionnage</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Utilisez les ID de fournisseurs de visionnage TMDB. Séparez-les par des virgules pour un ET, ou par des barres verticales pour un OU.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">ID des fournisseurs de visionnage exclus</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Exclut les titres disponibles chez ces fournisseurs de visionnage TMDB dans la région sélectionnée.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Fournisseurs de visionnage rapides</string>
     <string name="tmdb_error_load_source">Impossible de charger la source TMDB</string>
     <string name="tmdb_error_list_not_found">Liste TMDB introuvable</string>
@@ -376,6 +374,7 @@
     <string name="ambient_mode_timeout_subtitle">Délai d’attente avant le démarrage du mode ambiance</string>
     <plurals name="ambient_mode_timeout_minutes">
         <item quantity="one">%1$d minute</item>
+        <item quantity="many">%1$d minutes</item>
         <item quantity="other">%1$d minutes</item>
     </plurals>
     <string name="ambient_mode_catalogs">Catalogues</string>
@@ -423,12 +422,10 @@
     <string name="licenses_attributions_section_app">LICENCE DE L’APPLICATION</string>
     <string name="licenses_attributions_section_data">DONNÉES ET SERVICES</string>
     <string name="licenses_attributions_section_playback">LICENCES DE LECTURE ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch utilise l’API TMDB pour les métadonnées des films et des séries, les visuels, les bandes-annonces, la distribution, les détails de production, les collections et les recommandations. Ce produit utilise l’API TMDB, mais n’est ni approuvé ni certifié par TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch se connecte à Trakt pour l’authentification du compte, l’historique de visionnage, la synchronisation de la progression, les données de la bibliothèque, les notes, les listes et les commentaires. Fetch n’est ni affilié à Trakt ni approuvé par Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch se connecte à Simkl pour l’authentification du compte, les listes de suivi, l’historique de visionnage, la progression de lecture et le scrobbling. Les données de suivi des films, des séries et des animés sont fournies par Simkl. Fetch n’est ni affilié à Simkl ni approuvé par Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch utilise MDBList pour les notes, l’historique de visionnage et le suivi de lecture. Fetch n’est ni affilié à MDBList ni approuvé par MDBList.</string>
@@ -475,8 +472,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Choisissez le service que Fetch lit pour la reprise et la section Continuer à regarder. Le scrobbling reste actif pour tous les services connectés.</string>
     <string name="tracking_library_source_dialog_subtitle">Choisissez le service que Fetch lit pour votre bibliothèque. La lecture est scrobblée vers tous les services connectés.</string>
     <string name="tracking_trakt_progress_required">Disponible lorsque Trakt est la source de progression de visionnage</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Avancé</string>
     <string name="settings_advanced_subtitle">Performance, navigation, cache et diagnostics</string>
     <string name="experience_mode_essential">Essentiel</string>
@@ -515,22 +510,8 @@
     <string name="experience_mode_confirm_advanced_title">Passer en mode Avancé&#160;?</string>
     <string name="experience_mode_confirm_essential_subtitle">Les écrans de configuration avancée seront masqués, mais vos paramètres enregistrés resteront inchangés. Vous pouvez revenir en arrière à tout moment.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Cela affiche l’ensemble des paramètres, y compris la configuration avancée et les contrôles de catalogues, de collections et de réglage fin.</string>
-    <string name="network_speed_test_run">Lancer le test de débit</string>
-    <string name="network_speed_test_running">Test de débit en cours</string>
-    <string name="network_speed_test_subtitle">Mesurer le débit descendant et la latence</string>
-    <string name="network_testing_latency">Mesure de la latence</string>
-    <string name="network_testing_download">Mesure du débit descendant</string>
-    <string name="network_results_title">Résultats</string>
-    <string name="network_latency_label">Latence</string>
-    <string name="network_download_label">Débit descendant</string>
-    <string name="network_error_prefix">Erreur&#160;: %1$s</string>
-    <string name="network_powered_by_fast">Données fournies par fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Hors ligne</string>
     <string name="advanced_section_performance">Performance et navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
-    <string name="advanced_playback_issue_reports">Rapports de problèmes de lecture</string>
     <string name="advanced_player_stats_hud">Superposition des statistiques de lecture</string>
     <string name="advanced_player_stats_hud_subtitle">Affiche, dans les infos du flux, un bouton pour activer ou désactiver l’affichage en direct du processeur, de la mémoire, du tampon, du débit et de la température pendant la lecture</string>
     <string name="advanced_section_cache">Cache</string>
@@ -599,6 +580,7 @@
     <string name="playback_skip_intro">Passer l’intro</string>
     <string name="playback_skip_intro_sub">Utiliser introdb.app pour détecter les intros et les résumés.</string>
     <string name="playback_parental_guide">Avertissements de contenu</string>
+    <string name="playback_parental_guide_sub">Affiche des avertissements sur le contenu au début de la lecture. Envoie l\'identifiant IMDb de chaque titre à api.tiffara.com pour les obtenir.</string>
     <string name="playback_auto_skip_segments">Saut automatique</string>
     <string name="playback_auto_skip_segments_sub">Choisissez les segments à passer automatiquement.</string>
     <string name="auto_skip_intro">Intro / Générique de début</string>
@@ -616,7 +598,6 @@
     <string name="playback_player_external">Externe</string>
     <string name="playback_player_ask">Demander à chaque fois</string>
     <string name="playback_internal_player_engine">Moteur interne</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (bêta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Changer automatiquement de moteur en cas d’erreur au démarrage</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Si le démarrage du flux échoue, bascule automatiquement entre ExoPlayer et libmpv.</string>
@@ -961,7 +942,6 @@
     <string name="web_custom_poster_placeholders_info">Espaces réservés&#160;: {id} transmet tous les ID de contenu. {imdb_id}, {tmdb_id}, {tvdb_id} et {kitsu_id} ciblent un seul type d’ID&#160;; s’il n’est pas disponible, l’affiche d’origine est conservée. {imdb_id|tmdb_id|kitsu_id} déclare les types d’ID pris en charge&#160;: celui qui correspond est utilisé, sinon l’affiche d’origine est conservée. Ajoutez ? pour rendre un espace réservé facultatif, qui devient alors vide au lieu d’être ignoré&#160;: {imdb_id?}. Autres espaces réservés&#160;: {id_type}, {typed_id}, {type}, {shape}.</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Synchroniser l’historique de visionnage et la progression de lecture entre vos appareils</string>
     <string name="mdblist_connected_as">Connecté en tant que %1$s</string>
     <string name="mdblist_account_fallback">Utilisateur MDBList</string>
@@ -1109,7 +1089,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Sélectionnez la source des recommandations affichées sur les écrans de détail et de fin de lecture.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">En cache</string>
     <string name="trakt_stat_movies">Films</string>
     <string name="trakt_stat_shows">Séries</string>
@@ -1135,15 +1114,6 @@
     <string name="debug_progress_indicator_default">Par défaut</string>
     <string name="debug_progress_indicator_large">Grand</string>
     <string name="debug_section_features">Options expérimentales</string>
-    <string name="debug_account_tab_title">Onglet Compte</string>
-    <string name="debug_account_tab_subtitle">Afficher l’onglet Compte dans la navigation des paramètres</string>
-    <string name="debug_sync_code_title">Fonctionnalités du code de synchronisation</string>
-    <string name="debug_sync_code_subtitle">Afficher les boutons de génération et de saisie du code de synchronisation dans les paramètres du compte</string>
-    <string name="debug_member_tier_title">Simuler un niveau de supporter</string>
-    <string name="debug_member_tier_subtitle">Choisir le niveau de supporter vérifié renvoyé dans cette version de débogage</string>
-    <string name="debug_member_tier_none">Aucun</string>
-    <string name="debug_member_tier_one">Supporter</string>
-    <string name="debug_member_tier_two">Supporter+</string>
     <string name="debug_buffer_logs_title">Activer les journaux BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Émettre périodiquement les diagnostics de la mémoire tampon du lecteur dans logcat (désactivé par défaut)</string>
     <string name="debug_error_dialog_title">Erreur de lecture</string>
@@ -1348,17 +1318,6 @@
     <string name="player_error_title">Erreur de lecture</string>
     <string name="player_error_choose_source">Choisissez une autre source</string>
     <string name="player_switch_to_mpv">Passer au lecteur MPV</string>
-    <string name="player_report_issue">Signaler un problème</string>
-    <string name="player_report_issue_sending">Envoi du rapport de lecture…</string>
-    <string name="player_report_issue_sending_button">Envoi en cours…</string>
-    <string name="player_report_issue_sent">Rapport envoyé&#160;: %1$s</string>
-    <string name="player_report_issue_sent_button">Rapport envoyé</string>
-    <string name="player_report_issue_failed">Impossible d’envoyer le rapport</string>
-    <string name="player_report_loading_issue">Signaler un problème de chargement</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Toujours en cours de chargement après %1$d seconde</item>
-        <item quantity="other">Toujours en cours de chargement après %1$d secondes</item>
-    </plurals>
     <string name="player_speed_title">Vitesse de lecture</string>
     <string name="player_error_no_stream_url">Cette source n’a pas de lien de flux. Choisissez une autre source.</string>
 
@@ -1781,7 +1740,6 @@
     <string name="cd_refresh">Actualiser</string>
     <string name="cd_remove">Retirer</string>
     <string name="cd_preview">Aperçu</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Code QR d’activation Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1934,7 +1892,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Exclut les titres correspondant à ces numéros de genre TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Date de sortie ou de diffusion à partir du</string>
     <string name="collections_editor_tmdb_date_to">Date de sortie ou de diffusion jusqu’au</string>
-    <string name="collections_editor_tmdb_date_helper">Utilisez le format AAAA-MM-JJ, par exemple 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Utilisez le format AAAA-MM-JJ, par exemple 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Note minimale</string>
     <string name="collections_editor_tmdb_rating_max">Note maximale</string>
     <string name="collections_editor_tmdb_rating_helper">Note TMDB de 0 à 10. Exemple&#160;: 7.0.</string>
@@ -1985,15 +1943,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 pour Netflix, 49 pour HBO, 2739 pour Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 pour Tom Hanks, ou URL de la personne</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 ou 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 pour Animation</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2055,9 +2008,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Films de Tom Hanks, Acteurs préférés</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Films de Christopher Nolan, Réalisateurs préférés</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 pour super-héros</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 pour Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 pour Netflix</string>
     <string name="folder_detail_not_found">Dossier introuvable</string>
     <string name="cast_error_load_details_for">Impossible de charger les détails de %1$s</string>
@@ -2252,8 +2203,6 @@
     <string name="network_error_unknown">Une erreur inconnue est survenue</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com&#160;: chemin du script introuvable</string>
-    <string name="network_fast_error_token_missing">fast.com&#160;: jeton introuvable dans le bundle</string>
 
     <!-- Torrent service errors -->
 
@@ -2354,7 +2303,7 @@
     <string name="playback_cache_vod_size">Taille du cache VOD</string>
     <string name="playback_cache_vod_size_sub">Utilisation maximale du disque pour le cache VOD progressif (éviction LRU).</string>
     <string name="playback_cache_info_range">Plage&#160;: %1$d-%2$d Mo.</string>
-    <string name="playback_cache_info_auto">Le mode automatique vise environ 10 pour cent de l’espace libre.</string>
+    <string name="playback_cache_info_auto" formatted="false">Le mode automatique vise environ 10 pour cent de l’espace libre.</string>
     <string name="playback_cache_info_manual_headroom">Le mode manuel conserve environ %1$d Mo de marge.</string>
     <string name="playback_cache_info_free_disk">Espace disque libre&#160;: %1$s.</string>
     <string name="playback_cache_info_restart">Le nouveau plafond du cache s’applique après le redémarrage de l’application lors d’un changement de mode ou de taille.</string>

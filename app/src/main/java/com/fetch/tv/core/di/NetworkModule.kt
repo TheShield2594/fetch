@@ -15,7 +15,6 @@ import com.fetch.tv.data.remote.api.IntroDbApi
 import com.fetch.tv.data.remote.api.ImdbTapframeApi
 import com.fetch.tv.data.remote.api.MDBListApi
 import com.fetch.tv.data.remote.api.ParentalGuideApi
-import com.fetch.tv.data.remote.api.PlaybackIssueReportApi
 import com.fetch.tv.data.remote.api.SeriesGraphApi
 import com.fetch.tv.data.remote.api.TmdbApi
 import com.fetch.tv.data.simkl.OkHttpSimklEngine
@@ -397,21 +396,6 @@ object NetworkModule {
     @Singleton
     fun provideGitHubReleaseApi(@Named("github") retrofit: Retrofit): GitHubReleaseApi =
         retrofit.create(GitHubReleaseApi::class.java)
-
-    @Provides
-    @Singleton
-    @Named("playbackReports")
-    fun providePlaybackReportsRetrofit(okHttpClient: OkHttpClient, moshi: Moshi): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(normalizedBaseUrl(BuildConfig.PLAYBACK_REPORTS_BASE_URL, "https://localhost/"))
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-
-    @Provides
-    @Singleton
-    fun providePlaybackIssueReportApi(@Named("playbackReports") retrofit: Retrofit): PlaybackIssueReportApi =
-        retrofit.create(PlaybackIssueReportApi::class.java)
 
     // --- Trailer API ---
 

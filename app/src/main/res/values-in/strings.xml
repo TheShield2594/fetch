@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Lanjutkan Menonton</string>
     <string name="type_movie">Film</string>
@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">Tempel</string>
     <string name="web_import_tab_file">File</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Tempel JSON koleksi di sini...</string>
+    <string name="web_import_paste_placeholder">Tempel JSON koleksi di sini…</string>
     <string name="web_import_file_select">Ketuk untuk memilih file .json</string>
     <string name="web_order_send_to_top">Pindah ke atas</string>
     <string name="web_order_send_to_bottom">Pindah ke bawah</string>
@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">Mencoba addon meta: %1$s. Metadata tidak dapat dimuat untuk id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Mencoba addon meta: %1$s. Metadata tidak dapat dimuat untuk id=%2$s (type=%3$s). Masalah: %4$s.</string>
     <string name="error_stream_no_supported_addon">Tidak ada addon terpasang yang mendukung stream untuk \"%1$s\".</string>
-    <string name="error_stream_tried_none">Mencoba addon stream: %1$s. Tidak ada yang menyediakan stream untuk id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Mencoba addon stream: %1$s. Stream tidak dapat dimuat untuk id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Mencoba addon stream: %1$s. Stream tidak dapat dimuat untuk id=%2$s (type=%3$s). Masalah: %4$s.</string>
+    <string name="error_stream_tried_none">Mencoba addon stream: %1$s. Tidak ada yang menyediakan stream.</string>
+    <string name="error_stream_tried_generic">Mencoba addon stream: %1$s. Stream tidak dapat dimuat.</string>
+    <string name="error_stream_tried_issues">Mencoba addon stream: %1$s. Stream tidak dapat dimuat. Masalah: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Lanjutkan Menonton</string>
@@ -158,15 +158,12 @@
     <string name="cw_airs_today">Tayang hari ini</string>
     <string name="cw_airs_tomorrow">Tayang besok</string>
     <plurals name="cw_airs_in_days">
-        <item quantity="one">Tayang dalam %d hari</item>
         <item quantity="other">Tayang dalam %d hari</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Hari ini</string>
     <string name="cw_airs_tomorrow_short">Besok</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">%d hari lagi</item>
         <item quantity="other">%d hari lagi</item>
     </plurals>
     <string name="cw_action_go_to_details">Lihat detail</string>
@@ -257,7 +254,6 @@
     <string name="detail_comments_back_hint">Klik kembali untuk menutup</string>
     <string name="detail_comments_badge_review">Ulasan</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d suka</string>
     <string name="tmdb_entity_kind_company">Perusahaan Produksi</string>
     <string name="tmdb_entity_kind_network">Jaringan</string>
@@ -266,11 +262,10 @@
     <string name="tmdb_entity_rail_recent">Terbaru</string>
     <string name="tmdb_entity_rail_most_voted">Vote Terbanyak</string>
     <string name="collections_editor_tmdb_watch_region">Wilayah Tayang</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Kode negara ISO 3166-1 dimana judul dapat ditonton. Contoh: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Kode negara ISO 3166-1 dimana judul dapat ditonton. Contoh: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Pintasan Wilayah Tayang</string>
     <string name="collections_editor_tmdb_watch_providers">ID Penyedia Layanan</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Gunakan ID penyedia layanan dari TMDB. Pisahkan beberapa ID dengan koma untuk fungsi DAN, atau garis tegak untuk fungsi ATAU.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Pintasan Penyedia Layanan</string>
     <string name="tmdb_error_load_source">Tidak dapat memuat sumber TMDB</string>
     <string name="tmdb_error_list_not_found">Daftar TMDB tidak ditemukan</string>
@@ -358,7 +353,6 @@
     <string name="licenses_attributions_section_app">LISENSI APLIKASI</string>
     <string name="licenses_attributions_section_data">DATA &amp; LAYANAN</string>
     <string name="licenses_attributions_section_playback">LISENSI PEMUTARAN ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch menggunakan API TMDB untuk metadata film dan TV, poster dan latar belakang, trailer, pemeran, detail produksi, koleksi, dan rekomendasi. Produk ini menggunakan API TMDB namun tidak didukung atau disertifikasi oleh TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -418,19 +412,6 @@
     <string name="experience_mode_confirm_advanced_title">Beralih ke Lanjutan?</string>
     <string name="experience_mode_confirm_essential_subtitle">Tampilan pengaturan lanjutan akan disembunyikan, tetapi pengaturan yang disimpan tidak berubah. Anda bisa beralih kembali kapan saja.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Ini memunculkan tampilan pengaturan penuh, termasuk pengaturan lanjutan, katalog, koleksi, dan kontrol penyetelan.</string>
-    <string name="network_speed_test_run">Jalankan Tes Kecepatan</string>
-    <string name="network_speed_test_running">Menjalankan Tes Kecepatan</string>
-    <string name="network_speed_test_subtitle">Ukur kecepatan unduhan dan latensi</string>
-    <string name="network_testing_latency">Mengukur latensi</string>
-    <string name="network_testing_download">Mengukur kecepatan unduhan</string>
-    <string name="network_results_title">Hasil</string>
-    <string name="network_latency_label">Latensi</string>
-    <string name="network_download_label">Unduhan</string>
-    <string name="network_error_prefix">Kesalahan: %1$s</string>
-    <string name="network_powered_by_fast">Didukung oleh fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Performa &amp; navigasi</string>
     <string name="advanced_section_diagnostics">Diagnostik</string>
     <string name="advanced_section_cache">Cache</string>
@@ -472,6 +453,7 @@
     <string name="playback_skip_intro">Lewati Intro</string>
     <string name="playback_skip_intro_sub">Gunakan introdb.app untuk mendeteksi intro dan rekap.</string>
     <string name="playback_parental_guide">Peringatan Konten</string>
+    <string name="playback_parental_guide_sub">Tampilkan peringatan konten saat pemutaran dimulai. Mengirim ID IMDb setiap judul ke api.tiffara.com untuk mencarinya.</string>
     <string name="playback_auto_skip_segments">Lewati Otomatis</string>
     <string name="playback_auto_skip_segments_sub">Pilih segmen mana yang dilewati secara otomatis.</string>
     <string name="auto_skip_intro">Intro / Pembuka</string>
@@ -485,7 +467,6 @@
     <string name="playback_player_external">Eksternal</string>
     <string name="playback_player_ask">Tanya setiap kali</string>
     <string name="playback_internal_player_engine">Mesin Internal</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Ganti mesin otomatis saat error startup</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Jika stream gagal dimulai, ganti antara ExoPlayer dan libmpv secara otomatis.</string>
@@ -814,10 +795,6 @@
     <string name="debug_playback_error_title">Layar Error Pemutaran</string>
     <string name="debug_playback_error_subtitle">Tampilkan popup error pemutaran yang disimulasikan</string>
     <string name="debug_section_features">Sakelar Fitur</string>
-    <string name="debug_account_tab_title">Tab Akun</string>
-    <string name="debug_account_tab_subtitle">Tampilkan tab Akun di navigasi Pengaturan</string>
-    <string name="debug_sync_code_title">Fitur Kode Sinkronisasi</string>
-    <string name="debug_sync_code_subtitle">Tampilkan tombol Buat/Masukkan Kode Sinkronisasi di pengaturan Akun</string>
     <string name="debug_error_dialog_title">Error Pemutaran</string>
     <string name="debug_error_dialog_subtitle">Terjadi error saat pemutaran.\n\nError: Error simulasi pengujian - ini bukan kegagalan nyata. Sumber menghasilkan HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Tutup</string>
@@ -948,7 +925,7 @@
     <string name="player_loading_buffering">Buffering…</string>
     <string name="player_engine_switching_title">Mengganti Mesin Pemutar</string>
     <string name="player_engine_switching_message">Startup gagal. Beralih ke %1$s…</string>
-    <string name="player_engine_switching_manual_message">Beralih ke %1$s...</string>
+    <string name="player_engine_switching_manual_message">Beralih ke %1$s…</string>
     <string name="playback_show_loading_status">Tampilkan status pemuatan</string>
     <string name="playback_show_loading_status_sub">Tampilkan progres langkah demi langkah saat pemutar sedang diinisialisasi.</string>
     <string name="player_sync_line">Baris Sinkronisasi</string>
@@ -1234,7 +1211,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Memuat rating episode...</string>
+    <string name="ratings_loading">Memuat rating episode…</string>
     <string name="ratings_unavailable">Rating episode tidak tersedia.</string>
     <string name="ratings_load_error">Tidak dapat memuat rating episode.</string>
     <string name="ratings_season_summary">Musim %1$d - %2$d episode</string>
@@ -1242,7 +1219,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Temukan</string>
     <string name="discover_load_more">Muat lebih banyak</string>
-    <string name="discover_loading">Memuat...</string>
+    <string name="discover_loading">Memuat…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Tidak ada konten ditemukan</string>
     <string name="discover_empty_no_content_subtitle">Coba genre atau katalog yang berbeda</string>
@@ -1312,11 +1289,11 @@
     <string name="trakt_error_list_not_found_or_private">Daftar Trakt tidak ditemukan atau tidak publik</string>
     <string name="trakt_error_rate_limit_reached">Batas rate Trakt tercapai</string>
     <string name="trakt_status_enter_activation_code">Masukkan kode di trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Menyinkronkan...</string>
+    <string name="trakt_status_syncing">Menyinkronkan…</string>
     <string name="trakt_status_sync_completed">Sinkronisasi selesai</string>
     <string name="trakt_status_disconnected">Terputus dari Trakt</string>
     <string name="trakt_status_cw_window_updated">Jendela lanjutkan menonton diperbarui</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Dibatasi, memperlambat polling...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Dibatasi, memperlambat polling…</string>
     <string name="trakt_user_fallback">Pengguna Trakt</string>
     <string name="trakt_error_failed_start">Gagal memulai autentikasi Trakt</string>
 
@@ -1377,7 +1354,6 @@
     <string name="cd_refresh">Perbarui</string>
     <string name="cd_remove">Hapus</string>
     <string name="cd_preview">Pratinjau</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">QR aktivasi Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1527,7 +1503,7 @@
     <string name="collections_editor_tmdb_genres_helper">Gunakan nomor genre TMDB. Pisahkan beberapa nilai dengan koma untuk fungsi DAN, atau garis tegak untuk fungsi ATAU.</string>
     <string name="collections_editor_tmdb_date_from">Tanggal rilis atau tayang dari</string>
     <string name="collections_editor_tmdb_date_to">Tanggal rilis atau tayang hingga</string>
-    <string name="collections_editor_tmdb_date_helper">Gunakan YYYY-MM-DD, misalnya 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Gunakan YYYY-MM-DD, misalnya 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Rating minimum</string>
     <string name="collections_editor_tmdb_rating_max">Rating maksimum</string>
     <string name="collections_editor_tmdb_rating_helper">Rating TMDB dari 0 hingga 10. Contoh: 7.0.</string>
@@ -1574,14 +1550,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 untuk Netflix, 49 untuk HBO, 2739 untuk Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 untuk Tom Hanks, atau URL orang</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 atau 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1610,9 +1581,9 @@
     <string name="collections_editor_placeholder_hero_video">URL video hero kustom (opsional)</string>
     <string name="collections_editor_title_logo">Logo Judul (Beranda Modern)</string>
     <string name="collections_editor_placeholder_title_logo">URL logo judul kustom (opsional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Cari emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filter sumber aktif...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Cari katalog...</string>
+    <string name="collections_editor_search_emoji_placeholder">Cari emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filter sumber aktif…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Cari katalog…</string>
     <string name="collections_editor_genre_filter">Filter Genre</string>
     <string name="collections_editor_choose_genre">Pilih</string>
     <string name="collections_editor_select_genre">Pilih genre</string>
@@ -1804,8 +1775,6 @@
     <string name="network_error_unknown">Terjadi error tidak diketahui</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: jalur skrip tidak ditemukan</string>
-    <string name="network_fast_error_token_missing">fast.com: token tidak ditemukan dalam bundel</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

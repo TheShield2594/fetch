@@ -7,7 +7,12 @@ Workers comes up again. Audited at commit `29be6e4`. Paths are relative to the
 repo root.
 
 Since then the TV's Supabase-protocol sync, watch party and avatar catalog were
-removed (#427), so §3.1 and Appendix B describe code that no longer exists.
+removed (#427), so §3.1 and Appendix B describe code that no longer exists. The TV now
+pairs with the website and calls about twenty `web/apps/api` endpoints (pairing, sessions,
+watch state, profiles, collections, addons, Home rows and settings; see
+`app/src/main/java/com/fetch/tv/data/website/`), so the statements below that "the TV app
+calls no `web/apps/api` endpoint" are no longer true: a move to Workers would have to keep
+those endpoints compatible too.
 
 Cloudflare limits quoted here (CPU time, subrequests, memory, body size, cron wall time)
 come from memory of the published limits and change often. Check them against

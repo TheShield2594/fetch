@@ -1,12 +1,14 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.core.player
 
 import android.app.Activity
 import android.content.Context
 import android.media.MediaExtractor
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import android.view.Display
+import androidx.core.net.toUri
 import androidx.media3.common.MimeTypes
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfo
 import io.github.anilbeesetti.nextlib.mediainfo.MediaInfoBuilder
@@ -221,7 +223,6 @@ object FrameRateUtils {
         detectedFps: Float,
         prefer23976Near24: Boolean = false
     ): Float {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return detectedFps
         if (detectedFps !in 23.5f..24.5f) return detectedFps
 
         return try {
@@ -361,7 +362,6 @@ object FrameRateUtils {
         videoHeight: Int? = null,
         resolutionMatchingEnabled: Boolean = false
     ): DisplayModeSwitchResult? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return null
         if (frameRate <= 0f) return null
 
         val switchPlan = withContext(Dispatchers.Main) {
@@ -461,7 +461,6 @@ object FrameRateUtils {
     }
 
     fun restoreOriginalDisplayMode(activity: Activity): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false
         val targetModeId = originalModeId ?: return false
 
         return try {
@@ -1446,7 +1445,7 @@ object FrameRateUtils {
         candidates.forEach { candidateUrl ->
             var mediaInfo: MediaInfo? = null
             try {
-                val uri = Uri.parse(candidateUrl)
+                val uri = candidateUrl.toUri()
                 val builder = MediaInfoBuilder().from(context = context, uri = uri)
                 mediaInfo = builder.build() ?: return@forEach
 
@@ -1478,7 +1477,7 @@ object FrameRateUtils {
         val safeHeaders = headers
         val extractor = MediaExtractor()
         return try {
-            val uri = Uri.parse(sourceUrl)
+            val uri = sourceUrl.toUri()
             when (uri.scheme?.lowercase()) {
                 "http", "https" -> extractor.setDataSource(sourceUrl, safeHeaders)
                 else -> extractor.setDataSource(context, uri, safeHeaders)
@@ -1608,7 +1607,7 @@ object FrameRateUtils {
     /** Scheme extraction that tolerates missing/stub Android Uri in JVM unit tests. */
     private fun parseUriScheme(sourceUrl: String): String? {
         val fromUri = try {
-            Uri.parse(sourceUrl).scheme?.lowercase(Locale.ROOT)
+            sourceUrl.toUri().scheme?.lowercase(Locale.ROOT)
         } catch (_: Throwable) {
             null
         }
@@ -1621,7 +1620,7 @@ object FrameRateUtils {
     /** Host extraction that tolerates missing/stub Android Uri in JVM unit tests. */
     private fun parseUriHost(url: String): String {
         val fromUri = try {
-            Uri.parse(url).host
+            url.toUri().host
         } catch (_: Throwable) {
             null
         }

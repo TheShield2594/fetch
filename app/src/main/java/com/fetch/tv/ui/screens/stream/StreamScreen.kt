@@ -3,11 +3,14 @@
 package com.fetch.tv.ui.screens.stream
 
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.core.net.toUri
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.StateActionButton
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.EmptyScreenState
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import androidx.compose.animation.core.Animatable
@@ -27,7 +30,6 @@ import com.fetch.tv.core.streams.ranking.setupSummary
 import com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities
 import com.fetch.tv.core.streams.ranking.RankedStream
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -162,7 +164,7 @@ fun StreamScreen(
     )
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-    var focusedStreamIndex by rememberSaveable { mutableStateOf(0) }
+    var focusedStreamIndex by rememberSaveable { mutableIntStateOf(0) }
     var restoreFocusedStream by rememberSaveable { mutableStateOf(false) }
     var pendingRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     var showPlayerChoiceDialog by remember { mutableStateOf(false) }
@@ -195,7 +197,7 @@ fun StreamScreen(
     fun openExternalInBrowser(playbackInfo: StreamPlaybackInfo): Boolean {
         if (!playbackInfo.isExternal) return false
         val url = playbackInfo.url?.takeIf { it.isNotBlank() } ?: return false
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
             .addCategory(Intent.CATEGORY_BROWSABLE)
         runCatching {
             context.startActivity(browserIntent)
@@ -786,6 +788,7 @@ internal fun LeftContentSection(
 private fun RightStreamSection(
     isLoading: Boolean,
     error: String?,
+    modifier: Modifier = Modifier,
     /** Why the last stream picked didn't start; stays until another stream is picked. */
     playbackError: String? = null,
     streams: List<Stream>,
@@ -812,13 +815,12 @@ private fun RightStreamSection(
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     bestMatchFirst: Boolean = false,
     /** Best match's scores on the All tab; see [StreamScreenUiState.rankedStreams]. */
-    rankedStreams: Map<String, RankedStream> = emptyMap(),
-    modifier: Modifier = Modifier
+    rankedStreams: Map<String, RankedStream> = emptyMap()
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     var enter by remember { mutableStateOf(false) }
     val fullMotion = FetchTheme.fullMotion
-    var firstStreamFocusRequestId by remember { mutableStateOf(0) }
+    var firstStreamFocusRequestId by remember { mutableIntStateOf(0) }
     var listHasFocus by remember { mutableStateOf(false) }
     var focusedStreamKeyInList by remember { mutableStateOf<String?>(null) }
     var userMovedFromFirstResult by remember { mutableStateOf(shouldRestoreFocusedStream) }
@@ -854,7 +856,7 @@ private fun RightStreamSection(
             add(refreshFocusRequester)
             add(allFocusRequester)
             orderedAddonNames.forEach { addon ->
-                add(addonFocusRequesters.getOrPut(addon) { FocusRequester() })
+                add(addonFocusRequesters.focusRequesterFor(addon))
             }
         }
     }
@@ -1306,7 +1308,7 @@ internal fun StreamsList(
                     hasLongPressOptions = { sourceRuleOptions(stream).isNotEmpty() },
                     focusRequester = when {
                         shouldRestoreFocusedStream && index == focusedStreamIndex.coerceIn(0, (streams.lastIndex).coerceAtLeast(0)) -> restoreFocusRequester
-                        else -> streamFocusRequesters.getOrPut(streamKeys[index]) { FocusRequester() }
+                        else -> streamFocusRequesters.focusRequesterFor(streamKeys[index])
                     },
                     onFocusChanged = { focused ->
                         if (focused) {
@@ -1583,7 +1585,8 @@ internal fun StreamCard(
                     // shown focused or not, so focus never adds a line from nothing.
                     if (description.isNotBlank() && description != streamName) {
                         Text(
-                            text = description,
+                            // A file name in the description wraps between its parts, not mid-token.
+                            text = remember(description) { wrappableReleaseName(description) },
                             modifier = Modifier.align(description.contentTextDirection().toAbsoluteAlignment()),
                             style = MaterialTheme.typography.bodySmall.copy(
                                 textDirection = description.contentTextDirection()

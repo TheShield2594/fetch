@@ -27,7 +27,6 @@
     <string name="servers_remove">Αφαίρεση διακομιστή</string>
     <string name="servers_remove_confirm_title">Αφαίρεση αυτού του διακομιστή;</string>
     <string name="servers_remove_confirm_message">Θα αποσυνδεθείτε από το %1$s σε αυτήν τη συσκευή. Μπορείτε να το προσθέσετε ξανά ανά πάσα στιγμή.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Απενεργοποιημένο</string>
     <string name="servers_status_auth">Συνδεθείτε ξανά</string>
     <string name="servers_status_unreachable">Ο διακομιστής δεν είναι διαθέσιμος</string>

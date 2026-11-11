@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Megtekintés folytatása</string>
     <string name="type_movie">Film</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Kipróbált meta bővítmények: %1$s. A metaadatok betöltése sikertelen ehhez: id=%2$s (típus=%3$s).</string>
     <string name="error_meta_tried_issues">Kipróbált meta bővítmények: %1$s. A metaadatok betöltése sikertelen ehhez: id=%2$s (típus=%3$s). Problémák: %4$s.</string>
     <string name="error_stream_no_supported_addon">Egyetlen telepített bővítmény sem támogatja a streameket ehhez: \"%1$s\".</string>
-    <string name="error_stream_tried_none">Kipróbált stream bővítmények: %1$s. Egyik sem adott vissza streameket a következőhöz: id=%2$s (típus=%3$s).</string>
-    <string name="error_stream_tried_generic">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni a következőhöz: id=%2$s (típus=%3$s).</string>
-    <string name="error_stream_tried_issues">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni a következőhöz: id=%2$s (típus=%3$s). Problémák: %4$s.</string>
+    <string name="error_stream_tried_none">Kipróbált stream bővítmények: %1$s. Egyik sem adott vissza streameket.</string>
+    <string name="error_stream_tried_generic">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni.</string>
+    <string name="error_stream_tried_issues">Kipróbált stream bővítmények: %1$s. A streameket nem sikerült betölteni. Problémák: %2$s.</string>
 
     <string name="continue_watching">Megtekintés folytatása</string>
     <string name="cw_upcoming">Hamarosan</string>
@@ -157,7 +157,6 @@
         <item quantity="one">Premier %d nap múlva</item>
         <item quantity="other">Premier %d nap múlva</item>
     </plurals>
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Ma</string>
     <string name="cw_airs_tomorrow_short">Holnap</string>
     <plurals name="cw_airs_in_days_short">
@@ -257,7 +256,6 @@
     <string name="detail_comments_back_hint">A bezáráshoz nyomd meg a Vissza gombot</string>
     <string name="detail_comments_badge_review">Vélemény</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d kedvelés</string>
     <string name="tmdb_entity_kind_company">Stúdió</string>
     <string name="tmdb_entity_kind_network">Csatorna</string>
@@ -266,14 +264,12 @@
     <string name="tmdb_entity_rail_recent">Legutóbbi</string>
     <string name="tmdb_entity_rail_most_voted">Legtöbb szavazat</string>
     <string name="collections_editor_tmdb_watch_region">Megtekintési régió</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Annak az országnak az ISO 3166-1 kódja, ahol a tartalom elérhető. Példa: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Annak az országnak az ISO 3166-1 kódja, ahol a tartalom elérhető. Példa: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Régió gyors kiválasztása</string>
     <string name="collections_editor_tmdb_watch_providers">Tartalomszolgáltatók azonosítói</string>
     <string name="collections_editor_tmdb_watch_providers_helper">A tartalomszolgáltatók TMDB-azonosítóit add meg. Több azonosítót vesszővel (ÉS) vagy függőleges vonallal (|, VAGY) válassz el.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Kizárt tartalomszolgáltatók azonosítói</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Kizárja azokat a tartalmakat, amelyek a kiválasztott régióban a megadott TMDB-azonosítójú szolgáltatóknál elérhetők.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Szolgáltató gyors kiválasztása</string>
     <string name="tmdb_error_load_source">Nem sikerült betölteni a TMDB forrást</string>
     <string name="tmdb_error_list_not_found">TMDB lista nem található</string>
@@ -422,12 +418,10 @@
     <string name="licenses_attributions_section_app">AZ ALKALMAZÁS LICENCE</string>
     <string name="licenses_attributions_section_data">ADATOK ÉS SZOLGÁLTATÁSOK</string>
     <string name="licenses_attributions_section_playback">ANDROID LEJÁTSZÁSI LICENCEK</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">A Fetch a TMDB API-t használja a filmek és tévéműsorok metaadataihoz, borítóképekhez, előzetesekhez, stáblistákhoz, gyártási adatokhoz, gyűjteményekhez és ajánlásokhoz. Ez a termék a TMDB API-t használja, de a TMDB nem támogatja és nem hagyta jóvá.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">A Fetch a Trakthoz kapcsolódik fiókhitelesítéshez, a megtekintési előzmények és a megtekintési állapot szinkronizálásához, valamint a könyvtár, az értékelések, a listák és a vélemények kezeléséhez. A Fetch nem áll kapcsolatban a Trakttal, és a Trakt nem támogatja.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">A Fetch a Simklhez kapcsolódik fiókhitelesítéshez, a várólisták, a megtekintési előzmények és a lejátszási állapot szinkronizálásához, valamint a lejátszási adatok automatikus küldéséhez. A filmek, sorozatok és animék követési adatait a Simkl szolgáltatja. A Fetch nem áll kapcsolatban a Simkllel, és a Simkl nem támogatja.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">A Fetch az MDBList szolgáltatását használja az értékelésekhez, a megtekintési előzményekhez és a lejátszás követéséhez. A Fetch nem áll kapcsolatban az MDBListtel, és az MDBList nem támogatja.</string>
@@ -474,8 +468,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Válaszd ki, melyik szolgáltatás adja meg, hol hagytad abba a lejátszást, és mi kerüljön a Megtekintés folytatása sorba. A lejátszási adatokat minden csatlakoztatott szolgáltatás megkapja.</string>
     <string name="tracking_library_source_dialog_subtitle">Válaszd ki a Könyvtár adatforrását. A lejátszási adatokat minden csatlakoztatott szolgáltatás megkapja.</string>
     <string name="tracking_trakt_progress_required">Akkor érhető el, ha a megtekintési állapot forrása a Trakt</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Haladó</string>
     <string name="settings_advanced_subtitle">Teljesítmény, navigáció, gyorsítótár és diagnosztika</string>
     <string name="experience_mode_essential">Alapvető</string>
@@ -514,28 +506,13 @@
     <string name="experience_mode_confirm_advanced_title">Váltasz Haladó módra?</string>
     <string name="experience_mode_confirm_essential_subtitle">A speciális beállítási felületek rejtve lesznek, de a mentett beállításaid változatlanok maradnak. Bármikor visszaválthatsz.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Ez felfedi a teljes beállítási felületet, beleértve a speciális beállításokat, katalógusokat, gyűjteményeket és a finomhangolási vezérlőket.</string>
-    <string name="network_speed_test_run">Sebességteszt indítása</string>
-    <string name="network_speed_test_running">Sebességteszt futtatása</string>
-    <string name="network_speed_test_subtitle">Letöltési sebesség és késleltetés mérése</string>
-    <string name="network_testing_latency">Késleltetés mérése</string>
-    <string name="network_testing_download">Letöltési sebesség mérése</string>
-    <string name="network_results_title">Eredmények</string>
-    <string name="network_latency_label">Késleltetés</string>
-    <string name="network_download_label">Letöltés</string>
-    <string name="network_error_prefix">Hiba: %1$s</string>
-    <string name="network_powered_by_fast">Mérés a fast.com segítségével</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Teljesítmény és navigáció</string>
     <string name="advanced_section_diagnostics">Diagnosztika</string>
-    <string name="advanced_playback_issue_reports">Lejátszási hibajelentések</string>
     <string name="advanced_player_stats_hud">Lejátszási adatok a képernyőn</string>
     <string name="advanced_player_stats_hud_subtitle">A streamadatoknál lévő gombbal lejátszás közben megjelenítheted vagy elrejtheted a CPU-, memória-, puffer-, bitráta- és hőmérsékletadatokat.</string>
     <string name="advanced_section_cache">Gyorsítótár</string>
     <string name="advanced_section_startup">Indítás és kilépés</string>
     <string name="advanced_section_network_tests">Hálózati tesztek</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Gyors vízszintes navigáció</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Növeli az iránygomb (D-pad) ismétlési sebességét a sorokban, miközben a görgetés korlátozása aktív marad.</string>
     <string name="advanced_fetch_focus_scroll">Fetch fókuszkövető görgetés</string>
@@ -598,6 +575,7 @@
     <string name="playback_skip_intro">Intro átugrása</string>
     <string name="playback_skip_intro_sub">Az introdb.app használata az intrók és összefoglalók felismeréséhez.</string>
     <string name="playback_parental_guide">Tartalmi figyelmeztetések</string>
+    <string name="playback_parental_guide_sub">Tartalmi figyelmeztetéseket jelenít meg a lejátszás indításakor. A kereséshez minden cím IMDb-azonosítóját elküldi az api.tiffara.com címre.</string>
     <string name="playback_auto_skip_segments">Automatikus átugrás</string>
     <string name="playback_auto_skip_segments_sub">Válaszd ki, mely szakaszokat ugorja át automatikusan.</string>
     <string name="auto_skip_intro">Intro / Főcím</string>
@@ -615,7 +593,6 @@
     <string name="playback_player_external">Külső</string>
     <string name="playback_player_ask">Kérdezzen rá minden alkalommal</string>
     <string name="playback_internal_player_engine">Belső motor</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Béta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Automatikus motorváltás indítási hiba esetén</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Ha a stream indítása sikertelen, váltson automatikusan az ExoPlayer és libmpv között.</string>
@@ -697,20 +674,6 @@
     <string name="audio_strip_hdr10plus_sub">Eltávolítja a HDR10+ dinamikus metaadatokat a streamekből. Ha a Konvertálás DV8.1-re is be van kapcsolva, az eltávolítás a konvertálás után fut.</string>
     <string name="audio_dv7_preserve_mapping_title">DV leképezés megőrzése (DV7-ről DV8.1-re)</string>
     <string name="audio_dv7_preserve_mapping_sub">Megőrzi az alkotó által szándékolt eredeti tónusleképezést, képkockánként egy kicsit több feldolgozás árán.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">G-NEXT tartalék dekódolás Hi10P-hez (csak MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">H.264 Hi10P videóknál a G-NEXT szoftveres dekódolását használja. Alapból ki van kapcsolva; csak akkor kapcsold be, ha a Hi10P lejátszása lefagy vagy nem indul el.</string>
     <string name="audio_mpv_hwdec_title">Hardveres dekódolás (Csak MPV)</string>
@@ -951,7 +914,6 @@
     <string name="web_custom_poster_none">Nincs megadva URL-minta</string>
     <string name="web_custom_poster_loading">Betöltés…</string>
     <string name="web_custom_poster_placeholders_info">Helyőrzők: a {id} minden elérhető tartalomazonosítót továbbít. A {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} egyetlen azonosítótípust céloz; ha nem elérhető, az eredeti poszter marad. A {imdb_id|tmdb_id|kitsu_id} felsorolja a támogatott azonosítótípusokat; a megfelelő lesz használva, egyébként az eredeti poszter marad. A helyőrzőt a ? jellel teheted opcionálissá, ilyenkor kihagyás helyett üres értéket kap: {imdb_id?}. További helyőrzők: {id_type}, {typed_id}, {type}, {shape}.</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Megtekintési előzmények és lejátszási állapot szinkronizálása az eszközök között</string>
     <string name="mdblist_connected_as">Csatlakoztatott fiók: %1$s</string>
     <string name="mdblist_account_fallback">MDBList-felhasználó</string>
@@ -1101,7 +1063,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Válaszd ki a részletek oldalán és a lejátszás után megjelenő ajánlások forrását.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">Gyorsítótárazva</string>
     <string name="trakt_stat_movies">Film</string>
     <string name="trakt_stat_shows">Sorozat</string>
@@ -1127,15 +1088,6 @@
     <string name="debug_progress_indicator_default">Alapértelmezett</string>
     <string name="debug_progress_indicator_large">Nagy</string>
     <string name="debug_section_features">Funkciókapcsolók</string>
-    <string name="debug_account_tab_title">Fiók fül</string>
-    <string name="debug_account_tab_subtitle">A Fiók fül megjelenítése a Beállítások navigációjában</string>
-    <string name="debug_sync_code_title">Szinkronizációs kód funkciók</string>
-    <string name="debug_sync_code_subtitle">Szinkronizációs kód generálása/megadása gombok a fiókbeállításoknál</string>
-    <string name="debug_member_tier_title">Támogatói szint szimulálása</string>
-    <string name="debug_member_tier_subtitle">Válaszd ki, milyen ellenőrzött támogatói szintet adjon vissza ez a debug build</string>
-    <string name="debug_member_tier_none">Nincs</string>
-    <string name="debug_member_tier_one">Támogató</string>
-    <string name="debug_member_tier_two">Támogató+</string>
     <string name="debug_buffer_logs_title">BUFFER naplók engedélyezése</string>
     <string name="debug_buffer_logs_subtitle">A lejátszópuffer diagnosztikai adatainak rendszeres küldése a logcatbe (alapértelmezés szerint kikapcsolva)</string>
     <string name="debug_error_dialog_title">Lejátszási hiba</string>
@@ -1298,7 +1250,7 @@
     <string name="player_loading_buffering">Pufferelés…</string>
     <string name="player_engine_switching_title">Lejátszómotor váltása</string>
     <string name="player_engine_switching_message">Sikertelen indítás. Váltás erre: %1$s…</string>
-    <string name="player_engine_switching_manual_message">Váltás erre: %1$s...</string>
+    <string name="player_engine_switching_manual_message">Váltás erre: %1$s…</string>
     <string name="playback_show_loading_status">Betöltési állapot megjelenítése</string>
     <string name="playback_show_loading_status_sub">Az aktuális lépés megjelenítése a lejátszó indítása közben.</string>
     <string name="player_sync_line">Feliratsor szinkronizálása</string>
@@ -1340,17 +1292,6 @@
     <string name="player_error_title">Lejátszási hiba</string>
     <string name="player_error_choose_source">Válassz másik forrást</string>
     <string name="player_switch_to_mpv">Váltás az MPV-lejátszóra</string>
-    <string name="player_report_issue">Probléma jelentése</string>
-    <string name="player_report_issue_sending">Lejátszási jelentés küldése...</string>
-    <string name="player_report_issue_sending_button">Küldés...</string>
-    <string name="player_report_issue_sent">Jelentés elküldve: %1$s</string>
-    <string name="player_report_issue_sent_button">Jelentés elküldve</string>
-    <string name="player_report_issue_failed">A jelentés küldése nem sikerült</string>
-    <string name="player_report_loading_issue">Betöltési probléma jelentése</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">A betöltés %1$d másodperc után is tart</item>
-        <item quantity="other">A betöltés %1$d másodperc után is tart</item>
-    </plurals>
     <string name="player_speed_title">Lejátszási sebesség</string>
     <string name="player_error_no_stream_url">Ennek a forrásnak nincs stream linkje. Válassz másik forrást.</string>
 
@@ -1720,7 +1661,7 @@
     <string name="trakt_error_list_not_found_or_private">A Trakt lista nem található, vagy nem nyilvános</string>
     <string name="trakt_error_rate_limit_reached">Trakt lekérdezési korlát elérve</string>
     <string name="trakt_status_enter_activation_code">Írd be a kódot a trakt.tv/activate oldalon</string>
-    <string name="trakt_status_syncing">Szinkronizálás...</string>
+    <string name="trakt_status_syncing">Szinkronizálás…</string>
     <string name="trakt_status_sync_completed">Szinkronizálás befejezve</string>
     <string name="trakt_status_disconnected">Leválasztva a Trakt-ról</string>
     <string name="trakt_status_cw_window_updated">A folytatási időablak frissítve</string>
@@ -1773,7 +1714,6 @@
     <string name="cd_refresh">Frissítés</string>
     <string name="cd_remove">Eltávolítás</string>
     <string name="cd_preview">Előnézet</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt logó</string>
     <string name="cd_trakt_qr">Trakt aktivációs QR-kód</string>
     <string name="cd_imdb">IMDb</string>
@@ -1926,7 +1866,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Kizárja a megadott TMDB-azonosítójú műfajokhoz tartozó tartalmakat.</string>
     <string name="collections_editor_tmdb_date_from">Megjelenési dátumtól</string>
     <string name="collections_editor_tmdb_date_to">Megjelenési dátumig</string>
-    <string name="collections_editor_tmdb_date_helper">Használd az ÉÉÉÉ-HH-NN formátumot, például: 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Használd az ÉÉÉÉ-HH-NN formátumot, például: 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimum értékelés</string>
     <string name="collections_editor_tmdb_rating_max">Maximum értékelés</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB értékelés 0-tól 10-ig. Példa: 7.0.</string>
@@ -1977,15 +1917,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 a Netflixhez, 49 az HBO-hoz, 2739 a Disney+-hoz</string>
     <string name="collections_editor_tmdb_person_placeholder">31 Tom Hankshez, vagy személy URL-je</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 vagy 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 az animációhoz</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, hu, ja, ko</string>
     <string name="collections_editor_tmdb_country_placeholder">US, HU, KR, JP</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2014,9 +1949,9 @@
     <string name="collections_editor_placeholder_hero_video">Egyedi kiemelt videó URL (opcionális)</string>
     <string name="collections_editor_title_logo">Címlogó (Modern kezdőlap)</string>
     <string name="collections_editor_placeholder_title_logo">Egyedi címlogó URL (opcionális)</string>
-    <string name="collections_editor_search_emoji_placeholder">Hangulatjel keresése...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Aktív források szűrése...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Katalógusok keresése...</string>
+    <string name="collections_editor_search_emoji_placeholder">Hangulatjel keresése…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Aktív források szűrése…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Katalógusok keresése…</string>
     <string name="collections_editor_genre_filter">Műfajszűrő</string>
     <string name="collections_editor_choose_genre">Kiválasztás</string>
     <string name="collections_editor_select_genre">Műfaj kiválasztása</string>
@@ -2047,9 +1982,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Tom Hanks filmjei, Kedvenc színészek</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Christopher Nolan filmjei, Kedvenc rendezők</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 a szuperhősökhöz</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 a Marvel Studios-hoz</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 a Netflixhez</string>
     <string name="folder_detail_not_found">A mappa nem található</string>
     <string name="cast_error_load_details_for">Nem sikerült betölteni a részleteket ehhez: %1$s</string>
@@ -2244,8 +2177,6 @@
     <string name="network_error_unknown">Ismeretlen hiba történt</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: szkript elérési útja nem található</string>
-    <string name="network_fast_error_token_missing">fast.com: token nem található a csomagban</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -2339,7 +2270,7 @@
     <string name="playback_cache_vod_size">VOD gyorsítótár mérete</string>
     <string name="playback_cache_vod_size_sub">A progresszív VOD-tartalmak gyorsítótárának maximális tárhelyhasználata. Ha megtelik, a legrégebben használt adatok törlődnek (LRU).</string>
     <string name="playback_cache_info_range">Tartomány: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Az automatikus mód a szabad terület körülbelül 10%-át célozza meg.</string>
+    <string name="playback_cache_info_auto" formatted="false">Az automatikus mód a szabad terület körülbelül 10%-át célozza meg.</string>
     <string name="playback_cache_info_manual_headroom">A kézi mód körülbelül %1$d MB szabad helyet tart fenn.</string>
     <string name="playback_cache_info_free_disk">Szabad lemezterület: %1$s.</string>
     <string name="playback_cache_info_restart">A gyorsítótár módjának vagy méretének módosítása az alkalmazás újraindítása után lép érvénybe.</string>
@@ -2410,12 +2341,12 @@
     <string name="stream_test_card_title">Sebességteszt futtatása a legutóbb lejátszott streamen</string>
     <string name="stream_test_server_label">Szerver: %1$s</string>
     <string name="stream_test_no_stream">Még nincs adat korábbi lejátszásról. Indíts el egy videót, hogy tesztelhesd a kiszolgálóját.</string>
-    <string name="stream_test_btn_measuring_baseline">Alapérték mérése...</string>
-    <string name="stream_test_btn_measuring_parallel1">Párhuzamos mérés (1 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Párhuzamos mérés (4 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Párhuzamos mérés (8 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Párhuzamos mérés (16 MB)...</string>
-    <string name="stream_test_btn_running">Fut...</string>
+    <string name="stream_test_btn_measuring_baseline">Alapérték mérése…</string>
+    <string name="stream_test_btn_measuring_parallel1">Párhuzamos mérés (1 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Párhuzamos mérés (4 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Párhuzamos mérés (8 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Párhuzamos mérés (16 MB)…</string>
+    <string name="stream_test_btn_running">Fut…</string>
     <string name="stream_test_label_baseline">Egyetlen kapcsolat (alapérték)</string>
     <string name="stream_test_label_parallel1">Párhuzamos kapcsolatok (1 MB-os blokkok)</string>
     <string name="stream_test_label_parallel4">Párhuzamos kapcsolatok (4 MB-os blokkok)</string>

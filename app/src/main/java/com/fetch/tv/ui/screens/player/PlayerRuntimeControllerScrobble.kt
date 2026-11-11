@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.player
 
 import android.os.SystemClock
 import android.util.Log
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -120,7 +121,7 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
 
 private fun String.safeScrobbleHost(): String {
     return runCatching {
-        android.net.Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }
 

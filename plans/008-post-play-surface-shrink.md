@@ -289,10 +289,10 @@ line number. If it is not there, stop and report.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes with no
     baseline change.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*PostPlayRecommendationStateTest*'` passes.
+  - `./gradlew :app:testDebugUnitTest --tests '*PostPlayRecommendationStateTest*'` passes.
 - **Feel check**. Run it on a real TV device on **both** engines:
   - **ExoPlayer (SurfaceView)**: default internal player. Run it with tunneling off, then with
     tunneling on if the device supports it.

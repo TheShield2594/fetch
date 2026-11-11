@@ -27,7 +27,6 @@
     <string name="servers_remove">Rimuovi server</string>
     <string name="servers_remove_confirm_title">Rimuovere questo server?</string>
     <string name="servers_remove_confirm_message">Ti disconnetterai da %1$s su questo dispositivo. Puoi aggiungerlo di nuovo in qualsiasi momento.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Disattivato</string>
     <string name="servers_status_auth">Accedi di nuovo</string>
     <string name="servers_status_unreachable">Server non disponibile</string>

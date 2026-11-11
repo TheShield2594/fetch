@@ -27,7 +27,6 @@
     <string name="servers_remove">Szerver eltávolítása</string>
     <string name="servers_remove_confirm_title">Eltávolítod ezt a szervert?</string>
     <string name="servers_remove_confirm_message">Ezzel kijelentkezel a(z) %1$s szerverről ezen az eszközön. Bármikor újra hozzáadhatod.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Kikapcsolva</string>
     <string name="servers_status_auth">Jelentkezz be újra</string>
     <string name="servers_status_unreachable">A szerver nem érhető el</string>

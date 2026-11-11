@@ -29,8 +29,11 @@
         android:required="false" />
     <uses-feature
         android:name="android.software.leanback"
-        android:required="false" />
+        android:required="true" />
 
+    <!-- enableOnBackInvokedCallback="false": Back is handled as KEYCODE_BACK key events
+         (MainActivity.dispatchKeyEvent and screen key handlers). Keep that delivery on Android 16+,
+         where apps targeting API 36 otherwise get predictive back by default. -->
     <application
         android:name=".FetchApplication"
         android:allowBackup="false"
@@ -42,7 +45,9 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:localeConfig="@xml/locale_config"
-        android:theme="@style/Theme.MyApplication">
+        android:enableOnBackInvokedCallback="false"
+        android:theme="@style/Theme.MyApplication"
+        tools:targetApi="33">
 
         <provider
             android:name="androidx.core.content.FileProvider"

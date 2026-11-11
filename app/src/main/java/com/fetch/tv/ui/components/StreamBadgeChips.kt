@@ -101,11 +101,11 @@ private val MarqueeVelocity = 45.dp
 @Composable
 fun StreamBadgeChips(
     badges: List<StreamBadge>,
+    modifier: Modifier = Modifier,
     fileSizeBytes: Long? = null,
     showFileSizeBadge: Boolean = false,
     animate: Boolean = false,
     focused: Boolean = false,
-    modifier: Modifier = Modifier
 ) {
     val imageBadges = remember(badges) { badges.filter { it.imageURL.isNotBlank() } }
     val sizeBytes = fileSizeBytes.takeIf { showFileSizeBadge }

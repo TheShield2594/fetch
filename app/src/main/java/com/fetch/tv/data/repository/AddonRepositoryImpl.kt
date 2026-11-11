@@ -2,6 +2,7 @@ package com.fetch.tv.data.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.fetch.tv.core.network.NetworkResult
@@ -199,9 +200,7 @@ class AddonRepositoryImpl(
             val prefs = context.getSharedPreferences(MANIFEST_CACHE_PREFS, Context.MODE_PRIVATE)
             val legacyKeys = LEGACY_MANIFEST_CACHE_KEYS.filter(prefs::contains)
             if (legacyKeys.isNotEmpty()) {
-                val editor = prefs.edit()
-                legacyKeys.forEach { editor.remove(it) }
-                editor.apply()
+                prefs.edit { legacyKeys.forEach { remove(it) } }
             }
             val json = prefs.getString(MANIFEST_CACHE_KEY, null) ?: return@withContext
             val type = object : TypeToken<Map<String, Addon>>() {}.type
@@ -224,7 +223,7 @@ class AddonRepositoryImpl(
             try {
                 val snapshot = synchronized(manifestCacheLock) { manifestCache.toMap() }
                 val prefs = context.getSharedPreferences(MANIFEST_CACHE_PREFS, Context.MODE_PRIVATE)
-                prefs.edit().putString(MANIFEST_CACHE_KEY, gson.toJson(snapshot)).apply()
+                prefs.edit { putString(MANIFEST_CACHE_KEY, gson.toJson(snapshot)) }
             } catch (e: Exception) {
                 Log.w(TAG, "Failed to persist manifest cache to disk", e)
             }
@@ -347,22 +346,51 @@ class AddonRepositoryImpl(
         triggerRemoteSync()
     }
 
-    override suspend fun replaceAddonUrl(oldUrl: String, newUrl: String) {
+    override fun addonChangeProfileId(): Int = preferences.activeProfileId()
+
+    override suspend fun addAddonFor(profileId: Int, url: String): Boolean {
+        if (!preferences.canChangeAddonsFor(profileId)) return false
+        val cleanUrl = canonicalizeUrl(url)
+        // Pinned to profileId's store: a switch from here on still can't move the write.
+        if (preferences.addAddon(cleanUrl, profileId)) triggerRemoteSync()
+        return true
+    }
+
+    override suspend fun replaceAddonUrlFor(profileId: Int, oldUrl: String, newUrl: String): Boolean {
+        if (!preferences.canChangeAddonsFor(profileId)) return false
+        replaceAddonUrlIn(oldUrl, newUrl, profileId)
+        return true
+    }
+
+    override suspend fun replaceAddonUrl(oldUrl: String, newUrl: String) =
+        replaceAddonUrlIn(oldUrl, newUrl, profileId = null)
+
+    /** With [profileId], reads and writes that profile's addons; without, the active profile's. */
+    private suspend fun replaceAddonUrlIn(oldUrl: String, newUrl: String, profileId: Int?) {
         val cleanOld = canonicalizeUrl(oldUrl)
         val cleanNew = canonicalizeUrl(newUrl)
-        val urls = preferences.installedAddonUrls.first()
+        val urls = if (profileId != null) {
+            preferences.installedAddonUrlsFor(profileId)
+        } else {
+            preferences.installedAddonUrls.first()
+        }
         val index = urls.indexOfFirst { normalizeUrl(it) == normalizeUrl(cleanOld) }
         if (index < 0) {
-            addAddon(cleanNew)
+            if (preferences.addAddon(cleanNew, profileId)) triggerRemoteSync()
             return
         }
-        val wasEnabled = preferences.addonEnabledStates.first().entries
+        val enabledStates = if (profileId != null) {
+            preferences.addonEnabledStatesFor(profileId)
+        } else {
+            preferences.addonEnabledStates.first()
+        }
+        val wasEnabled = enabledStates.entries
             .firstOrNull { normalizeUrl(it.key) == normalizeUrl(cleanOld) }
             ?.value ?: true
         val reordered = urls.toMutableList().apply { set(index, cleanNew) }
             .distinctBy { normalizeUrl(it) }
-        if (!preferences.setAddonOrder(reordered)) return
-        if (!wasEnabled) preferences.setAddonEnabled(cleanNew, false)
+        if (!preferences.setAddonOrder(reordered, profileId)) return
+        if (!wasEnabled) preferences.setAddonEnabled(cleanNew, false, profileId)
         if (removeCachedManifest(cleanOld)) {
             persistManifestCacheToDisk()
             bumpManifestCacheRevision()

@@ -33,9 +33,9 @@ import kotlinx.coroutines.delay as coroutineDelay
 @Composable
 fun RefreshFilterChip(
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     isLoading: Boolean = false,
     onFocusChanged: (Boolean) -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
     // Loading dims the icon as well as spinning it, so it still reads as busy when reduced

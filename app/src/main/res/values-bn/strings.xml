@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">দেখা চালিয়ে যান</string>
     <string name="type_movie">মুভি</string>
@@ -133,9 +133,9 @@
     <string name="error_meta_tried_generic">মেটা অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। মেটাডেটা লোড করা যায়নি, id=%2$s (type=%3$s)।</string>
     <string name="error_meta_tried_issues">মেটা অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। মেটাডেটা লোড করা যায়নি, id=%2$s (type=%3$s)। সমস্যাগুলো: %4$s।</string>
     <string name="error_stream_no_supported_addon">\"%1$s\"-এর জন্য কোনো ইনস্টল করা অ্যাডন স্ট্রিম সাপোর্ট করে না।</string>
-    <string name="error_stream_tried_none">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। এগুলোর কোনোটিই স্ট্রিম দেয়নি, id=%2$s (type=%3$s)।</string>
-    <string name="error_stream_tried_generic">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি, id=%2$s (type=%3$s)।</string>
-    <string name="error_stream_tried_issues">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি, id=%2$s (type=%3$s)। সমস্যাগুলো: %4$s।</string>
+    <string name="error_stream_tried_none">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। এগুলোর কোনোটিই স্ট্রিম দেয়নি।</string>
+    <string name="error_stream_tried_generic">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি।</string>
+    <string name="error_stream_tried_issues">স্ট্রিম অ্যাডনগুলো চেষ্টা করা হয়েছে: %1$s। স্ট্রিম লোড করা যায়নি। সমস্যাগুলো: %2$s।</string>
     <string name="continue_watching">দেখা চালিয়ে যান</string>
     <string name="cw_upcoming">আসন্ন</string>
     <string name="cw_next_up">পরবর্তী পর্ব</string>
@@ -150,7 +150,6 @@
     <string name="cw_airs_date">প্রচার: %1$s</string>
     <string name="cw_airs_today">আজ প্রচারিত হবে</string>
     <string name="cw_airs_tomorrow">আগামীকাল প্রচারিত হবে</string>
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">আজ</string>
     <string name="cw_airs_tomorrow_short">আগামীকাল</string>
     <string name="cw_action_go_to_details">বিস্তারিত দেখুন</string>
@@ -241,7 +240,6 @@
     <string name="detail_comments_back_hint">বন্ধ করতে back চাপুন</string>
     <string name="detail_comments_badge_review">পর্যালোচনা</string>
     <string name="detail_comments_badge_spoiler">স্পয়লার</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d লাইক</string>
     <string name="tmdb_entity_kind_company">প্রোডাকশন কোম্পানি</string>
     <string name="tmdb_entity_kind_network">নেটওয়ার্ক</string>
@@ -250,14 +248,12 @@
     <string name="tmdb_entity_rail_recent">সাম্প্রতিক</string>
     <string name="tmdb_entity_rail_most_voted">সর্বাধিক ভোটপ্রাপ্ত</string>
     <string name="collections_editor_tmdb_watch_region">অঞ্চল দেখুন</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 দেশের কোড যেখানে শিরোনাম পাওয়া যায়। উদাহরণ: US, GB।</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 দেশের কোড যেখানে শিরোনাম পাওয়া যায়। উদাহরণ: US, GB।</string>
     <string name="collections_editor_tmdb_quick_watch_regions">কুইক দেখার অঞ্চলগুলি</string>
     <string name="collections_editor_tmdb_watch_providers">প্রোভাইডার আইডি দেখুন</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB ওয়াচ প্রোভাইডার আইডি ব্যবহার করুন। একাধিক আইডির ক্ষেত্রে AND-এর জন্য কমা (,) অথবা OR-এর জন্য পাইপ (|) ব্যবহার করুন।</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">বাদ দেওয়া ওয়াচ প্রোভাইডার আইডি</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">নির্বাচিত অঞ্চলে এই ওয়াচ প্রোভাইডারগুলো থেকে আসা কন্টেন্ট বাদ দিন।</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">কুইক ওয়াচ প্রোভাইডার</string>
     <string name="tmdb_error_load_source">TMDB সোর্স লোড করা যায়নি</string>
     <string name="tmdb_error_list_not_found">TMDB তালিকা পাওয়া যায়নি</string>
@@ -386,12 +382,10 @@
     <string name="licenses_attributions_section_app">অ্যাপ লাইসেন্স</string>
     <string name="licenses_attributions_section_data">ডেটা এবং পরিষেবা</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch মুভি এবং টিভি মেটাডেটা, আর্টওয়ার্ক, ট্রেলার, কাস্ট, প্রোডাকশন বিবরণ, কালেকশন এবং সুপারিশের জন্য TMDB API ব্যবহার করে। এই পণ্যটি TMDB API ব্যবহার করে কিন্তু TMDB দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch অ্যাকাউন্ট প্রমাণীকরণ, দেখার হিস্ট্রি, অগ্রগতি সিঙ্ক, লাইব্রেরি ডেটা, রেটিং, তালিকা এবং মন্তব্যের জন্য Trakt-এর সাথে সংযোগ করে। Fetch Trakt দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch অ্যাকাউন্ট প্রমাণীকরণ, ওয়াচলিস্ট, দেখার হিস্ট্রি, প্লেব্যাক অগ্রগতি এবং স্ক্রবব্লিংয়ের জন্য Simkl-এর সাথে সংযোগ করে। সিনেমা, টিভি এবং অ্যানিমে ট্র্যাকিং ডেটা Simkl সরবরাহ করে। Fetch Simkl দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch রেটিং, দেখার হিস্ট্রি এবং প্লেব্যাক ট্র্যাকিংয়ের জন্য MDBList ব্যবহার করে। Fetch MDBList দ্বারা অনুমোদিত বা প্রত্যয়িত নয়।</string>
@@ -436,8 +430,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">পুনরায় প্লেব্যাক ও দেখা চালিয়ে যাওয়ার জন্য কোনো সার্ভিস ব্যবহার করা হবে তা বাছুন। প্রতিটি সংযুক্ত সার্ভিসের জন্য স্ক্রবলিং সক্রিয় থাকবে।</string>
     <string name="tracking_library_source_dialog_subtitle">লাইব্রেরির জন্য Fetch কোনো সার্ভিস ব্যবহার করবে তা বাছুন। প্রতিটি সংযুক্ত সার্ভিসে প্লেব্যাক স্ক্রবল হবে।</string>
     <string name="tracking_trakt_progress_required">Trakt যখন ওয়াচ প্রগ্রেস সোর্স হয় তখন পাওয়া যায়</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">উন্নত</string>
     <string name="settings_advanced_subtitle">পারফরম্যান্স, নেভিগেশন, ক্যাশে এবং ডায়াগনস্টিকস</string>
     <string name="experience_mode_essential">এসেনশিয়াল</string>
@@ -475,22 +467,8 @@
     <string name="experience_mode_confirm_advanced_title">Advanced-এ সুইচ করবেন?</string>
     <string name="experience_mode_confirm_essential_subtitle">অ্যাডভান্সড সেটআপ সারফেসগুলো হাইড করা হবে, কিন্তু আপনার সেভ করা সেটিংস অপরিবর্তিত থাকবে। আপনি যেকোনো সময় আবার সুইচ করতে পারবেন।</string>
     <string name="experience_mode_confirm_advanced_subtitle">এটি অ্যাডভান্সড সেটআপ, ক্যাটালগ, কালেকশন এবং টিউনিং কন্ট্রোলসহ সম্পূর্ণ সেটিংস সারফেস দেখাবে।</string>
-    <string name="network_speed_test_run">স্পিড টেস্ট করুন</string>
-    <string name="network_speed_test_running">স্পিড টেস্ট করা হচ্ছে</string>
-    <string name="network_speed_test_subtitle">ডাউনলোড স্পিড এবং ল্যাটেন্সি পরিমাপ করুন</string>
-    <string name="network_testing_latency">ল্যাটেন্সি পরিমাপ করা হচ্ছে</string>
-    <string name="network_testing_download">ডাউনলোড স্পিড পরিমাপ করা হচ্ছে</string>
-    <string name="network_results_title">রেজাল্ট</string>
-    <string name="network_latency_label">ল্যাটেন্সি</string>
-    <string name="network_download_label">ডাউনলোড</string>
-    <string name="network_error_prefix">এরর: %1$s</string>
-    <string name="network_powered_by_fast">fast.com দ্বারা চালিত</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">ইথারনেট</string>
-    <string name="network_connection_offline">অফলাইন</string>
     <string name="advanced_section_performance">পারফরম্যান্স এবং নেভিগেশন</string>
     <string name="advanced_section_diagnostics">ডায়াগনস্টিকস</string>
-    <string name="advanced_playback_issue_reports">প্লেব্যাক সমস্যার রিপোর্ট</string>
     <string name="advanced_player_stats_hud">প্লেব্যাক স্ট্যাটস ওভারলে</string>
     <string name="advanced_player_stats_hud_subtitle">প্লেব্যাকের সময় লাইভ cpu, মেমোরি, বাফার, বিটরেট এবং থার্মাল রিডিং টগল করতে স্ট্রিম ইনফোতে একটি বাটন দেখান</string>
     <string name="advanced_section_cache">ক্যাশে</string>
@@ -556,6 +534,7 @@
     <string name="playback_skip_intro">ইন্ট্রো স্কিপ করুন</string>
     <string name="playback_skip_intro_sub">ইন্ট্রো এবং রিক্যাপ শনাক্ত করতে introdb.app ব্যবহার করুন।</string>
     <string name="playback_parental_guide">কন্টেন্ট সতর্কতা</string>
+    <string name="playback_parental_guide_sub">প্লেব্যাক শুরু হলে কনটেন্ট সতর্কতা দেখায়। খুঁজে বের করতে প্রতিটি টাইটেলের IMDb আইডি api.tiffara.com-এ পাঠায়।</string>
     <string name="playback_auto_skip_segments">স্বয়ংক্রিয় স্কিপিং</string>
     <string name="playback_auto_skip_segments_sub">স্বয়ংক্রিয়ভাবে কোন সেগমেন্টগুলো স্কিপ হবে তা বেছে নিন।</string>
     <string name="auto_skip_intro">ইন্ট্রো / ওপেনিং</string>
@@ -573,7 +552,6 @@
     <string name="playback_player_external">এক্সটার্নাল</string>
     <string name="playback_player_ask">প্রতিবার জিজ্ঞাসা করুন</string>
     <string name="playback_internal_player_engine">ইন্টারনাল ইঞ্জিন</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">libmpv (বিটা)</string>
     <string name="playback_auto_switch_internal_player_on_error">স্টার্টআপ এররে অটো-সুইচ ইঞ্জিন</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">যদি স্ট্রিম স্টার্টআপ ফেইল করে, তাহলে স্বয়ংক্রিয়ভাবে ExoPlayer এবং libmpv-এর মধ্যে সুইচ করুন।</string>
@@ -892,7 +870,6 @@
     <string name="web_custom_poster_none">কোনো প্যাটার্ন সেট করা নেই</string>
     <string name="web_custom_poster_loading">লোড হচ্ছে…</string>
     <string name="web_custom_poster_placeholders_info">প্লেসহোল্ডার: {id} সব কন্টেন্ট ID পাস করে। {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} একটি সিঙ্গেল ID টাইপ টার্গেট করে - অ্যাভেইলেবল না থাকলে মূল পোস্টার রেখে দেওয়া হয়। {imdb_id|tmdb_id|kitsu_id} সাপোর্টেড ID টাইপ ডিক্লেয়ার করে - ম্যাচ করাটি ব্যবহার করা হয়, অথবা মূল পোস্টার রেখে দেওয়া হয়। স্কিপ করার পরিবর্তে খালি করতে একটি প্লেসহোল্ডার অপশনাল করতে ? যোগ করুন: {imdb_id?}। অন্যান্য প্লেসহোল্ডার: {id_type}, {typed_id}, {type}, {shape}।</string>
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">ডিভাইসগুলোর মধ্যে দেখা হিস্ট্রি এবং প্লেব্যাক প্রোগ্রেস সিঙ্ক করুন</string>
     <string name="mdblist_connected_as">%1$s হিসেবে সংযুক্ত</string>
     <string name="mdblist_account_fallback">MDBList ইউজার</string>
@@ -1026,7 +1003,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">বিস্তারিত পৃষ্ঠায় দেখানো সুপারিশের জন্য সোর্স নির্বাচন করুন।</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">ক্যাশেড</string>
     <string name="trakt_stat_movies">সিনেমা</string>
     <string name="trakt_stat_shows">শো</string>
@@ -1051,15 +1027,6 @@
     <string name="debug_progress_indicator_default">ডিফল্ট</string>
     <string name="debug_progress_indicator_large">বড়</string>
     <string name="debug_section_features">ফিচার টগলস</string>
-    <string name="debug_account_tab_title">অ্যাকাউন্ট ট্যাব</string>
-    <string name="debug_account_tab_subtitle">সেটিংস নেভিগেশনে অ্যাকাউন্ট ট্যাবটি দেখান</string>
-    <string name="debug_sync_code_title">সিংক কোড ফিচার</string>
-    <string name="debug_sync_code_subtitle">অ্যাকাউন্ট সেটিংসে সিংক কোড জেনারেট/এন্টার করার বোতামগুলো দেখান</string>
-    <string name="debug_member_tier_title">সাপোর্টার টিয়ার সিমুলেট করুন</string>
-    <string name="debug_member_tier_subtitle">এই ডিবগ বিল্ডে রিটার্ন করা ভেরিফাইড সাপোর্টার টিয়ার বেছে নিন</string>
-    <string name="debug_member_tier_none">কোনোটিই নয়</string>
-    <string name="debug_member_tier_one">সমর্থক</string>
-    <string name="debug_member_tier_two">সাপোর্টার+</string>
     <string name="debug_buffer_logs_title">BUFFER লগ চালু করুন</string>
     <string name="debug_buffer_logs_subtitle">লগক্যাটে পিরিয়ডিক প্লেয়ার বাফার ডায়াগনস্টিকস এমিট করুন (ডিফল্টভাবে বন্ধ থাকে)</string>
     <string name="debug_error_dialog_title">প্লেব্যাক এরর</string>
@@ -1250,13 +1217,6 @@
     <string name="player_error_title">প্লেব্যাক এরর</string>
     <string name="player_error_choose_source">অন্য একটি সোর্স বেছে নিন</string>
     <string name="player_switch_to_mpv">MPV প্লেয়ারে সুইচ করুন</string>
-    <string name="player_report_issue">সমস্যা রিপোর্ট করুন</string>
-    <string name="player_report_issue_sending">প্লেব্যাক রিপোর্ট পাঠানো হচ্ছে…</string>
-    <string name="player_report_issue_sending_button">পাঠানো হচ্ছে…</string>
-    <string name="player_report_issue_sent">রিপোর্ট পাঠানো হয়েছে: %1$s</string>
-    <string name="player_report_issue_sent_button">রিপোর্ট পাঠানো হয়েছে</string>
-    <string name="player_report_issue_failed">রিপোর্ট পাঠানো যায়নি</string>
-    <string name="player_report_loading_issue">লোডিংয়ের সমস্যা রিপোর্ট করুন</string>
     <string name="player_speed_title">প্লেব্যাক স্পিড</string>
     <string name="player_error_no_stream_url">এই সোর্সে কোনো স্ট্রিম লিংক নেই। অন্য একটি সোর্স বেছে নিন।</string>
     <string name="stream_info_section_source">সোর্স</string>
@@ -1607,7 +1567,6 @@
     <string name="cd_refresh">রিফ্রেশ</string>
     <string name="cd_remove">সরান</string>
     <string name="cd_preview">পূর্বরূপ</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt লোগো</string>
     <string name="cd_trakt_qr">Trakt অ্যাক্টিভেশন QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1755,7 +1714,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">এই TMDB জনরা সংখ্যার সাথে মেলে শিরোনাম বাদ দিন।</string>
     <string name="collections_editor_tmdb_date_from">থেকে রিলিজ বা এয়ার তারিখ</string>
     <string name="collections_editor_tmdb_date_to">রিলিজ বা এয়ার তারিখ</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-MM-DD ব্যবহার করুন, উদাহরণস্বরূপ 2024-01-01।</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-MM-DD ব্যবহার করুন, উদাহরণস্বরূপ 2024-01-01।</string>
     <string name="collections_editor_tmdb_rating_min">সর্বনিম্ন রেটিং</string>
     <string name="collections_editor_tmdb_rating_max">সর্বোচ্চ রেটিং</string>
     <string name="collections_editor_tmdb_rating_helper">0 থেকে 10 পর্যন্ত TMDB রেটিং। উদাহরণ: 7.0।</string>
@@ -1807,14 +1766,9 @@
     <string name="collections_editor_tmdb_person_placeholder">টম হ্যাঙ্কস বা ব্যক্তির URL-এর জন্য 31</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 অথবা 123456</string>
     <string name="collections_editor_url_short_placeholder">https://…</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">অ্যানিমেশন জন্য 16</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1876,9 +1830,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">টম হ্যাঙ্কস মুভি, প্রিয় অভিনেতা</string>
     <string name="collections_editor_tmdb_director_title_placeholder">ক্রিস্টোফার নোলান মুভিজ, প্রিয় পরিচালক</string>
     <string name="collections_editor_tmdb_keywords_placeholder">সুপারহিরোর জন্য 9715</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">মার্ভেল স্টুডিওর জন্য 420</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">Netflix-এর জন্য 213</string>
     <string name="folder_detail_not_found">ফোল্ডার পাওয়া যায়নি</string>
     <string name="cast_error_load_details_for">%1$s-এর বিস্তারিত লোড করা যায়নি</string>
@@ -2037,8 +1989,6 @@
     <string name="web_error_invalid_request_body">ইনভ্যালিড রিকোয়েস্ট বডি</string>
     <string name="network_error_empty_response_body">খালি রেসপন্স বডি</string>
     <string name="network_error_unknown">অজানা এরর ঘটেছে</string>
-    <string name="network_fast_error_script_path_missing">fast.com: স্ক্রিপ্ট পাথ পাওয়া যায়নি</string>
-    <string name="network_fast_error_token_missing">fast.com: বান্ডেলে টোকেন পাওয়া যায়নি</string>
     <string name="player_stream_error_invalid_external_url">ইনভ্যালিড এক্সটার্নাল URL</string>
     <string name="player_stream_error_open_external_link_failed">এক্সটার্নাল লিংক ওপেন করা যাচ্ছে না</string>
     <string name="player_stream_error_invalid_url">ইনভ্যালিড স্ট্রীম URL</string>
@@ -2109,7 +2059,7 @@
     <string name="playback_cache_vod_size">VOD ক্যাশে সাইজ</string>
     <string name="playback_cache_vod_size_sub">প্রোগ্রেসিভ VOD ক্যাশের জন্য ম্যাক্সিমাম ডিস্ক ইউসেজ (LRU-ইভিক্টেড)।</string>
     <string name="playback_cache_info_range">রেঞ্জ: %1$d-%2$d MB।</string>
-    <string name="playback_cache_info_auto">অটো মোড ফ্রি স্পেসের প্রায় 10% টার্গেট করে।</string>
+    <string name="playback_cache_info_auto" formatted="false">অটো মোড ফ্রি স্পেসের প্রায় 10% টার্গেট করে।</string>
     <string name="playback_cache_info_manual_headroom">ম্যানুয়াল মোড প্রায় %1$dMB হেড্রুম রাখে।</string>
     <string name="playback_cache_info_free_disk">ফ্রি ডিস্ক অ্যাভেইলেবল: %1$s।</string>
     <string name="playback_cache_info_restart">মোড/সাইজ পরিবর্তন করার সময় অ্যাপ রিস্টার্ট করার পর নতুন ক্যাশে ক্যাপ অ্যাপ্লাই হয়।</string>
@@ -2222,10 +2172,6 @@
     <plurals name="cw_airs_in_days_short">
         <item quantity="one">%d দিনের মধ্যে</item>
         <item quantity="other">%d দিনের মধ্যে</item>
-    </plurals>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">%1$d সেকেন্ড পরও লোড হচ্ছে</item>
-        <item quantity="other">%1$d সেকেন্ড পরও লোড হচ্ছে</item>
     </plurals>
     
     <!-- Fetch: new and changed strings -->

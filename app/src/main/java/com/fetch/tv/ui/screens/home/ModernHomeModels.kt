@@ -25,6 +25,7 @@ import com.fetch.tv.ui.util.StableList
 import com.fetch.tv.ui.util.StableMap
 import com.fetch.tv.ui.util.StableSet
 import com.fetch.tv.ui.util.asStable
+import java.util.Locale
 
 internal val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 internal const val MODERN_HERO_TEXT_WIDTH_FRACTION = 0.42f
@@ -413,7 +414,7 @@ internal fun buildContinueWatchingItem(
                 ),
                 imdbText = item.episodeImdbRating
                     ?.takeIf { !isSeries || detailImdbRatingsVisibility.showEpisodeRating(isWatched = item.progress.isCompleted()) }
-                    ?.let { String.format("%.1f", it) },
+                    ?.let { String.format(Locale.getDefault(), "%.1f", it) },
                 genres = item.genres.asStable(),
                 poster = item.progress.poster,
                 backdrop = item.progress.backdrop,
@@ -457,7 +458,7 @@ internal fun buildContinueWatchingItem(
                 },
                 imdbText = item.info.imdbRating
                     ?.takeIf { detailImdbRatingsVisibility.showEpisodeRating(isWatched = false) }
-                    ?.let { String.format("%.1f", it) },
+                    ?.let { String.format(Locale.getDefault(), "%.1f", it) },
                 genres = item.info.genres.asStable(),
                 poster = item.info.poster,
                 backdrop = item.info.backdrop,
@@ -570,7 +571,7 @@ internal fun buildCatalogItem(
         yearText = extractYearText(item.type, item.releaseInfo, item.released, showFullReleaseDate),
         runtimeText = formatHeroRuntime(item.runtime),
         imdbText = item.imdbRating
-            ?.let { String.format("%.1f", it) },
+            ?.let { String.format(Locale.getDefault(), "%.1f", it) },
         ageRatingText = item.ageRating,
         statusText = item.status,
         countryText = item.country,

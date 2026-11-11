@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Продължи гледането</string>
     <string name="type_movie">Филм</string>
@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Поставяне</string>
     <string name="web_import_tab_file">Файл</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Поставете JSON с колекции тук...</string>
+    <string name="web_import_paste_placeholder">Поставете JSON с колекции тук…</string>
     <string name="web_import_file_select">Докоснете, за да изберете .json файл</string>
     <string name="web_order_send_to_top">Премести най-отгоре</string>
     <string name="web_order_send_to_bottom">Премести най-отдолу</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени за id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени за id=%2$s (type=%3$s). Проблеми: %4$s.</string>
     <string name="error_stream_no_supported_addon">Нито една инсталирана добавка не поддържа потоци за „%1$s“.</string>
-    <string name="error_stream_tried_none">Опитани стрийм добавки: %1$s. Нито една не върна потоци за id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден за id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден за id=%2$s (type=%3$s). Проблеми: %4$s.</string>
+    <string name="error_stream_tried_none">Опитани стрийм добавки: %1$s. Нито една не върна потоци.</string>
+    <string name="error_stream_tried_generic">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден.</string>
+    <string name="error_stream_tried_issues">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден. Проблеми: %2$s.</string>
 
     <string name="continue_watching">Продължаване на гледането</string>
     <string name="cw_upcoming">Предстоящи</string>
@@ -158,7 +158,6 @@
         <item quantity="other">Излиза след %d дни</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Днес</string>
     <string name="cw_airs_tomorrow_short">Утре</string>
     <plurals name="cw_airs_in_days_short">
@@ -248,7 +247,6 @@
     <string name="detail_comments_back_hint">Натисни назад за затваряне</string>
     <string name="detail_comments_badge_review">Отзив</string>
     <string name="detail_comments_badge_spoiler">Спойлер</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d харесвания</string>
     <string name="tmdb_entity_kind_company">Продукционна компания</string>
     <string name="tmdb_entity_kind_network">Мрежа</string>
@@ -257,11 +255,10 @@
     <string name="tmdb_entity_rail_recent">Скорошни</string>
     <string name="tmdb_entity_rail_most_voted">Най-много гласове</string>
     <string name="collections_editor_tmdb_watch_region">Регион за гледане</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 код на държавата, в която заглавието е налично. Пример: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 код на държавата, в която заглавието е налично. Пример: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Бързи региони</string>
     <string name="collections_editor_tmdb_watch_providers">ID на доставчици</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Използвай TMDB ID на доставчици. Раздели с запетаи за AND или с | за OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Бързи доставчици</string>
     <string name="tmdb_error_load_source">Не можахме да заредим TMDB източник</string>
     <string name="tmdb_error_list_not_found">TMDB списъкът не е намерен</string>
@@ -345,7 +342,6 @@
     <string name="licenses_attributions_section_app">ЛИЦЕНЗ НА ПРИЛОЖЕНИЕТО</string>
     <string name="licenses_attributions_section_data">ДАННИ И УСЛУГИ</string>
     <string name="licenses_attributions_section_playback">ANDROID ЛИЦЕНЗИ ЗА ВЪЗПРОИЗВЕЖДАНЕ</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch използва TMDB API за метаданни на филми и сериали, графики, трейлъри, актьорски състав, детайли за продукцията, колекции и препоръки. Този продукт използва TMDB API, но не е одобрен или сертифициран от TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -406,23 +402,9 @@
     <string name="experience_mode_confirm_advanced_title">Превключи към Разширено?</string>
     <string name="experience_mode_confirm_essential_subtitle">Разширените повърхности ще бъдат скрити, но запазените настройки остават непроменени. Можеш да превключиш обратно по всяко време.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Това разкрива пълната повърхност на настройките, включително разширена настройка, каталози, колекции и контроли за фина настройка.</string>
-    <string name="network_speed_test_run">Стартирай тест на скоростта</string>
-    <string name="network_speed_test_running">Изпълнява се тест на скоростта</string>
-    <string name="network_speed_test_subtitle">Измерване на скорост на изтегляне и латентност</string>
-    <string name="network_testing_latency">Измерване на латентност</string>
-    <string name="network_testing_download">Измерване на скорост на изтегляне</string>
-    <string name="network_results_title">Резултати</string>
-    <string name="network_latency_label">Латентност</string>
-    <string name="network_download_label">Изтегляне</string>
-    <string name="network_error_prefix">Грешка: %1$s</string>
-    <string name="network_powered_by_fast">С подкрепата на fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Офлайн</string>
     <string name="advanced_section_performance">Производителност и навигация</string>
     <string name="advanced_section_diagnostics">Диагностика</string>
     <string name="advanced_section_cache">Кеш</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Бърза хоризонтална навигация</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Увеличаване на скоростта на повторение на D-pad в редовете, докато повторението с ограничение е включено.</string>
     <string name="advanced_fetch_focus_scroll">Fetch фокусирано превъртане</string>
@@ -458,6 +440,7 @@
     <string name="playback_skip_intro">Пропусни интро</string>
     <string name="playback_skip_intro_sub">Използвай introdb.app за откриване на интро и резюмета.</string>
     <string name="playback_parental_guide">Предупреждения за съдържание</string>
+    <string name="playback_parental_guide_sub">Показва предупреждения за съдържанието при стартиране на възпроизвеждането. Изпраща IMDb ID на всяко заглавие до api.tiffara.com, за да ги намери.</string>
     <string name="playback_auto_skip_segments">Автоматично пропускане</string>
     <string name="playback_auto_skip_segments_sub">Избери кои сегменти да се пропускат автоматично.</string>
     <string name="auto_skip_intro">Интро / Отваряне</string>
@@ -471,7 +454,6 @@
     <string name="playback_player_external">Външен</string>
     <string name="playback_player_ask">Питай всеки път</string>
     <string name="playback_internal_player_engine">Вграден двигател</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Бета)</string>
     <string name="playback_auto_switch_internal_player_on_error">Автоматично превключване на двигателя при грешка при стартиране</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Ако стартирането на потока се провали, превключи автоматично между ExoPlayer и libmpv.</string>
@@ -544,20 +526,16 @@
     <string name="audio_dv5_to_dv81_sub">Сигнализирай Profile 5 потоци като Profile 8.1 за HDR10-съвместим изход. Помага на устройства без нативен DV5 декодер.</string>
     <string name="audio_dv7_preserve_mapping_title">Запази DV mapping (DV7 към DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Запазва оригиналното tone-mapping, замислено от създателя, за сметка на леко повече обработка на кадър.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Режим на конверсия (автоматично избран, не променяй освен ако не е указано). Избери един за принудително; None използва автоматично. Активно само когато DV7 Handling е Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Режим на конверсия</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">Без презапис. Използва автоматично избрания режим на конверсия.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (без конверсия)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Парсирай RPU и го запиши обратно непроменен. Без конверсия на профила.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Конвертирай RPU, за да бъде съвместим с MEL (Minimum Enhancement Layer).</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Конвертирай към profile 8.1 с luma и chroma mapping, зададени като no-op. Стандартната конверсия.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 към 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Конвертирай Profile 5 (DV5) потоци към Profile 8.1. Същата конверсия, която използва превключвателят Convert DV5 to DV8.1.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Конвертирай към статичен profile 8.4.</string>
+    <string name="dv7_libdovi_mode_caption">Режим на конверсия (автоматично избран, не променяй освен ако не е указано). Избери един за принудително; None използва автоматично. Активно само когато DV7 Handling е Convert to DV8.1.</string>
+    <string name="dv7_libdovi_mode_row_title">Режим на конверсия</string>
+    <string name="dv7_libdovi_mode_none_sub">Без презапис. Използва автоматично избрания режим на конверсия.</string>
+    <string name="dv7_libdovi_mode_0_title">Mode 0 — Copy (без конверсия)</string>
+    <string name="dv7_libdovi_mode_0_sub">Парсирай RPU и го запиши обратно непроменен. Без конверсия на профила.</string>
+    <string name="dv7_libdovi_mode_1_sub">Конвертирай RPU, за да бъде съвместим с MEL (Minimum Enhancement Layer).</string>
+    <string name="dv7_libdovi_mode_2_sub">Конвертирай към profile 8.1 с luma и chroma mapping, зададени като no-op. Стандартната конверсия.</string>
+    <string name="dv7_libdovi_mode_3_title">Mode 3 — Profile 5 към 8.1</string>
+    <string name="dv7_libdovi_mode_3_sub">Конвертирай Profile 5 (DV5) потоци към Profile 8.1. Същата конверсия, която използва превключвателят Convert DV5 to DV8.1.</string>
+    <string name="dv7_libdovi_mode_4_sub">Конвертирай към статичен profile 8.4.</string>
     <string name="audio_mpv_hwdec_title">Хардуерно декодиране (само MPV)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">Избери как libmpv да използва хардуерни декодери.</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">Legacy (direct -&gt; copy)</string>
@@ -858,10 +836,6 @@
     <string name="debug_playback_error_title">Екран за грешка при възпроизвеждане</string>
     <string name="debug_playback_error_subtitle">Покажи симулиран popup за грешка при възпроизвеждане</string>
     <string name="debug_section_features">Флагове на функции</string>
-    <string name="debug_account_tab_title">Раздел Акаунт</string>
-    <string name="debug_account_tab_subtitle">Показвай раздела Акаунт в навигацията на Настройки</string>
-    <string name="debug_sync_code_title">Функции на Sync Code</string>
-    <string name="debug_sync_code_subtitle">Показвай бутони за Генериране/Въвеждане на Sync Code в настройките на Акаунт</string>
     <string name="debug_buffer_logs_title">Включи BUFFER логове</string>
     <string name="debug_buffer_logs_subtitle">Излъчвай периодични диагностики на плейър буфера към logcat (изключено по подразбиране)</string>
     <string name="debug_error_dialog_title">Грешка при възпроизвеждане</string>
@@ -994,7 +968,7 @@
     <string name="player_loading_buffering">Буфериране…</string>
     <string name="player_engine_switching_title">Превключване на двигател на плейъра</string>
     <string name="player_engine_switching_message">Стартирането се провали. Превключване към %1$s…</string>
-    <string name="player_engine_switching_manual_message">Превключване към %1$s...</string>
+    <string name="player_engine_switching_manual_message">Превключване към %1$s…</string>
     <string name="playback_show_loading_status">Показвай статус на зареждане</string>
     <string name="playback_show_loading_status_sub">Показвай стъпка по стъпка прогреса, докато плейърът се инициализира.</string>
     <string name="player_sync_line">Синхронизирай линия</string>
@@ -1274,7 +1248,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Зареждане на рейтинги за епизода...</string>
+    <string name="ratings_loading">Зареждане на рейтинги за епизода…</string>
     <string name="ratings_unavailable">Рейтингите за епизода са недостъпни.</string>
     <string name="ratings_load_error">Не можахме да заредим рейтингите за епизода.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d епизода</string>
@@ -1282,7 +1256,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Зареди още</string>
-    <string name="discover_loading">Зареждане...</string>
+    <string name="discover_loading">Зареждане…</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_empty_no_content_title">Не е намерено съдържание</string>
     <string name="discover_empty_no_content_subtitle">Опитай с различен жанр или каталог</string>
@@ -1350,11 +1324,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt списъкът не е намерен или не е публичен</string>
     <string name="trakt_error_rate_limit_reached">Достигнат е Trakt rate limit</string>
     <string name="trakt_status_enter_activation_code">Въведи кода на trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Синхронизиране...</string>
+    <string name="trakt_status_syncing">Синхронизиране…</string>
     <string name="trakt_status_sync_completed">Синхронизацията завърши</string>
     <string name="trakt_status_disconnected">Прекъсната връзка с Trakt</string>
     <string name="trakt_status_cw_window_updated">Прозорецът на Продължи гледането е обновен</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, забавяне на polling...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, забавяне на polling…</string>
     <string name="trakt_user_fallback">Trakt потребител</string>
     <string name="trakt_error_failed_start">Неуспешно стартиране на Trakt auth</string>
 
@@ -1403,7 +1377,6 @@
     <string name="cd_refresh">Обнови</string>
     <string name="cd_remove">Премахни</string>
     <string name="cd_preview">Преглед</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt лого</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1552,7 +1525,7 @@
     <string name="collections_editor_tmdb_genres_helper">Използвай TMDB номера на жанрове. Раздели множеството със запетаи за AND или | за OR.</string>
     <string name="collections_editor_tmdb_date_from">Дата на издаване/излъчване от</string>
     <string name="collections_editor_tmdb_date_to">Дата на издаване/излъчване до</string>
-    <string name="collections_editor_tmdb_date_helper">Използвай YYYY-MM-DD, например 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Използвай YYYY-MM-DD, например 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Минимален рейтинг</string>
     <string name="collections_editor_tmdb_rating_max">Максимален рейтинг</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB рейтинг от 0 до 10. Пример: 7.0.</string>
@@ -1599,14 +1572,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 за Netflix, 49 за HBO, 2739 за Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 за Tom Hanks или person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 или 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1635,9 +1603,9 @@
     <string name="collections_editor_placeholder_hero_video">Персонализиран hero video URL (незадължително)</string>
     <string name="collections_editor_title_logo">Title Logo (Modern Home)</string>
     <string name="collections_editor_placeholder_title_logo">Персонализиран title logo URL (незадължително)</string>
-    <string name="collections_editor_search_emoji_placeholder">Търси емоджи...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Филтрирай активни източници...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Търси каталози...</string>
+    <string name="collections_editor_search_emoji_placeholder">Търси емоджи…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Филтрирай активни източници…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Търси каталози…</string>
     <string name="collections_editor_genre_filter">Филтър по жанр</string>
     <string name="collections_editor_choose_genre">Избери</string>
     <string name="collections_editor_select_genre">Избери жанр</string>
@@ -1829,8 +1797,6 @@
     <string name="network_error_unknown">Възникна неизвестна грешка</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: script path не е намерен</string>
-    <string name="network_fast_error_token_missing">fast.com: token не е намерен в bundle</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -1923,7 +1889,7 @@
     <string name="playback_cache_vod_size">VOD размер на кеша</string>
     <string name="playback_cache_vod_size_sub">Максимална употреба на диск за progressive VOD кеш (LRU-evicted).</string>
     <string name="playback_cache_info_range">Диапазон: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Автоматичният режим цели около 10% от свободното пространство.</string>
+    <string name="playback_cache_info_auto" formatted="false">Автоматичният режим цели около 10% от свободното пространство.</string>
     <string name="playback_cache_info_manual_headroom">Ръчният режим запазва около %1$dMB headroom.</string>
     <string name="playback_cache_info_free_disk">Свободно дисково пространство: %1$s.</string>
     <string name="playback_cache_info_restart">Новият лимит на кеша се прилага след рестартиране на приложението при смяна между режими/размери.</string>

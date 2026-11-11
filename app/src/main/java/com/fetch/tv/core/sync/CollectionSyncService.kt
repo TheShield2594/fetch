@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 private const val TAG = "CollectionSyncService"
 
@@ -40,7 +41,7 @@ class CollectionSyncService @Inject constructor(
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
         val backend = backends.active ?: return@withContext Result.success(Unit)
         val profileId = profileManager.activeProfileId.value
-        val collections = runCatching { localCollectionsJson() }.getOrElse { return@withContext Result.failure(it) }
+        val collections = runSuspendCatching { localCollectionsJson() }.getOrElse { return@withContext Result.failure(it) }
         backend.pushCollections(profileId, collections)
             .onSuccess { Log.d(TAG, "Pushed ${collections.size} collections to ${backend.kind} for profile $profileId") }
             .onFailure { Log.e(TAG, "Failed to push collections to ${backend.kind}", it) }

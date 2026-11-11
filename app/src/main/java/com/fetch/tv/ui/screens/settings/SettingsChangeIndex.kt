@@ -182,6 +182,5 @@ internal val playerSettingsChangeRules: List<SettingsChangeRule<PlayerSettings>>
     add(rule(buffer, R.string.playback_net_chunk_size) { it.parallelChunkSizeKb })
 
     val advanced = SettingsCategory.ADVANCED
-    add(rule(advanced, R.string.advanced_playback_issue_reports) { it.playbackIssueReportsEnabled })
     add(rule(advanced, R.string.dv7_libdovi_mode_row_title) { it.dv7LibdoviModeOverride })
 }

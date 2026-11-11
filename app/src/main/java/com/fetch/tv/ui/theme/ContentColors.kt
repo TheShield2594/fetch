@@ -64,13 +64,6 @@ object FetchContentColors {
     /** The primary profile's star and label. */
     val primaryProfileBadge = Color(0xFFFFB300)
 
-    /** Member badge sweeps. */
-    val supporterGold = Color(0xFFD4843D)
-    val supporterGoldLight = Color(0xFFFFDE90)
-    val supporterPlusBlue = Color(0xFF91A8FF)
-    val supporterPlusPink = Color(0xFFF08BD8)
-    val supporterPlusCoral = Color(0xFFFF9B8E)
-
     /** Tracking provider cards (Trakt, Simkl, MDBList) and the text drawn on them. */
     val traktCardGradient = listOf(Color(0xFF7D279B), Color(0xFFD61F56), Color(0xFFF22125))
     val simklCardGradient = listOf(Color(0xFF050505), Color(0xFF292929), FetchPrimitives.neutral925)

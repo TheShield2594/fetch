@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Tiếp tục xem</string>
     <string name="type_movie">Phim</string>
@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Dán</string>
     <string name="web_import_tab_file">Tệp</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Dán JSON bộ sưu tập vào đây...</string>
+    <string name="web_import_paste_placeholder">Dán JSON bộ sưu tập vào đây…</string>
     <string name="web_import_file_select">Chạm để chọn tệp .json</string>
     <string name="web_order_send_to_top">Đưa lên trên cùng</string>
     <string name="web_order_send_to_bottom">Đưa xuống dưới cùng</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Đã thử tiện ích siêu dữ liệu: %1$s. Không thể tải siêu dữ liệu cho id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Đã thử tiện ích siêu dữ liệu: %1$s. Không thể tải siêu dữ liệu cho id=%2$s (type=%3$s). Lỗi: %4$s.</string>
     <string name="error_stream_no_supported_addon">Không có tiện ích đã cài đặt nào hỗ trợ luồng phát cho \"%1$s\".</string>
-    <string name="error_stream_tried_none">Đã thử các tiện ích phát trực tuyến: %1$s. Không có tiện ích nào tìm thấy luồng phát cho id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Đã thử các tiện ích phát trực tuyến: %1$s. Không thể tải luồng phát cho id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Đã thử các tiện ích phát trực tuyến: %1$s. Không thể tải luồng phát cho id=%2$s (type=%3$s). Lỗi: %4$s.</string>
+    <string name="error_stream_tried_none">Đã thử các tiện ích phát trực tuyến: %1$s. Không có tiện ích nào tìm thấy luồng phát.</string>
+    <string name="error_stream_tried_generic">Đã thử các tiện ích phát trực tuyến: %1$s. Không thể tải luồng phát.</string>
+    <string name="error_stream_tried_issues">Đã thử các tiện ích phát trực tuyến: %1$s. Không thể tải luồng phát. Lỗi: %2$s.</string>
 
     <string name="continue_watching">Tiếp tục xem</string>
     <string name="cw_upcoming">Sắp chiếu</string>
@@ -154,15 +154,12 @@
     <string name="cw_airs_today">Phát sóng hôm nay</string>
     <string name="cw_airs_tomorrow">Phát sóng ngày mai</string>
     <plurals name="cw_airs_in_days">
-    	<item quantity="one">Phát sóng sau %d ngày nữa</item>
         <item quantity="other">Phát sóng sau %d ngày nữa</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Hôm nay</string>
     <string name="cw_airs_tomorrow_short">Ngày mai</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">Sau %1$d ngày</item>
         <item quantity="other">Sau %1$d ngày</item>
     </plurals>
     <string name="cw_action_go_to_details">Xem chi tiết</string>
@@ -258,7 +255,6 @@
     <string name="detail_comments_back_hint">Nhấn Quay lại để đóng</string>
     <string name="detail_comments_badge_review">Đánh giá</string>
     <string name="detail_comments_badge_spoiler">Nội dung tiết lộ</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d lượt thích</string>
     <string name="tmdb_entity_kind_company">Hãng sản xuất</string>
     <string name="tmdb_entity_kind_network">Đơn vị phát sóng</string>
@@ -267,14 +263,12 @@
     <string name="tmdb_entity_rail_recent">Mới nhất</string>
     <string name="tmdb_entity_rail_most_voted">Bình chọn nhiều nhất</string>
     <string name="collections_editor_tmdb_watch_region">Khu vực xem</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Mã quốc gia ISO 3166-1 nơi nội dung có sẵn. Ví dụ: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Mã quốc gia ISO 3166-1 nơi nội dung có sẵn. Ví dụ: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Khu vực xem nhanh</string>
     <string name="collections_editor_tmdb_watch_providers">ID nền tảng</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Sử dụng ID nền tảng xem của TMDB. Dùng dấu phẩy cho VÀ hoặc dấu gạch đứng cho HOẶC.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Đã loại trừ ID nền tảng xem</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Loại trừ nội dung trên các nền tảng TMDB có sẵn trong khu vực đã chọn.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Nền tảng xem nhanh</string>
     <string name="tmdb_error_load_source">Không thể tải nguồn TMDB</string>
     <string name="tmdb_error_list_not_found">Không tìm thấy danh sách TMDB</string>
@@ -375,7 +369,6 @@
     <string name="ambient_mode_timeout">Bắt đầu sau</string>
     <string name="ambient_mode_timeout_subtitle">Thời gian chờ trước khi Chế độ môi trường xung quanh bắt đầu</string>
     <plurals name="ambient_mode_timeout_minutes">
-        <item quantity="one">%1$d phút</item>
         <item quantity="other">%1$d phút</item>
     </plurals>
     <string name="ambient_mode_catalogs">Danh mục</string>
@@ -423,12 +416,10 @@
     <string name="licenses_attributions_section_app">GIẤY PHÉP ỨNG DỤNG</string>
     <string name="licenses_attributions_section_data">DỮ LIỆU &amp; DỊCH VỤ</string>
     <string name="licenses_attributions_section_playback">GIẤY PHÉP PHÁT LẠI TRÊN ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch sử dụng API TMDB để lấy dữ liệu phim và TV, ảnh hiển thị, trailer, diễn viên, thông tin sản xuất, bộ sưu tập và đề xuất. Sản phẩm này sử dụng API TMDB nhưng không được TMDB xác thực hoặc chứng nhận.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch kết nối với Trakt để xác thực tài khoản, đồng bộ lịch sử đã xem, tiến độ xem, dữ liệu thư viện, đánh giá, danh sách và bình luận. Fetch không liên kết hoặc được Trakt xác nhận.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch kết nối với Simkl để xác thực tài khoản, đồng bộ danh sách theo dõi, lịch sử đã xem, tiến trình phát lại và ghi nhật ký phát lại. Dữ liệu theo dõi phim, TV và anime do Simkl cung cấp. Fetch không liên kết hoặc được xác nhận bởi Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch sử dụng MDBList để cung cấp điểm đánh giá và dữ liệu từ các nhà cung cấp điểm số bên ngoài. Fetch không liên kết hoặc được xác nhận bởi MDBList.</string>
@@ -475,8 +466,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Chọn dịch vụ mà Fetch dùng để đọc cho việc tiếp tục phát và mục Tiếp tục xem. Ghi nhật ký phát lại vẫn hoạt động trên tất cả dịch vụ liên kết.</string>
     <string name="tracking_library_source_dialog_subtitle">Chọn dịch vụ mà Fetch dùng để xem Thư viện của bạn. Nhật ký phát lại vẫn hoạt động trên tất cả dịch vụ liên kết.</string>
     <string name="tracking_trakt_progress_required">Khả dụng khi Trakt là nguồn Tiến độ xem</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Nâng cao</string>
     <string name="settings_advanced_subtitle">Hiệu năng, điều hướng, bộ nhớ đệm và chẩn đoán</string>
     <string name="experience_mode_essential">Cơ bản</string>
@@ -515,28 +504,13 @@
     <string name="experience_mode_confirm_advanced_title">Chuyển sang Nâng cao?</string>
     <string name="experience_mode_confirm_essential_subtitle">Giao diện thiết lập nâng cao sẽ bị ẩn, nhưng các cài đặt đã lưu vẫn không thay đổi. Bạn có thể chuyển lại bất cứ lúc nào.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Thao tác này hiển thị đầy đủ giao diện thiết lập, bao gồm các tùy chọn thiết lập nâng cao, danh mục, bộ sưu tập và tinh chỉnh.</string>
-    <string name="network_speed_test_run">Chạy Kiểm tra Tốc độ</string>
-    <string name="network_speed_test_running">Đang chạy Kiểm tra Tốc độ</string>
-    <string name="network_speed_test_subtitle">Đo tốc độ tải xuống và độ trễ</string>
-    <string name="network_testing_latency">Đang đo độ trễ</string>
-    <string name="network_testing_download">Đang đo tốc độ tải xuống</string>
-    <string name="network_results_title">Kết quả</string>
-    <string name="network_latency_label">Độ trễ</string>
-    <string name="network_download_label">Tải xuống</string>
-    <string name="network_error_prefix">Lỗi: %1$s</string>
-    <string name="network_powered_by_fast">Cung cấp bởi fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Mạng có dây</string>
-    <string name="network_connection_offline">Ngoại tuyến</string>
     <string name="advanced_section_performance">Hiệu năng &amp; điều hướng</string>
     <string name="advanced_section_diagnostics">Chẩn đoán</string>
-    <string name="advanced_playback_issue_reports">Báo cáo vấn đề phát lại</string>
     <string name="advanced_player_stats_hud">Lớp phủ thống kê phát lại</string>
     <string name="advanced_player_stats_hud_subtitle">Hiển thị nút trong thông tin luồng để bật hoặc tắt các chỉ số CPU, bộ nhớ, bộ đệm, bitrate và nhiệt độ theo thời gian thực khi phát lại</string>
     <string name="advanced_section_cache">Bộ nhớ đệm</string>
     <string name="advanced_section_startup">Khởi động &amp; thoát</string>
     <string name="advanced_section_network_tests">Kiểm tra mạng</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Điều hướng ngang nhanh</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Tăng tốc độ lặp của phím điều hướng trong các hàng nhưng vẫn bật tính năng giới hạn tốc độ lặp.</string>
     <string name="advanced_fetch_focus_scroll">Cuộn theo tiêu điểm Fetch</string>
@@ -599,6 +573,7 @@
     <string name="playback_skip_intro">Bỏ qua Giới thiệu</string>
     <string name="playback_skip_intro_sub">Dùng introdb.app để tự động nhận diện phần giới thiệu và tóm tắt.</string>
     <string name="playback_parental_guide">Cảnh báo nội dung</string>
+    <string name="playback_parental_guide_sub">Hiển thị cảnh báo nội dung khi bắt đầu phát. Gửi mã IMDb của từng tựa phim đến api.tiffara.com để tra cứu.</string>
     <string name="playback_auto_skip_segments">Tự động bỏ qua</string>
     <string name="playback_auto_skip_segments_sub">Chọn các phân đoạn sẽ được tự động bỏ qua.</string>
     <string name="auto_skip_intro">Giới thiệu / Mở đầu</string>
@@ -616,7 +591,6 @@
     <string name="playback_player_external">Bên ngoài</string>
     <string name="playback_player_ask">Luôn hỏi</string>
     <string name="playback_internal_player_engine">Lõi trình phát bên trong</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Tự động chuyển lõi trình phát khi khởi động bị lỗi</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Nếu khởi động luồng phát thất bại, tự động chuyển đổi giữa ExoPlayer và libmpv.</string>
@@ -678,7 +652,7 @@
     <string name="audio_tunneled">Phát trực tiếp qua phần cứng</string>
     <string name="audio_tunneled_sub">Đồng bộ âm thanh/video ở cấp phần cứng. Có thể cải thiện việc phát lại trên một số thiết bị Android TV</string>
     <string name="audio_force_optical_passthrough">Buộc chuyển mã AC-3 (Cổng quang/SPDIF)</string>
-    <string name="audio_force_optical_passthrough_sub">Chuyển mã các định dạng đa kênh (TrueHD, DTS, AAC...) sang Dolby Digital 5.1 theo thời gian thực cho kết nối Cổng quang/SPDIF.</string>
+    <string name="audio_force_optical_passthrough_sub">Chuyển mã các định dạng đa kênh (TrueHD, DTS, AAC…) sang Dolby Digital 5.1 theo thời gian thực cho kết nối Cổng quang/SPDIF.</string>
     <!-- DV7 Handling Mode -->
     <string name="dv7_handling_title">Xử lý Dolby Vision</string>
     <string name="dv7_handling_dialog_subtitle">Chọn cách xử lý luồng DV khi phát</string>
@@ -698,20 +672,6 @@
     <string name="audio_strip_hdr10plus_sub">Loại bỏ siêu dữ liệu động HDR10+ khỏi các luồng. Khi Chuyển đổi sang DV8.1 được bật, việc loại bỏ sẽ được thực hiện sau khi chuyển đổi.</string>
     <string name="audio_dv7_preserve_mapping_title">Giữ nguyên dữ liệu ánh xạ DV (DV7 sang DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Giữ nguyên cách ánh xạ tông màu theo chủ ý ban đầu của nhà sáng tạo nhưng cần xử lý nhiều hơn một chút cho mỗi khung hình.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Giải mã phần mềm dự phòng Hi10P G-NEXT (chỉ MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Dùng giải mã phần mềm G-NEXT khi thông tin luồng nhận diện là H.264 Hi10P. Tắt theo mặc định; chỉ bật nếu phát lại Hi10P bị treo hoặc gặp lỗi.</string>
     <string name="audio_mpv_hwdec_title">Giải mã phần cứng (chỉ cho MPV))</string>
@@ -790,7 +750,7 @@
     <string name="autoplay_prefer_binge_group">Ưu tiên nhóm phát liên tục (Tập tiếp theo)</string>
     <string name="autoplay_prefer_binge_group_sub">Ưu tiên cùng cấu hình nguồn (cùng tiện ích/nhóm chất lượng) trước các quy tắc tự động phát thông thường.</string>
     <string name="autoplay_reuse_binge_group">Dùng lại nhóm phát liên tục</string>
-    <string name="autoplay_reuse_binge_group_sub">Ghi nhớ và dùng lại nhóm phát liên tục gần nhất giữa các phiên (Tiếp tục xem, Chi tiết...).</string>
+    <string name="autoplay_reuse_binge_group_sub">Ghi nhớ và dùng lại nhóm phát liên tục gần nhất giữa các phiên (Tiếp tục xem, Chi tiết…).</string>
     <string name="autoplay_threshold_pct">Phần trăm</string>
     <string name="autoplay_threshold_min">Số phút trước khi kết thúc</string>
     <string name="autoplay_threshold_mode">Chế độ Ngưỡng tập tiếp theo</string>
@@ -961,7 +921,6 @@
     <string name="web_custom_poster_placeholders_info">Các biến giữ chỗ: {id} truyền tất cả ID nội dung. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} nhắm đến một loại ID duy nhất — nếu không có, poster gốc sẽ được giữ lại. {imdb_id|tmdb_id|kitsu_id} khai báo các loại ID được hỗ trợ — loại phù hợp sẽ được sử dụng, nếu không có thì poster gốc sẽ được giữ lại. Thêm ? để biến giữ chỗ trở thành tùy chọn, khi đó biến sẽ được thay bằng giá trị trống thay vì bỏ qua: {imdb_id?}. Các biến giữ chỗ khác: {id_type}, {typed_id}, {type}, {shape}.</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Đồng bộ lịch sử đã xem và tiến trình phát lại trên các thiết bị</string>
     <string name="mdblist_connected_as">Đã kết nối với %1$s</string>
     <string name="mdblist_account_fallback">Người dùng MDBList</string>
@@ -1109,7 +1068,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Chọn nguồn đề xuất hiển thị trên các trang chi tiết</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">Đã lưu bộ nhớ đệm</string>
     <string name="trakt_stat_movies">Phim</string>
     <string name="trakt_stat_shows">Chương trình</string>
@@ -1135,15 +1093,6 @@
     <string name="debug_progress_indicator_default">Mặc định</string>
     <string name="debug_progress_indicator_large">Lớn</string>
     <string name="debug_section_features">Bật/tắt tính năng</string>
-    <string name="debug_account_tab_title">Thẻ Tài khoản</string>
-    <string name="debug_account_tab_subtitle">Hiển thị thẻ Tài khoản trong Cài đặt điều hướng</string>
-    <string name="debug_sync_code_title">Tính năng mã đồng bộ</string>
-    <string name="debug_sync_code_subtitle">Hiển thị nút Tạo/Nhập mã đồng bộ trong cài đặt Tài khoản</string>
-    <string name="debug_member_tier_title">Mô phỏng cấp người tài trợ</string>
-    <string name="debug_member_tier_subtitle">Chọn cấp người tài trợ đã xác thực được trả về trong bản dựng gỡ lỗi này</string>
-    <string name="debug_member_tier_none">Không có</string>
-    <string name="debug_member_tier_one">Người tài trợ</string>
-    <string name="debug_member_tier_two">Người tài trợ cao cấp</string>
     <string name="debug_buffer_logs_title">Bật nhật ký BỘ ĐỆM</string>
     <string name="debug_buffer_logs_subtitle">Ghi định kỳ thông tin chẩn đoán bộ đệm của trình phát vào logcat (đã tắt theo mặc định)</string>
     <string name="debug_error_dialog_title">Lỗi phát lại</string>
@@ -1306,7 +1255,7 @@
     <string name="player_loading_buffering">Đang tải bộ đệm…</string>
     <string name="player_engine_switching_title">Đang chuyển lõi trình phát</string>
     <string name="player_engine_switching_message">Không thể khởi động. Đang chuyển sang %1$s…</string>
-    <string name="player_engine_switching_manual_message">Đang chuyển sang %1$s...</string>
+    <string name="player_engine_switching_manual_message">Đang chuyển sang %1$s…</string>
     <string name="playback_show_loading_status">Hiển thị trạng thái tải</string>
     <string name="playback_show_loading_status_sub">Hiển thị tiến trình từng bước trong khi trình phát đang khởi tạo.</string>
     <string name="player_sync_line">Đồng bộ dòng</string>
@@ -1348,17 +1297,6 @@
     <string name="player_error_title">Lỗi phát lại</string>
     <string name="player_error_choose_source">Chọn nguồn khác</string>
     <string name="player_switch_to_mpv">Chuyển sang trình phát MPV</string>
-    <string name="player_report_issue">Báo cáo lỗi</string>
-    <string name="player_report_issue_sending">Đang gửi báo cáo phát lại...</string>
-    <string name="player_report_issue_sending_button">Đang gửi...</string>
-    <string name="player_report_issue_sent">Đã gửi báo cáo: %1$s</string>
-    <string name="player_report_issue_sent_button">Báo cáo đã gửi</string>
-    <string name="player_report_issue_failed">Không thể gửi báo cáo</string>
-    <string name="player_report_loading_issue">Báo cáo lỗi khi tải</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Vẫn đang tải sau %1$d giây</item>
-        <item quantity="other">Vẫn đang tải sau %1$d giây</item>
-    </plurals>
     <string name="player_speed_title">Tốc độ phát lại</string>
     <string name="player_error_no_stream_url">Nguồn này không có liên kết luồng phát. Vui lòng chọn nguồn khác.</string>
 
@@ -1651,7 +1589,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Đang tải điểm đánh giá các tập phim...</string>
+    <string name="ratings_loading">Đang tải điểm đánh giá các tập phim…</string>
     <string name="ratings_unavailable">Điểm đánh giá tập phim không có sẵn.</string>
     <string name="ratings_load_error">Không thể tải điểm đánh giá các tập phim.</string>
     <string name="ratings_season_summary">Mùa %1$d - %2$d tập</string>
@@ -1659,7 +1597,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Khám phá</string>
     <string name="discover_load_more">Tải thêm</string>
-    <string name="discover_loading">Đang tải...</string>
+    <string name="discover_loading">Đang tải…</string>
     <string name="discover_filter_genre">Thể loại</string>
     <string name="discover_empty_no_content_title">Không tìm thấy nội dung</string>
     <string name="discover_empty_no_content_subtitle">Thử thể loại hoặc danh mục khác</string>
@@ -1669,7 +1607,7 @@
     <!-- ProfileSettingsContent -->
 
     <!-- PlaybackAudioSettings -->
-    <string name="audio_passthrough_info">Truyền tải âm thanh trực tiếp (TrueHD, DTS, AC-3...) được tự động bật. Khi kết nối với bộ thu AV hoặc loa thanh tương thích qua HDMI, âm thanh không nén sẽ được truyền nguyên dạng mà không cần qua giải mã.</string>
+    <string name="audio_passthrough_info">Truyền tải âm thanh trực tiếp (TrueHD, DTS, AC-3…) được tự động bật. Khi kết nối với bộ thu AV hoặc loa thanh tương thích qua HDMI, âm thanh không nén sẽ được truyền nguyên dạng mà không cần qua giải mã.</string>
 
     <!-- SidebarNavigation / MainActivity -->
     <string name="nav_home">Trang chủ</string>
@@ -1728,11 +1666,11 @@
     <string name="trakt_error_list_not_found_or_private">Không tìm thấy danh sách Trakt hoặc danh sách không công khai</string>
     <string name="trakt_error_rate_limit_reached">Đã đạt giới hạn yêu cầu của Trakt</string>
     <string name="trakt_status_enter_activation_code">Nhập mã tại trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Đang đồng bộ...</string>
+    <string name="trakt_status_syncing">Đang đồng bộ…</string>
     <string name="trakt_status_sync_completed">Đồng bộ đã hoàn tất</string>
     <string name="trakt_status_disconnected">Đã ngắt kết nối từ Trakt</string>
     <string name="trakt_status_cw_window_updated">Cửa sổ tiếp tục xem đã được cập nhật</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Bị giới hạn tần suất, đang giảm tốc độ vấn tin...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Bị giới hạn tần suất, đang giảm tốc độ vấn tin…</string>
     <string name="trakt_user_fallback">Người dùng Trakt</string>
     <string name="trakt_error_failed_start">Không thể bắt đầu xác thực Trakt</string>
 
@@ -1781,7 +1719,6 @@
     <string name="cd_refresh">Làm mới</string>
     <string name="cd_remove">Xóa</string>
     <string name="cd_preview">Xem trước</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Mã QR kích hoạt Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1934,7 +1871,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Loại trừ các tên khớp với những mã số thể loại TMDB này.</string>
     <string name="collections_editor_tmdb_date_from">Ngày phát hành hoặc phát sóng từ</string>
     <string name="collections_editor_tmdb_date_to">Ngày phát hành hoặc phát sóng đến</string>
-    <string name="collections_editor_tmdb_date_helper">Định dạng YYYY-MM-DD, ví dụ 2024-01-01</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Định dạng YYYY-MM-DD, ví dụ 2024-01-01</string>
     <string name="collections_editor_tmdb_rating_min">Điểm đánh giá tối thiểu</string>
     <string name="collections_editor_tmdb_rating_max">Điểm đánh giá tối đa</string>
     <string name="collections_editor_tmdb_rating_helper">Điểm đánh giá TMDB từ 0 đến 10, ví dụ 7.0</string>
@@ -1985,15 +1922,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 cho Netflix, 49 cho HBO, 2739 cho Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 cho Tom Hanks hoặc URL cá nhân</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 cho Hoạt hình</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2022,9 +1954,9 @@
     <string name="collections_editor_placeholder_hero_video">URL video phông nền tùy chỉnh Khu vực Nổi bật (tùy chọn)</string>
     <string name="collections_editor_title_logo">Logo tiêu đề (Trang chủ Hiện đại)</string>
     <string name="collections_editor_placeholder_title_logo">URL logo tiêu đề tùy chỉnh (tùy chọn)</string>
-    <string name="collections_editor_search_emoji_placeholder">Tìm kiếm biểu tượng cảm xúc...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Lọc các nguồn đang hoạt động...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Tìm kiếm danh mục...</string>
+    <string name="collections_editor_search_emoji_placeholder">Tìm kiếm biểu tượng cảm xúc…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Lọc các nguồn đang hoạt động…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Tìm kiếm danh mục…</string>
     <string name="collections_editor_genre_filter">Lọc theo thể loại</string>
     <string name="collections_editor_choose_genre">Chọn</string>
     <string name="collections_editor_select_genre">Chọn thể loại</string>
@@ -2055,9 +1987,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Phim Tom Hanks, Diễn viên yêu thích</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Phim Christopher Nolan, Đạo diễn yêu thích</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 cho Siêu anh hùng</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 cho Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 cho Netflix</string>
     <string name="folder_detail_not_found">Không tìm thấy thư mục</string>
     <string name="cast_error_load_details_for">Không thể tải chi tiết của %1$s</string>
@@ -2252,8 +2182,6 @@
     <string name="network_error_unknown">Đã xảy ra lỗi không xác định</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: Không tìm thấy đường dẫn tệp lệnh</string>
-    <string name="network_fast_error_token_missing">fast.com: Không tìm thấy token trong gói</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -2354,7 +2282,7 @@
     <string name="playback_cache_vod_size">Dung lượng bộ nhớ đệm VOD</string>
     <string name="playback_cache_vod_size_sub">Dung lượng đĩa tối đa dành cho bộ nhớ đệm VOD lũy tiến (các mục ít được sử dụng gần đây sẽ bị xóa trước).</string>
     <string name="playback_cache_info_range">Phạm vi: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">Chế độ tự động sử dụng khoảng 10% bộ nhớ trống.</string>
+    <string name="playback_cache_info_auto" formatted="false">Chế độ tự động sử dụng khoảng 10% bộ nhớ trống.</string>
     <string name="playback_cache_info_manual_headroom">Chế độ thủ công giữ lại khoảng %1$d MB dung lượng dự phòng.</string>
     <string name="playback_cache_info_free_disk">Dung lượng đĩa trống: %1$s.</string>
     <string name="playback_cache_info_restart">Giới hạn bộ nhớ đệm mới sẽ có hiệu lực sau khi khởi động lại ứng dụng khi chuyển đổi giữa các chế độ hoặc dung lượng</string>
@@ -2435,12 +2363,12 @@
     <string name="stream_test_card_title">Chạy kiểm tra tốc độ luồng đã phát gần nhất</string>
     <string name="stream_test_server_label">Máy chủ: %1$s</string>
     <string name="stream_test_no_stream">Chưa ghi nhận phát lại nào. Vui lòng phát một video để chạy các bài kiểm tra chẩn đoán trên máy chủ lưu trữ video đó.</string>
-    <string name="stream_test_btn_measuring_baseline">Đang đo mức tham chiếu...</string>
-    <string name="stream_test_btn_measuring_parallel1">Đang đo kết nối đồng thời (1MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Đang đo kết nối đồng thời (4MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Đang đo kết nối đồng thời (8MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Đang đo kết nối đồng thời (16MB)...</string>
-    <string name="stream_test_btn_running">Đang chạy...</string>
+    <string name="stream_test_btn_measuring_baseline">Đang đo mức tham chiếu…</string>
+    <string name="stream_test_btn_measuring_parallel1">Đang đo kết nối đồng thời (1MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Đang đo kết nối đồng thời (4MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Đang đo kết nối đồng thời (8MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Đang đo kết nối đồng thời (16MB)…</string>
+    <string name="stream_test_btn_running">Đang chạy…</string>
     <string name="stream_test_label_baseline">Kết nối đơn tiêu chuẩn (tham chiếu)</string>
     <string name="stream_test_label_parallel1">Kết nối đồng thời (phân đoạn 1 MB)</string>
     <string name="stream_test_label_parallel4">Kết nối đồng thời (phân đoạn 4 MB)</string>

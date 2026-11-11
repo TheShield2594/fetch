@@ -42,11 +42,11 @@ internal fun InputField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
+    modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
     isPassword: Boolean = false,
     imeAction: ImeAction = ImeAction.Done,
     onImeAction: () -> Unit = {},
-    modifier: Modifier = Modifier
 ) {
     val textFieldFocusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current

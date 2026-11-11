@@ -9,6 +9,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 /**
  * Profile PINs checked by the Fetch website. The website never hands out a PIN or its hash:
@@ -28,7 +29,7 @@ class FetchWebsiteProfilePins @Inject constructor(
     // PINs are set and changed on the website, so its answer is the one that counts.
     override val isAuthoritative: Boolean get() = true
 
-    override suspend fun pullStates(): Result<Map<Int, Boolean>> = runCatching {
+    override suspend fun pullStates(): Result<Map<Int, Boolean>> = runSuspendCatching {
         client.profiles().associate { it.slot to it.hasPin }
     }
 
@@ -44,19 +45,19 @@ class FetchWebsiteProfilePins @Inject constructor(
         }
     }
 
-    override suspend fun clearPin(profileId: Int, currentPin: String?): Result<Unit> = runCatching {
+    override suspend fun clearPin(profileId: Int, currentPin: String?): Result<Unit> = runSuspendCatching {
         val remote = sync.remoteFor(profileId) ?: error("No such profile on the website")
         client.setPin(remote.id, null, currentPin, sync.profileToken(remote.id))
     }
 
-    override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> = runCatching {
+    override suspend fun verifyPin(profileId: Int, pin: String): Result<PinVerifyResult> = runSuspendCatching {
         val remote = sync.remoteFor(profileId) ?: error("No such profile on the website")
         val token = try {
             client.verifyPin(remote.id, pin)
         } catch (error: FetchWebsiteException) {
             // Locked out after too many wrong PINs: that is an answer, not an outage, so it
             // must not fall through to the copy on the device.
-            if (error.status == 429) return@runCatching PinVerifyResult(unlocked = false, retryAfterSeconds = error.retryAfterSec ?: 60)
+            if (error.status == 429) return@runSuspendCatching PinVerifyResult(unlocked = false, retryAfterSeconds = error.retryAfterSec ?: 60)
             throw error
         }
         if (token != null) sync.rememberProfileToken(remote.id, token)
@@ -67,9 +68,9 @@ class FetchWebsiteProfilePins @Inject constructor(
     // token. Fetched in the background so an unreachable website never slows an unlock down.
     override suspend fun onVerifiedLocally(profileId: Int, pin: String) {
         scope.launch {
-            runCatching {
-                val remote = sync.remoteFor(profileId) ?: return@runCatching
-                if (!remote.hasPin) return@runCatching
+            runSuspendCatching {
+                val remote = sync.remoteFor(profileId) ?: return@runSuspendCatching
+                if (!remote.hasPin) return@runSuspendCatching
                 client.verifyPin(remote.id, pin)?.let { sync.rememberProfileToken(remote.id, it) }
                 sync.pullCollections()
             }

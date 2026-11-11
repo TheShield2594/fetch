@@ -3,23 +3,20 @@ package com.fetch.tv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.data.local.ThemeDataStore
-import com.fetch.tv.data.repository.MemberAccessRepository
 import com.fetch.tv.domain.model.AppFont
 import com.fetch.tv.domain.model.AppIconOption
 import com.fetch.tv.domain.model.AppTheme
-import com.fetch.tv.domain.model.CosmeticEntitlements
 import com.fetch.tv.domain.model.CustomThemeColors
 import com.fetch.tv.domain.model.availableAppThemes
 import com.fetch.tv.domain.model.resolveAppTheme
-import com.fetch.tv.domain.model.resolveCustomThemeColors
 import com.fetch.tv.launcher.AppIconManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,8 +25,7 @@ data class ThemeSettingsUiState(
     val themesLoaded: Boolean = false,
     val selectedTheme: AppTheme = com.fetch.tv.domain.model.DEFAULT_APP_THEME,
     val customThemeColors: CustomThemeColors = CustomThemeColors.solid(CustomThemeColors.Default.second),
-    val customThemeGradientEnabled: Boolean = false,
-    val availableThemes: List<AppTheme> = availableAppThemes(CosmeticEntitlements.None),
+    val availableThemes: List<AppTheme> = availableAppThemes(),
     val selectedFont: AppFont = AppFont.SCHIBSTED_GROTESK,
     val availableFonts: List<AppFont> = AppFont.entries.toList(),
     val amoledMode: Boolean = false,
@@ -52,7 +48,6 @@ sealed class ThemeSettingsEvent {
 @HiltViewModel
 class ThemeSettingsViewModel @Inject constructor(
     private val themeDataStore: ThemeDataStore,
-    private val memberAccessRepository: MemberAccessRepository,
     private val appIconManager: AppIconManager
 ) : ViewModel() {
 
@@ -62,29 +57,15 @@ class ThemeSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                themeDataStore.themeSelection,
-                memberAccessRepository.access
-            ) { selection, memberAccess ->
-                val entitlements = memberAccess.entitlements
-                Triple(
-                    selection.copy(
-                        theme = resolveAppTheme(selection.theme, entitlements),
-                        customColors = resolveCustomThemeColors(selection.customColors, memberAccess.tier)
-                    ),
-                    availableAppThemes(entitlements),
-                    memberAccess.tier != null
-                )
-            }
+            themeDataStore.themeSelection
+                .map { selection -> selection.copy(theme = resolveAppTheme(selection.theme)) }
                 .distinctUntilChanged()
-                .collectLatest { (selection, availableThemes, gradientEnabled) ->
+                .collectLatest { selection ->
                     _uiState.update { state ->
                         state.copy(
                             themesLoaded = true,
                             selectedTheme = selection.theme ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME,
-                            customThemeColors = selection.customColors,
-                            customThemeGradientEnabled = gradientEnabled,
-                            availableThemes = availableThemes
+                            customThemeColors = selection.customColors
                         )
                     }
                 }
@@ -158,16 +139,14 @@ class ThemeSettingsViewModel @Inject constructor(
     private fun selectTheme(theme: AppTheme) {
         if (currentTheme() == theme) return
         viewModelScope.launch {
-            val access = memberAccessRepository.access.value
-            if (theme !in availableAppThemes(access.entitlements)) return@launch
+            if (theme !in availableAppThemes()) return@launch
             themeDataStore.setTheme(theme)
         }
     }
 
     private fun saveCustomTheme(colors: CustomThemeColors) {
         viewModelScope.launch {
-            val access = memberAccessRepository.access.value
-            themeDataStore.setCustomTheme(resolveCustomThemeColors(colors, access.tier))
+            themeDataStore.setCustomTheme(colors)
         }
     }
 

@@ -1,12 +1,11 @@
 package com.fetch.tv.ui.screens.library
 
+import android.view.KeyEvent as AndroidKeyEvent
 import com.fetch.tv.ui.components.FetchButtonStyle
 import com.fetch.tv.ui.components.FetchButton
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
-import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,34 +16,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.focusable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
@@ -56,24 +44,15 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -85,11 +64,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.model.LibrarySourceMode
@@ -110,8 +87,6 @@ import com.fetch.tv.ui.util.dpadRepeatThrottle
 import com.fetch.tv.ui.util.localizedContentType
 import com.fetch.tv.ui.util.localizedGenreLabel
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.platform.LocalConfiguration
 import com.fetch.tv.R
 
@@ -890,7 +865,11 @@ private fun LibrarySelectorsRow(
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalFoundationApi::class)
+/**
+ * A filter that opens its choices in the app's single-choice dialog, the TV picker Settings uses,
+ * rather than a touch dropdown. Closing it puts focus back on the filter.
+ */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LibraryDropdownPicker(
     modifier: Modifier = Modifier,
@@ -904,28 +883,14 @@ private fun LibraryDropdownPicker(
     onSelect: (LibraryOption) -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    var anchorSize by remember { mutableStateOf(IntSize.Zero) }
-    // Seed focused option with the current selection so reopen highlights the right row
-    // even before focus lands (fixes #2848 / incomplete #2507 race on TV).
-    var focusedOptionValue by remember(expanded) {
-        mutableStateOf(if (expanded) selectedValue else null)
-    }
-    val selectedItemFocusRequester = remember { FocusRequester() }
-    val selectedBringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    // Popup content attaches focus targets a few frames after expand. A fixed 50ms
-    // delay was flaky on TV and left focus on the first item for non-top selections.
-    LaunchedEffect(expanded, selectedValue) {
-        if (!expanded || selectedValue == null) return@LaunchedEffect
-        var focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 3)
-        if (!focused) focused = selectedItemFocusRequester.requestFocusAfterFrames(frames = 2)
-        if (!focused) return@LaunchedEffect
-        runCatching { selectedBringIntoViewRequester.bringIntoView() }
-        // Material DropdownMenu may still move initial focus to the first item after
-        // the popup settles; re-assert once so long lists keep the real selection.
-        repeat(3) { withFrameNanos { } }
-        if (runCatching { selectedItemFocusRequester.requestFocus() }.getOrDefault(false)) {
-            runCatching { selectedBringIntoViewRequester.bringIntoView() }
+    val anchorFocusRequester = remember { FocusRequester() }
+    var wasExpanded by remember { mutableStateOf(false) }
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            wasExpanded = true
+        } else if (wasExpanded) {
+            wasExpanded = false
+            anchorFocusRequester.requestFocusAfterFrames()
         }
     }
 
@@ -941,7 +906,7 @@ private fun LibraryDropdownPicker(
                         Modifier
                     }
                 )
-                .onSizeChanged { anchorSize = it }
+                .focusRequester(anchorFocusRequester)
                 .onFocusChanged { isFocused = it.isFocused },
             shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
             colors = CardDefaults.colors(
@@ -994,91 +959,16 @@ private fun LibraryDropdownPicker(
                 }
             }
         }
+    }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                focusedOptionValue = null
-                onExpandedChange(false)
-            },
-            modifier = Modifier
-                .width(with(LocalDensity.current) { anchorSize.width.toDp() })
-                .heightIn(max = 320.dp),
-            shape = RoundedCornerShape(FetchTheme.radii.md),
-            containerColor = FetchTheme.colors.BackgroundCard,
-            tonalElevation = FetchTheme.spacing.none,
-            shadowElevation = FetchTheme.spacing.sm,
-            border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border)
-        ) {
-            options.forEach { option ->
-                val isSelected = option.value == selectedValue
-                val isOptionFocused = option.value == focusedOptionValue
-                // Focus is the neutral white used everywhere else; the accent is kept for primary actions.
-                val itemTextColor = when {
-                    isOptionFocused -> FetchTheme.colors.OnHighlight
-                    else -> FetchTheme.colors.TextPrimary
-                }
-                val itemBackgroundColor = when {
-                    isOptionFocused -> FetchTheme.colors.Highlight
-                    isSelected -> FetchTheme.colors.FocusBackground
-                    else -> Color.Transparent
-                }
-
-                DropdownMenuItem(
-                    modifier = Modifier
-                        .then(
-                            if (isSelected) {
-                                Modifier
-                                    .focusRequester(selectedItemFocusRequester)
-                                    .bringIntoViewRequester(selectedBringIntoViewRequester)
-                            } else {
-                                Modifier
-                            }
-                        )
-                        .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xxs)
-                        .background(
-                            color = itemBackgroundColor,
-                            shape = RoundedCornerShape(FetchTheme.radii.sm)
-                        )
-                        .semantics { selected = isSelected }
-                        .onFocusChanged { state ->
-                            val hasFocus = state.isFocused || state.hasFocus
-                            focusedOptionValue = when {
-                                hasFocus -> option.value
-                                focusedOptionValue == option.value -> null
-                                else -> focusedOptionValue
-                            }
-                        },
-                    text = {
-                        Text(
-                            text = option.label,
-                            color = itemTextColor,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    // The current choice keeps a checkmark, so it stays identifiable once focus
-                    // moves to another option.
-                    trailingIcon = if (isSelected) {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = itemTextColor
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                    onClick = { onSelect(option) },
-                    colors = MenuDefaults.itemColors(
-                        textColor = itemTextColor,
-                        disabledTextColor = FetchTheme.colors.TextDisabled
-                    )
-                )
-            }
-        }
+    if (expanded) {
+        com.fetch.tv.ui.screens.settings.SettingsSingleChoiceDialog(
+            title = title,
+            options = options.map { com.fetch.tv.ui.screens.settings.SettingsPickerOption(it.value, it.label) },
+            selectedValue = selectedValue.orEmpty(),
+            onOptionSelected = { chosen -> options.firstOrNull { it.value == chosen }?.let(onSelect) },
+            onDismiss = { onExpandedChange(false) }
+        )
     }
 }
 

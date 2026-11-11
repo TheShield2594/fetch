@@ -48,7 +48,7 @@
         <item quantity="other">%d-day streak</item>
     </plurals>
     <!-- An unearned badge and how far along it is: "50 movies (12/50)" -->
-    <string name="stats_badge_progress">%1$s (%2$d/%3$d)</string>
+    <string name="stats_badge_progress" translatable="false">%1$s (%2$d/%3$d)</string>
     <string name="stats_earned_badges_label">Earned: %s</string>
     <string name="stats_next_badges_label">Next: %s</string>
     <string name="stats_monthly_activity">Monthly activity</string>
@@ -102,5 +102,5 @@
         <item quantity="other">%d episodes</item>
     </plurals>
     <!-- "S1:E4 — Episode name" -->
-    <string name="calendar_episode_with_name">%1$s — %2$s</string>
+    <string name="calendar_episode_with_name" translatable="false">%1$s — %2$s</string>
 </resources>

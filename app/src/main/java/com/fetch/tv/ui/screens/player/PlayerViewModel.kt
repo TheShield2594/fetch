@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.player
 
 import android.content.Context
@@ -80,7 +82,6 @@ class PlayerViewModel @Inject constructor(
     private val simklAuthRepository: com.fetch.tv.data.simkl.SimklAuthRepository,
     private val youTubeStreamResolver: com.fetch.tv.core.streams.YouTubeStreamResolver,
     private val streamBadgePresentation: com.fetch.tv.core.streams.StreamBadgePresentation,
-    private val playbackIssueReportRepository: com.fetch.tv.data.repository.PlaybackIssueReportRepository,
     private val externalPlaybackTracker: com.fetch.tv.core.player.ExternalPlaybackTracker,
     private val subtitleFileCache: com.fetch.tv.core.player.SubtitleFileCache,
     private val tvRecommendationManager: com.fetch.tv.core.recommendations.TvRecommendationManager,
@@ -127,7 +128,6 @@ class PlayerViewModel @Inject constructor(
         tmdbSettingsDataStore = tmdbSettingsDataStore,
         youTubeStreamResolver = youTubeStreamResolver,
         streamBadgePresentation = streamBadgePresentation,
-        playbackIssueReportRepository = playbackIssueReportRepository,
         tvRecommendationManager = tvRecommendationManager,
         serverPlayback = serverPlayback,
         serverStreams = serverStreams,

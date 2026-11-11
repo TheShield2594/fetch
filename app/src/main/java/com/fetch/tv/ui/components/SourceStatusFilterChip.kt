@@ -74,11 +74,11 @@ fun sourceChipLabel(name: String, status: SourceChipStatus): String {
 fun SourceStatusFilterChip(
     name: String,
     isSelected: Boolean,
+    modifier: Modifier = Modifier,
     status: SourceChipStatus = SourceChipStatus.SUCCESS,
     isSelectable: Boolean = true,
     onClick: () -> Unit,
     onFocusSelect: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val isError = status.isFailed

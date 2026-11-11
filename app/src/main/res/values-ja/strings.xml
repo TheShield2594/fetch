@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">視聴を続ける</string>
     <string name="type_movie">映画</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">試したメタアドオン: %1$s。id=%2$s (type=%3$s) のメタデータを読み込めませんでした</string>
     <string name="error_meta_tried_issues">試したメタアドオン: %1$s。id=%2$s (type=%3$s) のメタデータを読み込めませんでした。問題: %4$s。</string>
     <string name="error_stream_no_supported_addon">「%1$s」のストリームに対応したインストール済みアドオンがありません</string>
-    <string name="error_stream_tried_none">試したストリームアドオン: %1$s。id=%2$s (type=%3$s) のストリームを返したものはありませんでした</string>
-    <string name="error_stream_tried_generic">試したストリームアドオン: %1$s。id=%2$s (type=%3$s) のストリームを読み込めませんでした</string>
-    <string name="error_stream_tried_issues">試したストリームアドオン: %1$s。id=%2$s (type=%3$s) のストリームを読み込めませんでした。問題: %4$s。</string>
+    <string name="error_stream_tried_none">試したストリームアドオン: %1$s。ストリームを返したものはありませんでした</string>
+    <string name="error_stream_tried_generic">試したストリームアドオン: %1$s。ストリームを読み込めませんでした</string>
+    <string name="error_stream_tried_issues">試したストリームアドオン: %1$s。ストリームを読み込めませんでした。問題: %2$s。</string>
 
     <string name="continue_watching">視聴を続ける</string>
     <string name="cw_upcoming">近日公開</string>
@@ -154,15 +154,12 @@
     <string name="cw_airs_today">本日放送</string>
     <string name="cw_airs_tomorrow">明日放送</string>
     <plurals name="cw_airs_in_days">
-        <item quantity="one">%d日後に放送</item>
         <item quantity="other">%d日後に放送</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">今日</string>
     <string name="cw_airs_tomorrow_short">明日</string>
     <plurals name="cw_airs_in_days_short">
-        <item quantity="one">%d日後</item>
         <item quantity="other">%d日後</item>
     </plurals>
     <string name="cw_action_go_to_details">詳細へ</string>
@@ -248,7 +245,6 @@
     <string name="detail_comments_back_hint">戻るボタンで閉じる</string>
     <string name="detail_comments_badge_review">レビュー</string>
     <string name="detail_comments_badge_spoiler">ネタバレ</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d いいね</string>
     <string name="tmdb_entity_kind_company">制作会社</string>
     <string name="tmdb_entity_kind_network">放送局</string>
@@ -257,11 +253,10 @@
     <string name="tmdb_entity_rail_recent">最新</string>
     <string name="tmdb_entity_rail_most_voted">最多投票</string>
     <string name="collections_editor_tmdb_watch_region">視聴地域</string>
-    <string name="collections_editor_tmdb_watch_region_helper">タイトルが視聴可能なISO 3166-1国コード。例: US, GB。</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">タイトルが視聴可能なISO 3166-1国コード。例: US, GB。</string>
     <string name="collections_editor_tmdb_quick_watch_regions">クイック視聴地域</string>
     <string name="collections_editor_tmdb_watch_providers">視聴プロバイダーID</string>
     <string name="collections_editor_tmdb_watch_providers_helper">TMDB視聴プロバイダーIDを使用。複数はカンマ区切りでAND、またはパイプでOR。</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">クイック視聴プロバイダー</string>
     <string name="tmdb_error_load_source">TMDBソースを読み込めませんでした</string>
     <string name="tmdb_error_list_not_found">TMDBリストが見つかりません</string>
@@ -345,7 +340,6 @@
     <string name="licenses_attributions_section_app">アプリライセンス</string>
     <string name="licenses_attributions_section_data">データ &amp; サービス</string>
     <string name="licenses_attributions_section_playback">Android再生ライセンス</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetchは映画・TVのメタデータ、アートワーク、予告編、キャスト、制作詳細、コレクション、レコメンドにTMDB APIを使用しています。この製品はTMDB APIを使用していますが、TMDBによって承認または認定されていません。</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -409,23 +403,9 @@
     <string name="experience_mode_confirm_advanced_title">詳細に切り替えますか？</string>
     <string name="experience_mode_confirm_essential_subtitle">詳細設定は非表示になりますが、保存された設定はそのままです。いつでも切り替えられます。</string>
     <string name="experience_mode_confirm_advanced_subtitle">これにより、詳細設定、カタログ、コレクション、チューニングコントロールを含むすべての設定が表示されます。</string>
-    <string name="network_speed_test_run">速度テストを実行</string>
-    <string name="network_speed_test_running">速度テスト実行中</string>
-    <string name="network_speed_test_subtitle">ダウンロード速度とレイテンシを計測</string>
-    <string name="network_testing_latency">レイテンシを計測中</string>
-    <string name="network_testing_download">ダウンロード速度を計測中</string>
-    <string name="network_results_title">結果</string>
-    <string name="network_latency_label">レイテンシ</string>
-    <string name="network_download_label">ダウンロード</string>
-    <string name="network_error_prefix">エラー: %1$s</string>
-    <string name="network_powered_by_fast">Powered by fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">有線LAN</string>
-    <string name="network_connection_offline">オフライン</string>
     <string name="advanced_section_performance">パフォーマンス &amp; ナビゲーション</string>
     <string name="advanced_section_diagnostics">診断</string>
     <string name="advanced_section_cache">キャッシュ</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">高速水平ナビゲーション</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">D-padのリピート速度を上げます（リピートスロットリングは有効のまま）。</string>
     <string name="advanced_fetch_focus_scroll">Fetchフォーカススクロール</string>
@@ -461,6 +441,7 @@
     <string name="playback_skip_intro">イントロスキップ</string>
     <string name="playback_skip_intro_sub">introdb.appを使用してイントロとリキャップを検出</string>
     <string name="playback_parental_guide">コンテンツ警告</string>
+    <string name="playback_parental_guide_sub">再生開始時にコンテンツ警告を表示します。検索のため、各タイトルの IMDb ID を api.tiffara.com に送信します。</string>
     <string name="playback_auto_skip_segments">自動スキップ</string>
     <string name="playback_auto_skip_segments_sub">自動でスキップするセグメントを選択</string>
     <string name="auto_skip_intro">イントロ / オープニング</string>
@@ -474,7 +455,6 @@
     <string name="playback_player_external">外部</string>
     <string name="playback_player_ask">毎回確認</string>
     <string name="playback_internal_player_engine">内部エンジン</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (ベータ)</string>
     <string name="playback_auto_switch_internal_player_on_error">起動エラー時にエンジンを自動切り替え</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">ストリーム起動に失敗した場合、ExoPlayerとlibmpvを自動で切り替えます。</string>
@@ -551,20 +531,6 @@
     <string name="audio_strip_hdr10plus_sub">ストリームからHDR10+動的メタデータを削除。「DV8.1に変換」も有効な場合、変換後に削除が実行されます。</string>
     <string name="audio_dv7_preserve_mapping_title">DVマッピングを保持（DV7→DV8.1）</string>
     <string name="audio_dv7_preserve_mapping_sub">制作者が意図したトーンマッピングを保持しますが、フレームごとの処理が若干増えます。</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hwdec_title">ハードウェアデコード (MPVのみ)</string>
     <string name="audio_mpv_hwdec_dialog_subtitle">libmpvがハードウェアデコーダーを使用する方法を選択します。</string>
     <string name="audio_mpv_hwdec_legacy_direct_copy">レガシー (direct -> copy)</string>
@@ -865,10 +831,6 @@
     <string name="debug_playback_error_title">再生エラー画面</string>
     <string name="debug_playback_error_subtitle">模擬再生エラーポップアップを表示</string>
     <string name="debug_section_features">機能トグル</string>
-    <string name="debug_account_tab_title">アカウントタブ</string>
-    <string name="debug_account_tab_subtitle">設定ナビゲーションにアカウントタブを表示</string>
-    <string name="debug_sync_code_title">同期コード機能</string>
-    <string name="debug_sync_code_subtitle">アカウント設定に同期コードの生成/入力ボタンを表示</string>
     <string name="debug_buffer_logs_title">BUFFERログを有効にする</string>
     <string name="debug_buffer_logs_subtitle">プレーヤーバッファ診断をlogcatに定期的に出力します（デフォルト無効）</string>
     <string name="debug_error_dialog_title">再生エラー</string>
@@ -1281,7 +1243,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">エピソード評価を読み込み中...</string>
+    <string name="ratings_loading">エピソード評価を読み込み中…</string>
     <string name="ratings_unavailable">エピソード評価は利用できません</string>
     <string name="ratings_load_error">エピソード評価を読み込めませんでした</string>
     <string name="ratings_season_summary">シーズン%1$d - %2$dエピソード</string>
@@ -1289,7 +1251,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">ディスカバー</string>
     <string name="discover_load_more">さらに読み込む</string>
-    <string name="discover_loading">読み込み中...</string>
+    <string name="discover_loading">読み込み中…</string>
     <string name="discover_filter_genre">ジャンル</string>
     <string name="discover_empty_no_content_title">コンテンツが見つかりません</string>
     <string name="discover_empty_no_content_subtitle">別のジャンルやカタログを試してください</string>
@@ -1357,11 +1319,11 @@
     <string name="trakt_error_list_not_found_or_private">Traktリストが見つからないか非公開です</string>
     <string name="trakt_error_rate_limit_reached">Traktのレート制限に達しました</string>
     <string name="trakt_status_enter_activation_code">trakt.tv/activate でコードを入力してください</string>
-    <string name="trakt_status_syncing">同期中...</string>
+    <string name="trakt_status_syncing">同期中…</string>
     <string name="trakt_status_sync_completed">同期完了</string>
     <string name="trakt_status_disconnected">Traktから切断されました</string>
     <string name="trakt_status_cw_window_updated">視聴継続ウィンドウを更新しました</string>
-    <string name="trakt_status_rate_limited_slowing_polling">レート制限中、ポーリング速度を低下させます...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">レート制限中、ポーリング速度を低下させます…</string>
     <string name="trakt_user_fallback">Traktユーザー</string>
     <string name="trakt_error_failed_start">Trakt認証の開始に失敗しました</string>
 
@@ -1407,7 +1369,6 @@
     <string name="cd_refresh">更新</string>
     <string name="cd_remove">削除</string>
     <string name="cd_preview">プレビュー</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Traktロゴ</string>
     <string name="cd_trakt_qr">Trakt認証QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1556,7 +1517,7 @@
     <string name="collections_editor_tmdb_genres_helper">TMDBジャンル番号を使用。複数はカンマ区切りでAND、パイプでOR。</string>
     <string name="collections_editor_tmdb_date_from">公開・放送日（開始）</string>
     <string name="collections_editor_tmdb_date_to">公開・放送日（終了）</string>
-    <string name="collections_editor_tmdb_date_helper">YYYY-MM-DD形式、例: 2024-01-01。</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">YYYY-MM-DD形式、例: 2024-01-01。</string>
     <string name="collections_editor_tmdb_rating_min">最低評価</string>
     <string name="collections_editor_tmdb_rating_max">最高評価</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB評価 0〜10。例: 7.0。</string>
@@ -1603,14 +1564,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, または人物URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 または 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1833,8 +1789,6 @@
     <string name="network_error_unknown">不明なエラーが発生しました</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: スクリプトパスが見つかりません</string>
-    <string name="network_fast_error_token_missing">fast.com: トークンがバンドルに見つかりません</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -1930,7 +1884,7 @@
     <string name="playback_cache_vod_size">VODキャッシュサイズ</string>
     <string name="playback_cache_vod_size_sub">プログレッシブVODキャッシュの最大ディスク使用量（LRU削除）。</string>
     <string name="playback_cache_info_range">範囲: %1$d-%2$d MB。</string>
-    <string name="playback_cache_info_auto">自動モードは空き容量の約10%を目標とします。</string>
+    <string name="playback_cache_info_auto" formatted="false">自動モードは空き容量の約10%を目標とします。</string>
     <string name="playback_cache_info_manual_headroom">手動モードは約%1$dMBの余裕を確保します。</string>
     <string name="playback_cache_info_free_disk">利用可能な空きディスク: %1$s。</string>
     <string name="playback_cache_info_restart">新しいキャッシュ上限はモード/サイズ変更後にアプリ再起動で適用されます。</string>

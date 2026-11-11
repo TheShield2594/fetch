@@ -13,6 +13,12 @@ sealed interface AddonInstallOutcome {
     data class NeedsConfiguration(val addon: Addon, val url: String) : AddonInstallOutcome
 
     data class Failed(val message: String) : AddonInstallOutcome
+
+    /**
+     * Not installed: the profile that confirmed the install was switched away from (or lost the
+     * right to change addons) while the manifest was being fetched.
+     */
+    data class ProfileChanged(val addon: Addon) : AddonInstallOutcome
 }
 
 /**
@@ -23,8 +29,17 @@ sealed interface AddonInstallOutcome {
  *   copies stay: people keep several configurations of one addon on purpose.
  *
  * A manifest that still says `configurationRequired` is not installed.
+ *
+ * [profileId] is the profile that confirmed the install, captured by the caller at that moment
+ * (it defaults to the one active when this is called). The write is held to it, and refused
+ * with [AddonInstallOutcome.ProfileChanged] when another profile became active during the
+ * manifest fetch, so the addon can't land on a profile whose access was never checked.
  */
-suspend fun AddonRepository.installOrReplace(url: String, replacing: String? = null): AddonInstallOutcome {
+suspend fun AddonRepository.installOrReplace(
+    url: String,
+    replacing: String? = null,
+    profileId: Int? = addonChangeProfileId()
+): AddonInstallOutcome {
     val addon = when (val result = fetchAddon(url)) {
         is NetworkResult.Success -> result.data
         is NetworkResult.Error -> return AddonInstallOutcome.Failed(result.message)
@@ -37,10 +52,12 @@ suspend fun AddonRepository.installOrReplace(url: String, replacing: String? = n
         ?: getInstalledAddons().first().firstOrNull { installed ->
             installed.id == addon.id && installed.needsConfiguration && !sameUrl(installed.baseUrl)
         }?.baseUrl
-    if (target != null) {
-        replaceAddonUrl(target, url)
-    } else {
-        addAddon(url)
+    val written = when {
+        profileId == null && target != null -> { replaceAddonUrl(target, url); true }
+        profileId == null -> { addAddon(url); true }
+        target != null -> replaceAddonUrlFor(profileId, target, url)
+        else -> addAddonFor(profileId, url)
     }
+    if (!written) return AddonInstallOutcome.ProfileChanged(addon)
     return AddonInstallOutcome.Installed(addon, target)
 }

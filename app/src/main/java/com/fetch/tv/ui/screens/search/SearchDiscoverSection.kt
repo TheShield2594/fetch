@@ -1,6 +1,9 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalResources
 import com.fetch.tv.ui.components.FetchMediaCard
+import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
@@ -47,6 +50,9 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
@@ -98,6 +104,7 @@ private const val DISCOVER_PREFETCH_DISTANCE = 12
 internal fun DiscoverSection(
     uiState: SearchUiState,
     posterCardStyle: PosterCardStyle,
+    modifier: Modifier = Modifier,
     watchedMovieIds: Set<String> = emptySet(),
     watchedSeriesIds: Set<String> = emptySet(),
     focusResults: Boolean,
@@ -121,9 +128,9 @@ internal fun DiscoverSection(
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
-    modifier: Modifier = Modifier
 ) {
     val localContext = LocalContext.current
+    val resources = LocalResources.current
     val types = remember(uiState.discoverCatalogs) { discoverTypes(uiState.discoverCatalogs) }
     val genres = remember(uiState.discoverCatalogs, uiState.selectedDiscoverType) {
         discoverGenres(uiState.discoverCatalogs, uiState.selectedDiscoverType)
@@ -158,18 +165,18 @@ internal fun DiscoverSection(
     }
 
     fun yearLabel(range: DiscoverYearRange?): String = when {
-        range == null -> localContext.getString(R.string.discover_year_any)
+        range == null -> resources.getString(R.string.discover_year_any)
         range.from != null && range.from == range.to -> range.from.toString()
-        range.from == null && range.to != null -> localContext.getString(R.string.discover_year_before, range.to + 1)
-        else -> localContext.getString(R.string.discover_year_decade, range.from ?: 0)
+        range.from == null && range.to != null -> resources.getString(R.string.discover_year_before, range.to + 1)
+        else -> resources.getString(R.string.discover_year_decade, range.from ?: 0)
     }
     fun ratingLabel(minRating: Int?): String =
         if (minRating == null) {
-            localContext.getString(R.string.discover_rating_any)
+            resources.getString(R.string.discover_rating_any)
         } else {
-            localContext.getString(R.string.discover_rating_min, minRating)
+            resources.getString(R.string.discover_rating_min, minRating)
         }
-    fun sortLabel(sort: DiscoverSort): String = localContext.getString(
+    fun sortLabel(sort: DiscoverSort): String = resources.getString(
         when (sort) {
             DiscoverSort.CATALOG -> R.string.discover_sort_catalog
             DiscoverSort.RATING -> R.string.discover_sort_rating
@@ -555,7 +562,7 @@ internal fun DiscoverGrid(
             previousFilterKey = filterKey
         }
     }
-    var localRestoreFocusedItemIndex by remember { mutableStateOf(-1) }
+    var localRestoreFocusedItemIndex by remember { mutableIntStateOf(-1) }
     var localShouldRestoreFocusedItem by remember { mutableStateOf(false) }
     val effectiveFocusedItemIndex = if (localShouldRestoreFocusedItem) {
         localRestoreFocusedItemIndex
@@ -614,7 +621,7 @@ internal fun DiscoverGrid(
     // even before the grid items are composed (first return from navigation).
     val itemFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
     val focusedItemRequester = remember(focusedItemIndex) {
-        itemFocusRequesters.getOrPut(focusedItemIndex) { FocusRequester() }
+        itemFocusRequesters.focusRequesterFor(focusedItemIndex)
     }
 
     // A load that ends without new items (failed or empty) drops the pending hand-off. When the
@@ -647,6 +654,23 @@ internal fun DiscoverGrid(
         }
     }
 
+    // Back deep in the grid returns to its first card; only Back from the top rows goes on to the
+    // filters (the section's own handler), so one press never throws away a long scroll.
+    var gridHasFocus by remember { mutableStateOf(false) }
+    val scrolledPastTop by remember { derivedStateOf { gridState.firstVisibleItemIndex > 0 } }
+    val backScope = rememberCoroutineScope()
+    androidx.activity.compose.BackHandler(enabled = gridHasFocus && scrolledPastTop) {
+        backScope.launch {
+            gridState.scrollToItem(0)
+            val firstCard = when {
+                effectiveShouldRestoreFocusedItem && effectiveFocusedItemIndex == 0 -> restoreFocusRequester
+                focusResults -> firstItemFocusRequester
+                else -> itemFocusRequesters.focusRequesterFor(0)
+            }
+            firstCard.requestFocusAfterFrames()
+        }
+    }
+
     // Column the user was navigating in at the moment fast-scroll engaged.
     // Captured on drag-start (see onFastScrollingChanged below) because the
     // originally-focused card will have scrolled out of visibleItemsInfo by
@@ -660,6 +684,7 @@ internal fun DiscoverGrid(
             minSize = if (globalLandscape) posterCardStyle.height else adaptiveStyle.width
         ),
         modifier = Modifier.fillMaxSize()
+            .onFocusChanged { gridHasFocus = it.hasFocus }
             .focusRestorer { focusedItemRequester }
             .dpadVerticalFastScroll(
                 scrollableState = gridState,
@@ -718,7 +743,7 @@ internal fun DiscoverGrid(
             key = { _, item -> discoverItemKey(item) },
             contentType = { _, _ -> "content_card" }
         ) { index, item ->
-            val itemFocusReq = remember(index) { itemFocusRequesters.getOrPut(index) { FocusRequester() } }
+            val itemFocusReq = remember(index) { itemFocusRequesters.focusRequesterFor(index) }
             val focusReq = when {
                 effectiveShouldRestoreFocusedItem && index == effectiveFocusedItemIndex -> restoreFocusRequester
                 focusResults && index == 0 -> firstItemFocusRequester

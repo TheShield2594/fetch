@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.domain.model.UserProfile
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,6 +35,47 @@ class AddonPreferences @Inject constructor(
 
     private fun store(profileId: Int = effectiveProfileId()) =
         factory.get(profileId, FEATURE)
+
+    private fun profile(profileId: Int): UserProfile? =
+        profileManager.profiles.value.firstOrNull { it.id == profileId }
+
+    /** A profile other than the main one that uses the main profile's addons can't change them. */
+    private fun readOnly(profile: UserProfile?): Boolean =
+        profile != null && !profile.isPrimary && profile.usesPrimaryAddons
+
+    /** The store [profileId]'s addons live in: the main profile's when it uses those. */
+    private fun storeProfileIdFor(profileId: Int): Int =
+        if (profile(profileId)?.usesPrimaryAddons == true) 1 else profileId
+
+    /**
+     * The store a change goes to. With [profileId] it is pinned to that profile's addons, so a
+     * change confirmed on one profile can't land on another that became active meanwhile; without
+     * it, the active profile's. Null when that profile may not change its addons.
+     */
+    private fun writeStore(profileId: Int?) =
+        if (profileId == null) {
+            if (readOnly(profileManager.activeProfile)) null else store()
+        } else {
+            if (readOnly(profile(profileId))) null else store(storeProfileIdFor(profileId))
+        }
+
+    /** The profile an addon change made now is made for: the active one. */
+    fun activeProfileId(): Int = profileManager.activeProfileId.value
+
+    /**
+     * Whether a change confirmed on [profileId] may still be written: it is still the active
+     * profile, and it manages its own addons rather than using the main profile's.
+     */
+    fun canChangeAddonsFor(profileId: Int): Boolean =
+        profileManager.activeProfileId.value == profileId && !readOnly(profile(profileId))
+
+    /** [profileId]'s installed addon links in order, read from the store its addons live in. */
+    suspend fun installedAddonUrlsFor(profileId: Int): List<String> =
+        getCurrentList(factory.get(storeProfileIdFor(profileId), FEATURE).data.first())
+
+    /** [profileId]'s addon on/off states, read from the store its addons live in. */
+    suspend fun addonEnabledStatesFor(profileId: Int): Map<String, Boolean> =
+        getCurrentEnabledStates(factory.get(storeProfileIdFor(profileId), FEATURE).data.first())
 
     private val effectiveProfileIdFlow: Flow<Int> = combine(
         profileManager.activeProfileId,
@@ -83,11 +125,10 @@ class AddonPreferences @Inject constructor(
         }
     }
 
-    suspend fun addAddon(url: String): Boolean {
-           val active = profileManager.activeProfile
-           if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
+    suspend fun addAddon(url: String, profileId: Int? = null): Boolean {
+        val store = writeStore(profileId) ?: return false
         var changed = false
-        store().edit { preferences ->
+        store.edit { preferences ->
             val current = getCurrentList(preferences)
             val normalizedUrl = canonicalizeUrl(url)
             if (current.any { canonicalizeUrl(it).equals(normalizedUrl, ignoreCase = true) }) return@edit
@@ -124,11 +165,10 @@ class AddonPreferences @Inject constructor(
         return changed
     }
 
-    suspend fun setAddonOrder(urls: List<String>): Boolean {
-            val active = profileManager.activeProfile
-            if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
+    suspend fun setAddonOrder(urls: List<String>, profileId: Int? = null): Boolean {
+        val store = writeStore(profileId) ?: return false
         var changed = false
-        store().edit { preferences ->
+        store.edit { preferences ->
             val orderedUrls = urls.map(::canonicalizeUrl)
             val currentUrls = getCurrentList(preferences).map(::canonicalizeUrl)
             if (orderedUrls == currentUrls) return@edit
@@ -142,11 +182,10 @@ class AddonPreferences @Inject constructor(
         return changed
     }
 
-    suspend fun setAddonEnabled(url: String, enabled: Boolean): Boolean {
-        val active = profileManager.activeProfile
-        if (active != null && !active.isPrimary && active.usesPrimaryAddons) return false
+    suspend fun setAddonEnabled(url: String, enabled: Boolean, profileId: Int? = null): Boolean {
+        val store = writeStore(profileId) ?: return false
         var changed = false
-        store().edit { preferences ->
+        store.edit { preferences ->
             val states = getCurrentEnabledStates(preferences).toMutableMap()
             val normalizedUrl = canonicalizeUrl(url)
             if ((states[normalizedUrl] ?: true) == enabled) return@edit

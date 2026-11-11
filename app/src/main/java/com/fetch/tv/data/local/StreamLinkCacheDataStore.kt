@@ -10,6 +10,7 @@ import org.json.JSONObject
 import java.security.MessageDigest
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fetch.tv.core.util.runSuspendCatching
 
 data class CachedStreamLink(
     val url: String,
@@ -84,11 +85,11 @@ class StreamLinkCacheDataStore @Inject constructor(
         val key = cachePrefKey(contentKey)
         val raw = store().data.first()[key] ?: return null
 
-        val parsed = runCatching {
+        val parsed = runSuspendCatching {
             val json = JSONObject(raw)
             val cachedAtMs = json.optLong("cachedAtMs", 0L)
             val age = System.currentTimeMillis() - cachedAtMs
-            if (cachedAtMs <= 0L || age > maxAgeMs) return@runCatching null
+            if (cachedAtMs <= 0L || age > maxAgeMs) return@runSuspendCatching null
 
             val headersJson = json.optJSONObject("headers")
             val headers = buildMap {
@@ -101,7 +102,7 @@ class StreamLinkCacheDataStore @Inject constructor(
             val streamName = json.optString("streamName", "")
             val infoHash = json.optString("infoHash", "").ifBlank { null }
             // An entry without a URL is a bare torrent saved before Fetch went debrid-only.
-            if (streamName.isBlank() || url.isBlank()) return@runCatching null
+            if (streamName.isBlank() || url.isBlank()) return@runSuspendCatching null
 
             val sourcesJson = json.optJSONArray("sources")
             val sources = sourcesJson?.let { arr ->

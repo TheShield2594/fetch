@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="type_movie">Фильм</string>
     <string name="type_series">Сериал</string>
@@ -102,9 +102,9 @@
     <string name="error_meta_tried_generic">Проверены аддоны: %1$s. Не удалось загрузить метаданные для id=%2$s (тип=%3$s).</string>
     <string name="error_meta_tried_issues">Проверены аддоны: %1$s. Не удалось загрузить метаданные для id=%2$s (тип=%3$s). Проблемы: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ни один установленный аддон не поддерживает потоки для \"%1$s\".</string>
-    <string name="error_stream_tried_none">Проверены аддоны потоков: %1$s. Ни один из них не вернул потоки для id=%2$s (тип=%3$s).</string>
-    <string name="error_stream_tried_generic">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки для id=%2$s (тип=%3$s).</string>
-    <string name="error_stream_tried_issues">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки для id=%2$s (тип=%3$s). Проблемы: %4$s.</string>
+    <string name="error_stream_tried_none">Проверены аддоны потоков: %1$s. Ни один из них не вернул потоки.</string>
+    <string name="error_stream_tried_generic">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки.</string>
+    <string name="error_stream_tried_issues">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки. Проблемы: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Продолжить просмотр</string>
@@ -128,7 +128,6 @@
         <item quantity="other">Выходит через %d дней</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Сегодня</string>
     <string name="cw_airs_tomorrow_short">Завтра</string>
     <plurals name="cw_airs_in_days_short">
@@ -216,7 +215,6 @@
     <string name="detail_comments_back_hint">Нажмите Назад, чтобы закрыть</string>
     <string name="detail_comments_badge_review">Отзыв</string>
     <string name="detail_comments_badge_spoiler">Спойлер</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">Лайков: %1$d</string>
     <string name="tmdb_entity_kind_company">Производственная компания</string>
     <string name="tmdb_entity_kind_network">Телесеть</string>
@@ -316,23 +314,8 @@
     <string name="tracking_watch_progress_dialog_subtitle">Выберите сервис, из которого Fetch считывает продолжение просмотра и раздел «Продолжить просмотр». Скробблинг остаётся активным для всех подключённых сервисов.</string>
     <string name="tracking_library_source_dialog_subtitle">Выберите сервис, из которого Fetch считывает вашу Библиотеку. Воспроизведение скробблится во все подключённые сервисы.</string>
     <string name="tracking_trakt_progress_required">Доступно, когда Trakt используется как источник прогресса просмотра</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Дополнительно</string>
     <string name="settings_advanced_subtitle">Запуск диагностики скорости сети</string>
-    <string name="network_speed_test_run">Запустить тест скорости</string>
-    <string name="network_speed_test_running">Тест скорости выполняется</string>
-    <string name="network_speed_test_subtitle">Измерьте скорость скачивания и задержку</string>
-    <string name="network_testing_latency">Измерение задержки</string>
-    <string name="network_testing_download">Измерение скорости загрузки</string>
-    <string name="network_results_title">Результаты</string>
-    <string name="network_latency_label">Пинг</string>
-    <string name="network_download_label">Загрузка</string>
-    <string name="network_error_prefix">Ошибка: %1$s</string>
-    <string name="network_powered_by_fast">Работает на fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Не в сети</string>
     <string name="settings_debug">Отладка</string>
     <string name="settings_account_section_subtitle">Аккаунт и статус синхронизации</string>
 
@@ -363,7 +346,6 @@
     <string name="playback_player_external">Внешний</string>
     <string name="playback_player_ask">Спрашивать каждый раз</string>
     <string name="playback_internal_player_engine">Движок встроенного плеера</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Бета)</string>
     <string name="playback_auto_switch_internal_player_on_error">Авто-переключение движка при ошибке запуска</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Если запуск потока не удался, автоматически переключаться между ExoPlayer и libmpv.</string>
@@ -675,15 +657,6 @@
     <string name="debug_progress_indicator_default">Стандартный</string>
     <string name="debug_progress_indicator_large">Большой</string>
     <string name="debug_section_features">Переключатели функций</string>
-    <string name="debug_account_tab_title">Вкладка Аккаунт</string>
-    <string name="debug_account_tab_subtitle">Показывать вкладку Аккаунт в настройках навигации</string>
-    <string name="debug_sync_code_title">Функции кода синхронизации</string>
-    <string name="debug_sync_code_subtitle">Показывать кнопки генерации/ввода кода синхронизации в настройках аккаунта</string>
-    <string name="debug_member_tier_title">Имитация уровня спонсора</string>
-    <string name="debug_member_tier_subtitle">Выберите подтверждённый уровень спонсора, возвращаемый в этой отладочной сборке</string>
-    <string name="debug_member_tier_none">Нет</string>
-    <string name="debug_member_tier_one">Спонсор</string>
-    <string name="debug_member_tier_two">Спонсор+</string>
     <string name="debug_error_dialog_title">Ошибка воспроизведения</string>
     <string name="debug_error_dialog_subtitle">Произошла ошибка во время воспроизведения.\n\nОшибка: Тестовая симуляция ошибки - это не настоящий сбой. Источник вернул HTTP 503 (Сервис недоступен).</string>
     <string name="debug_dismiss">Закрыть</string>
@@ -813,7 +786,7 @@
     <string name="player_loading_buffering">Буферизация…</string>
     <string name="player_engine_switching_title">Переключение движка плеера</string>
     <string name="player_engine_switching_message">Ошибка запуска. Переключение на %1$s…</string>
-    <string name="player_engine_switching_manual_message">Переключение на %1$s...</string>
+    <string name="player_engine_switching_manual_message">Переключение на %1$s…</string>
     <string name="playback_show_loading_status">Показывать статус загрузки</string>
     <string name="playback_show_loading_status_sub">Отображать пошаговый прогресс во время инициализации плеера.</string>
 
@@ -841,19 +814,6 @@
     <string name="player_subtitle_delay">Задержка субтитров</string>
     <string name="player_error_title">Ошибка воспроизведения</string>
     <string name="player_error_choose_source">Выберите другой источник</string>
-    <string name="player_report_issue">Сообщить о проблеме</string>
-    <string name="player_report_issue_sending">Отправка отчёта о воспроизведении…</string>
-    <string name="player_report_issue_sending_button">Отправка…</string>
-    <string name="player_report_issue_sent">Отчёт отправлен: %1$s</string>
-    <string name="player_report_issue_sent_button">Отчёт отправлен</string>
-    <string name="player_report_issue_failed">Не удалось отправить отчёт</string>
-    <string name="player_report_loading_issue">Сообщить о проблеме загрузки</string>
-    <plurals name="player_report_loading_issue_prompt">
-        <item quantity="one">Всё ещё загружается спустя %1$d секунду</item>
-        <item quantity="few">Всё ещё загружается спустя %1$d секунды</item>
-        <item quantity="many">Всё ещё загружается спустя %1$d секунд</item>
-        <item quantity="other">Всё ещё загружается спустя %1$d секунд</item>
-    </plurals>
     <string name="player_speed_title">Скорость воспроизведения</string>
 
     <!-- StreamInfoOverlay -->
@@ -1103,7 +1063,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Загрузка рейтингов эпизода...</string>
+    <string name="ratings_loading">Загрузка рейтингов эпизода…</string>
     <string name="ratings_unavailable">Рейтинги эпизода недоступны.</string>
     <string name="ratings_load_error">Не удалось загрузить рейтинги эпизода.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d эпизодов</string>
@@ -1111,7 +1071,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Навигатор</string>
     <string name="discover_load_more">Загрузить еще</string>
-    <string name="discover_loading">Загрузка...</string>
+    <string name="discover_loading">Загрузка…</string>
     <string name="discover_filter_genre">Жанр</string>
     <string name="discover_empty_no_content_title">Контент не найден</string>
     <string name="discover_empty_no_content_subtitle">Попробуйте другой жанр или каталог</string>
@@ -1223,7 +1183,6 @@
     <string name="cd_refresh">Обновить</string>
     <string name="cd_remove">Удалить</string>
     <string name="cd_preview">Предпросмотр</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Логотип Trakt</string>
     <string name="cd_trakt_qr">QR-код активации Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1315,7 +1274,7 @@
     <string name="type_movies">Фильмы</string>
     <string name="type_series_plural">Сериалы</string>
     <string name="web_manage_addons_only_subtitle">Установить или удалить аддоны</string>
-    <string name="web_import_paste_placeholder">Вставьте JSON коллекций сюда...</string>
+    <string name="web_import_paste_placeholder">Вставьте JSON коллекций сюда…</string>
     <string name="web_import_file_select">Нажмите, чтобы выбрать .json файл</string>
     <string name="web_order_send_to_top">Переместить в начало</string>
     <string name="web_order_send_to_bottom">Переместить в конец</string>
@@ -1360,14 +1319,12 @@
     <string name="detail_trailer_error">Не удалось загрузить трейлер.</string>
     <string name="tmdb_entity_rail_most_voted">С наибольшим числом голосов</string>
     <string name="collections_editor_tmdb_watch_region">Регион просмотра</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Код страны ISO 3166-1, где доступен тайтл. Пример: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Код страны ISO 3166-1, где доступен тайтл. Пример: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Быстрые регионы просмотра</string>
     <string name="collections_editor_tmdb_watch_providers">ID провайдеров просмотра</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Используйте ID провайдеров TMDB. Запятые — AND, вертикальная черта — OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">Исключённые ID сервисов показа</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Исключить тайтлы, доступные у этих номеров сервисов показа TMDB в выбранном регионе.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Быстрые провайдеры просмотра</string>
     <string name="tmdb_error_load_source">Не удалось загрузить источник TMDB</string>
     <string name="tmdb_error_list_not_found">Список TMDB не найден</string>
@@ -1423,12 +1380,10 @@
     <string name="licenses_attributions_section_app">ЛИЦЕНЗИЯ ПРИЛОЖЕНИЯ</string>
     <string name="licenses_attributions_section_data">ДАННЫЕ И СЕРВИСЫ</string>
     <string name="licenses_attributions_section_playback">ЛИЦЕНЗИИ ВОСПРОИЗВЕДЕНИЯ ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch использует API TMDB для метаданных фильмов и ТВ, иллюстраций, трейлеров, актёров, производственных деталей, коллекций и рекомендаций. Этот продукт использует API TMDB, но не одобрен и не сертифицирован TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch подключается к Trakt для авторизации, истории просмотров, синхронизации прогресса, данных библиотеки, рейтингов, списков и комментариев. Fetch не аффилирован с Trakt и не одобрен им.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch подключается к Simkl для аутентификации аккаунта, списков просмотра, истории просмотренного, прогресса воспроизведения и скробблинга. Данные об отслеживании фильмов, сериалов и аниме предоставляются Simkl. Fetch не аффилирован с Simkl и не одобрен им.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch использует MDBList для рейтингов и данных внешних провайдеров оценок. Fetch не аффилирован с MDBList и не одобрен им.</string>
@@ -1479,7 +1434,6 @@
     <string name="experience_mode_confirm_advanced_subtitle">Откроет полный набор настроек, включая расширенную конфигурацию, каталоги, коллекции и элементы тонкой настройки.</string>
     <string name="advanced_section_performance">Производительность и навигация</string>
     <string name="advanced_section_diagnostics">Диагностика</string>
-    <string name="advanced_playback_issue_reports">Отчёты о проблемах воспроизведения</string>
     <string name="advanced_player_stats_hud">Оверлей статистики воспроизведения</string>
     <string name="advanced_player_stats_hud_subtitle">Показать в информации о потоке кнопку для переключения показателей ЦП, памяти, буфера, битрейта и температуры в реальном времени во время воспроизведения</string>
     <string name="advanced_section_cache">Кэш</string>
@@ -1503,6 +1457,7 @@
     <string name="sub_opacity">Прозрачность</string>
     <!-- Batch 4: playback parental/skip/AFR, video/audio DV7, cache duration -->
     <string name="playback_parental_guide">Предупреждения о контенте</string>
+    <string name="playback_parental_guide_sub">Показывать предупреждения о содержании при начале воспроизведения. Для их поиска IMDb ID каждого фильма отправляется на api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Автоматический пропуск</string>
     <string name="playback_auto_skip_segments_sub">Выберите, какие сегменты пропускать автоматически.</string>
     <string name="auto_skip_intro">Вступление / Опенинг</string>
@@ -1712,7 +1667,7 @@
     <string name="profile_pin_current_required">У этого профиля уже есть PIN. Введите текущий PIN для изменения.</string>
     <string name="trakt_error_missing_credentials">Отсутствуют учётные данные Trakt</string>
     <string name="trakt_error_network_retry">Ошибка сети, попробуйте ещё раз</string>
-    <string name="trakt_error_network_will_retry">Ошибка сети, повтор...</string>
+    <string name="trakt_error_network_will_retry">Ошибка сети, повтор…</string>
     <string name="trakt_error_rate_limited_minutes">Trakt ограничивает запросы. Попробуйте через ~%1$d мин</string>
     <string name="trakt_error_failed_start_code">Не удалось запустить авторизацию Trakt (%1$d)</string>
     <string name="trakt_error_no_active_device_code">Нет активного кода устройства Trakt</string>
@@ -1722,11 +1677,11 @@
     <string name="trakt_error_list_not_found_or_private">Список Trakt не найден или не публичный</string>
     <string name="trakt_error_rate_limit_reached">Достигнут лимит запросов Trakt</string>
     <string name="trakt_status_enter_activation_code">Введите код на trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Синхронизация...</string>
+    <string name="trakt_status_syncing">Синхронизация…</string>
     <string name="trakt_status_sync_completed">Синхронизация завершена</string>
     <string name="trakt_status_disconnected">Отключено от Trakt</string>
     <string name="trakt_status_cw_window_updated">Окно «Продолжить просмотр» обновлено</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Ограничение запросов, замедление опроса...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Ограничение запросов, замедление опроса…</string>
     <string name="trakt_user_fallback">Пользователь Trakt</string>
     <string name="trakt_error_failed_start">Не удалось запустить авторизацию Trakt</string>
     <string name="error_unknown">Неизвестная ошибка</string>
@@ -1809,7 +1764,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Исключить тайтлы, соответствующие этим номерам жанров TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Дата выхода от</string>
     <string name="collections_editor_tmdb_date_to">Дата выхода до</string>
-    <string name="collections_editor_tmdb_date_helper">Используйте формат ГГГГ-ММ-ДД, например 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Используйте формат ГГГГ-ММ-ДД, например 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Минимальный рейтинг</string>
     <string name="collections_editor_tmdb_rating_max">Максимальный рейтинг</string>
     <string name="collections_editor_tmdb_rating_helper">Рейтинг TMDB от 0 до 10. Пример: 7.0.</string>
@@ -1860,15 +1815,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 для Netflix, 49 для HBO, 2739 для Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 для Tom Hanks или URL персоны</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 или 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 для «Анимация»</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1894,9 +1844,9 @@
     <string name="collections_editor_placeholder_hero_video">URL пользовательского видео Hero (необязательно)</string>
     <string name="collections_editor_title_logo">Логотип тайтла (Современный главный экран)</string>
     <string name="collections_editor_placeholder_title_logo">URL пользовательского логотипа тайтла (необязательно)</string>
-    <string name="collections_editor_search_emoji_placeholder">Поиск эмодзи...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Фильтр активных источников...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Поиск каталогов...</string>
+    <string name="collections_editor_search_emoji_placeholder">Поиск эмодзи…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Фильтр активных источников…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Поиск каталогов…</string>
     <string name="collections_editor_genre_filter">Фильтр жанра</string>
     <string name="collections_editor_choose_genre">Выбрать</string>
     <string name="collections_editor_select_genre">Выберите жанр</string>
@@ -1923,9 +1873,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Фильмы с Tom Hanks, Любимые актёры</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Фильмы Christopher Nolan, Любимые режиссёры</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 для супергероев</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 для Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 для Netflix</string>
     <string name="folder_detail_not_found">Папка не найдена</string>
     <string name="cast_error_load_details_for">Не удалось загрузить детали для %1$s</string>
@@ -2085,8 +2033,6 @@
     <string name="web_error_invalid_request_body">Неверное тело запроса</string>
     <string name="network_error_empty_response_body">Пустое тело ответа</string>
     <string name="network_error_unknown">Неизвестная ошибка сети</string>
-    <string name="network_fast_error_script_path_missing">Отсутствует путь скрипта fast.com</string>
-    <string name="network_fast_error_token_missing">Отсутствует токен fast.com</string>
     <string name="player_stream_error_invalid_external_url">Неверный внешний URL потока</string>
     <string name="player_stream_error_open_external_link_failed">Не удалось открыть внешнюю ссылку</string>
     <string name="player_stream_error_invalid_url">Неверный URL потока</string>
@@ -2100,21 +2046,6 @@
     <string name="trakt_comments_error_request_failed">Не удалось загрузить комментарии</string>
     <string name="trakt_library_error_fetch_list_items">Не удалось загрузить элементы списка</string>
     <!-- Batch 13 (final): DV diagnostics, meta/stream addon errors, home poster errors, debrid picker filters, subtitle language unknown -->
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Conversion mode (auto-selected, do not change unless instructed). Pick one to force it; None uses auto. Active only when DV7 Handling is Convert to DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Conversion mode</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">None</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">No override. Uses the automatically selected conversion mode.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Mode 0 — Copy (no convert)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Parse the RPU and write it back untouched. No profile conversion.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Mode 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convert the RPU to be MEL (Minimum Enhancement Layer) compatible.</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Mode 2 — 8.1 (no-op mapping)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convert to profile 8.1 with luma and chroma mapping set to no-op. The standard conversion.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Mode 3 — Profile 5 to 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convert Profile 5 (DV5) streams to Profile 8.1. Same conversion the Convert DV5 to DV8.1 toggle uses.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Mode 4 — 8.4 (static)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convert to static profile 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Программный откат Hi10P G-NEXT (только MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Использовать программное декодирование G-NEXT, когда параметры потока определяют H.264 Hi10P. Отключено по умолчанию; включайте, только если воспроизведение Hi10P зависает или не работает.</string>
     <string name="meta_error_detail_no_metadata_for_id">не вернул метаданные для этого ID</string>
@@ -2176,7 +2107,7 @@
     <string name="playback_cache_vod_size">Размер кэша VOD</string>
     <string name="playback_cache_vod_size_sub">Максимальный объём диска для прогрессивного кэша VOD (вытеснение по LRU).</string>
     <string name="playback_cache_info_range">Диапазон: %1$d–%2$d МБ.</string>
-    <string name="playback_cache_info_auto">Автоматический режим ориентируется примерно на 10% свободного места.</string>
+    <string name="playback_cache_info_auto" formatted="false">Автоматический режим ориентируется примерно на 10% свободного места.</string>
     <string name="playback_cache_info_manual_headroom">Ручной режим оставляет примерно %1$d МБ запаса.</string>
     <string name="playback_cache_info_free_disk">Доступно свободного места на диске: %1$s.</string>
     <string name="playback_cache_info_restart">Новый лимит кэша применяется после перезапуска приложения при смене режима или размера.</string>

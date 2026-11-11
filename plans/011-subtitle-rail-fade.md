@@ -161,9 +161,9 @@ right) hides in the same composition (`styleRailVisible` requires `optionRailVis
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*SubtitleRoutingTest*'` passes. It is the
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:testDebugUnitTest --tests '*SubtitleRoutingTest*'` passes. It is the
     nearest existing coverage of the subtitle overlay; nothing tests `RailFadeIn` directly.
 - **Feel check** (TV or emulator, a title with several subtitle languages):
   - Open the subtitle overlay. Move through languages with D-pad Up/Down and press OK on

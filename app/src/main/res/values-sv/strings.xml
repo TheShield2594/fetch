@@ -64,7 +64,6 @@
         <item quantity="other">Sänds om %d dagar</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Idag</string>
     <string name="cw_airs_tomorrow_short">Imorgon</string>
     <plurals name="cw_airs_in_days_short">
@@ -465,10 +464,6 @@
     <string name="debug_playback_error_title">Uppspelningsfelskärm</string>
     <string name="debug_playback_error_subtitle">Visa ett simulerat uppspelningsfel</string>
     <string name="debug_section_features">Funktionsväxlare</string>
-    <string name="debug_account_tab_title">Kontoflik</string>
-    <string name="debug_account_tab_subtitle">Visa kontofliken i inställningsnavigeringen</string>
-    <string name="debug_sync_code_title">Synkkodsfunktioner</string>
-    <string name="debug_sync_code_subtitle">Visa Generera/Ange synkkod-knappar i kontoinställningar</string>
     <string name="debug_error_dialog_title">Uppspelningsfel</string>
     <string name="debug_error_dialog_subtitle">Ett fel uppstod under uppspelning.\n\nFel: Testsimulerat fel – detta är inte ett riktigt fel. Källan returnerade HTTP 503 (Tjänst ej tillgänglig).</string>
     <string name="debug_dismiss">Avfärda</string>
@@ -752,7 +747,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Laddar avsnittsbetyg...</string>
+    <string name="ratings_loading">Laddar avsnittsbetyg…</string>
     <string name="ratings_unavailable">Avsnittsbetyg är inte tillgängliga.</string>
     <string name="ratings_load_error">Kunde inte ladda avsnittsbetyg.</string>
     <string name="ratings_season_summary">Säsong %1$d - %2$d avsnitt</string>
@@ -760,7 +755,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Utforska</string>
     <string name="discover_load_more">Ladda fler</string>
-    <string name="discover_loading">Laddar...</string>
+    <string name="discover_loading">Laddar…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Inget innehåll hittades</string>
     <string name="discover_empty_no_content_subtitle">Prova en annan genre eller katalog</string>
@@ -788,9 +783,9 @@
 
     <!-- Missing: ErrorState (streams) -->
     <string name="error_stream_no_supported_addon">Inget installerat tillägg stödjer strömmar för \"%1$s\".</string>
-    <string name="error_stream_tried_none">Provade strömtillägg: %1$s. Inget av dem returnerade strömmar för id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_generic">Provade strömtillägg: %1$s. Strömmar kunde inte laddas för id=%2$s (typ=%3$s).</string>
-    <string name="error_stream_tried_issues">Provade strömtillägg: %1$s. Strömmar kunde inte laddas för id=%2$s (typ=%3$s). Problem: %4$s.</string>
+    <string name="error_stream_tried_none">Provade strömtillägg: %1$s. Inget av dem returnerade strömmar.</string>
+    <string name="error_stream_tried_generic">Provade strömtillägg: %1$s. Strömmar kunde inte laddas.</string>
+    <string name="error_stream_tried_issues">Provade strömtillägg: %1$s. Strömmar kunde inte laddas. Problem: %2$s.</string>
 
     <!-- Missing: AddonManager -->
     <string name="addon_install_success">Installerade %1$s</string>
@@ -807,7 +802,6 @@
     <string name="detail_comments_back_hint">Tryck tillbaka för att stänga</string>
     <string name="detail_comments_badge_review">Recension</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d gillar</string>
     <string name="detail_more_like_this_powered_by_tmdb">Drivs av TMDB</string>
     <string name="detail_more_like_this_powered_by_trakt">Drivs av Trakt</string>
@@ -862,19 +856,6 @@
     <!-- Missing: Network speed -->
     <string name="settings_advanced">Avancerat</string>
     <string name="settings_advanced_subtitle">Kör nätverkshastighetstester</string>
-    <string name="network_speed_test_run">Kör hastighetstest</string>
-    <string name="network_speed_test_running">Kör hastighetstest</string>
-    <string name="network_speed_test_subtitle">Mät nedladdningshastighet och latens</string>
-    <string name="network_testing_latency">Mäter latens</string>
-    <string name="network_testing_download">Mäter nedladdningshastighet</string>
-    <string name="network_results_title">Resultat</string>
-    <string name="network_latency_label">Latens</string>
-    <string name="network_download_label">Nedladdning</string>
-    <string name="network_error_prefix">Fel: %1$s</string>
-    <string name="network_powered_by_fast">Drivs av fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
 
     <!-- Missing: Profile PIN -->
     <string name="profile_pin_set">Ange PIN</string>
@@ -992,7 +973,6 @@
 
     <!-- PlaybackSettingsSections -->
     <string name="playback_internal_player_engine">Intern motor</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Växla motor automatiskt vid startfel</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Om strömstart misslyckas, växla automatiskt mellan ExoPlayer och libmpv.</string>
@@ -1170,7 +1150,6 @@
     <string name="cd_refresh">Uppdatera</string>
     <string name="cd_remove">Ta bort</string>
     <string name="cd_preview">Förhandsvisning</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt-logotyp</string>
     <string name="cd_trakt_qr">Trakt-aktiverings-QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1745,4 +1724,5 @@
     <string name="screen_time_rest_of_day">Ingen gräns resten av dagen</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="playback_parental_guide_sub">Visa innehållsvarningar när uppspelningen startar. Skickar varje titels IMDb-id till api.tiffara.com för att slå upp dem.</string>
 </resources>

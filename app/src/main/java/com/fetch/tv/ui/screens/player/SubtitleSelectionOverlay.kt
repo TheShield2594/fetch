@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchMotion
 
@@ -88,6 +89,7 @@ internal fun SubtitleSelectionOverlay(
     addonSubtitles: List<Subtitle>,
     selectedAddonSubtitle: Subtitle?,
     subtitleStyle: SubtitleStyleSettings,
+    modifier: Modifier = Modifier,
     isEditingHdrStyle: Boolean = false,
     subtitleDelayMs: Int,
     installedSubtitleAddonOrder: List<String>,
@@ -99,7 +101,6 @@ internal fun SubtitleSelectionOverlay(
     onDisableSubtitles: () -> Unit,
     onEvent: (PlayerEvent) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
     val noneLabel = stringResource(R.string.subtitle_none)
     val unknownLabel = stringResource(R.string.subtitle_language_unknown)
@@ -212,9 +213,9 @@ internal fun SubtitleSelectionOverlay(
     var revealStyleRail by remember(visible) {
         mutableStateOf(sessionInitialSelectedOptionId != null)
     }
-    var languageFocusToken by remember(visible) { mutableStateOf(0) }
-    var optionFocusToken by remember(visible) { mutableStateOf(0) }
-    var styleFocusToken by remember(visible) { mutableStateOf(0) }
+    var languageFocusToken by remember(visible) { mutableIntStateOf(0) }
+    var optionFocusToken by remember(visible) { mutableIntStateOf(0) }
+    var styleFocusToken by remember(visible) { mutableIntStateOf(0) }
     var pendingLanguageFocusKey by remember(visible) { mutableStateOf<String?>(null) }
     var pendingOptionFocusId by remember(visible) { mutableStateOf<String?>(null) }
     var pendingOptionFocusLanguageKey by remember(visible) { mutableStateOf<String?>(null) }

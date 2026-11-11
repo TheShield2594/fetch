@@ -45,9 +45,9 @@
     <string name="error_meta_tried_generic">Prøvde metatillegg: %1$s. Metadata kunne ikke lastes for id=%2$s (type=%3$s).</string>
     <string name="error_meta_tried_issues">Prøvde metatillegg: %1$s. Metadata kunne ikke lastes for id=%2$s (type=%3$s). Problemer: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ingen installerte tillegg støtter strømmer for \"%1$s\".</string>
-    <string name="error_stream_tried_none">Prøvde strømmetillegg: %1$s. Ingen av dem returnerte strømmer for id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_generic">Prøvde strømmetillegg: %1$s. Strømmer kunne ikke lastes for id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Prøvde strømmetillegg: %1$s. Strømmer kunne ikke lastes for id=%2$s (type=%3$s). Problemer: %4$s.</string>
+    <string name="error_stream_tried_none">Prøvde strømmetillegg: %1$s. Ingen av dem returnerte strømmer.</string>
+    <string name="error_stream_tried_generic">Prøvde strømmetillegg: %1$s. Strømmer kunne ikke lastes.</string>
+    <string name="error_stream_tried_issues">Prøvde strømmetillegg: %1$s. Strømmer kunne ikke lastes. Problemer: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Fortsett å se</string>
@@ -69,7 +69,6 @@
         <item quantity="other">Sendes om %d dager</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">I dag</string>
     <string name="cw_airs_tomorrow_short">I morgen</string>
     <plurals name="cw_airs_in_days_short">
@@ -151,7 +150,6 @@
     <string name="detail_comments_back_hint">Klikk tilbake for å lukke</string>
     <string name="detail_comments_badge_review">Anmeldelse</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d liker</string>
     <string name="tmdb_entity_kind_company">Produksjonsfirma</string>
     <string name="tmdb_entity_kind_network">Nettverk</string>
@@ -218,19 +216,6 @@
     <string name="settings_playback">Avspilling</string>
     <string name="settings_advanced">Avansert</string>
     <string name="settings_advanced_subtitle">Kjør nettverkshastighetsdiagnostikk</string>
-    <string name="network_speed_test_run">Kjør hastighetstest</string>
-    <string name="network_speed_test_running">Kjører hastighetstest</string>
-    <string name="network_speed_test_subtitle">Mål nedlastingshastighet og ventetid</string>
-    <string name="network_testing_latency">Måler ventetid</string>
-    <string name="network_testing_download">Måler nedlastingshastighet</string>
-    <string name="network_results_title">Resultater</string>
-    <string name="network_latency_label">Ventetid</string>
-    <string name="network_download_label">Nedlasting</string>
-    <string name="network_error_prefix">Feil: %1$s</string>
-    <string name="network_powered_by_fast">Drevet av fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Frakoblet</string>
     <string name="settings_debug">Feilsøking</string>
     <string name="settings_account_section_subtitle">Kontostatus og synkroniseringsstatus</string>
 
@@ -515,10 +500,6 @@
     <string name="debug_playback_error_title">Avspillingsfeilskjerm</string>
     <string name="debug_playback_error_subtitle">Vis et simulert avspillingsfeils-popup</string>
     <string name="debug_section_features">Funksjonstoggler</string>
-    <string name="debug_account_tab_title">Kontofane</string>
-    <string name="debug_account_tab_subtitle">Vis kontofanen i innstillingsnavigasjonen</string>
-    <string name="debug_sync_code_title">Synkroniser kodefunksjoner</string>
-    <string name="debug_sync_code_subtitle">Vis generer/skriv inn synkkodeknapper i kontoinnstillinger</string>
     <string name="debug_error_dialog_title">Avspillingsfeil</string>
     <string name="debug_error_dialog_subtitle">En feil oppstod under avspilling.\n\nFeil: Testsimulert feil - dette er ikke en virkelig feil. Kildereturnert HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Avvis</string>
@@ -802,7 +783,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Laster episodevurderinger...</string>
+    <string name="ratings_loading">Laster episodevurderinger…</string>
     <string name="ratings_unavailable">Episodevurderinger er utilgjengelige.</string>
     <string name="ratings_load_error">Kunne ikke laste episodevurderinger.</string>
     <string name="ratings_season_summary">Sesong %1$d - %2$d episoder</string>
@@ -810,7 +791,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Oppdagelse</string>
     <string name="discover_load_more">Last mer</string>
-    <string name="discover_loading">Laster...</string>
+    <string name="discover_loading">Laster…</string>
     <string name="discover_filter_genre">Sjanger</string>
     <string name="discover_empty_no_content_title">Ingen innhold funnet</string>
     <string name="discover_empty_no_content_subtitle">Prøv en annen sjanger eller katalog</string>
@@ -1327,4 +1308,5 @@
     <string name="screen_time_rest_of_day">Ingen grense resten av dagen</string>
     <string name="kids_hours">%1$d t</string>
     <string name="kids_hours_minutes">%1$d t %2$d min</string>
+    <string name="playback_parental_guide_sub">Vis innholdsadvarsler når avspillingen starter. Sender hver tittels IMDb-ID til api.tiffara.com for å slå dem opp.</string>
 </resources>

@@ -27,7 +27,6 @@
     <string name="servers_remove">Usuń serwer</string>
     <string name="servers_remove_confirm_title">Usunąć ten serwer?</string>
     <string name="servers_remove_confirm_message">Spowoduje to wylogowanie z %1$s na tym urządzeniu. Możesz dodać go ponownie w dowolnym momencie.</string>
-    <string name="servers_signed_in_as">%1$s · %2$s</string>
     <string name="servers_status_disabled">Wyłączony</string>
     <string name="servers_status_auth">Zaloguj się ponownie</string>
     <string name="servers_status_unreachable">Serwer niedostępny</string>

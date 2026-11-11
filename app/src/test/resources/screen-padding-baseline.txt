@@ -27,11 +27,10 @@ com/fetch/tv/ui/screens/detail/MetaDetailsScreen.kt|STAND_IN|2
 com/fetch/tv/ui/screens/detail/MoreLikeThisSection.kt|STAND_IN|2
 com/fetch/tv/ui/screens/detail/TrailerSection.kt|STAND_IN|1
 com/fetch/tv/ui/screens/home/ModernHomeContent.kt|STAND_IN|2
-com/fetch/tv/ui/screens/home/ModernHomeRows.kt|LITERAL|2
 com/fetch/tv/ui/screens/player/PauseOverlay.kt|LITERAL|2
 com/fetch/tv/ui/screens/player/PauseOverlay.kt|STAND_IN|2
 com/fetch/tv/ui/screens/player/PlaybackDetailsBar.kt|STAND_IN|1
-com/fetch/tv/ui/screens/player/PlayerScreen.kt|LITERAL|8
+com/fetch/tv/ui/screens/player/PlayerScreen.kt|LITERAL|7
 com/fetch/tv/ui/screens/player/StreamInfoOverlay.kt|LITERAL|2
 com/fetch/tv/ui/screens/player/StreamInfoOverlay.kt|STAND_IN|2
 com/fetch/tv/ui/screens/profile/ProfileSelectionScreen.kt|LITERAL|1

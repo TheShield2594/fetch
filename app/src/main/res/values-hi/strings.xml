@@ -63,7 +63,6 @@
         <item quantity="other">%d दिनों में प्रसारित होगा</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">आज</string>
     <string name="cw_airs_tomorrow_short">कल</string>
     <plurals name="cw_airs_in_days_short">
@@ -460,10 +459,6 @@
     <string name="debug_playback_error_title">प्लेबैक एरर स्क्रीन</string>
     <string name="debug_playback_error_subtitle">सिम्युलेटेड प्लेबैक एरर पॉपअप दिखाएँ</string>
     <string name="debug_section_features">फीचर टॉगल्स</string>
-    <string name="debug_account_tab_title">अकाउंट टैब</string>
-    <string name="debug_account_tab_subtitle">सेटिंग्स नेविगेशन में अकाउंट टैब दिखाएँ</string>
-    <string name="debug_sync_code_title">सिंक कोड फीचर्स</string>
-    <string name="debug_sync_code_subtitle">अकाउंट सेटिंग्स में Generate/Enter Sync Code बटन दिखाएँ</string>
     <string name="debug_error_dialog_title">प्लेबैक एरर</string>
     <string name="debug_error_dialog_subtitle">प्लेबैक के दौरान एक त्रुटि हुई.\n\nError: टेस्ट सिम्युलेटेड एरर - यह वास्तविक विफलता नहीं है. सोर्स ने HTTP 503 (Service Unavailable) लौटाया.</string>
     <string name="debug_dismiss">बंद करें</string>
@@ -712,7 +707,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">एपिसोड रेटिंग लोड हो रही हैं...</string>
+    <string name="ratings_loading">एपिसोड रेटिंग लोड हो रही हैं…</string>
     <string name="ratings_unavailable">एपिसोड रेटिंग उपलब्ध नहीं हैं।</string>
     <string name="ratings_load_error">एपिसोड रेटिंग लोड नहीं हो सकीं।</string>
     <string name="ratings_season_summary">सीज़न %1$d - %2$d एपिसोड</string>
@@ -720,7 +715,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">डिस्कवर</string>
     <string name="discover_load_more">और लोड करें</string>
-    <string name="discover_loading">लोड हो रहा है...</string>
+    <string name="discover_loading">लोड हो रहा है…</string>
     <string name="discover_filter_genre">जॉनर</string>
     <string name="discover_empty_no_content_title">कोई कंटेंट नहीं मिला</string>
     <string name="discover_empty_no_content_subtitle">कोई दूसरा जॉनर या कैटलॉग आज़माएँ</string>
@@ -1237,4 +1232,5 @@
     <string name="screen_time_rest_of_day">आज बाकी दिन कोई सीमा नहीं</string>
     <string name="kids_hours">%1$d घंटे</string>
     <string name="kids_hours_minutes">%1$d घंटे %2$d मिनट</string>
+    <string name="playback_parental_guide_sub">प्लेबैक शुरू होने पर सामग्री चेतावनियाँ दिखाता है। उन्हें खोजने के लिए हर शीर्षक की IMDb ID api.tiffara.com को भेजता है।</string>
 </resources>

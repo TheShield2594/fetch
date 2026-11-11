@@ -16,11 +16,14 @@
 package com.fetch.tv.core.player.avi;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.C;
 import androidx.media3.common.util.ParsableByteArray;
+import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 
 /** Represents an AVI LIST. */
+@OptIn(markerClass = UnstableApi.class)
 /* package */ final class ListChunk implements AviChunk {
 
   public static ListChunk parseFrom(int listType, ParsableByteArray body) {

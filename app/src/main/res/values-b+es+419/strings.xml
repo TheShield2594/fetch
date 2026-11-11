@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Seguir viendo</string>
     <string name="type_movie">Película</string>
@@ -63,7 +63,7 @@
     <string name="web_import_tab_paste">Pegar</string>
     <string name="web_import_tab_file">Archivo</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Pega aquí el JSON de las colecciones...</string>
+    <string name="web_import_paste_placeholder">Pega aquí el JSON de las colecciones…</string>
     <string name="web_import_file_select">Toca para seleccionar un archivo .json</string>
     <string name="web_order_send_to_top">Mover al inicio</string>
     <string name="web_order_send_to_bottom">Mover al final</string>
@@ -135,9 +135,9 @@
     <string name="error_meta_tried_generic">Addons de meta probados: %1$s. No se pudieron cargar los metadatos para el id=%2$s (tipo=%3$s).</string>
     <string name="error_meta_tried_issues">Addons de meta probados: %1$s. No se pudieron cargar los metadatos para el id=%2$s (tipo=%3$s). Problemas: %4$s.</string>
     <string name="error_stream_no_supported_addon">Ningún addon instalado soporta streams para \"%1$s\".</string>
-    <string name="error_stream_tried_none">Addons de stream probados: %1$s. Ninguno de ellos devolvió streams para el id=%2$s (tipo=%3$s).</string>
-    <string name="error_stream_tried_generic">Addons de stream probados: %1$s. No se pudieron cargar los streams para el id=%2$s (tipo=%3$s).</string>
-    <string name="error_stream_tried_issues">Addons de stream probados: %1$s. No se pudieron cargar los streams para el id=%2$s (tipo=%3$s). Problemas: %4$s.</string>
+    <string name="error_stream_tried_none">Addons de stream probados: %1$s. Ninguno de ellos devolvió streams.</string>
+    <string name="error_stream_tried_generic">Addons de stream probados: %1$s. No se pudieron cargar los streams.</string>
+    <string name="error_stream_tried_issues">Addons de stream probados: %1$s. No se pudieron cargar los streams. Problemas: %2$s.</string>
     
     <string name="continue_watching">Seguir Viendo</string>
     <string name="cw_upcoming">Próximos</string>
@@ -155,14 +155,15 @@
     <string name="cw_airs_tomorrow">Se emite mañana</string>
     <plurals name="cw_airs_in_days">
         <item quantity="one">Se emite en %d día</item>
+        <item quantity="many">Se emite en %d días</item>
         <item quantity="other">Se emite en %d días</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Hoy</string>
     <string name="cw_airs_tomorrow_short">Mañana</string>
     <plurals name="cw_airs_in_days_short">
     <item quantity="one">En %d día</item>
+    <item quantity="many">En %d días</item>
     <item quantity="other">En %d días</item>
     </plurals>
     <string name="cw_action_go_to_details">Ir a los detalles</string>
@@ -258,7 +259,6 @@
     <string name="detail_comments_back_hint">Presiona atrás para cerrar</string>
     <string name="detail_comments_badge_review">Reseña</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d me gusta</string>
     <string name="tmdb_entity_kind_company">Compañía de producción</string>
     <string name="tmdb_entity_kind_network">Cadena</string>
@@ -267,14 +267,12 @@
     <string name="tmdb_entity_rail_recent">Recientes</string>
     <string name="tmdb_entity_rail_most_voted">Más votados</string>
     <string name="collections_editor_tmdb_watch_region">Región de disponibilidad</string>
-    <string name="collections_editor_tmdb_watch_region_helper">Código de país ISO 3166-1 donde está disponible el título. Ejemplo: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">Código de país ISO 3166-1 donde está disponible el título. Ejemplo: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Regiones de disponibilidad rápidas</string>
     <string name="collections_editor_tmdb_watch_providers">IDs de proveedores de streaming</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Usa los IDs de proveedores de streaming de TMDB. Separa varios con comas para AND o con barras verticales para OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_without_watch_providers">IDs de proveedores de streaming excluidos</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Excluye títulos disponibles en estos números de proveedores de streaming de TMDB en la región seleccionada.</string>
-    <string name="collections_editor_tmdb_without_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Proveedores de streaming rápidos</string>
     <string name="tmdb_error_load_source">No se pudo cargar la fuente de TMDB</string>
     <string name="tmdb_error_list_not_found">No se encontró la lista de TMDB</string>
@@ -376,6 +374,7 @@
     <string name="ambient_mode_timeout_subtitle">Cuánto tiempo esperar antes de iniciar el modo ambiente</string>
     <plurals name="ambient_mode_timeout_minutes">
         <item quantity="one">%1$d minuto</item>
+        <item quantity="many">%1$d minutos</item>
         <item quantity="other">%1$d minutos</item>
     </plurals>
     <string name="ambient_mode_catalogs">Catálogos</string>
@@ -423,12 +422,10 @@
     <string name="licenses_attributions_section_app">LICENCIA DE LA APP</string>
     <string name="licenses_attributions_section_data">DATOS Y SERVICIOS</string>
     <string name="licenses_attributions_section_playback">LICENCIAS DE REPRODUCCIÓN DE ANDROID</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch utiliza la API de TMDB para metadatos de películas y series, imágenes, tráilers, reparto, detalles de producción, colecciones y recomendaciones. Este producto utiliza la API de TMDB, pero no está respaldado ni certificado por TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
     <string name="licenses_attributions_trakt_body">Fetch se conecta a Trakt para autenticación de cuentas, historial de visualización, sincronización de progreso, datos de biblioteca, calificaciones, listas y comentarios. Fetch no está afiliado ni respaldado por Trakt.</string>
-    <string name="licenses_attributions_simkl_title">Simkl</string>
     <string name="licenses_attributions_simkl_body">Fetch se conecta con Simkl para la autenticación de la cuenta, las listas de seguimiento, el historial de visualización, el progreso de reproducción y el scrobbling. Los datos de seguimiento de películas, series y anime son proporcionados por Simkl. Fetch no está afiliado ni respaldado por Simkl.</string>
     <string name="licenses_attributions_mdblist_title">MDBList</string>
     <string name="licenses_attributions_mdblist_body">Fetch utiliza MDBList para calificaciones y datos de proveedores de puntuaciones externas. Fetch no está afiliado ni respaldado por MDBList.</string>
@@ -461,8 +458,8 @@
     <string name="tracking_simkl_features_title">Funciones de Simkl</string>
     <string name="tracking_simkl_features_subtitle">Configuraciones exclusivas de Simkl</string>
     <string name="tracking_simkl_anime_id_title">Preferencia de ID para anime</string>
-    <string name="tracking_simkl_anime_id_subtitle">Controla cómo se identifican las series de anime. Elegir MAL o Kitsu asigna una entrada independiente a cada temporada en lugar de agruparlas bajo un único ID de IMDB.</string>
-    <string name="tracking_simkl_anime_id_imdb">Preferir IMDB</string>
+    <string name="tracking_simkl_anime_id_subtitle">Controla cómo se identifican las series de anime. Elegir MAL o Kitsu asigna una entrada independiente a cada temporada en lugar de agruparlas bajo un único ID de IMDb.</string>
+    <string name="tracking_simkl_anime_id_imdb">Preferir IMDb</string>
     <string name="tracking_simkl_anime_id_mal">Preferir MyAnimeList</string>
     <string name="tracking_simkl_anime_id_kitsu">Preferir Kitsu</string>
     <string name="tracking_simkl_anime_id_tvdb">Preferir TVDB</string>
@@ -475,8 +472,6 @@
     <string name="tracking_watch_progress_dialog_subtitle">Elige el servicio que Fetch usará para reanudar la reproducción y Continuar viendo. El scrobbling seguirá activo en todos los servicios conectados.</string>
     <string name="tracking_library_source_dialog_subtitle">Elige el servicio que Fetch usará para tu Biblioteca. El scrobbling de reproducción se enviará a todos los servicios conectados.</string>
     <string name="tracking_trakt_progress_required">Disponible cuando Trakt es la fuente del progreso de visualización</string>
-    <string name="trakt_name">Trakt</string>
-    <string name="simkl_name">Simkl</string>
     <string name="settings_advanced">Avanzado</string>
     <string name="settings_advanced_subtitle">Rendimiento, navegación, caché y diagnósticos</string>
     <string name="experience_mode_essential">Esencial</string>
@@ -515,28 +510,13 @@
     <string name="experience_mode_confirm_advanced_title">¿Cambiar a Avanzado?</string>
     <string name="experience_mode_confirm_essential_subtitle">Las superficies de configuración avanzada se ocultarán, pero tus ajustes guardados permanecerán intactos. Puedes volver cuando quieras.</string>
     <string name="experience_mode_confirm_advanced_subtitle">Esto revela toda la configuración, incluyendo controles avanzados, catálogos, colecciones y ajustes.</string>
-    <string name="network_speed_test_run">Ejecutar prueba de velocidad</string>
-    <string name="network_speed_test_running">Ejecutando prueba de velocidad</string>
-    <string name="network_speed_test_subtitle">Medir velocidad de descarga y latencia</string>
-    <string name="network_testing_latency">Midiendo latencia</string>
-    <string name="network_testing_download">Midiendo velocidad de descarga</string>
-    <string name="network_results_title">Resultados</string>
-    <string name="network_latency_label">Latencia</string>
-    <string name="network_download_label">Descarga</string>
-    <string name="network_error_prefix">Error: %1$s</string>
-    <string name="network_powered_by_fast">Impulsado por fast.com</string>
-    <string name="network_connection_wifi">Wi-Fi</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Sin conexión</string>
     <string name="advanced_section_performance">Rendimiento y navegación</string>
     <string name="advanced_section_diagnostics">Diagnósticos</string>
-    <string name="advanced_playback_issue_reports">Reportes de problemas de reproducción</string>
     <string name="advanced_player_stats_hud">Superposición de estadísticas de reproducción</string>
     <string name="advanced_player_stats_hud_subtitle">Muestra un botón en la información del stream para activar o desactivar las lecturas en tiempo real de CPU, memoria, búfer, bitrate y temperatura durante la reproducción</string>
     <string name="advanced_section_cache">Caché</string>
     <string name="advanced_section_startup">Inicio y salida</string>
     <string name="advanced_section_network_tests">Pruebas de red</string>
-    <string name="advanced_section_dv_diagnostics" translatable="false">DV Diagnostics</string>
     <string name="advanced_fast_horizontal_navigation">Navegación horizontal rápida</string>
     <string name="advanced_fast_horizontal_navigation_subtitle">Aumenta la velocidad de repetición del D-pad en las filas mientras mantiene habilitada la limitación de repetición.</string>
     <string name="advanced_fetch_focus_scroll">Desplazamiento de enfoque de Fetch</string>
@@ -580,11 +560,11 @@
     <string name="playback_section_interface">Interfaz del reproductor</string>
     <string name="playback_section_interface_desc">Superposiciones, reloj y detalles mostrados durante la reproducción.</string>
     <string name="playback_section_audio_only_desc">Idiomas, decodificación y salida de audio.</string>
-    <string name="playback_section_video_desc">Ajuste de frecuencia de cuadros, Dolby Vision y HDR.</string>
+    <string name="playback_section_video_desc" tools:ignore="Typos">Ajuste de frecuencia de cuadros, Dolby Vision y HDR.</string>
     <string name="playback_default_player">Reproductor predeterminado</string>
     <string name="playback_external_player_label">Reproductor externo</string>
     <string name="playback_afr_mode">Ajuste de frecuencia de cuadros</string>
-    <string name="playback_dv_hdr_label">Dolby Vision &amp; HDR</string>
+    <string name="playback_dv_hdr_label" tools:ignore="Typos">Dolby Vision &amp; HDR</string>
     <string name="playback_mpv_decoding_label">Decodificación MPV</string>
     <string name="playback_network_label">Red</string>
     <string name="sub_languages_label">Idiomas</string>
@@ -599,6 +579,7 @@
     <string name="playback_skip_intro">Omitir Intro</string>
     <string name="playback_skip_intro_sub">Usar introdb.app para detectar intros y resúmenes.</string>
     <string name="playback_parental_guide">Advertencias de contenido</string>
+    <string name="playback_parental_guide_sub">Muestra advertencias de contenido al iniciar la reproducción. Envía el ID de IMDb de cada título a api.tiffara.com para buscarlas.</string>
     <string name="playback_auto_skip_segments">Omisión automática</string>
     <string name="playback_auto_skip_segments_sub">Elige qué segmentos se omiten automáticamente.</string>
     <string name="auto_skip_intro">Intro / Opening</string>
@@ -616,7 +597,6 @@
     <string name="playback_player_external">Externo</string>
     <string name="playback_player_ask">Preguntar siempre</string>
     <string name="playback_internal_player_engine">Motor interno</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Cambiar automáticamente de motor en caso de error al iniciar</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">Si falla el inicio del stream, alterna automáticamente entre ExoPlayer y libmpv.</string>
@@ -680,38 +660,38 @@
     <string name="audio_force_optical_passthrough">Forzar transcodificación AC-3 (Óptico/SPDIF)</string>
     <string name="audio_force_optical_passthrough_sub">Transcodifica formatos multicanal (TrueHD, DTS, AAC, etc.) a Dolby Digital 5.1 en tiempo real para conexiones ópticas/SPDIF.</string>
     <!-- DV7 Handling Mode -->   
-    <string name="dv7_handling_title">Gestión de Dolby Vision Perfil 7</string>
-    <string name="dv7_handling_dialog_subtitle">Elige cómo se procesan los streams Dolby Vision Perfil 7 durante la reproducción.</string>
+    <string name="dv7_handling_title" tools:ignore="Typos">Gestión de Dolby Vision Perfil 7</string>
+    <string name="dv7_handling_dialog_subtitle" tools:ignore="Typos">Elige cómo se procesan los streams Dolby Vision Perfil 7 durante la reproducción.</string>
     <string name="dv7_mode_auto">Automático (recomendado)</string>
     <string name="dv7_mode_auto_desc">Detecta tu pantalla y selecciona el mejor modo. Si se producen problemas de reproducción, prueba con la capa base HDR10.</string>
     <string name="dv7_mode_hdr10_base_layer">Capa base HDR10</string>
-    <string name="dv7_mode_hdr10_base_layer_desc">Elimina siempre Dolby Vision y reproduce la capa base HEVC HDR10.</string>
+    <string name="dv7_mode_hdr10_base_layer_desc" tools:ignore="Typos">Elimina siempre Dolby Vision y reproduce la capa base HEVC HDR10.</string>
     <string name="dv7_mode_dv81_libdovi">Convertir a DV8.1</string>
-    <string name="dv7_mode_dv81_libdovi_desc">Convierte DV7 a DV8.1 de una sola capa. Requiere una pantalla compatible con Dolby Vision.</string>
+    <string name="dv7_mode_dv81_libdovi_desc" tools:ignore="Typos">Convierte DV7 a DV8.1 de una sola capa. Requiere una pantalla compatible con Dolby Vision.</string>
     <string name="dv7_mode_off">Desactivado (nativo)</string>
-    <string name="dv7_mode_off_desc">Transmite DV7 sin modificaciones. Puede presentar fallos en hardware que no sea compatible con Dolby Vision Perfil 7.</string>
+    <string name="dv7_mode_off_desc" tools:ignore="Typos">Transmite DV7 sin modificaciones. Puede presentar fallos en hardware que no sea compatible con Dolby Vision Perfil 7.</string>
     <string name="dv7_mode_strip_dv">Siempre quitar DV</string>
-    <string name="dv7_mode_strip_dv_desc">Elimina la capa RPU de Dolby Vision de todas las transmisiones.</string>
+    <string name="dv7_mode_strip_dv_desc" tools:ignore="Typos">Elimina la capa RPU de Dolby Vision de todas las transmisiones.</string>
     <string name="audio_dv5_to_dv81_title">Convertir DV5 a DV8.1</string>
     <string name="audio_dv5_to_dv81_sub">Identifica los streams Perfil 5 como Perfil 8.1 para una salida compatible con HDR10. Ayuda en dispositivos que no cuentan con un decodificador DV5 nativo.</string>
     <string name="audio_strip_hdr10plus_title">Eliminar metadatos HDR10+</string>
     <string name="audio_strip_hdr10plus_sub">Elimina los metadatos dinámicos HDR10+ de las transmisiones. Si la opción Convertir a DV8.1 también está habilitada, la eliminación se realiza después de la conversión.</string>
     <string name="audio_dv7_preserve_mapping_title">Conservar mapeo DV (DV7 a DV8.1)</string>
     <string name="audio_dv7_preserve_mapping_sub">Mantiene el mapeo de tonos original previsto por el creador a costa de un procesamiento ligeramente mayor por fotograma.</string>
-    <string name="dv7_libdovi_mode_caption" translatable="false">Modo de conversión (seleccionado automáticamente; no lo cambies salvo que se te indique). Selecciona uno para forzarlo; Ninguno utiliza el modo automático. Solo está activo cuando la gestión de DV7 está configurada en Convertir a DV8.1.</string>
-    <string name="dv7_libdovi_mode_row_title" translatable="false">Modo de conversión</string>
-    <string name="dv7_libdovi_mode_none_title" translatable="false">Ninguno</string>
-    <string name="dv7_libdovi_mode_none_sub" translatable="false">Sin sobrescritura. Utiliza el modo de conversión seleccionado automáticamente.</string>
-    <string name="dv7_libdovi_mode_0_title" translatable="false">Modo 0 — Copiar (sin convertir)</string>
-    <string name="dv7_libdovi_mode_0_sub" translatable="false">Analiza el RPU y lo vuelve a escribir sin modificaciones. Sin conversión de perfil.</string>
-    <string name="dv7_libdovi_mode_1_title" translatable="false">Modo 1 — MEL</string>
-    <string name="dv7_libdovi_mode_1_sub" translatable="false">Convierte el RPU para que sea compatible con MEL (Minimum Enhancement Layer).</string>
-    <string name="dv7_libdovi_mode_2_title" translatable="false">Modo 2 — 8.1 (mapeo sin cambios)</string>
-    <string name="dv7_libdovi_mode_2_sub" translatable="false">Convierte al perfil 8.1 con el mapeo de luminancia y crominancia sin modificaciones. Es la conversión estándar.</string>
-    <string name="dv7_libdovi_mode_3_title" translatable="false">Modo 3 — Perfil 5 a 8.1</string>
-    <string name="dv7_libdovi_mode_3_sub" translatable="false">Convierte streams Perfil 5 (DV5) a Perfil 8.1. Es la misma conversión utilizada por la opción Convertir DV5 a DV8.1.</string>
-    <string name="dv7_libdovi_mode_4_title" translatable="false">Modo 4 — 8.4 (estático)</string>
-    <string name="dv7_libdovi_mode_4_sub" translatable="false">Convierte al perfil estático 8.4.</string>
+    <string name="dv7_libdovi_mode_caption">Modo de conversión (seleccionado automáticamente; no lo cambies salvo que se te indique). Selecciona uno para forzarlo; Ninguno utiliza el modo automático. Solo está activo cuando la gestión de DV7 está configurada en Convertir a DV8.1.</string>
+    <string name="dv7_libdovi_mode_row_title">Modo de conversión</string>
+    <string name="dv7_libdovi_mode_none_title">Ninguno</string>
+    <string name="dv7_libdovi_mode_none_sub">Sin sobrescritura. Utiliza el modo de conversión seleccionado automáticamente.</string>
+    <string name="dv7_libdovi_mode_0_title">Modo 0 — Copiar (sin convertir)</string>
+    <string name="dv7_libdovi_mode_0_sub">Analiza el RPU y lo vuelve a escribir sin modificaciones. Sin conversión de perfil.</string>
+    <string name="dv7_libdovi_mode_1_title">Modo 1 — MEL</string>
+    <string name="dv7_libdovi_mode_1_sub">Convierte el RPU para que sea compatible con MEL (Minimum Enhancement Layer).</string>
+    <string name="dv7_libdovi_mode_2_title">Modo 2 — 8.1 (mapeo sin cambios)</string>
+    <string name="dv7_libdovi_mode_2_sub">Convierte al perfil 8.1 con el mapeo de luminancia y crominancia sin modificaciones. Es la conversión estándar.</string>
+    <string name="dv7_libdovi_mode_3_title">Modo 3 — Perfil 5 a 8.1</string>
+    <string name="dv7_libdovi_mode_3_sub">Convierte streams Perfil 5 (DV5) a Perfil 8.1. Es la misma conversión utilizada por la opción Convertir DV5 a DV8.1.</string>
+    <string name="dv7_libdovi_mode_4_title">Modo 4 — 8.4 (estático)</string>
+    <string name="dv7_libdovi_mode_4_sub">Convierte al perfil estático 8.4.</string>
     <string name="audio_mpv_hi10p_gnext_sw_title">Alternativa por software G-NEXT para Hi10P (solo MPV)</string>
     <string name="audio_mpv_hi10p_gnext_sw_subtitle">Usa la decodificación por software G-NEXT cuando los detalles del stream identifiquen H.264 Hi10P. Está desactivado de forma predeterminada; actívalo solo si la reproducción de Hi10P se congela o falla.</string>
     <string name="audio_mpv_hwdec_title">Decodificación por hardware (solo MPV)</string>
@@ -961,7 +941,6 @@
     <string name="web_custom_poster_placeholders_info">Marcadores: {id} incluye todos los ID de contenido. {imdb_id}, {tmdb_id}, {tvdb_id}, {kitsu_id} apuntan a un solo tipo de ID; si no está disponible, se conserva el póster original. {imdb_id|tmdb_id|kitsu_id} declara los tipos de ID compatibles; se utilizará el que corresponda o se conservará el póster original. Agrega ? para hacer que un marcador sea opcional, resolviéndolo como vacío en lugar de omitirlo: {imdb_id?}. Otros marcadores: {id_type}, {typed_id}, {type}, {shape}.</string>
 
 
-    <string name="mdblist_name">MDBList</string>
     <string name="mdblist_tracking_description">Sincroniza el historial de reproducción y el progreso de reproducción entre dispositivos</string>
     <string name="mdblist_connected_as">Conectado como %1$s</string>
     <string name="mdblist_account_fallback">Usuario de MDBList</string>
@@ -1005,33 +984,33 @@
     <string name="tracking_mdblist_features_subtitle">Configuración específica de MDBList</string>
 
 
-    <string name="settings_stream_badges_section">Estilo Fusion</string>
+    <string name="settings_stream_badges_section" tools:ignore="Typos">Estilo Fusion</string>
     <string name="settings_stream_size_badges_title">Insignias de tamaño</string>
     <string name="settings_stream_size_badges_description">Mostrar insignias del tamaño del archivo en los resultados de transmisiones y en los paneles de fuentes del reproductor.</string>
     <string name="settings_stream_addon_logo_title">Logo del addon</string>
     <string name="settings_stream_addon_logo_description">Mostrar el logo y el nombre del addon junto a las fuentes de streaming.</string>
     <string name="settings_stream_display_section">Visualización</string>
     <string name="settings_stream_badge_position_title">Posición de las insignias</string>
-    <string name="settings_stream_badge_position_description">Elige si las insignias de Fusion y tamaño aparecen arriba o abajo de las tarjetas de transmisión.</string>
+    <string name="settings_stream_badge_position_description" tools:ignore="Typos">Elige si las insignias de Fusion y tamaño aparecen arriba o abajo de las tarjetas de transmisión.</string>
     <string name="settings_stream_badge_position_dialog_title">Posición de las insignias</string>
     <string name="settings_stream_badge_position_dialog_description">Selecciona dónde aparecen las insignias de transmisión en las tarjetas de transmisión.</string>
     <string name="settings_stream_badge_position_top">Arriba</string>
     <string name="settings_stream_badge_position_bottom">Abajo</string>
-    <string name="settings_stream_badge_urls_title">URLs de las insignias de Fusion</string>
-    <string name="settings_stream_badge_urls_description">Importa hasta %1$d URLs JSON de insignias de streams estilo Fusion. Cada URL puede actualizarse o eliminarse por separado.</string>
-    <string name="settings_fusion_badges_summary">%1$d/%2$d URLs, %3$d insignias Fusion activas</string>
-    <string name="settings_fusion_badges_empty">No se han importado URLs de insignias Fusion.</string>
-    <string name="settings_fusion_badge_url_label">URL JSON de insignias Fusion</string>
+    <string name="settings_stream_badge_urls_title" tools:ignore="Typos">URLs de las insignias de Fusion</string>
+    <string name="settings_stream_badge_urls_description" tools:ignore="Typos">Importa hasta %1$d URLs JSON de insignias de streams estilo Fusion. Cada URL puede actualizarse o eliminarse por separado.</string>
+    <string name="settings_fusion_badges_summary" tools:ignore="Typos">%1$d/%2$d URLs, %3$d insignias Fusion activas</string>
+    <string name="settings_fusion_badges_empty" tools:ignore="Typos">No se han importado URLs de insignias Fusion.</string>
+    <string name="settings_fusion_badge_url_label" tools:ignore="Typos">URL JSON de insignias Fusion</string>
     <string name="settings_fusion_badge_url_active">Activa</string>
     <string name="settings_fusion_badge_url_inactive">Inactiva</string>
     <string name="settings_fusion_badge_url_status_summary">%1$s, %2$d insignias habilitadas, %3$d grupos</string>
     <string name="settings_fusion_badge_preview_action">Vista previa</string>
-    <string name="settings_fusion_badge_preview_title">Vista previa de insignias Fusion</string>
-    <string name="settings_fusion_badge_preview_count">%1$d insignias estilo Fusion desde esta URL</string>
-    <string name="settings_fusion_badge_preview_empty">No hay imágenes de insignias estilo Fusion en esta URL.</string>
+    <string name="settings_fusion_badge_preview_title" tools:ignore="Typos">Vista previa de insignias Fusion</string>
+    <string name="settings_fusion_badge_preview_count" tools:ignore="Typos">%1$d insignias estilo Fusion desde esta URL</string>
+    <string name="settings_fusion_badge_preview_empty" tools:ignore="Typos">No hay imágenes de insignias estilo Fusion en esta URL.</string>
     <string name="settings_fusion_badge_group_title">Grupo %1$d</string>
-    <string name="settings_fusion_badge_other_group_title">Otras insignias Fusion</string>
-    <string name="stream_badge_qr_instruction">Escanea este código QR en tu teléfono para administrar las URLs de insignias Fusion.</string>
+    <string name="settings_fusion_badge_other_group_title" tools:ignore="Typos">Otras insignias Fusion</string>
+    <string name="stream_badge_qr_instruction" tools:ignore="Typos">Escanea este código QR en tu teléfono para administrar las URLs de insignias Fusion.</string>
     <string name="streams_size">TAMAÑO %1$s</string>
     <string name="action_import">Importar</string>
     <string name="action_delete">Eliminar</string>
@@ -1109,7 +1088,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Selecciona la fuente de las recomendaciones mostradas en las páginas de detalles.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="trakt_more_like_this_source_simkl">Simkl</string>
     <string name="trakt_cached_label">En caché</string>
     <string name="trakt_stat_movies">Películas</string>
     <string name="trakt_stat_shows">Series</string>
@@ -1135,15 +1113,6 @@
     <string name="debug_progress_indicator_default">Predeterminado</string>
     <string name="debug_progress_indicator_large">Grande</string>
     <string name="debug_section_features">Activadores de Funciones</string>
-    <string name="debug_account_tab_title">Pestaña de Cuenta</string>
-    <string name="debug_account_tab_subtitle">Mostrar la pestaña de Cuenta en la navegación de Ajustes</string>
-    <string name="debug_sync_code_title">Funciones del Código de Sincronización</string>
-    <string name="debug_sync_code_subtitle">Mostrar botones de Generar/Ingresar Código de Sincronización en los ajustes de cuenta</string>
-    <string name="debug_member_tier_title">Simular nivel de colaborador</string>
-    <string name="debug_member_tier_subtitle">Elige el nivel de colaborador verificado que se devuelve en esta compilación de depuración</string>
-    <string name="debug_member_tier_none">Ninguno</string>
-    <string name="debug_member_tier_one">Colaborador</string>
-    <string name="debug_member_tier_two">Colaborador+</string>
     <string name="debug_buffer_logs_title">Activar registros BUFFER</string>
     <string name="debug_buffer_logs_subtitle">Genera diagnósticos periódicos del búfer del reproductor en logcat (desactivado de forma predeterminada)</string>
     <string name="debug_error_dialog_title">Error de Reproducción</string>
@@ -1306,7 +1275,7 @@
     <string name="player_loading_buffering">Cargando buffer…</string>
     <string name="player_engine_switching_title">Cambiando motor del reproductor</string>
     <string name="player_engine_switching_message">Fallo al iniciar. Cambiando a %1$s…</string>
-    <string name="player_engine_switching_manual_message">Cambiando a %1$s...</string>
+    <string name="player_engine_switching_manual_message">Cambiando a %1$s…</string>
     <string name="playback_show_loading_status">Mostrar estado de carga</string>
     <string name="playback_show_loading_status_sub">Muestra el progreso paso a paso mientras se inicializa el reproductor.</string>
     <string name="player_sync_line">Sincronizar línea</string>
@@ -1348,17 +1317,6 @@
     <string name="player_error_title">Error de reproducción</string>
     <string name="player_error_choose_source">Elige otra fuente</string>
     <string name="player_switch_to_mpv">Cambiar al reproductor MPV</string>
-    <string name="player_report_issue">Reportar problema</string>
-    <string name="player_report_issue_sending">Enviando reporte de reproducción...</string>
-    <string name="player_report_issue_sending_button">Enviando...</string>
-    <string name="player_report_issue_sent">Reporte enviado: %1$s</string>
-    <string name="player_report_issue_sent_button">Reporte enviado</string>
-    <string name="player_report_issue_failed">No se pudo enviar el reporte</string>
-    <string name="player_report_loading_issue">Reportar problema de carga</string>
-    <plurals name="player_report_loading_issue_prompt">
-    <item quantity="one">Sigue cargando después de %1$d segundo</item>
-    <item quantity="other">Sigue cargando después de %1$d segundos</item>
-</plurals>
     <string name="player_speed_title">Velocidad de Reproducción</string>
     <string name="player_error_no_stream_url">Esta fuente no tiene enlace de stream. Elige otra fuente.</string>
     
@@ -1651,7 +1609,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Cargando calificaciones del episodio...</string>
+    <string name="ratings_loading">Cargando calificaciones del episodio…</string>
     <string name="ratings_unavailable">Las calificaciones del episodio no están disponibles.</string>
     <string name="ratings_load_error">No se pudieron cargar las calificaciones del episodio.</string>
     <string name="ratings_season_summary">Temporada %1$d - %2$d episodios</string>
@@ -1659,7 +1617,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Descubrir</string>
     <string name="discover_load_more">Cargar más</string>
-    <string name="discover_loading">Cargando...</string>
+    <string name="discover_loading">Cargando…</string>
     <string name="discover_filter_genre">Género</string>
     <string name="discover_empty_no_content_title">No se encontró contenido</string>
     <string name="discover_empty_no_content_subtitle">Prueba con un género o catálogo diferente</string>
@@ -1728,11 +1686,11 @@
     <string name="trakt_error_list_not_found_or_private">La lista de Trakt no se encontró o no es pública</string>
     <string name="trakt_error_rate_limit_reached">Se alcanzó el límite de solicitudes de Trakt</string>
     <string name="trakt_status_enter_activation_code">Ingresa el código en trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Sincronizando...</string>
+    <string name="trakt_status_syncing">Sincronizando…</string>
     <string name="trakt_status_sync_completed">Sincronización completada</string>
     <string name="trakt_status_disconnected">Desconectado de Trakt</string>
     <string name="trakt_status_cw_window_updated">Ventana de Continuar viendo actualizada</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Límite alcanzado, reduciendo velocidad de verificación...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Límite alcanzado, reduciendo velocidad de verificación…</string>
     <string name="trakt_user_fallback">Usuario de Trakt</string>
     <string name="trakt_error_failed_start">No se pudo iniciar la autenticación de Trakt</string>
 
@@ -1781,7 +1739,6 @@
     <string name="cd_refresh">Actualizar</string>
     <string name="cd_remove">Eliminar</string>
     <string name="cd_preview">Vista previa</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Logo de Trakt</string>
     <string name="cd_trakt_qr">QR de activación de Trakt</string>
     <string name="cd_imdb">IMDb</string>
@@ -1934,7 +1891,7 @@
     <string name="collections_editor_tmdb_without_genres_helper">Excluye títulos que coincidan con estos números de género de TMDB.</string>
     <string name="collections_editor_tmdb_date_from">Fecha de estreno o emisión desde</string>
     <string name="collections_editor_tmdb_date_to">Fecha de estreno o emisión hasta</string>
-    <string name="collections_editor_tmdb_date_helper">Usa AAAA-MM-DD, por ejemplo 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Usa AAAA-MM-DD, por ejemplo 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Valoración mínima</string>
     <string name="collections_editor_tmdb_rating_max">Valoración máxima</string>
     <string name="collections_editor_tmdb_rating_helper">Valoración de TMDB de 0 a 10. Ejemplo: 7.0.</string>
@@ -1985,15 +1942,10 @@
     <string name="collections_editor_tmdb_placeholder_network">213 para Netflix, 49 para HBO, 2739 para Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 para Tom Hanks o URL de la persona</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 o 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
     <string name="collections_editor_tmdb_without_genres_placeholder">16 para Animación</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -2022,9 +1974,9 @@
     <string name="collections_editor_placeholder_hero_video">URL personalizada del video principal (opcional)</string>
     <string name="collections_editor_title_logo">Logotipo del título (Inicio moderno)</string>
     <string name="collections_editor_placeholder_title_logo">URL personalizada del logotipo del título (opcional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Buscar emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filtrar fuentes activas...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Buscar catálogos...</string>
+    <string name="collections_editor_search_emoji_placeholder">Buscar emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filtrar fuentes activas…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Buscar catálogos…</string>
     <string name="collections_editor_genre_filter">Filtro de género</string>
     <string name="collections_editor_choose_genre">Elegir</string>
     <string name="collections_editor_select_genre">Seleccionar género</string>
@@ -2055,9 +2007,7 @@
     <string name="collections_editor_tmdb_person_title_placeholder">Películas de Tom Hanks, Actores favoritos</string>
     <string name="collections_editor_tmdb_director_title_placeholder">Películas de Christopher Nolan, Directores favoritos</string>
     <string name="collections_editor_tmdb_keywords_placeholder">9715 para superhéroe</string>
-    <string name="collections_editor_tmdb_without_keywords_placeholder">9715</string>
     <string name="collections_editor_tmdb_companies_placeholder">420 para Marvel Studios</string>
-    <string name="collections_editor_tmdb_without_companies_placeholder">420</string>
     <string name="collections_editor_tmdb_networks_placeholder">213 para Netflix</string>
     <string name="folder_detail_not_found">No se encontró la carpeta</string>
     <string name="cast_error_load_details_for">No se pudieron cargar los detalles de %1$s</string>
@@ -2102,7 +2052,7 @@
     <string name="autoplay_regex_preset_bluray_quality">Calidad BluRay</string>
     <string name="autoplay_regex_preset_hevc_x265">HEVC / x265</string>
     <string name="autoplay_regex_preset_avc_x264">AVC / x264</string>
-    <string name="autoplay_regex_preset_hdr_dolby_vision">HDR / Dolby Vision</string>
+    <string name="autoplay_regex_preset_hdr_dolby_vision" tools:ignore="Typos">HDR / Dolby Vision</string>
     <string name="autoplay_regex_preset_dolby_atmos_dts">Dolby Atmos / DTS</string>
     <string name="autoplay_regex_preset_english">Inglés</string>
     <string name="autoplay_regex_preset_no_cam_ts">Sin CAM/TS</string>
@@ -2252,8 +2202,6 @@
     <string name="network_error_unknown">Ocurrió un error desconocido</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: ruta del script no encontrada</string>
-    <string name="network_fast_error_token_missing">fast.com: token no encontrado en el paquete</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 
@@ -2354,7 +2302,7 @@
     <string name="playback_cache_vod_size">Tamaño de la caché VOD</string>
     <string name="playback_cache_vod_size_sub">Uso máximo del disco para la caché VOD progresiva (eliminación LRU).</string>
     <string name="playback_cache_info_range">Rango: %1$d-%2$d MB.</string>
-    <string name="playback_cache_info_auto">El modo automático apunta a aproximadamente un 10 por ciento del espacio libre.</string>
+    <string name="playback_cache_info_auto" formatted="false">El modo automático apunta a aproximadamente un 10 por ciento del espacio libre.</string>
     <string name="playback_cache_info_manual_headroom">El modo manual mantiene aproximadamente %1$d MB libres.</string>
     <string name="playback_cache_info_free_disk">Espacio libre disponible: %1$s.</string>
     <string name="playback_cache_info_restart">El nuevo límite de caché se aplicará tras reiniciar la aplicación al cambiar entre modos o tamaños.</string>
@@ -2435,12 +2383,12 @@
     <string name="stream_test_card_title">Ejecutar prueba de velocidad de la última transmisión reproducida</string>
     <string name="stream_test_server_label">Servidor: %1$s</string>
     <string name="stream_test_no_stream">No hay reproducciones registradas. Reproduce un video para ejecutar pruebas de diagnóstico en su servidor.</string>
-    <string name="stream_test_btn_measuring_baseline">Midiendo línea base...</string>
-    <string name="stream_test_btn_measuring_parallel1">Midiendo conexión paralela (1 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel4">Midiendo conexión paralela (4 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel8">Midiendo conexión paralela (8 MB)...</string>
-    <string name="stream_test_btn_measuring_parallel16">Midiendo conexión paralela (16 MB)...</string>
-    <string name="stream_test_btn_running">Ejecutando...</string>
+    <string name="stream_test_btn_measuring_baseline">Midiendo línea base…</string>
+    <string name="stream_test_btn_measuring_parallel1">Midiendo conexión paralela (1 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel4">Midiendo conexión paralela (4 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel8">Midiendo conexión paralela (8 MB)…</string>
+    <string name="stream_test_btn_measuring_parallel16">Midiendo conexión paralela (16 MB)…</string>
+    <string name="stream_test_btn_running">Ejecutando…</string>
     <string name="stream_test_label_baseline">Conexión única estándar (línea base)</string>
     <string name="stream_test_label_parallel1">Conexión paralela (fragmentos de 1 MB)</string>
     <string name="stream_test_label_parallel4">Conexión paralela (fragmentos de 4 MB)</string>
@@ -2548,8 +2496,8 @@
     <string name="exclusion_below_min_resolution">por debajo de tu resolución mínima</string>
     <string name="exclusion_cam">copia cam o telesync</string>
     <string name="exclusion_codec">omites %1$s</string>
-    <string name="exclusion_dv_excluded">desactivaste Dolby Vision</string>
-    <string name="exclusion_dv_profile_excluded">desactivaste este perfil de Dolby Vision</string>
+    <string name="exclusion_dv_excluded" tools:ignore="Typos">desactivaste Dolby Vision</string>
+    <string name="exclusion_dv_profile_excluded" tools:ignore="Typos">desactivaste este perfil de Dolby Vision</string>
     <string name="exclusion_hdr_excluded">desactivaste HDR</string>
     <string name="exclusion_keyword">coincide con una palabra clave excluida</string>
     <string name="exclusion_language">omites %1$s</string>
@@ -2694,7 +2642,7 @@
         <item quantity="other">%1$d seleccionados</item>
     </plurals>
     <string name="ranking_size_gb">%1$d GB</string>
-    <string name="ranking_skip_dv5">Omitir el perfil 5 de Dolby Vision</string>
+    <string name="ranking_skip_dv5" tools:ignore="Typos">Omitir el perfil 5 de Dolby Vision</string>
     <string name="ranking_skip_dv5_sub">El perfil 5 no tiene respaldo HDR10. Siempre se omite cuando esta TV no puede mostrarlo</string>
     <string name="skip_marker_report_failed">No se pudo reportar el marcador</string>
     <string name="skip_marker_reported">Se reportó el marcador incorrecto. ¡Gracias!</string>
@@ -2702,8 +2650,8 @@
     <string name="skip_marker_submit_failed">No se pudo enviar el marcador a IntroDB</string>
     <string name="skip_marker_submitted">Marcador enviado a IntroDB</string>
     <string name="sub_hdr_brightness">Brillo de subtítulos HDR</string>
-    <string name="sub_hdr_style">Estilo separado para HDR / Dolby Vision</string>
-    <string name="sub_hdr_style_sub">Usa otro color de texto y un brillo más tenue para los subtítulos en video HDR y Dolby Vision</string>
+    <string name="sub_hdr_style" tools:ignore="Typos">Estilo separado para HDR / Dolby Vision</string>
+    <string name="sub_hdr_style_sub" tools:ignore="Typos">Usa otro color de texto y un brillo más tenue para los subtítulos en video HDR y Dolby Vision</string>
     <string name="sub_hdr_text_color">Color de texto HDR</string>
     <string name="subtitle_style_brightness_hdr">Brillo (HDR)</string>
     <string name="subtitle_style_text_color_hdr">Color del texto (HDR)</string>

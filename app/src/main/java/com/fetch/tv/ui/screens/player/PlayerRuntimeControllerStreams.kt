@@ -1,8 +1,8 @@
 package com.fetch.tv.ui.screens.player
 
 import android.content.Intent
-import android.net.Uri
 import android.util.Log
+import androidx.core.net.toUri
 import androidx.media3.common.util.UnstableApi
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.player.StreamAutoPlaySelector
@@ -659,7 +659,7 @@ private fun PlayerRuntimeController.openExternalStreamInBrowser(
         return true
     }
 
-    val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl))
+    val browserIntent = Intent(Intent.ACTION_VIEW, externalUrl.toUri())
         .addCategory(Intent.CATEGORY_BROWSABLE)
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
@@ -1291,7 +1291,7 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
 
 private fun String.safeStreamTraceHost(): String {
     return runCatching {
-        Uri.parse(this).host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
+        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")
 }
 

@@ -69,6 +69,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import android.util.Log
 import com.fetch.tv.R
+import com.fetch.tv.core.streams.BestMatchDecider
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.MDBListRatings
@@ -557,10 +558,10 @@ private fun SourcesButton(
 @Composable
 internal fun PlayButton(
     text: String?,
+    modifier: Modifier = Modifier,
     bestMatch: com.fetch.tv.core.streams.BestMatchPreview? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     onLongPress: (() -> Unit)? = null,
     focusRequester: FocusRequester? = null,
     restoreFocusToken: Int = 0,
@@ -643,6 +644,9 @@ internal fun PlayButton(
         shape = ButtonDefaults.shape(
             shape = FetchTheme.shapes.button
         ),
+        // The theme's control scale, not tv-material's 1.1x, which pushed the focused button into
+        // "In library" beside it and to within about 12 dp of the screen's bottom edge.
+        scale = ButtonDefaults.scale(focusedScale = com.fetch.tv.ui.components.FetchFocusSpec.controlScale),
         // On a light accent (White, Emerald, Amber) the ring sits a gap outside the button.
         border = ButtonDefaults.border(
             focusedBorder = com.fetch.tv.ui.components.FetchFocusSpec.border(
@@ -677,14 +681,29 @@ internal fun PlayButton(
                         text = text ?: "",
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
                     )
-                    val specLine = bestMatch?.let { rememberBestMatchSpecLine(it) }
+                    // A reused link or a remembered release group decides instead of Best match:
+                    // say so rather than leave the line blank.
+                    val deciderNote = when (bestMatch?.decidedBy) {
+                        BestMatchDecider.REUSED_LINK -> stringResource(R.string.best_match_decided_by_reused_link)
+                        BestMatchDecider.BINGE_GROUP -> stringResource(R.string.best_match_decided_by_binge_group)
+                        else -> null
+                    }
+                    val specLine = bestMatch?.takeIf { deciderNote == null }?.let { rememberBestMatchSpecLine(it) }
                     AnimatedVisibility(
-                        visible = specLine != null,
+                        visible = specLine != null || deciderNote != null,
                         enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.fast)),
                         exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
                     ) {
                         // The accent would vanish on the accent button, so Cached keeps the content colour.
                         val contentColor = LocalContentColor.current
+                        if (deciderNote != null) {
+                            Text(
+                                text = deciderNote,
+                                style = FetchTheme.textStyles.spec.copy(fontWeight = FontWeight.SemiBold),
+                                color = contentColor,
+                                maxLines = 1
+                            )
+                        }
                         specLine?.let { line ->
                             SpecStrip(
                                 line = line,
@@ -1038,7 +1057,7 @@ private fun MetaInfoRow(
                         textStyle = MaterialTheme.typography.labelLarge,
                         textColor = FetchTheme.extendedColors.textSecondary
                     )
-                    val ratingText = remember(rating) { String.format("%.1f", rating) }
+                    val ratingText = remember(rating) { String.format(Locale.getDefault(), "%.1f", rating) }
                     Text(
                         text = ratingText,
                         style = MaterialTheme.typography.labelLarge,

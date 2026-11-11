@@ -193,8 +193,8 @@ same soft spring runs.
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. Neither file
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes. Neither file
     is in `app/src/test/resources/theme-literals-baseline.txt` and no `tween(<digits>` is added.
   - `grep -rn "durations.fast.toFloat" app/src/main` returns nothing.
   - No unit test covers `FetchScrollDefaults`. `grep -rn "FetchScrollDefaults\|smoothScrollSpec" app/src/test` is empty.

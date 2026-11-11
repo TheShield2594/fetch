@@ -42,6 +42,7 @@ import com.fetch.tv.core.server.TraktSourceSearchResultInfo
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tmdb.TmdbCollectionSourceResolver
 import com.fetch.tv.core.trakt.TraktPublicListSourceResolver
+import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.data.local.CollectionsDataStore
 import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
@@ -132,10 +133,7 @@ class AddonManagerViewModel @Inject constructor(
     }
 
     private fun loadLogoBytes() {
-        try {
-            val inputStream = context.resources.openRawResource(R.drawable.app_logo_wordmark)
-            logoBytes = inputStream.use { it.readBytes() }
-        } catch (_: Exception) { }
+        logoBytes = context.readWordmarkPngBytes()
     }
 
     fun onInstallUrlChange(url: String) {
@@ -173,9 +171,11 @@ class AddonManagerViewModel @Inject constructor(
             return
         }
 
+        // The profile the Install was pressed on: the install is held to it (#465).
+        val profileId = addonRepository.addonChangeProfileId()
         viewModelScope.launch {
             _uiState.update { it.copy(isInstalling = true, error = null, transientMessage = null) }
-            val outcome = addonRepository.installOrReplace(normalizedUrl)
+            val outcome = addonRepository.installOrReplace(normalizedUrl, profileId = profileId)
             _uiState.update { it.copy(isInstalling = false) }
             handleInstallOutcome(outcome, clearInstallField = true)
         }
@@ -207,16 +207,25 @@ class AddonManagerViewModel @Inject constructor(
                 }
                 startConfigure(name = addonName, baseUrl = outcome.url, replacingUrl = null)
             }
-            is AddonInstallOutcome.Failed -> {
-                val message = outcome.message.ifBlank { context.getString(R.string.addon_error_invalid_url) }
-                _uiState.update {
-                    it.copy(
-                        error = message,
-                        transientMessage = message,
-                        transientMessageIsError = true
-                    )
-                }
-            }
+            is AddonInstallOutcome.Failed -> showInstallError(
+                outcome.message.ifBlank { context.getString(R.string.addon_error_invalid_url) }
+            )
+            is AddonInstallOutcome.ProfileChanged -> showInstallError(
+                context.getString(
+                    R.string.addon_install_profile_changed,
+                    outcome.addon.displayName.ifBlank { outcome.addon.baseUrl }
+                )
+            )
+        }
+    }
+
+    private fun showInstallError(message: String) {
+        _uiState.update {
+            it.copy(
+                error = message,
+                transientMessage = message,
+                transientMessageIsError = true
+            )
         }
     }
 
@@ -308,8 +317,9 @@ class AddonManagerViewModel @Inject constructor(
         }
         if (target.isInstalling) return
         _uiState.update { it.copy(configureTarget = target.copy(isInstalling = true, receivedUrl = null)) }
+        val profileId = addonRepository.addonChangeProfileId()
         viewModelScope.launch {
-            val outcome = addonRepository.installOrReplace(url, replacing = target.replacingUrl)
+            val outcome = addonRepository.installOrReplace(url, replacing = target.replacingUrl, profileId = profileId)
             if (outcome is AddonInstallOutcome.Installed) {
                 stopConfigure()
             } else {

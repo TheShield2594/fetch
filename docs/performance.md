@@ -7,8 +7,10 @@ Target devices (`minSdk` is 24, so Fire OS 5, API 22, is not supported):
 
 | Device | RAM | Android | Why |
 |---|---|---|---|
-| Fire TV Stick (2nd gen) or Fire TV Stick Lite | 1 GB / 1 GB | Fire OS 6–7 (API 25–28) | The weakest common device |
+| Fire TV Stick Lite, or a Fire TV Stick (2nd gen) updated to Fire OS 6 | 1 GB / 1 GB | Fire OS 6–7 (API 25–28) | The weakest common device Fetch installs on |
 | Chromecast with Google TV HD | 1.5 GB | Android TV 12 (API 31) | The weakest Google TV device |
+
+Fire OS 5 (API 22) cannot install Fetch: `minSdk` is 24 (`app/build.gradle.kts`).
 
 ## What is already in place
 
@@ -47,7 +49,7 @@ build of the current `main`, on the same device, back to back.
 
 Before every run:
 
-- Install a release build (`./gradlew :app:assembleFullRelease`), not debug.
+- Install a release build (`./gradlew :app:assembleRelease`), not debug.
 - Complete onboarding, add the default addons and let the home screen load once.
 - Reboot, wait about two minutes for the device to settle, then measure.
 - Leave the device on mains power with no other apps running.

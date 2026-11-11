@@ -213,11 +213,11 @@ StreamScreen feeds this panel's measured height into the loader as `bottomInset`
 ## Verification
 
 - **Mechanical**:
-  - `./gradlew :app:compileFullDebugKotlin` succeeds.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
-  - `./gradlew :app:testFullDebugUnitTest --tests '*FetchLaunchMorphTest*'` passes (same
+  - `./gradlew :app:compileDebugKotlin` succeeds.
+  - `./gradlew :app:testDebugUnitTest --tests '*ThemeLiteralGuardTest*'` passes.
+  - `./gradlew :app:testDebugUnitTest --tests '*FetchLaunchMorphTest*'` passes (same
     package; covers `addonsInAnswerOrder`, which this plan must not change).
-  - Optional: `FETCH_SCREENSHOTS=1 ./gradlew :app:testFullDebugUnitTest --tests '*ReadmeScreenshots.fetchingPanel*'`
+  - Optional: `FETCH_SCREENSHOTS=1 ./gradlew :app:testDebugUnitTest --tests '*ReadmeScreenshots.fetchingPanel*'`
     renders the panel with a best stream; it should look identical to before.
 - **Feel check** (TV or emulator, auto-play on, a title with several addons):
   - Animator duration scale 10x: when the first stream arrives, "Best so far" and "Play now"

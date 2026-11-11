@@ -49,6 +49,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun TrailerPlayer(
     trailerUrl: String?,
+    modifier: Modifier = Modifier,
     trailerAudioUrl: String? = null,
     isPlaying: Boolean,
     isPaused: Boolean = false,
@@ -64,7 +65,6 @@ fun TrailerPlayer(
     cropToFill: Boolean = false,
     overscanZoom: Float = 1f,
     autoCropLetterbox: Boolean = false,
-    modifier: Modifier = Modifier,
     enter: EnterTransition = fadeIn(animationSpec = FetchMotion.enterTween()),
     exit: ExitTransition = fadeOut(animationSpec = FetchMotion.exitTween()),
     /**

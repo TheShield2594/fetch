@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Fetch</string>
     <string name="tv_channel_continue_watching">Continue Watching</string>
     <string name="type_movie">Film</string>
@@ -64,7 +64,7 @@
     <string name="web_import_tab_paste">Paste</string>
     <string name="web_import_tab_file">File</string>
     <string name="web_import_tab_url">URL</string>
-    <string name="web_import_paste_placeholder">Paste collections JSON here...</string>
+    <string name="web_import_paste_placeholder">Paste collections JSON here…</string>
     <string name="web_import_file_select">Tap to select a .json file</string>
     <string name="web_order_send_to_top">Send to top</string>
     <string name="web_order_send_to_bottom">Send to bottom</string>
@@ -138,9 +138,9 @@
     <string name="error_meta_tried_generic">Ausprobierte Meta-Add-ons: %1$s. Metadaten konnten für id=%2$s (Typ=%3$s) nicht geladen werden. </string>
     <string name="error_meta_tried_issues">Versuchte Meta-Add-ons: %1$s. Metadaten konnten für id=%2$s (Typ=%3$s) nicht geladen werden. Probleme: %4$s.</string>
     <string name="error_stream_no_supported_addon">Kein installiertes Add-on unterstützt \"%1$s\" Streams.</string>
-    <string name="error_stream_tried_none">Versuchte Add-ons: %1$s. Keines hat Streams für id=%2$s (type=%3$s) gefunden.</string>
-    <string name="error_stream_tried_generic">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden für id=%2$s (type=%3$s).</string>
-    <string name="error_stream_tried_issues">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden für id=%2$s (type=%3$s). Fehler: %4$s.</string>
+    <string name="error_stream_tried_none">Versuchte Add-ons: %1$s. Keines hat Streams gefunden.</string>
+    <string name="error_stream_tried_generic">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden.</string>
+    <string name="error_stream_tried_issues">Versuchte Add-ons: %1$s. Streams konnten nicht geladen werden. Fehler: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Weiter ansehen</string>
@@ -162,7 +162,6 @@
         <item quantity="other">Ausstrahlung in %d Tagen</item>
     </plurals>
     <!-- Short versions for compact card styles (wide/poster) -->
-    <string name="cw_airs_date_short">%1$s</string>
     <string name="cw_airs_today_short">Heute</string>
     <string name="cw_airs_tomorrow_short">Morgen</string>
     <plurals name="cw_airs_in_days_short">
@@ -257,7 +256,6 @@
     <string name="detail_comments_back_hint">Zurück klicken, um zu schließen</string>
     <string name="detail_comments_badge_review">Bewertung</string>
     <string name="detail_comments_badge_spoiler">Spoiler</string>
-    <string name="detail_comments_badge_rating">%1$d/10</string>
     <string name="detail_comments_likes">%1$d Likes</string>
     <string name="tmdb_entity_kind_company">Produktionsfirma</string>
     <string name="tmdb_entity_kind_network">Sender</string>
@@ -266,11 +264,10 @@
     <string name="tmdb_entity_rail_recent">Neu</string>
     <string name="tmdb_entity_rail_most_voted">Meistbewertet</string>
     <string name="collections_editor_tmdb_watch_region">Zuschauer-Region</string>
-    <string name="collections_editor_tmdb_watch_region_helper">ISO 3166-1 country code where the title is available. Example: US, GB.</string>
+    <string name="collections_editor_tmdb_watch_region_helper" tools:ignore="TypographyDashes">ISO 3166-1 country code where the title is available. Example: US, GB.</string>
     <string name="collections_editor_tmdb_quick_watch_regions">Quick watch regions</string>
     <string name="collections_editor_tmdb_watch_providers">Watch provider IDs</string>
     <string name="collections_editor_tmdb_watch_providers_helper">Use TMDB watch provider IDs. Separate multiple with commas for AND, or pipes for OR.</string>
-    <string name="collections_editor_tmdb_watch_providers_placeholder">8|337|350</string>
     <string name="collections_editor_tmdb_quick_watch_providers">Quick watch providers</string>
     <string name="tmdb_error_load_source">Could not load TMDB source</string>
     <string name="tmdb_error_list_not_found">TMDB list not found</string>
@@ -358,7 +355,6 @@
     <string name="licenses_attributions_section_app">APP LIZENZ</string>
     <string name="licenses_attributions_section_data">DATA &amp; SERVICES</string>
     <string name="licenses_attributions_section_playback">ANDROID PLAYBACK LICENSES</string>
-    <string name="licenses_attributions_fetch_title">Fetch</string>
     <string name="licenses_attributions_tmdb_title">The Movie Database (TMDB)</string>
     <string name="licenses_attributions_tmdb_body">Fetch uses the TMDB API for movie and TV metadata, artwork, trailers, cast, production details, collections, and recommendations. This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
     <string name="licenses_attributions_trakt_title">Trakt</string>
@@ -418,19 +414,6 @@
     <string name="experience_mode_confirm_advanced_title">Switch to Advanced?</string>
     <string name="experience_mode_confirm_essential_subtitle">Advanced setup surfaces will be hidden, but your saved settings stay unchanged. You can switch back anytime.</string>
     <string name="experience_mode_confirm_advanced_subtitle">This reveals the full settings surface, including advanced setup, catalog, collection, and tuning controls.</string>
-    <string name="network_speed_test_run">Geschwindigkeitstest starten</string>
-    <string name="network_speed_test_running">Geschwindigkeitstest läuft</string>
-    <string name="network_speed_test_subtitle">Downloadgeschwindigkeit und Latenz messen</string>
-    <string name="network_testing_latency">Latenz wird gemessen</string>
-    <string name="network_testing_download">Downloadgeschwindigkeit wird gemessen</string>
-    <string name="network_results_title">Ergebnisse</string>
-    <string name="network_latency_label">Latenz</string>
-    <string name="network_download_label">Download</string>
-    <string name="network_error_prefix">Fehler: %1$s</string>
-    <string name="network_powered_by_fast">Bereitgestellt von fast.com</string>
-    <string name="network_connection_wifi">WLAN</string>
-    <string name="network_connection_ethernet">Ethernet</string>
-    <string name="network_connection_offline">Offline</string>
     <string name="advanced_section_performance">Performance &amp; navigation</string>
     <string name="advanced_section_diagnostics">Diagnostics</string>
     <string name="advanced_section_cache">Cache</string>
@@ -472,6 +455,7 @@
     <string name="playback_skip_intro">Intro überspringen</string>
     <string name="playback_skip_intro_sub">introdb.app verwenden, um Intros und Zusammenfassungen zu erkennen.</string>
     <string name="playback_parental_guide">Inhaltswarnungen</string>
+    <string name="playback_parental_guide_sub">Zeigt beim Start der Wiedergabe Inhaltswarnungen an. Sendet dazu die IMDb-ID jedes Titels an api.tiffara.com.</string>
     <string name="playback_auto_skip_segments">Automatisches Überspringen</string>
     <string name="playback_auto_skip_segments_sub">Wähle, welche Segemente automatisch übersprungen werden sollen.</string>
     <string name="auto_skip_intro">Intro / Opening</string>
@@ -485,7 +469,6 @@
     <string name="playback_player_external">Extern</string>
     <string name="playback_player_ask">Jedes Mal fragen</string>
     <string name="playback_internal_player_engine">Internal Engine</string>
-    <string name="playback_engine_exoplayer">ExoPlayer</string>
     <string name="playback_engine_mvplayer">Libmpv (Beta)</string>
     <string name="playback_auto_switch_internal_player_on_error">Auto-switch engine on startup error</string>
     <string name="playback_auto_switch_internal_player_on_error_sub">If stream startup fails, switch between ExoPlayer and libmpv automatically.</string>
@@ -587,7 +570,7 @@
 
     <!-- PlaybackAutoPlaySettings -->
     <string name="autoplay_reuse_last_link">Letzten Link wiederverwenden</string>
-    <string name="autoplay_reuse_last_link_sub">Automatisch den letzen funktionierenden Stream wiederverwenden. (Cache)</string>
+    <string name="autoplay_reuse_last_link_sub">Automatisch den letzten funktionierenden Stream wiederverwenden. (Cache)</string>
     <string name="autoplay_last_link_cache">Cache-Dauer des letzten Links</string>
     <string name="cache_duration_hour_one">%1$d Stunde</string>
     <string name="cache_duration_hour_other">%1$d Stunden</string>
@@ -806,10 +789,6 @@
     <string name="debug_playback_error_title">Bildschirm „Wiedergabefehler”</string>
     <string name="debug_playback_error_subtitle">Simulierten Popup-Fehler bei der Wiedergabe anzeigen</string>
     <string name="debug_section_features">Feature-Umschalter</string>
-    <string name="debug_account_tab_title">Registerkarte „Konto“</string>
-    <string name="debug_account_tab_subtitle">Registerkarte „Konto” in der Navigation „Einstellungen” anzeigen</string>
-    <string name="debug_sync_code_title">Synchronisierungscode-Funktionen</string>
-    <string name="debug_sync_code_subtitle">Schaltflächen „Synchronisierungscode generieren/eingeben“ in den Kontoeinstellungen anzeigen</string>
     <string name="debug_error_dialog_title">Wiedergabefehler</string>
     <string name="debug_error_dialog_subtitle">Während der Wiedergabe ist ein Fehler aufgetreten.\n\nFehler: Simulierter Testfehler – dies ist kein echter Fehler. Quelle hat HTTP 503 (Dienst nicht verfügbar) zurückgegeben.</string>
     <string name="debug_dismiss">Schließen</string>
@@ -939,7 +918,7 @@
     <string name="player_loading_buffering">Puffern…</string>
     <string name="player_engine_switching_title">Switching Player Engine</string>
     <string name="player_engine_switching_message">Start fehlgeschlagen. Wechsle zu %1$s…</string>
-    <string name="player_engine_switching_manual_message">Wechsle zu %1$s...</string>
+    <string name="player_engine_switching_manual_message">Wechsle zu %1$s…</string>
     <string name="playback_show_loading_status">Zeige Lade-Status</string>
     <string name="playback_show_loading_status_sub">Zeige Schritt-für-Schritt Fortschritt während sich der Player initialisiert.</string>
     <string name="player_sync_line">Sync Line</string>
@@ -1039,7 +1018,7 @@
 
     <!-- SubtitleDialog / SubtitleStyleSidePanel -->
     <string name="subtitle_dialog_title">Untertitel</string>
-    <string name="subtitle_loading_addon">Untertitel werden aus Add-ons geladen ...</string>
+    <string name="subtitle_loading_addon">Untertitel werden aus Add-ons geladen …</string>
     <string name="subtitle_no_addon">Keine Untertitel aus Add-ons verfügbar</string>
     <string name="subtitle_reset_defaults">Standardeinstellungen zurücksetzen</string>
     <string name="subtitle_tab_languages">Sprachen</string>
@@ -1218,7 +1197,7 @@
     <!-- AccountScreen -->
 
     <!-- EpisodeRatingsSection -->
-    <string name="ratings_loading">Episodenbewertungen werden geladen...</string>
+    <string name="ratings_loading">Episodenbewertungen werden geladen…</string>
     <string name="ratings_unavailable">Episodenbewertungen sind nicht verfügbar.</string>
     <string name="ratings_load_error">Episodenbewertungen können nicht geladen werden.</string>
     <string name="ratings_season_summary">Staffel %1$d – %2$d Episoden</string>
@@ -1226,7 +1205,7 @@
     <!-- SearchDiscoverSection -->
     <string name="discover_title">Entdecken</string>
     <string name="discover_load_more">Mehr laden</string>
-    <string name="discover_loading">Wird geladen...</string>
+    <string name="discover_loading">Wird geladen…</string>
     <string name="discover_filter_genre">Genre</string>
     <string name="discover_empty_no_content_title">Kein Inhalt gefunden</string>
     <string name="discover_empty_no_content_subtitle">Versuchen Sie es mit einem anderen Genre oder Katalog</string>
@@ -1296,11 +1275,11 @@
     <string name="trakt_error_list_not_found_or_private">Trakt list not found or not public</string>
     <string name="trakt_error_rate_limit_reached">Trakt rate limit reached</string>
     <string name="trakt_status_enter_activation_code">Enter code on trakt.tv/activate</string>
-    <string name="trakt_status_syncing">Syncing...</string>
+    <string name="trakt_status_syncing">Syncing…</string>
     <string name="trakt_status_sync_completed">Sync completed</string>
     <string name="trakt_status_disconnected">Disconnected from Trakt</string>
     <string name="trakt_status_cw_window_updated">Continue watching window updated</string>
-    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, slowing down polling...</string>
+    <string name="trakt_status_rate_limited_slowing_polling">Rate limited, slowing down polling…</string>
     <string name="trakt_user_fallback">Trakt user</string>
     <string name="trakt_error_failed_start">Failed to start Trakt auth</string>
 
@@ -1361,7 +1340,6 @@
     <string name="cd_refresh">Neuladen</string>
     <string name="cd_remove">Entfernen</string>
     <string name="cd_preview">Vorschau</string>
-    <string name="cd_fetch_logo">Fetch</string>
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt Aktivierungs-QR</string>
     <string name="cd_imdb">IMDb</string>
@@ -1510,7 +1488,7 @@
     <string name="collections_editor_tmdb_genres_helper">Use TMDB genre numbers. Separate multiple with commas for AND, or pipes for OR.</string>
     <string name="collections_editor_tmdb_date_from">Release or air date from</string>
     <string name="collections_editor_tmdb_date_to">Release or air date to</string>
-    <string name="collections_editor_tmdb_date_helper">Use YYYY-MM-DD, for example 2024-01-01.</string>
+    <string name="collections_editor_tmdb_date_helper" tools:ignore="TypographyDashes">Use YYYY-MM-DD, for example 2024-01-01.</string>
     <string name="collections_editor_tmdb_rating_min">Minimum rating</string>
     <string name="collections_editor_tmdb_rating_max">Maximum rating</string>
     <string name="collections_editor_tmdb_rating_helper">TMDB rating from 0 to 10. Example: 7.0.</string>
@@ -1557,14 +1535,9 @@
     <string name="collections_editor_tmdb_placeholder_network">213 for Netflix, 49 for HBO, 2739 for Disney+</string>
     <string name="collections_editor_tmdb_person_placeholder">31 for Tom Hanks, or person URL</string>
     <string name="collections_editor_trakt_id_placeholder">https://trakt.tv/lists/123456 or 123456</string>
-    <string name="collections_editor_url_short_placeholder">https://...</string>
-    <string name="collections_editor_tmdb_genres_movie_placeholder">28,12</string>
-    <string name="collections_editor_tmdb_genres_tv_placeholder">18,35</string>
-    <string name="collections_editor_tmdb_date_from_placeholder">2020-01-01</string>
-    <string name="collections_editor_tmdb_date_to_placeholder">2024-12-31</string>
-    <string name="collections_editor_tmdb_rating_min_placeholder">7.0</string>
-    <string name="collections_editor_tmdb_rating_max_placeholder">10</string>
-    <string name="collections_editor_tmdb_votes_min_placeholder">100</string>
+    <string name="collections_editor_url_short_placeholder">https://…</string>
+    <string name="collections_editor_tmdb_date_from_placeholder" tools:ignore="TypographyDashes">2020-01-01</string>
+    <string name="collections_editor_tmdb_date_to_placeholder" tools:ignore="TypographyDashes">2024-12-31</string>
     <string name="collections_editor_tmdb_language_placeholder">en, ko, ja, hi</string>
     <string name="collections_editor_tmdb_country_placeholder">US, KR, JP, IN</string>
     <string name="collections_editor_tmdb_year_placeholder">2024</string>
@@ -1593,9 +1566,9 @@
     <string name="collections_editor_placeholder_hero_video">Custom hero video URL (optional)</string>
     <string name="collections_editor_title_logo">Title Logo (Modern Home)</string>
     <string name="collections_editor_placeholder_title_logo">Custom title logo URL (optional)</string>
-    <string name="collections_editor_search_emoji_placeholder">Search emoji...</string>
-    <string name="collections_editor_filter_active_sources_placeholder">Filter active sources...</string>
-    <string name="collections_editor_search_catalogs_placeholder">Search catalogs...</string>
+    <string name="collections_editor_search_emoji_placeholder">Search emoji…</string>
+    <string name="collections_editor_filter_active_sources_placeholder">Filter active sources…</string>
+    <string name="collections_editor_search_catalogs_placeholder">Search catalogs…</string>
     <string name="collections_editor_genre_filter">Genre Filter</string>
     <string name="collections_editor_choose_genre">Choose</string>
     <string name="collections_editor_select_genre">Select genre</string>
@@ -1786,8 +1759,6 @@
     <string name="network_error_unknown">Unknown error occurred</string>
 
     <!-- Network settings: fast.com errors -->
-    <string name="network_fast_error_script_path_missing">fast.com: script path not found</string>
-    <string name="network_fast_error_token_missing">fast.com: token not found in bundle</string>
 
     <!-- Torrent service / TorrServer binary errors -->
 

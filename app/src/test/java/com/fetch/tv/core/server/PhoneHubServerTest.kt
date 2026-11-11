@@ -111,6 +111,13 @@ class PhoneHubServerTest {
         var blockedMessage: String? = null
 
         override fun settingsChangeBlocked(): String? = blockedMessage
+
+        val websiteAddresses = mutableListOf<String>()
+
+        override suspend fun connectWebsite(address: String): PhoneHubWebsiteStatus {
+            websiteAddresses += address
+            return PhoneHubWebsiteStatus(state = "code", code = "K7Q2-9XPL", confirmUrl = "https://fetch.example.com/pair?code=K7Q2-9XPL")
+        }
     }
 
     private val actions = FakeActions()
@@ -142,6 +149,21 @@ class PhoneHubServerTest {
         assertTrue(page.contains("href=\"/profiles\""))
         assertTrue(page.contains("href=\"/posters/\""))
         assertFalse(page.contains("href=\"/badges/\""))
+    }
+
+    @Test
+    fun `the website page sends the typed address to the TV and hands back the confirm link`() {
+        assertTrue(body(server.serve(FakeHttpSession("/"))).contains("href=\"/website\""))
+        assertTrue(body(server.serve(FakeHttpSession("/website"))).contains("id=\"address\""))
+
+        val reply = body(post("/api/website", """{"address":"fetch.example.com"}"""))
+        assertEquals(listOf("fetch.example.com"), actions.websiteAddresses)
+        assertTrue(reply.contains("\"code\":\"K7Q2-9XPL\""))
+        assertTrue(reply.contains("\"confirmUrl\":\"https://fetch.example.com/pair?code=K7Q2-9XPL\""))
+
+        actions.blockedMessage = "Unlock the TV first."
+        assertEquals(NanoHTTPD.Response.Status.FORBIDDEN, post("/api/website", """{"address":"x"}""").status)
+        assertEquals(1, actions.websiteAddresses.size)
     }
 
     @Test

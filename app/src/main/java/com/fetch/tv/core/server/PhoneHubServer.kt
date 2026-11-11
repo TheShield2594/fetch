@@ -41,6 +41,21 @@ data class PhoneHubAccountStatus(
     val mediaServers: List<String>
 )
 
+/**
+ * Where signing the TV in to a Fetch website stands, for the phone's Fetch website page.
+ * [state] is `idle`, `starting`, `code`, `expired`, `paired` or `failed`; [signedIn] is the
+ * website this TV is signed in to, if any.
+ */
+data class PhoneHubWebsiteStatus(
+    val state: String,
+    val code: String? = null,
+    val confirmUrl: String? = null,
+    val message: String? = null,
+    val notFound: Boolean = false,
+    val signedIn: String? = null,
+    val lastAddress: String? = null
+)
+
 /** An installed addon as the phone's Addons page lists it. */
 data class PhoneHubAddon(val name: String, val streams: Boolean)
 
@@ -92,6 +107,16 @@ interface PhoneHubActions {
      * locked), or null when they can. Checked before any change through a section page.
      */
     fun settingsChangeBlocked(): String? = null
+
+    /** The Fetch website sign-in, for the phone's Fetch website page. */
+    suspend fun websiteStatus(): PhoneHubWebsiteStatus = PhoneHubWebsiteStatus(state = "idle")
+
+    /**
+     * Starts signing the TV in to the Fetch website at [address] (the website's or its API's)
+     * and returns once there is a code to confirm, or a reason there isn't.
+     */
+    suspend fun connectWebsite(address: String): PhoneHubWebsiteStatus =
+        PhoneHubWebsiteStatus(state = "failed")
 }
 
 /**
@@ -145,6 +170,9 @@ class PhoneHubServer(
         session.method == Method.GET && uri == "/profiles" -> html(pages().profiles())
         session.method == Method.GET && uri == "/backup" -> html(pages().backup())
         session.method == Method.GET && uri == "/addons" -> html(pages().addons())
+        session.method == Method.GET && uri == "/website" -> html(pages().website())
+        session.method == Method.GET && uri == "/api/website" -> jsonResponse(websiteJson(runBlocking { actions.websiteStatus() }))
+        session.method == Method.POST && uri == "/api/website" -> handleWebsite(readJson(session))
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
         session.method == Method.POST && uri == "/api/accounts/mdblist" -> handleMdbList(readJson(session))
@@ -207,6 +235,23 @@ class PhoneHubServer(
             },
             onFailure = { errorResponse(it.message ?: text(R.string.phone_web_error_sign_in)) }
         )
+    }
+
+    private fun handleWebsite(body: JsonObject): Response {
+        // Signing the TV in to an account changes what every profile sees, so a locked TV says no.
+        actions.settingsChangeBlocked()?.let { return forbidden(it) }
+        val address = body.requiredText("address")
+        return jsonResponse(websiteJson(runBlocking { actions.connectWebsite(address) }))
+    }
+
+    private fun websiteJson(status: PhoneHubWebsiteStatus): JsonElement = buildJsonObject {
+        put("state", status.state)
+        status.code?.let { put("code", it) }
+        status.confirmUrl?.let { put("confirmUrl", it) }
+        status.message?.let { put("message", it) }
+        put("notFound", status.notFound)
+        status.signedIn?.let { put("signedIn", it) }
+        status.lastAddress?.takeIf { it.isNotBlank() }?.let { put("lastAddress", it) }
     }
 
     private fun handleRanking(session: IHTTPSession): Response {

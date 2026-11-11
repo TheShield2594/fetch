@@ -48,9 +48,20 @@ class FetchWebsiteStore internal constructor(
             .putString(KEY_TOKEN, session.deviceToken)
             .putString(KEY_DEVICE_NAME, session.deviceName)
             .putBoolean(KEY_SIGNED_OUT, false)
+            .putBoolean(KEY_INITIAL_PROFILE_PUSH, true)
             .apply()
         _signedOutByWebsite.value = false
         _session.value = session
+    }
+
+    /**
+     * True from pairing until the first sync has added this TV's profiles to the website, so
+     * that pass runs once per pairing even if the app is closed before it does.
+     */
+    val needsInitialProfilePush: Boolean get() = prefs.getBoolean(KEY_INITIAL_PROFILE_PUSH, false)
+
+    fun markInitialProfilePushDone() {
+        prefs.edit().putBoolean(KEY_INITIAL_PROFILE_PUSH, false).apply()
     }
 
     /** Signing out on the TV: forget the token, keep the address for next time. */
@@ -103,6 +114,7 @@ class FetchWebsiteStore internal constructor(
         const val KEY_TOKEN = "device_token"
         const val KEY_DEVICE_NAME = "device_name"
         const val KEY_SIGNED_OUT = "signed_out_by_website"
+        const val KEY_INITIAL_PROFILE_PUSH = "initial_profile_push"
         const val KEY_SETTINGS_BASE_PREFIX = "settings_base_"
     }
 }

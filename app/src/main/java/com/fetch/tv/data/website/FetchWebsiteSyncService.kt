@@ -90,6 +90,10 @@ class FetchWebsiteSyncService @Inject constructor(
      */
     fun requestSync() {
         if (!store.isPaired) return
+        // Settings changes are pushed by the settings service's own observer, which only runs
+        // once something has built it. Building it here, rather than late in a pass that may
+        // fail first, is what makes a setting changed on the TV reach the website at all.
+        profileSettingsSync.get()
         ensureWatching()
         scope.launch { syncNow() }
     }
@@ -105,6 +109,10 @@ class FetchWebsiteSyncService @Inject constructor(
         val result = runCatchingNonCancel {
             if (!client.checkSession()) return@runCatchingNonCancel
             signedIn = true
+            if (store.needsInitialProfilePush) {
+                pushProfilesMissingFromWebsite()
+                store.markInitialProfilePushDone()
+            }
             pullProfiles()
             pullActiveProfileState()
         }.onFailure { Log.w(TAG, "Website sync failed", it) }
@@ -118,10 +126,16 @@ class FetchWebsiteSyncService @Inject constructor(
      * service, which decides what is applied and what is kept back while applying.
      */
     private suspend fun pullActiveProfileState() {
-        pullCollections()
-        pullAddons()
-        homeCatalogSync.get().pullFromRemote().getOrThrow()
-        profileSettingsSync.get().pullCurrentProfileFromRemote().getOrThrow()
+        // Each domain on its own, so one the website refuses (an addon link it can't read,
+        // say) doesn't keep the rest from syncing. The first failure is what the pass reports.
+        val failures = listOf(
+            runCatchingNonCancel { pullCollections() },
+            runCatchingNonCancel { pullAddons() },
+            runCatchingNonCancel { homeCatalogSync.get().pullFromRemote().getOrThrow() },
+            runCatchingNonCancel { profileSettingsSync.get().pullCurrentProfileFromRemote().getOrThrow() }
+        ).mapNotNull { it.exceptionOrNull() }
+        failures.drop(1).forEach { Log.w(TAG, "Website sync step failed", it) }
+        failures.firstOrNull()?.let { throw it }
     }
 
     /** Best-effort: a website that can't take the report is no reason to fail the sync. */
@@ -161,6 +175,36 @@ class FetchWebsiteSyncService @Inject constructor(
         remote.filter { !it.hasPin }.forEach { lockStateDataStore.setLocalPinHash(it.slot, null) }
         Log.d(TAG, "Pulled ${remote.size} profiles from the website")
         return true
+    }
+
+    /**
+     * The first sync after pairing: creates on the website every profile this TV has that the
+     * website has no profile for in the same slot, so pairing adds the TV's profiles to the
+     * account instead of the pull that follows replacing them. Profiles the website already
+     * has are left as they are there. Only done once per pairing, so a profile deleted on the
+     * website later isn't brought back.
+     */
+    private suspend fun pushProfilesMissingFromWebsite() {
+        val remoteSlots = client.profiles().mapTo(HashSet()) { it.slot }
+        val restrictions = restrictionsDataStore.restrictions.first()
+        val missing = profileManager.profiles.value.filter { it.id !in remoteSlots }
+        missing.forEach { profile ->
+            client.putProfile(
+                profile.id,
+                FetchWebsiteMappings.toWebsiteBody(profile, restrictions[profile.id] ?: ProfileRestrictions.None)
+            )
+        }
+        if (missing.isNotEmpty()) Log.d(TAG, "Added ${missing.size} profiles from this TV to the website")
+    }
+
+    /**
+     * [pushProfiles] for a change made on this TV (a profile added, renamed or deleted): waits
+     * for a sync pass in progress, so a pull that read the website before the change can't
+     * write the old profiles back over it.
+     */
+    suspend fun pushProfilesNow(): Result<Unit> {
+        profilesPushJob?.cancel()
+        return syncMutex.withLock { pushProfiles() }
     }
 
     /** Sends every profile on this TV to the website, creating the ones it doesn't have yet. */
@@ -285,11 +329,12 @@ class FetchWebsiteSyncService @Inject constructor(
             throw error
         }
         if (body.updatedAt == null && body.addons.isEmpty()) return null
+        // The website's `name` is the addon's manifest name, not one somebody chose, so it isn't
+        // passed on: written into the TV's custom names it would pin every addon to it.
         return body.addons.map { addon ->
             SyncAddon(
                 url = FetchWebsiteTvMappings.toTvAddonUrl(addon.manifestUrl),
-                enabled = addon.enabled,
-                name = addon.name?.takeIf { it.isNotBlank() }
+                enabled = addon.enabled
             )
         }
     }

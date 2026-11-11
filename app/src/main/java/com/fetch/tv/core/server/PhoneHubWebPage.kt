@@ -34,6 +34,7 @@ class PhoneHubWebPage(private val resources: Resources) {
         <style>
           :root { color-scheme: dark; }
           * { box-sizing: border-box; }
+          [hidden] { display: none !important; }
           body { margin: 0; background: #0f1115; color: #e8eaed; font: 16px/1.4 system-ui, -apple-system, sans-serif; }
           main { max-width: 560px; margin: 0 auto; padding: 16px; }
           h1 { font-size: 24px; margin: 8px 0 16px; }
@@ -129,6 +130,7 @@ class PhoneHubWebPage(private val resources: Resources) {
                 ${card("/remote", R.string.phone_web_card_remote, R.string.phone_web_card_remote_sub)}
                 ${card("/addons", R.string.phone_web_card_addons, R.string.phone_web_card_addons_sub)}
                 ${card("/accounts", R.string.phone_web_card_accounts, R.string.phone_web_card_accounts_sub)}
+                ${card("/website", R.string.phone_web_card_website, R.string.phone_web_card_website_sub)}
                 ${card("/ranking", R.string.phone_web_card_ranking, R.string.phone_web_card_ranking_sub)}
                 ${card("/profiles", R.string.phone_web_card_profiles, R.string.phone_web_card_profiles_sub)}
                 ${card("/backup", R.string.phone_web_card_backup, R.string.phone_web_card_backup_sub)}
@@ -405,6 +407,74 @@ class PhoneHubWebPage(private val resources: Resources) {
               post('/api/ranking', { rules: rules }).then(function () { current = rules; show('status', ${j(R.string.phone_web_saved)}); })
                 .catch(function (e) { show('status', e.message, true); });
             });
+        """
+    )
+
+    /**
+     * Signing the TV in to a Fetch website from the phone: the address is typed here, where
+     * there is a keyboard, and once the TV has a code this page opens the website's confirm
+     * page with it filled in. The TV finishes pairing by itself once it is confirmed.
+     */
+    fun website(): String = page(
+        title = h(R.string.phone_web_card_website),
+        body = """
+            <p class="hint">${h(R.string.phone_web_website_intro)}</p>
+            <div id="signedIn" class="status" role="status"></div>
+            <form id="form">
+              <label for="address">${h(R.string.phone_web_website_address)}</label>
+              <input id="address" type="url" inputmode="url" autocomplete="url" autocapitalize="off" spellcheck="false" placeholder="fetch.example.com">
+              <div class="row"><button id="connect" type="submit">${h(R.string.phone_web_website_connect)}</button></div>
+            </form>
+            <div id="status" class="status" role="status"></div>
+            <div id="codeBox" hidden>
+              <p class="hint">${h(R.string.phone_web_website_code)}</p>
+              <p id="code" class="code"></p>
+              <div class="row"><a id="confirm" class="card" hidden>${h(R.string.phone_web_website_confirm)}</a></div>
+            </div>
+        """,
+        script = """
+            const FINDING = ${j(R.string.phone_web_website_finding)};
+            const NOT_FOUND = ${j(R.string.phone_web_website_not_found)};
+            const INVALID = ${j(R.string.phone_web_website_invalid)};
+            const OPENING = ${j(R.string.phone_web_website_opening)};
+            const EXPIRED = ${j(R.string.phone_web_website_expired)};
+            const PAIRED = ${j(R.string.phone_web_website_paired)};
+            const button = document.getElementById('connect');
+            const input = document.getElementById('address');
+            function render(d) {
+              document.getElementById('signedIn').textContent = d.signedIn ? fmt(PAIRED, d.signedIn) : '';
+              if (d.lastAddress && !input.value) input.value = d.lastAddress;
+            }
+            function failed(d) {
+              if (d.state === 'expired') return EXPIRED;
+              if (d.notFound) return NOT_FOUND;
+              return d.message || INVALID;
+            }
+            document.getElementById('form').addEventListener('submit', function (event) {
+              event.preventDefault();
+              const address = input.value.trim();
+              if (!address) { show('status', INVALID, true); return; }
+              button.disabled = true;
+              document.getElementById('codeBox').hidden = true;
+              show('status', FINDING);
+              post('/api/website', { address: address }).then(function (d) {
+                if (d.state !== 'code') { show('status', failed(d), true); return; }
+                document.getElementById('code').textContent = d.code;
+                document.getElementById('codeBox').hidden = false;
+                const link = document.getElementById('confirm');
+                if (d.confirmUrl) {
+                  link.href = d.confirmUrl;
+                  link.hidden = false;
+                  show('status', OPENING);
+                  window.location.href = d.confirmUrl;
+                } else {
+                  link.hidden = true;
+                  show('status', '');
+                }
+              }).catch(function (e) { show('status', e.message, true); })
+                .finally(function () { button.disabled = false; });
+            });
+            load('/api/website').then(render).catch(function () {});
         """
     )
 

@@ -3,10 +3,10 @@
     <!-- Fetch website: pairing this TV with a self-hosted Fetch website (Settings → Account). -->
     <string name="website_name">Fetch website</string>
     <string name="website_sign_in_title">Sign in to a Fetch website</string>
-    <string name="website_sign_in_subtitle">Pair this TV with your Fetch website by a code, with no address to type. Profiles, parental limits and collections are then managed there.</string>
+    <string name="website_sign_in_subtitle">Pair this TV with your Fetch website by a code, with no address to type. Profiles, parental limits and Home folders are then managed there.</string>
     <string name="website_signed_in_subtitle">Signed in as %1$s · %2$s</string>
-    <string name="website_signed_out_notice">This TV was signed out from the Fetch website. Sign in again to keep syncing profiles and collections.</string>
-    <string name="website_manage_body">Profiles, parental limits and collections sync with this website. Signing out keeps everything on this TV as it is now.</string>
+    <string name="website_signed_out_notice">This TV was signed out from the Fetch website. Sign in again to keep syncing profiles and Home folders.</string>
+    <string name="website_manage_body">Profiles, parental limits and Home folders sync with this website. Signing out keeps everything on this TV as it is now.</string>
     <string name="website_sync_now">Sync now</string>
     <string name="website_sign_out">Sign out</string>
     <string name="website_enter_address">Enter the address you open your Fetch website at, such as fetch.example.com or 192.168.1.25:7002.</string>
@@ -30,7 +30,7 @@
     <string name="website_code_waiting">Waiting for the code to be confirmed…</string>
     <string name="website_pairing_expired">The code expired before it was confirmed.</string>
     <string name="website_pairing_retry">Get a new code</string>
-    <string name="website_pairing_done">Signed in as %1$s. Profiles and collections are syncing now.</string>
+    <string name="website_pairing_done">Signed in as %1$s. Profiles and Home folders are syncing now.</string>
     <string name="website_done">Done</string>
     <string name="website_hub_starting">Getting a code…</string>
     <string name="website_hub_code_instruction">On your phone or computer, open your Fetch website and enter this code. You don’t need to type anything on the TV.</string>

@@ -11,7 +11,7 @@
     <string name="first_run_continue">Continue</string>
 
     <string name="first_run_server_title">Connect your Fetch server</string>
-    <string name="first_run_server_body">A self-hosted Fetch website keeps profiles, parental limits, collections and watch history in sync across your TVs. No server? Skip this and Fetch works on this TV on its own.</string>
+    <string name="first_run_server_body">A self-hosted Fetch website keeps profiles, parental limits, Home folders and watch history in sync across your TVs. No server? Skip this and Fetch works on this TV on its own.</string>
 
     <string name="first_run_sources_title">Add something to watch</string>
     <string name="first_run_sources_step_addons">Open Addons and paste a stream addon’s link</string>

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.runtime.mutableFloatStateOf
 import com.fetch.tv.ui.components.FetchButton
 import com.fetch.tv.ui.components.FetchButtonStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle

@@ -71,14 +71,14 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Lint (full debug)
-        run: ./gradlew --no-daemon :app:lintFullDebug
+      - name: Lint (debug)
+        run: ./gradlew --no-daemon :app:lintDebug
 
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: lint-report
-          path: app/build/reports/lint-results-fullDebug.*
+          path: app/build/reports/lint-results-debug.*
           if-no-files-found: ignore
 
   release:
@@ -100,13 +100,13 @@ jobs:
       - name: Assemble release APK
         env:
           CI_USE_DEBUG_SIGNING: "true"
-        run: ./gradlew --no-daemon :app:assembleFullRelease
+        run: ./gradlew --no-daemon :app:assembleRelease
 
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: r8-mapping
-          path: app/build/outputs/mapping/fullRelease/
+          path: app/build/outputs/mapping/release/
           if-no-files-found: ignore
 
   instrumented:
@@ -132,7 +132,7 @@ jobs:
 
       # Build the app and test APKs before the emulator starts, so emulator time is test time.
       - name: Build test APKs
-        run: ./gradlew --no-daemon :app:assembleFullDebug :app:assembleFullDebugAndroidTest
+        run: ./gradlew --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest
 
       # An Android TV 14 emulator at 1080p, the same image baseline-profile.yml records on: the
       # UI tests assume a landscape TV screen and D-pad (non-touch) focus, and fail on a phone.
@@ -149,7 +149,7 @@ jobs:
           ram-size: 4096M
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swangle_indirect -noaudio -no-boot-anim -camera-back none
-          script: ./gradlew --no-daemon :app:connectedFullDebugAndroidTest
+          script: ./gradlew --no-daemon :app:connectedDebugAndroidTest
 
       - uses: actions/upload-artifact@v7
         if: always()

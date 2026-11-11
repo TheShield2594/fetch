@@ -5,6 +5,8 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import androidx.compose.ui.platform.LocalResources
+import androidx.core.net.toUri
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -95,6 +97,7 @@ fun AdvancedSettingsContent(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val resources = LocalResources.current
 
     val scope = rememberCoroutineScope()
     val unknownError = stringResource(R.string.error_unknown)

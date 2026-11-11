@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.player
 
 import android.os.SystemClock
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.update
 
 private const val LOADING_EVENT_LIMIT = 80

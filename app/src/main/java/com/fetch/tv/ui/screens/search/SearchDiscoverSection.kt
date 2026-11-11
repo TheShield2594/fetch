@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.components.FetchMediaCard
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.FetchTheme

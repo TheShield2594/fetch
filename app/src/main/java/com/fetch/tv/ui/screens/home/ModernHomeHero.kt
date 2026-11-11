@@ -333,8 +333,7 @@ internal fun HeroTitleBlock(
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
     trailerPlaying: () -> Boolean = { false },
     /** A smaller logo and a one-line description, for when the rows below take more of the screen. */
-    compact: Boolean = false,
-    modifier: Modifier = Modifier
+    compact: Boolean = false
 ) {
     // The provider reads hero state that is rewritten on every focus move, often with an equal
     // value. Deriving it recomposes this block only when what it shows actually changes.

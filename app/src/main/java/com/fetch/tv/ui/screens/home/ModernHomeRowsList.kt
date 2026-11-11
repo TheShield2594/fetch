@@ -96,6 +96,7 @@ internal fun ModernHomeRowsList(
     onRowItemFocusedInternal: (String, Int, Boolean) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
     onSeeAllRow: (HeroCarouselRow) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onLoadMoreCatalog: (String, String, String) -> Unit,

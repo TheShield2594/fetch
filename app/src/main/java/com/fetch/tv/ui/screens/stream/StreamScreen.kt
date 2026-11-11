@@ -815,8 +815,7 @@ private fun RightStreamSection(
     streamExclusions: Map<String, ExclusionReason> = emptyMap(),
     bestMatchFirst: Boolean = false,
     /** Best match's scores on the All tab; see [StreamScreenUiState.rankedStreams]. */
-    rankedStreams: Map<String, RankedStream> = emptyMap(),
-    modifier: Modifier = Modifier
+    rankedStreams: Map<String, RankedStream> = emptyMap()
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     var enter by remember { mutableStateOf(false) }

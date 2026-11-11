@@ -45,12 +45,18 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           app=true
+          # One line per changed file: its path, then a tab and its old path if it was renamed,
+          # so moving app code into web/ still runs the app jobs. The API lists at most 3,000
+          # files, and a list that long may be incomplete, so it never counts as website-only.
           # grep without -q reads all of its input: an early exit would make printf fail with
           # SIGPIPE, and under pipefail that would read as "only web files".
           if [ "$EVENT" = "pull_request" ] &&
-            files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[].filename') &&
+            files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" \
+              --jq '.[] | [.filename, (.previous_filename // empty)] | join("\t")') &&
             [ -n "$files" ] &&
-            ! printf '%s\n' "$files" | grep -Ev '^(web/|\.github/workflows/web-[^/]*\.yml$)' > /dev/null; then
+            [ "$(printf '%s\n' "$files" | wc -l)" -lt 3000 ] &&
+            ! printf '%s\n' "$files" | tr '\t' '\n' |
+              grep -Ev '^(web/|\.github/workflows/web-[^/]*\.yml$)' > /dev/null; then
             app=false
           fi
           echo "app=$app" >> "$GITHUB_OUTPUT"

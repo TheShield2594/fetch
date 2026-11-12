@@ -23,7 +23,7 @@ export function PairPage() {
           <p className="text-sm" style={{ color: "var(--text-dim)" }}>
             The TV finishes on its own in a few seconds. You can sign it out at any time from Settings → TVs &amp; Devices.
           </p>
-          <Link to="/settings" className="btn-secondary">Manage devices</Link>
+          <Link to="/settings?section=devices" className="btn-secondary">Manage devices</Link>
         </div>
       ) : (
         <>

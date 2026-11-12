@@ -13,6 +13,13 @@ declare module "fastify" {
 
 const API_TOKEN = process.env.API_TOKEN;
 
+/**
+ * All a session may do while its password must be changed, as method and
+ * path: say who it is, change the password, sign out. Not `PATCH` or
+ * `DELETE /auth/me`, which a temporary password must not be able to do.
+ */
+export const PASSWORD_CHANGE_ROUTES = new Set(["GET /auth/me", "POST /auth/password", "POST /auth/logout"]);
+
 const toSha256Digest = (value: string) => createHash("sha256").update(value).digest();
 
 // WWW-Authenticate (RFC 6750) marks this as a bearer-token failure specifically,
@@ -51,6 +58,17 @@ export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) 
   if (token.startsWith(SESSION_TOKEN_PREFIX)) {
     const session = await findSession(token);
     if (!session) return unauthorized(reply);
+    // A password someone else set (the admin, or `fetch reset-password`) is
+    // only good for choosing a new one: until then the session can say who it
+    // is, change the password and sign out, and nothing else.
+    if (
+      session.mustChangePassword &&
+      !PASSWORD_CHANGE_ROUTES.has(`${request.method} ${request.url.split("?", 1)[0] ?? request.url}`)
+    ) {
+      return reply
+        .code(403)
+        .send({ error: "Choose a new password to continue", code: "password_change_required" });
+    }
     request.auth = session;
     return;
   }

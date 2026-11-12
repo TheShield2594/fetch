@@ -74,7 +74,8 @@ this:
 
 People sign in to the website with their own account (username and password;
 the install is invite-only, see "Accounts and invites" in `web/README.md`), and
-each sign-in is a session the account can revoke (`web/apps/api/src/lib/sessions.ts`).
+each sign-in is a session the account can see and revoke in Settings → Account → Where you're signed in
+(`GET /auth/sessions`, `web/apps/api/src/lib/sessions.ts`), alongside its TVs.
 The shared `API_TOKEN` in `.env` only creates the first (admin) account and stays
 as a recovery key against the API. Profiles can still have PIN tokens. A TV never
 types a password or the API token: it signs in by **device pairing** (#91), and

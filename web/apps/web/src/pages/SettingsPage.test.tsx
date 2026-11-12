@@ -85,7 +85,9 @@ describe("settings sections", () => {
   });
 
   it("finds a section by what it does, not only by what it is called", () => {
-    expect(find("password")).toEqual(["account"]);
+    expect(find("sign out everywhere")).toEqual(["account"]);
+    // Your own password is in Account; a member's temporary one is the admin's, in Invites.
+    expect(find("password")).toEqual(["account", "invites"]);
     expect(find("collections")).toEqual(["home-folders"]);
   });
 

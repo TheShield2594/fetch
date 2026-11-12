@@ -9,7 +9,45 @@
 import { request } from "./client";
 import { runtimeConfig } from "./runtime";
 
-export type Account = { id: string; username: string; isAdmin: boolean };
+export type Account = {
+  id: string;
+  username: string;
+  isAdmin: boolean;
+  /** Set when someone else chose the password (the admin, or the server's `fetch` command). */
+  mustChangePassword?: boolean;
+};
+
+/** One place the account is signed in: a browser session or a paired TV. */
+export type SignIn =
+  | {
+      kind: "browser";
+      id: string;
+      /** This browser. */
+      current: boolean;
+      userAgent: string | null;
+      ipAddress: string | null;
+      createdAt: string;
+      lastUsedAt: string;
+      expiresAt: string;
+    }
+  | {
+      kind: "tv";
+      id: string;
+      current: false;
+      name: string;
+      appVersion: string | null;
+      createdAt: string;
+      lastUsedAt: string | null;
+    };
+
+export type AccountEvent = {
+  id: string;
+  kind: string;
+  detail: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+};
 
 export type Invite = {
   id: string;
@@ -72,11 +110,41 @@ export const authApi = {
   getMe() {
     return request<{ account: Account | null; isAdmin: boolean }>("/auth/me");
   },
-  changePassword(currentPassword: string, newPassword: string) {
+  /** Signs every other browser out; with `signOutTvs`, every TV too. */
+  changePassword(currentPassword: string, newPassword: string, options: { signOutTvs?: boolean } = {}) {
     return request<void>("/auth/password", {
       method: "POST",
-      body: JSON.stringify({ currentPassword, newPassword }),
+      body: JSON.stringify({ currentPassword, newPassword, ...(options.signOutTvs ? { signOutTvs: true } : {}) }),
     });
+  },
+  changeUsername(username: string, currentPassword: string) {
+    return request<{ account: Account }>("/auth/me", {
+      method: "PATCH",
+      body: JSON.stringify({ username, currentPassword }),
+    });
+  },
+  /** Deletes the signed-in account and everything in it, then signs out here. */
+  async deleteMyAccount(currentPassword: string) {
+    await request<void>("/auth/me", { method: "DELETE", body: JSON.stringify({ currentPassword }) });
+    runtimeConfig.clearProfileId();
+    runtimeConfig.setToken("");
+  },
+  getSignIns() {
+    return request<{ sessions: SignIn[] }>("/auth/sessions");
+  },
+  /** Ends one browser's sign-in. A TV is ended with `revokeDevice`. */
+  revokeSession(id: string) {
+    return request<void>(`/auth/sessions/${encodeURIComponent(id)}`, { method: "DELETE" });
+  },
+  /** Ends every other browser's sign-in, and with `includeTvs` every TV's. */
+  revokeOtherSessions(includeTvs: boolean) {
+    return request<{ browsers: number; tvs: number }>("/auth/sessions/revoke-others", {
+      method: "POST",
+      body: JSON.stringify({ includeTvs }),
+    });
+  },
+  getActivity() {
+    return request<{ events: AccountEvent[] }>("/auth/activity");
   },
   createInvite(expiresInDays?: number) {
     return request<{ invite: { id: string; code: string; expiresAt: string }; url: string | null }>(
@@ -106,6 +174,20 @@ export const authApi = {
   },
   deleteAccount(id: string) {
     return request<void>(`/auth/accounts/${encodeURIComponent(id)}`, { method: "DELETE" });
+  },
+  /** A temporary password for a member; they choose their own at their next sign-in. */
+  setMemberPassword(id: string, newPassword: string, adminPassword: string) {
+    return request<void>(`/auth/accounts/${encodeURIComponent(id)}/password`, {
+      method: "POST",
+      body: JSON.stringify({ newPassword, adminPassword }),
+    });
+  },
+  /** Hands the admin role to another account. The caller stops being the admin. */
+  makeAdmin(id: string, adminPassword: string) {
+    return request<void>(`/auth/accounts/${encodeURIComponent(id)}/make-admin`, {
+      method: "POST",
+      body: JSON.stringify({ adminPassword }),
+    });
   },
 };
 

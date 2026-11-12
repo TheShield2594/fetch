@@ -7,6 +7,7 @@ import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useScrollLock } from "../hooks/useScrollLock";
+import { lockActiveProfile } from "../hooks/useProfile";
 import { SECTION_TITLE } from "../components/typography";
 import { ProfileAvatar } from "../components/ProfileAvatar";
 
@@ -117,11 +118,13 @@ function CreateProfileForm({
 }) {
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const nameId = useId();
   const pinId = useId();
   const pinHintId = useId();
+  const confirmPinId = useId();
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -130,6 +133,12 @@ function CreateProfileForm({
     const trimmedPin = pin.trim();
     if (trimmedPin && !isValidPinFormat(trimmedPin)) {
       setError(`${PIN_FORMAT_ERROR}.`);
+      return;
+    }
+    // Typed twice, because a typo here locks the new profile with a PIN
+    // nobody knows.
+    if (trimmedPin && trimmedPin !== confirmPin.trim()) {
+      setError("The PINs don't match.");
       return;
     }
 
@@ -209,6 +218,21 @@ function CreateProfileForm({
           {MIN_PIN_LENGTH}–{MAX_PIN_LENGTH} digits
         </p>
       </div>
+      {pin.trim() && (
+        <div>
+          <label htmlFor={confirmPinId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>Confirm PIN</label>
+          <input
+            id={confirmPinId}
+            type="password"
+            inputMode="numeric"
+            autoComplete="new-password"
+            value={confirmPin}
+            onChange={(e) => setConfirmPin(e.target.value)}
+            className={`mt-1.5 ${INPUT_CLASS}`}
+            style={INPUT_STYLE}
+          />
+        </div>
+      )}
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       )}
@@ -322,6 +346,7 @@ function ProfilePicker({
   error,
   onSelect,
   onCreateNew,
+  lockable,
 }: {
   profiles: Profile[];
   headingTag: HeadingTag;
@@ -329,6 +354,8 @@ function ProfilePicker({
   error: string | null;
   onSelect: (profile: Profile) => void;
   onCreateNew: () => void;
+  /** The PIN profile in use, when the switcher is opened over the app: it can be locked from here. */
+  lockable?: Profile | null | undefined;
 }) {
   return (
     <div className="space-y-4">
@@ -361,6 +388,13 @@ function ProfilePicker({
       >
         <Plus size={16} /> New profile
       </button>
+      {/* The phone's way to lock (the rail has its own): back to this list
+          with the profile closed, still signed in. */}
+      {lockable && (
+        <button type="button" onClick={lockActiveProfile} className="btn-secondary btn-lg w-full">
+          <Lock size={16} /> Lock {lockable.name}
+        </button>
+      )}
     </div>
   );
 }
@@ -481,6 +515,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
           error={selectError}
           onSelect={selectProfile}
           onCreateNew={() => setMode("create")}
+          lockable={onClose ? profiles.find((p) => p.hasPin && p.id === runtimeConfig.getProfileId()) : null}
         />
       )}
       {mode === "create" && (

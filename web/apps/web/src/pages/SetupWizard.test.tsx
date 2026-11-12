@@ -12,6 +12,7 @@ vi.mock("../api", async (importOriginal) => {
       bootstrapAdmin: vi.fn(),
       login: vi.fn(),
       register: vi.fn(),
+      changePassword: vi.fn(),
       getTmdbStatus: vi.fn(),
       setTmdbKey: vi.fn(),
       removeTmdbKey: vi.fn(),
@@ -27,6 +28,7 @@ const getAuthStatus = vi.mocked(api.getAuthStatus);
 const bootstrapAdmin = vi.mocked(api.bootstrapAdmin);
 const login = vi.mocked(api.login);
 const register = vi.mocked(api.register);
+const changePassword = vi.mocked(api.changePassword);
 const getTmdbStatus = vi.mocked(api.getTmdbStatus);
 const setTmdbKey = vi.mocked(api.setTmdbKey);
 
@@ -38,6 +40,7 @@ beforeEach(() => {
   bootstrapAdmin.mockReset().mockResolvedValue(ADMIN);
   login.mockReset().mockResolvedValue(FRIEND);
   register.mockReset().mockResolvedValue(FRIEND);
+  changePassword.mockReset().mockResolvedValue(undefined);
   getTmdbStatus.mockReset().mockResolvedValue({ configured: true, source: "env" });
   setTmdbKey.mockReset().mockResolvedValue({ configured: true, source: "db" });
 });
@@ -205,6 +208,47 @@ describe("SetupWizard, an install that is already set up", () => {
     expect(login).toHaveBeenCalledWith("friend", "friend-password");
   });
 
+  it("says where to go when the password is forgotten", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false });
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    expect(await screen.findByText(/forgot your password\? ask the admin/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /recovery guide/i })).toHaveAttribute(
+      "href",
+      expect.stringContaining("troubleshooting.md")
+    );
+  });
+
+  it("asks for a new password after signing in with a temporary one", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false });
+    login.mockResolvedValue({ ...FRIEND, mustChangePassword: true });
+    const onComplete = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={onComplete} />);
+
+    await user.type(await screen.findByLabelText("Username"), "friend");
+    await user.type(screen.getByLabelText("Password"), "temp-pass-123");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    expect(await screen.findByRole("heading", { name: /choose a new password/i })).toBeInTheDocument();
+    expect(onComplete).not.toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText("New password"), "short");
+    await user.type(screen.getByLabelText("Confirm new password"), "short");
+    await user.click(screen.getByRole("button", { name: /save and continue/i }));
+    expect(await screen.findByText(/use at least 8 characters/i)).toBeInTheDocument();
+    expect(changePassword).not.toHaveBeenCalled();
+
+    await user.clear(screen.getByLabelText("New password"));
+    await user.clear(screen.getByLabelText("Confirm new password"));
+    await user.type(screen.getByLabelText("New password"), "my-own-password");
+    await user.type(screen.getByLabelText("Confirm new password"), "my-own-password");
+    await user.click(screen.getByRole("button", { name: /save and continue/i }));
+
+    await waitFor(() => expect(onComplete).toHaveBeenCalled());
+    expect(changePassword).toHaveBeenCalledWith("temp-pass-123", "my-own-password");
+  });
+
   it("shows what went wrong when the server can't be reached, and retries", async () => {
     getAuthStatus.mockRejectedValueOnce(new Error("Network error")).mockResolvedValueOnce({ setupRequired: false });
     const user = userEvent.setup();
@@ -214,6 +258,21 @@ describe("SetupWizard, an install that is already set up", () => {
     await user.click(screen.getByRole("button", { name: /try again/i }));
 
     expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+  });
+});
+
+describe("SetupWizard, choosing a password", () => {
+  it("states the length rule up front and refuses a short password without asking the server", async () => {
+    window.history.replaceState(null, "", "/invite/abc_DEF-123");
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    expect(await screen.findByText("At least 8 characters")).toBeInTheDocument();
+    await fillNewAccount(user, "short", "short");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    expect(await screen.findByText(/use at least 8 characters/i)).toBeInTheDocument();
+    expect(register).not.toHaveBeenCalled();
   });
 });
 

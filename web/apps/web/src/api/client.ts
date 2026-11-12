@@ -309,6 +309,11 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
       runtimeConfig.setToken("");
       window.dispatchEvent(new Event("fetch:unauthorized"));
     }
+    // The session is real but its password was set by someone else; only
+    // choosing a new one is allowed until then (lib/auth.ts on the API).
+    if (response.status === 403 && errorCode === "password_change_required") {
+      window.dispatchEvent(new Event("fetch:password-change-required"));
+    }
     throw new ApiError(message, response.status, errorCode);
   }
 

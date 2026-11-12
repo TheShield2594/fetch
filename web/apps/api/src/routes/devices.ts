@@ -31,6 +31,7 @@ import {
   withoutLoosenedLimits,
 } from "../lib/profile.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { recordAccountEvent } from "../lib/account-events.js";
 import {
   claimThroughHub,
   isLoopbackAddress,
@@ -78,6 +79,28 @@ const toDeviceView = (device: { id: string; name: string; createdAt: Date; lastS
   name: device.name,
   createdAt: device.createdAt.toISOString(),
   lastSeenAt: device.lastSeenAt?.toISOString() ?? null,
+});
+
+type DeviceRow = Prisma.DeviceGetPayload<{ include: { profileSlots: { include: { profile: { select: { name: true } } } } } }>;
+
+/**
+ * What the website's device list shows: the device, the build it runs, how its
+ * last sync went, the profiles on it, and the one it last said it was using.
+ */
+const toDeviceDetailView = (device: DeviceRow, profileNames: Map<string, string>) => ({
+  ...toDeviceView(device),
+  appVersion: device.appVersion,
+  flavor: device.flavor,
+  lastSyncAt: device.lastSyncAt?.toISOString() ?? null,
+  lastSyncOk: device.lastSyncOk,
+  lastSyncError: device.lastSyncError,
+  currentProfile:
+    device.lastProfileId && profileNames.has(device.lastProfileId)
+      ? { id: device.lastProfileId, name: profileNames.get(device.lastProfileId)! }
+      : null,
+  profiles: [...device.profileSlots]
+    .sort((a, b) => a.slot - b.slot)
+    .map((slot) => ({ id: slot.profileId, name: slot.profile.name, slot: slot.slot })),
 });
 
 const toSlottedView = ({ slot, profile }: SlottedProfile) => ({
@@ -298,6 +321,9 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
         });
       });
       if (!device) return reply.code(404).send({ status: "expired", error: "This pairing code has expired." });
+      // Recorded from the TV's own request, so the activity log shows the
+      // address the TV signed in from.
+      if (device.accountId) await recordAccountEvent(device.accountId, "tv_paired", { request, detail: device.name });
 
       return { status: "approved", token, device: toDeviceView(device) };
     }
@@ -312,8 +338,28 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
   };
 
   app.get("/devices", { preHandler: requireOwnerToken }, async (request) => {
-    const devices = await prisma.device.findMany({ where: ownedDeviceWhere(request), orderBy: { createdAt: "asc" } });
-    return { devices: devices.map(toDeviceView) };
+    const devices = await prisma.device.findMany({
+      where: ownedDeviceWhere(request),
+      orderBy: { createdAt: "asc" },
+      include: { profileSlots: { include: { profile: { select: { name: true } } } } },
+    });
+    const currentIds = [...new Set(devices.flatMap((device) => (device.lastProfileId ? [device.lastProfileId] : [])))];
+    const named = currentIds.length
+      ? await prisma.profile.findMany({ where: { id: { in: currentIds } }, select: { id: true, name: true } })
+      : [];
+    const profileNames = new Map(named.map((profile) => [profile.id, profile.name]));
+    return { devices: devices.map((device) => toDeviceDetailView(device, profileNames)) };
+  });
+
+  // Signs out every TV this account paired (API_TOKEN: every TV).
+  app.delete("/devices", { preHandler: requireOwnerToken }, async (request) => {
+    const { count } = await prisma.device.deleteMany({ where: ownedDeviceWhere(request) });
+    invalidateDeviceCache();
+    const accountId = accountScope(request);
+    if (accountId && count > 0) {
+      await recordAccountEvent(accountId, "tv_signed_out", { request, detail: count === 1 ? "1 TV" : `All ${count} TVs` });
+    }
+    return { count };
   });
 
   app.patch<{ Params: { id: string }; Body: unknown }>(
@@ -341,11 +387,18 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
     { preHandler: requireOwnerToken },
     async (request, reply) => {
       if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
+      const existing = await prisma.device.findFirst({
+        where: ownedDeviceWhere(request, request.params.id),
+        select: { name: true, accountId: true },
+      });
       const { count } = await prisma.device.deleteMany({ where: ownedDeviceWhere(request, request.params.id) });
       // Cleared whether or not a row went, so the device's next request is
       // looked up again and answered 401 rather than served from the cache.
       invalidateDeviceCache();
       if (count === 0) return reply.code(404).send({ error: "Device not found" });
+      if (existing?.accountId) {
+        await recordAccountEvent(existing.accountId, "tv_signed_out", { request, detail: existing.name });
+      }
       return reply.code(204).send();
     }
   );

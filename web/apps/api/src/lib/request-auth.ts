@@ -17,7 +17,14 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  */
 export type AuthPrincipal =
   | { kind: "token" }
-  | { kind: "session"; sessionId: string; accountId: string; isAdmin: boolean }
+  | {
+      kind: "session";
+      sessionId: string;
+      accountId: string;
+      isAdmin: boolean;
+      /** Signed in with a password someone else set; see `PASSWORD_CHANGE_ROUTES`. */
+      mustChangePassword?: boolean;
+    }
   | { kind: "device"; deviceId: string; accountId: string | null };
 
 declare module "fastify" {

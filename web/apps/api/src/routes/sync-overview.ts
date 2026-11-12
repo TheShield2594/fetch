@@ -1,9 +1,10 @@
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import { NON_BLANK } from "../lib/request-schema.js";
 import { prisma } from "../lib/prisma.js";
 import { checkDatabase } from "../lib/db-health.js";
 import { getJobRuns } from "../lib/job-status.js";
 import { accountScope, isAdminRequest } from "../lib/request-auth.js";
+import { UUID_V4_PATTERN } from "../lib/types.js";
 
 /**
  * The read-only account dashboard: what each profile has that a TV syncs, and
@@ -40,6 +41,15 @@ type CountRow = { profileId: string; _count: { _all: number } };
 
 const countsByProfile = (rows: CountRow[]): Map<string, number> =>
   new Map(rows.map((row) => [row.profileId, row._count._all]));
+
+const reportedProfileId = async (request: FastifyRequest): Promise<string | null> => {
+  const header = request.headers["x-profile-id"];
+  const raw = Array.isArray(header) ? header[0] : header;
+  if (!raw || !UUID_V4_PATTERN.test(raw)) return null;
+  const scope = accountScope(request);
+  const owned = await prisma.profile.count({ where: { id: raw, ...(scope ? { accountId: scope } : {}) } });
+  return owned ? raw : null;
+};
 
 const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
   app.get("/sync/overview", async (request, reply) => {
@@ -163,6 +173,9 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(403).send({ error: "Only a paired device can report its sync", code: "device_token_required" });
       }
       const { appVersion, flavor, ok, error } = request.body;
+      // The profile the TV is using, when it names one, so the device list
+      // can say who is on it. Only one of the TV's own account's profiles.
+      const lastProfileId = await reportedProfileId(request);
       await prisma.device.update({
         where: { id: request.deviceId },
         data: {
@@ -171,6 +184,7 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
           lastSyncAt: new Date(),
           lastSyncOk: ok,
           lastSyncError: ok ? null : (error?.trim() || "Sync failed").slice(0, MAX_SYNC_ERROR_LENGTH),
+          ...(lastProfileId ? { lastProfileId } : {}),
         },
       });
       return reply.code(204).send();

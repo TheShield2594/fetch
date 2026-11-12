@@ -147,6 +147,19 @@ describe("the profile gate", () => {
     expect(screen.queryByText(/who's watching/i)).not.toBeInTheDocument();
   });
 
+  it("goes back to choosing a new password after a reload on a page that makes no protected request", async () => {
+    window.localStorage.removeItem(runtimeConfig.profileIdKey);
+    const getMe = vi.spyOn(api, "getMe").mockResolvedValue({
+      account: { id: "a2", username: "friend", isAdmin: false, mustChangePassword: true },
+      isAdmin: false,
+    });
+    renderAt("/pair?code=ABCD-EFGH");
+
+    expect(await screen.findByRole("heading", { name: /choose a new password/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Temporary password")).toBeInTheDocument();
+    getMe.mockRestore();
+  });
+
   it("still asks for a profile everywhere else", async () => {
     window.localStorage.removeItem(runtimeConfig.profileIdKey);
     renderAt("/settings");

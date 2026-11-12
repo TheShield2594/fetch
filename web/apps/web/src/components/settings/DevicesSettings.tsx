@@ -1,6 +1,7 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import { AlertCircle, Check, Loader2, Pencil, Tv, X } from "lucide-react";
+import { AlertCircle, Check, Loader2, LogOut, Pencil, Tv, X } from "lucide-react";
 import { api, ApiError, type Device } from "../../api";
+import { ConfirmReview } from "../ConfirmReview";
 import { useToast } from "../../hooks/useToast";
 import { timeAgo } from "../../utils/timeAgo";
 
@@ -94,6 +95,45 @@ export function PairingCodeForm({
         </p>
       )}
     </form>
+  );
+}
+
+/**
+ * What the TV said about itself: the build it runs, how its last sync went,
+ * and who is on it. Every field is optional, so an older API (or a TV that has
+ * not reported yet) shows only what it has. This used to be on Settings → TV →
+ * Synced data, a different screen from the list it describes.
+ */
+export function DeviceDetails({ device }: { device: Device }) {
+  const sync =
+    device.lastSyncOk === true && device.lastSyncAt
+      ? { tone: "ok" as const, text: `Synced ${timeAgo(device.lastSyncAt)}` }
+      : device.lastSyncOk === false
+        ? {
+            tone: "fail" as const,
+            text: `Last sync failed${device.lastSyncAt ? ` ${timeAgo(device.lastSyncAt)}` : ""}${
+              device.lastSyncError ? `: ${device.lastSyncError}` : ""
+            }`,
+          }
+        : device.lastSyncOk === null
+          ? { tone: "none" as const, text: "Hasn't synced yet" }
+          : null;
+  const others = (device.profiles ?? []).map((p) => p.name);
+  const facts = [
+    device.appVersion ? `App ${device.appVersion}` : null,
+    device.currentProfile ? `Using ${device.currentProfile.name}` : null,
+    others.length > 0 ? `Profiles: ${others.join(", ")}` : null,
+  ].filter((fact): fact is string => Boolean(fact));
+  if (!sync && facts.length === 0) return null;
+  return (
+    <div className="mt-1 space-y-0.5 pl-[30px] text-xs" style={{ color: "var(--text-mute)" }}>
+      {sync && (
+        <p className={sync.tone === "fail" ? "text-danger" : sync.tone === "ok" ? "text-success" : undefined}>
+          {sync.text}
+        </p>
+      )}
+      {facts.length > 0 && <p>{facts.join(" · ")}</p>}
+    </div>
   );
 }
 
@@ -200,46 +240,52 @@ function DeviceRow({
                 {new Date(device.createdAt).toLocaleDateString()}
               </p>
             </div>
-            {confirming ? (
-              <div className="flex flex-none items-center gap-1">
-                <button type="button" onClick={revoke} disabled={revoking} className="btn-danger btn-sm">
-                  {revoking ? <Loader2 size={14} className="animate-spin" /> : null} Sign out
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(false)}
-                  aria-label="Keep this device"
-                  className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]"
-                  style={{ color: "var(--text-mute)" }}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-none items-center gap-1">
-                <button
-                  type="button"
-                  onClick={startEditing}
-                  aria-label={`Rename ${device.name}`}
-                  className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]"
-                  style={{ color: "var(--text-mute)" }}
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(true)}
-                  aria-label={`Revoke ${device.name}`}
-                  className="btn-secondary btn-sm"
-                >
-                  Revoke
-                </button>
-              </div>
-            )}
+            <div className="flex flex-none items-center gap-1">
+              <button
+                type="button"
+                onClick={startEditing}
+                aria-label={`Rename ${device.name}`}
+                className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]"
+                style={{ color: "var(--text-mute)" }}
+              >
+                <Pencil size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setConfirming(true);
+                }}
+                disabled={confirming}
+                aria-label={`Revoke ${device.name}`}
+                className="btn-secondary btn-sm"
+              >
+                Revoke
+              </button>
+            </div>
           </>
         )}
       </div>
-      {error && <p role="alert" className="mt-1.5 text-xs text-danger">{error}</p>}
+      {!editing && <DeviceDetails device={device} />}
+      {confirming && !editing ? (
+        <ConfirmReview
+          label={`Sign out ${device.name}?`}
+          message={
+            <>
+              Sign out <strong>{device.name}</strong>? It stops syncing at once, and has to be paired again with a new
+              code to come back. Other TVs aren&apos;t affected.
+            </>
+          }
+          confirmLabel="Sign out"
+          icon={<LogOut size={14} />}
+          onConfirm={() => void revoke()}
+          onCancel={() => setConfirming(false)}
+          busy={revoking}
+          error={error}
+        />
+      ) : (
+        error && <p role="alert" className="mt-1.5 text-xs text-danger">{error}</p>
+      )}
     </li>
   );
 }
@@ -253,6 +299,24 @@ export function DevicesSettings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
+  const [confirmingAll, setConfirmingAll] = useState(false);
+  const [signingOutAll, setSigningOutAll] = useState(false);
+  const [allError, setAllError] = useState<string | null>(null);
+
+  const signOutAll = async () => {
+    setSigningOutAll(true);
+    setAllError(null);
+    try {
+      const { count } = await api.revokeAllDevices();
+      setDevices([]);
+      setConfirmingAll(false);
+      showToast(count === 1 ? "1 TV was signed out" : `${count} TVs were signed out`);
+    } catch (err) {
+      setAllError(err instanceof Error ? err.message : "Could not sign out the TVs.");
+    } finally {
+      setSigningOutAll(false);
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -301,10 +365,36 @@ export function DevicesSettings() {
                 setDevices((prev) => prev.filter((d) => d.id !== id));
                 showToast(`${device.name} was signed out`);
               }}
-              onRenamed={(updated) => setDevices((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))}
+              onRenamed={(updated) => setDevices((prev) => prev.map((d) => (d.id === updated.id ? { ...d, ...updated } : d)))}
             />
           ))}
         </ul>
+      )}
+
+      {/* For a TV that was lost, sold or left signed in somewhere: every
+          one at once, rather than a Revoke per row. */}
+      {!loading && !error && devices.length > 1 && (
+        confirmingAll ? (
+          <ConfirmReview
+            label="Sign out all TVs?"
+            message={
+              <>
+                Sign out all {devices.length} TVs? Each one stops syncing at once and has to be paired again with a new
+                code. Browsers stay signed in.
+              </>
+            }
+            confirmLabel="Sign out all TVs"
+            icon={<LogOut size={14} />}
+            onConfirm={() => void signOutAll()}
+            onCancel={() => setConfirmingAll(false)}
+            busy={signingOutAll}
+            error={allError}
+          />
+        ) : (
+          <button type="button" onClick={() => setConfirmingAll(true)} className="btn-secondary btn-sm">
+            <LogOut size={14} /> Sign out all TVs
+          </button>
+        )
       )}
     </div>
   );

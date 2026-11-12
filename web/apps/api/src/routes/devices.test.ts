@@ -18,7 +18,15 @@ const prismaMock = {
     findUnique: vi.fn(),
     update: vi.fn(),
   },
-  device: { create: vi.fn(), findMany: vi.fn(), findUnique: vi.fn(), update: vi.fn(), deleteMany: vi.fn() },
+  device: {
+    create: vi.fn(),
+    findMany: vi.fn(),
+    findFirst: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
+    deleteMany: vi.fn(),
+  },
+  accountEvent: { create: vi.fn() },
   deviceProfileSlot: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), delete: vi.fn() },
   profile: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn(), update: vi.fn(), count: vi.fn() },
   // A device confirmed with API_TOKEN goes to the admin account; none exists here.
@@ -421,20 +429,55 @@ describe("device routes", () => {
   });
 
   describe("managing devices", () => {
-    it("lists devices with when each was last seen", async () => {
+    it("lists devices with when each was last seen, its build, its sync and its profiles", async () => {
+      const otherProfile = "5c0e8a1e-8b0a-4a59-9d1e-2b4f1f6b9c11";
       prismaMock.device.findMany.mockResolvedValue([
-        { id: DEVICE_ID, name: "TV", createdAt: new Date("2026-10-01T00:00:00Z"), lastSeenAt: null },
+        {
+          id: DEVICE_ID,
+          name: "TV",
+          createdAt: new Date("2026-10-01T00:00:00Z"),
+          lastSeenAt: null,
+          appVersion: "1.4.0",
+          flavor: "release",
+          lastSyncAt: new Date("2026-10-02T00:00:00Z"),
+          lastSyncOk: false,
+          lastSyncError: "Timed out",
+          lastProfileId: otherProfile,
+          profileSlots: [
+            { slot: 2, profileId: otherProfile, profile: { name: "Kids" } },
+            { slot: 1, profileId: "profile-1", profile: { name: "Alex" } },
+          ],
+        },
       ]);
+      prismaMock.profile.findMany.mockResolvedValue([{ id: otherProfile, name: "Kids" }]);
       const app = await buildApp();
 
       const response = await app.inject({ method: "GET", url: "/devices" });
 
       expect(response.json()).toEqual({
-        devices: [{ id: DEVICE_ID, name: "TV", createdAt: "2026-10-01T00:00:00.000Z", lastSeenAt: null }],
+        devices: [
+          {
+            id: DEVICE_ID,
+            name: "TV",
+            createdAt: "2026-10-01T00:00:00.000Z",
+            lastSeenAt: null,
+            appVersion: "1.4.0",
+            flavor: "release",
+            lastSyncAt: "2026-10-02T00:00:00.000Z",
+            lastSyncOk: false,
+            lastSyncError: "Timed out",
+            currentProfile: { id: otherProfile, name: "Kids" },
+            profiles: [
+              { id: "profile-1", name: "Alex", slot: 1 },
+              { id: otherProfile, name: "Kids", slot: 2 },
+            ],
+          },
+        ],
       });
     });
 
     it("revokes a device", async () => {
+      prismaMock.device.findFirst.mockResolvedValue({ name: "TV", accountId: null });
       prismaMock.device.deleteMany.mockResolvedValue({ count: 1 });
       const app = await buildApp();
 
@@ -442,6 +485,17 @@ describe("device routes", () => {
 
       expect(response.statusCode).toBe(204);
       expect(prismaMock.device.deleteMany).toHaveBeenCalledWith({ where: { id: DEVICE_ID } });
+    });
+
+    it("signs out every TV at once", async () => {
+      prismaMock.device.deleteMany.mockResolvedValue({ count: 3 });
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "DELETE", url: "/devices" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ count: 3 });
+      expect(prismaMock.device.deleteMany).toHaveBeenCalledWith({ where: {} });
     });
 
     it("won't let a device list or revoke devices", async () => {

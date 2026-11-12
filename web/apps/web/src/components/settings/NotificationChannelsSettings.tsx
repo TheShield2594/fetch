@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { AlertCircle, Check, Loader2, Plus, Send, Trash2 } from "lucide-react";
+import { ConfirmReview } from "../ConfirmReview";
 import { api, type NotificationChannel, type NotificationChannelKind } from "../../api";
 import { SelectField } from "../SelectField";
 import { StatusBadge } from "./StatusBadge";
@@ -122,6 +123,9 @@ export function NotificationChannelsSettings() {
     }
   };
 
+  // The channel whose removal is being confirmed, inline under its row.
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
   const toggle = async (channel: NotificationChannel) => {
     setBusyId(channel.id);
     try {
@@ -138,11 +142,11 @@ export function NotificationChannelsSettings() {
   };
 
   const remove = async (channel: NotificationChannel) => {
-    if (!window.confirm(`Remove the "${channel.name}" notification channel?`)) return;
     setBusyId(channel.id);
     try {
       await api.deleteNotificationChannel(channel.id);
       setChannels((current) => current.filter((c) => c.id !== channel.id));
+      setConfirmingId(null);
     } catch (err) {
       setResults((current) => ({
         ...current,
@@ -238,7 +242,7 @@ export function NotificationChannelsSettings() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => remove(channel)}
+                      onClick={() => setConfirmingId(channel.id)}
                       disabled={busyId === channel.id}
                       className="rounded-lg p-1.5 text-danger hover:bg-[var(--surface-strong)] disabled:opacity-50"
                       title="Remove channel"
@@ -248,6 +252,16 @@ export function NotificationChannelsSettings() {
                     </button>
                   </span>
                 </div>
+                {confirmingId === channel.id && (
+                  <ConfirmReview
+                    label={`Remove ${channel.name}?`}
+                    message={<>Remove <strong>{channel.name}</strong>? It stops getting episode alerts. You can add it again later.</>}
+                    confirmLabel="Remove channel"
+                    onConfirm={() => void remove(channel)}
+                    onCancel={() => setConfirmingId(null)}
+                    busy={busyId === channel.id}
+                  />
+                )}
                 {channel.urlReadable ? (
                   <p className="mt-1 truncate font-mono text-xs" style={{ color: "var(--text-mute)" }}>
                     {channel.url}

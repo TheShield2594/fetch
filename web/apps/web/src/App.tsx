@@ -17,7 +17,8 @@ import { SettingsHealthProvider } from "./hooks/useSettingsHealth";
 import { type Theme, ThemeContext, toTheme, useTheme } from "./hooks/useTheme";
 import { ToastProvider } from "./hooks/useToast";
 import { TitlePanelProvider } from "./components/media-detail/titlePanel";
-import { ProfileProvider, useProfile } from "./hooks/useProfile";
+import { lockActiveProfile, ProfileProvider, useProfile } from "./hooks/useProfile";
+import { useIdleLock } from "./hooks/useIdleLock";
 import { AccountProvider } from "./hooks/useAccount";
 import { ShelfPage } from "./pages/ShelfPage";
 import {
@@ -140,15 +141,44 @@ export function App() {
   useEffect(() => {
     const handleUnauthorized = () => setNeedsSetup(true);
     window.addEventListener("fetch:unauthorized", handleUnauthorized);
-    return () => window.removeEventListener("fetch:unauthorized", handleUnauthorized);
+    // Signed in with a temporary password and not yet past choosing a new one
+    // (a reload in the middle, say): the server refuses everything else, so
+    // the wizard takes over again at its new-password step.
+    window.addEventListener("fetch:password-change-required", handleUnauthorized);
+    // A page that makes no protected request on load (`/pair`, say) would
+    // otherwise never hear the 403, so the account is asked once at start.
+    if (runtimeConfig.hasSession()) {
+      api.getMe().then(
+        (me) => {
+          if (me.account?.mustChangePassword) handleUnauthorized();
+        },
+        () => {}
+      );
+    }
+    return () => {
+      window.removeEventListener("fetch:unauthorized", handleUnauthorized);
+      window.removeEventListener("fetch:password-change-required", handleUnauthorized);
+    };
   }, []);
 
   useEffect(() => {
     // A PIN-protected profile's access token expired or was cleared — send the
     // user back to the profile picker to re-verify.
     const handleProfileLocked = () => setNeedsProfile(true);
+    // Locked in another tab: the profile and its token are shared through
+    // localStorage, so its removal there means this tab is locked too, and
+    // should stop showing the profile now rather than at its next request.
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== runtimeConfig.profileIdKey || event.newValue !== null) return;
+      runtimeConfig.clearProfileId();
+      setNeedsProfile(true);
+    };
     window.addEventListener("fetch:profile-locked", handleProfileLocked);
-    return () => window.removeEventListener("fetch:profile-locked", handleProfileLocked);
+    window.addEventListener("storage", handleStorage);
+    return () => {
+      window.removeEventListener("fetch:profile-locked", handleProfileLocked);
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   // Where a TV's QR code lands when the TV got its code from the pairing hub.
@@ -260,6 +290,14 @@ function AppShell({
   // make those writes: the tab that logs a watch offline is rarely the surface
   // still open when the network returns.
   useOfflineWriteQueue();
+
+  // A PIN profile locks itself after the browser's chosen spell of inactivity
+  // (Settings → Profile); off unless someone picked a limit on this browser.
+  // While the profile's details haven't loaded (or failed to), whether it has
+  // a PIN is unknown, so the lock stays armed: locking a profile without a PIN
+  // only costs a tap on the picker, while leaving a PIN profile open would
+  // break the limit someone chose.
+  useIdleLock(profile ? Boolean(profile.hasPin) : true, lockActiveProfile);
 
   // Warm the chunks a tap can reach with no hover to warn us first. Runs on
   // idle, so it queues behind Discover's own render and requests.

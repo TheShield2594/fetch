@@ -193,6 +193,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
       await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
       await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.type(screen.getByLabelText("Confirm PIN"), "4321");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam", pin: "4321" }));
@@ -207,6 +208,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
       await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
       await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.type(screen.getByLabelText("Confirm PIN"), "4321");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
@@ -228,6 +230,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
       await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
       await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.type(screen.getByLabelText("Confirm PIN"), "4321");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
       await userEvent.keyboard("{Escape}");
       finishCreate({ profile: created });
@@ -271,6 +274,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(await screen.findByRole("button", { name: /new profile/i }));
       await userEvent.type(screen.getByLabelText("Profile name"), "Sam");
       await userEvent.type(screen.getByLabelText("PIN (optional)"), "4321");
+      await userEvent.type(screen.getByLabelText("Confirm PIN"), "4321");
       await userEvent.click(screen.getByRole("button", { name: /create/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
@@ -408,5 +412,29 @@ describe("ProfileSwitcher", () => {
       expect(screen.getByLabelText("Profile name")).toBeInTheDocument();
       expect(screen.getByLabelText("PIN (optional)")).toBeInTheDocument();
     });
+  });
+});
+
+describe("locking the profile in use", () => {
+  it("offers to lock the active PIN profile, which leaves it without signing out", async () => {
+    runtimeConfig.setProfileId(LOCKED.id);
+    runtimeConfig.setProfileToken("kid-token");
+    const locked = vi.fn();
+    window.addEventListener("fetch:profile-locked", locked);
+    renderSwitcher({ onClose: vi.fn() });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Lock Kid" }));
+
+    expect(locked).toHaveBeenCalledOnce();
+    expect(runtimeConfig.getProfileId()).toBe("");
+    expect(runtimeConfig.getProfileToken()).toBe("");
+    window.removeEventListener("fetch:profile-locked", locked);
+  });
+
+  it("offers nothing to lock for a profile without a PIN, or on the first-run picker", async () => {
+    runtimeConfig.setProfileId(BEN.id);
+    renderSwitcher({ onClose: vi.fn() });
+    expect(await screen.findByRole("button", { name: /ben/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Lock / })).not.toBeInTheDocument();
   });
 });

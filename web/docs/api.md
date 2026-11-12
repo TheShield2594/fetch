@@ -43,7 +43,7 @@ Every endpoint needs a bearer token, which is one of three things:
 - **A session token**, from signing in (`POST /auth/login`, `/auth/register`
   or `/auth/bootstrap`). This is what the web app uses. A session only ever
   sees its own account's profiles. Session tokens start with `fs1_` and last
-  30 days, renewed as they are used.
+  30 days, renewed as they are used, and never more than 90 days from sign-in.
 - **A paired device's token** (see [Devices](#devices)), which a TV gets by
   pairing instead of being given `API_TOKEN`.
 - **`API_TOKEN`**, the server's own token. This is the operator: the add-on
@@ -371,6 +371,7 @@ Trakt.
 | `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. A PIN-protected profile needs its profile token (`401 profile_pin_required` otherwise). |
 | `DELETE` | `/profiles/:id` | Deletes the profile and everything it owns — history, lists, resume points, ratings, collections — and its slot on every paired TV. A PIN-protected profile needs `currentPin` unless the caller's profile token is for it. |
 | `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token`. `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
+| `POST` | `/profiles/:id/clear-pin` | `{ password }` → `{ profile }`. Removes a forgotten PIN. Only the admin, signed in, on a profile in their own account (`403 admin_required` otherwise, `404` for another account's profile), with the account password asked again (`401 password_incorrect`). |
 
 The settings mirror what the TV keeps per profile, so a profile edited here reads
 the same on every paired TV. All are optional on write; `null` clears the
@@ -418,13 +419,14 @@ its own token that can be revoked on its own.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/devices` | The caller's account's paired devices (every one, for `API_TOKEN`): `id`, `name`, `createdAt`, `lastSeenAt`. Not with a device token. |
+| `GET` | `/devices` | The caller's account's paired devices (every one, for `API_TOKEN`): `id`, `name`, `createdAt`, `lastSeenAt`, and from the TV's last sync report `appVersion`, `flavor`, `lastSyncAt`, `lastSyncOk`, `lastSyncError`; `profiles` (`[{ id, name, slot }]`, the profiles on it) and `currentProfile` (`{ id, name }` or null, the profile it last reported using). Not with a device token. |
+| `DELETE` | `/devices` | Signs out every device of the caller's account (every one, for `API_TOKEN`) → `{ count }`. Not with a device token. |
 | `PATCH` | `/devices/:id` | `{ name }`. Only your own account's devices (`404` otherwise). Not with a device token. |
 | `DELETE` | `/devices/:id` | Revokes the device; its next request is `401`. Only your own account's devices. Not with a device token. |
 | `GET` | `/devices/me` | The calling device. Device token only. |
 | `GET` | `/devices/me/profiles` | Every profile of the device's account with the `slot` (1–6) it occupies on this device, plus `isPrimary` for slot 1. Slots are assigned on first sight and kept; when slot 1 is empty the oldest profile moves into it. Device token only. |
 | `PUT` | `/devices/me/profiles/:slot` | `{ name?, …settings }`. Updates the profile in that slot, or creates one there (`201`, `name` required). Never takes a PIN: PINs are set on the website and checked with `POST /profiles/:id/verify`. The checks are the profile routes': name the profile in use on the device with `x-profile-id` (and `x-profile-token` if it has a PIN). A parental limit the request has no authority to loosen is left as stored (the rest of the update still applies); a PIN-protected profile is left unchanged unless the request carries that profile's token, as `x-target-profile-token` (or as `x-profile-token` when it is the profile in use); either way the answer carries what was stored. Creating a profile needs the authority `POST /profiles` does, else `403 parental_authority_required`. Device token only. |
-| `PUT` | `/devices/me/report` | `{ ok, appVersion?, flavor?, error? }`, sent by the TV after every sync: its build, and whether the sync worked. `GET /sync/overview` shows it. An `error` is kept to 500 characters and cleared by the next `ok: true`. Device token only. |
+| `PUT` | `/devices/me/report` | `{ ok, appVersion?, flavor?, error? }`, sent by the TV after every sync: its build, and whether the sync worked. With `x-profile-id`, that profile is recorded as the one the TV is using. `GET /sync/overview` and `GET /devices` show it. An `error` is kept to 500 characters and cleared by the next `ok: true`. Device token only. |
 
 ### Collections
 
@@ -509,17 +511,30 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
 | `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
 | `POST` | `/auth/logout` | Ends this session. `204`. |
-| `GET` | `/auth/me` | `{ account: { id, username, isAdmin } \| null, isAdmin }`. `account` is null for `API_TOKEN`. |
-| `POST` | `/auth/password` | `{ currentPassword, newPassword }`. Signs out every other session. `204`. |
+| `GET` | `/auth/me` | `{ account: { id, username, isAdmin, mustChangePassword } \| null, isAdmin }`. `account` is null for `API_TOKEN`. `mustChangePassword` is true while the account signs in with a password someone else set. |
+| `PATCH` | `/auth/me` | `{ username, currentPassword }` → `{ account }`. `401 password_incorrect`, `409` for a taken name. |
+| `DELETE` | `/auth/me` | `{ currentPassword }`. Deletes the signed-in account and everything its profiles own. The admin can't (`400 admin_cannot_delete`): hand admin on first. |
+| `POST` | `/auth/password` | `{ currentPassword, newPassword, signOutTvs? }`. Signs out every other session, and with `signOutTvs: true` every paired device. Clears `mustChangePassword`. `204`. |
+| `GET` | `/auth/sessions` | Where the account is signed in: `{ sessions: [...] }`, browsers (`kind: "browser"`, `id`, `current`, `userAgent`, `ipAddress`, `createdAt`, `lastUsedAt`, `expiresAt`) then TVs (`kind: "tv"`, `id`, `name`, `appVersion`, `createdAt`, `lastUsedAt`). Session only. |
+| `DELETE` | `/auth/sessions/:id` | Ends one of the account's browser sessions. A TV is ended with `DELETE /devices/:id`. Session only. |
+| `POST` | `/auth/sessions/revoke-others` | `{ includeTvs? }` → `{ browsers, tvs }`. Ends every other browser session, and every TV with `includeTvs: true`. The calling session stays. Session only. |
+| `GET` | `/auth/activity` | `{ events: [{ id, kind, detail, ipAddress, userAgent, createdAt }] }`, newest first, at most 50, kept 90 days. `kind` is one of `sign_in`, `sign_in_failed`, `password_changed`, `password_reset`, `pin_changed`, `pin_removed`, `pin_cleared`, `tv_paired`, `tv_signed_out`, `session_revoked`, `signed_out_everywhere`, `username_changed`, `admin_granted`, `admin_transferred`. Session only. |
 | `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `FETCH_WEB_PUBLIC`, or null when that is unset. |
 | `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
 | `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
 | `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
 | `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, createdAt, profileCount }] }`. |
 | `DELETE` | `/auth/accounts/:id` | Admin. Deletes the account and everything its profiles own. The admin account can't be deleted. |
+| `POST` | `/auth/accounts/:id/password` | Admin. `{ newPassword, adminPassword }`. Gives a member a temporary password: they are signed out of every browser (not their TVs) and `mustChangePassword` is set until they choose their own. `adminPassword` is the admin's own, asked again (`401 password_incorrect`); `API_TOKEN` needs none. Not for the caller's own account. |
+| `POST` | `/auth/accounts/:id/make-admin` | Admin. `{ adminPassword }`. Hands the admin role to that account; there is one admin, so the caller stops being it. |
 
 Usernames are 3–32 characters of letters, numbers, `.`, `-` and `_`, and are
-case-insensitive. Passwords are 8–256 characters, hashed with scrypt.
+case-insensitive. Passwords are 8–256 characters, hashed with scrypt. Routes
+that ask for a password again count wrong ones towards the same lockout as
+signing in from that address.
+
+A forgotten admin password or a PIN nobody can enter is reset on the server
+with the `fetch` command; see [troubleshooting](troubleshooting.md#forgotten-password-or-pin).
 
 `GET /profiles` lists the caller's own profiles (every profile, for
 `API_TOKEN`), and a new profile belongs to the caller's account. An account
@@ -694,6 +709,7 @@ the web UI lives.
 | --- | --- | --- |
 | `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, resume points (`playback`), collections, and the profile's appearance and parental settings (`profile.settings`). Carries a `version` field. Paired devices are not included: they belong to the install, not a profile, and a restored server pairs its TVs again. |
 | `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported, except that a request without parental authority (see `PATCH /profiles/:id`) cannot use them to lift the profile's parental limits: those fields are left out, a tightening still applies, and the summary's `parentalLimitsSkipped` names what was skipped. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
+| `POST` | `/data/clear` | `{ history?, ratings? }`, at least one `true` → `{ cleared: { watchEvents, seriesProgress, playbackProgress, ratings } }`. Clears the profile's watch history (with its series progress, resume points and check-in) and/or its ratings. Lists and settings stay. A connected tracker may bring history back on its next sync. |
 | `POST` | `/import/csv` | Header must include `imdbId,type,watchedAt`; `season,episode` optional. |
 | `POST` | `/import/external` | `{ format, csv }` where format is `letterboxd-diary`, `letterboxd-ratings`, `imdb-ratings` or `simkl`. |
 

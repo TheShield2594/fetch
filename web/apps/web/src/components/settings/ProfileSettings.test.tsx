@@ -15,9 +15,18 @@ vi.mock("../../api", async (importOriginal) => {
       deleteProfile: vi.fn(),
       getProfileSummary: vi.fn(),
       createProfile: vi.fn(),
+      clearProfilePin: vi.fn(),
     },
   };
 });
+
+let accountState: { account: { id: string; username: string; isAdmin: boolean } | null; isAdmin: boolean } = {
+  account: null,
+  isAdmin: false,
+};
+vi.mock("../../hooks/useAccount", () => ({
+  useAccount: () => ({ ...accountState, refresh: () => {} }),
+}));
 
 const setActiveProfile = vi.fn();
 const openSwitcher = vi.fn();
@@ -33,6 +42,7 @@ const updateProfile = vi.mocked(api.updateProfile);
 const deleteProfile = vi.mocked(api.deleteProfile);
 const getProfileSummary = vi.mocked(api.getProfileSummary);
 const createProfile = vi.mocked(api.createProfile);
+const clearProfilePin = vi.mocked(api.clearProfilePin);
 
 const KID_SUMMARY = { watchEvents: 312, lists: 2, listItems: 41, playbackProgress: 6, ratings: 0, collections: 1 };
 
@@ -65,6 +75,8 @@ const rowFor = (name: string) => {
 };
 
 beforeEach(() => {
+  accountState = { account: null, isAdmin: false };
+  window.localStorage.clear();
   activeProfile = ALEX;
   getProfiles.mockResolvedValue({ profiles: [ALEX, KID] });
   updateProfile.mockResolvedValue({ profile: ALEX });
@@ -148,6 +160,7 @@ describe("ProfileSettings PINs", () => {
     await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
     expect(screen.queryByLabelText("Current PIN for Alex")).not.toBeInTheDocument();
     await user.type(screen.getByLabelText("PIN for Alex"), "1234");
+    await user.type(screen.getByLabelText("Confirm the new PIN for Alex"), "1234");
     await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
     await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(ALEX.id, { pin: "1234" }));
@@ -175,6 +188,7 @@ describe("ProfileSettings PINs", () => {
 
     await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
     await user.type(screen.getByLabelText("New PIN for Kid"), "9999");
+    await user.type(screen.getByLabelText("Confirm the new PIN for Kid"), "9999");
 
     expect(screen.getByRole("button", { name: "Save PIN" })).toBeDisabled();
 
@@ -195,6 +209,7 @@ describe("ProfileSettings PINs", () => {
     // No maxLength: a pasted 9-digit PIN must be rejected, not silently truncated.
     expect(field).not.toHaveAttribute("maxLength");
     await user.type(field, "12ab");
+    await user.type(screen.getByLabelText("Confirm the new PIN for Alex"), "12ab");
     await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
     expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");
@@ -207,6 +222,8 @@ describe("ProfileSettings PINs", () => {
 
     await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
     await user.click(screen.getByLabelText("PIN for Alex"));
+    await user.paste("123456789");
+    await user.click(screen.getByLabelText("Confirm the new PIN for Alex"));
     await user.paste("123456789");
     await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
@@ -225,6 +242,7 @@ describe("ProfileSettings PINs", () => {
     expect(current).not.toHaveAttribute("maxLength");
     await user.type(current, "an old passphrase");
     await user.type(screen.getByLabelText("New PIN for Kid"), "246810");
+    await user.type(screen.getByLabelText("Confirm the new PIN for Kid"), "246810");
     await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
     await waitFor(() =>
@@ -240,6 +258,7 @@ describe("ProfileSettings PINs", () => {
     await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
     await user.type(screen.getByLabelText("Current PIN for Kid"), "0000");
     await user.type(screen.getByLabelText("New PIN for Kid"), "9999");
+    await user.type(screen.getByLabelText("Confirm the new PIN for Kid"), "9999");
     await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
     expect(await screen.findByText("Incorrect current PIN.")).toBeInTheDocument();
@@ -395,5 +414,83 @@ describe("ProfileSettings deletion", () => {
 
     await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam" }));
     expect(await screen.findByText("Sam")).toBeInTheDocument();
+  });
+});
+
+describe("ProfileSettings recovery and locking", () => {
+  it("refuses a new PIN typed differently the second time", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
+    await user.type(screen.getByLabelText("PIN for Alex"), "1234");
+    await user.type(screen.getByLabelText("Confirm the new PIN for Alex"), "1243");
+    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+
+    expect(await screen.findByText("The PINs don't match.")).toHaveAttribute("role", "alert");
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  it("lets the admin clear a forgotten PIN with their password", async () => {
+    accountState = { account: { id: "a1", username: "owner", isAdmin: true }, isAdmin: true };
+    clearProfilePin
+      .mockRejectedValueOnce(new ApiError("Incorrect password", 401))
+      .mockResolvedValueOnce({ profile: { ...KID, hasPin: false } });
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
+    await user.click(screen.getByRole("button", { name: "Forgot the PIN?" }));
+    const review = screen.getByRole("alertdialog", { name: "Clear the PIN on Kid?" });
+    await user.type(within(review).getByLabelText("Your account password"), "wrong-one");
+    await user.click(within(review).getByRole("button", { name: "Clear PIN" }));
+    expect(await within(review).findByText("Incorrect password.")).toBeInTheDocument();
+
+    await user.clear(within(review).getByLabelText("Your account password"));
+    await user.type(within(review).getByLabelText("Your account password"), "owner-password");
+    await user.click(within(review).getByRole("button", { name: "Clear PIN" }));
+
+    await waitFor(() => expect(clearProfilePin).toHaveBeenLastCalledWith(KID.id, "owner-password"));
+    expect(await screen.findByText("PIN cleared for Kid")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remove PIN for Kid" })).not.toBeInTheDocument();
+  });
+
+  it("goes back to the PIN form with focus on 'Forgot the PIN?' when the clear is cancelled", async () => {
+    accountState = { account: { id: "a1", username: "owner", isAdmin: true }, isAdmin: true };
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
+    await user.click(screen.getByRole("button", { name: "Forgot the PIN?" }));
+    const review = screen.getByRole("alertdialog", { name: "Clear the PIN on Kid?" });
+    await user.click(within(review).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("alertdialog", { name: "Clear the PIN on Kid?" })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("button", { name: "Forgot the PIN?" })).toHaveFocus());
+    expect(clearProfilePin).not.toHaveBeenCalled();
+  });
+
+  it("tells anyone else to ask the admin", async () => {
+    accountState = { account: { id: "a2", username: "friend", isAdmin: false }, isAdmin: false };
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
+    expect(screen.queryByRole("button", { name: "Forgot the PIN?" })).not.toBeInTheDocument();
+    expect(screen.getByText("Forgot the PIN? Ask the admin to clear it.")).toBeInTheDocument();
+  });
+
+  it("keeps this browser's inactivity limit for PIN profiles", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.selectOptions(screen.getByLabelText("Lock PIN profiles on this browser after"), "15");
+    expect(window.localStorage.getItem("fetch_idle_lock_minutes")).toBe("15");
+  });
+
+  it("offers no inactivity limit when no profile has a PIN", async () => {
+    getProfiles.mockResolvedValue({ profiles: [ALEX] });
+    await renderSettings();
+    expect(screen.queryByLabelText("Lock PIN profiles on this browser after")).not.toBeInTheDocument();
   });
 });

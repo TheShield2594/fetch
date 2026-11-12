@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import { Calendar, ChevronDown, Film, NotebookPen, Search, Trash2, Tv, X } from "lucide-react";
 import { api, type SearchResult, type WatchEvent } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
@@ -93,6 +93,9 @@ export function HistoryPage() {
    * an open panel is carried rather than dropped.
    */
   const [searchParams, setSearchParams] = useSearchParams();
+  // A replace navigation drops the entry's state unless it is handed back, and
+  // an open title keeps its depth there (see titlePanel).
+  const locationState: unknown = useLocation().state;
   const monthParam = searchParams.get("month");
   const month = monthParam && monthEndIso(monthParam) ? monthParam : null;
   const query = (searchParams.get("q") ?? "").trim();
@@ -149,11 +152,11 @@ export function HistoryPage() {
           return params;
         },
         // One act of searching is one history entry, not one per pause.
-        { replace: true }
+        { replace: true, state: locationState }
       );
     }, QUERY_DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [queryDraft, query, setSearchParams]);
+  }, [queryDraft, query, setSearchParams, locationState]);
 
   const jumpToMonth = (next: string | null) => {
     setSearchParams((prev) => {
@@ -220,6 +223,9 @@ export function HistoryPage() {
     // dropped at the request, not just ignored at the setter.
     const controller = new AbortController();
     generation.current++;
+    // Every search and month shares one narrowed list. Left in place, a failed
+    // fetch would show the previous filter's rows under the error.
+    if (narrowed) setNarrowedFirstPage([]);
     setLoading(true);
     (async () => {
       try {
@@ -241,7 +247,7 @@ export function HistoryPage() {
     // `loadPage` in the same render.
     // `reloadToken` is what Retry bumps: the first page has no loader of its own
     // to call, so asking again means asking this effect to run again.
-  }, [loadPage, setFirstPage, reloadToken]);
+  }, [loadPage, setFirstPage, narrowed, reloadToken]);
 
   const loadMore = useCallback(async () => {
     const token = generation.current;
@@ -277,10 +283,26 @@ export function HistoryPage() {
   // A re-logged event can come back as one already on screen — the server folds
   // same-day identical plays into a single row's play count — so the insert is
   // keyed on id rather than appending blindly.
-  const restoreEvent = (event: WatchEvent) => {
+  // Which list is on screen. An Undo can be pressed after the filter has
+  // moved on; the row it restores belongs to the list it was removed from,
+  // which may not be this one.
+  const listKey = `${typeFilter}|${query}|${month ?? ""}`;
+  const listKeyRef = useRef(listKey);
+  listKeyRef.current = listKey;
+  const setFirstPageRef = useRef(setFirstPage);
+  setFirstPageRef.current = setFirstPage;
+
+  const restoreEvent = (event: WatchEvent, removedFrom: string) => {
+    if (listKeyRef.current !== removedFrom) {
+      // A different list now: whether the row belongs in it is the server's
+      // call, so ask again rather than splice it in.
+      setReloadToken((n) => n + 1);
+      return;
+    }
     // A restored row belongs at its date, which is within the first page for
-    // anything recent — and the first page is the list that persists.
-    setFirstPage((prev) =>
+    // anything recent — and the first page is the list that persists. Through
+    // the ref, because this can run from a toast raised renders ago.
+    setFirstPageRef.current((prev) =>
       prev.some((e) => e.id === event.id) || extraPages.some((e) => e.id === event.id)
         ? prev
         : [...prev, event].sort(
@@ -292,9 +314,9 @@ export function HistoryPage() {
     generation.current++;
   };
 
-  const handleUndoDelete = async (event: WatchEvent) => {
+  const handleUndoDelete = async (event: WatchEvent, removedFrom: string) => {
     try {
-      restoreEvent(await relogWatchEvent(event));
+      restoreEvent(await relogWatchEvent(event), removedFrom);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Could not restore watch event", "error");
     }
@@ -306,6 +328,7 @@ export function HistoryPage() {
   // gating every removal.
   const handleDelete = async (event: WatchEvent) => {
     setDeletingId(event.id);
+    const removedFrom = listKey;
     // The row can be in either list, so both are filtered.
     setFirstPage((prev) => prev.filter((e) => e.id !== event.id));
     setExtraPages((prev) => prev.filter((e) => e.id !== event.id));
@@ -317,10 +340,10 @@ export function HistoryPage() {
       // Metadata is backfilled in the background, so a row can reach here
       // without a name.
       showToast(event.name ? `Removed ${event.name} from history` : "Removed from history", "info", {
-        action: { label: "Undo", onAction: () => void handleUndoDelete(event) },
+        action: { label: "Undo", onAction: () => void handleUndoDelete(event, removedFrom) },
       });
     } catch (err) {
-      restoreEvent(event);
+      restoreEvent(event, removedFrom);
       showToast(err instanceof Error ? err.message : "Failed to delete watch event", "error");
     } finally {
       setDeletingId(null);
@@ -532,7 +555,10 @@ export function HistoryPage() {
   const runRow = (run: EpisodeRun, dayKey: string) => {
     const [latest] = run;
     const title = watchEventTitle(latest);
-    const key = `${dayKey}:${latest.seriesImdbId ?? latest.imdbId}`;
+    // By the run's first-watched episode as well as the day and show: two
+    // sittings of one show in a day, with something between them, are two rows
+    // and open separately.
+    const key = `${dayKey}:${latest.seriesImdbId ?? latest.imdbId}:${run[run.length - 1]!.id}`;
     const panelId = `run-${key}`;
     // Opened by hand, or because a note inside it is being written.
     const open = expandedRuns.has(key) || run.some((e) => e.id === editingNoteId);

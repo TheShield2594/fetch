@@ -536,6 +536,25 @@ describe("HistoryPage binges, days and finding things", () => {
     expect(await screen.findByText("S2 E13–E17 · 5 episodes")).toBeInTheDocument();
   });
 
+  it("opens two sittings of one show in a day separately", async () => {
+    const user = userEvent.setup();
+    getWatchHistory.mockResolvedValue([
+      svu(18, 23),
+      svu(17, 22),
+      watched("Alien", { watchedAt: new Date(2026, 4, 12, 20, 0).toISOString() }),
+      svu(16, 18),
+      svu(15, 17),
+    ]);
+    renderPage();
+
+    const toggles = await screen.findAllByRole("button", { name: "Show the 2 episodes of Law & Order: SVU" });
+    expect(toggles).toHaveLength(2);
+    expect(toggles[0]!.getAttribute("aria-controls")).not.toBe(toggles[1]!.getAttribute("aria-controls"));
+    await user.click(toggles[0]!);
+
+    expect(screen.getAllByRole("button", { name: /delete watch of law & order: svu/i })).toHaveLength(2);
+  });
+
   it("heads each day with what it added up to", async () => {
     getWatchHistory.mockResolvedValue([
       ...BINGE.slice(0, 3),

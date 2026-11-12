@@ -55,6 +55,12 @@ type TitleHistoryState = {
   titleDepth?: number;
   /** Opened over a scrim someone else already has up — see `DetailPanel.staticScrim`. */
   titleScrim?: boolean;
+  /**
+   * The run of hops started from a title the app did not push. Going back
+   * `titleDepth` entries from here lands on that title, still open — so Close
+   * rewrites this entry instead, which is the one move that always gets out.
+   */
+  titleCold?: boolean;
 };
 
 const readState = (state: unknown): TitleHistoryState =>
@@ -223,6 +229,7 @@ export function TitlePanelProvider({
         state: {
           ...state,
           titleDepth: hop ? (state.titleDepth ?? 0) + 1 : 1,
+          titleCold: hop ? state.titleCold === true || state.titleDepth === undefined : false,
           titleScrim: hop ? state.titleScrim === true : options?.overScrim === true,
         } satisfies TitleHistoryState,
       }
@@ -231,15 +238,17 @@ export function TitlePanelProvider({
 
   const close = useCallback(() => {
     const here = locationRef.current;
-    const depth = readState(here.state).titleDepth ?? 0;
-    if (depth > 0) {
+    const state = readState(here.state);
+    const depth = state.titleDepth ?? 0;
+    if (depth > 0 && !state.titleCold) {
       void navigate(-depth);
       return;
     }
     const params = new URLSearchParams(here.search);
     params.delete(TITLE_PARAM);
     const search = params.toString();
-    void navigate({ pathname: here.pathname, search: search ? `?${search}` : "" }, { replace: true });
+    // `state: null` on purpose: the entry no longer has a title open on it.
+    void navigate({ pathname: here.pathname, search: search ? `?${search}` : "" }, { replace: true, state: null });
   }, [navigate]);
 
   // Drawn only while the URL and the loaded item agree. The effect above lags

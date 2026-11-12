@@ -17,6 +17,7 @@ vi.mock("../api", async (importOriginal) => {
 const openTitle = vi.hoisted(() => vi.fn());
 vi.mock("../components/media-detail/titlePanel", () => ({
   useTitlePanel: () => ({ openTitle, current: null }),
+  useOnTitleClose: () => {},
 }));
 
 const { api } = await import("../api");

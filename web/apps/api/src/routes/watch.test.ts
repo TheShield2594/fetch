@@ -448,17 +448,18 @@ describe("watch routes", () => {
       expect(prismaMock.watchEvent.findMany).not.toHaveBeenCalled();
     });
 
-    it("searches by title through the metadata, for films and for the series an episode belongs to", async () => {
-      prismaMock.metadata.findMany.mockResolvedValueOnce([{ imdbId: "tt-svu" }]);
+    it("searches by title among the titles the profile has watched", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ imdbId: "tt-svu" }]);
       prismaMock.watchEvent.findMany.mockResolvedValue([]);
       const app = await buildApp();
       await app.inject({ method: "GET", url: "/watch/history?q=law%20%26%20order" });
 
-      expect(prismaMock.metadata.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ name: { contains: "law & order", mode: "insensitive" } }),
-        })
-      );
+      const query = prismaMock.$queryRaw.mock.calls[0]![0] as { values: unknown[] };
+      expect(query.values).toContain("%law & order%");
+      // Scoped to this profile's watches before the cap is applied, so a
+      // watched title can't be crowded out by unwatched ones sharing the word.
+      expect(query.values).toContain(PROFILE_ID);
+      expect(rawQueryText(query)).toContain('FROM "WatchEvent"');
       expect(prismaMock.watchEvent.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
@@ -468,8 +469,17 @@ describe("watch routes", () => {
       );
     });
 
+    it("searches for a percent sign or an underscore as typed, not as a wildcard", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
+      const app = await buildApp();
+      await app.inject({ method: "GET", url: `/watch/history?q=${encodeURIComponent("100%_a\\b")}` });
+
+      const query = prismaMock.$queryRaw.mock.calls[0]![0] as { values: unknown[] };
+      expect(query.values).toContain("%100\\%\\_a\\\\b%");
+    });
+
     it("answers a search that matches no title without reading any events", async () => {
-      prismaMock.metadata.findMany.mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       const app = await buildApp();
       const response = await app.inject({ method: "GET", url: "/watch/history?q=zzzz" });
 

@@ -175,6 +175,26 @@ describe("title panel address", () => {
     await waitFor(() => expect(url()).toBe("/calendar"));
   });
 
+  it("leaves in one Close after hopping from a cold title, with Back still walking the hops", async () => {
+    const user = userEvent.setup();
+    renderAt("/calendar?title=series%3Att-severance");
+    await screen.findByText("Panel: tt-severance");
+
+    await user.click(screen.getByRole("button", { name: "more like this" }));
+    await screen.findByText("Panel: Stalker");
+
+    // Back is still one hop, to the title the link named.
+    await user.click(screen.getByRole("button", { name: "back" }));
+    expect(await screen.findByText("Panel: tt-severance")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "forward" }));
+    await screen.findByText("Panel: Stalker");
+
+    // Going back one entry would land on that title, still open. Close gets out.
+    await user.click(screen.getByRole("button", { name: "close panel" }));
+    await waitFor(() => expect(url()).toBe("/calendar"));
+    expect(screen.queryByText(/^Panel:/)).toBeNull();
+  });
+
   // The panel sits outside every page's error boundary now. A title that
   // breaks it must cost that title, not the navigation around it.
   it("closes a panel that throws, and leaves the page standing", async () => {

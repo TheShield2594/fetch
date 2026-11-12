@@ -21,6 +21,15 @@ type Action = {
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { openTitle, current: openedTitle } = useTitlePanel();
+  // A title opened from a result is drawn by the shell; this stands down
+  // while it is up (see the early return below).
+  const openedByPalette = openedTitle?.overScrim === true;
+  // The trap follows what is on screen, not `open`: while the title panel has
+  // replaced the dialog there is nothing here to trap, and when the dialog
+  // comes back it is a new element that needs the trap attached again — which
+  // also puts focus back in the field.
+  const dialogRef = useFocusTrap<HTMLDivElement>(open && !openedByPalette);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   // The debounce cancels the timer, which does nothing for a request already on
   // its way. `SearchPage` and `ListsPage` both pair the abort with a request id,
@@ -34,10 +43,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const dialogRef = useFocusTrap<HTMLDivElement>(open);
   const activeRowRef = useRef<HTMLButtonElement>(null);
   const viewportStyle = useVisualViewport(open);
-  const { openTitle, current: openedTitle } = useTitlePanel();
   const { exiting, requestClose, onExitAnimationEnd, reset } = useExitAnimation(onClose);
 
   // A DetailPanel opened from a result is drawn over a scrim this palette
@@ -46,7 +53,6 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   // keeps the backdrop reading as one surface. State rather than a render-time
   // ref read, so the class can't flip mid-session and replay the fade.
   const [scrimHandedBack, setScrimHandedBack] = useState(false);
-  const openedByPalette = openedTitle?.overScrim === true;
   useOnTitleClose(() => { if (open) setScrimHandedBack(true); });
 
   // Bottom of the stack relative to any DetailPanel opened from a result, so

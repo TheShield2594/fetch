@@ -61,7 +61,12 @@ const seriesOf = (event: WatchEvent): string | null =>
  * are two sittings, and merging them would move the film out of the order it
  * was watched in.
  */
-export function groupHistory(events: readonly WatchEvent[]): HistoryDay[] {
+export function groupHistory(all: readonly WatchEvent[]): HistoryDay[] {
+  // Undated watches still carry a `watchedAt` — the row needs an order — so
+  // they arrive scattered among the dated ones. They are one group, not one
+  // per place they happen to fall, and it goes last: it is the part of the
+  // list that has no place in time.
+  const events = [...all.filter((e) => !e.dateUnknown), ...all.filter((e) => e.dateUnknown)];
   const days: HistoryDay[] = [];
   // The run being built, alongside the row list it will land in.
   let pending: WatchEvent[] = [];

@@ -22,9 +22,9 @@ const MOST_WATCHED_LIMIT = 12;
 /** A title search is a few words; anything longer is not one. */
 const MAX_HISTORY_QUERY_LENGTH = 100;
 /**
- * How many titles a history search may match before the rest are dropped. The
- * ids go into an `IN (…)`, and a one-letter query against a large metadata
- * table would otherwise put most of it there.
+ * How many *watched* titles a history search may match before the rest are
+ * dropped. The ids go into an `IN (…)`, and a one-letter query on a long
+ * history would otherwise put most of it there.
  */
 const MAX_HISTORY_QUERY_TITLES = 500;
 
@@ -364,11 +364,26 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       }
       let matchingIds: string[] | undefined;
       if (q) {
-        const matches = await prisma.metadata.findMany({
-          where: { name: { contains: q, mode: "insensitive" }, type: { in: ["movie", "series"] } },
-          select: { imdbId: true },
-          take: MAX_HISTORY_QUERY_TITLES,
-        });
+        // One query, over the titles this profile has watched. Matching the
+        // whole metadata table first and capping that would drop a watched
+        // title whenever enough unwatched ones shared the word — the cap has
+        // to fall on the answer, not on the haystack.
+        //
+        // `%`, `_` and `\` are escaped so they are searched for as typed
+        // rather than read as LIKE wildcards.
+        const pattern = `%${q.replace(/[\\%_]/g, "\\$&")}%`;
+        const matches = await prisma.$queryRaw<{ imdbId: string }[]>(Prisma.sql`
+          SELECT m."imdbId"
+          FROM "Metadata" m
+          WHERE m.name ILIKE ${pattern} ESCAPE '\\'
+            AND m.type IN ('movie', 'series')
+            AND EXISTS (
+              SELECT 1 FROM "WatchEvent" w
+              WHERE w."profileId" = ${request.profileId!}::uuid
+                AND (w."imdbId" = m."imdbId" OR w."seriesImdbId" = m."imdbId")
+            )
+          LIMIT ${MAX_HISTORY_QUERY_TITLES}
+        `);
         matchingIds = [...new Set(matches.map((m) => m.imdbId))];
         if (matchingIds.length === 0) return { history: [] };
       }

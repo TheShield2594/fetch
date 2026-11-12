@@ -10,7 +10,7 @@ import {
   type SeriesProgress,
   type WatchEvent,
 } from "../api";
-import { useTitlePanel } from "../components/media-detail/titlePanel";
+import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { GhostLoader } from "../components/GhostLoader";
 import { Poster } from "../components/Poster";
 import { ProgressRuler } from "../components/ProgressRuler";
@@ -379,6 +379,10 @@ export function ShelfPage() {
     void load();
     return () => loadAbortRef.current?.abort();
   }, [load]);
+
+  // The panel can mark episodes watched and change lists, which moves the rows
+  // on this page.
+  useOnTitleClose(() => { void load(); });
 
   /* ── Continue Watching ── */
 

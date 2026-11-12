@@ -116,6 +116,18 @@ describe("groupHistory", () => {
   });
 });
 
+describe("groupHistory — undated watches among dated ones", () => {
+  it("makes one undated group, last, however they were interleaved", () => {
+    const days = groupHistory([
+      film("Alien", at(10, 18), { dateUnknown: true }),
+      film("Heat", at(9, 18)),
+      film("Solaris", at(3, 18), { dateUnknown: true }),
+    ]);
+    expect(days.map((d) => d.key)).toEqual(["2026-11-09", "unknown"]);
+    expect(days[1]).toMatchObject({ films: 2 });
+  });
+});
+
 describe("episodeRangeLabel", () => {
   it("names both ends in full across a season boundary", () => {
     expect(episodeRangeLabel([episode("svu", 3, 2, at(10, 23)), episode("svu", 2, 21, at(10, 21))])).toBe(

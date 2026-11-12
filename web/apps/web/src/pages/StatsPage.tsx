@@ -11,7 +11,7 @@ import { SectionError } from "../components/SectionError";
 import { PosterGrid } from "../components/PosterGrid";
 import { PosterCard } from "../components/PosterCard";
 import { MyRating } from "../components/MyRating";
-import { useTitlePanel } from "../components/media-detail/titlePanel";
+import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { formatMinutes } from "./history-groups";
 
 const MONTH_NAMES = [
@@ -130,6 +130,14 @@ export function StatsPage() {
     return () => controller.abort();
   }, [load]);
 
+  // The panel can log a watch or change a rating, and every figure here is
+  // built from those. Closing it asks for all three again.
+  const [yearReload, setYearReload] = useState(0);
+  useOnTitleClose(() => {
+    void load();
+    setYearReload((n) => n + 1);
+  });
+
   useEffect(() => {
     let cancelled = false;
     api.getYearInReview(year)
@@ -138,7 +146,7 @@ export function StatsPage() {
         if (!cancelled) setYearError({ year, message: err instanceof Error ? err.message : "Failed to load year in review" });
       });
     return () => { cancelled = true; };
-  }, [year]);
+  }, [year, yearReload]);
 
   const review = yearReview?.year === year ? yearReview : null;
   const reviewError = yearError?.year === year ? yearError.message : null;

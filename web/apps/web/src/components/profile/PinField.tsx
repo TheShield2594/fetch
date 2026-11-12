@@ -74,11 +74,13 @@ export function PinField({
   }
 
   const boxes = pinBoxCount(value.length, length);
-  const box = size === "lg" ? "h-14 w-11 sm:h-16 sm:w-12" : "h-12 w-10";
+  // A basis, not a width: eight boxes and their gaps are wider than a narrow
+  // phone's column, so they shrink with it and stay inside the input's area.
+  const box = size === "lg" ? "h-14 basis-11 sm:h-16 sm:basis-12" : "h-12 basis-10";
 
   return (
     <div
-      className={`relative inline-flex max-w-full gap-2 ${shaking ? "pin-shake" : ""}`}
+      className={`relative inline-flex max-w-full gap-1.5 sm:gap-2 ${shaking ? "pin-shake" : ""}`}
       onAnimationEnd={() => setShaking(false)}
     >
       {Array.from({ length: boxes }, (_, index) => {
@@ -88,7 +90,7 @@ export function PinField({
           <span
             key={index}
             aria-hidden="true"
-            className={`flex flex-none items-center justify-center rounded-xl border-2 transition-colors duration-fast ${box}`}
+            className={`flex min-w-0 shrink grow-0 items-center justify-center rounded-xl border-2 transition-colors duration-fast ${box}`}
             style={{
               borderColor: invalid ? "var(--status-bad)" : current ? "var(--focus-ring)" : filled ? "var(--border-strong)" : "var(--border-field)",
               background: "var(--bg-1)",

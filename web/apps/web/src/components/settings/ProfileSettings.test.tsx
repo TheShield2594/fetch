@@ -566,3 +566,77 @@ describe("ProfileSettings recovery and locking", () => {
     expect(screen.queryByLabelText("Lock PIN profiles on this browser after")).not.toBeInTheDocument();
   });
 });
+
+describe("ProfileSettings review follow-ups", () => {
+  it("doesn't offer Add profile until the list is in", async () => {
+    let finish!: (value: { profiles: Profile[] }) => void;
+    getProfiles.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    render(
+      <MemoryRouter>
+        <ToastProvider>
+          <ProfileSettings />
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByRole("button", { name: "Add profile" })).not.toBeInTheDocument();
+    finish({ profiles: [ALEX, KID] });
+    expect(await screen.findByRole("button", { name: "Add profile" })).toBeInTheDocument();
+  });
+
+  it("doesn't offer Add profile when the list failed to load", async () => {
+    getProfiles.mockRejectedValue(new Error("Profiles unavailable"));
+    await renderSettings();
+    expect(screen.queryByRole("button", { name: "Add profile" })).not.toBeInTheDocument();
+  });
+
+  it("goes on with the new PIN after changing a locked profile's PIN", async () => {
+    const user = userEvent.setup();
+    updateProfile.mockResolvedValueOnce({ profile: KID });
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Kid");
+    await user.type(sheet.getByLabelText("Kid's PIN"), "1111");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.type(sheet.getByLabelText("New PIN"), "9999");
+    await user.type(sheet.getByLabelText("Type it again"), "9999");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "9999", currentPin: "1111" }));
+
+    expect(sheet.getByLabelText("Kid's PIN")).toHaveValue("9999");
+    await user.type(sheet.getByLabelText("Name"), "do");
+    await user.click(sheet.getByRole("button", { name: "Save changes" }));
+    await waitFor(() =>
+      expect(updateProfile).toHaveBeenLastCalledWith(KID.id, expect.objectContaining({ name: "Kiddo", currentPin: "9999" }))
+    );
+  });
+
+  it("asks afresh each time the delete review opens, and moves focus into it and back", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    let dialog = await startDelete(user, "Kid");
+    expect(within(dialog).getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await waitFor(() => expect(dialog).toHaveTextContent("312 watched entries"));
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("button", { name: "Delete Kid…" })).toHaveFocus();
+
+    getProfileSummary.mockRejectedValueOnce(new Error("offline"));
+    await user.click(screen.getByRole("button", { name: "Delete Kid…" }));
+    dialog = await screen.findByRole("alertdialog", { name: "Delete Kid?" });
+    await waitFor(() => expect(dialog).toHaveTextContent("Its watch history, lists, resume points, ratings and collections"));
+    expect(dialog).not.toHaveTextContent("312");
+  });
+
+  it("can't be cancelled while the delete is out", async () => {
+    const user = userEvent.setup();
+    deleteProfile.mockReturnValue(new Promise(() => {}));
+    await renderSettings();
+
+    const dialog = await startDelete(user, "Kid");
+    await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
+
+    expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+});
+

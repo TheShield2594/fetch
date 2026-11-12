@@ -279,3 +279,18 @@ describe("a kids profile in the shell", () => {
     expect(within(rail).getByText("Kids")).toBeInTheDocument();
   });
 });
+
+describe("the kids gate before the profile is known", () => {
+  it("stays shut while the profile loads, and offers a retry if it can't be read", async () => {
+    vi.mocked(api.getProfiles).mockRejectedValueOnce(new Error("offline"));
+    vi.mocked(api.getProfiles).mockResolvedValue({ profiles: [{ id: "profile-1", name: "Alice", hasPin: false }] });
+    renderAt("/settings");
+
+    expect(await screen.findByText("Couldn't check this profile")).toBeInTheDocument();
+    expect(screen.queryAllByRole("textbox", { name: "Search settings" })).toHaveLength(0);
+
+    await userEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect((await screen.findAllByRole("textbox", { name: "Search settings" })).length).toBeGreaterThan(0);
+  });
+});
+

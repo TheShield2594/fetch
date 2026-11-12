@@ -283,7 +283,7 @@ function AppShell({
   setTheme: ReturnType<typeof useTheme>["setTheme"];
   location: ReturnType<typeof useLocation>;
 }) {
-  const { profile, setProfile, patchProfile, switcherOpen, closeSwitcher } = useProfile();
+  const { profile, setProfile, patchProfile, switcherOpen, closeSwitcher, setProfileLoadFailed, profileLoadAttempt } = useProfile();
   const mainRef = useRef<HTMLElement>(null);
   const onSearchRoute = location.pathname === "/search";
   // Drives the nav bar's material — see the header below, and useScrolled.
@@ -355,12 +355,15 @@ function AppShell({
         if (cancelled) return;
         const current = profiles.find((p) => p.id === currentId);
         if (current) setProfile(current);
+        else setProfileLoadFailed?.(true);
       } catch {
-        // best-effort; profile indicator just won't show a name
+        // The indicator goes without a name, but the kids gate stays shut:
+        // a profile that couldn't be read isn't known not to be a kids one.
+        if (!cancelled) setProfileLoadFailed?.(true);
       }
     })();
     return () => { cancelled = true; };
-  }, [setProfile]);
+  }, [setProfile, setProfileLoadFailed, profileLoadAttempt]);
 
   const handleProfileSelected = (next: Profile) => {
     setProfile(next);

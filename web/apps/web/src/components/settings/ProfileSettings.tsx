@@ -130,7 +130,9 @@ export function ProfileSettings() {
         <button type="button" onClick={openSwitcher} className="btn-secondary">
           <Users size={16} /> Switch profile
         </button>
-        {!adding && (
+        {/* Only once the list is in: a profile made before it arrived would be
+            overwritten by the older list, or hidden behind its error. */}
+        {!adding && !loading && !error && (
           <button type="button" onClick={() => setAdding(true)} className="btn-secondary">
             <Plus size={16} /> Add profile
           </button>

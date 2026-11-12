@@ -135,6 +135,7 @@ function NewPinFields({
   onConfirm,
   onReject,
   label,
+  errorId,
 }: {
   pin: string;
   confirm: string;
@@ -142,10 +143,13 @@ function NewPinFields({
   onConfirm: (value: string) => void;
   onReject: () => void;
   label: string;
+  /** The section's error line, when it has one, for the fields to point at. */
+  errorId?: string | undefined;
 }) {
   const pinId = useId();
   const hintId = useId();
   const confirmId = useId();
+  const mismatchId = useId();
   const mismatch = confirm.length === pin.length && pin.length > 0 && confirm !== pin;
   return (
     <div className="space-y-3">
@@ -162,7 +166,8 @@ function NewPinFields({
               onConfirm("");
             }}
             onReject={onReject}
-            describedBy={hintId}
+            invalid={!!errorId}
+            describedBy={[hintId, errorId].filter(Boolean).join(" ")}
             autoComplete="new-password"
             autoFocus
           />
@@ -179,11 +184,12 @@ function NewPinFields({
               onChange={onConfirm}
               length={pin.length}
               invalid={mismatch}
+              describedBy={mismatch ? mismatchId : undefined}
               autoComplete="new-password"
             />
             {confirm.length === pin.length && !mismatch && <Check size={18} className="flex-none text-success" aria-label="PINs match" />}
           </div>
-          {mismatch && <p className="mt-1.5 text-xs text-danger">The two PINs don&apos;t match.</p>}
+          {mismatch && <p id={mismatchId} className="mt-1.5 text-xs text-danger">The two PINs don&apos;t match.</p>}
         </div>
       )}
     </div>
@@ -264,7 +270,8 @@ function PinSection({
   isActive: boolean;
   /** The PIN typed to unlock the sheet, standing in for "current PIN" when there is one. */
   unlockPin: string | null;
-  onSaved: (updated: Profile, message: string) => void;
+  /** `newPin` is the PIN now set, or null when it was removed or cleared. */
+  onSaved: (updated: Profile, message: string, newPin: string | null) => void;
   onSwitch: () => void;
 }) {
   const [mode, setMode] = useState<"idle" | "set" | "remove" | "clear">("idle");
@@ -287,6 +294,7 @@ function PinSection({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const currentId = useId();
+  const errorId = useId();
 
   const reset = () => {
     setMode("idle");
@@ -343,8 +351,9 @@ function PinSection({
         ...(profile.hasPin ? { currentPin } : {}),
       });
       const message = mode === "remove" ? `PIN removed for ${updated.name}` : `PIN ${profile.hasPin ? "changed" : "set"} for ${updated.name}`;
+      const newPin = mode === "set" ? pin : null;
       reset();
-      onSaved(updated, message);
+      onSaved(updated, message, newPin);
     } catch (err) {
       setError(errorText(err, mode === "set" ? "Could not set the PIN." : "Could not remove the PIN.", "Incorrect current PIN."));
     } finally {
@@ -366,7 +375,7 @@ function PinSection({
           profile={profile}
           onCleared={(updated) => {
             reset();
-            onSaved(updated, `PIN cleared for ${updated.name}`);
+            onSaved(updated, `PIN cleared for ${updated.name}`, null);
           }}
           onCancel={() => {
             setMode(clearFrom);
@@ -398,6 +407,8 @@ function PinSection({
                 autoComplete="current-password"
                 value={current}
                 onChange={(e) => setCurrent(e.target.value)}
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? errorId : undefined}
                 className={`mt-1.5 max-w-[12rem] ${FIELD_CLASS}`}
                 style={FIELD_STYLE}
               />
@@ -411,9 +422,10 @@ function PinSection({
               onConfirm={setConfirm}
               onReject={() => setError(`${PIN_FORMAT_ERROR}.`)}
               label={profile.hasPin ? "New PIN" : "PIN"}
+              errorId={error ? errorId : undefined}
             />
           )}
-          {error && <p role="alert" className="flex items-start gap-1.5 text-xs text-danger"><AlertCircle size={13} className="mt-px flex-none" /> {error}</p>}
+          {error && <p id={errorId} role="alert" className="flex items-start gap-1.5 text-xs text-danger"><AlertCircle size={13} className="mt-px flex-none" /> {error}</p>}
           {profile.hasPin && (
             canClearPin ? (
               <button
@@ -473,6 +485,34 @@ function DeleteSection({
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const pinId = useId();
+  const errorId = useId();
+  const deleteRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  // Where focus goes on the next render: into the review as it opens (its
+  // Delete button has just gone), back to Delete as it closes.
+  const [focusTarget, setFocusTarget] = useState<"cancel" | "delete" | null>(null);
+  useEffect(() => {
+    if (!focusTarget) return;
+    (focusTarget === "cancel" ? cancelRef : deleteRef).current?.focus();
+    setFocusTarget(null);
+  }, [focusTarget]);
+
+  const openReview = () => {
+    // A reopened review asks again: the last answer's counts must not stand in
+    // for this one's, nor enable Delete before it arrives.
+    setSummary(null);
+    setFailed(false);
+    setReviewing(true);
+    setFocusTarget("cancel");
+  };
+
+  const closeReview = () => {
+    setReviewing(false);
+    setAskPin(false);
+    setPin("");
+    setError(null);
+    setFocusTarget("delete");
+  };
 
   useEffect(() => {
     if (!reviewing) return;
@@ -513,7 +553,7 @@ function DeleteSection({
           {profile.name} is the only profile, and an account always keeps one. Add another to delete this one.
         </p>
       ) : !reviewing ? (
-        <button type="button" onClick={() => setReviewing(true)} className="btn-secondary btn-sm text-danger">
+        <button ref={deleteRef} type="button" onClick={openReview} className="btn-secondary btn-sm text-danger">
           <Trash2 size={14} /> Delete {profile.name}…
         </button>
       ) : (
@@ -543,12 +583,14 @@ function DeleteSection({
                 inputMode="numeric"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? errorId : undefined}
                 className={`mt-1.5 max-w-[12rem] ${FIELD_CLASS}`}
                 style={FIELD_STYLE}
               />
             </div>
           )}
-          {error && <p role="alert" className="flex items-start gap-1.5 text-xs text-danger"><AlertCircle size={13} className="mt-px flex-none" /> {error}</p>}
+          {error && <p id={errorId} role="alert" className="flex items-start gap-1.5 text-xs text-danger"><AlertCircle size={13} className="mt-px flex-none" /> {error}</p>}
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -558,16 +600,9 @@ function DeleteSection({
             >
               {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Delete permanently
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setReviewing(false);
-                setAskPin(false);
-                setPin("");
-                setError(null);
-              }}
-              className="btn-secondary btn-sm"
-            >
+            {/* Not while the delete is out: it can't be called back, and a
+                review that closed would say it had been. */}
+            <button ref={cancelRef} type="button" onClick={closeReview} disabled={deleting} className="btn-secondary btn-sm">
               Cancel
             </button>
           </div>
@@ -643,6 +678,8 @@ export function ProfileSheet({
   const [draft, setDraft] = useState<Draft>(() => draftOf(profile));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<"name" | "unlock" | null>(null);
+  const errorId = useId();
   // A PIN-protected profile this browser hasn't unlocked: the server wants its
   // PIN with any change, as it does to open it. Asked once, at the top.
   const needsPin = saved.hasPin && !isActive;
@@ -665,14 +702,17 @@ export function ProfileSheet({
     const name = draft.name.trim();
     if (!name) {
       setError("Give the profile a name.");
+      setErrorField("name");
       return;
     }
     if (needsPin && !unlock.trim()) {
       setError(`Enter ${saved.name}'s PIN at the top to save changes.`);
+      setErrorField("unlock");
       return;
     }
     setSaving(true);
     setError(null);
+    setErrorField(null);
     try {
       const { profile: updated } = await api.updateProfile(saved.id, {
         ...(name !== saved.name ? { name } : {}),
@@ -687,6 +727,8 @@ export function ProfileSheet({
       requestClose();
     } catch (err) {
       setError(errorText(err, "Could not save this profile."));
+      // A wrong or locked-out PIN is the PIN field's error.
+      setErrorField(needsPin && err instanceof ApiError && (err.status === 401 || err.status === 429) ? "unlock" : null);
     } finally {
       setSaving(false);
     }
@@ -745,6 +787,8 @@ export function ProfileSheet({
               </p>
               <input
                 id={unlockId}
+                aria-invalid={errorField === "unlock" || undefined}
+                aria-describedby={errorField === "unlock" ? errorId : undefined}
                 type="password"
                 inputMode="numeric"
                 autoComplete="off"
@@ -761,6 +805,8 @@ export function ProfileSheet({
               <label htmlFor={nameId} className={LABEL} style={{ color: "var(--text)" }}>Name</label>
               <input
                 id={nameId}
+                aria-invalid={errorField === "name" || undefined}
+                aria-describedby={errorField === "name" ? errorId : undefined}
                 type="text"
                 value={draft.name}
                 maxLength={40}
@@ -832,7 +878,7 @@ export function ProfileSheet({
             )}
           </SheetSection>
 
-          {error && <p role="alert" className="flex items-start gap-1.5 text-sm text-danger"><AlertCircle size={15} className="mt-0.5 flex-none" /> {error}</p>}
+          {error && <p id={errorId} role="alert" className="flex items-start gap-1.5 text-sm text-danger"><AlertCircle size={15} className="mt-0.5 flex-none" /> {error}</p>}
           <div className="flex gap-2">
             <button type="button" onClick={() => void save()} disabled={saving || !dirty} className="btn-primary">
               {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Save changes
@@ -844,9 +890,13 @@ export function ProfileSheet({
             profile={saved}
             isActive={isActive}
             unlockPin={needsPin ? unlock : null}
-            onSaved={(updated, message) => {
+            onSaved={(updated, message, newPin) => {
               accept(updated);
               showToast(message);
+              // The PIN typed at the top is the old one now: carry on with the
+              // new one, so the next change doesn't send a wrong PIN (and count
+              // towards a lockout).
+              setUnlock(newPin ?? "");
             }}
             onSwitch={() => {
               requestClose();

@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
-import { Users } from "lucide-react";
-import { useIsKidsProfile, useProfile } from "../hooks/useProfile";
+import { type ReactNode, useContext } from "react";
+import { Loader2, RotateCw, Users } from "lucide-react";
+import { ProfileContext, useIsKidsProfile, useProfile } from "../hooks/useProfile";
 import { EmptyState } from "./EmptyState";
 import { PageFrame } from "./PageFrame";
 
@@ -28,6 +28,32 @@ export function KidsGate({
 }) {
   const isKids = useIsKidsProfile();
   const { profile, openSwitcher } = useProfile();
+  const ctx = useContext(ProfileContext);
+  // Closed until the active profile is known: `null` is "not read yet" (or
+  // "couldn't be read"), not "a grown-up's".
+  if (!profile) {
+    return (
+      <PageFrame width="reading">
+        <h1 className="sr-only">{title}</h1>
+        {ctx?.profileLoadFailed ? (
+          <EmptyState
+            title="Couldn't check this profile"
+            action={
+              <button type="button" onClick={() => ctx.retryProfileLoad?.()} className="btn-secondary">
+                <RotateCw size={16} /> Try again
+              </button>
+            }
+          >
+            {title} opens once Fetch knows which profile is in use.
+          </EmptyState>
+        ) : (
+          <p role="status" className="flex items-center justify-center gap-2 py-16 text-sm" style={{ color: "var(--text-mute)" }}>
+            <Loader2 size={16} className="animate-spin" /> Loading…
+          </p>
+        )}
+      </PageFrame>
+    );
+  }
   if (!isKids) return <>{children}</>;
   return (
     <PageFrame width="reading">

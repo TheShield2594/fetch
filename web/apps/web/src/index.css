@@ -4,10 +4,9 @@
 /*
  * Schibsted Grotesk, self-hosted. The TV app's own face (OFL; licence beside
  * the file in /fonts), converted from app/src/main/res/font to WOFF2 (70 KB).
- * Only the Fetch theme names it in --font-ui, and a browser fetches a face only
- * when a rule uses it, so the other themes keep their zero-download system UI
- * face. Served from this origin, not a font CDN: no third-party request, and
- * the service worker precaches it for offline use.
+ * Every theme names it in --font-ui: themes differ in colour, not in whether
+ * they look like Fetch. Served from this origin, not a font CDN: no
+ * third-party request, and the service worker precaches it for offline use.
  */
 @font-face {
   font-family: "Schibsted Grotesk";
@@ -306,9 +305,8 @@
    * palette (ThemeColors.Fetch), Fetch red as the only colour, and white focus.
    * Red is for the primary action, progress and the page you are on; on the
    * TV, focus is white in every theme so it never competes with it, and the
-   * ring here does the same. The face is Schibsted Grotesk, the TV app's
-   * default: self-hosted at the top of this file, set in
-   * :root[data-theme="fetch"] after the shared --font-ui.
+   * ring here does the same. The face is Schibsted Grotesk, as in every
+   * theme: see --font-ui.
    */
   --bg-0: #0a0a0b;
   --bg-1: #151517;
@@ -431,23 +429,18 @@
   --poster-card-w: 12rem;
 
   /*
-   * The interface face — one stack, no webfont.
+   * The interface face: Schibsted Grotesk, the TV app's face, in every theme
+   * (see the @font-face at the top). It used to be Fetch and Light only, with
+   * the other three themes on each device's system face "to read as a platform
+   * app" — which meant the product's typographic identity disappeared the
+   * moment someone changed colours.
    *
-   * The fallback for the themes that aren't Fetch. The Fetch theme sets its
-   * interface in Schibsted Grotesk, the TV app's face, which is what makes the
-   * two read as one product (see the @font-face at the top), and so does
-   * Light, which is Fetch on a light ground. The other three themes are
-   * alternate palettes and take each device's own UI face at no
-   * download cost, rather than a third-party webfont that would be neither
-   * Fetch's nor the device's.
-   *
-   * `-apple-system` and `BlinkMacSystemFont` reach SF without naming it, which
-   * is what Safari and Chrome on Apple platforms want; the two 'SF Pro' names
-   * catch the desktop where the family is installed by name. `system-ui` is the
-   * rest of the world — Segoe on Windows, Roboto on Android, whatever the
-   * distribution has set on Linux.
+   * The system stack behind it is what shows for the moment before the file
+   * arrives (`font-display: swap`). `-apple-system` and `BlinkMacSystemFont`
+   * reach SF without naming it; `system-ui` is Segoe on Windows, Roboto on
+   * Android, whatever the distribution has set on Linux.
    */
-  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-ui: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /*
    * The mono face. For content that is genuinely code — an API base URL, a
@@ -476,16 +469,6 @@
 [data-theme="fetch"] [aria-current="page"],
 [data-theme="light"] [aria-current="page"] {
   --nav-glyph: rgb(var(--accent-rgb));
-}
-
-/*
- * The Fetch theme's face. Its own rule, after the shared :root one above, and
- * at :root[data-theme] specificity, because a [data-theme] block and :root tie
- * and the later declaration would otherwise put the system face back.
- */
-:root[data-theme="fetch"],
-:root[data-theme="light"] {
-  --font-ui: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /*
@@ -1168,12 +1151,12 @@ body {
    *   .meta-row   a metadata run — "Show · S3 E4 of 8 · 42 min left".
    *   .eyebrow    the label above a block — "In progress", "Recently added".
    *
-   * `.eyebrow` stays uppercase, because it labels a group rather than being
-   * read as a sentence — and it uppercases in CSS rather than in
-   * the string, so the accessible name stays sentence case: "IN PROGRESS"
-   * written into the markup is spelled out letter by letter by some screen
-   * readers, and is untranslatable by all of them. Write the words normally;
-   * the stylesheet shouts them.
+   * `.eyebrow` is sentence case too, now. It used to stay uppercase "because
+   * it labels a group", and with one over every block the screen read as
+   * generic UI labelling. A label that is set as written, at semibold, still
+   * reads as a label; uppercase is left to the filled badges, which really are
+   * tags. Write the words normally either way: text uppercased in the markup
+   * is spelled out letter by letter by some screen readers.
    *
    * Colour is left to the caller on the first two. These strings sit on poster
    * overlays (--text on a scrim), in rows (--text-mute) and inside status chips
@@ -1193,11 +1176,6 @@ body {
   }
 
   .eyebrow {
-    text-transform: uppercase;
-    /* Uppercase set solid is hard to read; this is the tracking that buys the
-       letterforms back. Well short of the 0.12em it ran at as mono — that
-       spacing was answering a face this no longer uses. */
-    letter-spacing: 0.04em;
     font-weight: 600;
     line-height: 1.2;
     color: var(--text-mute);

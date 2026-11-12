@@ -125,7 +125,7 @@ export function LinkPage() {
         )}
 
         <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-          Or open your Fetch website on any phone or computer, go to <strong>Settings → TVs &amp; Devices</strong> and
+          Or open your Fetch website on any phone or computer, go to <strong>TV</strong> and
           type the code there. The TV finishes on its own.
         </p>
       </div>

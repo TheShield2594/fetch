@@ -134,7 +134,7 @@ export function TvOverview() {
           </h4>
           {overview.devices.length === 0 ? (
             <p className="text-sm" style={{ color: "var(--text-dim)" }}>
-              No TVs paired yet. Pair one under TVs &amp; Devices.
+              No TVs signed in yet. Sign one in under Your TVs, at the top of this page.
             </p>
           ) : (
             <ul className="space-y-2">

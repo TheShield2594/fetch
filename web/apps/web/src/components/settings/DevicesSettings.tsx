@@ -290,9 +290,18 @@ function DeviceRow({
   );
 }
 
+/** How a TV is signed in, said once for the empty state and the "another TV" box. */
+export const PAIR_HOW_TO = (
+  <>
+    On the TV, open <strong>Settings → Account → Fetch website</strong>. It shows a code: type it here, or scan its QR
+    code with your phone. Each TV gets its own sign-in, so signing one out leaves the others alone.
+  </>
+);
+
 /**
- * Settings → Devices: the TVs signed in to this install, each with its own
- * token, and the box to sign in another one.
+ * The TV page's list: the TVs signed in to this account, each with its own
+ * token. With none, the empty state holds the pairing box; with some, it sits
+ * under them as "Sign in another TV".
  */
 export function DevicesSettings() {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -332,21 +341,17 @@ export function DevicesSettings() {
 
   useEffect(() => { void load(); }, [load]);
 
+  const pairForm = (
+    <PairingCodeForm
+      onPaired={(deviceName) => {
+        showToast(`${deviceName} is signed in`);
+        void load();
+      }}
+    />
+  );
+
   return (
     <div className="space-y-4">
-      <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-        On the TV, open <strong>Settings → Account → Fetch website</strong>. It shows a code: type it here, or scan
-        its QR code with your phone. The TV doesn&apos;t need this site&apos;s address. Each TV gets its own sign-in,
-        so revoking one leaves the others alone.
-      </p>
-
-      <PairingCodeForm
-        onPaired={(deviceName) => {
-          showToast(`${deviceName} is signed in`);
-          void load();
-        }}
-      />
-
       {loading ? (
         <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
           <Loader2 size={16} className="animate-spin" /> Loading devices…
@@ -354,7 +359,29 @@ export function DevicesSettings() {
       ) : error ? (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       ) : devices.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--text-mute)" }}>No TVs are signed in yet.</p>
+        // The empty state is where pairing happens, rather than a sentence
+        // pointing somewhere else to do it.
+        <div
+          className="space-y-4 rounded-2xl border p-5 sm:p-6"
+          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+        >
+          <div className="flex items-start gap-4">
+            <span
+              aria-hidden="true"
+              className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl"
+              style={{ background: "var(--surface-strong)", color: "rgb(var(--accent-rgb))" }}
+            >
+              <Tv size={24} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-base font-semibold" style={{ color: "var(--text)" }}>No TV is signed in yet</p>
+              <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
+                {PAIR_HOW_TO}
+              </p>
+            </div>
+          </div>
+          {pairForm}
+        </div>
       ) : (
         <ul className="space-y-2" aria-label="Signed-in devices">
           {devices.map((device) => (
@@ -370,6 +397,16 @@ export function DevicesSettings() {
           ))}
         </ul>
       )}
+
+      {!loading && !error && devices.length > 0 && (
+        <div className="space-y-2 border-t pt-4" style={{ borderColor: "var(--border)" }}>
+          <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Sign in another TV</p>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>{PAIR_HOW_TO}</p>
+          {pairForm}
+        </div>
+      )}
+      {/* The form stays reachable when the list can't be read. */}
+      {!loading && error && pairForm}
 
       {/* For a TV that was lost, sold or left signed in somewhere: every
           one at once, rather than a Revoke per row. */}

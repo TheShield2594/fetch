@@ -11,6 +11,16 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **The TV has a page of its own.** `/tv` is in the rail (beside Settings), under More on a phone and in the command palette: the TVs signed in to the account, with the pairing box in the empty state ("No TV is signed in yet") and under the list as "Sign in another TV", then this profile's Home rows, Home folders, addons and playback, and every profile's synced data. Those sections left Settings, and old `/settings?section=…` and `/collections` links land on the TV page. The lockup tagline, the About text and the install description now describe a player for the TV with the website as its home, rather than a standalone tracker ([#527](https://github.com/TheShield2594/fetch/issues/527)).
+
+- **First run asks who you are, brings your history and pairs the TV, then opens on artwork.** Setup now names the first profile (suggesting the username) and its picture instead of leaving it as "Default", and opens it so setup ends on the Shelf rather than a picker of one. The TMDB step says what stops working without a key and asks once before going on without one. "Bring your history" lists Plex/Jellyfin/Emby, Trakt, Simkl and MDBList, hiding any the server has no client id for, each opening in place, and an optional "Have a Fetch TV?" step signs a TV in with its code. An empty Shelf shows this week's trending titles as posters, each one tap from the watchlist, and falls back to the plain empty state without a TMDB key ([#533](https://github.com/TheShield2594/fetch/issues/533)).
+
+### Changed
+
+- **A display rank, and the Fetch typeface in every theme.** A new display tier (44–64px, fluid, extra-bold and tight) is used for one element per page: the Discover feature, the Shelf's lead card and a title's own header, which had shared 34px with "Settings". Schibsted Grotesk, the TV app's face, is now the interface face in all five themes rather than Fetch and Light only, so changing colours no longer changes the typeface. Section kickers and eyebrows are sentence case instead of uppercase, landscape card titles take two lines before an ellipsis, and stat figures are larger with lining tabular numerals ([#534](https://github.com/TheShield2594/fetch/issues/534)).
+
 ## [0.5.0] - 2026-11-12
 
 **Action needed for one setup:** the website's sign-in is now a cookie, so a page that calls its API on a different site (for example the page at a LAN address with `VITE_API_BASE` on a public domain) no longer stays signed in. Serve both from one host or use the same-origin proxy described in the README. PIN profiles enter their PIN once after updating. A migration adds the kids-rules fields; `migrate` applies it as usual.

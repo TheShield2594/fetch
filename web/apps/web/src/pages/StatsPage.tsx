@@ -463,7 +463,7 @@ export function StatsPage() {
                 style={{ borderColor: "var(--border)" }}
               >
                 <dt className="meta-row" style={{ color: "var(--text-mute)" }}>{figure.label}</dt>
-                <dd className="text-2xl font-bold leading-none tabular-nums" style={{ color: "var(--text)" }}>{figure.value}</dd>
+                <dd className="text-[2rem] font-extrabold leading-none tracking-[-0.02em] tabular-nums lining-nums" style={{ color: "var(--text)" }}>{figure.value}</dd>
               </div>
             ))}
           </dl>

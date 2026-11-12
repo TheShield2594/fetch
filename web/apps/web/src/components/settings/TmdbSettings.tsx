@@ -9,7 +9,7 @@ const STATUS_LABEL: Record<"db" | "env", string> = {
   env: "Active (environment)",
 };
 
-export function TmdbSettings() {
+export function TmdbSettings({ onStatus }: { onStatus?: ((status: TmdbStatus) => void) | undefined } = {}) {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<TmdbStatus>({ configured: false, source: null });
   const [apiKey, setApiKey] = useState("");
@@ -17,6 +17,12 @@ export function TmdbSettings() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useTransientFlag();
   const [error, setError] = useState<string | null>(null);
+
+  // The setup wizard reads whether a key is in place, to know whether going on
+  // without one needs saying.
+  useEffect(() => {
+    if (!loading) onStatus?.(status);
+  }, [loading, status, onStatus]);
 
   useEffect(() => {
     void (async () => {

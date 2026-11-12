@@ -1,6 +1,6 @@
 import { type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Link as RouterLink, useSearchParams } from "react-router";
-import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, ChevronLeft, ChevronRight, FolderTree, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette } from "lucide-react";
+import { Link as RouterLink, Navigate, useSearchParams } from "react-router";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X, ChevronLeft, ChevronRight, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette } from "lucide-react";
 import { healthDotClass, healthSummary, type SectionHealth } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { AccountSettings } from "../components/settings/AccountSettings";
@@ -24,13 +24,7 @@ import { PushSettings } from "../components/settings/PushSettings";
 import { NotificationChannelsSettings } from "../components/settings/NotificationChannelsSettings";
 import { ProfileSettings } from "../components/settings/ProfileSettings";
 import { AppearanceSettings } from "../components/settings/AppearanceSettings";
-import { DevicesSettings } from "../components/settings/DevicesSettings";
 import { JobStatusSettings } from "../components/settings/JobStatusSettings";
-import { TvOverview } from "../components/tv/TvOverview";
-import { TvAddonsSettings } from "../components/tv/TvAddonsSettings";
-import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
-import { HomeFoldersSettings } from "../components/tv/HomeFoldersSettings";
-import { TvSettingsForm } from "../components/tv/TvSettingsForm";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { PageFrame } from "../components/PageFrame";
 import { ProfileContext } from "../hooks/useProfile";
@@ -44,12 +38,11 @@ const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "
  * password, the TV pairing list and the AI switch side by side under
  * "Preferences".
  */
-export type SettingsGroup = "sources" | "metadata" | "tv" | "profile" | "account" | "server" | "about";
+export type SettingsGroup = "sources" | "metadata" | "profile" | "account" | "server" | "about";
 
 export const SETTINGS_GROUPS: { id: SettingsGroup; label: string }[] = [
   { id: "sources", label: "Sources" },
   { id: "metadata", label: "Metadata" },
-  { id: "tv", label: "TV" },
   // The last three are named by whose they are: the reader's profile, the
   // account its profiles share, and the server every account shares.
   { id: "profile", label: "This profile" },
@@ -107,13 +100,20 @@ export type SettingsSection = {
   extra?: true;
 };
 
+/**
+ * The sections that moved to the TV page, by the ids `?section=` used for
+ * them, so old links and bookmarks land where the settings are now.
+ */
+export const MOVED_TO_TV = new Set(["devices", "tv-home", "home-folders", "tv-addons", "tv-settings", "tv-overview"]);
+
 function AboutSection() {
   return (
     <div className="space-y-2 text-sm" style={{ color: "var(--text-dim)" }}>
       <p className="text-base font-semibold" style={{ color: "var(--text)" }}>Fetch <span className="font-mono text-accent-text">v{APP_VERSION}</span></p>
       <p className="text-sm">
-        The web side of Fetch: what you watch, your lists and your history, kept in step with the
-        Fetch app on your TV and with Stremio.
+        Fetch is a player for your TV and the website that runs it. This is where your account lives,
+        where you manage the TV and its profiles, and where what you watch, your lists and your history
+        are kept in step with the TV app and with Stremio.
       </p>
     </div>
   );
@@ -226,65 +226,6 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Image size={20} />,
     keywords: "rating poster database posters artwork images api key",
     content: <RpdbSettings />,
-  },
-  // Everything about the TV: which ones are paired, and what this profile
-  // looks like on them. Home rows and Home folders sit together here — they
-  // are both the TV's Home screen, and used to be a Settings section and a
-  // page of its own in the rail.
-  {
-    id: "devices",
-    group: "tv",
-    scope: "account",
-    title: "TVs & devices",
-    icon: <Tv size={20} />,
-    keywords: "tv android pair pairing code qr sign in sign out revoke device token",
-    content: <DevicesSettings />,
-  },
-  {
-    id: "tv-home",
-    group: "tv",
-    scope: "profile",
-    title: "Home rows",
-    icon: <LayoutList size={20} />,
-    keywords: "tv home screen rows order reorder hide catalogs lists continue watching layout television",
-    content: <HomeLayoutSettings />,
-  },
-  {
-    id: "home-folders",
-    group: "tv",
-    scope: "profile",
-    title: "Home folders",
-    icon: <FolderTree size={20} />,
-    keywords: "tv home folders folder rows collections custom rows tmdb trakt addon catalog sources television",
-    content: <HomeFoldersSettings />,
-  },
-  {
-    id: "tv-addons",
-    group: "tv",
-    scope: "profile",
-    title: "TV addons",
-    icon: <Puzzle size={20} />,
-    keywords: "addons manifest install configure order sources streams catalogs television",
-    content: <TvAddonsSettings />,
-  },
-  {
-    id: "tv-settings",
-    group: "tv",
-    scope: "profile",
-    title: "TV playback",
-    icon: <SlidersHorizontal size={20} />,
-    keywords: "auto-play autoplay best match ranking resolution codec hdr audio subtitles language style essential advanced television",
-    content: <TvSettingsForm />,
-  },
-  {
-    id: "tv-overview",
-    group: "tv",
-    scope: "account",
-    scopeNote: "Every profile on your account, and the server's own health.",
-    title: "Synced data",
-    icon: <Activity size={20} />,
-    keywords: "tv dashboard overview counts health database jobs sync devices television",
-    content: <TvOverview />,
   },
   // The reader's own profile, then the account its profiles share.
   {
@@ -647,6 +588,7 @@ export function SettingsPage() {
   // environment holds) falls back to the board rather than to an empty pane.
   const sectionId = searchParams.get("section");
   const current = allowed.find((s) => s.id === sectionId) ?? null;
+  const movedToTv = sectionId !== null && MOVED_TO_TV.has(sectionId);
 
   // Focus follows a pick to the section's heading, so a keyboard or screen
   // reader user lands on what they chose rather than back at the top of the
@@ -702,6 +644,10 @@ export function SettingsPage() {
         : `${listed.length} ${listed.length === 1 ? "section" : "sections"} match.`}
     </p>
   );
+
+  if (movedToTv) {
+    return <Navigate to={sectionId === "devices" ? "/tv" : `/tv?section=${encodeURIComponent(sectionId)}`} replace />;
+  }
 
   return (
     // The wide frame, not the reading one: from `lg` this is two panes, and the

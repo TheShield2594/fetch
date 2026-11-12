@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { BarChart3, CalendarDays, Compass, History, Library, List, Pin, PinOff, Search, Settings } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, History, Library, List, Pin, PinOff, Search, Settings, Tv } from "lucide-react";
 import { api, type CatalogList } from "../api";
 import { BrandMark, BrandWordmark } from "./BrandMark";
 import { healthDotClass } from "./settings/health";
@@ -31,11 +31,16 @@ export const SIDEBAR_NAV_ITEMS = [
 
 /**
  * The last group: where you go to *change* things, as opposed to the six
- * above, which are places to look at them. Settings closes the column, where a
- * source list keeps it. Profiles are managed in Settings → Profile, reached
- * from the profile menu in the footer.
+ * above, which are places to look at them. The TV leads it — managing the TV
+ * is half of what the website is for, and it was the third group inside
+ * Settings — and Settings closes the column, where a source list keeps it.
+ * Profiles are managed in Settings → Profiles, reached from the profile menu in
+ * the footer.
  */
-export const SIDEBAR_MANAGE_ITEMS = [{ to: "/settings", label: "Settings", icon: Settings, end: false }] as const;
+export const SIDEBAR_MANAGE_ITEMS = [
+  { to: "/tv", label: "TV", icon: Tv, end: false },
+  { to: "/settings", label: "Settings", icon: Settings, end: false },
+] as const;
 
 /** The width from which the rail opens pinned unless someone has said otherwise. */
 export const PIN_BY_DEFAULT_QUERY = "(min-width: 1024px)";

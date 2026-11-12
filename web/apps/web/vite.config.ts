@@ -97,7 +97,7 @@ export default defineConfig({
         name: "Fetch",
         short_name: "Fetch",
         description:
-          "Track what you watch, keep your lists in sync, and browse it all from Stremio.",
+          "The home of your Fetch TV: sign in your TVs, set up their Home screens and addons, and keep what you watch, your lists and your history in step.",
         start_url: "/",
         // Same value the start_url directory implies, written down so it stops
         // being an accident of the start_url.

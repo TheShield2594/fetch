@@ -117,8 +117,12 @@ export function BrandWordmark({ className, style }: { className?: string | undef
   return <DotMatrixText text="FETCH" label="Fetch" className={className} style={style} />;
 }
 
-/** Carried over from the old logo art, which had it set under the name. */
-const TAGLINE = "Track your movies & shows";
+/**
+ * What the product is now: a player for the TV, with this site as its home.
+ * It was "Track your movies & shows", from when the website was a standalone
+ * tracker.
+ */
+const TAGLINE = "Movies & shows, on your TV";
 
 /**
  * The stacked lockup, for the two screens that are nothing but brand: first run

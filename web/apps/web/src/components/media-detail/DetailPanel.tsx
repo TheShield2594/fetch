@@ -28,7 +28,7 @@ import { useExitAnimation } from "../../hooks/useExitAnimation";
 import type { ShowToast } from "../../hooks/useToast";
 import { relogWatchEvent } from "../../utils/watchEvents";
 import { invalidateDetailBundle, type PanelDetail } from "./useDetailPanel";
-import { PAGE_TITLE, KICKER, MICRO_LABEL } from "../typography";
+import { DISPLAY_TITLE, KICKER, MICRO_LABEL } from "../typography";
 
 /**
  * The backdrop at the size a page-width header needs.
@@ -530,7 +530,7 @@ export function DetailPanel({
                 * obvious. The status stays, in the fact row — "Returning" and
                 * "Ended" are the one thing here a reader cannot infer.
                 */}
-              <h2 className={`${PAGE_TITLE} lg:text-[2.75rem] lg:leading-[1.05]`} style={{ color: "var(--text)" }}>{item.name}</h2>
+              <h2 className={DISPLAY_TITLE} style={{ color: "var(--text)" }}>{item.name}</h2>
 
               {/* One line of facts, and the certification as a badge at the end
                   of it — see `buildMetaLine` for why that one leaves the run. */}

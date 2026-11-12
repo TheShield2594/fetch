@@ -21,9 +21,9 @@ export function PairPage() {
             <CheckCircle2 size={20} className="text-success" /> {pairedName} is signed in.
           </p>
           <p className="text-sm" style={{ color: "var(--text-dim)" }}>
-            The TV finishes on its own in a few seconds. You can sign it out at any time from Settings → TVs &amp; Devices.
+            The TV finishes on its own in a few seconds. You can sign it out at any time from the TV page.
           </p>
-          <Link to="/settings?section=devices" className="btn-secondary">Manage devices</Link>
+          <Link to="/tv" className="btn-secondary">Manage your TVs</Link>
         </div>
       ) : (
         <>

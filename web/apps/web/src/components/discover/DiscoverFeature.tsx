@@ -1,4 +1,5 @@
 import { Bookmark, BookmarkCheck, RotateCw } from "lucide-react";
+import { DISPLAY_TITLE } from "../typography";
 import type { TrendingMeta } from "../../api";
 import { Poster } from "../Poster";
 import { metaRun, kindWord } from "../PosterCard";
@@ -80,7 +81,7 @@ export function DiscoverFeature({
         </p>
         <h2
           id="discover-feature-title"
-          className="mt-1.5 text-[2rem] font-extrabold leading-[1.05] tracking-[-0.02em] text-white sm:text-[2.75rem]"
+          className={`mt-1.5 text-white ${DISPLAY_TITLE}`}
         >
           {item.name}
         </h2>

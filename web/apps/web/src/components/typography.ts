@@ -15,8 +15,24 @@
  * Colour stays with the caller: the same tier is `--text` on a page, `--text-mute`
  * over a poster and `--accent-text` on a live badge.
  *
- * Four tiers, loudest first.
+ * Five tiers, loudest first.
  */
+
+/**
+ * The display rank: one element per page, for the moment a screen should feel
+ * like a cinema rather than a form — the Discover feature, the lead card on the
+ * Shelf, a title's own header.
+ *
+ * Fluid between 44px on a phone and 64px on a wide screen, so it is always a
+ * clear step above `PAGE_TITLE` (whose 34px was the largest type in the app,
+ * shared by a film's name and the word "Settings"). Extra-bold with tight
+ * leading and negative tracking, because at this size the face's own spacing
+ * reads as loose. Callers that sit in a narrow column cap it (`lg:text-…`).
+ *
+ * If a screen wants two, the second is a `PAGE_TITLE`.
+ */
+export const DISPLAY_TITLE =
+  "text-[clamp(2.75rem,1.9rem+3.6vw,4rem)] font-extrabold leading-[1.02] tracking-[-0.025em] [text-wrap:balance]";
 
 /**
  * The loudest thing on a screen: page `h1`s, and the title of whatever a panel
@@ -45,17 +61,19 @@ export const PAGE_TITLE =
 export const SECTION_TITLE = "text-[1.375rem] font-bold leading-tight tracking-[-0.01em]";
 
 /**
- * The uppercase label that names a block inside a panel — "Overview", "Cast",
- * "Now Watching", "Seasons".
+ * The label that names a block inside a panel — "Overview", "Cast", "Now
+ * watching", "Seasons".
  *
- * Uppercase and small rather than large and bold, because these appear several
- * to a panel: at heading size they would out-shout the title they sit under.
- * The opened-out tracking is not decoration — uppercase set solid is hard to
- * read, and this is what buys the letterforms back. It is a good deal tighter
- * than the 0.1em these ran at while they were set in mono: that spacing was
- * answering a face the app no longer uses.
+ * Sentence case, at 15px semibold: a small section head rather than a tag.
+ * These used to be 13px uppercase with opened-out tracking, and with a dozen of
+ * them across a panel ("SERIES · IN PROGRESS", "YOUR TRACKING") the app read as
+ * generic UI labelling. Uppercase is kept for what really is a tag — a
+ * `MICRO_LABEL` on a control or a filled badge on a poster.
+ *
+ * Still smaller than `SECTION_TITLE`, because these appear several to a panel
+ * and would out-shout the title they sit under at heading size.
  */
-export const KICKER = "text-[0.8125rem] font-semibold uppercase tracking-[0.04em]";
+export const KICKER = "text-[0.9375rem] font-semibold leading-snug tracking-[-0.005em]";
 
 /**
  * The same idea one notch quieter: form-field labels, table and grid column

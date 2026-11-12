@@ -1,9 +1,13 @@
-import { type FormEvent, useEffect, useId, useRef, useState } from "react";
-import { Check, Loader2, AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
-import { type Account, api, ApiError, inviteCodeFromPath, runtimeConfig } from "../api";
+import { type FormEvent, type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
+import { Check, CheckCircle2, ChevronDown, Loader2, AlertCircle, AlertTriangle, ArrowLeft, ArrowRight, Link as LinkIcon, ListChecks, Server, Tv } from "lucide-react";
+import { type Account, api, ApiError, inviteCodeFromPath, type Profile, runtimeConfig, type TmdbStatus } from "../api";
 import { BrandLockup } from "../components/BrandMark";
 import { TmdbSettings } from "../components/settings/TmdbSettings";
 import { TraktSettings } from "../components/settings/TraktSettings";
+import { MdbListSettings, SimklSettings } from "../components/settings/TrackerSignInSettings";
+import { MediaServersSettings } from "../components/settings/MediaServersSettings";
+import { PairingCodeForm } from "../components/settings/DevicesSettings";
+import { AvatarPicker, type AvatarChoice } from "../components/profile/AvatarPicker";
 import { SECTION_TITLE } from "../components/typography";
 import {
   FIELD_LABEL_CLASS as LABEL_CLASS,
@@ -13,10 +17,14 @@ import {
   PasswordField,
 } from "../components/PasswordField";
 
-type Step = "account" | "tmdb" | "trakt" | "done";
+type Step = "account" | "profile" | "tmdb" | "history" | "tv" | "done";
 
-/** The admin's first run. Signing in or joining by invite stops after "account". */
-export const WIZARD_STEPS: Step[] = ["account", "tmdb", "trakt", "done"];
+/**
+ * The admin's first run: the account, who is watching, the metadata key, where
+ * history comes from, and the TV. Signing in or joining by invite stops after
+ * "account".
+ */
+export const WIZARD_STEPS: Step[] = ["account", "profile", "tmdb", "history", "tv", "done"];
 
 /** The step to return to from `step`, or null if it is the entry point. */
 export function previousStep(step: Step): Step | null {
@@ -426,23 +434,323 @@ function SignedInStep({ account, onContinue }: { account: Account; onContinue: (
   );
 }
 
+/** A step's heading and the line under it. */
+function StepHeading({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <h1 className={SECTION_TITLE}>{title}</h1>
+      <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
+        {children}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Who is watching: the first profile's name and picture.
+ *
+ * The server makes that profile as "Default" (initials "DE") and nobody was
+ * ever asked their name; it was the first thing on the profile picker after
+ * setup. This renames it, and opens it, so setup ends on the Shelf rather than
+ * on a picker of one. An install that already has several profiles (from
+ * before accounts) keeps them as they are and picks one after setup.
+ */
+function ProfileStep({
+  suggestedName,
+  onContinue,
+  onBack,
+}: {
+  suggestedName: string;
+  onContinue: () => void;
+  onBack: () => void;
+}) {
+  const [profiles, setProfiles] = useState<Profile[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [look, setLook] = useState<AvatarChoice>({ avatarColorHex: null, avatarId: null });
+  const [nameError, setNameError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.getProfiles().then(
+      ({ profiles: list }) => {
+        if (cancelled) return;
+        setProfiles(list);
+        const first = list[0];
+        if (first) {
+          setName(first.name === "Default" ? suggestedName : first.name);
+          setLook({ avatarColorHex: first.avatarColorHex ?? null, avatarId: first.avatarId ?? null });
+        }
+      },
+      (err: unknown) => {
+        if (!cancelled) setLoadError(err instanceof Error ? err.message : "Could not load the profile.");
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [suggestedName, attempt]);
+
+  const target = profiles?.length === 1 ? profiles[0] : undefined;
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!target) return;
+    if (!name.trim()) {
+      setNameError("Enter a name for this profile.");
+      return;
+    }
+    setNameError(undefined);
+    setSaving(true);
+    setError(null);
+    try {
+      const { profile } = await api.updateProfile(target.id, {
+        name: name.trim(),
+        avatarId: look.avatarId,
+        avatarColorHex: look.avatarColorHex,
+      });
+      // Opened here, so the rest of setup (a Trakt sign-in is the profile's)
+      // and the first screen after it belong to this profile.
+      const verified = await api.verifyProfile(profile.id);
+      runtimeConfig.setProfileId(verified.id);
+      onContinue();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save the profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loadError) {
+    return (
+      <div className="space-y-4">
+        <StepHeading title="Who's watching?">Your profile holds your history, lists and ratings.</StepHeading>
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {loadError}</p>
+        <button type="button" onClick={() => { setLoadError(null); setAttempt((n) => n + 1); }} className="btn-secondary btn-lg w-full">
+          Try again
+        </button>
+        <button type="button" onClick={onContinue} className="btn-secondary btn-lg w-full">
+          Skip for now <ArrowRight size={16} />
+        </button>
+      </div>
+    );
+  }
+
+  if (!profiles) {
+    return (
+      <p className="flex items-center justify-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
+        <Loader2 size={16} className="animate-spin" /> Loading…
+      </p>
+    );
+  }
+
+  if (!target) {
+    return (
+      <div className="space-y-4">
+        <StepHeading title="Who's watching?">
+          This server already has {profiles.length} profiles. You&apos;ll pick yours when setup is done, and can
+          rename any of them in Settings → Profiles.
+        </StepHeading>
+        <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
+          Continue <ArrowRight size={16} />
+        </button>
+        <BackButton onBack={onBack} />
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={submit} noValidate className="space-y-4">
+      <StepHeading title="Who's watching?">
+        Your profile holds your history, lists and ratings, here and on the TV. Others in the house can add their own
+        later.
+      </StepHeading>
+      <TextField
+        label="Your name"
+        type="text"
+        value={name}
+        onChange={setName}
+        autoComplete="nickname"
+        maxLength={40}
+        error={nameError}
+        autoFocus
+        required
+      />
+      <AvatarPicker value={look} onChange={setLook} />
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
+      <button type="submit" disabled={saving} className="btn-primary btn-lg w-full">
+        {saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : <>Continue <ArrowRight size={16} /></>}
+      </button>
+      <BackButton onBack={onBack} />
+    </form>
+  );
+}
+
+/** What stops working without a TMDB key, said where someone decides to go on without one. */
+export const TMDB_MISSING_EFFECTS = [
+  "No posters, backdrops or episode stills anywhere",
+  "Search finds nothing",
+  "Discover has no trending titles",
+  "New titles arrive without cast, runtime or seasons",
+];
+
+/**
+ * TMDB: required, with a way past it. The key is checked with TMDB when it is
+ * saved; going on without one asks once, with what it costs, rather than
+ * calling a near-requirement optional and then showing "needs a TMDB API key"
+ * on four pages.
+ */
 function TmdbStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => void }) {
+  const [status, setStatus] = useState<TmdbStatus | null>(null);
+  const [confirmingSkip, setConfirmingSkip] = useState(false);
+  const onStatus = useCallback((next: TmdbStatus) => {
+    setStatus(next);
+    if (next.configured) setConfirmingSkip(false);
+  }, []);
+  const configured = status?.configured === true;
+
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className={SECTION_TITLE}>TMDB metadata</h1>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
-          Add a key now, or skip and add one later in Settings.
+      <StepHeading title="Artwork and search">
+        Fetch gets posters, search results and episode data from TMDB. It needs a free key, which is checked with
+        TMDB when you save it.
+      </StepHeading>
+
+      <TmdbSettings onStatus={onStatus} />
+
+      {confirmingSkip && !configured && (
+        <div role="alert" className="space-y-2 rounded-xl border p-4" style={{ borderColor: "var(--border-strong)", background: "var(--surface)" }}>
+          <p className="flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--text)" }}>
+            <AlertTriangle size={16} className="text-warning" /> Without a key:
+          </p>
+          <ul className="list-disc space-y-0.5 pl-6 text-sm" style={{ color: "var(--text-dim)" }}>
+            {TMDB_MISSING_EFFECTS.map((effect) => <li key={effect}>{effect}</li>)}
+          </ul>
+          <p className="text-sm" style={{ color: "var(--text-dim)" }}>You can add one later in Settings → TMDB.</p>
+        </div>
+      )}
+
+      {configured ? (
+        <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
+          Continue <ArrowRight size={16} />
+        </button>
+      ) : confirmingSkip ? (
+        <button type="button" onClick={onContinue} className="btn-secondary btn-lg w-full">
+          Go on without artwork <ArrowRight size={16} />
+        </button>
+      ) : (
+        <button type="button" onClick={() => setConfirmingSkip(true)} disabled={status === null} className="btn-secondary btn-lg w-full">
+          Skip for now
+        </button>
+      )}
+      <BackButton onBack={onBack} />
+    </div>
+  );
+}
+
+type HistorySource = { id: string; name: string; blurb: string; icon: ReactNode; content: ReactNode };
+
+/**
+ * Which history sources this server can offer: each one's sign-in needs the
+ * server's own client id (Trakt, Simkl, MDBList), and the media servers come
+ * from the list it supports. One that can't be offered isn't shown, rather
+ * than shown with a Connect button that cannot work.
+ */
+export async function availableHistorySources(): Promise<string[]> {
+  const ask = <T,>(read: () => Promise<T>) => read().catch(() => null);
+  const [trakt, simkl, mdblist, media] = await Promise.all([
+    ask(() => api.getTraktStatus()),
+    ask(() => api.getSimklStatus()),
+    ask(() => api.getMdbListStatus()),
+    ask(() => api.getMediaServers()),
+  ]);
+  const ids: string[] = [];
+  if (trakt?.configured) ids.push("trakt");
+  if (simkl?.configured) ids.push("simkl");
+  if (mdblist?.configured) ids.push("mdblist");
+  if (media && media.providers.length > 0) ids.push("media-servers");
+  return ids;
+}
+
+const HISTORY_SOURCES: HistorySource[] = [
+  { id: "media-servers", name: "Plex, Jellyfin or Emby", blurb: "What you watch there is marked watched here, with resume points.", icon: <Server size={18} />, content: <MediaServersSettings /> },
+  { id: "trakt", name: "Trakt", blurb: "Your history, watchlist and ratings, kept in sync both ways.", icon: <LinkIcon size={18} />, content: <TraktSettings /> },
+  { id: "simkl", name: "Simkl", blurb: "Your watched history and plan-to-watch list.", icon: <ListChecks size={18} />, content: <SimklSettings /> },
+  { id: "mdblist", name: "MDBList", blurb: "Your watched history and watchlist.", icon: <ListChecks size={18} />, content: <MdbListSettings /> },
+];
+
+/** "Bring your history": every source this server supports, each opening in place. */
+function HistoryStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => void }) {
+  const [available, setAvailable] = useState<string[] | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void availableHistorySources().then((ids) => {
+      if (!cancelled) setAvailable(ids);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const sources = HISTORY_SOURCES.filter((source) => available?.includes(source.id));
+
+  return (
+    <div className="space-y-4">
+      <StepHeading title="Bring your history">
+        Connect where you already keep track, and what you&apos;ve watched fills in on its own. You can add more later
+        in Settings.
+      </StepHeading>
+
+      {available === null ? (
+        <p className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
+          <Loader2 size={16} className="animate-spin" /> Checking what this server offers…
         </p>
-      </div>
+      ) : sources.length === 0 ? (
+        <p className="text-sm" style={{ color: "var(--text-dim)" }}>
+          This server isn&apos;t set up for any history sources yet. You can add titles yourself from Search.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {sources.map((source) => {
+            const expanded = open === source.id;
+            const panelId = `history-source-${source.id}`;
+            return (
+              <li key={source.id} className="rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+                <button
+                  type="button"
+                  onClick={() => setOpen(expanded ? null : source.id)}
+                  aria-expanded={expanded}
+                  aria-controls={panelId}
+                  className="flex w-full items-center gap-3 rounded-xl p-3 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg" style={{ background: "var(--surface-strong)", color: "var(--text-mute)" }}>
+                    {source.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold" style={{ color: "var(--text)" }}>{source.name}</span>
+                    <span className="block text-xs leading-snug" style={{ color: "var(--text-mute)" }}>{source.blurb}</span>
+                  </span>
+                  <ChevronDown size={16} className={`flex-none transition-transform ${expanded ? "rotate-180" : ""}`} style={{ color: "var(--text-mute)" }} />
+                </button>
+                {expanded && (
+                  <div id={panelId} className="border-t p-4" style={{ borderColor: "var(--border)" }}>
+                    {source.content}
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
-      <TmdbSettings />
-
-      <button
-        type="button"
-        onClick={onContinue}
-        className="btn-secondary btn-lg w-full"
-      >
+      <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
         Continue <ArrowRight size={16} />
       </button>
       <BackButton onBack={onBack} />
@@ -450,24 +758,36 @@ function TmdbStep({ onContinue, onBack }: { onContinue: () => void; onBack: () =
   );
 }
 
-function TraktStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => void }) {
+/** "Have a Fetch TV?": the pairing box, skippable. */
+function TvStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => void }) {
+  const [paired, setPaired] = useState<string[]>([]);
+
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className={SECTION_TITLE}>Connect Trakt (optional)</h1>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
-          Sync your watch history and watchlist from Trakt. You can also do this later in Settings.
-        </p>
+      <StepHeading title="Have a Fetch TV? Sign it in">
+        On the TV, open <strong>Settings → Account → Fetch website</strong>. It shows a code: type it here, or scan its
+        QR code with your phone.
+      </StepHeading>
+
+      {paired.length > 0 && (
+        <ul className="space-y-1" aria-label="TVs signed in">
+          {paired.map((name) => (
+            <li key={name} className="flex items-center gap-2 text-sm" style={{ color: "var(--text)" }}>
+              <CheckCircle2 size={16} className="text-success" /> {name} is signed in.
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="flex items-start gap-3">
+        <Tv size={20} className="mt-1.5 flex-none" style={{ color: "var(--text-mute)" }} aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <PairingCodeForm onPaired={(name) => setPaired((prev) => [...prev, name])} />
+        </div>
       </div>
 
-      <TraktSettings />
-
-      <button
-        type="button"
-        onClick={onContinue}
-        className="btn-secondary btn-lg w-full"
-      >
-        Continue <ArrowRight size={16} />
+      <button type="button" onClick={onContinue} className={`${paired.length > 0 ? "btn-primary" : "btn-secondary"} btn-lg w-full`}>
+        {paired.length > 0 ? <>Continue <ArrowRight size={16} /></> : "Skip, I'll do it later"}
       </button>
       <BackButton onBack={onBack} />
     </div>
@@ -483,7 +803,8 @@ function DoneStep({ onFinish, onBack }: { onFinish: () => void; onBack: () => vo
       <div>
         <h1 className={SECTION_TITLE}>You're all set</h1>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
-          Add a few titles from Search, or connect a source in Settings, and your shelf fills itself in. The TV app reads the same lists.
+          Your shelf opens with what&apos;s trending this week: tap + on anything you want to watch. The TV reads the
+          same lists, and the TV page is where you manage it.
         </p>
       </div>
       <button
@@ -491,7 +812,7 @@ function DoneStep({ onFinish, onBack }: { onFinish: () => void; onBack: () => vo
         onClick={onFinish}
         className="btn-primary btn-lg w-full"
       >
-        Get started
+        Open my shelf
       </button>
       <BackButton onBack={onBack} />
     </div>
@@ -559,12 +880,12 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
     setTemporaryPassword(null);
     // Only the admin's first run goes on to the server's integrations; anyone
     // signing in to an install that is already set up goes straight in.
-    if (mode === "bootstrap") setStep("tmdb");
+    if (mode === "bootstrap") setStep("profile");
     else finish();
   };
 
-  // Every step past the first is reachable in both directions: a Trakt
-  // connection started by mistake was otherwise only undoable from Settings.
+  // Every step past the first is reachable in both directions: a sign-in
+  // started by mistake was otherwise only undoable from Settings.
   const goBack = () => setStep((current) => previousStep(current) ?? current);
 
   return (
@@ -577,7 +898,7 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
         />
       )}
       {step === "account" && account && temporaryPassword === null && (
-        <SignedInStep account={account} onContinue={() => setStep("tmdb")} />
+        <SignedInStep account={account} onContinue={() => setStep("profile")} />
       )}
       {step === "account" && !account && mode && (
         <AccountStep mode={mode} inviteCode={inviteCode} onSignedIn={signedIn} />
@@ -605,8 +926,12 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
           )}
         </div>
       )}
-      {step === "tmdb" && <TmdbStep onContinue={() => setStep("trakt")} onBack={goBack} />}
-      {step === "trakt" && <TraktStep onContinue={() => setStep("done")} onBack={goBack} />}
+      {step === "profile" && (
+        <ProfileStep suggestedName={account?.username ?? ""} onContinue={() => setStep("tmdb")} onBack={goBack} />
+      )}
+      {step === "tmdb" && <TmdbStep onContinue={() => setStep("history")} onBack={goBack} />}
+      {step === "history" && <HistoryStep onContinue={() => setStep("tv")} onBack={goBack} />}
+      {step === "tv" && <TvStep onContinue={() => setStep("done")} onBack={goBack} />}
       {step === "done" && <DoneStep onFinish={finish} onBack={goBack} />}
     </WizardShell>
   );

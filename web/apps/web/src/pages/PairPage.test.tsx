@@ -26,6 +26,6 @@ describe("PairPage", () => {
 
     await waitFor(() => expect(api.confirmPairing).toHaveBeenCalledWith("WXYZ-2345", undefined));
     expect(await screen.findByText("TV is signed in.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Manage devices" })).toHaveAttribute("href", "/settings?section=devices");
+    expect(screen.getByRole("link", { name: "Manage your TVs" })).toHaveAttribute("href", "/tv");
   });
 });

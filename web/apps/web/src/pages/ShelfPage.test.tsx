@@ -24,6 +24,8 @@ vi.mock("../api", async (importOriginal) => {
       savePlayback: vi.fn(),
       logWatch: vi.fn(),
       getAllRatings: vi.fn(),
+      getTrending: vi.fn(),
+      addToList: vi.fn(),
     },
   };
 });
@@ -48,6 +50,8 @@ const deletePlayback = vi.mocked(api.deletePlayback);
 const savePlayback = vi.mocked(api.savePlayback);
 const logWatch = vi.mocked(api.logWatch);
 const getAllRatings = vi.mocked(api.getAllRatings);
+const getTrending = vi.mocked(api.getTrending);
+const addToList = vi.mocked(api.addToList);
 
 const paused = (over: Partial<PlaybackProgress> = {}): PlaybackProgress => ({
   id: "p1",
@@ -116,6 +120,9 @@ beforeEach(() => {
   deletePlayback.mockResolvedValue(undefined);
   logWatch.mockResolvedValue({ watchEvent: { id: "we-1" } });
   getAllRatings.mockResolvedValue({ ratings: [] });
+  // No artwork by default: the plain empty state, as without a TMDB key.
+  getTrending.mockResolvedValue({ metas: [] });
+  addToList.mockResolvedValue(undefined);
 });
 
 describe("ShelfPage", () => {
@@ -343,6 +350,29 @@ describe("ShelfPage", () => {
     expect(await screen.findByText("Nothing on the shelf yet")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Search" })).toHaveAttribute("href", "/search");
     expect(screen.queryByRole("group", { name: "Filter the shelf by kind" })).toBeNull();
+  });
+
+  // #533: the first screen after setup has artwork on it.
+  it("opens an empty shelf on trending artwork, each title one tap from the watchlist", async () => {
+    const user = userEvent.setup();
+    getLists.mockResolvedValue({ lists: [{ ...list("wl", "Watchlist"), kind: "watchlist", itemCount: 0 }] });
+    getTrending.mockImplementation((type) =>
+      Promise.resolve({
+        metas:
+          type === "movie"
+            ? [{ id: "tt10", type: "movie", name: "Lanterns", poster: "https://image.tmdb.org/t/p/w500/a.jpg", year: 2026 }]
+            : [{ id: "tt20", type: "series", name: "Tidewater", poster: "https://image.tmdb.org/t/p/w500/b.jpg", year: 2025 }],
+      })
+    );
+    renderShelf();
+
+    expect(await screen.findByRole("heading", { name: "Start your shelf" })).toBeInTheDocument();
+    expect(screen.queryByText("Nothing on the shelf yet")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Add Tidewater to your watchlist" }));
+
+    expect(addToList).toHaveBeenCalledWith("wl", { type: "series", imdbId: "tt20", title: "Tidewater" });
+    expect(await screen.findByRole("button", { name: "Tidewater is on your watchlist" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Show my shelf" })).toBeInTheDocument();
   });
 
   it("offers a retry when the shelf itself fails, rather than a blank page", async () => {

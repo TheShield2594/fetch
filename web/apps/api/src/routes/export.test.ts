@@ -18,12 +18,19 @@ const prismaMock = {
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 
-vi.mock("../lib/profile.js", () => ({
-  invalidateProfileCache: vi.fn(),
-  resolveProfile: async (request: { profileId?: string }) => {
-    request.profileId = PROFILE_ID;
-  },
-}));
+const profileLibMock = { hasParentalAuthority: vi.fn() };
+vi.mock("../lib/profile.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../lib/profile.js")>();
+  return {
+    invalidateProfileCache: vi.fn(),
+    resolveProfile: async (request: { profileId?: string }) => {
+      request.profileId = PROFILE_ID;
+    },
+    loosensParentalLimits: actual.loosensParentalLimits,
+    withoutLoosenedLimits: actual.withoutLoosenedLimits,
+    hasParentalAuthority: profileLibMock.hasParentalAuthority,
+  };
+});
 
 const watchlistMock = { getDefaultWatchlist: vi.fn() };
 vi.mock("../lib/watchlist.js", () => watchlistMock);
@@ -60,6 +67,7 @@ const resetMocks = () => {
   prismaMock.profileCollections.upsert.mockResolvedValue({});
   prismaMock.profile.update.mockResolvedValue({});
   playbackLibMock.importPlaybackProgress.mockImplementation(async (_profileId: string, rows: unknown[]) => rows.length);
+  profileLibMock.hasParentalAuthority.mockResolvedValue(true);
 };
 
 // `bodyLimit` mirrors the configurable ceiling index.ts sets from
@@ -92,7 +100,7 @@ describe("export routes", () => {
       const response = await app.inject({ method: "POST", url: "/import", payload: { version: 1 } });
       expect(response.statusCode).toBe(200);
       expect(response.json()).toEqual(
-        expect.objectContaining({ status: "imported", summary: { lists: 0, listItems: 0, watchEvents: 0, seriesProgress: 0, ratings: 0, playback: 0, collections: 0, profileSettings: false } })
+        expect.objectContaining({ status: "imported", summary: { lists: 0, listItems: 0, watchEvents: 0, seriesProgress: 0, ratings: 0, playback: 0, collections: 0, profileSettings: false, parentalLimitsSkipped: [] } })
       );
     });
   });
@@ -347,6 +355,73 @@ describe("export routes", () => {
       expect(saved[0].folders[0].sources[0].listId).toBe(NEW_LIST);
     });
 
+    describe("parental limits", () => {
+      const KIDS = { name: "Kid", isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false };
+      const importSettings = async (settings: Record<string, unknown>) => {
+        const app = await buildApp();
+        return app.inject({
+          method: "POST",
+          url: "/import",
+          payload: { version: 1, profile: { name: "Kid", settings } },
+        });
+      };
+
+      it("does not let a kids profile without authority lift its limits, but restores the rest", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(KIDS);
+        profileLibMock.hasParentalAuthority.mockResolvedValue(false);
+
+        const response = await importSettings({
+          avatarId: "fetch:panda",
+          isKidsProfile: false,
+          maxRating: "ADULTS_ONLY",
+          allowUnrated: true,
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json().summary).toMatchObject({
+          profileSettings: true,
+          parentalLimitsSkipped: ["isKidsProfile", "maxRating", "allowUnrated"],
+        });
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({ data: { avatarId: "fetch:panda" } })
+        );
+      });
+
+      it("writes nothing when the only settings were a refused loosening", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(KIDS);
+        profileLibMock.hasParentalAuthority.mockResolvedValue(false);
+
+        const response = await importSettings({ isKidsProfile: false });
+
+        expect(response.json().summary).toMatchObject({ profileSettings: false, parentalLimitsSkipped: ["isKidsProfile"] });
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
+      });
+
+      it("still applies a tightening from a kids profile", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(KIDS);
+        profileLibMock.hasParentalAuthority.mockResolvedValue(false);
+
+        const response = await importSettings({ maxRating: "ALL_AGES", allowUnrated: true });
+
+        expect(response.json().summary.parentalLimitsSkipped).toEqual(["allowUnrated"]);
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({ data: { maxRating: "ALL_AGES" } })
+        );
+      });
+
+      it("lets a request with parental authority lift the limits", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(KIDS);
+        profileLibMock.hasParentalAuthority.mockResolvedValue(true);
+
+        const response = await importSettings({ isKidsProfile: false, maxRating: null });
+
+        expect(response.json().summary.parentalLimitsSkipped).toEqual([]);
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({ data: { isKidsProfile: false, maxRating: null } })
+        );
+      });
+    });
+
     it("keeps collections the profile already has rather than overwriting them", async () => {
       prismaMock.profileCollections.findUnique.mockResolvedValue({ collections: [{ ...collection, title: "Mine" }] });
       const app = await buildApp();
@@ -388,6 +463,7 @@ describe("export routes", () => {
         playback: 0,
         collections: 0,
         profileSettings: false,
+        parentalLimitsSkipped: [],
       });
     });
 

@@ -31,6 +31,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **Episodes have stills and a synopsis, and the watch dialog picks from the show's real seasons.** An expanded season shows each episode's still and synopsis; the synopsis of an episode you haven't watched stays hidden until you ask for it. The watch and check-in dialogs pick the season and episode from the show's real seasons instead of two typed numbers; a show with no season data keeps the typed numbers, which can't be checked. `GET /meta/series/:imdbId/season/:seasonNumber/episodes` now returns `overview` for each episode ([#504](https://github.com/TheShield2594/fetch/issues/504)).
 
+### Security
+
+- **Importing a backup can no longer lift a kids profile's parental limits.** `POST /import` now applies the same check as `PATCH /profiles/:id` and a TV's sync: without a grown-up's authority, imported settings that would turn kids mode off, raise the rating cap or allow unrated titles are left out, a tightening still applies, and the import summary lists the skipped fields as `parentalLimitsSkipped` ([#543](https://github.com/TheShield2594/fetch/issues/543)).
+
 ## [0.4.0] - 2026-11-11
 
 ### Added

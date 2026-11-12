@@ -1,7 +1,13 @@
 import { ListItemType, ListKind, MetadataType, Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
-import { invalidateProfileCache, resolveProfile } from "../lib/profile.js";
+import {
+  hasParentalAuthority,
+  invalidateProfileCache,
+  loosensParentalLimits,
+  resolveProfile,
+  withoutLoosenedLimits,
+} from "../lib/profile.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, type ProfileAttributeUpdate } from "../lib/profile-view.js";
 import { type CollectionJson, validateCollections } from "../lib/collections.js";
 import { batchUpsertSeriesProgressIfNewer } from "../lib/series-progress.js";
@@ -305,6 +311,9 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       playback: 0,
       collections: 0,
       profileSettings: false,
+      // Parental fields in the file that would have lifted this profile's
+      // limits, left out because the request had no authority to lift them.
+      parentalLimitsSkipped: [] as string[],
     };
     // Exported list id → the list it was restored into, for collections below.
     const restoredListIds = new Map<string, string>();
@@ -474,10 +483,26 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     summary.playback = await importPlaybackProgress(profileId, playbackInputs);
 
     // Profile settings are restored as they were: an import is the profile
-    // coming back, appearance and parental limit included.
+    // coming back, appearance and parental limit included. Lifting a limit is
+    // still a grown-up's call, as on PATCH /profiles/:id and a TV's sync: a
+    // kids profile restoring a file cannot use it to turn kids mode off, raise
+    // its rating cap or let unrated titles in. Those fields are left out (a
+    // tightening still applies) and the rest of the settings restore.
     const settings = parseProfileAttributes(isRecord(body.profile) ? body.profile.settings : undefined);
-    if (settings.ok && Object.keys(settings.data).length > 0) {
-      await prisma.profile.update({ where: { id: profileId }, data: settings.data });
+    let settingsData: ProfileAttributeUpdate = settings.ok ? settings.data : {};
+    if (Object.keys(settingsData).length > 0) {
+      const current = await prisma.profile.findUnique({
+        where: { id: profileId },
+        select: { isKidsProfile: true, maxRating: true, allowUnrated: true },
+      });
+      if (current && loosensParentalLimits(current, settingsData) && !(await hasParentalAuthority(request))) {
+        const trimmed = withoutLoosenedLimits(current, settingsData);
+        settingsData = trimmed.data;
+        summary.parentalLimitsSkipped = trimmed.dropped;
+      }
+    }
+    if (Object.keys(settingsData).length > 0) {
+      await prisma.profile.update({ where: { id: profileId }, data: settingsData });
       invalidateProfileCache();
       summary.profileSettings = true;
     }

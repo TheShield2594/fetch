@@ -590,6 +590,29 @@ describe("watch routes", () => {
         expect.objectContaining({ year: 2026, totalMovies: 0, totalEpisodes: 0, totalRuntimeMinutes: 0 })
       );
     });
+
+    it("lists what the year was spent on, episodes counted under their show", async () => {
+      const watchedAt = new Date("2026-03-10T20:00:00Z");
+      prismaMock.watchEvent.findMany.mockResolvedValue([
+        { type: "episode", imdbId: "tt-e1", seriesImdbId: "tt-show", watchedAt, plays: 1 },
+        { type: "episode", imdbId: "tt-e2", seriesImdbId: "tt-show", watchedAt, plays: 2 },
+        { type: "movie", imdbId: "tt-film", seriesImdbId: null, watchedAt, plays: 1 },
+        // Watched, but nothing is known about it yet: no name or poster to show.
+        { type: "movie", imdbId: "tt-unknown", seriesImdbId: null, watchedAt, plays: 5 },
+      ]);
+      prismaMock.metadata.findMany.mockResolvedValue([
+        { imdbId: "tt-show", name: "A Show", type: "series", poster: "show.jpg", genres: [], runtime: 40 },
+        { imdbId: "tt-film", name: "A Film", type: "movie", poster: null, genres: [], runtime: 100 },
+      ]);
+
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: "/watch/stats/year/2026" });
+
+      expect(response.json().mostWatched).toEqual([
+        { imdbId: "tt-show", type: "series", name: "A Show", poster: "show.jpg", plays: 3 },
+        { imdbId: "tt-film", type: "movie", name: "A Film", poster: null, plays: 1 },
+      ]);
+    });
   });
 
   describe("GET /watch/stats/detailed", () => {

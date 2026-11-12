@@ -274,6 +274,34 @@ describe("ShelfPage", () => {
     expect(await screen.findByText("Detail panel: Understudy")).toBeInTheDocument();
   });
 
+  // Where a genre on the Stats page lands.
+  it("narrows the library to a genre named in the URL, and lets it go again", async () => {
+    const user = userEvent.setup();
+    getListItems.mockResolvedValue({
+      items: [
+        item("tt1", "Understudy", { metadata: { name: "Understudy", poster: null, year: 2019, genres: ["Drama"], rating: null } }),
+        item("tt2", "Nightjar", { metadata: { name: "Nightjar", poster: null, year: 2019, genres: ["Horror"], rating: null } }),
+      ],
+    });
+    renderShelf("/?genre=drama");
+
+    expect(await screen.findByRole("button", { name: "Open details for Understudy" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Open details for Nightjar" })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: "Show every genre" }));
+    expect(await screen.findByRole("button", { name: "Open details for Nightjar" })).toBeInTheDocument();
+  });
+
+  it("points at Search when the shelf has nothing in the genre", async () => {
+    getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
+    renderShelf("/?genre=Western");
+
+    expect(await screen.findByRole("link", { name: "Browse Western in Search" })).toHaveAttribute(
+      "href",
+      "/search?genre=Western"
+    );
+  });
+
   it("summarises the shelf in its own terms, counting only the kinds that are on it", async () => {
     getListItems.mockResolvedValue({ items: [item("tt1", "Understudy"), item("tt2", "Nightjar")] });
     renderShelf();

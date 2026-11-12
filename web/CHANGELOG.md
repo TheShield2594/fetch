@@ -11,7 +11,19 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **A title has its own URL.** Opening a title puts `?title=<type>:<imdbId>` on the page underneath, so it can be reloaded, bookmarked and linked. Back closes it or returns to the previous title after a "More Like This" hop, Close leaves all the hops at once, and the tab is named for the open title. One panel is mounted at the shell instead of one per page, and episode notifications link straight to the show ([#499](https://github.com/TheShield2594/fetch/issues/499)).
+
+- **History can be searched and jumped through.** A title filter and a jump-to-month menu, both answered by the server and kept in the URL (`/history?month=2026-03&q=…`). `GET /watch/history` takes `q` and `before` and returns `runtime`, `rating` and `seriesRating` on each row; `GET /watch/history/months` lists the months that have history ([#520](https://github.com/TheShield2594/fetch/issues/520)).
+
 ### Changed
+
+- **History groups by day and folds a binge into one row.** Each day is headed with what it added up to ("3 episodes, 1 film · 3h 40m"), and consecutive episodes of one show are a single row ("S2 E13–E18 · 6 episodes") that opens to its episodes. Rows show your own rating and larger artwork, and their actions no longer need a hover. Discover's Recently Watched shows one card per title with a count ([#520](https://github.com/TheShield2594/fetch/issues/520)).
+
+- **Stats leads with the year, and everything on it goes somewhere.** The page opens on the year in review with artwork from what was watched. A poster opens the title, a genre opens the Shelf filtered to it (`/?genre=`), and a month opens History at that month. Films and episodes are two series on their own scales, your rating is drawn as stars and TMDB's as a labelled number, and the page is titled "Stats" like its nav entry. `GET /watch/stats/year/:year` now returns `mostWatched` ([#521](https://github.com/TheShield2594/fetch/issues/521)).
+
+- **Posters ask for the size they are shown at, and load over their own colours.** Each poster grid describes its real column widths, so the Shelf at 1440px requests w185 instead of w342. A loading slot shows a per-title tint and a blurred w92 of the picture instead of a grey shimmer, and missing artwork is drawn from the theme with the title set in the interface face ([#506](https://github.com/TheShield2594/fetch/issues/506)).
 
 - **A title fills the window on a desktop.** From 1024px wide the title panel is a page-width surface rather than a 672px card: the backdrop runs across the top (requested from TMDB at 1280px there), with the poster, title, primary action, overview and ratings in the header and two columns under it, content on the left and your tracking on the right. The phone and tablet layouts keep their shape ([#500](https://github.com/TheShield2594/fetch/issues/500)).
 

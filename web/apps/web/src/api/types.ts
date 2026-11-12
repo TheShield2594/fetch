@@ -130,6 +130,11 @@ export type YearInReviewStats = {
   totalRuntimeMinutes: number;
   topGenres: { genre: string; count: number }[];
   topRated: { imdbId: string; name: string | null; type: string; rating: number; poster: string | null }[];
+  /**
+   * The titles the year was spent on, most plays first — episodes counted
+   * under their show. Absent from an API older than the field.
+   */
+  mostWatched?: { imdbId: string; type: "movie" | "series"; name: string; poster: string | null; plays: number }[] | undefined;
   busiestMonth: number | null;
   busiestMonthCount: number;
 };

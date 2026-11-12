@@ -19,13 +19,16 @@ vi.mock("../MediaDetailPanel", async () => {
       item: SearchResult;
       onClose: () => void;
       onSelectItem: (item: SearchResult) => void;
-    }) => (
+    }) => {
+      if (item.name === "Explodes") throw new Error("a title whose data breaks the panel");
+      return (
       <div>
         <p>Panel: {item.name}</p>
         <button type="button" onClick={onClose}>close panel</button>
         <button type="button" onClick={() => onSelectItem(title("tt-next", "Stalker"))}>more like this</button>
       </div>
-    ),
+      );
+    },
     useDetailPanel: () => {
       const [selectedItem, setSelectedItem] = useState<SearchResult | null>(null);
       return {
@@ -68,6 +71,7 @@ function Page() {
     <div>
       <p data-testid="url">{location.pathname + location.search}</p>
       <button type="button" onClick={() => openTitle(title("tt-solaris", "Solaris"))}>open Solaris</button>
+      <button type="button" onClick={() => openTitle(title("tt-bad", "Explodes"))}>open broken</button>
       <button type="button" onClick={() => void navigate(-1)}>back</button>
       <button type="button" onClick={() => void navigate(1)}>forward</button>
     </div>
@@ -169,6 +173,28 @@ describe("title panel address", () => {
     // No entry behind it that the app pushed, so Close rewrites this one.
     await user.click(screen.getByRole("button", { name: "close panel" }));
     await waitFor(() => expect(url()).toBe("/calendar"));
+  });
+
+  // The panel sits outside every page's error boundary now. A title that
+  // breaks it must cost that title, not the navigation around it.
+  it("closes a panel that throws, and leaves the page standing", async () => {
+    const user = userEvent.setup();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      renderAt("/lists");
+
+      await user.click(screen.getByRole("button", { name: "open broken" }));
+
+      await waitFor(() => expect(url()).toBe("/lists"));
+      expect(screen.getByRole("button", { name: "open Solaris" })).toBeInTheDocument();
+      expect(await screen.findByText("That title could not be shown")).toBeInTheDocument();
+
+      // …and the next title opens as if nothing had happened.
+      await user.click(screen.getByRole("button", { name: "open Solaris" }));
+      expect(await screen.findByText("Panel: Solaris")).toBeInTheDocument();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it("ignores a title parameter it cannot parse", () => {

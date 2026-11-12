@@ -549,7 +549,9 @@ export function HistoryPage() {
             <p className="meta-row truncate" style={{ color: "var(--text-dim)" }}>
               {episodeRangeLabel(run)} · {run.length} episodes
             </p>
-            <p className="meta-row flex items-center gap-2" style={{ color: "var(--text-mute)" }}>
+            {/* Wraps between its parts, never inside one: on a phone the time
+                range, the stars and the note count don't fit on a line. */}
+            <p className="meta-row flex flex-wrap items-center gap-x-2 [&>*]:whitespace-nowrap" style={{ color: "var(--text-mute)" }}>
               {first && last && <span>{first === last ? last : `${first} – ${last}`}</span>}
               {latest.seriesRating != null && <MyRating rating={latest.seriesRating} />}
               {notes > 0 && (

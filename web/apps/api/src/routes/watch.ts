@@ -16,6 +16,9 @@ import { UUID_V4_PATTERN } from "../lib/types.js";
 const MAX_NOTE_LENGTH = 2_000;
 const noteTooLongMessage = `note must be at most ${MAX_NOTE_LENGTH.toLocaleString("en-US")} characters`;
 
+/** How many of a year's most-watched titles the Year in Review carries. */
+const MOST_WATCHED_LIMIT = 12;
+
 /** A title search is a few words; anything longer is not one. */
 const MAX_HISTORY_QUERY_LENGTH = 100;
 /**
@@ -703,6 +706,25 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
+    // What the year was actually spent on: plays per title, episodes counted
+    // under their show. The page leads with this artwork, so it is the titles
+    // watched — not the titles rated, which is a different and smaller set.
+    const playsByTitle = new Map<string, number>();
+    for (const event of events) {
+      const lookupId = event.type === "episode" && event.seriesImdbId ? event.seriesImdbId : event.imdbId;
+      playsByTitle.set(lookupId, (playsByTitle.get(lookupId) ?? 0) + event.plays);
+    }
+    const mostWatched = [...playsByTitle.entries()]
+      .flatMap(([imdbId, plays]) => {
+        const meta = metadataByImdbId.get(imdbId);
+        // A title with no metadata yet has no name or poster to show.
+        return meta && (meta.type === "movie" || meta.type === "series")
+          ? [{ imdbId, type: meta.type, name: meta.name, poster: meta.poster, plays }]
+          : [];
+      })
+      .sort((a, b) => b.plays - a.plays || a.imdbId.localeCompare(b.imdbId))
+      .slice(0, MOST_WATCHED_LIMIT);
+
     const topRated = topRatings.map((r) => {
       const meta = metadataByImdbId.get(r.imdbId);
       return {
@@ -721,6 +743,7 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       totalRuntimeMinutes,
       topGenres,
       topRated,
+      mostWatched,
       busiestMonth,
       busiestMonthCount,
     };

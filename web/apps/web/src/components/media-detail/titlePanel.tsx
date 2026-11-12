@@ -1,8 +1,9 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { Component, createContext, useCallback, useContext, useEffect, useMemo, useRef, type ErrorInfo, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import type { MediaType, SearchResult } from "../../api";
 import { useToast } from "../../hooks/useToast";
 import { DetailPanel, useDetailPanel } from "../MediaDetailPanel";
+import { captureException } from "../../sentry";
 
 /*
  * The address of a title.
@@ -119,6 +120,34 @@ const placeholderItem = (ref: TitleRef): SearchResult => ({
   inCollection: false,
   lists: [],
 });
+
+/**
+ * Contains a panel that throws while rendering.
+ *
+ * The panel used to be a child of the routed page, inside the page's error
+ * boundary. Mounted at the shell it has nothing above it but the app-wide one,
+ * whose fallback replaces the whole window — so one bad response in a title's
+ * data would take the navigation down with it. Here the panel is dropped, the
+ * failure is reported, and the caller is told so it can close the address that
+ * named it. Keyed by the title, so the next one opened starts clean.
+ */
+class PanelBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error(error);
+    captureException(error, { contexts: { react: { componentStack: info.componentStack } } });
+    this.props.onError();
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
 
 // What a card knew about a title when it was clicked — name, poster, year — so
 // the panel opens already populated rather than as an id waiting on a request.
@@ -237,6 +266,13 @@ export function TitlePanelProvider({
     <TitlePanelContext.Provider value={api}>
       {children}
       {item && (
+        <PanelBoundary
+          key={key}
+          onError={() => {
+            showToast("That title could not be shown", "error");
+            close();
+          }}
+        >
         <DetailPanel
           item={item}
           history={panelHistory}
@@ -249,6 +285,7 @@ export function TitlePanelProvider({
           onHistoryChange={setPanelHistory}
           onSelectItem={openTitle}
         />
+        </PanelBoundary>
       )}
     </TitlePanelContext.Provider>
   );

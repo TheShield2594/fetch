@@ -15,6 +15,7 @@ import { useScrolled } from "./hooks/useScrolled";
 import { SettingsHealthProvider } from "./hooks/useSettingsHealth";
 import { useTheme } from "./hooks/useTheme";
 import { ToastProvider } from "./hooks/useToast";
+import { TitlePanelProvider } from "./components/media-detail/titlePanel";
 import { ProfileProvider, useProfile } from "./hooks/useProfile";
 import { AccountProvider } from "./hooks/useAccount";
 import { ShelfPage } from "./pages/ShelfPage";
@@ -51,9 +52,8 @@ const ProfileSwitcher = lazy(() => loadProfileSwitcher().then((m) => ({ default:
 const SetupWizard = lazy(() => loadSetupWizard().then((m) => ({ default: m.SetupWizard })));
 
 // Closed on every cold start, and plenty of sessions never open it — but once
-// it has been opened it stays mounted, because it keeps rendering a detail panel
-// opened from a result after the palette itself closes. Unmounting on close
-// would take that panel with it.
+// it has been opened it stays mounted, so it keeps its query and results across
+// a title opened from one of them.
 const CommandPalette = lazy(() => loadCommandPalette().then((m) => ({ default: m.CommandPalette })));
 
 const CalendarPage = lazy(() => loadCalendarPage().then((m) => ({ default: m.CalendarPage })));
@@ -94,8 +94,8 @@ const ROUTE_TITLES: Record<string, string> = {
   "/discover": "Discover",
   "/lists": "Lists",
   "/calendar": "Calendar",
-  "/history": "Watch History",
-  "/stats": "Watch Statistics",
+  "/history": "History",
+  "/stats": "Stats",
   "/settings": "Settings",
   "/collections": "Collections",
   "/profiles": "Profiles",
@@ -307,12 +307,6 @@ function AppShell({
     main?.focus();
   }, [location.pathname]);
 
-  // Runs on the first render too, unlike the focus move above: the landing
-  // route needs a title as much as a navigated-to one does.
-  useEffect(() => {
-    document.title = routeTitle(location.pathname);
-  }, [location.pathname]);
-
   useEffect(() => {
     let cancelled = false;
     const currentId = runtimeConfig.getProfileId();
@@ -335,6 +329,9 @@ function AppShell({
   };
 
   return (
+    // Owns the one title panel and `?title=`, and names the tab: the route's
+    // own title, or the open title's while there is one.
+    <TitlePanelProvider pageTitle={routeTitle(location.pathname)} appName={APP_NAME}>
     <div className="min-h-screen w-full">
       {/* First focusable element in the shell: without it, reaching content
           means tabbing the whole sidebar and top bar on every route. */}
@@ -517,5 +514,6 @@ function AppShell({
       {/* Mobile bottom tab bar */}
       <MobileTabBar pathname={location.pathname} />
     </div>
+    </TitlePanelProvider>
   );
 }

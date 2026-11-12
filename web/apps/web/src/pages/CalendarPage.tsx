@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { CalendarDays, ChevronLeft, ChevronRight, List, LayoutGrid, X } from "lucide-react";
 import { api, type CalendarEntry, type SearchResult } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { Poster } from "../components/Poster";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useExitAnimation } from "../hooks/useExitAnimation";
@@ -10,7 +10,6 @@ import { useVisualViewport } from "../hooks/useVisualViewport";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { useScrollLock } from "../hooks/useScrollLock";
-import { useToast } from "../hooks/useToast";
 import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
 import { PAGE_TITLE, SECTION_TITLE, KICKER, MICRO_LABEL } from "../components/typography";
@@ -184,8 +183,7 @@ export function CalendarPage() {
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(new Date()));
   const [error, setError] = useState<string | null>(null);
   const [openDay, setOpenDay] = useState<Date | null>(null);
-  const { showToast } = useToast();
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
 
   // Re-read at midnight rather than frozen at mount: a tab left open overnight
   // labelled tomorrow's episodes "Today" and highlighted the wrong grid cell.
@@ -307,7 +305,7 @@ export function CalendarPage() {
     setOpenDay(null);
   }, [activeView, monthCursor]);
 
-  const handleSelect = (entry: CalendarEntry) => setSelectedItem(toSearchResult(entry));
+  const handleSelect = (entry: CalendarEntry) => openTitle(toSearchResult(entry));
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -577,19 +575,6 @@ export function CalendarPage() {
         />
       )}
 
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={(events) => setPanelHistory(events)}
-          onSelectItem={setSelectedItem}
-        />
-      )}
 
     </div>
   );

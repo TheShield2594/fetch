@@ -1,5 +1,6 @@
+import { TITLE_PARAM } from "../components/media-detail/titlePanel";
 import { useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 
 export type FilterType = "all" | "movie" | "series";
 export type SortOption = "relevance" | "rating" | "year_desc" | "year_asc" | "title";
@@ -74,6 +75,9 @@ function numericParam(raw: string | null, fallback: string): string {
 
 export function useSearchFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
+  // Handed back on every replace below: an open title keeps its history depth
+  // in the entry's state, and a replace without it would drop that.
+  const locationState: unknown = useLocation().state;
 
   const filters: SearchFilters = useMemo(() => parseParams(searchParams), [searchParams]);
 
@@ -85,7 +89,13 @@ export function useSearchFilters() {
         const base = parseParams(prev);
         const merged = { ...base, ...updates };
 
+        // Rebuilt from empty so a parameter that was never a filter is dropped
+        // — with one exception. An open title lives in `?title=`, and a
+        // debounced query landing after a result was clicked used to rebuild
+        // the string without it, closing the panel the click had just opened.
         const next = new URLSearchParams();
+        const openTitle = prev.get(TITLE_PARAM);
+        if (openTitle) next.set(TITLE_PARAM, openTitle);
 
         for (const [key, paramName] of Object.entries(PARAM_MAP)) {
           const val = merged[key as keyof SearchFilters];
@@ -98,9 +108,9 @@ export function useSearchFilters() {
         }
 
         return next;
-      }, { replace: true });
+      }, { replace: true, state: locationState });
     },
-    [setSearchParams]
+    [setSearchParams, locationState]
   );
 
   const clearFilters = useCallback(() => {
@@ -111,8 +121,8 @@ export function useSearchFilters() {
         if (key !== "q" && key !== "filter") next.delete(key);
       }
       return next;
-    }, { replace: true });
-  }, [setSearchParams]);
+    }, { replace: true, state: locationState });
+  }, [setSearchParams, locationState]);
 
   const hasActiveFilters = useMemo(() => {
     return (

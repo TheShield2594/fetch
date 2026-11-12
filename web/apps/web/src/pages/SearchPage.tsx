@@ -2,7 +2,7 @@ import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useStat
 import { Link } from "react-router";
 import { Check, ChevronDown, ChevronUp, Film, Filter, Heart, MonitorPlay, Plus, Search, SlidersHorizontal, Star, Tv, X } from "lucide-react";
 import { api, type CatalogList, type SearchResult, type WatchProvider } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
 import { mergeByRelevance } from "../utils/mergeSearchResults";
 import { formatRating, ratingLabel, RATING_MAX } from "../utils/rating";
@@ -100,7 +100,7 @@ export function SearchPage() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const advancedFiltersId = useId();
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const lastSearchRef = useRef<{ filter: FilterType; query: string }>({ filter: "all", query: "" });
@@ -662,7 +662,7 @@ export function SearchPage() {
                   onCloseDropdown={() => setOpenDropdown(null)}
                   onAdd={handleAdd}
                   onCreateAndAdd={handleCreateAndAdd}
-                  onSelect={setSelectedItem}
+                  onSelect={openTitle}
                 />
               ))}
             </PosterGrid>
@@ -671,19 +671,6 @@ export function SearchPage() {
       </div>
 
       {/* Detail side panel */}
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={(events) => setPanelHistory(events)}
-          onSelectItem={setSelectedItem}
-        />
-      )}
 
     </div>
   );

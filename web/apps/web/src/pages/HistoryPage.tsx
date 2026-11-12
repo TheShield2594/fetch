@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router";
-import { Calendar, Film, NotebookPen, Trash2, Tv } from "lucide-react";
+import { Link, useLocation, useSearchParams } from "react-router";
+import { Calendar, ChevronDown, Film, NotebookPen, Search, Trash2, Tv, X } from "lucide-react";
 import { api, type SearchResult, type WatchEvent } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
 import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
@@ -11,6 +11,17 @@ import { PAGE_TITLE, KICKER } from "../components/typography";
 import { PAGE_SIZE } from "./history-paging";
 import { SectionError } from "../components/SectionError";
 import { Poster } from "../components/Poster";
+import { MyRating } from "../components/MyRating";
+import { SelectField } from "../components/SelectField";
+import {
+  dayLabel,
+  dayTotals,
+  episodeRangeLabel,
+  groupHistory,
+  monthEndIso,
+  monthLabel,
+  type EpisodeRun,
+} from "./history-groups";
 
 type TypeFilter = "all" | "movie" | "episode";
 
@@ -21,15 +32,20 @@ type TypeFilter = "all" | "movie" | "episode";
 // one more identity for the effect that reads it to have to track.
 const isLastPage = (page: WatchEvent[]) => page.length < PAGE_SIZE;
 
-function groupLabel(date: Date, now: Date): string {
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const diffDays = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return "This Week";
-  if (diffDays < 30) return "This Month";
-  return date.toLocaleString(undefined, { month: "long", year: "numeric" });
-}
+/** How long typing has to pause before the filter is sent. */
+const QUERY_DEBOUNCE_MS = 300;
+
+const timeOf = (event: WatchEvent): string | null =>
+  event.dateUnknown
+    ? null
+    : new Date(event.watchedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+
+// Row actions used to appear only on hover from `sm` up, so on a desktop there
+// was nothing to say a row could be annotated or removed until the pointer was
+// already on it. They are always drawn now, quietly, and come up to full
+// strength on the row's hover or their own focus.
+const ROW_ACTION =
+  "relative z-10 flex h-9 w-9 flex-none items-center justify-center rounded-lg opacity-60 transition-[opacity,color,background-color] duration-fast group-hover:opacity-100 hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-ring-offset";
 
 function toSearchResult(event: WatchEvent): SearchResult {
   const isEpisode = event.type === "episode";
@@ -67,18 +83,47 @@ export function HistoryPage() {
   // `hadCachedValue` suppressing even the skeleton that would have hinted more
   // was coming. CalendarPage keys on its day range for the same reason.
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  /*
+   * Where in the history the list starts, and which titles it is limited to.
+   *
+   * Both live in the URL rather than in state: `/history?month=2026-03` is what
+   * a month on the Stats chart links to, and a filter that survives a reload
+   * and Back is the difference between a search and a thing you have to redo.
+   * Written with the functional form throughout, so the `title` parameter of
+   * an open panel is carried rather than dropped.
+   */
+  const [searchParams, setSearchParams] = useSearchParams();
+  // A replace navigation drops the entry's state unless it is handed back, and
+  // an open title keeps its depth there (see titlePanel).
+  const locationState: unknown = useLocation().state;
+  const monthParam = searchParams.get("month");
+  const month = monthParam && monthEndIso(monthParam) ? monthParam : null;
+  const query = (searchParams.get("q") ?? "").trim();
+  const narrowed = month !== null || query !== "";
   // "Today" and "Yesterday" are relative to when the grouping runs, not to when
   // the page mounted — a tab left open overnight headed yesterday's watches
   // "Today" until it was reloaded.
   const now = useClockBoundary();
-  const [firstPage, setFirstPage, firstPageMeta] = useCachedState<WatchEvent[]>(
+  const [cachedFirstPage, setCachedFirstPage, firstPageMeta] = useCachedState<WatchEvent[]>(
     `history:events:${typeFilter}`,
     []
+  );
+  // A searched or jumped-to list is not "the history", and is not cached as it:
+  // every distinct query would be an entry of its own, kept for the session,
+  // and the unfiltered key must never hold a filtered answer (see above).
+  const [narrowedFirstPage, setNarrowedFirstPage] = useState<WatchEvent[]>([]);
+  const firstPage = narrowed ? narrowedFirstPage : cachedFirstPage;
+  const setFirstPage = useCallback(
+    (next: WatchEvent[] | ((previous: WatchEvent[]) => WatchEvent[])) => {
+      if (narrowed) setNarrowedFirstPage(next);
+      else setCachedFirstPage(next);
+    },
+    [narrowed, setCachedFirstPage]
   );
   const [extraPages, setExtraPages] = useState<WatchEvent[]>([]);
   const events = useMemo(() => [...firstPage, ...extraPages], [firstPage, extraPages]);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(!firstPageMeta.hadCachedValue);
+  const [loading, setLoading] = useState(!firstPageMeta.hadCachedValue || narrowed);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -87,7 +132,68 @@ export function HistoryPage() {
   const [savingNote, setSavingNote] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { showToast } = useToast();
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
+  const [months, setMonths] = useState<{ month: string; events: number }[]>([]);
+  // Which collapsed runs are open, by day and show.
+  const [expandedRuns, setExpandedRuns] = useState<ReadonlySet<string>>(() => new Set());
+  const [queryDraft, setQueryDraft] = useState(query);
+  // The field follows the URL when something other than the field moved it —
+  // Back to an earlier search, Forward again, a link. Without this the stale
+  // draft would wait out its debounce and write itself back over the search
+  // just restored. `pushedQuery` is what the field itself last sent: that one
+  // change of `q` is not read back into the field (it may have been typed past
+  // already), and is forgotten once seen, so a later navigation to the same
+  // value is still followed.
+  const pushedQuery = useRef<string | null>(query);
+  useEffect(() => {
+    if (pushedQuery.current === query) {
+      pushedQuery.current = null;
+      return;
+    }
+    pushedQuery.current = null;
+    setQueryDraft(query);
+  }, [query]);
+
+  // Typing filters as you go, but not on every keystroke: each change is a
+  // request and a replaced list.
+  useEffect(() => {
+    const next = queryDraft.trim();
+    if (next === query) return;
+    const timer = setTimeout(() => {
+      pushedQuery.current = next;
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          if (next) params.set("q", next);
+          else params.delete("q");
+          return params;
+        },
+        // One act of searching is one history entry, not one per pause.
+        { replace: true, state: locationState }
+      );
+    }, QUERY_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [queryDraft, query, setSearchParams, locationState]);
+
+  const jumpToMonth = (next: string | null) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (next) params.set("month", next);
+      else params.delete("month");
+      return params;
+    });
+  };
+
+  // The months there are to jump to. Best-effort: an API older than the route
+  // has none to offer, and the page is whole without the menu.
+  useEffect(() => {
+    const controller = new AbortController();
+    api
+      .getWatchHistoryMonths({ type: typeFilter === "all" ? undefined : typeFilter, signal: controller.signal })
+      .then((list) => { if (!controller.signal.aborted) setMonths(list); })
+      .catch(() => { if (!controller.signal.aborted) setMonths([]); });
+    return () => controller.abort();
+  }, [typeFilter]);
 
   // The filter goes to the server, not to the loaded page: filtering in memory
   // only ever saw the rows already fetched, so picking "Movies" on a history
@@ -95,18 +201,22 @@ export function HistoryPage() {
   const loadPage = useCallback(async (nextOffset: number, signal?: AbortSignal) => {
     const page = await api.getWatchHistory(PAGE_SIZE, nextOffset, {
       type: typeFilter === "all" ? undefined : typeFilter,
+      q: query || undefined,
+      // Everything before the month's end: the list opens at that month's
+      // last watch, and offsets count from there.
+      before: month ? (monthEndIso(month) ?? undefined) : undefined,
       signal,
     });
     return signal?.aborted ? [] : page;
-  }, [typeFilter]);
+  }, [typeFilter, query, month]);
 
   /*
    * Which set of rows the loaded pages describe.
    *
    * An offset only means anything against a particular server-side list, and
    * two things replace that list underneath a request already in flight: a new
-   * filter, and a delete or restore, which shifts every row after it. The reset
-   * effect below moves the generation on both counts; `loadMore` captures it
+   * filter (the type, the title search or the month), and a delete or
+   * restore, which shifts every row after it. The reset effect below moves the generation on both counts; `loadMore` captures it
    * and drops a page that lands under an older one — otherwise tapping
    * "Movies" near the bottom of the page appends the episodes page that was
    * already on its way to the movies-only list.
@@ -130,6 +240,13 @@ export function HistoryPage() {
     // dropped at the request, not just ignored at the setter.
     const controller = new AbortController();
     generation.current++;
+    // Every search and month shares one narrowed list. Left in place, a failed
+    // fetch would show the previous filter's rows under the error.
+    if (narrowed) setNarrowedFirstPage([]);
+    // The pages scrolled to belong to the list being replaced, whichever kind
+    // it was. Kept until the new first page landed, they sat under the new
+    // list's rows — and stayed there if that request failed.
+    setExtraPages([]);
     setLoading(true);
     (async () => {
       try {
@@ -147,10 +264,11 @@ export function HistoryPage() {
       }
     })();
     return () => controller.abort();
-    // `setFirstPage` is useCachedState's setter, memoised on a constant key.
+    // `setFirstPage` only changes identity with `narrowed`, which changes
+    // `loadPage` in the same render.
     // `reloadToken` is what Retry bumps: the first page has no loader of its own
     // to call, so asking again means asking this effect to run again.
-  }, [loadPage, setFirstPage, reloadToken]);
+  }, [loadPage, setFirstPage, narrowed, reloadToken]);
 
   const loadMore = useCallback(async () => {
     const token = generation.current;
@@ -186,10 +304,26 @@ export function HistoryPage() {
   // A re-logged event can come back as one already on screen — the server folds
   // same-day identical plays into a single row's play count — so the insert is
   // keyed on id rather than appending blindly.
-  const restoreEvent = (event: WatchEvent) => {
+  // Which list is on screen. An Undo can be pressed after the filter has
+  // moved on; the row it restores belongs to the list it was removed from,
+  // which may not be this one.
+  const listKey = `${typeFilter}|${query}|${month ?? ""}`;
+  const listKeyRef = useRef(listKey);
+  listKeyRef.current = listKey;
+  const setFirstPageRef = useRef(setFirstPage);
+  setFirstPageRef.current = setFirstPage;
+
+  const restoreEvent = (event: WatchEvent, removedFrom: string) => {
+    if (listKeyRef.current !== removedFrom) {
+      // A different list now: whether the row belongs in it is the server's
+      // call, so ask again rather than splice it in.
+      setReloadToken((n) => n + 1);
+      return;
+    }
     // A restored row belongs at its date, which is within the first page for
-    // anything recent — and the first page is the list that persists.
-    setFirstPage((prev) =>
+    // anything recent — and the first page is the list that persists. Through
+    // the ref, because this can run from a toast raised renders ago.
+    setFirstPageRef.current((prev) =>
       prev.some((e) => e.id === event.id) || extraPages.some((e) => e.id === event.id)
         ? prev
         : [...prev, event].sort(
@@ -201,9 +335,9 @@ export function HistoryPage() {
     generation.current++;
   };
 
-  const handleUndoDelete = async (event: WatchEvent) => {
+  const handleUndoDelete = async (event: WatchEvent, removedFrom: string) => {
     try {
-      restoreEvent(await relogWatchEvent(event));
+      restoreEvent(await relogWatchEvent(event), removedFrom);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Could not restore watch event", "error");
     }
@@ -215,6 +349,7 @@ export function HistoryPage() {
   // gating every removal.
   const handleDelete = async (event: WatchEvent) => {
     setDeletingId(event.id);
+    const removedFrom = listKey;
     // The row can be in either list, so both are filtered.
     setFirstPage((prev) => prev.filter((e) => e.id !== event.id));
     setExtraPages((prev) => prev.filter((e) => e.id !== event.id));
@@ -226,10 +361,10 @@ export function HistoryPage() {
       // Metadata is backfilled in the background, so a row can reach here
       // without a name.
       showToast(event.name ? `Removed ${event.name} from history` : "Removed from history", "info", {
-        action: { label: "Undo", onAction: () => void handleUndoDelete(event) },
+        action: { label: "Undo", onAction: () => void handleUndoDelete(event, removedFrom) },
       });
     } catch (err) {
-      restoreEvent(event);
+      restoreEvent(event, removedFrom);
       showToast(err instanceof Error ? err.message : "Failed to delete watch event", "error");
     } finally {
       setDeletingId(null);
@@ -274,47 +409,342 @@ export function HistoryPage() {
     }
   };
 
-  const groups = useMemo(() => {
-    // A group is created around its first event and never emptied, so the type
-    // says non-empty and `events[0]` — the React key below — is an event.
-    const result: { label: string; events: [WatchEvent, ...WatchEvent[]] }[] = [];
-    for (const event of events) {
-      const label = groupLabel(new Date(event.watchedAt), now);
-      const last = result[result.length - 1];
-      if (last && last.label === label) {
-        last.events.push(event);
-      } else {
-        result.push({ label, events: [event] });
-      }
+  const days = useMemo(() => groupHistory(events), [events]);
+
+  const toggleRun = (key: string) => {
+    setExpandedRuns((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  // The jump menu, by year. A month the URL names is offered even when the
+  // list of months has not arrived (or never will), so the select can show it.
+  const monthOptions = useMemo(() => {
+    const all = month && !months.some((m) => m.month === month) ? [{ month, events: 0 }, ...months] : months;
+    const byYear = new Map<string, { month: string; events: number }[]>();
+    for (const entry of [...all].sort((a, b) => b.month.localeCompare(a.month))) {
+      const year = entry.month.slice(0, 4);
+      byYear.set(year, [...(byYear.get(year) ?? []), entry]);
     }
-    return result;
-  }, [events, now]);
+    return [...byYear.entries()];
+  }, [months, month]);
+
+  const noteEditor = (event: WatchEvent) =>
+    editingNoteId === event.id && (
+      <div className="px-3 pb-3">
+        <label className="sr-only" htmlFor={`note-${event.id}`}>
+          Note on {event.name || "this watch"}
+        </label>
+        <textarea
+          id={`note-${event.id}`}
+          autoFocus
+          rows={2}
+          value={noteDraft}
+          onChange={(e) => setNoteDraft(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); closeNoteEditor(); } }}
+          placeholder="What did you think?"
+          className="w-full resize-y rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus"
+          style={{ border: "1px solid var(--border)", background: "var(--bg-0)", color: "var(--text)" }}
+        />
+        <div className="mt-2 flex justify-end gap-2">
+          <button type="button" className="btn-secondary btn-sm" onClick={closeNoteEditor} disabled={savingNote}>
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn-primary btn-sm"
+            onClick={() => void handleSaveNote(event)}
+            disabled={savingNote}
+          >
+            {savingNote ? "Saving…" : "Save note"}
+          </button>
+        </div>
+      </div>
+    );
+
+  // `relative z-10` puts these above the row overlay, which would otherwise
+  // take the click. They do not need to stop the event: the overlay is a
+  // sibling, so nothing bubbles from here to it.
+  const rowActions = (event: WatchEvent) => (
+    <>
+      <button
+        type="button"
+        onClick={() => openNoteEditor(event)}
+        className={`${ROW_ACTION} hover:bg-[var(--surface-strong)] focus-visible:ring-focus`}
+        aria-label={event.note ? `Edit note on ${watchEventLabel(event)}` : `Add note to ${watchEventLabel(event)}`}
+        title={event.note ? "Edit note" : "Add note"}
+      >
+        <NotebookPen aria-hidden="true" className="h-4 w-4" style={{ color: event.note ? "var(--accent-text)" : "var(--text-mute)" }} />
+      </button>
+      <button
+        type="button"
+        onClick={() => void handleDelete(event)}
+        disabled={deletingId === event.id}
+        className={`${ROW_ACTION} hover:bg-rose-500/10 disabled:opacity-50 focus-visible:ring-danger`}
+        aria-label={`Delete watch of ${watchEventLabel(event)}`}
+        title="Remove from history"
+      >
+        <Trash2 aria-hidden="true" className="h-4 w-4 text-danger dark:text-danger" />
+      </button>
+    </>
+  );
+
+  // A 2:3 box, so a poster fills it instead of being cropped to a square
+  // through its middle. It was 40×60, which is as small as a poster can be and
+  // still be recognised; this is the first size at which it reads as artwork.
+  const rowPoster = (event: WatchEvent) => (
+    <div
+      className="pointer-events-none flex aspect-poster w-12 flex-none items-center justify-center overflow-hidden rounded-lg sm:w-14"
+      style={{ background: "var(--surface-strong)" }}
+    >
+      {event.poster ? (
+        // `Poster`, not a bare `<img>`: it brings the srcset, the placeholder
+        // while the bytes are in flight, and the fallback when the image 404s
+        // — which a raw tag renders as a hole.
+        <Poster src={event.poster} alt={watchEventTitle(event)} className="h-full w-full" sizes="56px" />
+      ) : event.type === "movie" ? (
+        <Film className="h-5 w-5" style={{ color: "var(--text-mute)" }} />
+      ) : (
+        <Tv className="h-5 w-5" style={{ color: "var(--text-mute)" }} />
+      )}
+    </div>
+  );
+
+  // The row's whole surface, as one click target behind its content. The
+  // content is `pointer-events-none` so clicks fall through to this; the action
+  // buttons opt back in and stack above it. A sibling of those buttons, never
+  // their ancestor — a button inside a button has no defined mapping.
+  const openOverlay = (event: WatchEvent, label: string) => (
+    <button
+      type="button"
+      onClick={() => openTitle(toSearchResult(event))}
+      aria-label={`View details for ${label}`}
+      className="absolute inset-0 z-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
+    />
+  );
+
+  /** One watch: a film, or an episode that is not part of a run. */
+  const singleRow = (event: WatchEvent) => {
+    const time = timeOf(event);
+    // An episode's own rating if it has one, the show's if not; a film's.
+    const rating = event.rating ?? (event.type === "episode" ? event.seriesRating : null);
+    return (
+      <div key={event.id}>
+        <div className="group relative flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-[var(--surface-strong)]">
+          {openOverlay(event, watchEventLabel(event))}
+          {rowPoster(event)}
+          <div className="pointer-events-none relative min-w-0 flex-1">
+            <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>
+              {watchEventTitle(event)}
+              {event.type === "episode" && event.season != null && event.episode != null && (
+                <span className="meta-row" style={{ color: "var(--text-mute)" }}>
+                  {" "}S{event.season}E{event.episode}
+                </span>
+              )}
+            </p>
+            <p className="meta-row flex items-center gap-2" style={{ color: "var(--text-mute)" }}>
+              {time && <time dateTime={event.watchedAt}>{time}</time>}
+              {rating != null && <MyRating rating={rating} />}
+            </p>
+            {event.note && editingNoteId !== event.id && (
+              <p className="mt-1 whitespace-pre-wrap text-xs italic" style={{ color: "var(--text-dim)" }}>
+                {event.note}
+              </p>
+            )}
+          </div>
+          {rowActions(event)}
+        </div>
+        {/* Outside the row: a field inside the click target would open the
+            title on every click into it. */}
+        {noteEditor(event)}
+      </div>
+    );
+  };
+
+  /**
+   * A run of one show: one row for the sitting, which opens to its episodes.
+   *
+   * Six episodes of a show used to be six rows carrying the same poster and
+   * the same title, with only the episode code to tell them apart — most of a
+   * screen spent saying one thing. The run says it once, with the range and
+   * the count, and the episodes are still there underneath for the things that
+   * are per-watch: the time, the note, the delete.
+   */
+  const runRow = (run: EpisodeRun, dayKey: string) => {
+    const [latest] = run;
+    const title = watchEventTitle(latest);
+    // By the run's first-watched episode as well as the day and show: two
+    // sittings of one show in a day, with something between them, are two rows
+    // and open separately.
+    const key = `${dayKey}:${latest.seriesImdbId ?? latest.imdbId}:${run[run.length - 1]!.id}`;
+    const panelId = `run-${key}`;
+    // Opened by hand, or because a note inside it is being written.
+    const open = expandedRuns.has(key) || run.some((e) => e.id === editingNoteId);
+    const first = timeOf(run[run.length - 1]!);
+    const last = timeOf(latest);
+    const notes = run.filter((e) => e.note).length;
+    return (
+      <div key={`${key}:${latest.id}`}>
+        <div className="group relative flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-[var(--surface-strong)]">
+          {openOverlay(latest, title)}
+          {rowPoster(latest)}
+          <div className="pointer-events-none relative min-w-0 flex-1">
+            <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>{title}</p>
+            <p className="meta-row truncate" style={{ color: "var(--text-dim)" }}>
+              {episodeRangeLabel(run)} · {run.length} episodes
+            </p>
+            {/* Wraps between its parts, never inside one: on a phone the time
+                range, the stars and the note count don't fit on a line. */}
+            <p className="meta-row flex flex-wrap items-center gap-x-2 [&>*]:whitespace-nowrap" style={{ color: "var(--text-mute)" }}>
+              {first && last && <span>{first === last ? last : `${first} – ${last}`}</span>}
+              {latest.seriesRating != null && <MyRating rating={latest.seriesRating} />}
+              {notes > 0 && (
+                <span className="inline-flex items-center gap-1">
+                  <NotebookPen aria-hidden="true" className="h-3 w-3" style={{ color: "var(--accent-text)" }} />
+                  {notes === 1 ? "1 note" : `${notes} notes`}
+                </span>
+              )}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => toggleRun(key)}
+            aria-expanded={open}
+            aria-controls={panelId}
+            aria-label={`${open ? "Hide" : "Show"} the ${run.length} episodes of ${title}`}
+            className="relative z-10 flex h-9 flex-none items-center gap-1 rounded-lg px-2 text-xs font-medium transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+            style={{ color: "var(--text-dim)" }}
+          >
+            <span aria-hidden="true">{open ? "Hide" : "Show"}</span>
+            <ChevronDown aria-hidden="true" className={`h-4 w-4 transition-transform duration-fast ${open ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+        {open && (
+          <ul id={panelId} aria-label={`Episodes of ${title}`} className="pb-1">
+            {run.map((event) => (
+              <li key={event.id}>
+                {/* Indented to the text column, so the episodes read as
+                    belonging to the row above rather than as rows of their own. */}
+                <div className="group flex items-center gap-3 py-0.5 pl-[4.5rem] pr-3 sm:pl-20">
+                  <div className="min-w-0 flex-1">
+                    <p className="meta-row flex flex-wrap items-center gap-x-2" style={{ color: "var(--text-dim)" }}>
+                      <span className="font-medium" style={{ color: "var(--text)" }}>
+                        {event.season != null && event.episode != null ? `S${event.season} E${event.episode}` : "Episode"}
+                      </span>
+                      {timeOf(event) && <time dateTime={event.watchedAt}>{timeOf(event)}</time>}
+                      {event.rating != null && <MyRating rating={event.rating} />}
+                    </p>
+                    {event.note && editingNoteId !== event.id && (
+                      <p className="mt-0.5 whitespace-pre-wrap text-xs italic" style={{ color: "var(--text-dim)" }}>
+                        {event.note}
+                      </p>
+                    )}
+                  </div>
+                  {rowActions(event)}
+                </div>
+                {editingNoteId === event.id && <div className="pl-[3.75rem] sm:pl-[4.25rem]">{noteEditor(event)}</div>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Watch History</h1>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>History</h1>
 
-        <div className="relative inline-flex rounded-full p-0.5" style={{ background: "var(--surface-strong)", border: "1px solid var(--border)" }}>
-          {(["all", "movie", "episode"] as const).map((opt) => (
-            <button
-              key={opt}
-              type="button"
-              onClick={() => setTypeFilter(opt)}
-              // Without this the active filter is a background colour and nothing
-              // else — SC 1.4.1 and 4.1.2.
-              aria-pressed={typeFilter === opt}
-              className="relative rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-              style={
-                typeFilter === opt
-                  ? { background: "var(--accent)", color: "var(--on-accent)" }
-                  : { color: "var(--text-dim)" }
-              }
-            >
-              {opt === "all" ? "All" : opt === "movie" ? "Movies" : "Episodes"}
-            </button>
-          ))}
+          <div className="relative inline-flex rounded-full p-0.5" style={{ background: "var(--surface-strong)", border: "1px solid var(--border)" }}>
+            {(["all", "movie", "episode"] as const).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setTypeFilter(opt)}
+                // Without this the active filter is a background colour and nothing
+                // else — SC 1.4.1 and 4.1.2.
+                aria-pressed={typeFilter === opt}
+                className="relative rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+                style={
+                  typeFilter === opt
+                    ? { background: "var(--accent)", color: "var(--on-accent)" }
+                    : { color: "var(--text-dim)" }
+                }
+              >
+                {opt === "all" ? "All" : opt === "movie" ? "Movies" : "Episodes"}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Finding something: by what it was called, or by when. Both go to the
+            server — the list is paged, so neither can be answered from the rows
+            that happen to be loaded. */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[12rem] flex-1">
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: "var(--text-mute)" }} />
+            <input
+              type="search"
+              value={queryDraft}
+              onChange={(e) => setQueryDraft(e.target.value)}
+              aria-label="Filter history by title"
+              placeholder="Filter by title"
+              maxLength={100}
+              className="field-control h-10 w-full rounded-xl pl-9 pr-9 text-sm [&::-webkit-search-cancel-button]:hidden"
+              style={{ border: "1px solid var(--border)", background: "var(--bg-1)", color: "var(--text)" }}
+            />
+            {queryDraft && (
+              <button
+                type="button"
+                onClick={() => setQueryDraft("")}
+                aria-label="Clear the title filter"
+                className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              >
+                <X aria-hidden="true" className="h-4 w-4" style={{ color: "var(--text-mute)" }} />
+              </button>
+            )}
+          </div>
+
+          {monthOptions.length > 0 && (
+            <SelectField
+              aria-label="Jump to a month"
+              value={month ?? ""}
+              onChange={(e) => jumpToMonth(e.target.value || null)}
+              className="h-10 rounded-xl pl-3 text-sm"
+              wrapperClassName="flex-none"
+            >
+              <option value="">Latest</option>
+              {monthOptions.map(([year, entries]) => (
+                <optgroup key={year} label={year}>
+                  {entries.map((entry) => (
+                    <option key={entry.month} value={entry.month}>
+                      {monthLabel(entry.month, { year: false })}
+                      {entry.events > 0 ? ` (${entry.events})` : ""}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </SelectField>
+          )}
+        </div>
+
+        {month && (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm" style={{ color: "var(--text-dim)" }}>
+            <span>From the end of {monthLabel(month)}, going back.</span>
+            <button
+              type="button"
+              onClick={() => jumpToMonth(null)}
+              className="font-medium text-claw-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            >
+              Back to latest
+            </button>
+          </p>
+        )}
       </div>
 
       {error && events.length > 0 && (
@@ -340,176 +770,71 @@ export function HistoryPage() {
       ) : events.length === 0 ? (
         <div className="glass-panel rounded-2xl p-8 text-center" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
           <Calendar className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-          <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-            {typeFilter === "movie"
-              ? "No movies in your watch history yet."
-              : typeFilter === "episode"
-                ? "No episodes in your watch history yet."
-                : "No watch history yet."}
-            {" "}Anything you mark watched is logged here.
-          </p>
-          {/* The search page is the way out of this one: a brand-new install
-              lands here with nothing to filter and no other route onward. */}
-          <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
-            Find something to watch &rarr;
-          </Link>
+          {narrowed ? (
+            <>
+              <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
+                {query
+                  ? `Nothing in your history matches “${query}”${month ? ` in or before ${monthLabel(month)}` : ""}.`
+                  : `Nothing watched in or before ${monthLabel(month ?? "")}.`}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setQueryDraft("");
+                  setSearchParams((prev) => {
+                    const params = new URLSearchParams(prev);
+                    params.delete("q");
+                    params.delete("month");
+                    return params;
+                  });
+                }}
+                className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline"
+              >
+                Show all history
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
+                {typeFilter === "movie"
+                  ? "No movies in your watch history yet."
+                  : typeFilter === "episode"
+                    ? "No episodes in your watch history yet."
+                    : "No watch history yet."}
+                {" "}Anything you mark watched is logged here.
+              </p>
+              {/* The search page is the way out of this one: a brand-new install
+                  lands here with nothing to filter and no other route onward. */}
+              <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+                Find something to watch &rarr;
+              </Link>
+            </>
+          )}
         </div>
       ) : (
         <div className="space-y-6">
-          {groups.map((group) => (
-            <div key={`${group.label}-${group.events[0].id}`}>
-              <h2 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
-                {group.label}
+          {days.map((day) => (
+            <section key={day.key} aria-label={dayLabel(day.date, now)}>
+              {/* The day, and what it added up to. */}
+              <h2 className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 px-1">
+                <span className={KICKER} style={{ color: "var(--text-dim)" }}>{dayLabel(day.date, now)}</span>
+                <span className="meta-row" style={{ color: "var(--text-mute)" }}>{dayTotals(day)}</span>
               </h2>
-              {/* One surface per date group, with hairlines between the rows.
-                  Every row used to be its own bordered, rounded card with a gap
-                  to the next, so a normal amount of history stacked 25+ outlined
-                  containers down the page and the dominant visual element was
-                  border rather than content. The date grouping was already doing
-                  the work of making this scannable; it just needed to own the
-                  surface too. */}
+              {/* One surface per day, with hairlines between the rows. Not
+                  .glass-row on each: the group container is the .glass-panel,
+                  and a row inside it would stack a second blurred layer per row
+                  — putting a wall of separate surfaces back on the Glass theme. */}
               <div
                 className="glass-panel overflow-hidden rounded-2xl"
                 style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}
               >
-              {group.events.map((event, i) => (
-                <div key={event.id} style={i > 0 ? { borderTop: "1px solid var(--border)" } : undefined}>
-                <div
-                  // Not .glass-row: the group container is the .glass-panel now,
-                  // and a row inside it would stack a second blurred layer per
-                  // row and re-tint each one with `!important` — putting the
-                  // wall of separate surfaces back on the Glass theme. Its only
-                  // other job was restoring the hover answer that an inline
-                  // `background` used to beat, and there is no longer one here.
-                  //
-                  // The row is a plain container, not a control. It used to be a
-                  // role="button" with the note and delete buttons inside it —
-                  // a button nested in a button, which has no defined mapping
-                  // and which assistive tech resolves differently from one
-                  // implementation to the next. What opens the panel is now the
-                  // overlay below, a sibling of the two action buttons rather
-                  // than their ancestor.
-                  className="group relative flex items-center gap-3 px-3 py-2.5 transition-colors hover:bg-[var(--surface-strong)]"
-                >
-                  {/* Fills the row behind its content, so the whole row is still
-                      one click target and still takes the inset ring on focus.
-                      The content is `pointer-events-none` so clicks fall through
-                      to this; the two action buttons opt back in and stack above
-                      it. */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedItem(toSearchResult(event))}
-                    aria-label={`View details for ${watchEventLabel(event)}`}
-                    className="absolute inset-0 z-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
-                  />
-
-                  {/* A 2:3 box, so a poster fills it instead of being cropped to
-                      a square through its middle — the old 48px square showed a
-                      band across the artwork that identified nothing. 40x60 is
-                      as small as a poster can be and still be recognisable, and
-                      it keeps the row close to the height it had. */}
-                  <div
-                    className="pointer-events-none flex aspect-poster w-10 flex-none items-center justify-center overflow-hidden rounded-lg"
-                    style={{ background: "var(--surface-strong)" }}
-                  >
-                    {event.poster ? (
-                      // `Poster`, not a bare `<img>`: it brings the srcset (a
-                      // 40px slot was pulling a w500 poster), the shimmer while
-                      // the bytes are in flight, and the initials fallback when
-                      // the image 404s — which a raw tag renders as a hole.
-                      <Poster src={event.poster} alt={watchEventTitle(event)} className="h-full w-full" sizes="40px" />
-                    ) : event.type === "movie" ? (
-                      <Film className="h-5 w-5" style={{ color: "var(--text-mute)" }} />
-                    ) : (
-                      <Tv className="h-5 w-5" style={{ color: "var(--text-mute)" }} />
-                    )}
+                {day.rows.map((row, i) => (
+                  <div key={row.kind === "single" ? row.event.id : `run-${row.events[0].id}`} style={i > 0 ? { borderTop: "1px solid var(--border)" } : undefined}>
+                    {row.kind === "single" ? singleRow(row.event) : runRow(row.events, day.key)}
                   </div>
-
-                  <div className="pointer-events-none relative min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium" style={{ color: "var(--text)" }}>
-                      {watchEventTitle(event)}
-                      {event.type === "episode" && event.season != null && event.episode != null && (
-                        <span className="meta-row" style={{ color: "var(--text-mute)" }}>
-                          {" "}S{event.season}E{event.episode}
-                        </span>
-                      )}
-                    </p>
-                    <p className="meta-row" style={{ color: "var(--text-mute)" }}>
-                      {new Date(event.watchedAt).toLocaleString(undefined, {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </p>
-                    {event.note && editingNoteId !== event.id && (
-                      <p className="mt-1 whitespace-pre-wrap text-xs italic" style={{ color: "var(--text-dim)" }}>
-                        {event.note}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* `relative z-10` puts these above the row overlay, which
-                      would otherwise take the click. They no longer need to stop
-                      the event: the overlay is a sibling, so nothing bubbles
-                      from here to it. */}
-                  <button
-                    type="button"
-                    onClick={() => openNoteEditor(event)}
-                    className="relative z-10 flex h-9 w-9 flex-none items-center justify-center rounded-lg opacity-100 transition-[opacity,color,background-color] duration-fast sm:opacity-0 sm:group-hover:opacity-100 hover:bg-[var(--surface-strong)] focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-                    aria-label={event.note ? `Edit note on ${watchEventLabel(event)}` : `Add note to ${watchEventLabel(event)}`}
-                    title={event.note ? "Edit note" : "Add note"}
-                  >
-                    <NotebookPen aria-hidden="true" className="h-4 w-4" style={{ color: event.note ? "var(--accent-text)" : "var(--text-mute)" }} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleDelete(event)}
-                    disabled={deletingId === event.id}
-                    className="relative z-10 flex h-9 w-9 flex-none items-center justify-center rounded-lg opacity-100 transition-[opacity,color,background-color] duration-fast sm:opacity-0 sm:group-hover:opacity-100 hover:bg-rose-500/10 disabled:opacity-50 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-ring-offset"
-                    aria-label={`Delete watch of ${watchEventLabel(event)}`}
-                    title="Remove from history"
-                  >
-                    <Trash2 aria-hidden="true" className="h-4 w-4 text-danger dark:text-danger" />
-                  </button>
-                </div>
-
-                {/* Outside the row, which is itself a button: a field nested in
-                    one would open the detail panel on every click into it. */}
-                {editingNoteId === event.id && (
-                  <div className="px-3 pb-3">
-                    <label className="sr-only" htmlFor={`note-${event.id}`}>
-                      Note on {event.name || "this watch"}
-                    </label>
-                    <textarea
-                      id={`note-${event.id}`}
-                      autoFocus
-                      rows={2}
-                      value={noteDraft}
-                      onChange={(e) => setNoteDraft(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); closeNoteEditor(); } }}
-                      placeholder="What did you think?"
-                      className="w-full resize-y rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-focus"
-                      style={{ border: "1px solid var(--border)", background: "var(--bg-0)", color: "var(--text)" }}
-                    />
-                    <div className="mt-2 flex justify-end gap-2">
-                      <button type="button" className="btn-secondary btn-sm" onClick={closeNoteEditor} disabled={savingNote}>
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-primary btn-sm"
-                        onClick={() => void handleSaveNote(event)}
-                        disabled={savingNote}
-                      >
-                        {savingNote ? "Saving…" : "Save note"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-                </div>
-              ))}
+                ))}
               </div>
-            </div>
+            </section>
           ))}
         </div>
       )}
@@ -520,20 +845,6 @@ export function HistoryPage() {
             <p className="text-sm" style={{ color: "var(--text-dim)" }}>Loading...</p>
           )}
         </div>
-      )}
-
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={(updated) => setPanelHistory(updated)}
-          onSelectItem={setSelectedItem}
-        />
       )}
     </div>
   );

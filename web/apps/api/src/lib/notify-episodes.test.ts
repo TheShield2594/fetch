@@ -60,7 +60,7 @@ describe("checkUpcomingEpisodesAndNotify", () => {
       expect.objectContaining({
         event: "upcoming-episode",
         title: "Severance — new episode today",
-        path: "/calendar",
+        path: "/calendar?title=series%3Att11280740",
         data: expect.objectContaining({ seriesImdbId: "tt11280740", season: 2, episode: 4 }),
       }),
       "profile-1"

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { PosterSizesContext } from "./Poster";
 
 /**
  * The grid a page of posters sits in.
@@ -27,6 +28,45 @@ const DENSITIES: Record<PosterGridDensity, string> = {
   compact: "grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5",
 };
 
+/**
+ * How wide one cell is, per density, as an `<img sizes>` list.
+ *
+ * Worked out from the column counts above and the shell around them: the page
+ * is capped at 1400px, with a 64px rail and 24px gutters from `sm` up, and
+ * 20px gutters below it. Each entry is (content width − gaps) ÷ columns. The
+ * attribute is read before any stylesheet, so these have to be literal lengths
+ * that restate the layout rather than read it; a stale one costs bytes, not
+ * layout. With the rail pinned open the cells are a little narrower than this
+ * says, which errs toward the sharper file.
+ */
+const SIZES: Record<PosterGridDensity, string> = {
+  page: [
+    "(min-width: 1400px) 242px",
+    "(min-width: 1024px) calc((100vw - 192px) / 5)",
+    "(min-width: 768px) calc((100vw - 172px) / 4)",
+    "(min-width: 640px) calc((100vw - 152px) / 3)",
+    "calc((100vw - 60px) / 2)",
+  ].join(", "),
+  library: [
+    "(min-width: 1400px) 170px",
+    "(min-width: 1280px) calc((100vw - 208px) / 7)",
+    "(min-width: 1024px) calc((100vw - 192px) / 6)",
+    "(min-width: 768px) calc((100vw - 176px) / 5)",
+    "(min-width: 640px) calc((100vw - 160px) / 4)",
+    "calc((100vw - 64px) / 3)",
+  ].join(", "),
+  // Inside a panel with 20px of padding, in a column capped at 896px.
+  compact: [
+    "(min-width: 1008px) 162px",
+    "(min-width: 768px) calc((100vw - 200px) / 5)",
+    "(min-width: 640px) calc((100vw - 176px) / 3)",
+    "calc((100vw - 92px) / 2)",
+  ].join(", "),
+};
+
+/** Exported for the test that keeps these in step with the columns. */
+export const posterGridSizes = (density: PosterGridDensity): string => SIZES[density];
+
 export function PosterGrid({
   density = "page",
   className = "",
@@ -37,5 +77,9 @@ export function PosterGrid({
   className?: string | undefined;
   children: ReactNode;
 }) {
-  return <div className={`grid ${DENSITIES[density]} ${className}`.trimEnd()}>{children}</div>;
+  return (
+    <PosterSizesContext.Provider value={SIZES[density]}>
+      <div className={`grid ${DENSITIES[density]} ${className}`.trimEnd()}>{children}</div>
+    </PosterSizesContext.Provider>
+  );
 }

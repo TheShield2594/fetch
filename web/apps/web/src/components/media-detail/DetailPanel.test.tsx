@@ -12,6 +12,7 @@ vi.mock("../../api", async (importOriginal) => {
     api: {
       getCheckin: vi.fn(),
       getLists: vi.fn(),
+      getItemLists: vi.fn(),
       getRating: vi.fn(),
       getItemTags: vi.fn(),
       getWatchHistory: vi.fn(),
@@ -30,6 +31,7 @@ vi.mock("../../api", async (importOriginal) => {
 const { api } = await import("../../api");
 const getCheckin = vi.mocked(api.getCheckin);
 const getLists = vi.mocked(api.getLists);
+const getItemLists = vi.mocked(api.getItemLists);
 const getRating = vi.mocked(api.getRating);
 const getItemTags = vi.mocked(api.getItemTags);
 const deleteWatchEvent = vi.mocked(api.deleteWatchEvent);
@@ -87,6 +89,7 @@ function renderPanel(over: Partial<Parameters<typeof DetailPanel>[0]> = {}) {
 beforeEach(() => {
   getCheckin.mockResolvedValue({ checkin: null });
   getLists.mockResolvedValue({ lists: [] });
+  getItemLists.mockResolvedValue({ lists: [] });
   getRating.mockResolvedValue({ rating: { rating: null } } as never);
   getItemTags.mockResolvedValue({ tags: [] });
   vi.mocked(api.getWatchedEpisodes).mockResolvedValue({ episodes: [] } as never);
@@ -349,5 +352,33 @@ describe("DetailPanel actions", () => {
     expect(link).toHaveAttribute("href", "https://www.themoviedb.org/movie/593");
     // Inside the row the scores are in, not in one of its own.
     expect(link.parentElement).toContainElement(screen.getByText("7.9"));
+  });
+});
+
+// A title reached by URL, a recommendation hop or a Stats poster arrives with
+// `lists: []`, whatever lists it is really on.
+describe("DetailPanel list membership", () => {
+  it("asks which lists the title is on rather than trusting what the opener knew", async () => {
+    getLists.mockResolvedValue({
+      lists: [{ id: "wl", name: "Watchlist", kind: "watchlist" }],
+    } as Awaited<ReturnType<typeof api.getLists>>);
+    getItemLists.mockResolvedValue({
+      lists: [{ listId: "wl", listName: "Watchlist", listKind: "watchlist", type: "movie", addedAt: "2026-01-01T00:00:00.000Z" }],
+    });
+    renderPanel();
+
+    expect(await screen.findByRole("button", { name: "Remove from Watchlist" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Add Solaris to Watchlist" })).toBeNull();
+    expect(getItemLists).toHaveBeenCalledWith(MOVIE.imdbId);
+  });
+
+  it("keeps what it was given when the membership request fails", async () => {
+    getLists.mockResolvedValue({
+      lists: [{ id: "wl", name: "Watchlist", kind: "watchlist" }],
+    } as Awaited<ReturnType<typeof api.getLists>>);
+    getItemLists.mockRejectedValue(new Error("offline"));
+    renderPanel({ item: { ...MOVIE, lists: ["wl"] } });
+
+    expect(await screen.findByRole("button", { name: "Remove from Watchlist" })).toBeInTheDocument();
   });
 });

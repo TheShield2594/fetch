@@ -10,7 +10,7 @@ import {
   type SeriesProgress,
   type WatchEvent,
 } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { GhostLoader } from "../components/GhostLoader";
 import { Poster } from "../components/Poster";
 import { ProgressRuler } from "../components/ProgressRuler";
@@ -308,6 +308,10 @@ export function ShelfPage() {
   const filter: ShelfFilter = SHELF_FILTERS.some((f) => f.value === filterParam)
     ? (filterParam as ShelfFilter)
     : "all";
+  // `/?genre=Drama` — what a genre on the Stats page links to. Not a control of
+  // its own on this page: it arrives by link and is cleared from the chip it
+  // shows up as.
+  const genre = searchParams.get("genre")?.trim() || null;
 
   const [items, setItems, itemsMeta] = useCachedState<ListItemWithMeta[]>(SHELF_ITEMS_CACHE_KEY, []);
   const [progress, setProgress] = useCachedState<SeriesProgress[]>(PROGRESS_CACHE_KEY, []);
@@ -324,15 +328,7 @@ export function ShelfPage() {
   const loadAbortRef = useRef<AbortController | null>(null);
 
   const { showToast } = useToast();
-  const {
-    selectedItem,
-    setSelectedItem,
-    panelHistory,
-    setPanelHistory,
-    panelHistoryLoading,
-    detail: panelDetail,
-    detailLoading: panelDetailLoading,
-  } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
 
   const load = useCallback(async () => {
     loadAbortRef.current?.abort();
@@ -384,6 +380,10 @@ export function ShelfPage() {
     return () => loadAbortRef.current?.abort();
   }, [load]);
 
+  // The panel can mark episodes watched and change lists, which moves the rows
+  // on this page.
+  useOnTitleClose(() => { void load(); });
+
   /* ── Continue Watching ── */
 
   // Already newest-paused first from the API, which is the order to resume in.
@@ -433,12 +433,20 @@ export function ShelfPage() {
     () => new Set([...continueWatching, ...inProgress].map((entry) => entry.key)),
     [continueWatching, inProgress]
   );
-  const rest = useMemo(
-    () => applyShelfFilter(shelf, filter).filter((entry) => !inProgressKeys.has(entry.key)),
-    [shelf, filter, inProgressKeys]
-  );
+  const rest = useMemo(() => {
+    const ofKind = applyShelfFilter(shelf, filter);
+    // A genre is a question about the whole library, so it is answered from
+    // the whole library: the rows pinned above are hidden while it is on (they
+    // come from feeds that carry no genres), and a title that would have been
+    // up there is counted here instead of nowhere.
+    if (genre) {
+      const wanted = genre.toLowerCase();
+      return ofKind.filter((entry) => entry.item?.genres.some((g) => g.toLowerCase() === wanted));
+    }
+    return ofKind.filter((entry) => !inProgressKeys.has(entry.key));
+  }, [shelf, filter, genre, inProgressKeys]);
 
-  useEffect(() => setRenderLimit(RENDER_PAGE_SIZE), [filter]);
+  useEffect(() => setRenderLimit(RENDER_PAGE_SIZE), [filter, genre]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -460,7 +468,7 @@ export function ShelfPage() {
   /* ── Actions ── */
 
   const openEntry = (entry: ShelfEntry) => {
-    if (entry.item) setSelectedItem(entry.item);
+    if (entry.item) openTitle(entry.item);
   };
 
   const markNext = async (s: SeriesProgress) => {
@@ -640,7 +648,7 @@ export function ShelfPage() {
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-7">
-          {visibleContinue.length > 0 && (
+          {!genre && visibleContinue.length > 0 && (
             <section aria-labelledby="shelf-continue">
               <h2 id="shelf-continue" className={`${SECTION_TITLE} mb-3`} style={{ color: "var(--text)" }}>
                 Continue Watching
@@ -672,7 +680,7 @@ export function ShelfPage() {
             </section>
           )}
 
-          {visibleInProgress.length > 0 && (
+          {!genre && visibleInProgress.length > 0 && (
             <section aria-labelledby="shelf-up-next">
               <h2 id="shelf-up-next" className={`${SECTION_TITLE} mb-3`} style={{ color: "var(--text)" }}>
                 Up Next
@@ -730,10 +738,49 @@ export function ShelfPage() {
               </span>
             </div>
 
-            {rest.length === 0 ? (
-              <p className="py-10 text-center text-sm" style={{ color: "var(--text-mute)" }}>
-                Nothing else under this filter.
+            {genre && (
+              <p className="mb-3 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-medium"
+                  style={{ border: "1px solid var(--border)", background: "var(--surface-strong)", color: "var(--text)" }}
+                >
+                  {genre}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSearchParams(
+                      (prev) => {
+                        const params = new URLSearchParams(prev);
+                        params.delete("genre");
+                        return params;
+                      },
+                      { replace: true }
+                    )
+                  }
+                  className="font-medium text-claw-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                >
+                  Show every genre
+                </button>
               </p>
+            )}
+
+            {rest.length === 0 ? (
+              genre ? (
+                <p className="py-10 text-center text-sm" style={{ color: "var(--text-mute)" }}>
+                  Nothing on the shelf in {genre}.{" "}
+                  <Link
+                    to={`/search?genre=${encodeURIComponent(genre)}`}
+                    className="font-medium text-claw-text underline-offset-2 hover:underline"
+                  >
+                    Browse {genre} in Search
+                  </Link>
+                </p>
+              ) : (
+                <p className="py-10 text-center text-sm" style={{ color: "var(--text-mute)" }}>
+                  Nothing else under this filter.
+                </p>
+              )
             ) : (
               /* Three across on a phone rather than two. A poster is
                  recognisable well below the width two-up gives it, and three is
@@ -751,19 +798,6 @@ export function ShelfPage() {
         </div>
       )}
 
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={setPanelHistory}
-          onSelectItem={setSelectedItem}
-        />
-      )}
 
     </div>
   );

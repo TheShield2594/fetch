@@ -3,11 +3,10 @@ import { useNavigate } from "react-router";
 import { BarChart3, CalendarDays, Compass, Film, History, Library, List, Search, Settings, Tv } from "lucide-react";
 import { api, type SearchResult } from "../api";
 import { Poster } from "./Poster";
-import { DetailPanel, useDetailPanel } from "./MediaDetailPanel";
+import { useOnTitleClose, useTitlePanel } from "./media-detail/titlePanel";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useFocusTrap } from "../hooks/useFocusTrap";
-import { useToast } from "../hooks/useToast";
 import { useVisualViewport } from "../hooks/useVisualViewport";
 import { MICRO_LABEL } from "./typography";
 
@@ -22,6 +21,15 @@ type Action = {
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { openTitle, current: openedTitle } = useTitlePanel();
+  // A title opened from a result is drawn by the shell; this stands down
+  // while it is up (see the early return below).
+  const openedByPalette = openedTitle?.overScrim === true;
+  // The trap follows what is on screen, not `open`: while the title panel has
+  // replaced the dialog there is nothing here to trap, and when the dialog
+  // comes back it is a new element that needs the trap attached again — which
+  // also puts focus back in the field.
+  const dialogRef = useFocusTrap<HTMLDivElement>(open && !openedByPalette);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   // The debounce cancels the timer, which does nothing for a request already on
   // its way. `SearchPage` and `ListsPage` both pair the abort with a request id,
@@ -35,11 +43,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const dialogRef = useFocusTrap<HTMLDivElement>(open);
   const activeRowRef = useRef<HTMLButtonElement>(null);
-  const { showToast } = useToast();
   const viewportStyle = useVisualViewport(open);
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
   const { exiting, requestClose, onExitAnimationEnd, reset } = useExitAnimation(onClose);
 
   // A DetailPanel opened from a result is drawn over a scrim this palette
@@ -48,6 +53,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   // keeps the backdrop reading as one surface. State rather than a render-time
   // ref read, so the class can't flip mid-session and replay the fade.
   const [scrimHandedBack, setScrimHandedBack] = useState(false);
+  useOnTitleClose(() => { if (open) setScrimHandedBack(true); });
 
   // Bottom of the stack relative to any DetailPanel opened from a result, so
   // Escape closes the panel back to the palette rather than both at once.
@@ -149,8 +155,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   }, [navigate, requestClose]);
 
   const openDetail = useCallback((r: SearchResult) => {
-    setSelectedItem(r);
-  }, [setSelectedItem]);
+    openTitle(r, { overScrim: true });
+  }, [openTitle]);
 
   const actions: Action[] = [
     { id: "nav-shelf", label: "Go to Shelf", icon: Library, run: () => { requestClose(); navigate("/"); } },
@@ -234,32 +240,11 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     }
   };
 
-  if (!open && !selectedItem) return null;
-
-  if (selectedItem) {
-    return (
-      <DetailPanel
-        item={selectedItem}
-        history={panelHistory}
-        historyLoading={panelHistoryLoading}
-        detail={panelDetail}
-        detailLoading={panelDetailLoading}
-        // The panel opens over the scrim this palette already faded in.
-        staticScrim
-        // Drops back to the palette rather than dismissing both layers — the
-        // palette keeps its query and results, so the next title is one click away.
-        onClose={() => {
-          setScrimHandedBack(true);
-          setSelectedItem(null);
-        }}
-        onShowToast={showToast}
-        onHistoryChange={(events) => setPanelHistory(events)}
-        onSelectItem={setSelectedItem}
-      />
-    );
-  }
-
-  if (!open) return null;
+  // The shell draws the panel; while one opened from here is up, this stands
+  // down and leaves its scrim to it. `open` stays true underneath, so closing
+  // the panel — the button or Back — drops back to the palette with its query
+  // and results intact rather than dismissing both layers.
+  if (!open || openedByPalette) return null;
 
   return (
     <div

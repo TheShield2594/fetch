@@ -34,6 +34,18 @@ export function ListsSection({
 
   useEffect(() => {
     setMemberIds(initialListIdsRef.current);
+    // What the opener knew is only a starting point, and often nothing: a
+    // title reached by URL, a recommendation hop or a Stats poster arrives
+    // with no lists at all, which drew a title already on the Watchlist as
+    // one that could be added to it. Ask, and keep what was passed in until
+    // the answer lands — or for good, if it never does.
+    let cancelled = false;
+    api.getItemLists(imdbId)
+      .then((res) => {
+        if (!cancelled) setMemberIds(res.lists.filter((entry) => entry.type === type).map((entry) => entry.listId));
+      })
+      .catch(() => { /* best-effort: the passed-in membership stands */ });
+    return () => { cancelled = true; };
   }, [imdbId, type]);
 
   useEffect(() => {

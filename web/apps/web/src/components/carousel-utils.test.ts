@@ -1,8 +1,8 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
-  FALLBACK_GRADIENTS,
-  getGradient,
+  TITLE_TINT_COUNT,
+  titleTint,
   getInitials,
   useHorizontalScroll,
 } from "./carousel-utils";
@@ -35,30 +35,41 @@ describe("getInitials", () => {
   });
 });
 
-describe("getGradient", () => {
-  it("always returns one of the known gradients", () => {
+describe("titleTint", () => {
+  const key = (name: string | null) => {
+    const tint = titleTint(name);
+    return `${tint.color}@${tint.strength}`;
+  };
+
+  it("is built from theme tokens, not from a fixed palette", () => {
     for (const name of ["Dune", "Arrival", "Andor", "Chernobyl", "Fleabag"]) {
-      expect(FALLBACK_GRADIENTS).toContain(getGradient(name));
+      expect(titleTint(name).color).toMatch(/var\(--accent(-2)?-rgb\)/);
     }
   });
 
   it("is stable for the same name", () => {
-    expect(getGradient("Succession")).toBe(getGradient("Succession"));
+    expect(key("Succession")).toBe(key("Succession"));
   });
 
-  it("spreads different names across more than one gradient", () => {
+  it("spreads different names across more than one tint", () => {
     const names = ["Dune", "Arrival", "Andor", "Chernobyl", "Fleabag", "Barry", "Severance"];
-    expect(new Set(names.map(getGradient)).size).toBeGreaterThan(1);
+    expect(new Set(names.map(key)).size).toBeGreaterThan(1);
   });
 
-  it("uses the first gradient for missing names", () => {
-    expect(getGradient(null)).toBe(FALLBACK_GRADIENTS[0]);
-    expect(getGradient("")).toBe(FALLBACK_GRADIENTS[0]);
+  it("can reach every tint it defines", () => {
+    const seen = new Set(Array.from({ length: 400 }, (_, i) => key(`Title ${i}`)));
+    expect(seen.size).toBe(TITLE_TINT_COUNT);
+  });
+
+  it("gives a missing name a tint rather than nothing", () => {
+    expect(key(null)).toBe(key(""));
+    expect(titleTint(null).strength).toBeGreaterThan(0);
   });
 
   it("stays in range for names whose hash overflows to a negative int", () => {
-    const long = "x".repeat(500);
-    expect(FALLBACK_GRADIENTS).toContain(getGradient(long));
+    const tint = titleTint("x".repeat(500));
+    expect(tint.color).toBeTruthy();
+    expect(tint.strength).toBeGreaterThan(0);
   });
 });
 

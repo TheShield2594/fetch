@@ -16,6 +16,28 @@ import { UUID_V4_PATTERN } from "../lib/types.js";
 const MAX_NOTE_LENGTH = 2_000;
 const noteTooLongMessage = `note must be at most ${MAX_NOTE_LENGTH.toLocaleString("en-US")} characters`;
 
+/** How many of a year's most-watched titles the Year in Review carries. */
+const MOST_WATCHED_LIMIT = 12;
+
+/** A title search is a few words; anything longer is not one. */
+const MAX_HISTORY_QUERY_LENGTH = 100;
+/**
+ * How many *watched* titles a history search may match before the rest are
+ * dropped. The ids go into an `IN (…)`, and a one-letter query on a long
+ * history would otherwise put most of it there.
+ */
+const MAX_HISTORY_QUERY_TITLES = 500;
+
+/** Whether `Intl` — and so Postgres, which reads the same tz database — knows this zone. */
+const isTimeZone = (value: string): boolean => {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 function serializeWatchEvent<T extends { traktHistoryId: bigint | null }>(event: T) {
   return { ...event, traktHistoryId: event.traktHistoryId != null ? event.traktHistoryId.toString() : null };
 }
@@ -291,7 +313,9 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
     return reply.code(204).send();
   });
 
-  app.get<{ Querystring: { limit?: string; offset?: string; imdbId?: string; type?: string } }>(
+  app.get<{
+    Querystring: { limit?: string; offset?: string; imdbId?: string; type?: string; q?: string; before?: string };
+  }>(
     "/watch/history",
     async (request, reply) => {
       const limit = Math.min(Math.max(Number(request.query.limit) || 50, 1), 200);
@@ -299,7 +323,7 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
 
       // A repeated parameter (`?type=a&type=b`) parses as an array, and calling
       // a string method on one is a 500 where the caller sent a bad request.
-      for (const field of ["imdbId", "type"] as const) {
+      for (const field of ["imdbId", "type", "q", "before"] as const) {
         if (request.query[field] !== undefined && typeof request.query[field] !== "string") {
           return reply.code(400).send({ error: `${field} must be given at most once` });
         }
@@ -319,11 +343,61 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       }
       const type = rawType === "movie" || rawType === "episode" ? rawType : undefined;
 
+      // Where the page starts in time: everything strictly before this instant.
+      // It is what lets a client open the list at a given month instead of
+      // paging through every event since — the offset then counts from there.
+      const rawBefore = request.query.before?.trim();
+      let before: Date | undefined;
+      if (rawBefore) {
+        before = new Date(rawBefore);
+        if (Number.isNaN(before.getTime())) {
+          return reply.code(400).send({ error: "before must be an ISO 8601 date" });
+        }
+      }
+
+      // A search within history is a search over titles, and an event carries
+      // none — the name lives on the metadata row of the film or the series. So
+      // the text is resolved to ids first and the events filtered by those.
+      const q = request.query.q?.trim();
+      if (q && q.length > MAX_HISTORY_QUERY_LENGTH) {
+        return reply.code(400).send({ error: `q must be at most ${MAX_HISTORY_QUERY_LENGTH} characters` });
+      }
+      let matchingIds: string[] | undefined;
+      if (q) {
+        // One query, over the titles this profile has watched. Matching the
+        // whole metadata table first and capping that would drop a watched
+        // title whenever enough unwatched ones shared the word — the cap has
+        // to fall on the answer, not on the haystack.
+        //
+        // `%`, `_` and `\` are escaped so they are searched for as typed
+        // rather than read as LIKE wildcards.
+        const pattern = `%${q.replace(/[\\%_]/g, "\\$&")}%`;
+        const matches = await prisma.$queryRaw<{ imdbId: string }[]>(Prisma.sql`
+          SELECT m."imdbId"
+          FROM "Metadata" m
+          WHERE m.name ILIKE ${pattern} ESCAPE '\\'
+            AND m.type IN ('movie', 'series')
+            AND EXISTS (
+              SELECT 1 FROM "WatchEvent" w
+              WHERE w."profileId" = ${request.profileId!}::uuid
+                AND (w."imdbId" = m."imdbId" OR w."seriesImdbId" = m."imdbId")
+            )
+          LIMIT ${MAX_HISTORY_QUERY_TITLES}
+        `);
+        matchingIds = [...new Set(matches.map((m) => m.imdbId))];
+        if (matchingIds.length === 0) return { history: [] };
+      }
+
+      const filters: Prisma.WatchEventWhereInput[] = [];
+      if (imdbId) filters.push({ OR: [{ imdbId }, { seriesImdbId: imdbId }] });
+      if (matchingIds) filters.push({ OR: [{ imdbId: { in: matchingIds } }, { seriesImdbId: { in: matchingIds } }] });
+
       const events = await prisma.watchEvent.findMany({
         where: {
           profileId: request.profileId!,
-          ...(imdbId ? { OR: [{ imdbId }, { seriesImdbId: imdbId }] } : {}),
           ...(type ? { type } : {}),
+          ...(before ? { watchedAt: { lt: before } } : {}),
+          ...(filters.length > 0 ? { AND: filters } : {}),
         },
         orderBy: { watchedAt: "desc" },
         take: limit,
@@ -338,24 +412,97 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
         .map((e) => e.seriesImdbId!);
       const allMetadataIds = [...new Set([...movieImdbIds, ...seriesImdbIds])];
 
-      const metadata =
+      // The profile's own ratings for the titles on this page — the film's, the
+      // show's, and any episode's — so a row can show what was thought of it
+      // without a request per row.
+      const [metadata, ratings] =
         allMetadataIds.length > 0
-          ? await prisma.metadata.findMany({
-              where: { imdbId: { in: allMetadataIds } },
-              select: { imdbId: true, type: true, name: true, poster: true },
-            })
-          : [];
+          ? await Promise.all([
+              prisma.metadata.findMany({
+                where: { imdbId: { in: allMetadataIds } },
+                select: { imdbId: true, type: true, name: true, poster: true, runtime: true },
+              }),
+              prisma.rating.findMany({
+                where: {
+                  profileId: request.profileId!,
+                  imdbId: { in: allMetadataIds },
+                  type: { in: ["movie", "series", "episode"] },
+                },
+                select: { imdbId: true, type: true, season: true, episode: true, rating: true },
+              }),
+            ])
+          : [[], []];
 
       const metadataByImdbId = new Map(metadata.map((m) => [m.imdbId, m]));
+      const ratingByKey = new Map(
+        ratings.map((r) => [`${r.type}:${r.imdbId}:${r.season}:${r.episode}`, r.rating])
+      );
 
       const history = events.map((event) => {
         const lookupId =
           event.type === "episode" && event.seriesImdbId ? event.seriesImdbId : event.imdbId;
         const meta = metadataByImdbId.get(lookupId);
-        return { ...serializeWatchEvent(event), name: meta?.name ?? null, poster: meta?.poster ?? null };
+        const isEpisode = event.type === "episode";
+        return {
+          ...serializeWatchEvent(event),
+          name: meta?.name ?? null,
+          poster: meta?.poster ?? null,
+          // Minutes. For an episode this is the show's usual episode length,
+          // which is the only runtime the metadata row holds.
+          runtime: meta?.runtime ?? null,
+          // The rating of the thing this row is a watch of: the film, or this
+          // episode. `seriesRating` is the show's, for an episode row.
+          rating: isEpisode
+            ? (ratingByKey.get(`episode:${lookupId}:${event.season ?? 0}:${event.episode ?? 0}`) ?? null)
+            : (ratingByKey.get(`movie:${lookupId}:0:0`) ?? null),
+          seriesRating: isEpisode ? (ratingByKey.get(`series:${lookupId}:0:0`) ?? null) : null,
+        };
       });
 
       return { history };
+    }
+  );
+
+  /**
+   * The months that have history in them, newest first, with a count each.
+   *
+   * What a "jump to" menu is built from: the list itself is paged 25 rows at a
+   * time, so without this the only way to learn that March has anything in it
+   * is to scroll there. Months are cut in the caller's time zone (`tz`, an IANA
+   * name) so they agree with the day headings the client draws; undated
+   * watches belong to no month and are left out.
+   */
+  app.get<{ Querystring: { tz?: string; type?: string } }>(
+    "/watch/history/months",
+    async (request, reply) => {
+      for (const field of ["tz", "type"] as const) {
+        if (request.query[field] !== undefined && typeof request.query[field] !== "string") {
+          return reply.code(400).send({ error: `${field} must be given at most once` });
+        }
+      }
+      const tz = request.query.tz?.trim() || "UTC";
+      if (!isTimeZone(tz)) return reply.code(400).send({ error: "tz must be an IANA time zone name" });
+
+      const rawType = request.query.type?.trim();
+      if (rawType !== undefined && rawType !== "" && rawType !== "movie" && rawType !== "episode") {
+        return reply.code(400).send({ error: "type must be one of: movie, episode" });
+      }
+      const typeFilter =
+        rawType === "movie" || rawType === "episode"
+          ? Prisma.sql`AND type = ${rawType}::"WatchEventType"`
+          : Prisma.empty;
+
+      const rows = await prisma.$queryRaw<{ month: string; events: number }[]>(Prisma.sql`
+        SELECT
+          to_char(date_trunc('month', "watchedAt" AT TIME ZONE ${tz}), 'YYYY-MM') AS month,
+          COUNT(*)::int AS events
+        FROM "WatchEvent"
+        WHERE "profileId" = ${request.profileId!}::uuid AND NOT "dateUnknown" ${typeFilter}
+        GROUP BY 1
+        ORDER BY 1 DESC
+      `);
+
+      return { months: rows.map((row) => ({ month: row.month, events: Number(row.events) })) };
     }
   );
 
@@ -574,6 +721,25 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       }
     }
 
+    // What the year was actually spent on: plays per title, episodes counted
+    // under their show. The page leads with this artwork, so it is the titles
+    // watched — not the titles rated, which is a different and smaller set.
+    const playsByTitle = new Map<string, number>();
+    for (const event of events) {
+      const lookupId = event.type === "episode" && event.seriesImdbId ? event.seriesImdbId : event.imdbId;
+      playsByTitle.set(lookupId, (playsByTitle.get(lookupId) ?? 0) + event.plays);
+    }
+    const mostWatched = [...playsByTitle.entries()]
+      .flatMap(([imdbId, plays]) => {
+        const meta = metadataByImdbId.get(imdbId);
+        // A title with no metadata yet has no name or poster to show.
+        return meta && (meta.type === "movie" || meta.type === "series")
+          ? [{ imdbId, type: meta.type, name: meta.name, poster: meta.poster, plays }]
+          : [];
+      })
+      .sort((a, b) => b.plays - a.plays || a.imdbId.localeCompare(b.imdbId))
+      .slice(0, MOST_WATCHED_LIMIT);
+
     const topRated = topRatings.map((r) => {
       const meta = metadataByImdbId.get(r.imdbId);
       return {
@@ -592,6 +758,7 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       totalRuntimeMinutes,
       topGenres,
       topRated,
+      mostWatched,
       busiestMonth,
       busiestMonthCount,
     };

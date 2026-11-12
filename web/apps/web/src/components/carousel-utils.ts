@@ -2,19 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 /* ─── Poster fallback helpers ─── */
 
-// Typed as non-empty so `FALLBACK_GRADIENTS[0]` — the answer for a title with
-// no name to hash — is a gradient rather than a maybe.
-export const FALLBACK_GRADIENTS: [string, ...string[]] = [
-  "from-rose-900 to-slate-900",
-  "from-violet-900 to-slate-900",
-  "from-blue-900 to-slate-900",
-  "from-emerald-900 to-slate-900",
-  "from-amber-900 to-slate-900",
-  "from-cyan-900 to-slate-900",
-  "from-fuchsia-900 to-slate-900",
-  "from-orange-900 to-slate-900",
-];
-
 export function getInitials(name: string | null | undefined): string {
   if (!name) return "?";
   return name
@@ -26,11 +13,46 @@ export function getInitials(name: string | null | undefined): string {
     .toUpperCase();
 }
 
-export function getGradient(name: string | null | undefined): string {
-  if (!name) return FALLBACK_GRADIENTS[0];
+/**
+ * A colour for a title, drawn from the theme it is shown in.
+ *
+ * Two jobs. It is the floor of every poster slot while the artwork is in
+ * flight, so a loading grid is a wall of different colours rather than of
+ * identical grey boxes; and it is the whole of the fallback when there is no
+ * artwork at all.
+ *
+ * It used to be one of eight fixed Tailwind `*-900 → slate-900` gradients,
+ * which belonged to none of the six themes — rose and emerald tiles on a page
+ * whose only accent is orange. What varies now is which of the theme's two
+ * accents a title takes and how much of it, so the spread comes from the
+ * palette already on screen. The pick is a hash of the name: stable across
+ * sessions, with nothing to store.
+ */
+export type TitleTint = {
+  /** A CSS colour built from theme tokens. */
+  color: string;
+  /** How much of `color` goes into the surface, as a percentage. */
+  strength: number;
+};
+
+const TINT_COLORS: [string, ...string[]] = [
+  "rgb(var(--accent-rgb))",
+  "rgb(var(--accent-2-rgb))",
+  "color-mix(in srgb, rgb(var(--accent-rgb)), rgb(var(--accent-2-rgb)))",
+];
+const TINT_STRENGTHS: [number, ...number[]] = [14, 20, 26, 32];
+
+/** How many distinct tints there are — for the test that they are all reachable. */
+export const TITLE_TINT_COUNT = TINT_COLORS.length * TINT_STRENGTHS.length;
+
+export function titleTint(name: string | null | undefined): TitleTint {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
-  return FALLBACK_GRADIENTS[Math.abs(hash) % FALLBACK_GRADIENTS.length] ?? FALLBACK_GRADIENTS[0];
+  for (let i = 0; i < (name?.length ?? 0); i++) hash = (hash * 31 + name!.charCodeAt(i)) | 0;
+  const pick = Math.abs(hash) % TITLE_TINT_COUNT;
+  return {
+    color: TINT_COLORS[pick % TINT_COLORS.length] ?? TINT_COLORS[0],
+    strength: TINT_STRENGTHS[Math.floor(pick / TINT_COLORS.length)] ?? TINT_STRENGTHS[0],
+  };
 }
 
 /* ─── Horizontal scroll hook ─── */

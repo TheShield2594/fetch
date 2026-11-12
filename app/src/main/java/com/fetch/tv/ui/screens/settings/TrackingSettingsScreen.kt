@@ -385,9 +385,7 @@ fun TrackingSettingsContent(
                 if (source != null) trackingViewModel.importFrom(source)
                 showImportDialog = false
             },
-            onDismiss = { showImportDialog = false },
-            width = 660.dp,
-            maxHeight = 360.dp
+            onDismiss = { showImportDialog = false }
         )
     }
 
@@ -903,10 +901,9 @@ private fun TrackingImportResultDialog(
     FetchDialog(
         onDismiss = onDismiss,
         title = title,
-        width = 560.dp,
         suppressFirstKeyUp = false
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
             lines.forEach { line ->
                 Text(
                     text = line,

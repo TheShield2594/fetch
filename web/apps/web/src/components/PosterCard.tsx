@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Poster, POSTER_GRID_SIZES } from "./Poster";
+import { Poster } from "./Poster";
 
 /**
  * The frame a poster sits in, and the one action a poster card has.
@@ -22,7 +22,7 @@ export function PosterCard({
   onOpen,
   openLabel,
   eager = false,
-  sizes = POSTER_GRID_SIZES,
+  sizes,
   hover = true,
   overlay,
   actions,
@@ -37,6 +37,7 @@ export function PosterCard({
   /** Defaults to "View details for <name>". */
   openLabel?: string | undefined;
   eager?: boolean | undefined;
+  /** Omit inside a `PosterGrid`, which knows its own column widths. */
   sizes?: string | undefined;
   /** The frame lifts slightly on hover. Off for a card inside a dense list. */
   hover?: boolean | undefined;

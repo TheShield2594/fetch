@@ -1,9 +1,28 @@
-import { useRef, useState } from "react";
-import { getGradient, getInitials } from "./carousel-utils";
+import { createContext, useContext, useRef, useState, type CSSProperties } from "react";
+import { getInitials, titleTint } from "./carousel-utils";
 import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_SRCSET_WIDTHS } from "../poster-widths";
 
-/** Default `sizes` for the poster grids, which share a layout across pages. */
+/**
+ * `sizes` for a poster whose slot nobody has described: about a fifth of a
+ * desktop column, or half a phone. `PosterGrid` replaces it with the real
+ * figure for the grid it lays out — see `PosterSizesContext`.
+ */
 export const POSTER_GRID_SIZES = "(min-width: 640px) 220px, 45vw";
+
+/**
+ * The `sizes` a poster inherits from the grid it is in.
+ *
+ * One hint used to serve every grid, and it was wrong for most of them: the
+ * Shelf's cells are about 170px wide at seven columns and were told 220px, so
+ * the browser fetched w342 for all of them; on a phone they are a third of the
+ * screen and were told 45vw, which at 3x selects w780 for a 115px slot. The
+ * grid knows its own column widths, so it is the grid that says — and a card
+ * placed in one picks the answer up without each page restating it.
+ */
+export const PosterSizesContext = createContext<string>(POSTER_GRID_SIZES);
+
+/** The smallest rung of TMDB's ladder: what the blurred placeholder is made of. */
+const PLACEHOLDER_WIDTH = TMDB_SRCSET_WIDTHS[0];
 
 /*
  * `sizes` for the dashboard's poster cards. These have to be literal lengths —
@@ -37,7 +56,7 @@ export function Poster({
   alt,
   className = "",
   eager = false,
-  sizes = "(min-width: 640px) 220px, 45vw",
+  sizes: sizesProp,
 }: {
   src?: string | undefined;
   alt: string | null | undefined;
@@ -46,6 +65,8 @@ export function Poster({
   /** `sizes` attribute matching this poster's actual rendered width, so the browser picks the right srcset entry. */
   sizes?: string | undefined;
 }) {
+  const inheritedSizes = useContext(PosterSizesContext);
+  const sizes = sizesProp ?? inheritedSizes;
   const [loadFailed, setLoadFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -73,30 +94,71 @@ export function Poster({
     setLoaded(false);
   }
 
+  // The slot's own colour, under everything else — see `titleTint`.
+  const tint = titleTint(alt);
+  const tintStyle = {
+    "--poster-tint": tint.color,
+    "--poster-tint-mix": `${tint.strength}%`,
+  } as CSSProperties;
+
   if (!src || loadFailed) {
+    /*
+     * No artwork: the title itself, on the title's tint.
+     *
+     * The slot is a container, and which of the two renderings shows is a
+     * container query in index.css: the full title, set in the interface face,
+     * wherever the slot is wide enough to hold one, and the initials in the
+     * thumbnails that are not. The title is drawn from `data-title` rather than
+     * as text, so a card that also captions the title underneath does not say
+     * it twice to a screen reader or to anything searching the page.
+     */
     return (
-      <div className={`flex items-center justify-center bg-gradient-to-br ${getGradient(alt)} ${className}`}>
-        <span className="text-xl font-bold text-white/60 select-none">
-          {getInitials(alt)}
-        </span>
+      <div className={`poster-art poster-fallback ${className}`} style={tintStyle}>
+        <span className="poster-fallback-initials select-none">{getInitials(alt)}</span>
+        {alt && <span className="poster-fallback-title" data-title={alt} aria-hidden="true" />}
       </div>
     );
   }
 
   const srcSet = buildTmdbSrcSet(src);
+  const sized = parseSizedTmdbImage(src);
+  // Only where the URL is one of TMDB's: another artwork provider has no small
+  // rendition to ask for, and gets the tint alone.
+  const placeholder = sized ? tmdbImageAtWidth(sized, PLACEHOLDER_WIDTH) : undefined;
 
-  // The wrapper carries the slot: a shimmer while bytes are in flight (the
-  // cards behind these images are transparent, so without it each poster pops
-  // out of nothing), settling to a plain surface once the image starts its
-  // fade so nothing animates behind an opaque picture.
+  /*
+   * Three layers in one slot, bottom to top: the title's tint, a w92 rendition
+   * of the same picture blurred to fill it, and the picture.
+   *
+   * It used to be a grey shimmer that the image faded in over, so a grid on a
+   * slow connection was a wall of identical boxes for as long as the artwork
+   * took. The tint is there from the first frame and is different per title;
+   * the w92 is a few kilobytes and lands well ahead of the real file, so the
+   * slot has the picture's own colours before it has the picture.
+   *
+   * The placeholder is an `<img loading="lazy">` rather than a background
+   * image, because a background is fetched for every slot in the document and
+   * this one should only be fetched for the slots near the viewport — the same
+   * rule the real image follows. It is dropped once the picture has loaded.
+   */
   return (
-    <div className={`${loaded ? "bg-[var(--surface-strong)]" : "skeleton"} ${className}`}>
+    <div className={`poster-art ${loaded ? "" : "poster-loading"} ${className}`} style={tintStyle}>
+      {placeholder && !loaded && (
+        <img
+          src={placeholder}
+          alt=""
+          aria-hidden="true"
+          className="poster-blur"
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+        />
+      )}
       <img
         src={src}
         srcSet={srcSet}
         sizes={srcSet ? sizes : undefined}
         alt={alt ?? "Poster"}
-        className={`h-full w-full object-cover transition-opacity duration-slow ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`poster-image transition-opacity duration-slow ${loaded ? "opacity-100" : "opacity-0"}`}
         loading={eager ? "eager" : "lazy"}
         decoding={eager ? "sync" : "async"}
         // Above-fold artwork is what the page looks like — it should outrank the

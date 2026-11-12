@@ -49,7 +49,7 @@ export const LIST_TINTS: [string, ...string[]] = [
  * the *id* rather than the name is the whole point: a renamed list keeps its
  * dot, because it is the same list.
  *
- * Same hash as `getGradient` in carousel-utils, for the same reason: a stable
+ * Same hash as `titleTint` in carousel-utils, for the same reason: a stable
  * pick out of a small palette, with no state to store.
  */
 export function listTint(list: CatalogList): string {

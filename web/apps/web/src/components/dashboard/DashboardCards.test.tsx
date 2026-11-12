@@ -103,7 +103,8 @@ describe("ContinueWatchingHero", () => {
 
   /** The decorative full-bleed backdrop, not the poster in the card's corner. */
   const backdropOf = (container: HTMLElement) =>
-    container.querySelector('img[aria-hidden="true"]');
+    // The poster's own loading placeholder is also a hidden image; it isn't this.
+    container.querySelector('img[aria-hidden="true"]:not(.poster-blur)');
   // The bottom-up cinematic scrim (see HERO_SCRIM) — a gradient that rises to
   // the top, painted only when there is a backdrop to darken.
   const scrimOf = (container: HTMLElement) =>

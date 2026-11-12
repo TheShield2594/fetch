@@ -4,7 +4,7 @@ import { api, type EpisodeInfo, OfflineWriteQueuedError, WATCH_STATE_STALE_EVENT
 import { ProgressRuler } from "../ProgressRuler";
 import { StarPicker } from "../StarPicker";
 import { KICKER } from "../typography";
-import { buildTmdbSrcSet } from "../Poster";
+import { parseSizedTmdbImage, tmdbImageAtWidth } from "../../poster-widths";
 
 export interface SeasonInfo {
   seasonNumber: number;
@@ -12,6 +12,20 @@ export interface SeasonInfo {
   episodeCount: number;
   airYear: number | null;
   poster: string | null;
+}
+
+/**
+ * The widths TMDB lists for stills that suit a 112px thumbnail: 185 for a 1x
+ * screen, 300 for a denser one. Not the poster ladder `buildTmdbSrcSet` offers:
+ * that includes w154 and w342, which TMDB publishes for posters and not for
+ * stills, and a still that failed to load at one of them would be dropped.
+ */
+const STILL_WIDTHS = [185, 300] as const;
+
+function stillSrcSet(src: string): string | undefined {
+  const image = parseSizedTmdbImage(src);
+  if (!image) return undefined;
+  return STILL_WIDTHS.map((w) => `${tmdbImageAtWidth(image, w)} ${w}w`).join(", ");
 }
 
 /**
@@ -31,7 +45,7 @@ function EpisodeStill({ src, dimmed }: { src: string | null | undefined; dimmed:
       {src && !failed && (
         <img
           src={src}
-          srcSet={buildTmdbSrcSet(src)}
+          srcSet={stillSrcSet(src)}
           sizes="112px"
           alt=""
           loading="lazy"

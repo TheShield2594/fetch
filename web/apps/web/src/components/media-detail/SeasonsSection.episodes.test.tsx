@@ -59,8 +59,10 @@ describe("episode rows", () => {
       "https://image.tmdb.org/t/p/w500/one.jpg",
       "https://image.tmdb.org/t/p/w500/two.jpg",
     ]);
-    // Offered at thumbnail widths, not only at the 500px the API stores.
-    expect(stills[0]?.getAttribute("srcset")).toContain("/w185/one.jpg 185w");
+    // Offered at the widths TMDB publishes for stills, not the poster ladder.
+    expect(stills[0]?.getAttribute("srcset")).toBe(
+      "https://image.tmdb.org/t/p/w185/one.jpg 185w, https://image.tmdb.org/t/p/w300/one.jpg 300w"
+    );
     // Three frames for three rows: the one without a picture holds its place.
     expect(container.querySelectorAll(".aspect-video")).toHaveLength(3);
   });

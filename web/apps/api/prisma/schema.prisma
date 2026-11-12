@@ -67,6 +67,10 @@ model Account {
   // The key itself is shown once when it is made; a new one replaces it.
   webhookKeyHash      String?   @unique
   webhookKeyCreatedAt DateTime? @db.Timestamptz(6)
+  // When a media server last reached a webhook with this key, to the minute
+  // (see `findWebhookKeyAccount`): what lets Settings say a link is working,
+  // rather than only that one exists.
+  webhookKeyLastUsedAt DateTime? @db.Timestamptz(6)
 
   profiles        Profile[]
   sessions        Session[]

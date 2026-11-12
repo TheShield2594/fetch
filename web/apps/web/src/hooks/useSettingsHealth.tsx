@@ -125,7 +125,7 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
       if (simkl) next.simkl = trackerHealth(simkl, timeAgo);
       if (mdblist) next.mdblist = trackerHealth(mdblist, timeAgo);
       if (mediaServers) next["media-servers"] = mediaServersHealth(mediaServers.servers, timeAgo);
-      if (webhook) next["media-server-webhooks"] = webhookHealth(webhook);
+      if (webhook) next["media-server-webhooks"] = webhookHealth(webhook, timeAgo);
 
       settledRef.current = true;
       setSections(next);

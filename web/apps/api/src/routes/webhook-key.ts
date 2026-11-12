@@ -18,9 +18,14 @@ const webhookKeyRoutes: FastifyPluginAsync = async (app) => {
     if (!accountId) return reply;
     const account = await prisma.account.findUnique({
       where: { id: accountId },
-      select: { webhookKeyHash: true, webhookKeyCreatedAt: true },
+      select: { webhookKeyHash: true, webhookKeyCreatedAt: true, webhookKeyLastUsedAt: true },
     });
-    return { configured: Boolean(account?.webhookKeyHash), createdAt: account?.webhookKeyCreatedAt ?? null };
+    return {
+      configured: Boolean(account?.webhookKeyHash),
+      createdAt: account?.webhookKeyCreatedAt ?? null,
+      // When a media server last reached a webhook with this key; null if none has.
+      lastUsedAt: account?.webhookKeyLastUsedAt ?? null,
+    };
   });
 
   // Makes a key, or replaces the one there is: the old one stops working.

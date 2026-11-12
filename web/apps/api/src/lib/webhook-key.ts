@@ -19,7 +19,8 @@ export const mintWebhookKey = async (accountId: string): Promise<{ key: string; 
   const createdAt = new Date();
   await prisma.account.update({
     where: { id: accountId },
-    data: { webhookKeyHash: hashSecret(key), webhookKeyCreatedAt: createdAt },
+    // A new key has never been used, whatever the old one had done.
+    data: { webhookKeyHash: hashSecret(key), webhookKeyCreatedAt: createdAt, webhookKeyLastUsedAt: null },
   });
   return { key, createdAt };
 };
@@ -27,12 +28,35 @@ export const mintWebhookKey = async (accountId: string): Promise<{ key: string; 
 export const revokeWebhookKey = async (accountId: string): Promise<void> => {
   await prisma.account.update({
     where: { id: accountId },
-    data: { webhookKeyHash: null, webhookKeyCreatedAt: null },
+    data: { webhookKeyHash: null, webhookKeyCreatedAt: null, webhookKeyLastUsedAt: null },
   });
 };
 
-/** The account a webhook key belongs to, or null for an unknown key. */
-export const findWebhookKeyAccount = async (key: string): Promise<string | null> => {
+/**
+ * How stale `webhookKeyLastUsedAt` may get before a delivery writes it again.
+ * Plex sends an event for every play, pause and resume, and the question the
+ * timestamp answers — "is anything arriving?" — doesn't need a write for each.
+ */
+export const WEBHOOK_USE_STAMP_MS = 60_000;
+
+/**
+ * The account a webhook key belongs to, or null for an unknown key. A known
+ * key is stamped as used (at most once a minute), so Settings can show when a
+ * media server last got through.
+ */
+export const findWebhookKeyAccount = async (key: string, now = new Date()): Promise<string | null> => {
   const account = await prisma.account.findUnique({ where: { webhookKeyHash: hashSecret(key) }, select: { id: true } });
-  return account?.id ?? null;
+  if (!account) return null;
+  const staleBefore = new Date(now.getTime() - WEBHOOK_USE_STAMP_MS);
+  // Conditional, so two deliveries in the same minute write once, and best
+  // effort: a failed stamp must never turn away a play that authenticated.
+  await Promise.resolve()
+    .then(() =>
+      prisma.account.updateMany({
+        where: { id: account.id, OR: [{ webhookKeyLastUsedAt: null }, { webhookKeyLastUsedAt: { lt: staleBefore } }] },
+        data: { webhookKeyLastUsedAt: now },
+      })
+    )
+    .catch(() => undefined);
+  return account.id;
 };

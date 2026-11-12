@@ -726,7 +726,9 @@ its own access log, and that copy still carries the query string.
 | `DELETE` | `/auth/webhook-key` |
 
 The `/auth/webhook-key` routes take a signed-in session (400 otherwise) and
-manage that account's key: `GET` returns `{ configured, createdAt }`, `POST`
+manage that account's key: `GET` returns `{ configured, createdAt, lastUsedAt }`
+(`lastUsedAt` is when a media server last reached a webhook with the key, kept
+to the minute, and `null` until one has; a new key starts at `null`), `POST`
 makes a key and returns `{ key, createdAt }` with a 201, replacing any earlier
 key, and `DELETE` removes it (204). The key is stored as a SHA-256 hash, so
 `POST` is the only time it is returned.

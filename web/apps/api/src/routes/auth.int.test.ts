@@ -526,7 +526,26 @@ describe("media-server webhooks", () => {
 
     expect((await call(admin.token, { method: "DELETE", url: "/auth/webhook-key" })).statusCode).toBe(204);
     expect((await jellyfinStop(second)).statusCode).toBe(403);
-    expect((await call(admin.token, { method: "GET", url: "/auth/webhook-key" })).json()).toEqual({ configured: false, createdAt: null });
+    expect((await call(admin.token, { method: "GET", url: "/auth/webhook-key" })).json()).toEqual({ configured: false, createdAt: null, lastUsedAt: null });
+  });
+
+  it("note when a media server last got through with the key, and forget it with the key", async () => {
+    const admin = await bootstrapAdmin();
+    const { key } = (await call(admin.token, { method: "POST", url: "/auth/webhook-key" })).json() as { key: string };
+    const status = async () => (await call(admin.token, { method: "GET", url: "/auth/webhook-key" })).json() as { lastUsedAt: string | null };
+
+    expect((await status()).lastUsedAt).toBeNull();
+    expect((await jellyfinStop(key)).statusCode).toBe(201);
+    const first = (await status()).lastUsedAt;
+    expect(first).not.toBeNull();
+
+    // Within the minute: no second write.
+    await jellyfinStop(key);
+    expect((await status()).lastUsedAt).toBe(first);
+
+    // A new key starts with nothing received.
+    await call(admin.token, { method: "POST", url: "/auth/webhook-key" });
+    expect((await status()).lastUsedAt).toBeNull();
   });
 
   it("keys are managed only by a signed-in account", async () => {

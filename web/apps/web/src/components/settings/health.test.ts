@@ -226,8 +226,28 @@ describe("mediaServersHealth", () => {
 });
 
 describe("webhookHealth", () => {
-  it("can only say whether there is a link, since no delivery is recorded", () => {
-    expect(webhookHealth({ configured: true })).toEqual({ tone: "ok", label: "Link set up" });
-    expect(webhookHealth({ configured: false }).tone).toBe("idle");
+  const ago = (iso: string) => `at ${iso}`;
+  const now = Date.parse("2026-11-12T12:00:00Z");
+
+  it("is idle with no link", () => {
+    expect(webhookHealth({ configured: false, createdAt: null }, ago, now).tone).toBe("idle");
+  });
+
+  it("says when a media server last got through", () => {
+    expect(webhookHealth({ configured: true, createdAt: "2026-11-01T00:00:00Z", lastUsedAt: "T" }, ago, now)).toMatchObject({
+      tone: "ok",
+      label: "Last delivery at T",
+    });
+  });
+
+  it("waits a day before calling a silent link a problem", () => {
+    expect(webhookHealth({ configured: true, createdAt: "2026-11-12T10:00:00Z", lastUsedAt: null }, ago, now)).toMatchObject({
+      tone: "ok",
+      label: "Waiting for the first delivery",
+    });
+    expect(webhookHealth({ configured: true, createdAt: "2026-11-10T10:00:00Z", lastUsedAt: null }, ago, now)).toMatchObject({
+      tone: "warn",
+      label: "Nothing received yet",
+    });
   });
 });

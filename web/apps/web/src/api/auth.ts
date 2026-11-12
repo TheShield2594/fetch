@@ -91,7 +91,8 @@ export const authApi = {
     return request<void>(`/auth/invites/${encodeURIComponent(id)}`, { method: "DELETE" });
   },
   getWebhookKey() {
-    return request<{ configured: boolean; createdAt: string | null }>("/auth/webhook-key");
+    /** `lastUsedAt`: when a media server last reached a webhook with this key, to the minute; null if none has. */
+    return request<{ configured: boolean; createdAt: string | null; lastUsedAt?: string | null }>("/auth/webhook-key");
   },
   /** Makes this account's webhook key, replacing any it had. The key is shown this once. */
   createWebhookKey() {

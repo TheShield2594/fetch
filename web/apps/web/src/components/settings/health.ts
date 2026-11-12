@@ -158,12 +158,28 @@ export function mediaServersHealth(
 }
 
 /**
- * Plex, Jellyfin and Emby webhooks. The server keeps no record of the last
- * delivery, so this can only say whether the account has a link to paste —
- * which is still the difference between "set up" and "nothing will arrive".
+ * Plex, Jellyfin and Emby webhooks: whether the account has a link, and
+ * whether anything has come through it.
+ *
+ * A link made today that has seen nothing is a setup in progress, not a
+ * fault. One that has been there a day and still seen nothing is the silently
+ * broken webhook — pasted into the wrong field, or the server can't reach
+ * this one — which is exactly what the row is for.
  */
-export function webhookHealth(status: { configured: boolean }): SectionHealth {
-  return status.configured ? { tone: "ok", label: "Link set up" } : { tone: "idle", label: "No link yet", short: "No link" };
+export function webhookHealth(
+  status: { configured: boolean; createdAt: string | null; lastUsedAt?: string | null | undefined },
+  timeAgo: (iso: string) => string,
+  now = Date.now()
+): SectionHealth {
+  if (!status.configured) return { tone: "idle", label: "No link yet", short: "No link" };
+  if (status.lastUsedAt) {
+    return { tone: "ok", label: `Last delivery ${timeAgo(status.lastUsedAt)}`, short: `Heard ${timeAgo(status.lastUsedAt)}` };
+  }
+  const made = status.createdAt ? Date.parse(status.createdAt) : NaN;
+  const settling = Number.isFinite(made) && now - made < 24 * 60 * 60 * 1000;
+  return settling
+    ? { tone: "ok", label: "Waiting for the first delivery", short: "Waiting" }
+    : { tone: "warn", label: "Nothing received yet", short: "Nothing yet" };
 }
 
 /**

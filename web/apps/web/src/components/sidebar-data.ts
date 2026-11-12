@@ -95,6 +95,7 @@ export const RAIL_SOURCES: readonly { id: string; label: string }[] = [
   { id: "simkl", label: "Simkl" },
   { id: "mdblist", label: "MDBList" },
   { id: "media-servers", label: "Media servers" },
+  { id: "media-server-webhooks", label: "Webhooks" },
   { id: "tmdb", label: "TMDB" },
   { id: "omdb", label: "OMDb" },
   { id: "rpdb", label: "RPDB" },

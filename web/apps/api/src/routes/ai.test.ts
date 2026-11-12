@@ -300,6 +300,15 @@ describe("ai routes", () => {
       expect(trendingCacheSet).toHaveBeenCalledWith("trending:series:day", expect.anything());
     });
 
+    it("carries each title's backdrop, for Discover's lead", async () => {
+      trending.mockResolvedValue([tmdbResult({ background: "https://image.tmdb.org/t/p/w1280/b.jpg" })]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/trending?type=movie" });
+
+      expect(res.json().metas[0].background).toBe("https://image.tmdb.org/t/p/w1280/b.jpg");
+    });
+
     it("treats any window other than `day` as a week", async () => {
       const app = await buildApp();
 

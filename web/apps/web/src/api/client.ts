@@ -107,6 +107,62 @@ type RequestOptions = Omit<RequestInit, "signal"> & {
   timeoutMs?: number | undefined;
 };
 
+/*
+ * ─── What a failed status says to a person ───
+ *
+ * Every user-facing failure message comes through here, so none of them is a
+ * bare HTTP reason phrase. "Too Many Requests" in a toast and again in the
+ * page body says that something is wrong and nothing about what to do; the
+ * sentence below says both.
+ */
+
+/** The standard reason phrases, which are status lines rather than messages. */
+const REASON_PHRASES = new Set([
+  "bad request",
+  "unauthorized",
+  "forbidden",
+  "not found",
+  "method not allowed",
+  "request timeout",
+  "conflict",
+  "gone",
+  "payload too large",
+  "unsupported media type",
+  "unprocessable entity",
+  "too many requests",
+  "internal server error",
+  "not implemented",
+  "bad gateway",
+  "service unavailable",
+  "gateway timeout",
+]);
+
+function isReasonPhrase(text: string, response: Response): boolean {
+  const normalised = text.trim().toLowerCase();
+  return REASON_PHRASES.has(normalised) || (!!response.statusText && normalised === response.statusText.trim().toLowerCase());
+}
+
+/**
+ * The sentence for a failed response: the API's own message when it wrote one
+ * for a person, a plain sentence for the status otherwise.
+ *
+ * A 429 always gets the same sentence, whatever the server put in its body —
+ * the rate limiter's wording names a window in a format meant for logs.
+ */
+export function statusMessage(status: number, serverMessage?: string | undefined): string {
+  if (status === 429) return "Too many requests. Try again in a moment.";
+  if (serverMessage) return serverMessage;
+  if (status === 401) return "You're not signed in to this server. Reconnect in Settings.";
+  if (status === 403) return "You don't have access to that.";
+  if (status === 404) return "That isn't on the server.";
+  if (status === 408 || status === 504) return "The server took too long to answer. Try again in a moment.";
+  if (status === 413) return "That's too large for the server to accept.";
+  if (status === 502 || status === 503) return "The server isn't available right now. Try again in a moment.";
+  if (status >= 500) return "Something went wrong on the server. Try again in a moment.";
+  if (status >= 400) return "The server couldn't do that.";
+  return `Request failed (${status}).`;
+}
+
 async function performRequest<T>(path: string, init?: RequestOptions): Promise<T> {
   const method = (init?.method ?? "GET").toUpperCase();
   const controller = new AbortController();
@@ -167,7 +223,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
       throw err;
     }
     if (timedOut) {
-      throw new Error(`Request timed out – is the API server running at ${runtimeConfig.getApiBase()}?`, { cause: err });
+      throw new Error(`The server took too long to answer. Is the API server running at ${runtimeConfig.getApiBase()}?`, { cause: err });
     }
     // The device has no network at all, so the server-misconfiguration message
     // below would send the user to debug an install that is working fine. Only
@@ -176,7 +232,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
     if (navigator.onLine === false) {
       throw new Error("You're offline – this needs a connection. Try again once you're back online.", { cause: err });
     }
-    throw new Error(`Network error – cannot reach ${runtimeConfig.getApiBase()}. Check that the API server is running and the URL is correct.`, { cause: err });
+    throw new Error(`Can't reach the server at ${runtimeConfig.getApiBase()}. Check that the API server is running and the URL is correct.`, { cause: err });
   } finally {
     // Clear stale cache entries for attempted mutations even if the request
     // itself failed or timed out below — a half-failed write can still have
@@ -211,23 +267,32 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
   if (!response.ok) {
     const body = await response.text();
     // API errors are shaped as JSON: { "error": "human-readable message" }.
-    // Fall back to the raw body if it isn't (or isn't valid JSON) so nothing
-    // is ever silently swallowed.
-    let message = body;
+    // Fastify's own (a rate limit, a body too large) are { "error": "<reason
+    // phrase>", "message": "..." }. Anything else — an HTML page from a proxy,
+    // an empty body — has no sentence in it for a person at all.
+    let serverMessage: string | undefined;
     let errorCode: string | undefined;
     if (body) {
       try {
-        const parsed = JSON.parse(body) as { error?: unknown | undefined; code?: unknown | undefined };
-        if (typeof parsed.error === "string" && parsed.error.trim()) {
-          message = parsed.error;
+        const parsed = JSON.parse(body) as {
+          error?: unknown | undefined;
+          message?: unknown | undefined;
+          code?: unknown | undefined;
+        };
+        if (typeof parsed.error === "string" && parsed.error.trim() && !isReasonPhrase(parsed.error, response)) {
+          serverMessage = parsed.error;
+        } else if (typeof parsed.message === "string" && parsed.message.trim() && !isReasonPhrase(parsed.message, response)) {
+          serverMessage = parsed.message;
         }
         if (typeof parsed.code === "string") {
           errorCode = parsed.code;
         }
       } catch {
-        // not JSON — use the raw body as-is
+        // Not JSON — a proxy's error page, most likely. Not shown: its markup
+        // is not a message, and the status says what happened.
       }
     }
+    const message = statusMessage(response.status, serverMessage);
     // A PIN-protected profile's access token is missing or expired. Drop the
     // stale profile selection and prompt the user to re-verify, rather than
     // leaving every page stuck on a 401.
@@ -244,7 +309,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
       runtimeConfig.setToken("");
       window.dispatchEvent(new Event("fetch:unauthorized"));
     }
-    throw new ApiError(message || `Request failed: ${response.status}`, response.status, errorCode);
+    throw new ApiError(message, response.status, errorCode);
   }
 
   if (response.status === 204) {

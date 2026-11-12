@@ -198,6 +198,8 @@ export type TrendingMeta = {
   description?: string | undefined;
   genres?: string[] | undefined;
   rating?: number | undefined;
+  /** A 16:9 backdrop, where the feed carries one — trending does. */
+  background?: string | undefined;
 };
 
 /**

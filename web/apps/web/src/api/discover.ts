@@ -63,6 +63,12 @@ export const discoverApi = {
     return request<{ metas: TrendingMeta[] }>(`/anime?type=${type}`);
   },
   // Recommendations
+  /** TMDB's "if you liked this" for one title — Discover's "Because you watched". */
+  getRecommendationsFor(type: MediaType, imdbId: string) {
+    return request<{ metas: TrendingMeta[] }>(
+      `/recommendations?type=${type}&imdbId=${encodeURIComponent(imdbId)}`
+    );
+  },
   getPersonalRecommendations(type: MediaType, limit = 20) {
     return request<{ metas: TrendingMeta[] }>(`/recommendations/personal?type=${type}&limit=${limit}`);
   },

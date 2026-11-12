@@ -8,6 +8,12 @@ export type Toast = {
   message: string;
   type: "success" | "error" | "info";
   action?: ToastAction | undefined;
+  /**
+   * How many times this same message has been raised while it was on screen.
+   * A burst of identical failures — three rate-limited requests landing at
+   * once — is one toast with a count, not three copies stacked in the corner.
+   */
+  count?: number;
   // Set the moment a toast is dismissed, so it can play its exit animation
   // before the state update that actually removes it from the DOM.
   exiting?: boolean;
@@ -38,6 +44,8 @@ const EXIT_FALLBACK_MS = EXIT_ANIMATION_MS + 200;
 type ToastContextValue = {
   showToast: ShowToast;
 };
+
+const dedupeKey = (type: Toast["type"], message: string) => `${type}\u0000${message}`;
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
@@ -162,7 +170,16 @@ function ToastRegion({
           ) : (
             <Heart aria-hidden="true" className="h-5 w-5 flex-none text-accent-text" />
           )}
-          <span className="text-sm font-medium" style={{ color: "var(--text)" }}>{toast.message}</span>
+          <span className="text-sm font-medium" style={{ color: "var(--text)" }}>
+            {toast.message}
+            {toast.count != null && toast.count > 1 && (
+              // Says how many times, quietly, after the sentence it counts —
+              // the screen reader hears "×3" as "times 3", which is right.
+              <span className="ml-1.5 tabular-nums" style={{ color: "var(--text-mute)" }}>
+                &times;{toast.count}
+              </span>
+            )}
+          </span>
           {toast.action && (
             <button
               type="button"
@@ -224,6 +241,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const timers = useRef(new Map<number, ToastTimer>());
   const exitTimers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
   const pauseReasons = useRef(new Set<PauseReason>());
+  // Which toast currently says what, so a repeat can find it. Cleared as a
+  // toast starts to leave, not when it finally unmounts.
+  const live = useRef(new Map<string, number>());
+  const forget = useCallback((id: number) => {
+    live.current.forEach((liveId, key) => {
+      if (liveId === id) live.current.delete(key);
+    });
+  }, []);
 
   const clearTimer = useCallback((id: number) => {
     const timer = timers.current.get(id);
@@ -237,25 +262,55 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const exitTimer = exitTimers.current.get(id);
     if (exitTimer !== undefined) clearTimeout(exitTimer);
     exitTimers.current.delete(id);
+    forget(id);
     clearTimer(id);
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, [clearTimer]);
+  }, [clearTimer, forget]);
 
   const dismissToast = useCallback((id: number) => {
     // Already on its way out — a second dismiss must not restart the animation
     // or queue a second fallback.
     if (exitTimers.current.has(id)) return;
+    forget(id);
     clearTimer(id);
     setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)));
     exitTimers.current.set(id, setTimeout(() => removeToast(id), EXIT_FALLBACK_MS));
-  }, [clearTimer, removeToast]);
+  }, [clearTimer, forget, removeToast]);
 
   const showToast = useCallback<ShowToast>((message, type = "success", options) => {
-    const id = ++toastId;
-    setToasts((prev) => [...prev, { id, message, type, action: options?.action }]);
     const duration =
       options?.duration ??
       (options?.action ? ACTION_DURATION_MS : type === "error" ? ERROR_DURATION_MS : DEFAULT_DURATION_MS);
+
+    // The same words already on screen: refresh that toast rather than stack a
+    // copy of it. Its timer starts over, its count goes up, and the newest
+    // action replaces the old one — an Undo belongs to the latest thing done.
+    // One on its way out doesn't count; that one is leaving, and a repeat
+    // after it is news again.
+    const key = dedupeKey(type, message);
+    const existing = live.current.get(key);
+    if (existing !== undefined && !exitTimers.current.has(existing)) {
+      const timer = timers.current.get(existing);
+      if (timer?.handle != null) clearTimeout(timer.handle);
+      timers.current.set(existing, {
+        handle: pauseReasons.current.size > 0 ? null : setTimeout(() => dismissToast(existing), duration),
+        remaining: duration,
+        startedAt: Date.now(),
+      });
+      // Moved to the end as well: the stack shows only the newest few, and a
+      // repeat of a toast that had slipped out of view is news again.
+      setToasts((prev) => {
+        const current = prev.find((t) => t.id === existing);
+        if (!current) return prev;
+        const refreshed = { ...current, count: (current.count ?? 1) + 1, action: options?.action ?? current.action };
+        return [...prev.filter((t) => t.id !== existing), refreshed];
+      });
+      return;
+    }
+
+    const id = ++toastId;
+    live.current.set(key, id);
+    setToasts((prev) => [...prev, { id, message, type, action: options?.action }]);
     // A toast raised while the stack is already hovered starts out paused —
     // otherwise it would be the one toast the hover doesn't hold still.
     timers.current.set(id, {
@@ -303,6 +358,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const pending = timers.current;
     const pendingExits = exitTimers.current;
+    const liveToasts = live.current;
     return () => {
       pending.forEach((timer) => {
         if (timer.handle != null) clearTimeout(timer.handle);
@@ -310,6 +366,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       pending.clear();
       pendingExits.forEach((timer) => clearTimeout(timer));
       pendingExits.clear();
+      liveToasts.clear();
     };
   }, []);
 

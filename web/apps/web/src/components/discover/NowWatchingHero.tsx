@@ -2,7 +2,7 @@ import { Check, X } from "lucide-react";
 import type { CheckIn } from "../../api";
 import { KICKER, SECTION_TITLE } from "../typography";
 import { Poster } from "../Poster";
-import { HERO_BACKDROP_SIZES, HERO_SCRIM } from "./ContinueWatchingHero";
+import { HERO_BACKDROP_SIZES, HERO_SCRIM } from "./hero";
 
 /** The active check-in, featured at the top of Discover. */
 export function NowWatchingHero({

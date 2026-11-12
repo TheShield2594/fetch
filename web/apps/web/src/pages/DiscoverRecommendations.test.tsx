@@ -27,13 +27,15 @@ vi.mock("../api", async (importOriginal) => {
   return {
     ...actual,
     api: {
-      getWatchStats: vi.fn(),
       getSeriesProgress: vi.fn(),
       getWatchHistory: vi.fn(),
       getCheckin: vi.fn(),
       getNowPlaying: vi.fn(),
-      getDetailedStats: vi.fn(),
       getTrending: vi.fn(),
+      getLists: vi.fn(async () => ({ lists: [] })),
+      getListItems: vi.fn(async () => ({ items: [] })),
+      getRecommendationsFor: vi.fn(async () => ({ metas: [] })),
+      unmarkEpisodeWatched: vi.fn(async () => undefined),
       getAiConfig: vi.fn(),
       getAiRecommendations: vi.fn(),
       getCalendar: vi.fn(),
@@ -88,7 +90,7 @@ const cardIsGone = (name: string) =>
 // Scoped to the rail that failed: "Retry" is the label every section's error
 // card uses.
 async function clickRetryOnMovies() {
-  const message = await screen.findByText("Couldn't load movies recommendations.");
+  const message = await screen.findByText("Couldn't load films picked for you.");
   await userEvent.click(within(message.parentElement as HTMLElement).getByRole("button", { name: "Retry" }));
 }
 
@@ -111,22 +113,10 @@ beforeEach(() => {
   // the same mount, which is the one way a rail's request is superseded rather
   // than simply replaced by a retry.
   runtimeConfig.setProfileId("first-profile");
-  vi.mocked(api.getWatchStats).mockResolvedValue({
-    totalMovies: 0,
-    totalEpisodes: 0,
-    totalMinutes: 0,
-  } as never);
   vi.mocked(api.getSeriesProgress).mockResolvedValue([]);
   vi.mocked(api.getWatchHistory).mockResolvedValue([]);
   vi.mocked(api.getCheckin).mockResolvedValue({ checkin: null } as never);
   vi.mocked(api.getNowPlaying).mockResolvedValue({ sessions: [] } as never);
-  vi.mocked(api.getDetailedStats).mockResolvedValue({
-    monthly: [],
-    genreDistribution: [],
-    currentStreak: 0,
-    longestStreak: 0,
-    topRated: [],
-  });
   vi.mocked(api.getTrending).mockResolvedValue({ metas: [] } as never);
   vi.mocked(api.getCalendar).mockResolvedValue({ calendar: [] } as never);
   vi.mocked(api.getAiConfig).mockResolvedValue({
@@ -182,7 +172,7 @@ describe("Discover AI rails", () => {
     await clickRetryOnMovies();
 
     expect(await card("Arrival")).toBeInTheDocument();
-    expect(screen.queryByText("Couldn't load movies recommendations.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Couldn't load films picked for you.")).not.toBeInTheDocument();
   });
 
   it("retries one rail without disturbing the other", async () => {

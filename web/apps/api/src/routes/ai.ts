@@ -289,6 +289,9 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
           description: r.description ?? undefined,
           genres: r.genres,
           rating: r.rating ?? undefined,
+          // Discover leads with a trending title drawn large, and a poster
+          // stretched to a wide frame is a crop of its middle.
+          background: r.background ?? undefined,
         }));
         trendingCacheSet(cacheKey, { data: metas });
         return { metas: applyRpdbToMetaList(metas, rpdbKey) };

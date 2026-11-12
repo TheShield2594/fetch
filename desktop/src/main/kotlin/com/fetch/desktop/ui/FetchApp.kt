@@ -47,6 +47,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.fetch.desktop.AppState
+import com.fetch.desktop.UpdateChecker
 import com.fetch.desktop.AvailableUpdate
 import com.fetch.desktop.ProfilesState
 import com.fetch.desktop.data.DesktopProfile
@@ -311,9 +312,13 @@ private fun PlayerChoiceDialog(state: AppState) {
     )
 }
 
-/** A newer Fetch is out: where to get it, as the TV's update banner says. */
+/**
+ * A newer Fetch is out: where to get it, as the TV's update banner says. An install that follows
+ * the APT repository gets the apt command instead of a download.
+ */
 @Composable
 private fun UpdateBanner(state: AppState, update: AvailableUpdate) {
+    val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
     Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.BottomEnd) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -325,11 +330,32 @@ private fun UpdateBanner(state: AppState, update: AvailableUpdate) {
         ) {
             Text(tr("Fetch %1\$s is available", update.version), color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
             update.notes?.let { Text(it, color = FetchPalette.TextSecondary, fontSize = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis) }
+            if (update.viaApt) {
+                Text(tr("Install it from a terminal:"), color = FetchPalette.TextSecondary, fontSize = 14.sp)
+                androidx.compose.foundation.text.selection.SelectionContainer {
+                    Text(
+                        UpdateChecker.APT_UPGRADE_COMMAND,
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(FetchPalette.Surface).padding(horizontal = 10.dp, vertical = 8.dp)
+                    )
+                }
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                PrimaryButton("Download", icon = null, onClick = {
-                    state.openInBrowser(update.packageUrl ?: update.pageUrl)
-                    state.updates.dismissed = true
-                })
+                if (update.viaApt) {
+                    PrimaryButton("Copy command", icon = null, onClick = {
+                        clipboard.setText(androidx.compose.ui.text.AnnotatedString(UpdateChecker.APT_UPGRADE_COMMAND))
+                        state.message = "Copied. Run it in a terminal, then restart Fetch."
+                        state.updates.dismissed = true
+                    })
+                    SecondaryButton("What's new", onClick = { state.openInBrowser(update.pageUrl) })
+                } else {
+                    PrimaryButton("Download", icon = null, onClick = {
+                        state.openInBrowser(update.packageUrl ?: update.pageUrl)
+                        state.updates.dismissed = true
+                    })
+                }
                 SecondaryButton("Later", onClick = { state.updates.dismissed = true })
             }
         }

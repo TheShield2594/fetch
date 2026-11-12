@@ -672,7 +672,15 @@ class AppState(
                 delay(AIRING_RECHECK_MS)
             }
         }
-        if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates)
+        // Updates: now, then every few hours for a Fetch left running, with a system notification
+        // for a version the background check finds (the banner alone is easy to miss then).
+        scope.launch {
+            if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates)
+            while (true) {
+                delay(UPDATE_RECHECK_MS)
+                if (settings.checkForUpdates) updates.check(beta = settings.betaUpdates, notify = true)
+            }
+        }
         syncAccount()
         scope.launch { syncTracking() }
         servers.refreshRows()
@@ -2818,6 +2826,7 @@ class AppState(
         const val MAX_RECENT_SEARCHES = 10
         const val FILTER_ROW_PAGE = 40
         const val AIRING_RECHECK_MS = 6 * 60 * 60 * 1000L
+        const val UPDATE_RECHECK_MS = 6 * 60 * 60 * 1000L
     }
 }
 

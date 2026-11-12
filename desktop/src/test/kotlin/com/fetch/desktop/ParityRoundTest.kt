@@ -111,6 +111,35 @@ class ParityRoundTest {
     }
 
     @Test
+    fun `an install that follows the APT repository is told to upgrade with apt, betas still download`() {
+        val releases = listOf(release("v1.3.1"), release("v1.4.0-beta.1", prerelease = true))
+        assertTrue(UpdateChecker.pick(releases, "1.3.0", beta = false, kind = ".deb", apt = true)!!.viaApt)
+        assertFalse(UpdateChecker.pick(releases, "1.3.0", beta = false, kind = ".deb", apt = false)!!.viaApt)
+        val beta = UpdateChecker.pick(releases, "1.3.0", beta = true, kind = ".deb", apt = true)!!
+        assertEquals("1.4.0-beta.1", beta.version)
+        assertFalse("the repo only carries stable releases", beta.viaApt)
+    }
+
+    @Test
+    fun `the APT repository is found in one-line and deb822 sources, unless commented out or disabled`() {
+        val deb822 = """
+            Types: deb
+            URIs: https://theshield2594.github.io/fetch
+            Suites: stable
+            Components: main
+            Signed-By: /etc/apt/keyrings/fetch.gpg
+        """.trimIndent()
+        assertTrue(UpdateChecker.aptRepoConfigured(listOf(deb822)))
+        assertTrue(UpdateChecker.aptRepoConfigured(listOf("deb [signed-by=/etc/apt/keyrings/fetch.gpg] https://theshield2594.github.io/fetch stable main")))
+        assertFalse(UpdateChecker.aptRepoConfigured(listOf("# deb https://theshield2594.github.io/fetch stable main")))
+        assertFalse(UpdateChecker.aptRepoConfigured(listOf(deb822 + "\nEnabled: no")))
+        val otherStanzaDisabled = deb822 + "\n\nTypes: deb\nURIs: https://example.org/debian\nSuites: stable\nComponents: main\nEnabled: no"
+        assertTrue("Enabled: no in another stanza doesn't count", UpdateChecker.aptRepoConfigured(listOf(otherStanzaDisabled)))
+        assertFalse(UpdateChecker.aptRepoConfigured(listOf("deb http://deb.debian.org/debian bookworm main")))
+        assertFalse(UpdateChecker.aptRepoConfigured(emptyList()))
+    }
+
+    @Test
     fun `the install's package is the one its package manager owns`() {
         fun kind(owner: String?, home: String = "/opt/fetch/lib/runtime") =
             UpdateChecker.packageKind(home) { command -> command.first() == owner }

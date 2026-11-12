@@ -335,6 +335,8 @@
     <string name="layout_section_content_desc">Styr vad som visas på hem och sök.</string>
     <string name="layout_collapse_sidebar">Fäll ihop sidofält</string>
     <string name="layout_collapse_sidebar_sub">Dölj sidofältet som standard; visa vid fokus.</string>
+    <string name="layout_hero_section">Visa framhävd titel</string>
+    <string name="layout_hero_section_sub">Visa den stora framhävda titeln högst upp på Hem.</string>
     <string name="layout_poster_labels">Visa affischetiketter</string>
     <string name="layout_poster_labels_sub">Visa titlar under affischer i rader, rutnät och se allt.</string>
     <string name="layout_addon_name">Visa tilläggsnamn</string>

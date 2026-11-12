@@ -9,11 +9,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.domain.model.LibrarySyncKey
-import com.fetch.tv.domain.model.LibrarySyncReducer
-import com.fetch.tv.domain.model.LibrarySyncState
 import com.fetch.tv.domain.model.SavedLibraryItem
-import com.fetch.tv.domain.model.librarySyncIdentity
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,11 +34,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * The profile's own library ("Add to library") and its queue of changes waiting to sync. Items,
- * queued keys and the sync counters are rows of [entries] (SQLite), changed together in one
- * transaction through [LibrarySyncReducer], and only the rows a change touches are written
- * (audit G5). Older versions kept all of it as JSON sets in the library DataStore file; a
- * profile's sets are moved the first time its library is used.
+ * The profile's own library ("Add to library"). Each saved title is a row of [entries] (SQLite),
+ * and only the rows a change touches are written (audit G5). Older versions kept the titles as a
+ * JSON set in the library DataStore file; a profile's set is moved the first time its library is used.
+ *
+ * Older versions also kept a queue of changes waiting to sync and its counters, next to the titles
+ * in both places. Nothing reads them: they're removed when the library is first used.
  */
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,17 +50,16 @@ class LibraryPreferences @Inject constructor(
 ) {
     private val gson = Gson()
 
-    // Where older versions kept the library; read once by ensureMigrated, then removed. The file
-    // stays: LibraryViewPreferences moves its own keys out of it.
+    // Where older versions kept the library; read once by ensureMigrated, then removed with the
+    // old sync keys beside it. The file stays: LibraryViewPreferences moves its own keys out of it.
     private val legacyLibraryItemsKey = stringSetPreferencesKey("library_items")
-    private val legacyDeltaCursorKey = longPreferencesKey("library_delta_cursor")
-    private val legacyDeltaInitializedKey = booleanPreferencesKey("library_delta_initialized")
-    private val legacyPendingUpsertKeysKey = stringSetPreferencesKey("library_pending_upserts")
-    private val legacyPendingDeleteKeysKey = stringSetPreferencesKey("library_pending_deletes")
-    private val legacyMutationRevisionKey = longPreferencesKey("library_mutation_revision")
     private val legacyKeys: List<Preferences.Key<*>> = listOf(
-        legacyLibraryItemsKey, legacyDeltaCursorKey, legacyDeltaInitializedKey,
-        legacyPendingUpsertKeysKey, legacyPendingDeleteKeysKey, legacyMutationRevisionKey
+        legacyLibraryItemsKey,
+        longPreferencesKey("library_delta_cursor"),
+        booleanPreferencesKey("library_delta_initialized"),
+        stringSetPreferencesKey("library_pending_upserts"),
+        stringSetPreferencesKey("library_pending_deletes"),
+        longPreferencesKey("library_mutation_revision")
     )
 
     // Holds the one shared decode of the active profile's library while anything observes it.
@@ -85,7 +81,7 @@ class LibraryPreferences @Inject constructor(
     // profile's library while the switch is still being decoded.
     private val sharedLibraryItems: Flow<Pair<Int, List<SavedLibraryItem>>> =
         profileManager.activeProfileId.flatMapLatest { profileId ->
-            observeRows(profileId).map { rows -> profileId to rows.toSyncState(profileId).items }
+            observeRows(profileId).map { rows -> profileId to rows.toItems(profileId) }
         }
             .flowOn(Dispatchers.Default)
             .shareIn(
@@ -127,7 +123,7 @@ class LibraryPreferences @Inject constructor(
         itemType: String,
         profileId: Int
     ): Boolean {
-        return getSyncState(profileId).items.any { item ->
+        return getAllItems(profileId).any { item ->
             item.id == itemId && item.type.equals(itemType, ignoreCase = true)
         }
     }
@@ -135,22 +131,28 @@ class LibraryPreferences @Inject constructor(
     suspend fun addItem(
         item: SavedLibraryItem,
         profileId: Int
-    ) = edit(profileId) { state ->
-        LibrarySyncReducer.upsertLocal(state = state, item = item, nowEpochMs = System.currentTimeMillis())
+    ) = edit(profileId) { items ->
+        if (item.id.isBlank() || item.type.isBlank()) return@edit items
+        val stored = if (item.addedAt == 0L) item.copy(addedAt = System.currentTimeMillis()) else item
+        // Replaces a saved copy of the title; sanitize keeps the last one of each key.
+        items + stored
     }
 
     suspend fun removeItem(
         itemId: String,
         itemType: String,
         profileId: Int
-    ) = edit(profileId) { state ->
-        LibrarySyncReducer.deleteLocal(state = state, contentId = itemId, contentType = itemType)
+    ) = edit(profileId) { items ->
+        val key = libraryItemKey(itemId, itemType)
+        items.filterNot { libraryItemKey(it.id, it.type) == key }
     }
 
     suspend fun getAllItems(
         profileId: Int
     ): List<SavedLibraryItem> {
-        return getSyncState(profileId).items
+        if (isDeleted(profileId)) return emptyList()
+        ensureMigrated(profileId)
+        return entries.all(profileId).toItems(profileId)
     }
 
     suspend fun updateLogo(
@@ -158,43 +160,36 @@ class LibraryPreferences @Inject constructor(
         type: String,
         logo: String,
         profileId: Int
-    ) = edit(profileId) { state ->
-        state.copy(
-            items = state.items.map { item ->
-                if (item.id == id && item.type.equals(type, ignoreCase = true)) item.copy(logo = logo) else item
-            }
-        )
-    }
-
-    /** The whole sync state: items, queued changes and counters. */
-    internal suspend fun getSyncState(profileId: Int): LibrarySyncState {
-        if (isDeleted(profileId)) return LibrarySyncState()
-        ensureMigrated(profileId)
-        return entries.all(profileId).toSyncState(profileId)
-    }
-
-    /**
-     * Applies [transform] to the stored state in one transaction and writes only the rows that
-     * differ. A deleted profile refuses, as its DataStore does.
-     */
-    private suspend fun edit(profileId: Int, transform: (LibrarySyncState) -> LibrarySyncState) {
-        if (isDeleted(profileId)) throw CancellationException("Profile $profileId was deleted")
-        ensureMigrated(profileId)
-        entries.transaction {
-            val stored = entries.all(profileId)
-            val updated = LibrarySyncReducer.sanitize(transform(stored.toSyncState(profileId)))
-            val before = stored.groupBy { it.kind }.mapValues { (_, rows) -> rows.associateBy { it.key } }
-            val after = updated.toEntries().groupBy { it.kind }.mapValues { (_, rows) -> rows.associateBy { it.key } }
-            (before.keys + after.keys).forEach { kind ->
-                entries.writeChanges(profileId, kind, before[kind].orEmpty(), after[kind].orEmpty())
-            }
+    ) = edit(profileId) { items ->
+        items.map { item ->
+            if (item.id == id && item.type.equals(type, ignoreCase = true)) item.copy(logo = logo) else item
         }
     }
 
     /**
-     * Moves [profileId]'s library out of the legacy DataStore sets, once per process. Rows are
-     * inserted before the sets are removed, and a row already moved wins, so a move cut short
-     * finishes on the next start without losing anything.
+     * Applies [transform] to the saved items in one transaction and writes only the rows that
+     * differ. A deleted profile refuses, as its DataStore does.
+     */
+    private suspend fun edit(profileId: Int, transform: (List<SavedLibraryItem>) -> List<SavedLibraryItem>) {
+        if (isDeleted(profileId)) throw CancellationException("Profile $profileId was deleted")
+        ensureMigrated(profileId)
+        entries.transaction {
+            val stored = entries.all(profileId).filter { it.kind == KIND_ITEM }
+            val updated = sanitize(transform(stored.toItems(profileId)))
+            entries.writeChanges(
+                profileId,
+                KIND_ITEM,
+                stored.associateBy { it.key },
+                updated.map { it.toEntry() }.associateBy { it.key }
+            )
+        }
+    }
+
+    /**
+     * Moves [profileId]'s library out of the legacy DataStore set, once per process, and drops the
+     * old sync queue and counters from DataStore and the database. Rows are inserted before the
+     * set is removed, and a row already moved wins, so a move cut short finishes on the next start
+     * without losing anything.
      */
     private suspend fun ensureMigrated(profileId: Int) {
         if (profileId in migratedProfiles) return
@@ -204,61 +199,31 @@ class LibraryPreferences @Inject constructor(
             val store = store(profileId)
             val prefs = store.data.first()
             if (legacyKeys.any { it in prefs }) {
-                val state = LibrarySyncReducer.sanitize(
-                    LibrarySyncState(
-                        items = prefs[legacyLibraryItemsKey].orEmpty().mapNotNull { parse(it, SavedLibraryItem::class.java) },
-                        deltaCursorEventId = prefs[legacyDeltaCursorKey] ?: 0L,
-                        deltaInitialized = prefs[legacyDeltaInitializedKey] ?: false,
-                        pendingUpsertKeys = prefs[legacyPendingUpsertKeysKey].orEmpty().mapNotNull { parse(it, LibrarySyncKey::class.java) },
-                        pendingDeleteKeys = prefs[legacyPendingDeleteKeysKey].orEmpty().mapNotNull { parse(it, LibrarySyncKey::class.java) },
-                        mutationRevision = prefs[legacyMutationRevisionKey] ?: 0L
-                    )
+                val items = sanitize(
+                    prefs[legacyLibraryItemsKey].orEmpty().mapNotNull { parse(it, SavedLibraryItem::class.java) }
                 )
-                entries.insertMissing(profileId, state.toEntries())
+                entries.insertMissing(profileId, items.map { it.toEntry() })
                 store.edit { preferences -> legacyKeys.forEach { preferences.remove(it) } }
-                Log.i(
-                    TAG,
-                    "Moved ${state.items.size} library items and " +
-                        "${state.pendingUpsertKeys.size + state.pendingDeleteKeys.size} queued changes of profile $profileId to the database"
-                )
+                Log.i(TAG, "Moved ${items.size} library items of profile $profileId to the database")
             }
+            LEGACY_SYNC_KINDS.forEach { entries.clearKind(profileId, it) }
             migratedProfiles += profileId
         }
     }
 
-    private fun LibrarySyncState.toEntries(): List<KeyedEntry> = buildList {
+    private fun SavedLibraryItem.toEntry() =
+        KeyedEntry(KIND_ITEM, libraryItemKey(id, type), id, addedAt, gson.toJson(this))
+
+    private fun List<KeyedEntry>.toItems(profileId: Int): List<SavedLibraryItem> =
+        sanitize(decodeItems(profileId, filter { it.kind == KIND_ITEM }))
+
+    /** Drops titles without an id or type, and keeps one copy of each title, the last. */
+    private fun sanitize(items: List<SavedLibraryItem>): List<SavedLibraryItem> {
+        val byKey = LinkedHashMap<String, SavedLibraryItem>()
         items.forEach { item ->
-            add(KeyedEntry(KIND_ITEM, librarySyncIdentity(item.id, item.type), item.id, item.addedAt, gson.toJson(item)))
+            if (item.id.isNotBlank() && item.type.isNotBlank()) byKey[libraryItemKey(item.id, item.type)] = item
         }
-        pendingUpsertKeys.forEach { key -> add(key.entry(KIND_PENDING_UPSERT)) }
-        pendingDeleteKeys.forEach { key -> add(key.entry(KIND_PENDING_DELETE)) }
-        add(
-            KeyedEntry(
-                kind = KIND_META,
-                key = META_KEY,
-                contentId = "",
-                sortTime = 0L,
-                json = encodeSyncCounters(deltaCursorEventId, deltaInitialized, mutationRevision)
-            )
-        )
-    }
-
-    private fun LibrarySyncKey.entry(kind: String) =
-        KeyedEntry(kind, librarySyncIdentity(contentId, contentType), contentId, 0L, gson.toJson(this))
-
-    private fun List<KeyedEntry>.toSyncState(profileId: Int): LibrarySyncState {
-        val byKind = groupBy { it.kind }
-        val counters = byKind[KIND_META]?.firstOrNull()?.json?.let(::decodeSyncCounters)
-        return LibrarySyncReducer.sanitize(
-            LibrarySyncState(
-                items = decodeItems(profileId, byKind[KIND_ITEM].orEmpty()),
-                deltaCursorEventId = counters?.first ?: 0L,
-                deltaInitialized = counters?.second ?: false,
-                pendingUpsertKeys = byKind[KIND_PENDING_UPSERT].orEmpty().mapNotNull { parse(it.json, LibrarySyncKey::class.java) },
-                pendingDeleteKeys = byKind[KIND_PENDING_DELETE].orEmpty().mapNotNull { parse(it.json, LibrarySyncKey::class.java) },
-                mutationRevision = counters?.third ?: 0L
-            )
-        )
+        return byKey.values.toList()
     }
 
     private fun decodeItems(profileId: Int, rows: List<KeyedEntry>): List<SavedLibraryItem> {
@@ -288,25 +253,12 @@ class LibraryPreferences @Inject constructor(
         private const val TAG = "LibraryPreferences"
 
         const val KIND_ITEM = "item"
-        const val KIND_PENDING_UPSERT = "pending_upsert"
-        const val KIND_PENDING_DELETE = "pending_delete"
-        const val KIND_META = "meta"
-        const val META_KEY = "sync"
 
-        /**
-         * The delta cursor, whether it's set, and the mutation revision, as "cursor|initialized|revision".
-         * Plain text rather than a JSON class, so shrinking a release build can't rename its fields.
-         */
-        fun encodeSyncCounters(cursor: Long, initialized: Boolean, revision: Long): String =
-            "$cursor|$initialized|$revision"
+        /** Rows older versions kept for the sync queue and its counters; removed, never read. */
+        val LEGACY_SYNC_KINDS = listOf("pending_upsert", "pending_delete", "meta")
 
-        fun decodeSyncCounters(text: String): Triple<Long, Boolean, Long>? {
-            val parts = text.split('|')
-            if (parts.size != 3) return null
-            val cursor = parts[0].toLongOrNull() ?: return null
-            val initialized = parts[1].toBooleanStrictOrNull() ?: return null
-            val revision = parts[2].toLongOrNull() ?: return null
-            return Triple(cursor, initialized, revision)
-        }
+        /** A title's row key, as older versions stored it: `type:id`, type in lower case. */
+        fun libraryItemKey(contentId: String, contentType: String): String =
+            "${contentType.trim().lowercase()}:${contentId.trim()}"
     }
 }

@@ -1,16 +1,16 @@
 package com.fetch.tv.data.local
 
 import android.util.Log
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.core.profile.ProfileManager
 import com.google.gson.Gson
-import com.fetch.tv.data.mediaserver.ServerItemRef
 import com.fetch.tv.domain.model.WatchedItem
-import com.fetch.tv.domain.model.WatchedMutationKey
-import com.fetch.tv.domain.model.mutationKey
+import com.fetch.tv.domain.model.WatchedItemKey
+import com.fetch.tv.domain.model.itemKey
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -27,10 +27,11 @@ import javax.inject.Singleton
 /**
  * The watched movies, episodes and series of each profile. The entries live in [WatchedItemStore]
  * (SQLite), so marking one episode watched writes that one entry however long the history is
- * (audit G5). The push and delta bookkeeping beside them is small and stays in DataStore.
+ * (audit G5).
  *
- * Older versions kept every entry as JSON in one DataStore string set. A profile's set is moved
- * into the store the first time the profile's items are read or written, then removed.
+ * Older versions kept every entry as JSON in one DataStore string set, next to sync bookkeeping
+ * (last push time, delta cursor). The first time a profile's items are read or written, the set
+ * is moved into the store and those keys are removed.
  */
 @Singleton
 class WatchedItemsPreferences @Inject constructor(
@@ -50,9 +51,12 @@ class WatchedItemsPreferences @Inject constructor(
 
     /** Where older versions kept the entries; read once by [ensureMigrated], then removed. */
     private val legacyWatchedItemsKey = stringSetPreferencesKey("watched_items")
-    private val lastSuccessfulPushMsKey = longPreferencesKey("last_successful_watched_push_ms")
-    private val deltaCursorKey = longPreferencesKey("watched_items_delta_cursor")
-    private val deltaInitializedKey = booleanPreferencesKey("watched_items_delta_initialized")
+    /** Sync bookkeeping older versions kept next to the entries; never read, removed with the set. */
+    private val legacyBookkeepingKeys: List<Preferences.Key<*>> = listOf(
+        longPreferencesKey("last_successful_watched_push_ms"),
+        longPreferencesKey("watched_items_delta_cursor"),
+        booleanPreferencesKey("watched_items_delta_initialized")
+    )
 
     private val migratedProfiles: MutableSet<Int> = ConcurrentHashMap.newKeySet()
     private val migrationMutex = Mutex()
@@ -69,7 +73,8 @@ class WatchedItemsPreferences @Inject constructor(
             val store = store(profileId)
             // A deleted profile's store reads as empty; there is nothing to move.
             if (store is DeletedProfileDataStore) return
-            val legacy = store.data.first()[legacyWatchedItemsKey]
+            val prefs = store.data.first()
+            val legacy = prefs[legacyWatchedItemsKey]
             if (legacy != null) {
                 val decoded = legacy.mapNotNull { json ->
                     // An entry that doesn't parse is dropped, as reads of the old set skipped it.
@@ -82,6 +87,9 @@ class WatchedItemsPreferences @Inject constructor(
                 items.insertMissing(profileId, decoded)
                 store.edit { it.remove(legacyWatchedItemsKey) }
                 Log.i(TAG, "Moved ${decoded.size} of ${legacy.size} watched items of profile $profileId to the database")
+            }
+            if (legacyBookkeepingKeys.any { it in prefs }) {
+                store.edit { edited -> legacyBookkeepingKeys.forEach { edited.remove(it) } }
             }
             migratedProfiles += profileId
         }
@@ -98,41 +106,6 @@ class WatchedItemsPreferences @Inject constructor(
         }
         ensureMigrated(profileId)
         block()
-    }
-
-    suspend fun getLastSuccessfulPushMs(profileId: Int): Long {
-        val prefs = store(profileId).data.first()
-        return prefs[lastSuccessfulPushMsKey] ?: 0L
-    }
-
-    /**
-     * Advances the stored push point, never lowering it. The comparison happens inside
-     * the edit, so two pushes finishing out of order cannot leave the older one on disk.
-     * Nothing needs to lower it: deleting a profile removes the whole store.
-     */
-    suspend fun advanceLastSuccessfulPushMs(timestampMs: Long, profileId: Int) {
-        store(profileId).edit { prefs ->
-            val stored = prefs[lastSuccessfulPushMsKey] ?: 0L
-            prefs[lastSuccessfulPushMsKey] = maxOf(stored, timestampMs)
-        }
-    }
-
-    suspend fun getDeltaCursor(profileId: Int): Long {
-        val prefs = store(profileId).data.first()
-        return prefs[deltaCursorKey] ?: 0L
-    }
-
-    suspend fun isDeltaInitialized(profileId: Int): Boolean {
-        val prefs = store(profileId).data.first()
-        return prefs[deltaInitializedKey] ?: false
-    }
-
-    suspend fun setDeltaState(cursor: Long, initialized: Boolean = true, profileId: Int) {
-        store(profileId).edit { prefs ->
-            prefs[deltaCursorKey] = cursor.coerceAtLeast(0L)
-            prefs[deltaInitializedKey] = initialized
-        }
-        Log.d(TAG, "setDeltaState: profile=$profileId cursor=${cursor.coerceAtLeast(0L)} initialized=$initialized")
     }
 
     internal val allItems: Flow<List<WatchedItem>> = profileManager.activeProfileId.flatMapLatest { pid ->
@@ -192,7 +165,7 @@ class WatchedItemsPreferences @Inject constructor(
     ) {
         if (items.isEmpty()) return
         // The last entry for a key wins, as it did when the set was rewritten.
-        val latest = items.associateBy { it.mutationKey() }.values.toList()
+        val latest = items.associateBy { it.itemKey() }.values.toList()
         write(profileId) { this.items.upsert(profileId, latest) }
     }
 
@@ -201,7 +174,7 @@ class WatchedItemsPreferences @Inject constructor(
         season: Int? = null,
         episode: Int? = null,
         profileId: Int
-    ) = write(profileId) { items.delete(profileId, listOf(WatchedMutationKey(contentId, season, episode))) }
+    ) = write(profileId) { items.delete(profileId, listOf(WatchedItemKey(contentId, season, episode))) }
 
     suspend fun unmarkAsWatchedBatch(
         contentId: String,
@@ -209,7 +182,7 @@ class WatchedItemsPreferences @Inject constructor(
         profileId: Int
     ) {
         if (episodes.isEmpty()) return
-        val keys = episodes.map { (s, e) -> WatchedMutationKey(contentId, s, e) }.toSet()
+        val keys = episodes.map { (s, e) -> WatchedItemKey(contentId, s, e) }.toSet()
         write(profileId) { items.delete(profileId, keys) }
     }
 
@@ -225,87 +198,11 @@ class WatchedItemsPreferences @Inject constructor(
         write(profileId) { items.insertMissing(profileId, remoteItems) }
     }
 
-    suspend fun applyRemoteChanges(
-        upserts: List<WatchedItem>,
-        deletes: List<Triple<String, Int?, Int?>>,
-        pendingUpsertKeys: Set<WatchedMutationKey> = emptySet(),
-        pendingDeleteKeys: Set<WatchedMutationKey> = emptySet(),
-        profileId: Int
-    ) {
-        if (upserts.isEmpty() && deletes.isEmpty()) {
-            Log.d(TAG, "applyRemoteChanges: no changes for profile $profileId")
-            return
-        }
-        var beforeCount = 0
-        var afterCount = 0
-        write(profileId) {
-            items.transform(profileId) { current ->
-                beforeCount = current.size
-                val itemsByKey = linkedMapOf<WatchedMutationKey, WatchedItem>()
-                current.forEach { item -> itemsByKey[item.mutationKey()] = item }
-                deletes.forEach { (contentId, season, episode) ->
-                    val mutationKey = WatchedMutationKey(contentId, season, episode)
-                    // A local change not yet pushed wins over the remote delete.
-                    if (mutationKey !in pendingUpsertKeys) itemsByKey.remove(mutationKey)
-                }
-                upserts.forEach { item ->
-                    val mutationKey = item.mutationKey()
-                    when {
-                        mutationKey in pendingDeleteKeys -> itemsByKey.remove(mutationKey)
-                        mutationKey !in pendingUpsertKeys -> itemsByKey[mutationKey] = item
-                    }
-                }
-                afterCount = itemsByKey.size
-                itemsByKey.values.toList()
-            }
-        }
-        Log.d(TAG, "applyRemoteChanges: profile=$profileId before=$beforeCount after=$afterCount upserts=${upserts.size} deletes=${deletes.size}")
-    }
-
-    suspend fun replaceWithRemoteItems(
-        remoteItems: List<WatchedItem>,
-        pendingUpsertKeys: Set<WatchedMutationKey> = emptySet(),
-        pendingDeleteKeys: Set<WatchedMutationKey> = emptySet(),
-        lastSuccessfulPushMs: Long? = null,
-        profileId: Int
-    ): Boolean {
-        var preservedLocalItems = false
-        write(profileId) {
-            items.transform(profileId) { localItems ->
-                Log.d(TAG, "replaceWithRemoteItems: profile=$profileId current=${localItems.size} remote=${remoteItems.size}")
-                val deduped = linkedMapOf<WatchedMutationKey, WatchedItem>()
-                remoteItems.filterNot { it.mutationKey() in pendingDeleteKeys }.forEach { item ->
-                    deduped[item.mutationKey()] = item
-                }
-                localItems.forEach { localItem ->
-                    val itemKey = localItem.mutationKey()
-                    if (ServerItemRef.isServerId(localItem.contentId)) {
-                        deduped[itemKey] = localItem
-                        return@forEach
-                    }
-                    val preservePendingUpsert = itemKey in pendingUpsertKeys
-                    val preserveAfterPush = itemKey !in pendingDeleteKeys &&
-                        itemKey !in deduped &&
-                        lastSuccessfulPushMs != null &&
-                        localItem.watchedAt > lastSuccessfulPushMs
-                    if (preservePendingUpsert || preserveAfterPush) {
-                        deduped[itemKey] = localItem
-                        preservedLocalItems = true
-                    }
-                }
-                Log.d(TAG, "replaceWithRemoteItems: profile=$profileId stored=${deduped.size} preservedLocal=$preservedLocalItems")
-                deduped.values.toList()
-            }
-        }
-        return preservedLocalItems
-    }
-
     suspend fun clearAll(profileId: Int) {
         write(profileId) { items.clear(profileId) }
         store(profileId).edit { preferences ->
             preferences.remove(legacyWatchedItemsKey)
-            preferences.remove(deltaCursorKey)
-            preferences.remove(deltaInitializedKey)
+            legacyBookkeepingKeys.forEach { preferences.remove(it) }
         }
     }
 }

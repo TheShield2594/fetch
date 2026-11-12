@@ -363,6 +363,8 @@
     <string name="layout_section_content_desc">Kontroluj co pojawia się na stronie głównej i w wyszukiwarce.</string>
     <string name="layout_collapse_sidebar">Zwiń pasek boczny</string>
     <string name="layout_collapse_sidebar_sub">Ukryj pasek boczny domyślnie; pokaż po skupieniu.</string>
+    <string name="layout_hero_section">Pokaż wyróżniony tytuł</string>
+    <string name="layout_hero_section_sub">Pokaż duży wyróżniony tytuł u góry ekranu głównego.</string>
     <string name="layout_poster_labels">Pokaż etykiety plakatów</string>
     <string name="layout_poster_labels_sub">Pokaż tytuły pod plakatami w wierszach, siatce i widoku wszystkich.</string>
     <string name="layout_addon_name">Pokaż nazwę dodatku</string>

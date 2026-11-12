@@ -100,12 +100,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1702
-        versionName = "1.7.1"
+        versionCode = 1801
+        versionName = "1.8.0"
 
-        buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${localProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
+        buildConfigField("String", "PARENTAL_GUIDE_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "PARENTAL_GUIDE_API_URL")))
         buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "INTRODB_API_URL")))
-        buildConfigField("String", "TRAILER_API_URL", "\"${localProperties.getProperty("TRAILER_API_URL", "")}\"")
+        buildConfigField("String", "TRAILER_API_URL", buildConfigString(resolveProperty(Properties(), localProperties, "TRAILER_API_URL")))
         buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_RATINGS_API_BASE_URL")))
         buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
         buildConfigField("String", "TRAKT_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "TRAKT_CLIENT_ID")))
@@ -164,9 +164,9 @@ android {
             buildConfigField("boolean", "IS_DEBUG_BUILD", "true")
 
             // Dev environment (from local.dev.properties)
-            buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${devProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
+            buildConfigField("String", "PARENTAL_GUIDE_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "PARENTAL_GUIDE_API_URL")))
             buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "INTRODB_API_URL")))
-            buildConfigField("String", "TRAILER_API_URL", "\"${devProperties.getProperty("TRAILER_API_URL", "")}\"")
+            buildConfigField("String", "TRAILER_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "TRAILER_API_URL")))
             buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "IMDB_RATINGS_API_BASE_URL")))
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(devProperties, localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
         }
@@ -187,25 +187,11 @@ android {
             buildConfigField("boolean", "IS_DEBUG_BUILD", "false")
 
             // Production environment (from local.properties; API keys may also come from env vars)
-            buildConfigField("String", "PARENTAL_GUIDE_API_URL", "\"${localProperties.getProperty("PARENTAL_GUIDE_API_URL", "")}\"")
+            buildConfigField("String", "PARENTAL_GUIDE_API_URL", buildConfigString(resolveProperty(Properties(), localProperties, "PARENTAL_GUIDE_API_URL")))
             buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(Properties(), localProperties, "INTRODB_API_URL")))
-            buildConfigField("String", "TRAILER_API_URL", "\"${localProperties.getProperty("TRAILER_API_URL", "")}\"")
+            buildConfigField("String", "TRAILER_API_URL", buildConfigString(resolveProperty(Properties(), localProperties, "TRAILER_API_URL")))
             buildConfigField("String", "IMDB_RATINGS_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_RATINGS_API_BASE_URL")))
             buildConfigField("String", "IMDB_TAPFRAME_API_BASE_URL", buildConfigString(resolveProperty(Properties(), localProperties, "IMDB_TAPFRAME_API_BASE_URL")))
-        }
-        create("benchmark") {
-            initWith(buildTypes.getByName("release"))
-            signingConfig = signingConfigs.getByName("debug")
-            isDebuggable = false
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            buildConfigField("boolean", "IS_DEBUG_BUILD", "true")
-            applicationIdSuffix = ".debug"
-            matchingFallbacks += "release"
         }
     }
 
@@ -324,10 +310,7 @@ baselineProfile {
 }
 
 
-// kotlin-reflect only backs postgrest's column-name lookup from a property reference
-// (getColumnName(KProperty)). The app names columns with strings, so it's left out of the
-// APK. Tests keep it: MockK needs it. An exclude on the postgrest dependency itself doesn't
-// reach postgrest-kt-android, which Gradle module metadata redirects to.
+// kotlin-reflect is left out of the APK: no app code needs it. Tests keep it, since MockK does.
 configurations.configureEach {
     if (name.endsWith("RuntimeClasspath") && !name.contains("UnitTest") && !name.contains("AndroidTest")) {
         exclude(group = "org.jetbrains.kotlin", module = "kotlin-reflect")
@@ -352,11 +335,9 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.profileinstaller)
-    implementation(libs.androidx.recyclerview)
     implementation(composeBom)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material.icons.extended)
@@ -469,6 +450,7 @@ dependencies {
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 

@@ -2,7 +2,10 @@ package com.fetch.tv.core.parental
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.preferencesOf
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.TestPreferencesStore
+import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
@@ -80,79 +83,29 @@ class ProfileRestrictionsDataStoreTest {
     }
 
     @Test
-    fun `tightening keeps the stricter of each setting`() {
-        val teen = ProfileRestrictions(maxLevel = CertificationLevel.TEENS, allowUnrated = true)
-        val tightened = teen.tightenedWith(ProfileRestrictions.KidsPreset)
+    fun `limits and kids rules saved next to the old account copies still load, and the copies are dropped on the next write`() = runTest {
+        val accountKeys = listOf("account_restrictions_map", "account_push_pending", "account_kids_rules")
+        val prefs = TestPreferencesStore(
+            preferencesOf(
+                stringPreferencesKey("restrictions_map") to "2:true:PARENTAL_GUIDANCE:false,3:false:TEENS:true",
+                stringPreferencesKey("kids_rules") to """{"2":{"dailyMinutes":60,"approvedListIds":["mine"]}}""",
+                stringPreferencesKey("account_restrictions_map") to "2:true:PARENTAL_GUIDANCE:false",
+                stringSetPreferencesKey("account_push_pending") to setOf("2"),
+                stringPreferencesKey("account_kids_rules") to """{"2":{"dailyMinutes":30}}"""
+            )
+        )
+        val legacy = ProfileRestrictionsDataStore(prefs)
 
-        assertEquals(ProfileRestrictions.KidsPreset, tightened)
-        assertEquals(tightened, ProfileRestrictions.KidsPreset.tightenedWith(teen))
-    }
+        val restrictions = legacy.restrictions.first()
+        assertEquals(ProfileRestrictions.KidsPreset, restrictions[2])
+        assertEquals(ProfileRestrictions(maxLevel = CertificationLevel.TEENS, allowUnrated = true), restrictions[3])
+        assertEquals(KidsRules(dailyMinutes = 60, approvedListIds = listOf("mine")), legacy.kidsRules.first()[2])
 
-    @Test
-    fun `tightening with no limits changes nothing`() {
-        val teen = ProfileRestrictions(maxLevel = CertificationLevel.TEENS, allowUnrated = false)
+        legacy.setRestrictions(4, ProfileRestrictions.KidsPreset)
 
-        assertEquals(teen, teen.tightenedWith(ProfileRestrictions.None))
-        assertEquals(teen, ProfileRestrictions.None.tightenedWith(teen))
-        assertEquals(ProfileRestrictions.None, ProfileRestrictions.None.tightenedWith(ProfileRestrictions.None))
-    }
-
-    @Test
-    fun `account limits tighten this TV's but never loosen them`() = runTest {
-        store.setRestrictions(2, ProfileRestrictions.KidsPreset)
-
-        assertFalse(store.tightenFromAccount(2, ProfileRestrictions.None))
-        assertEquals(ProfileRestrictions.KidsPreset, store.restrictions.first()[2])
-
-        val teen = ProfileRestrictions(maxLevel = CertificationLevel.TEENS)
-        assertFalse(store.tightenFromAccount(2, teen))
-        assertEquals(ProfileRestrictions.KidsPreset, store.restrictions.first()[2])
-        assertEquals(teen, store.accountRestrictions.first()[2])
-    }
-
-    @Test
-    fun `account limits make an unrestricted profile a kids profile`() = runTest {
-        assertTrue(store.tightenFromAccount(3, ProfileRestrictions.KidsPreset))
-
-        assertEquals(ProfileRestrictions.KidsPreset, store.restrictions.first()[3])
-        assertEquals(ProfileRestrictions.KidsPreset, store.accountRestrictions.first()[3])
-    }
-
-    @Test
-    fun `the account copy keeps an explicit none and goes with the profile`() = runTest {
-        store.accountPushSucceeded(2, ProfileRestrictions.None)
-        assertEquals(ProfileRestrictions.None, store.accountRestrictions.first()[2])
-
-        store.setByParent(2, ProfileRestrictions.KidsPreset)
-        store.deleteProfile(2)
-        assertFalse(2 in store.accountRestrictions.first())
-        assertFalse(2 in store.pendingAccountPushes.first())
-    }
-
-    @Test
-    fun `a pull can't put back a limit the parent removed until the account has the removal`() = runTest {
-        store.tightenFromAccount(2, ProfileRestrictions.KidsPreset)
-        store.setByParent(2, ProfileRestrictions.None)
-
-        assertFalse(store.tightenFromAccount(2, ProfileRestrictions.KidsPreset))
-        assertFalse(2 in store.restrictions.first())
-        assertEquals(ProfileRestrictions.None, store.accountRestrictions.first()[2])
-
-        store.accountPushSucceeded(2, ProfileRestrictions.None)
-        assertFalse(2 in store.pendingAccountPushes.first())
-        // Once it's sent, the account is followed again: a limit set on another TV since arrives.
-        assertTrue(store.tightenFromAccount(2, ProfileRestrictions.KidsPreset))
-    }
-
-    @Test
-    fun `a push of an older copy leaves a newer change pending`() = runTest {
-        store.setByParent(2, ProfileRestrictions.KidsPreset)
-        store.setByParent(2, ProfileRestrictions.None)
-
-        store.accountPushSucceeded(2, ProfileRestrictions.KidsPreset)
-
-        assertTrue(2 in store.pendingAccountPushes.first())
-        assertEquals(ProfileRestrictions.None, store.accountRestrictions.first()[2])
+        assertTrue(prefs.value.asMap().keys.none { it.name in accountKeys })
+        assertEquals(ProfileRestrictions.KidsPreset, legacy.restrictions.first()[2])
+        assertEquals(60, legacy.kidsRules.first()[2]?.dailyMinutes)
     }
 
     private val movie = ParentalTitle(ids = listOf("tt0111161", "tmdb:278"), type = "movie", name = "A Film")

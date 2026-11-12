@@ -146,6 +146,24 @@ Opening a feature request does **not** mean a pull request will be accepted for 
 
 ---
 
+## Building and testing
+
+You need JDK 17 and the Android SDK (platform 36). Copy `local.example.properties` to
+`local.properties` and set `sdk.dir`; the API keys in it are optional.
+
+```bash
+./gradlew :app:assembleDebug                         # TV app debug APK
+./gradlew :shared:test :app:testDebugUnitTest        # shared and TV unit tests (what CI runs)
+./gradlew -Pfetch.desktopOnly=true :desktop:test     # desktop tests, no Android SDK needed
+./gradlew -Pfetch.desktopOnly=true :desktop:run      # run the desktop app
+(cd scripts && python3 -m unittest discover -s tests -t .)   # release and profile scripts
+```
+
+The website lives in `web/` and has its own instructions in
+[web/CONTRIBUTING.md](web/CONTRIBUTING.md).
+
+---
+
 ## Before opening a PR
 
 Please make sure your PR is all of the following:

@@ -313,6 +313,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.settings_stream_badge_urls_title,
         R.string.settings_stream_addon_logo_title,
         R.string.settings_stream_badge_position_dialog_title,
+        R.string.layout_hero_section,
         R.string.layout_fullscreen_hero_backdrop,
         R.string.layout_poster_labels,
         R.string.layout_addon_name,

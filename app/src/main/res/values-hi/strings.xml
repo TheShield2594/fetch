@@ -334,6 +334,8 @@
     <string name="layout_section_content_desc">होम और सर्च में क्या दिखाई देगा इसे नियंत्रित करें।</string>
     <string name="layout_collapse_sidebar">साइडबार छुपाएँ</string>
     <string name="layout_collapse_sidebar_sub">डिफ़ॉल्ट रूप से साइडबार छुपाएँ; फोकस होने पर दिखाएँ।</string>
+    <string name="layout_hero_section">हीरो दिखाएँ</string>
+    <string name="layout_hero_section_sub">होम के ऊपर बड़ा फ़ीचर्ड टाइटल दिखाएँ।</string>
     <string name="layout_poster_labels">पोस्टर लेबल दिखाएँ</string>
     <string name="layout_poster_labels_sub">रो, ग्रिड और see-all में पोस्टर के नीचे टाइटल दिखाएँ।</string>
     <string name="layout_addon_name">ऐडऑन नाम दिखाएँ</string>

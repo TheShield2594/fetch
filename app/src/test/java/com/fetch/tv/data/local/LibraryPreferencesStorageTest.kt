@@ -7,7 +7,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.fetch.tv.TestPreferencesStore
 import com.fetch.tv.core.profile.ProfileManager
-import com.fetch.tv.domain.model.LibrarySyncKey
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.SavedLibraryItem
 import com.google.gson.Gson
@@ -18,13 +17,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Audit G5: the library and its queue of changes waiting to sync live in the database, a change
- * writes only the rows it touches, and what older builds stored in DataStore moves over intact.
+ * Audit G5: the library lives in the database, a change writes only the rows it touches, and the
+ * titles older builds stored in DataStore move over intact. The sync queue older builds kept next
+ * to them is dropped.
  */
 class LibraryPreferencesStorageTest {
     private val gson = Gson()
@@ -43,24 +42,21 @@ class LibraryPreferencesStorageTest {
 
             preferences.addItem(item(size), profileId = 1)
 
-            // The title, its queued upsert and the sync counters.
-            assertEquals("rows written by one add with $size titles", 3, rows.entriesWritten)
+            assertEquals("rows written by one add with $size titles", 1, rows.entriesWritten)
             assertEquals(size + 1, preferences.getAllItems(profileId = 1).size)
         }
     }
 
     @Test
-    fun `adding and removing queue the change for sync`() = runBlocking {
+    fun `adding and removing titles`() = runBlocking {
         val preferences = preferences()
         preferences.addItem(item(1), profileId = 1)
         preferences.addItem(item(2), profileId = 1)
-        preferences.removeItem("tt2", "movie", profileId = 1)
+        preferences.addItem(item(1).copy(name = "Renamed"), profileId = 1)
+        preferences.removeItem("tt2", "MOVIE", profileId = 1)
 
-        val state = preferences.getSyncState(profileId = 1)
-        assertEquals(listOf("tt1"), state.items.map { it.id })
-        assertEquals(listOf(LibrarySyncKey("tt1", "movie")), state.pendingUpsertKeys)
-        assertEquals(listOf(LibrarySyncKey("tt2", "movie")), state.pendingDeleteKeys)
-        assertEquals(3L, state.mutationRevision)
+        assertEquals(listOf("Renamed"), preferences.getAllItems(profileId = 1).map { it.name })
+        assertTrue(preferences.containsItem("tt1", "movie", profileId = 1))
     }
 
     @Test
@@ -89,13 +85,14 @@ class LibraryPreferencesStorageTest {
     }
 
     @Test
-    fun `the library and its sync queue move from DataStore once, with their counters`() = runBlocking {
+    fun `saved titles move from DataStore once, and the old sync queue is dropped`() = runBlocking {
         val dataStore = TestPreferencesStore()
         val viewSort = stringPreferencesKey("library_sort_option")
         dataStore.edit { prefs ->
             prefs[stringSetPreferencesKey("library_items")] = setOf(gson.toJson(item(1)), gson.toJson(item(2)), "{not json")
             prefs[stringSetPreferencesKey("library_pending_upserts")] = setOf("""{"contentId":"tt1","contentType":"movie"}""")
-            prefs[stringSetPreferencesKey("library_pending_deletes")] = setOf("""{"contentId":"tt3","contentType":"movie"}""")
+            // A queued delete no longer hides a saved title.
+            prefs[stringSetPreferencesKey("library_pending_deletes")] = setOf("""{"contentId":"tt2","contentType":"movie"}""")
             prefs[longPreferencesKey("library_delta_cursor")] = 42L
             prefs[booleanPreferencesKey("library_delta_initialized")] = true
             prefs[longPreferencesKey("library_mutation_revision")] = 7L
@@ -104,23 +101,39 @@ class LibraryPreferencesStorageTest {
         }
         val rows = InMemoryKeyedEntryStore()
 
-        val state = preferences(dataStore, rows).getSyncState(profileId = 1)
+        val items = preferences(dataStore, rows).getAllItems(profileId = 1)
 
-        assertEquals(setOf("tt1", "tt2"), state.items.map { it.id }.toSet())
-        assertEquals(listOf(LibrarySyncKey("tt1", "movie")), state.pendingUpsertKeys)
-        assertEquals(listOf(LibrarySyncKey("tt3", "movie")), state.pendingDeleteKeys)
-        assertEquals(42L, state.deltaCursorEventId)
-        assertTrue(state.deltaInitialized)
-        assertEquals(7L, state.mutationRevision)
+        assertEquals(listOf(item(1), item(2)), items)
         val left = dataStore.data.first()
-        assertNull(left[stringSetPreferencesKey("library_items")])
-        assertNull(left[stringSetPreferencesKey("library_pending_upserts")])
-        assertNull(left[longPreferencesKey("library_mutation_revision")])
+        assertEquals(setOf("library_sort_option"), left.asMap().keys.map { it.name }.toSet())
         assertEquals("title", left[viewSort])
 
         rows.resetWriteCount()
-        assertEquals(state, preferences(dataStore, rows).getSyncState(profileId = 1))
+        assertEquals(items, preferences(dataStore, rows).getAllItems(profileId = 1))
         assertEquals(0, rows.entriesWritten)
+    }
+
+    @Test
+    fun `titles saved in the database by an older build still load, and its sync rows are dropped`() = runBlocking {
+        val rows = InMemoryKeyedEntryStore()
+        rows.upsert(
+            1,
+            listOf(
+                KeyedEntry("item", "movie:tt1", "tt1", item(1).addedAt, gson.toJson(item(1))),
+                KeyedEntry("item", "movie:tt2", "tt2", item(2).addedAt, gson.toJson(item(2))),
+                KeyedEntry("pending_upsert", "movie:tt1", "tt1", 0L, """{"contentId":"tt1","contentType":"movie"}"""),
+                KeyedEntry("pending_delete", "movie:tt3", "tt3", 0L, """{"contentId":"tt3","contentType":"movie"}"""),
+                KeyedEntry("meta", "sync", "", 0L, "42|true|7")
+            )
+        )
+        val preferences = preferences(rows = rows)
+
+        assertEquals(listOf(item(1), item(2)), preferences.getAllItems(profileId = 1))
+        assertEquals(setOf("item"), rows.all(1).map { it.kind }.toSet())
+
+        // A title keeps its row: removing it by the old key works.
+        preferences.removeItem("tt1", "movie", profileId = 1)
+        assertEquals(listOf("movie:tt2"), rows.all(1).map { it.key })
     }
 
     @Test
@@ -136,14 +149,6 @@ class LibraryPreferencesStorageTest {
         val refused = runCatching { preferences.addItem(item(1), profileId = 1) }
         assertTrue(refused.exceptionOrNull() is CancellationException)
         assertEquals(0, rows.entriesWritten)
-    }
-
-    @Test
-    fun `sync counters survive a round trip and reject anything else`() {
-        val text = LibraryPreferences.encodeSyncCounters(12L, true, 3L)
-        assertEquals(Triple(12L, true, 3L), LibraryPreferences.decodeSyncCounters(text))
-        assertNull(LibraryPreferences.decodeSyncCounters("12|maybe|3"))
-        assertNull(LibraryPreferences.decodeSyncCounters("{}"))
     }
 
     private fun item(index: Int) = SavedLibraryItem(

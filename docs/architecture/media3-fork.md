@@ -1,4 +1,4 @@
-# Prebuilt Media3 and QuickJS forks
+# Prebuilt Media3 fork
 
 `app/libs/` held prebuilt AARs inherited from NuvioTV. This note records what they changed
 compared with the published libraries, where Fetch depended on those changes, and what was
@@ -8,8 +8,9 @@ not audited.
 
 ## Decision
 
-Both forks were removed. Fetch now uses stock Media3 1.8.0 and the published
-`io.github.dokar3:quickjs-kt-android:1.0.5`.
+Both forks were removed. Fetch now uses stock Media3 1.8.0. QuickJS was only there for scraper
+plugins; plugin support was later removed from Fetch, and with it any QuickJS dependency (see the
+note at the end).
 
 - There is no source for either fork, so keeping one "built from source" would have meant
   rewriting the native allocator and its JNI code and carrying it as a patch on every Media3
@@ -29,9 +30,6 @@ passthrough, in performance mode and with parallel connections on. Watch for GC 
 rebuffering and out-of-memory restarts (`BUFFER:` log lines report heap use). If heap
 pressure shows up on 1 GB devices, lower the low-RAM tier in `MemoryBudget` rather than
 bringing back off-heap memory.
-
-For QuickJS, check the scraper plugins people use; a script that relied on QuickJS-ng-only
-behaviour would now fail.
 
 ## Media3 (`lib-common`, `lib-datasource`, `lib-datasource-okhttp`, `lib-exoplayer`, `lib-exoplayer-hls`, `lib-extractor`)
 
@@ -85,19 +83,9 @@ play a large 4K DV/HDR remux with passthrough, once in performance mode and once
 (performance mode off is effectively stock behaviour). If there is no meaningful difference
 in dropped frames, rebuffering or heap use, take option 1; otherwise option 2.
 
-## QuickJS (`quickjs-kt-android-1.0.5-nuvio.aar`, `full` flavor only)
+## QuickJS (historical)
 
-Compared with the published `io.github.dokar3:quickjs-kt-android:1.0.5`:
-
-- Same classes and public API, plus `QuickJs.evaluationTimeoutMillis`, `requestInterrupt()`
-  and `clearInterrupt()`, backed by new JNI functions and an interrupt handler.
-- The native library is built on QuickJS-ng (it reports "QuickJS-ng memory usage" and has
-  ng-only features such as `Error.captureStackTrace` and `stackTraceLimit`). The published
-  artifact bundles Bellard's QuickJS 2025-09-13.
-
-`PluginRuntime` uses none of the added APIs; it bounds plugins with a coroutine
-`withTimeout`. The published artifact is already declared in `libs.versions.toml`
-(`quickjs-kt`) but not used. Switching is a one-line dependency change. It should be
-checked against the scraper plugins people actually use, because a script that relies on
-QuickJS-ng behaviour would break, and a script stuck in a busy loop can't be interrupted by
-either build today.
+The NuvioTV fork `quickjs-kt-android-1.0.5-nuvio.aar` ran scraper plugins in the `full` flavor.
+It was first swapped for the published `io.github.dokar3:quickjs-kt-android:1.0.5`, then removed
+together with plugin support. Fetch has no JavaScript engine today, so nothing here needs
+re-checking.

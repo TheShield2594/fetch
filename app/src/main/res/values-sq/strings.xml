@@ -657,6 +657,8 @@
     <string name="layout_collapse_sidebar_sub">Fshih shiritin anësor si parazgjedhje; shfaqe kur merr fokusin.</string>
     <string name="layout_fullscreen_hero_backdrop">Sfond hero në ekran të plotë</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Zgjero sfondin e hero-s për të mbushur gjithë ekranin.</string>
+    <string name="layout_hero_section">Shfaq titullin kryesor</string>
+    <string name="layout_hero_section_sub">Shfaq titullin e madh të veçuar në krye të Kreut.</string>
     <string name="layout_poster_labels">Shfaq etiketat e posterëve</string>
     <string name="layout_poster_labels_sub">Shfaq titujt nën posterë në rreshta, rrjetë dhe shfaq-të-gjitha.</string>
     <string name="layout_addon_name">Shfaq emrin e shtesës</string>

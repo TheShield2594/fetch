@@ -19,13 +19,21 @@ internal fun LayoutHomeLayoutSection(
     onEvent: (LayoutSettingsEvent) -> Unit
 ) {
     SettingsToggleRow(
-        title = stringResource(R.string.layout_fullscreen_hero_backdrop),
-        subtitle = stringResource(R.string.layout_fullscreen_hero_backdrop_sub),
-        checked = uiState.modernHeroFullScreenBackdropEnabled,
-        onToggle = {
-            onEvent(LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(!uiState.modernHeroFullScreenBackdropEnabled))
-        }
+        title = stringResource(R.string.layout_hero_section),
+        subtitle = stringResource(R.string.layout_hero_section_sub),
+        checked = uiState.heroSectionEnabled,
+        onToggle = { onEvent(LayoutSettingsEvent.SetHeroSectionEnabled(!uiState.heroSectionEnabled)) }
     )
+    if (uiState.heroSectionEnabled) {
+        SettingsToggleRow(
+            title = stringResource(R.string.layout_fullscreen_hero_backdrop),
+            subtitle = stringResource(R.string.layout_fullscreen_hero_backdrop_sub),
+            checked = uiState.modernHeroFullScreenBackdropEnabled,
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled(!uiState.modernHeroFullScreenBackdropEnabled))
+            }
+        )
+    }
 }
 
 /**

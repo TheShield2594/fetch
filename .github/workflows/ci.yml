@@ -75,7 +75,7 @@ jobs:
       # (docs/performance.md, section 2).
       - name: Baseline and start-up profiles
         run: |
-          (cd scripts && python3 -m unittest tests.test_check_baseline_profiles)
+          (cd scripts && python3 -m unittest discover -s tests -t .)
           python3 scripts/check_baseline_profiles.py
 
       - uses: actions/setup-java@v4

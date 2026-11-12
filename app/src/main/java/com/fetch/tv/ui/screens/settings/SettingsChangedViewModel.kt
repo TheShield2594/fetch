@@ -89,6 +89,7 @@ class SettingsChangedViewModel @Inject constructor(
         layoutRow(home, R.string.layout_trailer_button, layout.detailPageTrailerButtonEnabled)
         layoutRow(home, R.string.layout_prefer_external_meta, layout.preferExternalMetaAddonDetail)
         layoutRow(home, R.string.layout_show_full_release_date, layout.showFullReleaseDate)
+        layoutRow(home, R.string.layout_hero_section, layout.heroSectionEnabled)
         layoutRow(home, R.string.layout_fullscreen_hero_backdrop, layout.modernHeroFullScreenBackdropEnabled)
         layoutRow(home, R.string.layout_poster_labels, layout.posterLabelsEnabled)
         layoutRow(home, R.string.layout_addon_name, layout.catalogAddonNameEnabled)

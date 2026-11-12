@@ -403,7 +403,7 @@ class StreamScreenViewModel @Inject constructor(
                 streamLoadCompleted = true
                 return@launch
             }
-            val screenTimeStatus = screenTime.statusBeforeStart()
+            val screenTimeStatus = screenTime.status()
             if (screenTimeStatus.isBlocked) {
                 // A kids profile's screen time is used up, or it's bedtime: nothing auto-plays.
                 autoPlayHandledForSession = true

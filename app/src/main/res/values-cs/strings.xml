@@ -643,6 +643,8 @@
     <string name="layout_collapse_sidebar_sub">Standardně skrýt postranní panel; zobrazit při zaměření.</string>
     <string name="layout_fullscreen_hero_backdrop">Pozadí hrdiny přes celou obrazovku</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšířit pozadí hrdiny, aby vyplnilo celou obrazovku.</string>
+    <string name="layout_hero_section">Zobrazit zvýrazněný titul</string>
+    <string name="layout_hero_section_sub">Zobrazit velký zvýrazněný titul v horní části Domů.</string>
     <string name="layout_poster_labels">Zobrazit štítky plakátů</string>
     <string name="layout_poster_labels_sub">Zobrazit názvy pod plakáty v řádcích, mřížce a zobrazit vše.</string>
     <string name="layout_addon_name">Zobrazit název doplňku</string>

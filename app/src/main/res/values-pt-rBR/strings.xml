@@ -752,6 +752,8 @@
     <string name="layout_collapse_sidebar_sub">Esconda o menu; exiba-o apenas ao focar.</string>
     <string name="layout_fullscreen_hero_backdrop">Fundo em tela cheia</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expanda o fundo do modo Moderno por toda a tela.</string>
+    <string name="layout_hero_section">Mostrar destaque</string>
+    <string name="layout_hero_section_sub">Exibe o título em destaque grande no topo do Início.</string>
     <string name="layout_poster_labels">Títulos nos pôsteres</string>
     <string name="layout_poster_labels_sub">Exiba os títulos abaixo das imagens e grades.</string>
     <string name="layout_addon_name">Nome do addon</string>

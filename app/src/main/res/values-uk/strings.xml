@@ -633,6 +633,8 @@
     <string name="layout_collapse_sidebar_sub">Приховувати бічну панель за замовчуванням; показувати при фокусі.</string>
     <string name="layout_fullscreen_hero_backdrop">Повноекранний фон головного блоку</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Розтягувати фон головного блоку на весь екран.</string>
+    <string name="layout_hero_section">Показувати головний банер</string>
+    <string name="layout_hero_section_sub">Показувати великий обраний тайтл угорі головного екрана.</string>
     <string name="layout_poster_labels">Показувати назви під постерами</string>
     <string name="layout_poster_labels_sub">Показувати назви під постерами в рядках, сітці та меню «показати всі».</string>
     <string name="layout_addon_name">Показувати назву адона</string>

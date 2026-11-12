@@ -630,6 +630,8 @@
     <string name="layout_collapse_sidebar_sub">Skryť bočný panel predvolene; zobraziť pri zameraní.</string>
     <string name="layout_fullscreen_hero_backdrop">Celostránkové pozadie hero sekcie</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Rozšíriť pozadie hero sekcie na celú obrazovku.</string>
+    <string name="layout_hero_section">Zobraziť zvýraznený titul</string>
+    <string name="layout_hero_section_sub">Zobraziť veľký zvýraznený titul v hornej časti Domov.</string>
     <string name="layout_poster_labels">Zobraziť názvy posterov</string>
     <string name="layout_poster_labels_sub">Zobraziť názvy pod postermi v radoch, mriežke a zobrazení všetkých.</string>
     <string name="layout_addon_name">Zobraziť názov doplnku</string>

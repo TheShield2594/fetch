@@ -751,6 +751,8 @@
     <string name="layout_collapse_sidebar_sub">Oculta barra lateral por defecto; muestra cuando se enfoca.</string>
     <string name="layout_fullscreen_hero_backdrop">Telón de fondo de héroe a pantalla completa</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expande el telón de fondo de héroe para llenar toda la pantalla.</string>
+    <string name="layout_hero_section">Mostrar destacado</string>
+    <string name="layout_hero_section_sub">Muestra el título destacado grande en la parte superior de Inicio.</string>
     <string name="layout_poster_labels">Mostrar etiquetas de póster</string>
     <string name="layout_poster_labels_sub">Muestra títulos bajo pósters en filas, cuadrícula y ver todo.</string>
     <string name="layout_addon_name">Mostrar nombre del complemento</string>

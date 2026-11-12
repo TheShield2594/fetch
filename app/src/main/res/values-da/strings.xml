@@ -635,6 +635,8 @@
     <string name="layout_collapse_sidebar_sub">Skjul sidebjælken som standard; vis den, når den er i fokus.</string>
     <string name="layout_fullscreen_hero_backdrop">Fuldskærms hero-baggrund</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Udvid hero-baggrunden til at fylde hele skærmen.</string>
+    <string name="layout_hero_section">Vis fremhævet titel</string>
+    <string name="layout_hero_section_sub">Vis den store fremhævede titel øverst på Hjem.</string>
     <string name="layout_poster_labels">Vis postertitler</string>
     <string name="layout_poster_labels_sub">Vis titler under postere i rækker, gitre og se-alle-visninger.</string>
     <string name="layout_addon_name">Vis addon-navn</string>

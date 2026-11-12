@@ -361,6 +361,8 @@
     <string name="layout_collapse_sidebar_sub">Skjul sidestolpe som standard; vis når fokusert.</string>
     <string name="layout_fullscreen_hero_backdrop">Heltkran i fullskjerm</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Utvid heltbakgrunn til å fylle hele skjermen.</string>
+    <string name="layout_hero_section">Vis fremhevet tittel</string>
+    <string name="layout_hero_section_sub">Vis den store fremhevede tittelen øverst på Hjem.</string>
     <string name="layout_poster_labels">Vis plakatlabeler</string>
     <string name="layout_poster_labels_sub">Vis titler under plakater i rader, rutenett og se-alle.</string>
     <string name="layout_addon_name">Vis tilleggsavn</string>

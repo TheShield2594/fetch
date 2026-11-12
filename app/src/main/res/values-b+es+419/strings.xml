@@ -810,6 +810,8 @@
     <string name="layout_collapse_sidebar_sub">Ocultar la barra lateral por defecto; mostrarla al interactuar con ella.</string>
     <string name="layout_fullscreen_hero_backdrop">Fondo principal en pantalla completa</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Expande el fondo principal para que ocupe toda la pantalla.</string>
+    <string name="layout_hero_section">Mostrar destacado</string>
+    <string name="layout_hero_section_sub">Muestra el título destacado grande en la parte superior de Inicio.</string>
     <string name="layout_poster_labels">Mostrar Etiquetas de Pósteres</string>
     <string name="layout_poster_labels_sub">Mostrar los títulos debajo de los pósteres en filas, cuadrículas y en \"ver todo\".</string>
     <string name="layout_addon_name">Mostrar Nombre del Addon</string>

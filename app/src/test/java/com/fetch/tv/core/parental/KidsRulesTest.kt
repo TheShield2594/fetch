@@ -1,9 +1,12 @@
 package com.fetch.tv.core.parental
 
+import com.fetch.tv.core.tracking.LocalList
 import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.ParentalTitle
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.data.local.ProfileTitleLists
+import com.fetch.tv.domain.model.PosterShape
+import com.fetch.tv.domain.model.SavedLibraryItem
 import com.fetch.tv.ui.screens.home.approvedTitleRows
 import com.fetch.tv.ui.screens.player.effectiveStillWatching
 import org.junit.Assert.assertEquals
@@ -171,6 +174,45 @@ class KidsRulesTest {
         assertEquals("p1", rows[0].items[1].poster)
         assertEquals(listOf("tt2"), rows[1].items.map { it.id })
         assertTrue(approvedTitleRows(approvedOnly = false, lists = lists, moviesTitle = "M", showsTitle = "S").isEmpty())
+    }
+
+    private fun item(id: String, type: String = "series", addedAt: Long = 0L) = SavedLibraryItem(
+        id = id, type = type, name = id, poster = null, posterShape = PosterShape.POSTER,
+        background = null, description = null, releaseInfo = null, imdbRating = null,
+        genres = emptyList(), addonBaseUrl = null, addedAt = addedAt
+    )
+
+    @Test
+    fun `titles on the parent's chosen lists are approved`() {
+        val lists = listOf(
+            LocalList(id = "kids", name = "Kids", items = listOf(item("tt2", addedAt = 2), item("tt1", addedAt = 1))),
+            LocalList(id = "mine", name = "Mine", items = listOf(item("tt9")))
+        )
+        val rules = KidsRules(approvedTitlesOnly = true, approvedListIds = listOf("kids"))
+
+        val titles = approvedTitlesFromLists(rules, lists)
+
+        assertEquals(listOf("tt1", "tt2"), titles.map { it.ids.single() })
+        val effective = ProfileTitleLists.Empty.withApprovedFromLists(titles)
+        assertTrue(effective.isAllowed("tt1:1:2", null, "series"))
+        assertFalse(effective.isAllowed("tt9", null, "series"))
+    }
+
+    @Test
+    fun `chosen lists count only in approved titles only mode`() {
+        val lists = listOf(LocalList(id = "kids", name = "Kids", items = listOf(item("tt1"))))
+        assertTrue(approvedTitlesFromLists(KidsRules(approvedListIds = listOf("kids")), lists).isEmpty())
+        assertTrue(approvedTitlesFromLists(null, lists).isEmpty())
+    }
+
+    @Test
+    fun `a hidden title stays hidden even on a chosen list`() {
+        val hidden = ParentalTitle(ids = listOf("tt1"), type = "series", name = "x")
+        val lists = ProfileTitleLists(hidden = listOf(hidden))
+        val effective = lists.withApprovedFromLists(
+            listOf(ParentalTitle(ids = listOf("tt1"), type = "series", name = "x"))
+        )
+        assertEquals(lists, effective)
     }
 
     @Test

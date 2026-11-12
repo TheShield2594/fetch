@@ -757,6 +757,8 @@
     <string name="layout_collapse_sidebar_sub">ডিফল্টরূপে সাইডবার লুকান; ফোকাস করার সময় দেখান।</string>
     <string name="layout_fullscreen_hero_backdrop">ফুলস্ক্রিন হিরো ব্যাকড্রপ</string>
     <string name="layout_fullscreen_hero_backdrop_sub">পুরো স্ক্রিন জুড়ে হিরো ব্যাকড্রপ প্রসারিত করুন।</string>
+    <string name="layout_hero_section">হিরো দেখান</string>
+    <string name="layout_hero_section_sub">হোমের উপরে বড় বিশেষ টাইটেলটি দেখান।</string>
     <string name="layout_poster_labels">পোস্টার লেবেল দেখান</string>
     <string name="layout_poster_labels_sub">রো, গ্রিড এবং সি-অলে পোস্টারের নিচে টাইটেল দেখান।</string>
     <string name="layout_addon_name">অ্যাডনের নাম দেখান</string>

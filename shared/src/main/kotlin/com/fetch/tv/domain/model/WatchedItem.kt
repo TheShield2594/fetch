@@ -14,13 +14,14 @@ data class WatchedItem(
     val trackingSourceUrl: String? = null
 )
 
-data class WatchedMutationKey(
+/** What identifies a watched mark: one per movie, series, or episode of a series. */
+data class WatchedItemKey(
     val contentId: String,
     val season: Int?,
     val episode: Int?
 )
 
-fun WatchedItem.mutationKey(): WatchedMutationKey = WatchedMutationKey(
+fun WatchedItem.itemKey(): WatchedItemKey = WatchedItemKey(
     contentId = contentId,
     season = season,
     episode = episode

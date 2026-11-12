@@ -638,6 +638,8 @@
     <string name="layout_collapse_sidebar_sub">Скрий страничната лента по подразбиране; показвай при фокус.</string>
     <string name="layout_fullscreen_hero_backdrop">Пълен екран hero backdrop</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Разшири hero backdrop-а да запълни целия екран.</string>
+    <string name="layout_hero_section">Показвай акцента</string>
+    <string name="layout_hero_section_sub">Показвай големия акцентиран заглавие в горната част на Начало.</string>
     <string name="layout_poster_labels">Показвай надписи под постерите</string>
     <string name="layout_poster_labels_sub">Показвай заглавия под постерите в редове, решетка и „виж всички“.</string>
     <string name="layout_addon_name">Показвай името на добавката</string>

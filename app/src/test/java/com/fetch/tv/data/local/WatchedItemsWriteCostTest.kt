@@ -8,16 +8,9 @@ import com.fetch.tv.domain.model.WatchedItem
 import com.google.gson.Gson
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -58,43 +51,6 @@ class WatchedItemsWriteCostTest {
         preferences.markAsWatched(item(42).copy(watchedAt = 1L), PROFILE_ID)
 
         assertEquals(2, store.entriesWritten)
-    }
-
-    @Test
-    fun `a remote change set writes only what it changes`() = runBlocking {
-        val (preferences, store) = preferences()
-        val history = (0 until 5_000).map(::item)
-        preferences.markAsWatchedBatch(history, PROFILE_ID)
-        store.resetWriteCount()
-
-        // The remote sends back three entries the TV already has, one new one and one delete.
-        preferences.applyRemoteChanges(
-            upserts = history.take(3) + item(5_000),
-            deletes = listOf(Triple(history[10].contentId, history[10].season, history[10].episode)),
-            profileId = PROFILE_ID
-        )
-
-        assertEquals(2, store.entriesWritten)
-    }
-
-    @Test
-    fun `push bookkeeping writes do not re-emit the watched list`() = runBlocking {
-        val (preferences, _) = preferences()
-        preferences.markAsWatchedBatch((0 until 1_000).map(::item), PROFILE_ID)
-        val scope = CoroutineScope(Dispatchers.Default)
-        try {
-            val emissions = MutableStateFlow(0)
-            scope.launch { preferences.observeAllItems(PROFILE_ID).collect { emissions.update { it + 1 } } }
-            withTimeout(AWAIT_TIMEOUT_MS) { emissions.first { it >= 1 } }
-
-            preferences.advanceLastSuccessfulPushMs(1_000L, PROFILE_ID)
-            preferences.setDeltaState(cursor = 5L, profileId = PROFILE_ID)
-            delay(QUIET_WINDOW_MS)
-
-            assertEquals(1, emissions.value)
-        } finally {
-            scope.cancel()
-        }
     }
 
     @Test
@@ -142,8 +98,6 @@ class WatchedItemsWriteCostTest {
     private companion object {
         const val PROFILE_ID = 1
         const val EPISODES_PER_SHOW = 20
-        const val QUIET_WINDOW_MS = 500L
-        const val AWAIT_TIMEOUT_MS = 30_000L
         val LEGACY_KEY = stringSetPreferencesKey("watched_items")
     }
 }

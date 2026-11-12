@@ -739,6 +739,8 @@
     <string name="layout_collapse_sidebar_sub">預設隱藏側邊欄；獲得焦點時顯示。</string>
     <string name="layout_fullscreen_hero_backdrop">全螢幕焦點區塊背景</string>
     <string name="layout_fullscreen_hero_backdrop_sub">將焦點區塊背景延伸到整個螢幕。</string>
+    <string name="layout_hero_section">顯示主打內容</string>
+    <string name="layout_hero_section_sub">在首頁頂部顯示大幅主打標題。</string>
     <string name="layout_poster_labels">顯示海報標籤</string>
     <string name="layout_poster_labels_sub">在列、網格和「查看全部」中的海報下方顯示標題。</string>
     <string name="layout_addon_name">顯示擴充套件名稱</string>

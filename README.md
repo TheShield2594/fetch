@@ -71,9 +71,37 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the full requirements list and what i
 [`web/`](web/) is Fetch's optional self-hosted server and web app, formerly
 [Cataloggy](https://github.com/TheShield2594/cataloggy). Run it with Docker Compose
 and manage profiles, lists, watch history and settings from a phone or computer.
-Lists already reach the TV through its Stremio addon. Syncing the TV app to it is in
-progress; [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has the plan and
+A paired TV syncs its profiles, library, watch progress, watched marks, addons, Home rows and
+playback settings with it, and the website's lists reach the TV through its Stremio addon.
+Kids rules and screen time stay on each TV, and titles without an IMDb id (some anime and
+TMDB-only titles) stay on the TV. [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has what syncs and
 [web/README.md](web/README.md) has setup.
+
+## Supported devices and installing
+
+Fetch runs on Android TV and Google TV devices (Android 7.0 or later) and on Fire TV devices
+that run Fire OS. Fire TV sticks that run **Vega OS** (the 2025 Fire TV Stick 4K Select and
+later Vega models) can't run Android apps, so they can't run Fetch. Phones and tablets aren't
+supported: the APK declares Android TV (leanback) as required.
+
+GitHub releases are the only place Fetch is published. Download `fetch-<version>-universal.apk`
+(or the one for your TV's ABI, usually `arm64-v8a` or `armeabi-v7a`) and install it with a
+downloader app on the TV, or from a computer with ADB:
+
+```bash
+# On the TV: Settings → Device Preferences → About → press Build 7 times, then
+# Developer options → USB/Network debugging on. On Fire TV: My Fire TV → Developer options → ADB debugging.
+adb connect <tv-ip-address>
+adb install -r fetch-<version>-universal.apk     # -r keeps your data when updating
+```
+
+After that, Fetch updates itself from this repo's releases (Settings → About). Google is adding
+developer verification for apps installed from outside the Play Store from 2026 onward; ADB
+installs are expected to keep working, and this section will be updated if that changes.
+
+On Fire TV, the Android TV launcher features (the Watch Next row, the Fetch channel on the home
+screen and Fetch results in the system search) use Android TV provider APIs that the Fire OS
+launcher isn't known to show. Inside Fetch everything works the same.
 
 ## Build
 

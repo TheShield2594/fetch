@@ -433,6 +433,8 @@
     <string name="layout_collapse_sidebar_sub">Sakrij sidebar po defaultu; prikaži ga kada je fokusiran.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Backdrop za Glavni Prikaz</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Proširi backdrop sliku da ispuni cijeli ekran.</string>
+    <string name="layout_hero_section">Prikaži istaknuto</string>
+    <string name="layout_hero_section_sub">Prikaži veliki istaknuti naslov na vrhu Početne.</string>
     <string name="layout_poster_labels">Prikaži Nazive Postera</string>
     <string name="layout_poster_labels_sub">Prikaži naslove ispod postera u redovima, mreži i prikazu “Vidi sve”.</string>
     <string name="layout_addon_name">Prikaži Naziv Addona</string>

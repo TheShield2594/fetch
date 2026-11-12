@@ -739,6 +739,8 @@
     <string name="layout_collapse_sidebar_sub">默认隐藏侧边栏；获得焦点时显示。</string>
     <string name="layout_fullscreen_hero_backdrop">全屏焦点区块背景</string>
     <string name="layout_fullscreen_hero_backdrop_sub">将焦点区块背景延伸到整个屏幕。</string>
+    <string name="layout_hero_section">显示主推内容</string>
+    <string name="layout_hero_section_sub">在主页顶部显示大幅主推标题。</string>
     <string name="layout_poster_labels">显示海报标签</string>
     <string name="layout_poster_labels_sub">在行、网格和「查看全部」中的海报下方显示标题。</string>
     <string name="layout_addon_name">显示扩展名称</string>

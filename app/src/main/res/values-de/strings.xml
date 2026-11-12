@@ -622,6 +622,8 @@
     <string name="layout_collapse_sidebar_sub">Seitenleiste standardmäßig ausblenden; bei Fokus anzeigen.</string>
     <string name="layout_fullscreen_hero_backdrop">Vollbild-Hintergrund (Hero)</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Erweitert den Hero-Hintergrund, sodass er den gesamten Bildschirm ausfüllt.</string>
+    <string name="layout_hero_section">Hero anzeigen</string>
+    <string name="layout_hero_section_sub">Den großen hervorgehobenen Titel oben auf der Startseite anzeigen.</string>
     <string name="layout_poster_labels">Poster-Labels anzeigen</string>
     <string name="layout_poster_labels_sub">Titel unter Postern in Zeilen, Raster und „Alle anzeigen” anzeigen.</string>
     <string name="layout_addon_name">Addon-Name anzeigen</string>

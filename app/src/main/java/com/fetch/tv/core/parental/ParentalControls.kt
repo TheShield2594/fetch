@@ -119,7 +119,7 @@ class ParentalControls @Inject constructor(
     suspend fun setKidsRules(profileId: Int, rules: KidsRules): Boolean {
         if (profileId == 1) return false
         if (rules == kidsRulesFor(profileId)) return true
-        restrictionsDataStore.setKidsRulesByParent(profileId, rules)
+        restrictionsDataStore.setKidsRules(profileId, rules)
         return true
     }
 
@@ -183,13 +183,12 @@ class ParentalControls @Inject constructor(
 
     /**
      * The primary profile is the parent profile and can't be restricted. Callers ask for the
-     * parent PIN first: this is the only way limits get looser on a TV, since a sync pull only
-     * ever tightens them.
+     * parent PIN first.
      */
     suspend fun setRestrictions(profileId: Int, restrictions: ProfileRestrictions): Boolean {
         if (profileId == 1) return false
         // A TV paired with a Fetch website shares it with the website straight away.
-        restrictionsDataStore.setByParent(profileId, restrictions)
+        restrictionsDataStore.setRestrictions(profileId, restrictions)
         websiteSync.get().triggerProfilesPush()
         return true
     }
@@ -205,7 +204,7 @@ class ParentalControls @Inject constructor(
 
     /**
      * Hides [title] from the profile, allows it whatever its rating, or leaves it to the rating
-     * limit again. Kept on this TV only, like the limits, and never changed by a sync pull. The
+     * limit again. Kept on this TV only and never changed by a sync pull. The
      * primary profile is the parent's and has no lists.
      */
     suspend fun setTitleState(profileId: Int, title: ParentalTitle, state: ParentalTitleState): Boolean {

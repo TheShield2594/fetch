@@ -729,6 +729,8 @@
     <string name="layout_collapse_sidebar_sub">Verberg de zijbalk standaard; toon bij focus.</string>
     <string name="layout_fullscreen_hero_backdrop">Hero-achtergrond op volledig scherm</string>
     <string name="layout_fullscreen_hero_backdrop_sub">Vergroot de hero-achtergrond zodat die het hele scherm vult.</string>
+    <string name="layout_hero_section">Uitgelichte titel tonen</string>
+    <string name="layout_hero_section_sub">Toon de grote uitgelichte titel bovenaan Home.</string>
     <string name="layout_poster_labels">Posterlabels tonen</string>
     <string name="layout_poster_labels_sub">Toon titels onder posters in rijen, raster en alles-bekijken.</string>
     <string name="layout_addon_name">Add-onnaam tonen</string>

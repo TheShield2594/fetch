@@ -259,6 +259,8 @@
     <string name="layout_section_content_desc">Controlați ce apare pe pagina principală și în căutare.</string>
     <string name="layout_collapse_sidebar">Restrânge bara laterală</string>
     <string name="layout_collapse_sidebar_sub">Ascundeți bara laterală implicit; afișați când este focalizată.</string>
+    <string name="layout_hero_section">Afișează titlul evidențiat</string>
+    <string name="layout_hero_section_sub">Afișează titlul mare evidențiat în partea de sus a ecranului principal.</string>
     <string name="layout_poster_labels">Afișează Etichete Poster</string>
     <string name="layout_poster_labels_sub">Afișează titlurile sub postere în rânduri, grilă și vezi tot.</string>
     <string name="layout_addon_name">Afișează Numele Addon-ului</string>

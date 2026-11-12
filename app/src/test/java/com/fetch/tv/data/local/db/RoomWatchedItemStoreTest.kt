@@ -3,7 +3,7 @@ package com.fetch.tv.data.local.db
 import androidx.room.Room
 import com.fetch.tv.data.local.RoomWatchedItemStore
 import com.fetch.tv.domain.model.WatchedItem
-import com.fetch.tv.domain.model.WatchedMutationKey
+import com.fetch.tv.domain.model.WatchedItemKey
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -61,7 +61,7 @@ class RoomWatchedItemStoreTest {
     @Test
     fun `delete removes only the named keys, a movie's included`() = runBlocking {
         store.upsert(1, listOf(movie, series, episode(1, 1)))
-        store.delete(1, listOf(WatchedMutationKey("tt1", null, null), WatchedMutationKey("tt2", 1, 1)))
+        store.delete(1, listOf(WatchedItemKey("tt1", null, null), WatchedItemKey("tt2", 1, 1)))
 
         assertEquals(listOf(series), store.all(1))
     }

@@ -5,6 +5,7 @@ import com.fetch.tv.domain.model.WatchProgress
 import java.time.Instant
 import kotlin.math.roundToInt
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -14,21 +15,26 @@ import kotlinx.serialization.json.put
 /** The website's longest position; a duration past it isn't sent. */
 private const val MAX_PLAYBACK_SECONDS = 12L * 60 * 60
 
-/** A resume point to `PUT /playback`, in whole seconds when the player knows them. */
+/**
+ * A resume point to `PUT /playback`, in whole seconds when the player knows them. A title without
+ * an IMDb id goes under its prefixed id ([fetchWebsiteContentId]), with its name and poster for
+ * the website to show, since it may have no other way to find them.
+ */
 fun fetchWebsitePlaybackBody(progress: WatchProgress): JsonObject? {
-    if (!progress.contentId.startsWith("tt")) return null
+    val contentId = fetchWebsiteContentId(progress.contentId) ?: return null
     val isEpisode = progress.season != null && progress.episode != null
     if (!isEpisode && !progress.contentType.equals("movie", ignoreCase = true)) return null
     val durationSeconds = progress.duration / 1000L
     val positionSeconds = progress.position / 1000L
     return buildJsonObject {
         put("type", if (isEpisode) "episode" else "movie")
-        put("imdbId", progress.contentId)
+        put("imdbId", contentId)
         if (isEpisode) {
-            put("seriesImdbId", progress.contentId)
+            put("seriesImdbId", contentId)
             put("season", progress.season)
             put("episode", progress.episode)
         }
+        putFetchWebsiteTitle(progress.name.takeIf { it != progress.contentId }, progress.poster)
         if (durationSeconds in 1..MAX_PLAYBACK_SECONDS && positionSeconds in 0..durationSeconds) {
             put("positionSeconds", positionSeconds)
             put("durationSeconds", durationSeconds)
@@ -37,6 +43,17 @@ fun fetchWebsitePlaybackBody(progress: WatchProgress): JsonObject? {
         }
     }
 }
+
+/** The title's name and poster, as the website keeps them for one it can't look up itself. */
+fun JsonObjectBuilder.putFetchWebsiteTitle(name: String?, poster: String?) {
+    name?.trim()?.takeIf(String::isNotEmpty)?.let { put("name", it.take(MAX_TITLE_LENGTH)) }
+    poster?.trim()?.takeIf { it.startsWith("https://") || it.startsWith("http://") }
+        ?.takeIf { it.length <= MAX_POSTER_URL_LENGTH }
+        ?.let { put("poster", it) }
+}
+
+private const val MAX_TITLE_LENGTH = 300
+private const val MAX_POSTER_URL_LENGTH = 2_048
 
 /** A resume point held here before the website has given it an id; never sent back to it. */
 const val LOCAL_PLAYBACK_ID_PREFIX = "local:"

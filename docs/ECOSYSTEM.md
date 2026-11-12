@@ -57,6 +57,11 @@ the library are the exception: the website carries them as a tracking provider
 (`data/website/FetchWebsiteTracking.kt`). Each domain maps onto the website like
 this:
 
+Titles are keyed by IMDb id where they have one, and otherwise by the prefixed id
+the TV uses (`tmdb:603`, `kitsu:1376`, `mal:1`, …; `web/apps/api/src/lib/content-id.ts`
+and `shared/…/data/website/FetchWebsiteContentIds.kt`), so anime and TMDB-only titles
+sync too. The columns are still called `imdbId`.
+
 | TV sync service | Website today | Gap |
 | --- | --- | --- |
 | `ProfileSyncService` | `/profiles` with colour, avatar and parental limits; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96) |

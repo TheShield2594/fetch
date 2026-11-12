@@ -193,9 +193,12 @@ type TraktTokenResponse = {
   expires_in?: number;
 };
 
+/** A title's ids as Trakt takes them: `{ imdb }` usually, `{ tmdb }` for a title known only to TMDB. */
+export type TraktMediaIds = Record<string, string | number>;
+
 export type TraktScrobblePayload =
-  | { movie: { ids: { imdb: string } }; progress: number }
-  | { show: { ids: { imdb: string } }; episode: { season: number; number: number }; progress: number };
+  | { movie: { ids: TraktMediaIds }; progress: number }
+  | { show: { ids: TraktMediaIds }; episode: { season: number; number: number }; progress: number };
 
 export type TraktScrobbleResponse = {
   id?: number;
@@ -218,8 +221,8 @@ export type TraktPlaybackPayload = {
 };
 
 export type TraktWatchlistMutationPayload = {
-  movies?: { ids: { imdb: string } }[];
-  shows?: { ids: { imdb: string } }[];
+  movies?: { ids: TraktMediaIds }[];
+  shows?: { ids: TraktMediaIds }[];
 };
 
 /** One entry of `/calendars/my/shows`. Only what the calendar reads is typed. */

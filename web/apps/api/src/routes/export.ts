@@ -26,9 +26,14 @@ import {
   MAX_RATING,
   MAX_SEASON,
   MIN_RATING,
-  normalizeImdbId,
   tooManyRowsMessage,
 } from "../lib/import-validation.js";
+import { normalizeContentId } from "../lib/content-id.js";
+
+// A backup restores every title it holds, including those known by a prefixed
+// id rather than an IMDb one (lib/content-id.ts), so the ids it accepts are the
+// ones the rest of the API keys titles by.
+const normalizeImdbId = normalizeContentId;
 
 const EXPORT_VERSION = 1;
 

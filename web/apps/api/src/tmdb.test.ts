@@ -506,3 +506,43 @@ describe("discoverSort", () => {
     expect(discoverSort("movie", "relevance")).toBe("popularity.desc");
   });
 });
+
+describe("TmdbClient.findByImdbId with ids other than IMDb's", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("fetches a tmdb: id's details directly and keeps the id it was asked for", async () => {
+    const fetchMock = vi.fn(async (input: URL) => {
+      if (input.pathname === "/3/movie/603") return json({ id: 603, title: "The Matrix", release_date: "1999-03-31" });
+      return json({}, 404);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { TmdbClient } = await import("./tmdb.js");
+    const payload = await TmdbClient.fromKey("key").findByImdbId(MetadataType.movie, "tmdb:603");
+
+    expect(payload).toMatchObject({ imdbId: "tmdb:603", tmdbId: 603, name: "The Matrix", year: 1999 });
+    expect(fetchMock.mock.calls.map(([url]) => url.pathname)).toEqual(["/3/movie/603"]);
+  });
+
+  it("answers null for a tmdb: id TMDB doesn't have", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => json({ status_message: "not found" }, 404)));
+
+    const { TmdbClient } = await import("./tmdb.js");
+    await expect(TmdbClient.fromKey("key").findByImdbId(MetadataType.series, "tmdb:999999999")).resolves.toBeNull();
+  });
+
+  it("doesn't ask TMDB about an anime catalog's id", async () => {
+    const fetchMock = vi.fn(async () => json({}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { TmdbClient } = await import("./tmdb.js");
+    await expect(TmdbClient.fromKey("key").findByImdbId(MetadataType.series, "kitsu:1376")).resolves.toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

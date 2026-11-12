@@ -187,7 +187,13 @@ row genuinely is not found. Another account's profile is a `404` the same way.
   limited to 10/minute on top of that.
 - **Types** are `movie` and `series` almost everywhere. Watch events use `movie`
   and `episode`; tags additionally accept `episode`.
-- **IDs** are IMDb ids (`tt0111161`) for films and shows, UUIDs for
+- **IDs** are IMDb ids (`tt0111161`) for films and shows, or for a title
+  with no IMDb id a prefixed one: `tmdb:603`, `kitsu:1376`, `mal:1`,
+  `anilist:1`, `anidb:1`, `tvdb:`, `trakt:` or `simkl:` and digits. The
+  field is still called `imdbId`. `POST /watch`, `POST /scrobble/start`,
+  `PUT /playback` and `POST /lists/:id/items` reject any other id with a
+  `400`, and take an optional `name` and `poster` (`title` for a list item)
+  that are kept for a title TMDB can't look up. UUIDs are used for
   Fetch's own rows (lists, profiles, tags, watch events). Those are
   uuid columns, so a malformed id is a `400` before any query runs rather than
   an empty result.

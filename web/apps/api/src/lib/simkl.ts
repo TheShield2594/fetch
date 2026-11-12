@@ -4,6 +4,7 @@ import { deleteConnection, getConnection, listConnections, saveConnection } from
 import { connectionKvKey } from "./profile-connections.js";
 import { SIMKL_LAST_SYNCED_AT_KEY, SIMKL_PIN_KEY } from "./owner-keys.js";
 import { importTrackerItems, type ImportedWatch, type ImportedWatchlistItem, type ImportSummary } from "./tracker-import.js";
+import { SIMKL_ID_SOURCES, externalIdsFor } from "./content-id.js";
 
 // Simkl, as the TV app uses it (app/.../data/simkl): a PIN sign-in, the
 // account's library read through /sync/all-items, and plays, watchlist adds
@@ -294,13 +295,13 @@ type SimklWatch =
   | { type: "movie"; imdbId: string; watchedAt?: Date }
   | { type: "episode"; seriesImdbId: string; season: number | null | undefined; episode: number | null | undefined; watchedAt?: Date };
 
-const historyBody = (watch: SimklWatch) =>
+const historyBody = (watch: SimklWatch, ids: Record<string, string | number>) =>
   watch.type === "movie"
-    ? { movies: [{ ids: { imdb: watch.imdbId }, ...(watch.watchedAt ? { watched_at: watch.watchedAt.toISOString() } : {}) }] }
+    ? { movies: [{ ids, ...(watch.watchedAt ? { watched_at: watch.watchedAt.toISOString() } : {}) }] }
     : {
         shows: [
           {
-            ids: { imdb: watch.seriesImdbId },
+            ids,
             seasons: [
               {
                 number: watch.season,
@@ -314,10 +315,12 @@ const historyBody = (watch: SimklWatch) =>
 /** Adds a play to the profile's Simkl history, if it has Simkl connected. */
 export const pushSimklWatched = async (profileId: string, watch: SimklWatch, logger: FastifyBaseLogger): Promise<void> => {
   if (watch.type === "episode" && (watch.season == null || watch.episode == null)) return;
+  const ids = externalIdsFor(watch.type === "movie" ? watch.imdbId : watch.seriesImdbId, SIMKL_ID_SOURCES);
+  if (!ids) return;
   try {
     const token = await tokenFor(profileId);
     if (!token) return;
-    await simklRequest("POST", "/sync/history", { token, body: historyBody(watch) });
+    await simklRequest("POST", "/sync/history", { token, body: historyBody(watch, ids) });
   } catch (error) {
     logger.warn({ error }, "Simkl history push failed");
   }
@@ -329,10 +332,12 @@ export const pushSimklWatchlistAdd = async (
   item: { type: "movie" | "series"; imdbId: string },
   logger: FastifyBaseLogger
 ): Promise<void> => {
+  const ids = externalIdsFor(item.imdbId, SIMKL_ID_SOURCES);
+  if (!ids) return;
   try {
     const token = await tokenFor(profileId);
     if (!token) return;
-    const entry = { to: "plantowatch", ids: { imdb: item.imdbId } };
+    const entry = { to: "plantowatch", ids };
     await simklRequest("POST", "/sync/add-to-list", {
       token,
       body: item.type === "movie" ? { movies: [entry] } : { shows: [entry] },
@@ -359,16 +364,18 @@ export const pushSimklScrobble = async (
   logger: FastifyBaseLogger
 ): Promise<void> => {
   if (params.type === "episode" && (params.season == null || params.episode == null)) return;
+  const ids = externalIdsFor(params.type === "movie" ? params.imdbId : (params.seriesImdbId ?? params.imdbId), SIMKL_ID_SOURCES);
+  if (!ids) return;
   try {
     const token = await tokenFor(params.profileId);
     if (!token) return;
     const progress = Math.max(0, Math.min(100, Math.round(params.progress * 100) / 100));
     const body =
       params.type === "movie"
-        ? { progress, movie: { ids: { imdb: params.imdbId } } }
+        ? { progress, movie: { ids } }
         : {
             progress,
-            show: { ids: { imdb: params.seriesImdbId ?? params.imdbId } },
+            show: { ids },
             episode: { season: params.season, number: params.episode },
           };
     await simklRequest("POST", `/scrobble/${action}`, { token, body });

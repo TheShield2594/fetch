@@ -20,6 +20,7 @@ import { connectionKvKey } from "./profile-connections.js";
 import { watchEventDedupWhere, type WatchEventDedupKey } from "./watch-event-dedup.js";
 import type { SeriesProgressCandidate } from "./types.js";
 import type { FastifyRequest } from "fastify";
+import { TRAKT_ID_SOURCES, externalIdsFor } from "./content-id.js";
 
 export { computeTokenExpiresAt };
 
@@ -96,6 +97,9 @@ export const pushTraktScrobble = async (
   logger: FastifyRequest["log"]
 ): Promise<bigint | null> => {
   if (params.type === "episode" && (params.season == null || params.episode == null)) return null;
+  // A title Trakt has no id for (an anime catalog's) stays off Trakt.
+  const ids = externalIdsFor(params.type === "movie" ? params.imdbId : (params.seriesImdbId ?? params.imdbId), TRAKT_ID_SOURCES);
+  if (!ids) return null;
   const owner = await traktOwnerForProfile(params.profileId);
   if (!owner) return null;
 
@@ -105,9 +109,9 @@ export const pushTraktScrobble = async (
 
     const payload: TraktScrobblePayload =
       params.type === "movie"
-        ? { movie: { ids: { imdb: params.imdbId } }, progress }
+        ? { movie: { ids }, progress }
         : {
-            show: { ids: { imdb: params.seriesImdbId ?? params.imdbId } },
+            show: { ids },
             episode: { season: params.season as number, number: params.episode as number },
             progress
           };
@@ -158,10 +162,11 @@ export const syncWatchEventToTrakt = (
 
 export type WatchlistItemRef = { type: "movie" | "series"; imdbId: string };
 
-const toTraktWatchlistPayload = (item: WatchlistItemRef): TraktWatchlistMutationPayload =>
-  item.type === "movie"
-    ? { movies: [{ ids: { imdb: item.imdbId } }] }
-    : { shows: [{ ids: { imdb: item.imdbId } }] };
+const toTraktWatchlistPayload = (item: WatchlistItemRef): TraktWatchlistMutationPayload | null => {
+  const ids = externalIdsFor(item.imdbId, TRAKT_ID_SOURCES);
+  if (!ids) return null;
+  return item.type === "movie" ? { movies: [{ ids }] } : { shows: [{ ids }] };
+};
 
 /**
  * Best-effort: pushes a single watchlist add/remove to Trakt. Never throws,
@@ -173,12 +178,13 @@ export const pushTraktWatchlistChange = async (
   logger: FastifyRequest["log"],
   profileId: string
 ): Promise<void> => {
+  const payload = toTraktWatchlistPayload(item);
+  if (!payload) return;
   const owner = await traktOwnerForProfile(profileId);
   if (!owner) return;
 
   try {
     const client = await getTraktClient(owner);
-    const payload = toTraktWatchlistPayload(item);
     if (action === "add") {
       await client.addToWatchlist(payload, logger);
     } else {

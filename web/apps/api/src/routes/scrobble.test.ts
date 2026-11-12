@@ -62,6 +62,34 @@ describe("scrobble routes", () => {
       expect(response.statusCode).toBe(400);
     });
 
+    it("rejects an id that is neither IMDb's nor a known prefix", async () => {
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "POST",
+        url: "/scrobble/start",
+        payload: { type: "movie", imdbId: "kitsu:1376:5", progress: 10 },
+      });
+      expect(response.statusCode).toBe(400);
+      expect(txMock.scrobbleSession.create).not.toHaveBeenCalled();
+    });
+
+    it("starts a session for a kitsu: episode under the series id", async () => {
+      txMock.scrobbleSession.findFirst.mockResolvedValue(null);
+      txMock.scrobbleSession.create.mockResolvedValue({ id: "s1", status: "playing", progress: 0 });
+
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "POST",
+        url: "/scrobble/start",
+        payload: { type: "episode", imdbId: "kitsu:1376", seriesImdbId: "kitsu:1376", season: 1, episode: 5, progress: 3 },
+      });
+
+      expect(response.statusCode).toBe(201);
+      expect(txMock.scrobbleSession.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ imdbId: "kitsu:1376", seriesImdbId: "kitsu:1376", season: 1, episode: 5 }),
+      });
+    });
+
     it("creates a new session when none exists and returns 201", async () => {
       txMock.scrobbleSession.findFirst.mockResolvedValue(null);
       txMock.scrobbleSession.create.mockResolvedValue({ id: "s1", status: "playing", progress: 0 });

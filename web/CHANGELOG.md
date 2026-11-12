@@ -126,6 +126,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Anime and TMDB-only titles sync with the TV.** A title without an IMDb id is keyed by a prefixed id instead (`tmdb:603`, `kitsu:1376`, `mal:1`, `anilist:1`, `anidb:1`, `tvdb:`, `trakt:`, `simkl:`), so its progress, watched marks and list entries travel both ways; a `tmdb:` title gets its metadata from TMDB, and an anime one keeps the `name` and `poster` the TV sends. `POST /watch`, `/scrobble/start`, `PUT /playback` and `POST /lists/:id/items` answer an id in neither form with a `400`, and Trakt, Simkl and MDBList are sent only the ids they understand.
+
 - **Rename a TV from Settings → TVs & Devices.** Each signed-in device now has a rename button beside Revoke, using the `PATCH /devices/:id` route that had no screen of its own ([#364](https://github.com/TheShield2594/fetch/issues/364)).
 
 - **Watch state and lists on the Fetch TV app.** A paired TV now scrobbles to the website and sends its watched marks and exact resume points, so what it plays shows up here within a minute. Choosing **Fetch website** as the TV's watch progress or library source makes Continue Watching, watched badges and the Library read from here, and lists can be edited from either side. New for it: `GET /watch/state` (everything a profile has watched, once per title) and `DELETE /watch/movie/:imdbId`. See README.md, "Watch state and lists on the Fetch TV app".

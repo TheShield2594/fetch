@@ -8,6 +8,15 @@ import {
 } from "./lib/cache.js";
 import { mapWithConcurrency } from "./lib/concurrency.js";
 import { fetchWithPolicy } from "./lib/http.js";
+import { isImdbId, tmdbIdOf } from "./lib/content-id.js";
+
+/** A non-2xx answer from TMDB, with its status. */
+export class TmdbHttpError extends Error {
+  constructor(readonly status: number) {
+    super(`TMDB request failed (${status})`);
+    this.name = "TmdbHttpError";
+  }
+}
 
 type TmdbMediaType = "movie" | "tv";
 
@@ -1022,21 +1031,39 @@ export class TmdbClient {
     }
   }
 
+  /**
+   * The metadata for a title the website keys by [imdbId], which is an IMDb id
+   * or one of the prefixed ids in lib/content-id.ts. A `tmdb:` id is fetched
+   * directly; an id TMDB can't look up (an anime catalog's, say) answers null
+   * without asking, and the title keeps whatever name and poster the client
+   * sent for it.
+   */
   async findByImdbId(type: MetadataType, imdbId: string): Promise<MetadataPayload | null> {
-    const findResponse = await this.request<TmdbFindResponse>(`/find/${encodeURIComponent(imdbId)}`, {
-      external_source: "imdb_id"
-    });
+    let tmdbId = tmdbIdOf(imdbId);
+    if (tmdbId == null) {
+      if (!isImdbId(imdbId)) return null;
+      const findResponse = await this.request<TmdbFindResponse>(`/find/${encodeURIComponent(imdbId)}`, {
+        external_source: "imdb_id"
+      });
 
-    const result = type === MetadataType.movie ? findResponse.movie_results?.[0] : findResponse.tv_results?.[0];
-    if (!result?.id) {
-      return null;
+      const result = type === MetadataType.movie ? findResponse.movie_results?.[0] : findResponse.tv_results?.[0];
+      if (!result?.id) {
+        return null;
+      }
+      tmdbId = result.id;
     }
-
     const mediaType = this.toMediaType(type);
     const appendFields = mediaType === "movie" ? "release_dates" : "content_ratings";
-    const details = await this.request<TmdbDetailsResponse>(`/${mediaType}/${result.id}`, {
-      append_to_response: appendFields,
-    });
+    let details: TmdbDetailsResponse;
+    try {
+      details = await this.request<TmdbDetailsResponse>(`/${mediaType}/${tmdbId}`, {
+        append_to_response: appendFields,
+      });
+    } catch (error) {
+      // A `tmdb:` id TMDB doesn't have (or not under this type) is a miss, like an IMDb id `/find` doesn't know.
+      if (!isImdbId(imdbId) && error instanceof TmdbHttpError && error.status === 404) return null;
+      throw error;
+    }
 
     return this.toMetadataPayloadFromDetails(type, details, imdbId);
   }
@@ -1280,7 +1307,7 @@ export class TmdbClient {
     );
 
     if (!response.ok) {
-      throw new Error(`TMDB request failed (${response.status})`);
+      throw new TmdbHttpError(response.status);
     }
 
     return (await response.json()) as T;

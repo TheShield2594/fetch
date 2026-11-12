@@ -386,11 +386,20 @@ class FetchWebsiteClient internal constructor(
     }
 
     /** Adds a title to a list; one that is already there (409) counts as added. */
-    suspend fun addListItem(profileId: String, profileToken: String?, listId: String, type: String, imdbId: String, title: String?) {
+    suspend fun addListItem(
+        profileId: String,
+        profileToken: String?,
+        listId: String,
+        type: String,
+        imdbId: String,
+        title: String?,
+        poster: String? = null
+    ) {
         val body = buildJsonObject {
             put("type", type)
             put("imdbId", imdbId)
             if (!title.isNullOrBlank()) put("title", title)
+            putFetchWebsiteTitle(null, poster)
         }.toString()
         try {
             authed("lists/$listId/items", method = "POST", body = body, profileId = profileId, profileToken = profileToken).close()

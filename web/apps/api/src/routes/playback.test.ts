@@ -7,7 +7,7 @@ const ROW_ID = "22222222-2222-4222-8222-222222222222";
 
 const prismaMock = {
   playbackProgress: { findMany: vi.fn(), findUnique: vi.fn(), upsert: vi.fn(), deleteMany: vi.fn() },
-  metadata: { findMany: vi.fn() },
+  metadata: { findMany: vi.fn(), upsert: vi.fn() },
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -224,12 +224,92 @@ describe("playback routes", () => {
       ["a string progress", { type: "movie", imdbId: "tt1", progress: "50" }],
       ["an unknown type", { type: "series", imdbId: "tt1", progress: 10 }],
       ["a blank imdbId", { type: "movie", imdbId: "   ", progress: 10 }],
+      ["an id that is neither IMDb's nor a known prefix", { type: "movie", imdbId: "foo:123", progress: 10 }],
+      ["a Stremio episode id", { type: "movie", imdbId: "kitsu:1376:5", progress: 10 }],
+      ["a malformed series id", { type: "episode", imdbId: "tt1", seriesImdbId: "nope", season: 1, episode: 1, progress: 10 }],
     ])("rejects %s", async (_label, payload) => {
       const app = await buildApp();
       const response = await app.inject({ method: "PUT", url: "/playback", payload });
 
       expect(response.statusCode).toBe(400);
       expect(prismaMock.playbackProgress.upsert).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("titles without an IMDb id", () => {
+    it("keys a tmdb: film on its id, and leaves its metadata to TMDB", async () => {
+      const app = await buildApp();
+      const response = await app.inject({
+        method: "PUT",
+        url: "/playback",
+        payload: { type: "movie", imdbId: "TMDB:603", progress: 40, name: "The Matrix" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.playbackProgress.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { profileId_key: { profileId: PROFILE_ID, key: "movie:tmdb:603" } },
+          create: expect.objectContaining({ imdbId: "tmdb:603" }),
+        })
+      );
+      // TMDB can be asked about a tmdb: id, so the name sent is not kept in its place.
+      expect(prismaMock.metadata.upsert).not.toHaveBeenCalled();
+      expect(response.json().playback.imdbId).toBe("tmdb:603");
+    });
+
+    it("round-trips a kitsu: episode with the name and poster the TV sent", async () => {
+      const app = await buildApp();
+      const saved = await app.inject({
+        method: "PUT",
+        url: "/playback",
+        payload: {
+          type: "episode",
+          imdbId: "kitsu:1376",
+          seriesImdbId: "kitsu:1376",
+          season: 1,
+          episode: 5,
+          positionSeconds: 600,
+          durationSeconds: 1_440,
+          name: "Cowboy Bebop",
+          poster: "https://media.kitsu.app/anime/1376/poster.jpg",
+        },
+      });
+
+      expect(saved.statusCode).toBe(200);
+      expect(prismaMock.playbackProgress.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { profileId_key: { profileId: PROFILE_ID, key: "episode:kitsu:1376:1:5" } },
+          create: expect.objectContaining({ imdbId: "kitsu:1376", season: 1, episode: 5 }),
+        })
+      );
+      expect(prismaMock.metadata.upsert).toHaveBeenCalledWith({
+        where: { imdbId_type: { imdbId: "kitsu:1376", type: "series" } },
+        create: {
+          imdbId: "kitsu:1376",
+          type: "series",
+          name: "Cowboy Bebop",
+          poster: "https://media.kitsu.app/anime/1376/poster.jpg",
+        },
+        update: { name: "Cowboy Bebop", poster: "https://media.kitsu.app/anime/1376/poster.jpg" },
+      });
+
+      prismaMock.playbackProgress.findMany.mockResolvedValue([
+        row({ type: "episode", imdbId: "kitsu:1376", season: 1, episode: 5, key: "episode:kitsu:1376:1:5" }),
+      ]);
+      prismaMock.metadata.findMany.mockResolvedValue([
+        { imdbId: "kitsu:1376", name: "Cowboy Bebop", poster: "https://media.kitsu.app/anime/1376/poster.jpg" },
+      ]);
+      const listed = await app.inject({ method: "GET", url: "/playback" });
+
+      expect(listed.json().playback).toEqual([
+        expect.objectContaining({
+          imdbId: "kitsu:1376",
+          season: 1,
+          episode: 5,
+          name: "Cowboy Bebop",
+          poster: "https://media.kitsu.app/anime/1376/poster.jpg",
+        }),
+      ]);
     });
   });
 

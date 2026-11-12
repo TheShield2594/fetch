@@ -5,6 +5,7 @@ import { connectionKvKey } from "./profile-connections.js";
 import { MDBLIST_ACTIVITIES_KEY, MDBLIST_DEVICE_KEY } from "./owner-keys.js";
 import { deleteSecretKv, readSecretKv, writeSecretKv } from "./secret-store.js";
 import { importTrackerItems, type ImportedWatch, type ImportedWatchlistItem, type ImportSummary } from "./tracker-import.js";
+import { MDBLIST_ID_SOURCES, externalIdsFor } from "./content-id.js";
 
 // MDBList as a tracker, as the TV app uses it (app/.../data/mdblist): an OAuth
 // device sign-in, the account's watched history and watchlist read in, and
@@ -457,16 +458,18 @@ const at = (date: Date | undefined) => (date ? { watched_at: date.toISOString() 
 
 export const pushMdbListWatched = async (profileId: string, watch: Watch, logger: FastifyBaseLogger): Promise<void> => {
   if (watch.type === "episode" && (watch.season == null || watch.episode == null)) return;
+  const ids = externalIdsFor(watch.type === "movie" ? watch.imdbId : watch.seriesImdbId, MDBLIST_ID_SOURCES);
+  if (!ids) return;
   try {
     const token = await accessTokenFor(profileId);
     if (!token) return;
     const body =
       watch.type === "movie"
-        ? { movies: [{ ids: { imdb: watch.imdbId }, ...at(watch.watchedAt) }] }
+        ? { movies: [{ ids, ...at(watch.watchedAt) }] }
         : {
             shows: [
               {
-                ids: { imdb: watch.seriesImdbId },
+                ids,
                 seasons: [{ number: watch.season, episodes: [{ number: watch.episode, ...at(watch.watchedAt) }] }],
               },
             ],
@@ -482,10 +485,12 @@ export const pushMdbListWatchlistAdd = async (
   item: { type: "movie" | "series"; imdbId: string },
   logger: FastifyBaseLogger
 ): Promise<void> => {
+  const ids = externalIdsFor(item.imdbId, MDBLIST_ID_SOURCES);
+  if (!ids) return;
   try {
     const token = await accessTokenFor(profileId);
     if (!token) return;
-    const entry = { ids: { imdb: item.imdbId } };
+    const entry = { ids };
     await mdbRequest("POST", "/watchlist/items/add", {
       token,
       body: item.type === "movie" ? { movies: [entry] } : { shows: [entry] },
@@ -509,14 +514,16 @@ export const pushMdbListScrobble = async (
   logger: FastifyBaseLogger
 ): Promise<void> => {
   if (params.type === "episode" && (params.season == null || params.episode == null)) return;
+  const ids = externalIdsFor(params.type === "movie" ? params.imdbId : (params.seriesImdbId ?? params.imdbId), MDBLIST_ID_SOURCES);
+  if (!ids) return;
   try {
     const token = await accessTokenFor(params.profileId);
     if (!token) return;
     const progress = Math.floor(Math.max(0, Math.min(100, params.progress)) * 100) / 100;
     const body =
       params.type === "movie"
-        ? { movie: { ids: { imdb: params.imdbId } }, progress }
-        : { show: { ids: { imdb: params.seriesImdbId ?? params.imdbId }, season: params.season, episode: params.episode }, progress };
+        ? { movie: { ids }, progress }
+        : { show: { ids, season: params.season, episode: params.episode }, progress };
     await mdbRequest("POST", `/scrobble/${action}`, { token, body });
   } catch (error) {
     logger.warn({ error, action }, "MDBList scrobble failed");
@@ -618,8 +625,13 @@ export const changeMdbListListItems = async (
   if (items.length === 0) return;
   const token = await requireToken(profileId);
   // A personal list takes bare ids, where the watchlist wraps them in `ids`.
-  const movies = items.filter((item) => item.type === "movie").map((item) => ({ imdb: item.imdbId }));
-  const shows = items.filter((item) => item.type === "series").map((item) => ({ imdb: item.imdbId }));
+  const idsOf = (item: { imdbId: string }) => {
+    const ids = externalIdsFor(item.imdbId, MDBLIST_ID_SOURCES);
+    return ids ? [ids] : [];
+  };
+  const movies = items.filter((item) => item.type === "movie").flatMap(idsOf);
+  const shows = items.filter((item) => item.type === "series").flatMap(idsOf);
+  if (movies.length === 0 && shows.length === 0) return;
   await mdbRequest("POST", `/lists/${encodeURIComponent(listId)}/items/${action}`, {
     token,
     body: { ...(movies.length ? { movies } : {}), ...(shows.length ? { shows } : {}) },

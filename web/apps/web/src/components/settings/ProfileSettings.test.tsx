@@ -455,6 +455,21 @@ describe("ProfileSettings recovery and locking", () => {
     expect(screen.queryByRole("button", { name: "Remove PIN for Kid" })).not.toBeInTheDocument();
   });
 
+  it("goes back to the PIN form with focus on 'Forgot the PIN?' when the clear is cancelled", async () => {
+    accountState = { account: { id: "a1", username: "owner", isAdmin: true }, isAdmin: true };
+    const user = userEvent.setup();
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
+    await user.click(screen.getByRole("button", { name: "Forgot the PIN?" }));
+    const review = screen.getByRole("alertdialog", { name: "Clear the PIN on Kid?" });
+    await user.click(within(review).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("alertdialog", { name: "Clear the PIN on Kid?" })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole("button", { name: "Forgot the PIN?" })).toHaveFocus());
+    expect(clearProfilePin).not.toHaveBeenCalled();
+  });
+
   it("tells anyone else to ask the admin", async () => {
     accountState = { account: { id: "a2", username: "friend", isAdmin: false }, isAdmin: false };
     const user = userEvent.setup();

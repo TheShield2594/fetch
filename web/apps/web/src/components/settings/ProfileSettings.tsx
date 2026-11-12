@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { AlertCircle, Check, Loader2, Lock, Pencil, Plus, SlidersHorizontal, Trash2, Unlock, Users, X } from "lucide-react";
 import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } from "@fetch/shared/pin";
 import { api, ApiError, type Profile, type ProfileSummary } from "../../api";
@@ -454,6 +454,16 @@ function ProfileRow({
   // the API token, which has the server's `fetch clear-pin` instead).
   const { account, isAdmin } = useAccount();
   const canClearPin = isAdmin && account !== null;
+  // Cancelling the clear-PIN review goes back to the PIN form it was opened
+  // from, with focus on "Forgot the PIN?" rather than the row's first control.
+  const [clearPinFrom, setClearPinFrom] = useState<"pin" | "removePin">("pin");
+  const forgotRef = useRef<HTMLButtonElement>(null);
+  const [refocusForgot, setRefocusForgot] = useState(false);
+  useEffect(() => {
+    if (!refocusForgot) return;
+    forgotRef.current?.focus();
+    setRefocusForgot(false);
+  }, [refocusForgot, editing]);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
@@ -587,8 +597,12 @@ function ProfileRow({
       {profile.hasPin && (editing === "pin" || editing === "removePin") && (
         canClearPin ? (
           <button
+            ref={forgotRef}
             type="button"
-            onClick={() => setEditing("clearPin")}
+            onClick={() => {
+              setClearPinFrom(editing === "removePin" ? "removePin" : "pin");
+              setEditing("clearPin");
+            }}
             className="mt-1.5 text-xs font-medium text-accent-text hover:underline"
           >
             Forgot the PIN?
@@ -603,7 +617,10 @@ function ProfileRow({
         <ClearPinReview
           profile={profile}
           onCleared={(p) => { onUpdated(p); setEditing("none"); showToast(`PIN cleared for ${p.name}`); }}
-          onCancel={() => setEditing("none")}
+          onCancel={() => {
+            setEditing(clearPinFrom);
+            setRefocusForgot(true);
+          }}
         />
       )}
       {editing === "settings" && (

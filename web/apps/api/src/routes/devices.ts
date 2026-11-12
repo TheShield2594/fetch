@@ -22,7 +22,12 @@ import {
   type SlottedProfile,
 } from "../lib/device-slots.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
-import { hasParentalAuthority, invalidateProfileCache, loosensParentalLimits } from "../lib/profile.js";
+import {
+  hasParentalAuthority,
+  invalidateProfileCache,
+  loosensParentalLimits,
+  withoutLoosenedLimits,
+} from "../lib/profile.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import {
   claimThroughHub,
@@ -391,16 +396,13 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
         // limits come back in the answer. (The TV only ever tightens on a
         // pull, so it keeps its own setting; the website is where a grown-up
         // lifts a limit.)
-        const data = { ...attributes.data };
+        let data = { ...attributes.data };
         const current = await prisma.profile.findUnique({
           where: { id: profileId },
           select: { isKidsProfile: true, maxRating: true, allowUnrated: true },
         });
         if (current && loosensParentalLimits(current, data) && !(await hasParentalAuthority(request))) {
-          // Field by field, so a tightening sent alongside still applies.
-          for (const key of ["isKidsProfile", "maxRating", "allowUnrated"] as const) {
-            if (data[key] !== undefined && loosensParentalLimits(current, { [key]: data[key] })) delete data[key];
-          }
+          data = withoutLoosenedLimits(current, data).data;
         }
         const profile = await prisma.profile.update({
           where: { id: profileId },

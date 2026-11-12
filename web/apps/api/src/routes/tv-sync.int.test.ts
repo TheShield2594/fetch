@@ -1,6 +1,7 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance, FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
+import { SECRET_CONTEXT, decryptSecret, encryptSecret, secretLookupKey } from "../lib/secret-box.js";
 import { buildIntApp, createProfile } from "../lib/test-fixtures/int-db.js";
 import profileAddonsRoutes from "./profile-addons.js";
 import profileDocumentsRoutes from "./profile-documents.js";
@@ -159,11 +160,38 @@ describe("addons and the Home layout", () => {
   });
 
   it("refuses the same addon twice through the database's own constraint", async () => {
+    // The URL column holds ciphertext that differs on every write, so the
+    // constraint is on the URL's lookup key.
     const { id } = await createProfile();
-    await prisma.profileAddon.create({ data: { profileId: id, manifestUrl: ADDON_A, position: 0, name: "A" } });
+    const stored = () => ({
+      manifestUrl: encryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, ADDON_A),
+      manifestUrlKey: secretLookupKey(SECRET_CONTEXT.profileAddonManifestUrl, ADDON_A),
+    });
+    await prisma.profileAddon.create({ data: { profileId: id, ...stored(), position: 0, name: "A" } });
     await expect(
-      prisma.profileAddon.create({ data: { profileId: id, manifestUrl: ADDON_A, position: 1, name: "A again" } })
+      prisma.profileAddon.create({ data: { profileId: id, ...stored(), position: 1, name: "A again" } })
     ).rejects.toMatchObject({ code: "P2002" });
+  });
+
+  it("keeps the manifest URL out of the database in the clear", async () => {
+    const original = process.env.API_TOKEN;
+    process.env.API_TOKEN = "tv-sync-int-token-".padEnd(48, "k");
+    try {
+      const { id } = await createProfile();
+      const add = await app.inject({
+        method: "POST",
+        url: `/profiles/${id}/addons`,
+        payload: { manifestUrl: ADDON_A, manifest: MANIFEST_A },
+      });
+      expect(add.json().addon.manifestUrl).toBe(ADDON_A);
+
+      const [row] = await prisma.profileAddon.findMany({ where: { profileId: id } });
+      expect(row?.manifestUrl).not.toBe(ADDON_A);
+      expect(decryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, row!.manifestUrl)).toBe(ADDON_A);
+    } finally {
+      if (original === undefined) delete process.env.API_TOKEN;
+      else process.env.API_TOKEN = original;
+    }
   });
 });
 

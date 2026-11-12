@@ -1,9 +1,10 @@
-import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, createHmac, hkdfSync, randomBytes } from "node:crypto";
 
 // Envelope encryption for the credentials Fetch holds on your behalf: the
-// Trakt access/refresh pair, per-channel notification tokens, and the KV rows
-// carrying the TMDB/OMDB/RPDB keys, the AI provider config (Authorization
-// header and all) and the VAPID private key.
+// Trakt access/refresh pair, per-channel notification tokens and URLs, addon
+// manifest URLs, profile connection sign-ins, and the KV rows carrying the
+// TMDB/OMDB/RPDB keys, the AI provider config (Authorization header and all)
+// and the VAPID private key.
 //
 // The threat this addresses is a *copy of the database*: a dump on a NAS, the
 // `pgdata` volume, a backup that outlived the machine it came from. Postgres is
@@ -51,6 +52,10 @@ export const SECRET_CONTEXT = {
   traktRefreshToken: "traktToken.refreshToken",
   notificationChannelToken: "notificationChannel.token",
   profileConnectionCredentials: "profileConnection.credentials",
+  // URLs that are themselves the credential: a Discord or generic webhook URL,
+  // an ntfy topic, an addon manifest URL with a debrid key in its path.
+  notificationChannelUrl: "notificationChannel.url",
+  profileAddonManifestUrl: "profileAddon.manifestUrl",
 } as const;
 
 /** The context a KV row's value is encrypted under — its own key. */
@@ -70,6 +75,37 @@ const encryptionKey = (): Buffer | null => {
   const key = Buffer.from(hkdfSync("sha256", apiToken, HKDF_SALT, HKDF_INFO, KEY_BYTES));
   cachedKey = { token: apiToken, key };
   return key;
+};
+
+// A second key from the same root, for `secretLookupKey`: equality lookups
+// over encrypted columns get their own key rather than reusing the cipher's.
+const LOOKUP_HKDF_INFO = "fetch-secret-lookup";
+let cachedLookupKey: { token: string; key: Buffer } | null = null;
+
+const lookupKey = (): Buffer | null => {
+  const apiToken = process.env.API_TOKEN;
+  if (!apiToken) return null;
+  if (cachedLookupKey?.token === apiToken) return cachedLookupKey.key;
+
+  const key = Buffer.from(hkdfSync("sha256", apiToken, HKDF_SALT, LOOKUP_HKDF_INFO, KEY_BYTES));
+  cachedLookupKey = { token: apiToken, key };
+  return key;
+};
+
+/**
+ * A deterministic stand-in for `value` that a unique index can hold where the
+ * value itself is encrypted (and so different every time it is written):
+ * HMAC-SHA256 under a key derived from `API_TOKEN`, bound to `context`. It
+ * reveals whether two rows hold the same value and nothing else, and like the
+ * ciphertext it changes when `API_TOKEN` does. Without `API_TOKEN` (development
+ * only) it is a plain SHA-256.
+ */
+export const secretLookupKey = (context: string, value: string): string => {
+  const key = lookupKey();
+  const input = `${context}\u0000${value}`;
+  return key
+    ? createHmac("sha256", key).update(input, "utf8").digest("hex")
+    : createHash("sha256").update(input, "utf8").digest("hex");
 };
 
 /**

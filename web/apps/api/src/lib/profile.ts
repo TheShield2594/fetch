@@ -247,6 +247,30 @@ export const loosensParentalLimits = (current: ParentalLimits, next: Partial<Par
   (next.maxRating !== undefined && ratingRank(next.maxRating) > ratingRank(current.maxRating)) ||
   (!current.allowUnrated && next.allowUnrated === true);
 
+const PARENTAL_KEYS = ["isKidsProfile", "maxRating", "allowUnrated"] as const;
+
+/**
+ * `next` without each parental field that, on its own, would loosen
+ * `current`'s limits — field by field, so a tightening sent alongside still
+ * applies. For write paths that carry other settings too (a TV's profile
+ * push, a backup import) and should keep those while refusing the loosening.
+ * Returns the trimmed copy and the keys it left out.
+ */
+export const withoutLoosenedLimits = <T extends Partial<ParentalLimits>>(
+  current: ParentalLimits,
+  next: T
+): { data: T; dropped: (keyof ParentalLimits)[] } => {
+  const data = { ...next };
+  const dropped: (keyof ParentalLimits)[] = [];
+  for (const key of PARENTAL_KEYS) {
+    if (data[key] !== undefined && loosensParentalLimits(current, { [key]: data[key] })) {
+      delete data[key];
+      dropped.push(key);
+    }
+  }
+  return { data, dropped };
+};
+
 export const PARENTAL_AUTHORITY_RESPONSE = {
   error: "Switch to a grown-up's profile to loosen parental controls or add a profile",
   code: "parental_authority_required",

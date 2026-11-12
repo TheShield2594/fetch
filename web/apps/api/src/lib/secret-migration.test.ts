@@ -6,13 +6,20 @@ const prismaMock = {
   traktToken: { findMany: vi.fn(), update: vi.fn() },
   profileConnection: { findMany: vi.fn(async () => []), update: vi.fn() },
   notificationChannel: { findMany: vi.fn(), update: vi.fn() },
+  profileAddon: { findMany: vi.fn(), update: vi.fn() },
 };
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 
 const { encryptStoredSecrets } = await import("./secret-migration.js");
-const { SECRET_CONTEXT, decryptSecret, encryptSecret, isEncryptedSecret, kvSecretContext } =
+const { SECRET_CONTEXT, decryptSecret, encryptSecret, isEncryptedSecret, kvSecretContext, secretLookupKey } =
   await import("./secret-box.js");
+
+/** A channel row whose URL is already encrypted, so only its token is in play. */
+const channelRow = (row: { id: string; name: string; token: string | null }) => ({
+  ...row,
+  url: encryptSecret(SECRET_CONTEXT.notificationChannelUrl, "https://ntfy.sh/fetch"),
+});
 
 const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
 const run = () => encryptStoredSecrets(logger as never);
@@ -26,7 +33,8 @@ beforeEach(() => {
   prismaMock.traktToken.findMany.mockResolvedValue([]);
   prismaMock.notificationChannel.findMany.mockResolvedValue([]);
   prismaMock.profileConnection.findMany.mockResolvedValue([]);
-  for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.notificationChannel]) {
+  prismaMock.profileAddon.findMany.mockResolvedValue([]);
+  for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.notificationChannel, prismaMock.profileAddon]) {
     model.update.mockResolvedValue({});
   }
 });
@@ -43,7 +51,7 @@ describe("encryptStoredSecrets", () => {
       { id: "default", accessToken: "access-plain", refreshToken: "refresh-plain" },
     ]);
     prismaMock.notificationChannel.findMany.mockResolvedValue([
-      { id: "chan-1", name: "Gotify", token: "gotify-plain" },
+      channelRow({ id: "chan-1", name: "Gotify", token: "gotify-plain" }),
     ]);
 
     const sweep = await run();
@@ -78,18 +86,22 @@ describe("encryptStoredSecrets", () => {
       { key: "tmdb:apiKey", value: encryptSecret(kvSecretContext("tmdb:apiKey"), "tmdb-key") },
     ]);
     prismaMock.notificationChannel.findMany.mockResolvedValue([
-      { id: "chan-1", name: "Gotify", token: encryptSecret(SECRET_CONTEXT.notificationChannelToken, "gotify") },
+      channelRow({ id: "chan-1", name: "Gotify", token: encryptSecret(SECRET_CONTEXT.notificationChannelToken, "gotify") }),
     ]);
     process.env.API_TOKEN = "rotated-token";
 
     const sweep = await run();
 
     expect(sweep.encrypted).toBe(0);
-    expect(sweep.unreadable).toEqual(["tmdb:apiKey", "Notification channel token (Gotify)"]);
+    expect(sweep.unreadable).toEqual([
+      "tmdb:apiKey",
+      "Notification channel token (Gotify)",
+      "Notification channel URL (Gotify)",
+    ]);
     expect(prismaMock.kV.update).not.toHaveBeenCalled();
     expect(prismaMock.notificationChannel.update).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalledWith(
-      { credentials: ["tmdb:apiKey", "Notification channel token (Gotify)"] },
+      { credentials: ["tmdb:apiKey", "Notification channel token (Gotify)", "Notification channel URL (Gotify)"] },
       expect.stringContaining("API_TOKEN has changed")
     );
   });
@@ -124,5 +136,39 @@ describe("encryptStoredSecrets", () => {
     const written = first(prismaMock.kV.update.mock.calls, "prismaMock.kV.update call")[0].data.value;
     expect(isEncryptedSecret(written)).toBe(true);
     expect(JSON.parse(decryptSecret(kvSecretContext("push:vapidKeys"), written)!)).toEqual({ publicKey: "pub" });
+  });
+  it("encrypts a channel's URL and an addon's manifest URL, and gives the addon its lookup key", async () => {
+    prismaMock.notificationChannel.findMany.mockResolvedValue([
+      { id: "chan-2", name: "Discord", token: null, url: "https://discord.com/api/webhooks/1/secret" },
+    ]);
+    const manifestUrl = "https://addon.example/debrid-key/manifest.json";
+    prismaMock.profileAddon.findMany.mockResolvedValue([{ id: "addon-1", name: "Torrents", manifestUrl, manifestUrlKey: null }]);
+
+    const sweep = await run();
+
+    expect(sweep).toEqual({ encrypted: 2, unreadable: [] });
+    const channelWrite = first(prismaMock.notificationChannel.update.mock.calls, "channel update")[0];
+    expect(decryptSecret(SECRET_CONTEXT.notificationChannelUrl, channelWrite.data.url)).toBe(
+      "https://discord.com/api/webhooks/1/secret"
+    );
+    const addonWrite = first(prismaMock.profileAddon.update.mock.calls, "addon update")[0];
+    expect(addonWrite.where).toEqual({ id: "addon-1" });
+    expect(decryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, addonWrite.data.manifestUrl)).toBe(manifestUrl);
+    expect(addonWrite.data.manifestUrlKey).toBe(secretLookupKey(SECRET_CONTEXT.profileAddonManifestUrl, manifestUrl));
+  });
+
+  it("leaves an encrypted addon alone, and names one a rotated API_TOKEN has locked out", async () => {
+    const context = SECRET_CONTEXT.profileAddonManifestUrl;
+    const url = "https://addon.example/manifest.json";
+    const current = { id: "a", name: "Fine", manifestUrl: encryptSecret(context, url), manifestUrlKey: secretLookupKey(context, url) };
+    process.env.API_TOKEN = "an-older-token";
+    const locked = { id: "b", name: "Locked", manifestUrl: encryptSecret(context, url), manifestUrlKey: "old-key" };
+    process.env.API_TOKEN = "migration-token";
+    prismaMock.profileAddon.findMany.mockResolvedValue([current, locked]);
+
+    const sweep = await run();
+
+    expect(sweep).toEqual({ encrypted: 0, unreadable: ["Add-on URL (Locked)"] });
+    expect(prismaMock.profileAddon.update).not.toHaveBeenCalled();
   });
 });

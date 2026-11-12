@@ -31,6 +31,14 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **Episodes have stills and a synopsis, and the watch dialog picks from the show's real seasons.** An expanded season shows each episode's still and synopsis; the synopsis of an episode you haven't watched stays hidden until you ask for it. The watch and check-in dialogs pick the season and episode from the show's real seasons instead of two typed numbers; a show with no season data keeps the typed numbers, which can't be checked. `GET /meta/series/:imdbId/season/:seasonNumber/episodes` now returns `overview` for each episode ([#504](https://github.com/TheShield2594/fetch/issues/504)).
 
+### Security
+
+- **Importing a backup can no longer lift a kids profile's parental limits.** `POST /import` now applies the same check as `PATCH /profiles/:id` and a TV's sync: without a grown-up's authority, imported settings that would turn kids mode off, raise the rating cap or allow unrated titles are left out, a tightening still applies, and the import summary lists the skipped fields as `parentalLimitsSkipped` ([#543](https://github.com/TheShield2594/fetch/issues/543)).
+
+- **A short `API_TOKEN` is refused in production.** Every encryption and signing key derives from it, so the API now refuses to start with a token shorter than 32 characters and says to generate one with `openssl rand -hex 32`. The README lists everything rotating it invalidates ([#547](https://github.com/TheShield2594/fetch/issues/547)).
+
+- **Notification channel URLs and add-on manifest URLs are encrypted at rest.** A webhook URL, an ntfy topic and an add-on URL with a debrid key in its path are now stored like the other credentials and encrypted in place on the next start. Channel URLs come back masked (`https://ntfy.sh/…`); a profile's own website and TV still get its add-on URLs in full. The README's table now lists exactly what is encrypted, including that web-push subscriptions are not ([#548](https://github.com/TheShield2594/fetch/issues/548)).
+
 ## [0.4.0] - 2026-11-11
 
 ### Added

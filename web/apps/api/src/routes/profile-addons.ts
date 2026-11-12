@@ -16,6 +16,7 @@ import {
 } from "../lib/addon-manifest.js";
 import { MAX_URL_LENGTH, NON_BLANK } from "../lib/request-schema.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { SECRET_CONTEXT, decryptSecret, encryptSecret, secretLookupKey } from "../lib/secret-box.js";
 import { pruneHomeLayoutForAddons } from "../lib/home-layout.js";
 import { getProfileDocument, touchAddonList } from "../lib/profile-document.js";
 
@@ -27,7 +28,13 @@ import { getProfileDocument, touchAddonList } from "../lib/profile-document.js";
  * how its `AddonSyncService` already treats the list — a full replace.
  *
  * A manifest URL can carry the addon's credentials, so it is only ever logged
- * through `manifestUrlForLog`, and an error message never repeats it.
+ * through `manifestUrlForLog`, and an error message never repeats it. It is
+ * also encrypted at rest; the profile's own TV and website still get it in
+ * full, since installing and running the addon is what they need it for.
+ *
+ * A row whose URL can't be decrypted (`API_TOKEN` changed since it was saved)
+ * is treated as gone: left out of the list and not found by id, so the TV's
+ * next whole-list sync replaces it and the website can install it again.
  */
 
 /** More than any TV would run; a ceiling so the whole-list replace stays bounded. */
@@ -37,11 +44,28 @@ const MANIFEST_FETCH_CONCURRENCY = 4;
 
 type AddonParams = { id: string; addonId: string };
 
-const toAddonData = (row: ProfileAddon) => {
+/** The columns that hold `manifestUrl`: its ciphertext and its lookup key. */
+const storedUrl = (manifestUrl: string) => ({
+  manifestUrl: encryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, manifestUrl),
+  manifestUrlKey: secretLookupKey(SECRET_CONTEXT.profileAddonManifestUrl, manifestUrl),
+});
+
+type ReadableAddon = { row: ProfileAddon; manifestUrl: string };
+
+/** `row` with its URL decrypted, or null when this key can't open it. */
+const readAddon = (row: ProfileAddon): ReadableAddon | null => {
+  const manifestUrl = decryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, row.manifestUrl);
+  return manifestUrl === null ? null : { row, manifestUrl };
+};
+
+const readAddons = (rows: ProfileAddon[]): ReadableAddon[] =>
+  rows.map(readAddon).filter((addon): addon is ReadableAddon => addon !== null);
+
+const toAddonData = ({ row, manifestUrl }: ReadableAddon) => {
   const manifest = readCachedManifest(row.manifest);
   return {
     id: row.id,
-    manifestUrl: row.manifestUrl,
+    manifestUrl,
     position: row.position,
     enabled: row.enabled,
     addonId: row.addonId,
@@ -53,7 +77,7 @@ const toAddonData = (row: ProfileAddon) => {
     resources: manifest?.resources ?? [],
     catalogs: manifest?.catalogs ?? [],
     configurable: manifest?.configurable ?? false,
-    configureUrl: manifest?.configurable ? configureUrlFor(row.manifestUrl) : null,
+    configureUrl: manifest?.configurable ? configureUrlFor(manifestUrl) : null,
     // False when the manifest has never been fetched: the addon is kept and
     // named by its host, but its catalogs are unknown.
     reachable: manifest !== null,
@@ -61,8 +85,16 @@ const toAddonData = (row: ProfileAddon) => {
   };
 };
 
-const listAddons = (profileId: string) =>
-  prisma.profileAddon.findMany({ where: { profileId }, orderBy: [{ position: "asc" }, { createdAt: "asc" }] });
+const listAddons = async (profileId: string): Promise<ReadableAddon[]> =>
+  readAddons(
+    await prisma.profileAddon.findMany({ where: { profileId }, orderBy: [{ position: "asc" }, { createdAt: "asc" }] })
+  );
+
+/** One of the profile's addons by id, or null when it is missing or unreadable. */
+const findAddon = async (id: string, profileId: string): Promise<ReadableAddon | null> => {
+  const row = await prisma.profileAddon.findFirst({ where: { id, profileId } });
+  return row && readAddon(row);
+};
 
 /** The columns a manifest fills in. */
 const manifestColumns = (manifest: CachedManifest, fetchedAt: Date) => ({
@@ -199,8 +231,8 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         });
       }
 
-      const existing = await prisma.profileAddon.findMany({ where: { profileId }, select: { manifestUrl: true, position: true } });
-      if (existing.some((row) => row.manifestUrl === manifestUrl)) {
+      const existing = await prisma.profileAddon.findMany({ where: { profileId } });
+      if (readAddons(existing).some((addon) => addon.manifestUrl === manifestUrl)) {
         return reply.code(409).send({ error: "That addon is already installed on this profile." });
       }
       if (existing.length >= MAX_ADDONS_PER_PROFILE) {
@@ -214,10 +246,10 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
       const position = existing.reduce((max, row) => Math.max(max, row.position + 1), 0);
       try {
         const created = await prisma.profileAddon.create({
-          data: { profileId, manifestUrl, position, enabled: true, ...manifestColumns(result.manifest, new Date()) },
+          data: { profileId, ...storedUrl(manifestUrl), position, enabled: true, ...manifestColumns(result.manifest, new Date()) },
         });
         await touchAddonList(profileId);
-        return reply.code(201).send({ addon: toAddonData(created) });
+        return reply.code(201).send({ addon: toAddonData({ row: created, manifestUrl }) });
       } catch (error) {
         // Two adds of the same URL racing past the check above.
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
@@ -238,8 +270,10 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const { addonId } = request.params;
       if (!UUID_V4_PATTERN.test(addonId)) return reply.code(400).send({ error: "addonId must be a valid UUID" });
-      const row = await prisma.profileAddon.findFirst({ where: { id: addonId, profileId: request.profileId! } });
-      if (!row) return reply.code(404).send({ error: "Addon not found" });
+      const addon = await findAddon(addonId, request.profileId!);
+      if (!addon) return reply.code(404).send({ error: "Addon not found" });
+      const { row } = addon;
+      let nextUrl = addon.manifestUrl;
 
       const data: Prisma.ProfileAddonUpdateInput = {};
       if (request.body.enabled !== undefined) data.enabled = request.body.enabled;
@@ -249,11 +283,12 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         if (!manifestUrl) {
           return reply.code(400).send({ error: "That isn't an addon manifest address. It should end in /manifest.json." });
         }
-        if (manifestUrl !== row.manifestUrl) {
+        if (manifestUrl !== addon.manifestUrl) {
           const scope = await outboundScopeForProfile(request.profileId!);
-      const result = await resolveManifest(manifestUrl, request.body.manifest, scope, request.log);
+          const result = await resolveManifest(manifestUrl, request.body.manifest, scope, request.log);
           if (!result.ok) return reply.code(400).send({ error: result.reason, code: "manifest_invalid" });
-          Object.assign(data, { manifestUrl, ...manifestColumns(result.manifest, new Date()) });
+          Object.assign(data, { ...storedUrl(manifestUrl), ...manifestColumns(result.manifest, new Date()) });
+          nextUrl = manifestUrl;
         }
       }
 
@@ -264,7 +299,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
       try {
         const updated = await prisma.profileAddon.update({ where: { id: row.id }, data });
         await touchAddonList(row.profileId);
-        return { addon: toAddonData(updated) };
+        return { addon: toAddonData({ row: updated, manifestUrl: nextUrl }) };
       } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
           return reply.code(409).send({ error: "That addon is already installed on this profile." });
@@ -281,13 +316,14 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const { addonId } = request.params;
       if (!UUID_V4_PATTERN.test(addonId)) return reply.code(400).send({ error: "addonId must be a valid UUID" });
-      const row = await prisma.profileAddon.findFirst({ where: { id: addonId, profileId: request.profileId! } });
-      if (!row) return reply.code(404).send({ error: "Addon not found" });
+      const addon = await findAddon(addonId, request.profileId!);
+      if (!addon) return reply.code(404).send({ error: "Addon not found" });
+      const { row, manifestUrl } = addon;
 
-      const result = await fetchManifest(row.manifestUrl, await outboundScopeForProfile(row.profileId));
+      const result = await fetchManifest(manifestUrl, await outboundScopeForProfile(row.profileId));
       if (!result.ok) {
         request.log.info(
-          { addon: manifestUrlForLog(row.manifestUrl), reason: result.reason, detail: result.detail },
+          { addon: manifestUrlForLog(manifestUrl), reason: result.reason, detail: result.detail },
           "Addon manifest refresh failed"
         );
         return reply.code(502).send({ error: result.reason, code: "manifest_unreachable" });
@@ -296,7 +332,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         where: { id: row.id },
         data: manifestColumns(result.manifest, new Date()),
       });
-      return { addon: toAddonData(updated) };
+      return { addon: toAddonData({ row: updated, manifestUrl }) };
     }
   );
 
@@ -320,14 +356,16 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const profileId = request.profileId!;
       const { ids } = request.body;
-      const rows = await prisma.profileAddon.findMany({ where: { profileId }, select: { id: true } });
-      const known = new Set(rows.map((row) => row.id));
+      const rows = await prisma.profileAddon.findMany({ where: { profileId } });
+      // Every addon the caller can see; an unreadable one goes after them.
+      const known = new Set(readAddons(rows).map((addon) => addon.row.id));
       if (new Set(ids).size !== ids.length || ids.length !== known.size || ids.some((id) => !known.has(id))) {
         return reply.code(400).send({ error: "ids must list every installed addon exactly once" });
       }
+      const hidden = rows.filter((row) => !known.has(row.id)).map((row) => row.id);
 
       await prisma.$transaction(
-        ids.map((id, position) => prisma.profileAddon.update({ where: { id }, data: { position } }))
+        [...ids, ...hidden].map((id, position) => prisma.profileAddon.update({ where: { id }, data: { position } }))
       );
       await touchAddonList(profileId);
       return { addons: (await listAddons(profileId)).map(toAddonData) };
@@ -360,8 +398,10 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
         entries.push({ ...entry, manifestUrl });
       }
 
-      const existing = await prisma.profileAddon.findMany({ where: { profileId } });
-      const byUrl = new Map(existing.map((row) => [row.manifestUrl, row]));
+      const existing = readAddons(await prisma.profileAddon.findMany({ where: { profileId } }));
+      const byUrl = new Map(existing.map(({ row, manifestUrl }) => [manifestUrl, row]));
+      // What the sync keeps; everything else goes, unreadable rows included.
+      const keptIds = entries.flatMap((entry) => byUrl.get(entry.manifestUrl)?.id ?? []);
       const fetchedAt = new Date();
       const scope = await outboundScopeForProfile(profileId);
 
@@ -373,7 +413,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
       const manifestsByUrl = new Map(fresh);
 
       await prisma.$transaction([
-        prisma.profileAddon.deleteMany({ where: { profileId, manifestUrl: { notIn: entries.map((e) => e.manifestUrl) } } }),
+        prisma.profileAddon.deleteMany({ where: { profileId, id: { notIn: keptIds } } }),
         ...entries.map((entry, position) => {
           const enabled = entry.enabled ?? true;
           const current = byUrl.get(entry.manifestUrl);
@@ -385,7 +425,7 @@ const profileAddonsRoutes: FastifyPluginAsync = async (app) => {
             ? manifestColumns(result.manifest, fetchedAt)
             : { name: fallbackName(entry.manifestUrl, entry.name) };
           return prisma.profileAddon.create({
-            data: { profileId, manifestUrl: entry.manifestUrl, position, enabled, ...columns },
+            data: { profileId, ...storedUrl(entry.manifestUrl), position, enabled, ...columns },
           });
         }),
       ]);

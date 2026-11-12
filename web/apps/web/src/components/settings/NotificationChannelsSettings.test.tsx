@@ -30,6 +30,7 @@ const channel = (over: Partial<NotificationChannel> = {}): NotificationChannel =
   kind: "ntfy",
   name: "Phone",
   url: "https://ntfy.sh/fetch",
+  urlReadable: true,
   hasToken: false,
   enabled: true,
   createdAt: "2026-08-06T12:00:00Z",
@@ -79,6 +80,14 @@ describe("NotificationChannelsSettings", () => {
     await userEvent.selectOptions(screen.getByLabelText("Channel"), "discord");
     expect(screen.getByLabelText("Webhook URL")).toBeInTheDocument();
     expect(screen.queryByLabelText(/token/i)).not.toBeInTheDocument();
+  });
+
+  it("says to re-add a channel whose address the server can no longer read", async () => {
+    getNotificationChannels.mockResolvedValue({ channels: [channel({ url: "", urlReadable: false })] });
+    await renderChannels();
+
+    expect(screen.getByText(/can no longer be read/)).toBeInTheDocument();
+    expect(screen.getByText(/Remove it and add it again/)).toBeInTheDocument();
   });
 
   it("won't submit a Gotify channel without the token it requires", async () => {

@@ -201,6 +201,25 @@ export const buildChannelRequest = (channel: ChannelTarget, event: NotificationE
 };
 
 /**
+ * A form of a channel URL that is safe to show back: the scheme and host, with
+ * the path and query replaced by an ellipsis. Nothing of the path or query is
+ * kept, since any part of it can be the whole secret — an ntfy topic, a short
+ * token at the end of a long query. Channels on one server are told apart by
+ * their names. The full URL is write-only.
+ */
+export const maskChannelUrl = (url: string): string => {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return "…";
+  }
+  const origin = `${parsed.protocol}//${parsed.host}`;
+  const rest = `${parsed.pathname}${parsed.search}`.replace(/^\/+$/, "");
+  return rest ? `${origin}/…` : origin;
+};
+
+/**
  * Delivers `event` over `channel`. Throws on anything that isn't a 2xx, on a
  * URL that no longer resolves to an allowed target, and on a timeout.
  */
@@ -223,7 +242,18 @@ export const sendToChannel = async (
     });
   }
 
-  const request = buildChannelRequest({ ...channel, token }, event);
+  // The URL is the credential for a Discord or generic webhook, so it is
+  // encrypted like the token, and fails the same way after a rotation.
+  const url = decryptSecret(SECRET_CONTEXT.notificationChannelUrl, channel.url);
+  if (url === null) {
+    const detail =
+      "stored URL could not be decrypted — API_TOKEN has changed since it was saved. Re-enter the URL in Settings.";
+    throw new ChannelSendError("misconfigured", `${channel.name}: ${detail}`, {
+      publicMessage: `The ${detail}`,
+    });
+  }
+
+  const request = buildChannelRequest({ ...channel, url, token }, event);
 
   // Resolved here rather than trusting the save-time check: the channel may
   // have been stored months ago, and the name could point somewhere else now.

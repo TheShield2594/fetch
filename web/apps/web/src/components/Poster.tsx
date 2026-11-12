@@ -1,6 +1,6 @@
 import { createContext, useContext, useRef, useState, type CSSProperties } from "react";
 import { getInitials, titleTint } from "./carousel-utils";
-import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_SRCSET_WIDTHS } from "../poster-widths";
+import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_BACKDROP_WIDTHS, TMDB_SRCSET_WIDTHS } from "../poster-widths";
 
 /**
  * `sizes` for a poster whose slot nobody has described: about a fifth of a
@@ -21,8 +21,12 @@ export const POSTER_GRID_SIZES = "(min-width: 640px) 220px, 45vw";
  */
 export const PosterSizesContext = createContext<string>(POSTER_GRID_SIZES);
 
-/** The smallest rung of TMDB's ladder: what the blurred placeholder is made of. */
-const PLACEHOLDER_WIDTH = TMDB_SRCSET_WIDTHS[0];
+/** The smallest rung of each ladder: what the blurred placeholder is made of. */
+const PLACEHOLDER_WIDTH = { poster: TMDB_SRCSET_WIDTHS[0], backdrop: TMDB_BACKDROP_WIDTHS[0] } as const;
+
+/** Which ladder an image is on — see `Poster`'s `variant`. */
+export type ArtVariant = keyof typeof PLACEHOLDER_WIDTH;
+const LADDER: Record<ArtVariant, readonly number[]> = { poster: TMDB_SRCSET_WIDTHS, backdrop: TMDB_BACKDROP_WIDTHS };
 
 /*
  * `sizes` for the dashboard's poster cards. These have to be literal lengths —
@@ -45,10 +49,10 @@ export const POSTER_CARD_FILL_SIZES = "(min-width: 640px) 192px, 45vw";
  * service worker's poster cache has to recognise the URLs this produces as
  * renditions of one picture — see the note there.
  */
-export function buildTmdbSrcSet(src: string): string | undefined {
+export function buildTmdbSrcSet(src: string, variant: ArtVariant = "poster"): string | undefined {
   const image = parseSizedTmdbImage(src);
   if (!image) return undefined;
-  return TMDB_SRCSET_WIDTHS.map((w) => `${tmdbImageAtWidth(image, w)} ${w}w`).join(", ");
+  return LADDER[variant].map((w) => `${tmdbImageAtWidth(image, w)} ${w}w`).join(", ");
 }
 
 export function Poster({
@@ -57,6 +61,7 @@ export function Poster({
   className = "",
   eager = false,
   sizes: sizesProp,
+  variant = "poster",
 }: {
   src?: string | undefined;
   alt: string | null | undefined;
@@ -64,6 +69,14 @@ export function Poster({
   eager?: boolean | undefined;
   /** `sizes` attribute matching this poster's actual rendered width, so the browser picks the right srcset entry. */
   sizes?: string | undefined;
+  /**
+   * `backdrop` for landscape art in a wide slot — a hero, a resume card. It
+   * offers the backdrop ladder (up to w1280) rather than the poster one, keeps
+   * the top of the frame when a wide crop has to lose some (faces are rarely
+   * in the bottom third of a still), and fails to the tint alone: the slot's
+   * caption is already over it, so the fallback must not spell the title too.
+   */
+  variant?: ArtVariant | undefined;
 }) {
   const inheritedSizes = useContext(PosterSizesContext);
   const sizes = sizesProp ?? inheritedSizes;
@@ -101,6 +114,10 @@ export function Poster({
     "--poster-tint-mix": `${tint.strength}%`,
   } as CSSProperties;
 
+  if ((!src || loadFailed) && variant === "backdrop") {
+    return <div className={`poster-art ${className}`} style={tintStyle} />;
+  }
+
   if (!src || loadFailed) {
     /*
      * No artwork: the title itself, on the title's tint.
@@ -120,11 +137,11 @@ export function Poster({
     );
   }
 
-  const srcSet = buildTmdbSrcSet(src);
+  const srcSet = buildTmdbSrcSet(src, variant);
   const sized = parseSizedTmdbImage(src);
   // Only where the URL is one of TMDB's: another artwork provider has no small
   // rendition to ask for, and gets the tint alone.
-  const placeholder = sized ? tmdbImageAtWidth(sized, PLACEHOLDER_WIDTH) : undefined;
+  const placeholder = sized ? tmdbImageAtWidth(sized, PLACEHOLDER_WIDTH[variant]) : undefined;
 
   /*
    * Three layers in one slot, bottom to top: the title's tint, a w92 rendition
@@ -158,7 +175,7 @@ export function Poster({
         srcSet={srcSet}
         sizes={srcSet ? sizes : undefined}
         alt={alt ?? "Poster"}
-        className={`poster-image transition-opacity duration-slow ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`poster-image ${variant === "backdrop" ? "poster-image-backdrop" : ""} transition-opacity duration-slow ${loaded ? "opacity-100" : "opacity-0"}`}
         loading={eager ? "eager" : "lazy"}
         decoding={eager ? "sync" : "async"}
         // Above-fold artwork is what the page looks like — it should outrank the

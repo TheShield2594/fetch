@@ -22,7 +22,7 @@ const checkin: CheckIn = {
 
 /** The decorative full-bleed backdrop, not the poster in the card's corner. */
 const backdropOf = (container: HTMLElement) =>
-  container.querySelector('img[aria-hidden="true"]');
+  container.querySelector("img.poster-image-backdrop");
 // The bottom-up cinematic scrim (see HERO_SCRIM), painted only over a backdrop.
 const scrimOf = (container: HTMLElement) =>
   container.querySelector('div[style*="linear-gradient(to top"]');

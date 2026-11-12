@@ -46,12 +46,12 @@ describe("playback routes", () => {
   });
 
   describe("GET /playback", () => {
-    it("lists resume points newest first, with the title's name and poster", async () => {
+    it("lists resume points newest first, with the title's name, poster and backdrop", async () => {
       prismaMock.playbackProgress.findMany.mockResolvedValue([
         row({ id: ROW_ID, type: "episode", imdbId: "tt0903747", season: 2, episode: 7, key: "episode:tt0903747:2:7" }),
       ]);
       prismaMock.metadata.findMany.mockResolvedValue([
-        { imdbId: "tt0903747", name: "Breaking Bad", poster: "https://img/bb.jpg" },
+        { imdbId: "tt0903747", name: "Breaking Bad", poster: "https://img/bb.jpg", background: "https://img/bb-wide.jpg" },
       ]);
 
       const app = await buildApp();
@@ -75,6 +75,7 @@ describe("playback routes", () => {
             pausedAt: PAUSED_AT.toISOString(),
             name: "Breaking Bad",
             poster: "https://img/bb.jpg",
+            background: "https://img/bb-wide.jpg",
           },
         ],
       });

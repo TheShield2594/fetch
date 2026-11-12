@@ -178,6 +178,10 @@ function UpNextCard({
         className="absolute inset-0 h-full w-full"
         eager={eager}
         sizes="(min-width: 640px) 420px, 304px"
+        // A landscape still takes the backdrop ladder: at 2x a 420px card
+        // wants more than the poster ladder's top rung. A poster standing in
+        // for one keeps the poster ladder.
+        variant={entry.item?.background ? "backdrop" : "poster"}
       />
       {/* The scrim starts at 35% rather than at the top: a caption needs a
           floor under it, and darkening the whole frame to get one takes the

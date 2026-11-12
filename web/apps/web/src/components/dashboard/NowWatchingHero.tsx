@@ -1,7 +1,8 @@
 import { Check, X } from "lucide-react";
 import type { CheckIn } from "../../api";
 import { KICKER, PAGE_TITLE } from "../typography";
-import { HERO_SCRIM } from "./ContinueWatchingHero";
+import { Poster } from "../Poster";
+import { HERO_BACKDROP_SIZES, HERO_SCRIM } from "./ContinueWatchingHero";
 
 /** The active check-in, featured at the top of the dashboard. */
 export function NowWatchingHero({
@@ -59,11 +60,14 @@ export function NowWatchingHero({
   if (cinematic) {
     return (
       <section className="relative flex flex-col justify-end overflow-hidden rounded-3xl p-5 sm:p-6" style={{ minHeight: "19rem", border: "1px solid var(--border)" }}>
-        <img
+        {/* The same backdrop treatment as ContinueWatchingHero — see there. */}
+        <Poster
           src={checkin.background}
           alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
+          variant="backdrop"
+          eager
+          sizes={HERO_BACKDROP_SIZES}
+          className="absolute inset-0 h-full w-full"
         />
         <div className="absolute inset-0" style={{ background: HERO_SCRIM }} />
         <div className="relative z-10 min-w-0">

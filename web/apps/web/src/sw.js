@@ -10,7 +10,7 @@ import {
   API_CACHE_PATH_RE,
 } from "@fetch/shared/api-cache-routes";
 import { IMAGE_CDN_HOSTS } from "./image-cdn-hosts.mjs";
-import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_SRCSET_WIDTHS } from "./poster-widths";
+import { parseSizedTmdbImage, tmdbImageAtWidth, TMDB_CACHED_WIDTHS } from "./poster-widths";
 
 precacheAndRoute(self.__WB_MANIFEST);
 
@@ -72,7 +72,7 @@ const sharedPosterKeyPlugin = {
     const cache = await caches.open(POSTER_CACHE_NAME);
     // Ascending, so the narrowest variant that will do wins — a 342 slot takes
     // a cached w500 over a cached w780.
-    for (const width of TMDB_SRCSET_WIDTHS) {
+    for (const width of TMDB_CACHED_WIDTHS) {
       if (width <= image.width || width > image.width * MAX_POSTER_REUSE_RATIO) continue;
       const wider = tmdbImageAtWidth(image, width);
       if (await cache.match(wider)) return wider;

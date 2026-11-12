@@ -1572,6 +1572,11 @@ body {
   height: 100%;
   object-fit: cover;
 }
+/* A wide crop of a still keeps its upper part, where the faces are, rather
+   than the centre a short hero cut them out of. */
+.poster-image-backdrop {
+  object-position: 50% 25%;
+}
 /* Scaled past the frame so the blur's soft edge is clipped rather than shown. */
 .poster-blur {
   filter: blur(14px) saturate(1.15);

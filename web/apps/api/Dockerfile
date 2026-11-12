@@ -60,6 +60,10 @@ RUN apk add --no-cache wget openssl
 
 COPY --from=build /deploy ./
 
+# `fetch`: the recovery commands (src/cli.ts), on the PATH so an operator can
+# run `docker compose exec api fetch reset-password <username>`.
+RUN printf '#!/bin/sh\nexec node /app/dist/cli.js "$@"\n' > /usr/local/bin/fetch && chmod 755 /usr/local/bin/fetch
+
 RUN addgroup -S app && adduser -S app -G app && chown -R app:app /app
 USER app
 

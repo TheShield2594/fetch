@@ -19,6 +19,8 @@ import { UUID_V4_PATTERN } from "../lib/types.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
 import { deleteProfileConnectionState } from "../lib/profile-connections.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
+import { recordAccountEvent } from "../lib/account-events.js";
+import { clearProfilePin } from "../lib/account-admin.js";
 
 const pinAttemptKey = (profileId: string) => `pinattempts:${profileId}`;
 const getPinLockout = (profileId: string) => getLockout(pinAttemptKey(profileId));
@@ -282,10 +284,61 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // count from the old PIN no longer applies.
     if (data.pinHash !== undefined) {
       await clearPinAttempts(profile.id);
+      if (profile.accountId) {
+        await recordAccountEvent(profile.accountId, data.pinHash === null ? "pin_removed" : "pin_changed", {
+          request,
+          detail: updated.name,
+        });
+      }
     }
 
     return { profile: toProfileView(updated) };
   });
+
+  // A forgotten PIN. The admin clears it on a profile in their own account
+  // after entering the account password again; anyone else, or a profile in
+  // another account, is turned away. The operator's equivalent is
+  // `fetch clear-pin` on the server (src/cli.ts).
+  app.post<{ Params: { id: string }; Body: unknown }>(
+    "/profiles/:id/clear-pin",
+    { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      if (!UUID_V4_PATTERN.test(request.params.id)) {
+        return reply.code(400).send({ error: "id must be a valid UUID" });
+      }
+      const auth = request.auth;
+      if (auth?.kind !== "session" || !auth.isAdmin) {
+        return reply.code(403).send({ error: "Only the admin can clear a forgotten PIN", code: "admin_required" });
+      }
+      const profile = await findOwnedProfileRow(request, request.params.id);
+      if (!profile) return reply.code(404).send({ error: "Profile not found" });
+      if (!profile.pinHash) return reply.code(400).send({ error: "This profile has no PIN" });
+
+      const account = await prisma.account.findUnique({ where: { id: auth.accountId } });
+      if (!account) return reply.code(404).send({ error: "Account not found" });
+      // The same lockout as signing in from this address, so this is no
+      // faster a way to guess the password.
+      const attemptKey = `loginattempts:${account.username}:${request.ip}`;
+      const lockout = await getLockout(attemptKey);
+      if (lockout.locked) {
+        return reply
+          .code(429)
+          .send({ error: "Too many incorrect attempts. Try again later.", retryAfterSec: lockout.retryAfterSec });
+      }
+      const body = (request.body ?? {}) as { password?: unknown };
+      const password = typeof body.password === "string" && body.password.length <= 256 ? body.password : "";
+      if (!password || !(await pinMatches(password, account.passwordHash))) {
+        await recordFailure(attemptKey);
+        return reply.code(401).send({ error: "Incorrect password", code: "password_incorrect" });
+      }
+      await clearAttempts(attemptKey);
+
+      await clearProfilePin(profile.id);
+      await recordAccountEvent(account.id, "pin_cleared", { request, detail: profile.name });
+      const updated = await prisma.profile.findUniqueOrThrow({ where: { id: profile.id }, select: PROFILE_VIEW_SELECT });
+      return { profile: toProfileView(updated) };
+    }
+  );
 
   // What deleting a profile takes with it, so the confirmation can say so in
   // numbers rather than "all of its data".

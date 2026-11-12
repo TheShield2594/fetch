@@ -29,6 +29,7 @@ import { checkUpcomingEpisodesAndNotify } from "./lib/notify-episodes.js";
 import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scrobble.js";
 import { sweepStaleAttempts } from "./lib/attempt-lockout.js";
 import { sweepExpiredSessions } from "./lib/sessions.js";
+import { sweepOldAccountEvents } from "./lib/account-events.js";
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
 import { isServiceRequest } from "./lib/service-request.js";
@@ -429,8 +430,8 @@ const start = async () => {
     tick: ({ runJob }) => runJob("scrobble-cleanup", () => cleanupStaleSessions(app.log)),
   });
 
-  // Sign-in and PIN attempt records past their decay window, and sessions past
-  // their expiry. Neither is removed by anything a visitor does, so without
+  // Sign-in and PIN attempt records past their decay window, sessions past
+  // their expiry, and account activity past its 90 days. Neither is removed by anything a visitor does, so without
   // this the usernames and addresses of failed sign-ins were kept for good.
   everyInterval({
     ...scheduler,
@@ -439,9 +440,15 @@ const start = async () => {
     startAfterMs: DEFERRED_FIRST_RUN_MS,
     tick: ({ runJob }) =>
       runJob("auth-cleanup", async () => {
-        const [attempts, sessions] = [await sweepStaleAttempts(), await sweepExpiredSessions()];
-        if (attempts + sessions > 0) {
-          app.log.info(`Removed ${attempts} stale sign-in attempt records and ${sessions} expired sessions`);
+        const [attempts, sessions, events] = [
+          await sweepStaleAttempts(),
+          await sweepExpiredSessions(),
+          await sweepOldAccountEvents(),
+        ];
+        if (attempts + sessions + events > 0) {
+          app.log.info(
+            `Removed ${attempts} stale sign-in attempt records, ${sessions} expired sessions and ${events} old account events`
+          );
         }
       }),
   });

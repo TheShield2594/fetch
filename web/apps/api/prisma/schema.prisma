@@ -71,6 +71,10 @@ model Account {
   // (see `findWebhookKeyAccount`): what lets Settings say a link is working,
   // rather than only that one exists.
   webhookKeyLastUsedAt DateTime? @db.Timestamptz(6)
+  // Set when the password was put in place by someone else (the admin, or the
+  // `fetch reset-password` command), so the web app asks for a new one.
+  // Cleared when the account changes its own password.
+  mustChangePassword Boolean @default(false)
 
   profiles        Profile[]
   sessions        Session[]
@@ -78,6 +82,29 @@ model Account {
   devicePairings  DevicePairing[]
   invitesCreated  Invite[]  @relation("InviteCreatedBy")
   inviteRedeemed  Invite?   @relation("InviteUsedBy")
+  events          AccountEvent[]
+}
+
+// What happened to an account's security, for Settings → Account: sign-ins,
+// failed attempts, TV pairings, password and PIN changes. Kept for 90 days
+// (`sweepOldAccountEvents`).
+model AccountEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  // A short code: sign_in, sign_in_failed, password_changed, password_reset,
+  // pin_changed, pin_removed, pin_cleared, tv_paired, tv_signed_out,
+  // session_revoked, signed_out_everywhere, username_changed, admin_granted,
+  // admin_transferred.
+  kind      String
+  // A few words of context: a profile or TV name, who reset a password.
+  detail    String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  accountId String  @db.Uuid
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt])
 }
 
 // A signed-in device. The bearer token itself is never stored, only its
@@ -88,6 +115,10 @@ model Session {
   createdAt  DateTime @default(now()) @db.Timestamptz(6)
   lastUsedAt DateTime @default(now()) @db.Timestamptz(6)
   expiresAt  DateTime @db.Timestamptz(6)
+  // What the browser said it was and where it signed in from, so the account
+  // can tell its sign-ins apart in Settings → Account.
+  userAgent  String?
+  ipAddress  String?
 
   accountId String  @db.Uuid
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -525,6 +556,10 @@ model Device {
   lastSyncAt    DateTime? @db.Timestamptz(6)
   lastSyncOk    Boolean?
   lastSyncError String?
+  // The profile the TV named (`x-profile-id`) on its last sync report, so the
+  // device list can say who is using it. Not a foreign key: a deleted profile
+  // just stops being named.
+  lastProfileId String? @db.Uuid
 
   // The account that paired it, whose profiles it sees. Null only for a device
   // paired before accounts existed; the admin account claims those.

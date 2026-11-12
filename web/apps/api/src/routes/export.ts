@@ -329,6 +329,30 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     return payload;
   });
 
+  // Clears the active profile's watch history (with the progress worked out
+  // from it and its resume points) or its ratings, short of deleting the
+  // profile. Lists and settings are left alone.
+  app.post<{ Body: unknown }>("/data/clear", async (request, reply) => {
+    const profileId = request.profileId!;
+    const body = (request.body ?? {}) as { history?: unknown; ratings?: unknown };
+    const history = body.history === true;
+    const ratings = body.ratings === true;
+    if (!history && !ratings) return reply.code(400).send({ error: "Choose history, ratings or both" });
+
+    const cleared = await prisma.$transaction(async (tx) => {
+      const counts = { watchEvents: 0, seriesProgress: 0, playbackProgress: 0, ratings: 0 };
+      if (history) {
+        counts.watchEvents = (await tx.watchEvent.deleteMany({ where: { profileId } })).count;
+        counts.seriesProgress = (await tx.seriesProgress.deleteMany({ where: { profileId } })).count;
+        counts.playbackProgress = (await tx.playbackProgress.deleteMany({ where: { profileId } })).count;
+        await tx.checkIn.deleteMany({ where: { profileId } });
+      }
+      if (ratings) counts.ratings = (await tx.rating.deleteMany({ where: { profileId } })).count;
+      return counts;
+    });
+    return { cleared };
+  });
+
   app.post<{ Body: unknown }>("/import", async (request, reply) => {
     const profileId = request.profileId!;
     const body = request.body as Partial<ExportPayload> | null;

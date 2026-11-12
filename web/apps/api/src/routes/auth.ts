@@ -5,23 +5,31 @@ import { hashPin, pinMatches } from "../lib/pin-hash.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { invalidateDeviceCache } from "../lib/device-token.js";
 import { invalidateProfileCache } from "../lib/profile.js";
-import { adoptLegacyAiConfig, claimLegacyIntegrations, deleteOwnerIntegrations } from "../lib/integration-owner.js";
+import { adoptLegacyAiConfig, claimLegacyIntegrations } from "../lib/integration-owner.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
-import { deleteProfileConnectionState } from "../lib/profile-connections.js";
 import { hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
 import { createSession, findAdminAccountId, mintInviteCode } from "../lib/sessions.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { listAccountEvents, recordAccountEvent, requestOrigin } from "../lib/account-events.js";
+import {
+  deleteAccountAndData,
+  isValidPassword,
+  MAX_PASSWORD_LENGTH,
+  PASSWORD_ERROR,
+  setTemporaryPassword,
+} from "../lib/account-admin.js";
 
 // Sign-in for the website. Invite-only: the first account is the admin, made
 // with API_TOKEN (`POST /auth/bootstrap`); everyone else redeems a single-use
 // invite the admin created (`POST /auth/register`). Passwords use the same
 // scrypt hashing as profile PINs.
+//
+// Recovery: the admin can give a member a temporary password and hand the
+// admin role on; a forgotten admin password is reset from the server's shell
+// with `fetch reset-password` (src/cli.ts, docs/troubleshooting.md).
 
 const USERNAME_PATTERN = /^[a-z0-9_.-]{3,32}$/;
 const USERNAME_ERROR = "Username must be 3–32 characters: letters, numbers, dots, dashes or underscores";
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 256;
-const PASSWORD_ERROR = `Password must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`;
 
 const DEFAULT_INVITE_DAYS = 7;
 const MAX_INVITE_DAYS = 30;
@@ -54,15 +62,52 @@ const normalizeUsername = (value: unknown): string | null => {
   return USERNAME_PATTERN.test(username) ? username : null;
 };
 
-const isValidPassword = (value: unknown): value is string =>
-  typeof value === "string" && value.length >= MIN_PASSWORD_LENGTH && value.length <= MAX_PASSWORD_LENGTH;
-
-type AccountRow = { id: string; username: string; isAdmin: boolean };
+type AccountRow = { id: string; username: string; isAdmin: boolean; mustChangePassword?: boolean };
 const publicAccount = (account: AccountRow) => ({
   id: account.id,
   username: account.username,
   isAdmin: account.isAdmin,
+  mustChangePassword: account.mustChangePassword ?? false,
 });
+
+const lockedOut = (retryAfterSec: number) => ({
+  error: "Too many incorrect attempts. Try again later.",
+  retryAfterSec,
+});
+
+/**
+ * Checks the signed-in account's own password, for the changes that ask for it
+ * again (a new password or username, deleting the account, the admin's
+ * recovery actions). Wrong guesses count towards the same lockout as signing
+ * in from this address.
+ */
+const verifyOwnPassword = async (
+  request: FastifyRequest,
+  account: { username: string; passwordHash: string },
+  raw: unknown
+): Promise<{ ok: true } | { ok: false; status: 401 | 429; body: object }> => {
+  const attemptKey = loginAttemptKey(account.username, request);
+  const lockout = await getLockout(attemptKey);
+  if (lockout.locked) return { ok: false, status: 429, body: lockedOut(lockout.retryAfterSec) };
+  const password = typeof raw === "string" && raw.length <= MAX_PASSWORD_LENGTH ? raw : "";
+  if (!password || !(await pinMatches(password, account.passwordHash))) {
+    await recordFailure(attemptKey);
+    return { ok: false, status: 401, body: { error: "Incorrect password", code: "password_incorrect" } };
+  }
+  await clearAttempts(attemptKey);
+  return { ok: true };
+};
+
+/**
+ * The admin's own password, re-entered for an action on someone else's
+ * account. `API_TOKEN` is the operator and needs none.
+ */
+const verifyAdminReauth = async (request: FastifyRequest, raw: unknown) => {
+  if (request.auth?.kind !== "session") return { ok: true as const };
+  const admin = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+  if (!admin) return { ok: false as const, status: 401 as const, body: { error: "Account not found" } };
+  return verifyOwnPassword(request, admin, raw);
+};
 
 const bodyOf = (request: FastifyRequest) => (request.body ?? {}) as Record<string, unknown>;
 
@@ -110,7 +155,8 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     invalidateProfileCache();
     resetTraktClient();
     await adoptLegacyAiConfig();
-    const token = await createSession(account.id);
+    const token = await createSession(account.id, requestOrigin(request));
+    await recordAccountEvent(account.id, "sign_in", { request });
     return reply.code(201).send({ token, account: publicAccount(account) });
   });
 
@@ -134,11 +180,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     // which names are real.
     const attemptKey = loginAttemptKey(username, request);
     const lockout = await getLockout(attemptKey);
-    if (lockout.locked) {
-      return reply
-        .code(429)
-        .send({ error: "Too many incorrect attempts. Try again later.", retryAfterSec: lockout.retryAfterSec });
-    }
+    if (lockout.locked) return reply.code(429).send(lockedOut(lockout.retryAfterSec));
 
     // Exactly one hash comparison per attempt, whatever the username or the
     // password looks like: an empty or over-long password used to skip it for
@@ -148,11 +190,15 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     const matches = await pinMatches(password || "x", account?.passwordHash ?? DUMMY_PASSWORD_HASH);
     if (!account || !password || !matches) {
       await recordFailure(attemptKey);
+      // Not awaited: the write happens only for names that exist, and waiting
+      // for it would make those answers slower than the rest.
+      if (account) void recordAccountEvent(account.id, "sign_in_failed", { request });
       return failed();
     }
 
     await clearAttempts(attemptKey);
-    const token = await createSession(account.id);
+    const token = await createSession(account.id, requestOrigin(request));
+    await recordAccountEvent(account.id, "sign_in", { request });
     return { token, account: publicAccount(account) };
   });
 
@@ -171,7 +217,50 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     return { account: account ? publicAccount(account) : null, isAdmin: isAdminRequest(request) };
   });
 
-  // Changing the password signs out every other device.
+  // Changing the username. The password is asked again, as for any change to
+  // how the account signs in.
+  app.patch("/auth/me", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to change your account" });
+    const body = bodyOf(request);
+    const username = normalizeUsername(body.username);
+    if (!username) return reply.code(400).send({ error: USERNAME_ERROR });
+
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) return reply.code(404).send({ error: "Account not found" });
+    const proof = await verifyOwnPassword(request, account, body.currentPassword);
+    if (!proof.ok) return reply.code(proof.status).send(proof.body);
+    if (username === account.username) return { account: publicAccount(account) };
+
+    try {
+      const updated = await prisma.account.update({ where: { id: account.id }, data: { username } });
+      await recordAccountEvent(account.id, "username_changed", { request, detail: `${account.username} → ${username}` });
+      return { account: publicAccount(updated) };
+    } catch (error) {
+      if (isUniqueViolation(error)) return reply.code(409).send({ error: "That username is taken" });
+      throw error;
+    }
+  });
+
+  // Deleting your own account, with everything in it. The admin can't: the
+  // install would be left with nobody to run it, so admin is handed on first.
+  app.delete("/auth/me", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to delete your account" });
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) return reply.code(404).send({ error: "Account not found" });
+    if (account.isAdmin) {
+      return reply
+        .code(400)
+        .send({ error: "Make another account the admin before deleting this one", code: "admin_cannot_delete" });
+    }
+    const proof = await verifyOwnPassword(request, account, bodyOf(request).currentPassword);
+    if (!proof.ok) return reply.code(proof.status).send(proof.body);
+
+    await deleteAccountAndData(account.id);
+    return reply.code(204).send();
+  });
+
+  // Changing the password signs out every other browser. TVs stay signed in
+  // unless `signOutTvs` says otherwise: the password is not what they hold.
   app.post("/auth/password", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
     if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to change a password" });
     const body = bodyOf(request);
@@ -182,11 +271,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
 
     const attemptKey = loginAttemptKey(account.username, request);
     const lockout = await getLockout(attemptKey);
-    if (lockout.locked) {
-      return reply
-        .code(429)
-        .send({ error: "Too many incorrect attempts. Try again later.", retryAfterSec: lockout.retryAfterSec });
-    }
+    if (lockout.locked) return reply.code(429).send(lockedOut(lockout.retryAfterSec));
     const current = typeof body.currentPassword === "string" ? body.currentPassword : "";
     if (!current || !(await pinMatches(current, account.passwordHash))) {
       await recordFailure(attemptKey);
@@ -194,12 +279,95 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const sessionId = request.auth.sessionId;
+    const signOutTvs = body.signOutTvs === true;
     await prisma.$transaction([
-      prisma.account.update({ where: { id: account.id }, data: { passwordHash: await hashPin(body.newPassword) } }),
+      prisma.account.update({
+        where: { id: account.id },
+        data: { passwordHash: await hashPin(body.newPassword), mustChangePassword: false },
+      }),
       prisma.session.deleteMany({ where: { accountId: account.id, id: { not: sessionId } } }),
+      ...(signOutTvs ? [prisma.device.deleteMany({ where: { accountId: account.id } })] : []),
     ]);
+    if (signOutTvs) invalidateDeviceCache();
     await clearAttempts(attemptKey);
+    await recordAccountEvent(account.id, "password_changed", {
+      request,
+      detail: signOutTvs ? "TVs signed out" : null,
+    });
     return reply.code(204).send();
+  });
+
+  // ─── Where the account is signed in ───
+
+  // Browsers and TVs in one list, newest use first. A browser is ended with
+  // `DELETE /auth/sessions/:id`, a TV with `DELETE /devices/:id`.
+  app.get("/auth/sessions", async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to see your sign-ins" });
+    const { accountId, sessionId } = request.auth;
+    const [sessions, devices] = await Promise.all([
+      prisma.session.findMany({ where: { accountId, expiresAt: { gt: new Date() } }, orderBy: { lastUsedAt: "desc" } }),
+      prisma.device.findMany({ where: { accountId }, orderBy: { createdAt: "asc" } }),
+    ]);
+    return {
+      sessions: [
+        ...sessions.map((session) => ({
+          kind: "browser" as const,
+          id: session.id,
+          current: session.id === sessionId,
+          userAgent: session.userAgent,
+          ipAddress: session.ipAddress,
+          createdAt: session.createdAt.toISOString(),
+          lastUsedAt: session.lastUsedAt.toISOString(),
+          expiresAt: session.expiresAt.toISOString(),
+        })),
+        ...devices.map((device) => ({
+          kind: "tv" as const,
+          id: device.id,
+          current: false,
+          name: device.name,
+          appVersion: device.appVersion,
+          createdAt: device.createdAt.toISOString(),
+          lastUsedAt: device.lastSeenAt?.toISOString() ?? null,
+        })),
+      ],
+    };
+  });
+
+  app.delete<{ Params: { id: string } }>("/auth/sessions/:id", async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to manage your sign-ins" });
+    if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
+    const { count } = await prisma.session.deleteMany({
+      where: { id: request.params.id, accountId: request.auth.accountId },
+    });
+    if (count === 0) return reply.code(404).send({ error: "Sign-in not found" });
+    if (request.params.id !== request.auth.sessionId) {
+      await recordAccountEvent(request.auth.accountId, "session_revoked", { request });
+    }
+    return reply.code(204).send();
+  });
+
+  // Ends every other browser's sign-in, and with `includeTvs` every TV's too.
+  // This browser stays signed in; "Sign out" is how it leaves.
+  app.post("/auth/sessions/revoke-others", async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to manage your sign-ins" });
+    const { accountId, sessionId } = request.auth;
+    const includeTvs = bodyOf(request).includeTvs === true;
+    const sessions = await prisma.session.deleteMany({ where: { accountId, id: { not: sessionId } } });
+    const devices = includeTvs ? await prisma.device.deleteMany({ where: { accountId } }) : { count: 0 };
+    // Cleared so a signed-out TV's next request is looked up again and refused.
+    if (includeTvs) invalidateDeviceCache();
+    await recordAccountEvent(accountId, "signed_out_everywhere", {
+      request,
+      detail: includeTvs ? "Browsers and TVs" : "Browsers",
+    });
+    return { browsers: sessions.count, tvs: devices.count };
+  });
+
+  // The account's recent security events: sign-ins, failed attempts, TV
+  // pairings, password and PIN changes. The last 50, from the last 90 days.
+  app.get("/auth/activity", async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to see your activity" });
+    return { events: await listAccountEvents(request.auth.accountId) };
   });
 
   // ─── Invites (admin) ───
@@ -284,7 +452,8 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     }
 
     invalidateProfileCache();
-    const token = await createSession(account.id);
+    const token = await createSession(account.id, requestOrigin(request));
+    await recordAccountEvent(account.id, "sign_in", { request });
     return reply.code(201).send({ token, account: publicAccount(account) });
   });
 
@@ -311,22 +480,62 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (!account) return reply.code(404).send({ error: "Account not found" });
     if (account.isAdmin) return reply.code(400).send({ error: "The admin account can't be deleted" });
 
-    const profileIds = (await prisma.profile.findMany({ where: { accountId: account.id }, select: { id: true } })).map(
-      (profile) => profile.id
-    );
-    await prisma.$transaction(async (tx) => {
-      // Kept in KV, keyed by id rather than tied to the rows by a foreign key.
-      await deleteOwnerIntegrations(tx, account.id);
-      await deleteProfileConnectionState(tx, profileIds);
-      await tx.account.delete({ where: { id: account.id } });
-    });
-    for (const profileId of profileIds) resetTraktClient(profileId);
-    invalidateProfileCache();
-    // Its TVs went with it; their tokens must stop working now, not when the
-    // lookup cache next expires.
-    invalidateDeviceCache();
+    await deleteAccountAndData(account.id);
     return reply.code(204).send();
   });
+
+  // A temporary password for a member who forgot theirs. They are signed out
+  // everywhere and asked for a new one when they next sign in. The admin's own
+  // password is asked again; the admin changes their own in Account.
+  app.post<{ Params: { id: string } }>(
+    "/auth/accounts/:id/password",
+    { preHandler: requireAdmin, ...CREDENTIAL_RATE_LIMIT },
+    async (request, reply) => {
+      if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
+      const body = bodyOf(request);
+      if (!isValidPassword(body.newPassword)) return reply.code(400).send({ error: PASSWORD_ERROR });
+      if (request.auth?.kind === "session" && request.auth.accountId === request.params.id) {
+        return reply.code(400).send({ error: "Change your own password in Account" });
+      }
+      const target = await prisma.account.findUnique({ where: { id: request.params.id } });
+      if (!target) return reply.code(404).send({ error: "Account not found" });
+      const proof = await verifyAdminReauth(request, body.adminPassword);
+      if (!proof.ok) return reply.code(proof.status).send(proof.body);
+
+      await setTemporaryPassword(target.id, body.newPassword);
+      await recordAccountEvent(target.id, "password_reset", { request, detail: "By the admin" });
+      return reply.code(204).send();
+    }
+  );
+
+  // Hands the admin role to another account. There is one admin at a time, so
+  // the caller stops being it. The admin's password is asked again.
+  app.post<{ Params: { id: string } }>(
+    "/auth/accounts/:id/make-admin",
+    { preHandler: requireAdmin, ...CREDENTIAL_RATE_LIMIT },
+    async (request, reply) => {
+      if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
+      const target = await prisma.account.findUnique({ where: { id: request.params.id } });
+      if (!target) return reply.code(404).send({ error: "Account not found" });
+      if (target.isAdmin) return reply.code(400).send({ error: "That account is already the admin" });
+      const proof = await verifyAdminReauth(request, bodyOf(request).adminPassword);
+      if (!proof.ok) return reply.code(proof.status).send(proof.body);
+
+      const previous = await prisma.account.findMany({ where: { isAdmin: true }, select: { id: true, username: true } });
+      await prisma.$transaction([
+        prisma.account.updateMany({ where: { isAdmin: true }, data: { isAdmin: false } }),
+        prisma.account.update({ where: { id: target.id }, data: { isAdmin: true } }),
+      ]);
+      await recordAccountEvent(target.id, "admin_granted", {
+        request,
+        detail: previous.length ? `From ${previous.map((account) => account.username).join(", ")}` : null,
+      });
+      for (const account of previous) {
+        await recordAccountEvent(account.id, "admin_transferred", { request, detail: `To ${target.username}` });
+      }
+      return reply.code(204).send();
+    }
+  );
 };
 
 class InviteAlreadyUsed extends Error {}

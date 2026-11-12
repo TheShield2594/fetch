@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
 import { SECTION_TITLE } from "./typography";
 
@@ -16,8 +17,11 @@ export function SectionError({
   message,
   onRetry,
   variant = "section",
+  children,
 }: {
   message: string;
+  /** Anything the page variant should say beneath the message — a hint at what to check. */
+  children?: ReactNode | undefined;
   onRetry: () => void;
   /**
    * `section` is one rail of a page that otherwise loaded — quiet, dashed, no
@@ -47,6 +51,7 @@ export function SectionError({
         <p role="alert" className={`mt-3 ${SECTION_TITLE} text-danger`}>
           {message}
         </p>
+        {children}
         <div className="mt-4">{retry}</div>
       </div>
     );

@@ -468,6 +468,8 @@ describe("the fetch command", () => {
     expect((await runCli("clear-pin", "Kids", "--accout", "owner")).code).toBe(2);
     expect((await runCli("clear-pin", "Kids", "Room")).code).toBe(2);
     expect((await runCli("accounts", "extra")).code).toBe(2);
+    expect((await runCli("clear-pin", "Kids", "--__proto__", "owner")).code).toBe(2);
+    expect((await runCli("clear-pin", "Kids", "--account", "")).code).toBe(2);
     expect((await prisma.profile.findFirstOrThrow({ where: { name: "Kids" } })).pinHash).not.toBeNull();
   });
 

@@ -51,7 +51,9 @@ const COMMANDS: Record<string, { args: number; argName?: string; options: string
 /** `--name value` options and the positional arguments around them. */
 export const parseArgs = (argv: string[]) => {
   const positional: string[] = [];
-  const options: Record<string, string> = {};
+  // No prototype: `--__proto__ x` would otherwise set the object's prototype
+  // rather than a key, and slip past the unknown-option check below.
+  const options: Record<string, string> = Object.create(null) as Record<string, string>;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
     if (arg === "--help" || arg === "-h") {
@@ -60,6 +62,9 @@ export const parseArgs = (argv: string[]) => {
       const name = arg.slice(2);
       const value = argv[i + 1];
       if (value === undefined || value.startsWith("--")) throw new UsageError(`--${name} needs a value`);
+      // An empty value (`--account ""`) would read as the option being absent
+      // and drop the scope it was meant to add.
+      if (!value.trim()) throw new UsageError(`--${name} needs a value`);
       options[name] = value;
       i += 1;
     } else {

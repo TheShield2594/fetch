@@ -69,3 +69,13 @@ export function useProfile() {
   if (!ctx) throw new Error("useProfile must be used within a ProfileProvider");
   return ctx;
 }
+
+/**
+ * Whether the active profile is a kids profile. The website keeps a kids
+ * profile out of Settings, data and device pairing (see `KidsGate`); the
+ * rating limit itself is applied by the TV.
+ */
+export function useIsKidsProfile(): boolean {
+  const ctx = useContext(ProfileContext);
+  return ctx?.profile?.parental?.isKidsProfile === true;
+}

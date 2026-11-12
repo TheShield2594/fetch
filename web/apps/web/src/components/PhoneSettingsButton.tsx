@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { healthDotClass, type HealthTone } from "./settings/health";
 import { prefetchRoute } from "../utils/routePrefetch";
+import { useIsKidsProfile } from "../hooks/useProfile";
 
 /**
  * Settings, one tap away on a phone.
@@ -21,6 +22,9 @@ export function PhoneSettingsButton() {
   const tones = Object.values(sections).map((h) => h.tone);
   const worst: HealthTone | null = tones.includes("bad") ? "bad" : tones.includes("warn") ? "warn" : null;
   const warm = () => prefetchRoute("/settings");
+  // A kids profile is kept out of Settings (see KidsGate): no button to it.
+  const isKids = useIsKidsProfile();
+  if (isKids) return null;
 
   return (
     <Link

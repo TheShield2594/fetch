@@ -236,6 +236,46 @@ describe("the profile in the shell", () => {
 
   it("sends the old profiles address to Settings → Profile", async () => {
     renderAt("/profiles");
-    expect(await screen.findByRole("heading", { name: "Profile" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Profiles" })).toBeInTheDocument();
+  });
+});
+
+/*
+ * #539: a kids profile is kept out of the account's settings and device
+ * pairing on the website, and the shell says it is a kids profile.
+ */
+describe("a kids profile in the shell", () => {
+  const kid = {
+    id: "profile-1",
+    name: "Robin",
+    hasPin: false,
+    avatarColorHex: "#43a047",
+    parental: { isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE" as const, allowUnrated: false },
+  };
+
+  beforeEach(() => {
+    vi.mocked(api.getProfiles).mockResolvedValue({ profiles: [kid] });
+  });
+
+  it.each([
+    ["/settings", "Settings are for a grown-up's profile."],
+    ["/pair", "Signing in a TV is for a grown-up's profile."],
+  ])("keeps %s behind a grown-up's profile", async (path, reason) => {
+    renderAt(path);
+
+    expect(await screen.findByText("Ask a grown-up")).toBeInTheDocument();
+    expect(screen.getByText(reason, { exact: false })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Switch profile" }).length).toBeGreaterThan(0);
+  });
+
+  it("drops Settings from the rail and the phone header, and marks the profile as a kids one", async () => {
+    renderAt("/");
+    await screen.findAllByRole("button", { name: "Profile menu, Robin" });
+
+    const rail = first(document.querySelectorAll("aside"), "rail");
+    await waitFor(() => expect(within(rail).queryByRole("link", { name: /^Settings/ })).not.toBeInTheDocument());
+    const header = first(document.querySelectorAll("header"), "header");
+    expect(within(header).queryByRole("link", { name: /^Settings/ })).not.toBeInTheDocument();
+    expect(within(rail).getByText("Kids")).toBeInTheDocument();
   });
 });

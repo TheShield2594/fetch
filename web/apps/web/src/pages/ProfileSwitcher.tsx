@@ -1,6 +1,5 @@
 import { type FormEvent, useCallback, useEffect, useId, useRef, useState } from "react";
-import { AlertCircle, ArrowRight, Loader2, Lock, Plus, RotateCw, X } from "lucide-react";
-import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } from "@fetch/shared/pin";
+import { AlertCircle, ArrowLeft, Loader2, Lock, Plus, RotateCw, X } from "lucide-react";
 import { api, ApiError, type Profile, runtimeConfig } from "../api";
 import { BrandLockup, BrandMark, BrandWordmark } from "../components/BrandMark";
 import { useEscapeKey } from "../hooks/useEscapeKey";
@@ -8,12 +7,12 @@ import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { lockActiveProfile } from "../hooks/useProfile";
-import { SECTION_TITLE } from "../components/typography";
+import { formatCountdown, useCountdown } from "../hooks/useCountdown";
+import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { ProfileAvatar } from "../components/ProfileAvatar";
-
-const LABEL_CLASS = "block text-xs font-semibold";
-const INPUT_CLASS = "w-full rounded-xl border px-4 py-3 text-sm field-control";
-const INPUT_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" };
+import { KidsChip } from "../components/profile/ProfileBadges";
+import { CreateProfileFlow, type StartFlow } from "../components/profile/CreateProfileFlow";
+import { PinField } from "../components/profile/PinField";
 
 // Standing in for the switcher's own title. As a full page (first run) it is the
 // document's h1; opened as a modal over the app, the page behind already owns the
@@ -21,21 +20,23 @@ const INPUT_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", 
 type HeadingTag = "h1" | "h2";
 
 /**
- * Starts a request flow and returns whether it is still the one that counts.
- * A flow is overtaken by the next one, by closing the switcher, or by leaving
- * the form it started from; its late answer must then change nothing.
+ * The whole screen, in both its uses: the gate before the app (first run, a
+ * lapsed PIN) and the switcher opened over it. It was a 448px card of rows in
+ * both, which made the 40 illustrated avatars 32px in the one place they
+ * should be the hero.
  */
-type StartFlow = () => () => boolean;
-
 function Shell({
   children,
   onClose,
   onExiting,
+  wide = true,
 }: {
   children: React.ReactNode;
   onClose?: (() => void) | undefined;
   /** Called as the close animation starts, before `onClose`: the user has left. */
   onExiting?: (() => void) | undefined;
+  /** The picker's grid; forms keep a reading width. */
+  wide?: boolean | undefined;
 }) {
   // All three gated on `onClose`: without it this renders as a full page
   // (first-run profile setup), not a modal, and must not lock scroll or
@@ -49,11 +50,13 @@ function Shell({
     if (exiting) onExiting?.();
   }, [exiting, onExiting]);
 
+  const width = wide ? "max-w-4xl" : "max-w-lg";
+
   if (onClose) {
     return (
       <div
-        className={`overlay-scrim overlay-fade fixed inset-0 z-[200] flex items-center justify-center px-6 py-12 ${exiting ? "overlay-exit" : ""}`}
-        onClick={requestClose}
+        className={`overlay-fade fixed inset-0 z-[200] overflow-y-auto ${exiting ? "overlay-exit" : ""}`}
+        style={{ background: "var(--bg-0)" }}
         role="dialog"
         aria-modal="true"
         aria-label="Switch profile"
@@ -62,199 +65,52 @@ function Shell({
           ref={dialogRef}
           tabIndex={-1}
           inert={exiting}
-          className={`overlay-dialog w-full max-w-md space-y-6 ${exiting ? "overlay-exit" : ""}`}
-          onClick={(e) => e.stopPropagation()}
+          className={`overlay-dialog relative flex min-h-full flex-col items-center px-5 pb-12 pt-6 focus:outline-none sm:px-8 ${exiting ? "overlay-exit" : ""}`}
           onAnimationEnd={onExitAnimationEnd}
         >
-          <div className="flex items-center justify-center gap-2.5">
-            <BrandMark className="h-10 w-10 flex-none" />
-            <BrandWordmark className="h-5 w-auto" style={{ color: "var(--text)" }} />
-          </div>
-
-          <div className="glass-surface relative rounded-3xl border p-6 shadow-e3" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
+          <div className="flex w-full max-w-4xl items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <BrandMark className="h-8 w-8 flex-none" />
+              <BrandWordmark className="h-4 w-auto" style={{ color: "var(--text)" }} />
+            </div>
             <button
               type="button"
               onClick={requestClose}
               aria-label="Close"
-              className="tap-target absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+              className="tap-target flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
               style={{ color: "var(--text-mute)" }}
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </button>
-            {children}
           </div>
+          <div className={`my-auto w-full ${width} py-10`}>{children}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md space-y-6">
-        <BrandLockup />
-
-        <div className="rounded-2xl border p-6 shadow-e1" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
-          {children}
-        </div>
-      </div>
+    <div className="flex min-h-screen flex-col items-center px-5 pb-12 pt-8 sm:px-8">
+      <BrandLockup />
+      <div className={`my-auto w-full ${width} py-10`}>{children}</div>
     </div>
   );
 }
 
-function CreateProfileForm({
-  title,
-  subtitle,
-  headingTag: Heading,
-  startFlow,
-  onCreated,
-  onCancel,
-}: {
-  title: string;
-  subtitle: string;
-  headingTag: HeadingTag;
-  startFlow: StartFlow;
-  onCreated: (profile: Profile) => void;
-  onCancel?: (() => void) | undefined;
-}) {
-  const [name, setName] = useState("");
-  const [pin, setPin] = useState("");
-  const [confirmPin, setConfirmPin] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const nameId = useId();
-  const pinId = useId();
-  const pinHintId = useId();
-  const confirmPinId = useId();
-
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    const trimmedName = name.trim();
-    if (!trimmedName) return;
-    const trimmedPin = pin.trim();
-    if (trimmedPin && !isValidPinFormat(trimmedPin)) {
-      setError(`${PIN_FORMAT_ERROR}.`);
-      return;
-    }
-    // Typed twice, because a typo here locks the new profile with a PIN
-    // nobody knows.
-    if (trimmedPin && trimmedPin !== confirmPin.trim()) {
-      setError("The PINs don't match.");
-      return;
-    }
-
-    const isCurrent = startFlow();
-    setCreating(true);
-    setError(null);
-    try {
-      const { profile } = await api.createProfile({
-        name: trimmedName,
-        pin: trimmedPin || undefined,
-      });
-      // POST /profiles mints no profile token, and the one in storage (if any)
-      // belongs to the previous profile. Without a fresh one, the first request
-      // as a PIN-protected profile 401s and drops the user straight back to
-      // "Who's watching?" to type the PIN they set a second ago. Verifying with
-      // no PIN also clears the stale token for an unprotected profile.
-      let profileToken: string | null;
-      try {
-        profileToken = (await api.verifyProfile(profile.id, trimmedPin || undefined, { persist: false })).profileToken ?? "";
-      } catch {
-        // The profile exists either way; worst case the shell asks for the
-        // PIN once, which is what happened before. Don't send a stale token.
-        profileToken = null;
-      }
-      // Closed, cancelled or overtaken meanwhile: the profile exists, but the
-      // user has moved on, so the active profile and its token stay as they are.
-      if (!isCurrent()) return;
-      if (profileToken === null) runtimeConfig.clearProfileToken();
-      else runtimeConfig.setProfileToken(profileToken);
-      onCreated(profile);
-    } catch (err) {
-      if (isCurrent()) setError(err instanceof Error ? err.message : "Could not create profile.");
-    } finally {
-      setCreating(false);
-    }
-  };
-
+/** "Too many tries" with the time left, ticking, or nothing once it has run out. */
+function LockoutNotice({ until, onExpired }: { until: number; onExpired: () => void }) {
+  const left = useCountdown(until);
+  useEffect(() => {
+    if (left === 0) onExpired();
+  }, [left, onExpired]);
+  if (left === 0) return null;
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <div>
-        <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>{title}</Heading>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>{subtitle}</p>
-      </div>
-      {/* Visible labels rather than placeholders, which vanished on the
-          first keystroke. */}
-      <div>
-        <label htmlFor={nameId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>Profile name</label>
-        <input
-          id={nameId}
-          autoFocus
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className={`mt-1.5 ${INPUT_CLASS}`}
-          style={INPUT_STYLE}
-        />
-      </div>
-      <div>
-        <label htmlFor={pinId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>
-          PIN <span className="font-normal" style={{ color: "var(--text-mute)" }}>(optional)</span>
-        </label>
-        <input
-          id={pinId}
-          type="password"
-          inputMode="numeric"
-          autoComplete="new-password"
-          // The same 4–8 digit rule the API enforces and the TV keypad asks for.
-          // Checked on submit rather than with minLength/pattern, so the message
-          // says "digits" instead of the browser's generic one.
-          aria-describedby={pinHintId}
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          className={`mt-1.5 ${INPUT_CLASS}`}
-          style={INPUT_STYLE}
-        />
-        <p id={pinHintId} className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
-          {MIN_PIN_LENGTH}–{MAX_PIN_LENGTH} digits
-        </p>
-      </div>
-      {pin.trim() && (
-        <div>
-          <label htmlFor={confirmPinId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>Confirm PIN</label>
-          <input
-            id={confirmPinId}
-            type="password"
-            inputMode="numeric"
-            autoComplete="new-password"
-            value={confirmPin}
-            onChange={(e) => setConfirmPin(e.target.value)}
-            className={`mt-1.5 ${INPUT_CLASS}`}
-            style={INPUT_STYLE}
-          />
-        </div>
-      )}
-      {error && (
-        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
-      )}
-      <div className="flex gap-2">
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="btn-secondary btn-lg flex-1"
-          >
-            Cancel
-          </button>
-        )}
-        <button
-          type="submit"
-          disabled={creating || !name.trim()}
-          className="btn-primary btn-lg flex-1"
-        >
-          {creating ? <><Loader2 size={16} className="animate-spin" /> Creating…</> : <>Create <ArrowRight size={16} /></>}
-        </button>
-      </div>
-    </form>
+    <p role="status" className="flex items-center justify-center gap-2 text-sm text-danger">
+      <Lock size={15} aria-hidden="true" />
+      <span>
+        Too many wrong PINs. Try again in <span className="font-semibold tabular-nums">{formatCountdown(left)}</span>.
+      </span>
+    </p>
   );
 }
 
@@ -274,124 +130,218 @@ function PinPrompt({
   const [pin, setPin] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [shake, setShake] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  // A PIN chosen before the 4–8 digit rule may hold letters or run longer, and
+  // still has to open the profile: a plain field takes anything.
+  const [typed, setTyped] = useState(false);
   const pinId = useId();
+  const locked = lockedUntil !== null;
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
+  const verify = async (value: string) => {
+    const attempt = value.trim();
+    if (!attempt || verifying || locked) return;
     const isCurrent = startFlow();
     setVerifying(true);
     setError(null);
     try {
-      const result = await api.verifyProfile(profile.id, pin.trim(), { persist: false });
+      const result = await api.verifyProfile(profile.id, attempt, { persist: false });
       if (!isCurrent()) return;
       runtimeConfig.setProfileToken(result.profileToken ?? "");
-      onVerified({ id: result.id, name: result.name, hasPin: true });
+      onVerified({ ...profile, id: result.id, name: result.name, hasPin: true });
     } catch (err) {
       if (!isCurrent()) return;
-      if (err instanceof ApiError && err.status === 401) {
+      setPin("");
+      if (err instanceof ApiError && err.status === 429) {
+        // The server's lockout says how long; the limiter in front of it may
+        // not, and then a minute is the honest guess.
+        setLockedUntil(Date.now() + (err.retryAfterSec ?? 60) * 1000);
+      } else if (err instanceof ApiError && err.status === 401) {
         setError("Incorrect PIN.");
+        setShake((n) => n + 1);
       } else {
-        setError(err instanceof Error ? err.message : "Could not verify PIN.");
+        setError(err instanceof Error ? err.message : "Could not check the PIN.");
       }
     } finally {
-      setVerifying(false);
+      if (isCurrent()) setVerifying(false);
     }
   };
 
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    void verify(pin);
+  };
+
+  const unlockLockout = useCallback(() => setLockedUntil(null), []);
+
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <div>
-        <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Enter PIN for {profile.name}</Heading>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>This profile is PIN-protected.</p>
+    <form onSubmit={submit} className="mx-auto max-w-md space-y-6 text-center">
+      <div className="flex flex-col items-center gap-4">
+        <ProfileAvatar profile={profile} size="xl" />
+        <div>
+          <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Enter PIN for {profile.name}</Heading>
+          <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>This profile is PIN-protected.</p>
+        </div>
       </div>
-      <div>
-        <label htmlFor={pinId} className={LABEL_CLASS} style={{ color: "var(--text)" }}>PIN</label>
-        <input
-          id={pinId}
-          autoFocus
-          type="password"
-          inputMode="numeric"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          className={`mt-1.5 ${INPUT_CLASS}`}
-          style={INPUT_STYLE}
-        />
-      </div>
-      {error && (
-        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
-      )}
-      <div className="flex gap-2">
+      <div className="flex flex-col items-center gap-3">
+        {typed ? (
+          <input
+            id={pinId}
+            autoFocus
+            type="password"
+            aria-label="PIN"
+            value={pin}
+            disabled={locked}
+            onChange={(e) => setPin(e.target.value)}
+            className="w-full max-w-xs rounded-xl border px-4 py-3 text-center text-sm field-control"
+            style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
+          />
+        ) : (
+          <PinField
+            id={pinId}
+            label="PIN"
+            size="lg"
+            autoFocus
+            value={pin}
+            onChange={(next) => {
+              setPin(next);
+              if (error) setError(null);
+            }}
+            onComplete={(full) => void verify(full)}
+            disabled={locked || verifying}
+            invalid={!!error}
+            shakeKey={shake}
+          />
+        )}
         <button
           type="button"
-          onClick={onBack}
-          className="btn-secondary btn-lg flex-1"
+          onClick={() => {
+            setTyped((was) => !was);
+            setPin("");
+          }}
+          className="text-xs underline-offset-2 hover:underline"
+          style={{ color: "var(--text-mute)" }}
         >
-          Back
+          {typed ? "Use the number boxes" : "PIN has letters or more than 8 digits?"}
         </button>
-        <button
-          type="submit"
-          disabled={verifying || !pin.trim()}
-          className="btn-primary btn-lg flex-1"
-        >
-          {verifying ? <Loader2 size={16} className="animate-spin" /> : <>Unlock <ArrowRight size={16} /></>}
+      </div>
+      {lockedUntil !== null && <LockoutNotice key={lockedUntil} until={lockedUntil} onExpired={unlockLockout} />}
+      {error && (
+        <p role="alert" className="flex items-center justify-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
+      <div className="flex gap-2">
+        <button type="button" onClick={onBack} className="btn-secondary btn-lg flex-1">
+          <ArrowLeft size={16} /> Back
+        </button>
+        <button type="submit" disabled={verifying || locked || !pin.trim()} className="btn-primary btn-lg flex-1">
+          {verifying ? <Loader2 size={16} className="animate-spin" /> : null} Unlock
         </button>
       </div>
     </form>
   );
 }
 
+/** What a tile says to a screen reader beyond the name. */
+const tileDescription = (profile: Profile, isActive: boolean) =>
+  [
+    isActive && "in use",
+    profile.parental?.isKidsProfile && "kids profile",
+    profile.hasPin && "PIN protected",
+  ].filter(Boolean).join(", ");
+
 function ProfilePicker({
   profiles,
+  activeId,
   headingTag: Heading,
   error,
+  pending,
   onSelect,
   onCreateNew,
   lockable,
 }: {
   profiles: Profile[];
+  activeId: string | null;
   headingTag: HeadingTag;
-  /** Why the last pick didn't go through; the list stays, so another try is one click. */
+  /** Why the last pick didn't go through; the grid stays, so another try is one click. */
   error: string | null;
+  /** The profile being opened, while its request is out. */
+  pending: string | null;
   onSelect: (profile: Profile) => void;
   onCreateNew: () => void;
   /** The PIN profile in use, when the switcher is opened over the app: it can be locked from here. */
   lockable?: Profile | null | undefined;
 }) {
   return (
-    <div className="space-y-4">
-      <div>
-        <Heading className={SECTION_TITLE} style={{ color: "var(--text)" }}>Who's watching?</Heading>
-        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>Choose a profile to continue.</p>
-      </div>
+    <div className="space-y-8 text-center">
+      <Heading className={PAGE_TITLE} style={{ color: "var(--text)" }}>Who&apos;s watching?</Heading>
       {error && (
-        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+        <p role="alert" className="flex items-center justify-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
       )}
-      <div className="space-y-2">
-        {profiles.map((profile) => (
+      <ul className="flex flex-wrap justify-center gap-x-5 gap-y-3 sm:gap-x-8 sm:gap-y-6">
+        {profiles.map((profile) => {
+          const isActive = profile.id === activeId;
+          const description = tileDescription(profile, isActive);
+          return (
+            <li key={profile.id} className="w-28 sm:w-36">
+              <button
+                type="button"
+                onClick={() => onSelect(profile)}
+                disabled={pending !== null}
+                aria-label={description ? `${profile.name}, ${description}` : profile.name}
+                className="group flex w-full flex-col items-center gap-2.5 rounded-2xl p-1.5 focus:outline-none disabled:cursor-wait"
+              >
+                <span
+                  className="relative rounded-full transition-[transform,box-shadow] duration-base group-hover:scale-[1.04] group-active:scale-[0.97] group-focus-visible:ring-4 group-focus-visible:ring-focus"
+                  style={{ boxShadow: isActive ? "0 0 0 3px var(--bg-0), 0 0 0 6px rgb(var(--accent-rgb))" : undefined }}
+                >
+                  <ProfileAvatar profile={profile} size="xl" />
+                  {profile.hasPin && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-0.5 right-0.5 flex h-8 w-8 items-center justify-center rounded-full"
+                      style={{ background: "var(--bg-1)", border: "2px solid var(--bg-0)", color: "var(--text-dim)" }}
+                    >
+                      <Lock size={14} />
+                    </span>
+                  )}
+                  {pending === profile.id && (
+                    <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+                      <Loader2 size={28} className="animate-spin text-white" />
+                    </span>
+                  )}
+                </span>
+                <span className="w-full truncate text-base font-semibold" style={{ color: isActive ? "var(--text)" : "var(--text-dim)" }}>
+                  {profile.name}
+                </span>
+                <span aria-hidden="true" className="-mt-1 flex min-h-5 items-center gap-1.5">
+                  {profile.parental?.isKidsProfile && <KidsChip />}
+                  {isActive && <span className="text-2xs font-semibold text-accent-text">In use</span>}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+        <li className="w-28 sm:w-36">
           <button
-            key={profile.id}
             type="button"
-            onClick={() => onSelect(profile)}
-            className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-accent-500/60 hover:bg-[var(--surface)]"
-            style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
+            onClick={onCreateNew}
+            disabled={pending !== null}
+            className="group flex w-full flex-col items-center gap-2.5 rounded-2xl p-1.5 focus:outline-none"
           >
-            <ProfileAvatar profile={profile} />
-            <span className="flex-1">{profile.name}</span>
-            {profile.hasPin && <Lock className="h-4 w-4" style={{ color: "var(--text-mute)" }} />}
+            <span
+              className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-dashed transition-[transform,border-color] duration-base group-hover:scale-[1.04] group-hover:border-[var(--text-mute)] group-focus-visible:ring-4 group-focus-visible:ring-focus sm:h-32 sm:w-32"
+              style={{ borderColor: "var(--border-strong)", color: "var(--text-mute)" }}
+            >
+              <Plus className="h-8 w-8 sm:h-10 sm:w-10" aria-hidden="true" />
+            </span>
+            <span className="text-base font-semibold" style={{ color: "var(--text-dim)" }}>Add profile</span>
           </button>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={onCreateNew}
-        className="btn-secondary btn-lg w-full"
-      >
-        <Plus size={16} /> New profile
-      </button>
-      {/* The phone's way to lock (the rail has its own): back to this list
-          with the profile closed, still signed in. */}
+        </li>
+      </ul>
+      {/* The phone's way to lock (the rail's profile menu has its own): back to
+          this grid with the profile closed, still signed in. */}
       {lockable && (
-        <button type="button" onClick={lockActiveProfile} className="btn-secondary btn-lg w-full">
+        <button type="button" onClick={lockActiveProfile} className="btn-secondary mx-auto">
           <Lock size={16} /> Lock {lockable.name}
         </button>
       )}
@@ -404,10 +354,13 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectError, setSelectError] = useState<string | null>(null);
+  const [pending, setPending] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [mode, setModeState] = useState<"picker" | "create" | "pin">("picker");
   const [pinTarget, setPinTarget] = useState<Profile | null>(null);
   const headingTag: HeadingTag = onClose ? "h2" : "h1";
+  // Read once: the profile this browser is in as the picker opens, marked in the grid.
+  const [activeId] = useState(() => runtimeConfig.getProfileId() || null);
 
   // Which request flow (a pick, a create, a PIN check) is current. Bumped by
   // every new flow, every change of screen, closing, and unmounting, so a
@@ -427,6 +380,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
   const setMode = (next: "picker" | "create" | "pin") => {
     cancelFlows();
     setSelectError(null);
+    setPending(null);
     setModeState(next);
   };
 
@@ -464,14 +418,17 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
     }
     const isCurrent = startFlow();
     setSelectError(null);
+    setPending(profile.id);
     try {
       const result = await api.verifyProfile(profile.id, undefined, { persist: false });
       if (!isCurrent()) return;
       runtimeConfig.setProfileToken(result.profileToken ?? "");
       runtimeConfig.setProfileId(result.id);
-      onSelected({ id: result.id, name: result.name, hasPin: profile.hasPin });
+      onSelected({ ...profile, id: result.id, name: result.name });
     } catch (err) {
-      if (isCurrent()) setSelectError(err instanceof Error ? err.message : "Could not select profile.");
+      if (isCurrent()) setSelectError(err instanceof Error ? err.message : "Could not open that profile.");
+    } finally {
+      if (isCurrent()) setPending(null);
     }
   };
 
@@ -494,7 +451,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
   // it keeps a way forward (on /pair from a TV's QR code there is no other).
   if (loadError) {
     return (
-      <Shell onClose={onClose} onExiting={cancelFlows}>
+      <Shell onClose={onClose} onExiting={cancelFlows} wide={false}>
         <Heading className="sr-only">Profiles</Heading>
         <div className="space-y-4">
           <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {loadError}</p>
@@ -506,30 +463,41 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
     );
   }
 
+  const activeName = profiles.find((p) => p.id === activeId)?.name;
+
   return (
-    <Shell onClose={onClose} onExiting={cancelFlows}>
+    <Shell onClose={onClose} onExiting={cancelFlows} wide={mode === "picker"}>
       {mode === "picker" && (
         <ProfilePicker
           profiles={profiles}
+          activeId={activeId}
           headingTag={headingTag}
           error={selectError}
-          onSelect={selectProfile}
+          pending={pending}
+          onSelect={(profile) => void selectProfile(profile)}
           onCreateNew={() => setMode("create")}
-          lockable={onClose ? profiles.find((p) => p.hasPin && p.id === runtimeConfig.getProfileId()) : null}
+          lockable={onClose ? profiles.find((p) => p.hasPin && p.id === activeId) : null}
         />
       )}
       {mode === "create" && (
-        <CreateProfileForm
-          title={profiles.length === 0 ? "Create your first profile" : "New profile"}
-          subtitle="Each profile gets its own watch history, lists, and stats."
-          headingTag={headingTag}
-          startFlow={startFlow}
-          onCreated={(profile) => {
-            runtimeConfig.setProfileId(profile.id);
-            onSelected(profile);
-          }}
-          onCancel={profiles.length > 0 ? () => setMode("picker") : undefined}
-        />
+        <div className="rounded-3xl border p-6 shadow-e1 sm:p-8" style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}>
+          <CreateProfileFlow
+            title={profiles.length === 0 ? "Create your first profile" : "Add a profile"}
+            subtitle="Each profile gets its own watch history, lists, and stats."
+            headingTag={headingTag}
+            startFlow={startFlow}
+            // The first profile is the only one there is to be.
+            enterImmediately={profiles.length === 0}
+            currentProfileName={activeName}
+            onCreated={(created) => setProfiles((prev) => [...prev, created])}
+            onEntered={(profile) => {
+              runtimeConfig.setProfileId(profile.id);
+              onSelected(profile);
+            }}
+            onDone={() => setMode("picker")}
+            onCancel={profiles.length > 0 ? () => setMode("picker") : undefined}
+          />
+        </div>
       )}
       {mode === "pin" && pinTarget && (
         <PinPrompt

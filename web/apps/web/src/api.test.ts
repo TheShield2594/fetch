@@ -672,4 +672,28 @@ describe("sharing a GET that is already in flight", () => {
     await after;
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  // #539: a kids profile refused something is told what to do, not the rule.
+  it("words a parental-authority refusal for the person reading it", async () => {
+    fetchMock.mockResolvedValue(
+      routeError(403, {
+        error: "Switch to a grown-up's profile to loosen parental controls or add a profile",
+        code: "parental_authority_required",
+      })
+    );
+
+    const error = await api.getLists().catch((err: unknown) => err);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).code).toBe("parental_authority_required");
+    expect((error as ApiError).message).toBe("Only a grown-up's profile can do that. Switch to one to carry on.");
+  });
+
+  it("carries a PIN lockout's wait on the error", async () => {
+    fetchMock.mockResolvedValue(routeError(429, { error: "Too many incorrect attempts. Try again later.", retryAfterSec: 297.4 }));
+
+    const error = await api.getLists().catch((err: unknown) => err);
+
+    expect((error as ApiError).retryAfterSec).toBe(298);
+  });
 });

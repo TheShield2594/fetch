@@ -1,13 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router";
-import { Download, Lock, LogOut, Palette, Users, UserCog } from "lucide-react";
+import { ChevronRight, Download, Lock, LogOut, Palette, Users, UserCog } from "lucide-react";
 import { api } from "../api";
-import { lockActiveProfile, useProfile } from "../hooks/useProfile";
+import { lockActiveProfile, useIsKidsProfile, useProfile } from "../hooks/useProfile";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { MANUAL_INSTALL_HINT, useInstallOffer } from "../hooks/useInstallOffer";
 import { ProfileAvatar } from "./ProfileAvatar";
 import { ThemePicker } from "./ThemePicker";
+import { KidsChip } from "./profile/ProfileBadges";
 
 const ROW =
   "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:bg-[var(--surface-strong)] focus-visible:ring-2 focus-visible:ring-focus";
@@ -65,8 +66,9 @@ export function ProfileMenu({ variant, expanded = true }: { variant: "header" | 
           />
         )}
         {variant === "rail" && (
-          <span className="truncate whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
-            {name}
+          <span className="flex min-w-0 items-center gap-1.5 whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
+            <span className="truncate">{name}</span>
+            {profile?.parental?.isKidsProfile && <KidsChip />}
           </span>
         )}
       </button>
@@ -85,6 +87,8 @@ function ProfileMenuPanel({
   onClose: (refocus: boolean) => void;
 }) {
   const { profile, openSwitcher } = useProfile();
+  // A kids profile is kept out of Settings (see KidsGate): no rows into it.
+  const isKids = useIsKidsProfile();
   const { state: installState, install } = useInstallOffer();
   const [installHint, setInstallHint] = useState<string | null>(null);
   const [signingOut, setSigningOut] = useState(false);
@@ -169,13 +173,24 @@ function ProfileMenuPanel({
         transformOrigin: variant === "header" ? "top right" : "bottom left",
       }}
     >
+      {/* Who this is, and the way to their own page: totals, lists,
+          connected services and export. */}
       {profile && (
-        <div className="flex items-center gap-3 px-3 pb-2.5 pt-2">
+        <Link
+          to="/profile"
+          onClick={() => onClose(false)}
+          className="flex items-center gap-3 rounded-lg px-3 pb-2.5 pt-2 transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:bg-[var(--surface-strong)] focus-visible:ring-2 focus-visible:ring-focus"
+        >
           <ProfileAvatar profile={profile} size="md" />
-          <p className="min-w-0 truncate text-[0.9375rem] font-semibold" style={{ color: "var(--text)" }}>
-            {profile.name}
-          </p>
-        </div>
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5">
+              <span className="truncate text-[0.9375rem] font-semibold" style={{ color: "var(--text)" }}>{profile.name}</span>
+              {isKids && <KidsChip />}
+            </span>
+            <span className="block text-xs" style={{ color: "var(--text-mute)" }}>Your profile</span>
+          </span>
+          <ChevronRight className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-mute)" }} />
+        </Link>
       )}
 
       <button
@@ -206,15 +221,17 @@ function ProfileMenuPanel({
           Lock {profile.name}
         </button>
       )}
-      <Link
-        to="/settings?section=profile"
-        className={ROW}
-        style={{ color: "var(--text)" }}
-        onClick={() => onClose(false)}
-      >
-        <UserCog className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-dim)" }} />
-        Manage profiles
-      </Link>
+      {!isKids && (
+        <Link
+          to="/settings?section=profile"
+          className={ROW}
+          style={{ color: "var(--text)" }}
+          onClick={() => onClose(false)}
+        >
+          <UserCog className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-dim)" }} />
+          Manage profiles
+        </Link>
+      )}
 
       <div className="my-1.5 border-t" style={{ borderColor: "var(--border)" }} />
 
@@ -224,15 +241,17 @@ function ProfileMenuPanel({
         </p>
         <ThemePicker layout="dots" />
       </div>
-      <Link
-        to="/settings?section=appearance"
-        className={ROW}
-        style={{ color: "var(--text)" }}
-        onClick={() => onClose(false)}
-      >
-        <Palette className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-dim)" }} />
-        Appearance
-      </Link>
+      {!isKids && (
+        <Link
+          to="/settings?section=appearance"
+          className={ROW}
+          style={{ color: "var(--text)" }}
+          onClick={() => onClose(false)}
+        >
+          <Palette className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-dim)" }} />
+          Appearance
+        </Link>
+      )}
       {canInstall && (
         <button
           type="button"

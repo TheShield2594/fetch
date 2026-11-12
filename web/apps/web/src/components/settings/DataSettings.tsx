@@ -5,6 +5,7 @@ import { useProfile } from "../../hooks/useProfile";
 import { Loader2, Check, AlertCircle, Download, Eraser, Upload } from "lucide-react";
 import { SelectField } from "../SelectField";
 import { ConfirmReview } from "../ConfirmReview";
+import { downloadProfileExport } from "../../utils/exportDownload";
 
 /** The version of the Fetch export this site writes and the server reads back. */
 const EXPORT_VERSION = 1;
@@ -20,15 +21,7 @@ const EXTERNAL_LABELS: Record<ExternalFormat, string> = {
 
 const plural = (count: number, one: string, many: string) => `${count.toLocaleString()} ${count === 1 ? one : many}`;
 
-/** "alex-s-profile" from "Alex's profile", for a download's file name. */
-export const slugify = (name: string) =>
-  name
-    .normalize("NFKD")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+export { slugify } from "../../utils/exportDownload";
 
 /**
  * The records in a CSV file, quoted fields and line breaks inside them
@@ -183,15 +176,7 @@ export function DataSettings() {
     setExporting(true);
     setImportError(null);
     try {
-      const payload = await api.exportData();
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      const slug = profile ? slugify(profile.name) : "";
-      a.download = `fetch-export-${slug ? `${slug}-` : ""}${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+      await downloadProfileExport(profile?.name);
     } catch (err) {
       setImportError(err instanceof Error ? err.message : "Export failed");
     } finally {

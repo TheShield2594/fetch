@@ -6,12 +6,18 @@ import { ProfileContext } from "../hooks/useProfile";
 import { ThemeContext } from "../hooks/useTheme";
 import { ProfileMenu } from "./ProfileMenu";
 
-function renderMenu(openSwitcher = vi.fn(), chooseTheme = vi.fn(), hasPin = false) {
+function renderMenu(openSwitcher = vi.fn(), chooseTheme = vi.fn(), hasPin = false, kids = false) {
   render(
     <MemoryRouter>
       <ProfileContext.Provider
         value={{
-          profile: { id: "p1", name: "Sam", hasPin, avatarColorHex: "#22c55e" },
+          profile: {
+            id: "p1",
+            name: "Sam",
+            hasPin,
+            avatarColorHex: "#22c55e",
+            ...(kids ? { parental: { isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE" as const, allowUnrated: false } } : {}),
+          },
           setProfile: vi.fn(),
           patchProfile: vi.fn(),
           switcherOpen: false,
@@ -35,8 +41,11 @@ describe("ProfileMenu", () => {
     await user.click(screen.getByRole("button", { name: "Profile menu, Sam" }));
 
     const menu = screen.getByRole("dialog", { name: "Profile" });
-    expect(screen.getByRole("button", { name: "Switch profile" })).toHaveFocus();
+    // The profile itself leads, and is the way to its own page.
+    expect(screen.getByRole("link", { name: /Sam/ })).toHaveFocus();
+    expect(screen.getByRole("link", { name: /Sam/ })).toHaveAttribute("href", "/profile");
     expect(menu).toHaveTextContent("Sam");
+    expect(screen.getByRole("button", { name: "Switch profile" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Manage profiles" })).toHaveAttribute("href", "/settings?section=profile");
     expect(screen.getByRole("link", { name: "Appearance" })).toHaveAttribute("href", "/settings?section=appearance");
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
@@ -84,5 +93,17 @@ describe("ProfileMenu", () => {
     await user.keyboard("{Escape}");
     await waitFor(() => expect(screen.queryByRole("dialog", { name: "Profile" })).not.toBeInTheDocument());
     expect(trigger).toHaveFocus();
+  });
+
+  // #539: a kids profile is kept out of Settings, and says what it is.
+  it("offers a kids profile no way into Settings, and marks it as one", async () => {
+    const user = userEvent.setup();
+    renderMenu(vi.fn(), vi.fn(), false, true);
+    await user.click(screen.getByRole("button", { name: "Profile menu, Sam" }));
+
+    expect(screen.getByRole("dialog", { name: "Profile" })).toHaveTextContent("Kids");
+    expect(screen.queryByRole("link", { name: "Manage profiles" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Appearance" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Switch profile" })).toBeInTheDocument();
   });
 });

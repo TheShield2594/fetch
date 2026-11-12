@@ -623,6 +623,87 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
+  // Each row with its title's metadata, or the title captured when it was
+  // added while the metadata row is still being filled in (that row is then
+  // scheduled). Metadata is read once per title, however many lists hold it.
+  const withMetadata = async <T extends { type: ListItemType; imdbId: string }>(listItems: T[]) => {
+    const metadataMap = new Map<
+      string,
+      { name: string; poster: string | null; year: number | null; genres: string[]; rating: number | null }
+    >();
+
+    if (listItems.length > 0) {
+      const imdbIdsByType = new Map<MetadataType, Set<string>>();
+      for (const item of listItems) {
+        const type = item.type as unknown as MetadataType;
+        const ids = imdbIdsByType.get(type);
+        if (ids) ids.add(item.imdbId);
+        else imdbIdsByType.set(type, new Set([item.imdbId]));
+      }
+
+      const metadata = (
+        await Promise.all(
+          [...imdbIdsByType.entries()].map(([type, imdbIds]) =>
+            prisma.metadata.findMany({
+              where: { type, imdbId: { in: [...imdbIds] } },
+              select: { imdbId: true, type: true, name: true, poster: true, year: true, genres: true, rating: true },
+            })
+          )
+        )
+      ).flat();
+
+      for (const m of metadata) {
+        metadataMap.set(`${m.imdbId}:${m.type}`, {
+          name: m.name,
+          poster: m.poster,
+          year: m.year,
+          genres: m.genres,
+          rating: m.rating,
+        });
+      }
+    }
+
+    // Items still waiting on a metadata row fall back to the title captured when
+    // they were added, so a list shows real names instead of raw IMDb IDs while
+    // the rows are being filled in.
+    const titleMap = new Map<string, string>();
+    const missing = listItems.filter((item) => !metadataMap.has(`${item.imdbId}:${item.type}`));
+
+    if (missing.length > 0) {
+      const rows = await prisma.item.findMany({
+        where: { imdbId: { in: [...new Set(missing.map((item) => item.imdbId))] } },
+        select: { imdbId: true, type: true, title: true },
+      });
+      for (const row of rows) {
+        if (row.title) titleMap.set(`${row.imdbId}:${row.type}`, row.title);
+      }
+
+      const toBackfill = new Map(missing.map((item) => [`${item.imdbId}:${item.type}`, item]));
+      backfillMissingMetadata(
+        [...toBackfill.values()].map((item) => ({ imdbId: item.imdbId, type: item.type as unknown as MetadataType })),
+        app.log
+      );
+    }
+
+    return listItems.map((item) => {
+      const key = `${item.imdbId}:${item.type}`;
+      const meta = metadataMap.get(key);
+      return { ...item, title: titleMap.get(key) ?? null, metadata: meta ?? null };
+    });
+  };
+
+  // Every row of every list the profile has, in one answer: the Shelf's
+  // library is the union of all of them, and asking list by list made its
+  // first load grow with the number of lists. One row per membership, so a
+  // title in two lists comes back twice and the client knows both.
+  app.get("/lists/items", async (request) => {
+    const listItems = await prisma.listItem.findMany({
+      where: { list: { profileId: request.profileId! } },
+      orderBy: LIST_ITEMS_ORDER_BY,
+    });
+    return { items: await withMetadata(listItems) };
+  });
+
   app.get<{
     Params: { listId: string };
     Querystring: { type?: string; limit?: string; cursor?: string };
@@ -680,68 +761,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
     const listItems = take !== null && page.length > take ? page.slice(0, take) : page;
     const hasMore = listItems.length < page.length;
 
-    const metadataMap = new Map<
-      string,
-      { name: string; poster: string | null; year: number | null; genres: string[]; rating: number | null }
-    >();
-
-    if (listItems.length > 0) {
-      const imdbIdsByType = new Map<MetadataType, string[]>();
-      for (const item of listItems) {
-        const type = item.type as unknown as MetadataType;
-        const ids = imdbIdsByType.get(type);
-        if (ids) ids.push(item.imdbId);
-        else imdbIdsByType.set(type, [item.imdbId]);
-      }
-
-      const metadata = (
-        await Promise.all(
-          [...imdbIdsByType.entries()].map(([type, imdbIds]) =>
-            prisma.metadata.findMany({
-              where: { type, imdbId: { in: imdbIds } },
-              select: { imdbId: true, type: true, name: true, poster: true, year: true, genres: true, rating: true },
-            })
-          )
-        )
-      ).flat();
-
-      for (const m of metadata) {
-        metadataMap.set(`${m.imdbId}:${m.type}`, {
-          name: m.name,
-          poster: m.poster,
-          year: m.year,
-          genres: m.genres,
-          rating: m.rating,
-        });
-      }
-    }
-
-    // Items still waiting on a metadata row fall back to the title captured when
-    // they were added, so a list shows real names instead of raw IMDb IDs while
-    // the rows are being filled in.
-    const titleMap = new Map<string, string>();
-    const missing = listItems.filter((item) => !metadataMap.has(`${item.imdbId}:${item.type}`));
-
-    if (missing.length > 0) {
-      const rows = await prisma.item.findMany({
-        where: { imdbId: { in: [...new Set(missing.map((item) => item.imdbId))] } },
-        select: { imdbId: true, type: true, title: true },
-      });
-      for (const row of rows) {
-        if (row.title) titleMap.set(`${row.imdbId}:${row.type}`, row.title);
-      }
-
-      backfillMissingMetadata(
-        missing.map((item) => ({ imdbId: item.imdbId, type: item.type as unknown as MetadataType })),
-        app.log
-      );
-    }
-
-    const items = listItems.map((item) => {
-      const key = `${item.imdbId}:${item.type}`;
-      const meta = metadataMap.get(key);
-      return { ...item, title: titleMap.get(key) ?? null, metadata: meta ?? null };
-    });
+    const items = await withMetadata(listItems);
 
     const last = listItems[listItems.length - 1];
     return { items, ...(hasMore && last ? { nextCursor: encodeListItemCursor(last) } : {}) };

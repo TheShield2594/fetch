@@ -176,7 +176,7 @@ describe("Sidebar", () => {
 
   it("groups the destinations, then lists, then the TV and settings", () => {
     expect(SIDEBAR_NAV_ITEMS.map((i) => i.label)).toEqual(["Shelf", "Discover", "Search", "Calendar", "History", "Stats"]);
-    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Profiles", "Settings"]);
+    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Settings"]);
   });
 
   /*

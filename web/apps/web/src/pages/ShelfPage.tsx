@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import {
   api,
+  ApiError,
   type CatalogList,
   type CheckIn,
   type ListItemWithMeta,
@@ -41,6 +42,7 @@ import {
   type ShelfSort,
 } from "./shelf";
 import { PosterGrid } from "../components/PosterGrid";
+import { useWindowedGrid } from "../hooks/useWindowedGrid";
 import { PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 
 /*
@@ -61,12 +63,6 @@ import { PosterCard, PosterCardSkeleton } from "../components/PosterCard";
  * manage things: /lists creates and edits lists, /history is the full log. They are reachable from the rail's
  * "Manage" group, and from the tab bar's "More" sheet.
  */
-
-// Same reasoning as the Lists page's constant of the same name: an imported
-// Letterboxd collection can carry thousands of rows, and the cost is the DOM
-// nodes rather than the fetch. Grow the rendered slice on scroll instead of
-// paginating a list that is already sorted and filtered in memory.
-const RENDER_PAGE_SIZE = 60;
 
 /**
  * Shared with Discover's `dash:progress`. Two surfaces asking the same question should not each pay
@@ -111,6 +107,28 @@ function kindOptions(counts: Record<ShelfFilter, number>): SegmentedOption<Shelf
       disabled: count === 0,
     };
   });
+}
+
+/* ─── Loading ──────────────────────────────────────────────── */
+
+/**
+ * The library: every row of every list, in one request. An API from before
+ * that route existed answers 404, and gets asked list by list as it used to be
+ * — slower, but the page still fills.
+ */
+async function getLibrary(signal: AbortSignal): Promise<ListItemWithMeta[]> {
+  try {
+    return (await api.getAllListItems(signal)).items;
+  } catch (err) {
+    if (!(err instanceof ApiError) || err.status !== 404) throw err;
+    const { lists } = await api.getLists(signal);
+    const pages = await Promise.all(
+      lists.map((list) =>
+        api.getListItems(list.id, signal).then((res) => res.items).catch(() => [] as ListItemWithMeta[])
+      )
+    );
+    return pages.flat();
+  }
 }
 
 /* ─── Up Next ──────────────────────────────────────────────── */
@@ -214,8 +232,6 @@ export function ShelfPage() {
   // "0 titles" is not a count, it is a guess.
   const [loaded, setLoaded] = useState(itemsMeta.hadCachedValue);
   const [playbackBusyId, setPlaybackBusyId] = useState<string | null>(null);
-  const [renderLimit, setRenderLimit] = useState(RENDER_PAGE_SIZE);
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const loadAbortRef = useRef<AbortController | null>(null);
 
   const { showToast } = useToast();
@@ -229,31 +245,22 @@ export function ShelfPage() {
     setError(null);
 
     try {
-      // The five questions the page opens with, asked at once. Each one that
-      // isn't the shelf itself is allowed to fail on its own: a broken check-in
-      // should cost the row its "42 min left", not the whole grid.
-      const [lists, progressRes, checkinRes, historyRes, playbackRes] = await Promise.all([
+      // The six questions the page opens with, asked at once — six however
+      // many lists the profile has, since the library comes back as one answer.
+      // Each one that isn't the shelf itself is allowed to fail on its own: a
+      // broken check-in should cost the row its "42 min left", not the grid.
+      const [lists, items, progressRes, checkinRes, historyRes, playbackRes] = await Promise.all([
         api.getLists(signal),
+        getLibrary(signal),
         api.getSeriesProgress(signal).catch(() => [] as SeriesProgress[]),
         api.getCheckin(signal).catch(() => ({ checkin: null })),
         api.getWatchHistory(1, 0, { signal }).catch(() => [] as WatchEvent[]),
         api.getPlayback(signal).catch(() => ({ playback: [] as PlaybackProgress[] })),
       ]);
 
-      // One request per list, in parallel. The alternative — a union endpoint —
-      // would be the right answer if a list could be large *and* numerous, but
-      // a profile has a handful of lists and each is one indexed query, so this
-      // costs a few concurrent requests rather than a new API surface. A list
-      // that fails contributes nothing rather than emptying the shelf.
-      const itemPages = await Promise.all(
-        lists.lists.map((list) =>
-          api.getListItems(list.id, signal).then((res) => res.items).catch(() => [] as ListItemWithMeta[])
-        )
-      );
-
       if (loadAbortRef.current !== controller) return;
       setLists(lists.lists);
-      setItems(itemPages.flat());
+      setItems(items);
       setProgress(progressRes ?? []);
       setCheckin(checkinRes.checkin);
       setLastEvent(historyRes[0] ?? null);
@@ -273,8 +280,30 @@ export function ShelfPage() {
     return () => loadAbortRef.current?.abort();
   }, [load]);
 
-  // The same mark, toast and Undo as Discover's pick-up strip.
-  const { markNext, isMarking } = useMarkNextEpisode(load);
+  /*
+   * After a mark, only the series progress is asked again. A watched episode
+   * moves a show's Up next card — on, to the next season, or off — and touches
+   * nothing else the page holds: the library is lists, which a watch doesn't
+   * change. Refetching all of it made one tap cost every request the page
+   * opens with, and a few quick taps tripped the API's rate limit. Only the
+   * newest answer is applied, so a late one can't put back a card an Undo
+   * already moved.
+   */
+  const refreshGeneration = useRef(0);
+  const refreshProgress = useCallback(async () => {
+    const generation = ++refreshGeneration.current;
+    try {
+      const progressRes = await api.getSeriesProgress();
+      if (generation !== refreshGeneration.current) return;
+      setProgress(progressRes ?? []);
+    } catch {
+      /* keep showing the last known progress */
+    }
+  }, [setProgress]);
+
+  // The same mark, toast and Undo as Discover's pick-up strip: the mark and
+  // one progress read, two requests in all.
+  const { markNext, isMarking } = useMarkNextEpisode(refreshProgress);
 
   // The panel can mark episodes watched and change lists, which moves the rows
   // on this page — and rate things, which moves the Library under "My rating".
@@ -368,24 +397,11 @@ export function ShelfPage() {
     return sortShelf(unpinned, sort, ratings ?? undefined);
   }, [shelf, filter, genre, listParam, narrowed, inProgressKeys, sort, ratings]);
 
-  useEffect(() => setRenderLimit(RENDER_PAGE_SIZE), [filter, genre, listParam, sort]);
-
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el || renderLimit >= rest.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setRenderLimit((prev) => Math.min(prev + RENDER_PAGE_SIZE, rest.length));
-        }
-      },
-      { rootMargin: "800px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [renderLimit, rest.length]);
-
-  const visibleRest = rest.slice(0, renderLimit);
+  // An imported Letterboxd collection can carry thousands of rows, and the
+  // cost is the DOM nodes rather than the fetch: past a few hundred titles only
+  // the rows near the viewport are drawn.
+  const windowed = useWindowedGrid(rest.length);
+  const visibleRest = rest.slice(windowed.start, windowed.end);
 
   /* ── Actions ── */
 
@@ -422,11 +438,15 @@ export function ShelfPage() {
         showToast(err.message, "info");
         return;
       }
-      await api.deletePlayback(p.id).catch(() => undefined);
       showToast(`Marked ${label} watched`, "success");
-      // The show's Up Next card moves on with it, so this refetches the whole
-      // page rather than dropping one card and hoping the rest still agree.
-      await load();
+      setPlayback((prev) => prev.filter((row) => row.id !== p.id));
+      // The resume point goes from here as well as from the API's own clear
+      // (see above), and an episode moves its show's Up next card on, which is
+      // the only other thing a watch changes on this page. Both at once.
+      await Promise.all([
+        api.deletePlayback(p.id).catch(() => undefined),
+        p.type === "episode" ? refreshProgress() : undefined,
+      ]);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Failed to mark as watched", "error");
     } finally {
@@ -734,19 +754,18 @@ export function ShelfPage() {
                  what turns the grid into a *library* — you see a shelf of them
                  at once instead of a stack you scroll through a pair at a
                  time. */
-              <PosterGrid density="library">
+              <PosterGrid density="library" gridRef={windowed.gridRef} style={windowed.style}>
                 {visibleRest.map((entry, index) => (
                   <ShelfCell
                     key={entry.key}
                     entry={entry}
-                    eager={index < 7}
+                    eager={windowed.start + index < 7}
                     myRating={sort === "rating" ? (ratings?.get(entry.key) ?? null) : null}
                     onOpen={() => openEntry(entry)}
                   />
                 ))}
               </PosterGrid>
             )}
-            {renderLimit < rest.length && <div ref={sentinelRef} className="h-4" />}
           </section>
         </div>
       )}

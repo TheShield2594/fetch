@@ -816,6 +816,40 @@ describe("lists routes", () => {
     });
   });
 
+  describe("GET /lists/items", () => {
+    it("answers every list's rows for the profile in one call, reading each title's metadata once", async () => {
+      prismaMock.listItem.findMany.mockResolvedValue([
+        { listId: LIST_ID, type: "movie", imdbId: "tt1", addedAt: new Date("2026-01-02T00:00:00Z") },
+        { listId: OTHER_LIST_ID, type: "movie", imdbId: "tt1", addedAt: new Date("2026-01-01T00:00:00Z") },
+        { listId: OTHER_LIST_ID, type: "series", imdbId: "tt2", addedAt: new Date("2026-01-01T00:00:00Z") },
+      ]);
+      prismaMock.metadata.findMany.mockImplementation(({ where }: { where: { type: string } }) =>
+        Promise.resolve(
+          where.type === "movie"
+            ? [{ imdbId: "tt1", type: "movie", name: "A Movie", poster: null, year: 2020, genres: [], rating: null }]
+            : []
+        )
+      );
+      prismaMock.item.findMany.mockResolvedValue([{ imdbId: "tt2", type: "series", title: "A Show" }]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/lists/items" });
+
+      expect(res.statusCode).toBe(200);
+      expect(prismaMock.listItem.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { list: { profileId: PROFILE_ID } } })
+      );
+      expect(prismaMock.list.findFirst).not.toHaveBeenCalled();
+      const items = res.json().items;
+      expect(items.map((i: { listId: string }) => i.listId)).toEqual([LIST_ID, OTHER_LIST_ID, OTHER_LIST_ID]);
+      expect(items[0].metadata).toMatchObject({ name: "A Movie" });
+      expect(items[2]).toMatchObject({ title: "A Show", metadata: null });
+      expect(prismaMock.metadata.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { type: "movie", imdbId: { in: ["tt1"] } } })
+      );
+    });
+  });
+
   describe("GET /lists/:listId/items", () => {
     it("joins metadata onto each item", async () => {
       prismaMock.list.findFirst.mockResolvedValue(listRow());

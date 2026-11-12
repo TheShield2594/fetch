@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { BarChart3, CalendarDays, Compass, Film, FolderTree, History, Library, List, Search, Settings, Tv, Users } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, Film, FolderTree, History, Library, List, Palette, Search, Settings, Tv, Users } from "lucide-react";
 import { api, type SearchResult } from "../api";
 import { Poster } from "./Poster";
 import { useOnTitleClose, useTitlePanel } from "./media-detail/titlePanel";
@@ -170,8 +170,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     // a phone, so the palette is the fastest way to reach one from anywhere.
     { id: "nav-lists", label: "Go to Lists", icon: List, run: () => { requestClose(); navigate("/lists"); } },
     { id: "nav-history", label: "Go to History", icon: History, run: () => { requestClose(); navigate("/history"); } },
+    { id: "nav-appearance", label: "Go to Appearance", icon: Palette, run: () => { requestClose(); navigate("/settings?section=appearance"); } },
     { id: "nav-home-folders", label: "Go to Home folders", icon: FolderTree, run: () => { requestClose(); navigate("/settings?section=home-folders"); } },
-    { id: "nav-profiles", label: "Go to Profiles", icon: Users, run: () => { requestClose(); navigate("/profiles"); } },
+    { id: "nav-profiles", label: "Go to Profiles", icon: Users, run: () => { requestClose(); navigate("/settings?section=profile"); } },
   ];
 
   const visibleActions = query.trim()

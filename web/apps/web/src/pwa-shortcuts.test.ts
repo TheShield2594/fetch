@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { PWA_SHORTCUTS } from "./pwa-shortcuts";
-import { PRIMARY_NAV_ITEMS, SEARCH_ITEM } from "./components/MobileTabBar";
+import { PRIMARY_NAV_ITEMS } from "./components/MobileTabBar";
 
-// Everything the bar reaches with one tap: the pill's four, then the circle.
-const BAR_DESTINATIONS = [...PRIMARY_NAV_ITEMS, SEARCH_ITEM];
+// Everything the bar reaches with one tap: the pill's four tabs.
+const BAR_DESTINATIONS = PRIMARY_NAV_ITEMS;
 
 // The shortcut list is duplicated out of MobileTabBar so that vite.config.ts can
 // read it without pulling React into the config's module graph. These are the

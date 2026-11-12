@@ -63,6 +63,13 @@ export const listsApi = {
       body: JSON.stringify(payload)
     });
   },
+  /**
+   * Every row of every list the profile has, in one request — one row per
+   * membership, so a title in two lists arrives twice. The Shelf's library.
+   */
+  getAllListItems(signal?: AbortSignal) {
+    return request<{ items: ListItemWithMeta[] }>("/lists/items", { signal });
+  },
   getListItems(listId: string, signal?: AbortSignal) {
     return request<{ items: ListItemWithMeta[] }>(
       `/lists/${encodeURIComponent(listId)}/items`,

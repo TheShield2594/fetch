@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RouterLink, useSearchParams } from "react-router";
-import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, ChevronLeft, ChevronRight, FolderTree, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server } from "lucide-react";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, ChevronLeft, ChevronRight, FolderTree, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette } from "lucide-react";
 import { healthDotClass, healthSummary, type SectionHealth } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { AccountSettings } from "../components/settings/AccountSettings";
@@ -23,6 +23,7 @@ import { PreferencesSettings } from "../components/settings/PreferencesSettings"
 import { PushSettings } from "../components/settings/PushSettings";
 import { NotificationChannelsSettings } from "../components/settings/NotificationChannelsSettings";
 import { ProfileSettings } from "../components/settings/ProfileSettings";
+import { AppearanceSettings } from "../components/settings/AppearanceSettings";
 import { DevicesSettings } from "../components/settings/DevicesSettings";
 import { JobStatusSettings } from "../components/settings/JobStatusSettings";
 import { TvOverview } from "../components/tv/TvOverview";
@@ -246,6 +247,14 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     icon: <Users size={20} />,
     keywords: "profiles users household switch rename pin lock delete avatar",
     content: <ProfileSettings />,
+  },
+  {
+    id: "appearance",
+    group: "you",
+    title: "Appearance",
+    icon: <Palette size={20} />,
+    keywords: "theme themes dark light colour color glass midnight matinee install app pwa home screen",
+    content: <AppearanceSettings />,
   },
   {
     id: "notifications",

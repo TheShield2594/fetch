@@ -328,6 +328,8 @@ export type Profile = {
   avatarColorHex?: string | null | undefined;
   avatarId?: string | null | undefined;
   profileBackgroundId?: string | null | undefined;
+  /** The web app's theme, as an id from hooks/useTheme.ts; null until the profile picks one. */
+  webTheme?: string | null | undefined;
   usesPrimaryAddons?: boolean | undefined;
   usesPrimaryPlugins?: boolean | undefined;
   parental?: ProfileParental | undefined;
@@ -337,6 +339,7 @@ export type Profile = {
 export type ProfileSettingsUpdate = {
   avatarColorHex?: string | null | undefined;
   avatarId?: string | null | undefined;
+  webTheme?: string | null | undefined;
   usesPrimaryAddons?: boolean | undefined;
   parental?: Partial<ProfileParental> | undefined;
 };

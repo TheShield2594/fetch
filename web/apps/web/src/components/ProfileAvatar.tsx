@@ -3,6 +3,8 @@ import { avatarColor, initials } from "../utils/avatar";
 import { avatarImageUrl, builtinAvatar } from "../utils/builtinAvatars";
 
 const SIZES = {
+  // The rail's row: one letter at the 12px floor rather than two below it.
+  xs: "h-6 w-6 text-2xs",
   sm: "h-8 w-8 text-xs",
   md: "h-10 w-10 text-sm",
   lg: "h-16 w-16 text-lg",
@@ -13,6 +15,9 @@ const SIZES = {
  * avatar on its own background, or the initials on the profile's colour. A
  * profile that has chosen neither falls back to the colour derived from its
  * name, as it always has.
+ *
+ * The one way a profile is drawn — the picker, Settings, the rail and the phone
+ * header all use it, so the avatar chosen on the TV is the one seen everywhere.
  */
 export function ProfileAvatar({
   profile,
@@ -32,7 +37,7 @@ export function ProfileAvatar({
       {avatar ? (
         <img src={avatarImageUrl(avatar.id)} alt="" className="h-[78%] w-[78%] object-contain" loading="lazy" />
       ) : (
-        initials(profile.name)
+        size === "xs" ? initials(profile.name).charAt(0) : initials(profile.name)
       )}
     </span>
   );

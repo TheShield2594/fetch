@@ -276,6 +276,7 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
                 avatarColorHex: profile.avatarColorHex,
                 avatarId: profile.avatarId,
                 profileBackgroundId: profile.profileBackgroundId,
+                webTheme: profile.webTheme,
                 usesPrimaryAddons: profile.usesPrimaryAddons,
                 usesPrimaryPlugins: profile.usesPrimaryPlugins,
                 isKidsProfile: profile.isKidsProfile,

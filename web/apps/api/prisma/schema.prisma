@@ -120,6 +120,8 @@ model Profile {
   avatarColorHex      String?
   avatarId            String?
   profileBackgroundId String?
+  /// The web app's theme id. Validated by shape only: the set of themes lives in the web client.
+  webTheme            String?
   usesPrimaryAddons   Boolean  @default(false)
   usesPrimaryPlugins  Boolean  @default(false)
   isKidsProfile       Boolean  @default(false)

@@ -1,20 +1,20 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router";
-import { Search, User } from "lucide-react";
+import { Search } from "lucide-react";
 import { api, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
 import { useCommandPalette } from "./hooks/useCommandPalette";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { FetchLoader } from "./components/FetchLoader";
-import { InstallButton } from "./components/InstallButton";
+import { InstallBanner } from "./components/InstallBanner";
 import { MobileTabBar } from "./components/MobileTabBar";
 import { OfflineBanner } from "./components/OfflineBanner";
 import { PhoneSettingsButton } from "./components/PhoneSettingsButton";
 import { Sidebar, initialPinned } from "./components/Sidebar";
-import { ThemeToggle } from "./components/ThemeToggle";
+import { ProfileMenu } from "./components/ProfileMenu";
 import { useOfflineWriteQueue } from "./hooks/useOfflineWriteQueue";
 import { useScrolled } from "./hooks/useScrolled";
 import { SettingsHealthProvider } from "./hooks/useSettingsHealth";
-import { useTheme } from "./hooks/useTheme";
+import { type Theme, ThemeContext, toTheme, useTheme } from "./hooks/useTheme";
 import { ToastProvider } from "./hooks/useToast";
 import { TitlePanelProvider } from "./components/media-detail/titlePanel";
 import { ProfileProvider, useProfile } from "./hooks/useProfile";
@@ -34,7 +34,6 @@ import {
   loadCommandPalette,
   loadPairPage,
   loadLinkPage,
-  loadProfilesPage,
   schedulePrefetchOnIdle,
 } from "./utils/routePrefetch";
 import { paletteShortcutHint } from "./utils/shortcut";
@@ -67,7 +66,6 @@ const NotFoundPage = lazy(() => loadNotFoundPage().then((m) => ({ default: m.Not
 const SearchPage = lazy(() => loadSearchPage().then((m) => ({ default: m.SearchPage })));
 const SettingsPage = lazy(() => loadSettingsPage().then((m) => ({ default: m.SettingsPage })));
 const StatsPage = lazy(() => loadStatsPage().then((m) => ({ default: m.StatsPage })));
-const ProfilesPage = lazy(() => loadProfilesPage().then((m) => ({ default: m.ProfilesPage })));
 const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
 const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
 
@@ -96,7 +94,6 @@ const ROUTE_TITLES: Record<string, string> = {
   "/history": "History",
   "/stats": "Stats",
   "/settings": "Settings",
-  "/profiles": "Profiles",
   "/pair": "Sign in a TV",
   "/link": "Sign in a TV",
 };
@@ -252,7 +249,7 @@ function AppShell({
   setTheme: ReturnType<typeof useTheme>["setTheme"];
   location: ReturnType<typeof useLocation>;
 }) {
-  const { profile, setProfile, switcherOpen, openSwitcher, closeSwitcher } = useProfile();
+  const { profile, setProfile, patchProfile, switcherOpen, closeSwitcher } = useProfile();
   const mainRef = useRef<HTMLElement>(null);
   const onSearchRoute = location.pathname === "/search";
   // Drives the nav bar's material — see the header below, and useScrolled.
@@ -327,9 +324,34 @@ function AppShell({
     setProfile(next);
   };
 
+  /*
+   * The theme belongs to the profile. When the profile arrives — on load, or
+   * after a switch — its saved theme is applied; one that has never picked
+   * keeps whatever this browser has. A pick is applied at once, cached in
+   * localStorage for the next first paint, and saved to the profile. A save
+   * that fails leaves the theme on in this browser, which is what the person
+   * sees either way.
+   */
+  const syncedTheme = toTheme(profile?.webTheme);
+  useEffect(() => {
+    if (syncedTheme) setTheme(syncedTheme);
+  }, [profile?.id, syncedTheme, setTheme]);
+
+  const chooseTheme = useCallback(
+    (next: Theme) => {
+      setTheme(next);
+      if (!profile) return;
+      patchProfile({ webTheme: next });
+      void api.updateProfile(profile.id, { webTheme: next }).catch(() => undefined);
+    },
+    [profile, patchProfile, setTheme]
+  );
+  const themeChoice = useMemo(() => ({ theme, chooseTheme }), [theme, chooseTheme]);
+
   return (
     // Owns the one title panel and `?title=`, and names the tab: the route's
     // own title, or the open title's while there is one.
+    <ThemeContext.Provider value={themeChoice}>
     <TitlePanelProvider pageTitle={routeTitle(location.pathname)} appName={APP_NAME}>
     <div className="min-h-screen w-full">
       {/* First focusable element in the shell: without it, reaching content
@@ -361,8 +383,7 @@ function AppShell({
         key={profile?.id ?? runtimeConfig.getProfileId() ?? "default"}
         pinned={sidebarPinned}
         onPinnedChange={setSidebarPinned}
-        profile={profile}
-        onSwitchProfile={openSwitcher}
+        profileMenu={(expanded) => <ProfileMenu variant="rail" expanded={expanded} />}
       />
       {paletteMounted && (
         <Suspense fallback={null}>
@@ -434,30 +455,15 @@ function AppShell({
             )}
           </div>
 
-          <div className="flex min-w-0 items-center gap-3">
-            <ThemeToggle theme={theme} onChange={setTheme} />
-            <InstallButton />
+          {/* Two controls on a phone and none from `sm` up, where the rail
+              holds both. Settings carries the status board's worst state as a
+              dot; the avatar is the profile menu — switching profile, the
+              theme, installing the app and signing out. The theme picker and
+              the install offer used to be round buttons of their own here,
+              four in a row on every page. */}
+          <div className="flex min-w-0 items-center gap-3 sm:hidden">
             <PhoneSettingsButton />
-            {/* The profile, as the platform draws it: a filled circle in the
-                trailing corner carrying the initial, not an outline of a
-                person. Below `sm` only — the rail's footer is the same control
-                on a desktop, and two of them on one screen is two answers to
-                "who is this". */}
-            <button
-              type="button"
-              onClick={openSwitcher}
-              aria-label={profile ? `Switch profile (currently ${profile.name})` : "Switch profile"}
-              title={profile?.name}
-              className="tap-target flex h-[2.125rem] w-[2.125rem] flex-none items-center justify-center rounded-full text-sm font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset sm:hidden"
-              style={{
-                background: "linear-gradient(145deg, rgb(var(--accent-2-rgb)), rgb(var(--accent-rgb)))",
-                color: "var(--on-accent)",
-              }}
-            >
-              {/* A dot rather than a blank circle while the profile is still in
-                  flight — an empty avatar reads as a broken one. */}
-              {profile?.name?.trim().charAt(0).toUpperCase() ?? <User className="h-4 w-4" />}
-            </button>
+            <ProfileMenu variant="header" />
           </div>
         </div>
       </header>
@@ -475,6 +481,7 @@ function AppShell({
         className={`safe-pl safe-pr mx-auto max-w-[1400px] pb-[calc(7rem+env(safe-area-inset-bottom))] pt-[60px] focus:outline-none [--gutter-l:1.25rem] [--gutter-r:1.25rem] sm:pb-10 sm:pt-[68px] sm:[--gutter-l:1.5rem] sm:[--gutter-r:1.5rem] transition-[padding] duration-base ${sidebarPad}`}
       >
         <OfflineBanner />
+        <InstallBanner />
         {/* Keyed on the pathname so the entrance replays once per navigation.
             The key also remounts the outgoing page, which `<Routes>` does on a
             route change anyway — this only extends it to a same-element route
@@ -504,7 +511,8 @@ function AppShell({
                 {/* Collections became Home folders, a section of Settings beside
                     Home rows. Old links and bookmarks land there. */}
                 <Route path="/collections" element={<Navigate to="/settings?section=home-folders" replace />} />
-                <Route path="/profiles" element={<ProfilesPage />} />
+                {/* One place to manage profiles: Settings → Profile. */}
+                <Route path="/profiles" element={<Navigate to="/settings?section=profile" replace />} />
                 <Route path="/pair" element={<PairPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
@@ -517,5 +525,6 @@ function AppShell({
       <MobileTabBar pathname={location.pathname} />
     </div>
     </TitlePanelProvider>
+    </ThemeContext.Provider>
   );
 }

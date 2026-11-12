@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode, Ref } from "react";
 import { PosterSizesContext } from "./Poster";
 
 /**
@@ -85,16 +85,21 @@ export const posterGridSizes = (density: PosterGridDensity): string => SIZES[den
 export function PosterGrid({
   density = "page",
   className = "",
+  gridRef,
+  style,
   children,
 }: {
   density?: PosterGridDensity | undefined;
   /** Layout that belongs to the caller — a top margin, say — not to the grid. */
   className?: string | undefined;
+  /** For a caller that measures the grid — the Shelf's windowing. */
+  gridRef?: Ref<HTMLDivElement> | undefined;
+  style?: CSSProperties | undefined;
   children: ReactNode;
 }) {
   return (
     <PosterSizesContext.Provider value={SIZES[density]}>
-      <div className={`grid ${DENSITIES[density]} ${className}`.trimEnd()}>{children}</div>
+      <div ref={gridRef} style={style} className={`grid ${DENSITIES[density]} ${className}`.trimEnd()}>{children}</div>
     </PosterSizesContext.Provider>
   );
 }

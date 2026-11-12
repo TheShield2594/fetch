@@ -4,6 +4,8 @@ import { type Profile, runtimeConfig, notifyServiceWorkerToInvalidateApiCache } 
 type ProfileContextValue = {
   profile: Profile | null;
   setProfile: (profile: Profile) => void;
+  /** Replaces the active profile's fields in place — an edit, not a switch. */
+  patchProfile: (changes: Partial<Profile>) => void;
   switcherOpen: boolean;
   openSwitcher: () => void;
   closeSwitcher: () => void;
@@ -31,12 +33,16 @@ export function ProfileProvider({
     void notifyServiceWorkerToInvalidateApiCache();
   }, []);
 
+  const patchProfile = useCallback((changes: Partial<Profile>) => {
+    setProfileState((prev) => (prev ? { ...prev, ...changes } : prev));
+  }, []);
+
   const openSwitcher = useCallback(() => setSwitcherOpen(true), []);
   const closeSwitcher = useCallback(() => setSwitcherOpen(false), []);
 
   const value = useMemo(
-    () => ({ profile, setProfile, switcherOpen, openSwitcher, closeSwitcher }),
-    [profile, setProfile, switcherOpen, openSwitcher, closeSwitcher]
+    () => ({ profile, setProfile, patchProfile, switcherOpen, openSwitcher, closeSwitcher }),
+    [profile, setProfile, patchProfile, switcherOpen, openSwitcher, closeSwitcher]
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

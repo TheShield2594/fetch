@@ -10,7 +10,6 @@ import {
   MoreHorizontal,
   Search,
   Settings,
-  Users,
   type LucideIcon,
 } from "lucide-react";
 import { prefetchRoute } from "../utils/routePrefetch";
@@ -23,45 +22,35 @@ type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean };
 
 // Five tabs is the platform convention, and the practical ceiling: with eight,
 // the bar's labels could not shrink below their own width, so at 320px it
-// overflowed by 24px — clipped (not scrolled) by `overflow-x: hidden` on the
-// body, which cost Settings its label and half its hit area. Everything past
-// the fifth slot lives behind "More".
+// overflowed by 24px. Everything past the fifth slot lives behind "More".
 //
-// The Shelf is what made this fit rather than merely survive. Lists and History
-// used to take slots of their own to say versions of "the things you track";
-// now the first tab is both, and the pages behind them
-// are the surfaces where you manage rather than browse, reached from the
-// Shelf's own header — kept here in "More" as well, because a habit of tapping
-// More → History shouldn't break on the day the redesign ships.
-//
-// Search left the pill for a button of its own beside it (see SEARCH_ITEM):
-// it is the one destination you arrive at with something already in mind, and
-// the platform gives that its own affordance rather than a fifth of a tab bar.
-// Stats takes the slot it vacated, which is what makes the pill four
-// *destinations* — what you have, what you might want, what's coming, what
-// you've done — plus the overflow.
+// The four are what the product is for: what you have (Shelf), what you might
+// want (Discover), finding a title (Search), and the lists you keep (Lists).
+// Search was a circle of its own beside the pill for a while, which left the
+// pill five tabs in a narrower space — at 375px "Discover" and "Calendar" ran
+// together — and gave its slot to Stats, a page most people open now and then.
+// Calendar, Stats and History are a tap further, in More.
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Shelf", icon: Library, end: true },
   { to: "/discover", label: "Discover", icon: Compass },
-  { to: "/calendar", label: "Calendar", icon: CalendarDays },
-  { to: "/stats", label: "Stats", icon: BarChart3 },
+  { to: "/search", label: "Search", icon: Search },
+  { to: "/lists", label: "Lists", icon: List },
 ];
 
-/** The circle to the right of the pill. Not a tab — see the note above. */
-export const SEARCH_ITEM: NavItem = { to: "/search", label: "Search", icon: Search };
-
 export const MORE_NAV_ITEMS: NavItem[] = [
-  { to: "/lists", label: "Lists", icon: List },
+  { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/stats", label: "Stats", icon: BarChart3 },
   { to: "/history", label: "History", icon: History },
-  { to: "/profiles", label: "Profiles", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
 const isItemActive = (item: NavItem, pathname: string) =>
   item.end ? pathname === item.to : pathname.startsWith(item.to);
 
+// `px-1` on each tab is the gap between two labels: without it, a label as wide
+// as its slot sat flush against its neighbour's.
 const TAB_CLASSES =
-  "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-[1.75rem] py-2 text-2xs leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus";
+  "relative flex min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-[1.75rem] px-1 py-2 text-2xs leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus";
 
 /**
  * The floating tab bar.
@@ -73,7 +62,7 @@ const TAB_CLASSES =
  * edge-to-edge band cuts the screen off at a line, and a floating one says the
  * content continues and this is on top of it.
  *
- * Three things carry that:
+ * Two things carry that:
  *
  *   The glass. `.bar-glass` (see index.css) — a translucent tint over a blur
  *   with saturation, so the colour of whatever is scrolling behind it comes
@@ -82,11 +71,6 @@ const TAB_CLASSES =
  *   The fade. A gradient from transparent to the page colour, tall enough to
  *   cover the bar and the gap under it, so content dissolves as it passes
  *   behind rather than sliding out from under a hard edge.
- *
- *   Search, outside the pill. It is the one destination you arrive at having
- *   already decided what you want, so it gets its own circle rather than a
- *   fifth of the bar — which is also what buys the pill back down to five slots
- *   with Stats promoted into it.
  *
  * The sliding marker is gone with the band. There is no underline under a
  * selected tab on the platform: the accent tint on the icon and the label *is*
@@ -97,7 +81,6 @@ export function MobileTabBar({ pathname }: { pathname: string }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const moreActive = MORE_NAV_ITEMS.some((item) => isItemActive(item, pathname));
-  const searchActive = isItemActive(SEARCH_ITEM, pathname);
 
   const closeMore = () => {
     setMoreOpen(false);
@@ -122,13 +105,16 @@ export function MobileTabBar({ pathname }: { pathname: string }) {
         aria-hidden="true"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-36 sm:hidden"
         style={{
-          background: "linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg-0) 92%, transparent))",
+          // Solid by the bar's top edge, so a poster's caption passing under
+          // it is gone rather than cut in half behind the glass.
+          background:
+            "linear-gradient(180deg, transparent, color-mix(in srgb, var(--bg-0) 85%, transparent) 45%, var(--bg-0) 75%)",
         }}
       />
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed z-40 flex items-center gap-2.5 sm:hidden"
+        className="fixed z-40 flex items-center sm:hidden"
         // 0.75rem clear of the safe area, which on a phone with a home
         // indicator is the gap the platform leaves under a floating bar and on
         // one without it is simply a margin.
@@ -182,16 +168,6 @@ export function MobileTabBar({ pathname }: { pathname: string }) {
           </button>
         </div>
 
-        <Link
-          to={SEARCH_ITEM.to}
-          aria-label={SEARCH_ITEM.label}
-          aria-current={searchActive ? "page" : undefined}
-          onTouchStart={() => prefetchRoute(SEARCH_ITEM.to)}
-          className="bar-glass flex h-16 w-16 flex-none items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-          style={searchActive ? { color: "var(--accent-text)" } : { color: "var(--text-dim)" }}
-        >
-          <SEARCH_ITEM.icon className="h-6 w-6" strokeWidth={2.1} />
-        </Link>
       </nav>
     </>
   );

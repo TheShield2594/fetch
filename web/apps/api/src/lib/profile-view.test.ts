@@ -20,6 +20,12 @@ describe("parseProfileAttributes", () => {
     });
   });
 
+  it("reads the web theme by its shape, and clears it on null", () => {
+    expect(parseProfileAttributes({ webTheme: "matinee" })).toEqual({ ok: true, data: { webTheme: "matinee" } });
+    expect(parseProfileAttributes({ webTheme: null })).toEqual({ ok: true, data: { webTheme: null } });
+    expect(parseProfileAttributes({ webTheme: "<script>" })).toEqual({ ok: false, error: "webTheme is not a valid theme id" });
+  });
+
   it("reads parental settings nested, the way the API answers with them", () => {
     expect(parseProfileAttributes({ parental: { maxRating: "TEENS", allowUnrated: false } })).toEqual({
       ok: true,

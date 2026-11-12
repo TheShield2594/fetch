@@ -547,7 +547,7 @@ function AddProfileForm({ onCreated }: { onCreated: (profile: Profile) => void }
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className="btn-secondary">
-        <Plus size={16} /> Add Profile
+        <Plus size={16} /> Add profile
       </button>
     );
   }

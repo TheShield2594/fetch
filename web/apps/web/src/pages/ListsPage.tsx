@@ -367,7 +367,7 @@ function ListsIndex({
           {Array.from({ length: 4 }).map((_, i) => <PosterCardSkeleton key={i} />)}
         </PosterGrid>
       ) : (
-        <PosterGrid>
+        <PosterGrid className="content-in">
           {lists.map((list) => (
             <button
               key={list.id}
@@ -957,7 +957,7 @@ function ListView({
           <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>Try a different search term.</p>
         </div>
       ) : (
-        <PosterGrid>
+        <PosterGrid className="content-in">
           {visibleItems.map((item, index) => {
             const name = itemName(item);
             const rating = item.metadata?.rating;

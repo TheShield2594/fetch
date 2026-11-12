@@ -8,6 +8,7 @@ import { GhostLoader } from "./components/GhostLoader";
 import { InstallButton } from "./components/InstallButton";
 import { MobileTabBar } from "./components/MobileTabBar";
 import { OfflineBanner } from "./components/OfflineBanner";
+import { PhoneSettingsButton } from "./components/PhoneSettingsButton";
 import { Sidebar, PIN_KEY } from "./components/Sidebar";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { useOfflineWriteQueue } from "./hooks/useOfflineWriteQueue";
@@ -435,6 +436,7 @@ function AppShell({
           <div className="flex min-w-0 items-center gap-3">
             <ThemeToggle theme={theme} onChange={setTheme} />
             <InstallButton />
+            <PhoneSettingsButton />
             {/* The profile, as the platform draws it: a filled circle in the
                 trailing corner carrying the initial, not an outline of a
                 person. Below `sm` only — the rail's footer is the same control

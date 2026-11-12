@@ -653,7 +653,8 @@ export function ShelfPage() {
           </div>
         </div>
       ) : (
-        <div className="mt-6 flex flex-col gap-7">
+        // Fades in over the ghost it replaces rather than cutting to it.
+        <div className="content-in mt-6 flex flex-col gap-7">
           {leadItem && (
             <section aria-labelledby="shelf-up-next">
               <h2 id="shelf-up-next" className={`${SECTION_TITLE} mb-3`} style={{ color: "var(--text)" }}>

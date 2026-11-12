@@ -651,7 +651,7 @@ export function DiscoverPage() {
             scrollRef={recentScroll.ref}
             canScrollLeft={recentScroll.canScrollLeft}
             canScrollRight={recentScroll.canScrollRight}
-            className="gap-4"
+            className="content-in gap-4"
           >
             {/* One card per title: a run of one show is one poster with a
                 count, not the same poster six times. */}

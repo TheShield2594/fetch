@@ -8,6 +8,7 @@ import {
   mediaServersHealth,
   optionalKeyHealth,
   trackerHealth,
+  webhookHealth,
   tmdbHealth,
   traktHealth,
   type JobStatus,
@@ -99,7 +100,7 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
     void (async () => {
       // `null` here means "the request failed", which is why every mapper below
       // is guarded rather than being handed the null. `undefined` never occurs.
-      const [jobs, trakt, tmdb, omdb, rpdb, simkl, mdblist, mediaServers] = await Promise.all([
+      const [jobs, trakt, tmdb, omdb, rpdb, simkl, mdblist, mediaServers, webhook] = await Promise.all([
         isAdmin ? ask(() => api.getJobStatus() as Promise<JobStatus>) : null,
         isAdmin ? ask(() => api.getTraktStatus()) : null,
         isAdmin ? ask(() => api.getTmdbStatus()) : null,
@@ -108,6 +109,7 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
         ask(() => api.getSimklStatus()),
         ask(() => api.getMdbListStatus()),
         ask(() => api.getMediaServers()),
+        ask(() => api.getWebhookKey()),
       ]);
       if (cancelled) return;
 
@@ -123,6 +125,7 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
       if (simkl) next.simkl = trackerHealth(simkl, timeAgo);
       if (mdblist) next.mdblist = trackerHealth(mdblist, timeAgo);
       if (mediaServers) next["media-servers"] = mediaServersHealth(mediaServers.servers, timeAgo);
+      if (webhook) next["media-server-webhooks"] = webhookHealth(webhook);
 
       settledRef.current = true;
       setSections(next);

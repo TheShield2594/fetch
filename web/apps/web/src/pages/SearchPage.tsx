@@ -614,7 +614,7 @@ export function SearchPage() {
                   </SelectField>
                 </div>
               </div>
-              <PosterGrid density="results">{shown.map(renderCard)}</PosterGrid>
+              <PosterGrid density="results" className="content-in">{shown.map(renderCard)}</PosterGrid>
               {hasMore && (
                 <div className="flex justify-center pt-2">
                   <button

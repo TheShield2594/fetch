@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider } from "../../hooks/useToast";
@@ -173,6 +173,24 @@ describe("HomeFoldersSettings", () => {
 
     const titles = screen.getAllByLabelText("Folder title").map((input) => (input as HTMLInputElement).value);
     expect(titles).toEqual(["Classics", "Picks"]);
+  });
+
+  it("reorders folders by dragging one onto another", async () => {
+    getCollections.mockResolvedValue({
+      collections: [{ ...FROM_TV, folders: [...FROM_TV.folders, { id: "f2", title: "Classics", sources: [] }] }],
+      updatedAt: "2026-10-26T10:00:00.000Z",
+    });
+    await renderSection();
+    const rows = within(screen.getByRole("list", { name: "Folders" })).getAllByRole("listitem").filter((li) => li.draggable);
+    const dataTransfer = { setData: vi.fn(), effectAllowed: "" };
+
+    fireEvent.dragStart(rows[1]!, { dataTransfer });
+    fireEvent.dragOver(rows[0]!, { dataTransfer });
+    fireEvent.drop(rows[0]!, { dataTransfer });
+
+    const titles = screen.getAllByLabelText("Folder title").map((input) => (input as HTMLInputElement).value);
+    expect(titles).toEqual(["Classics", "Picks"]);
+    expect(screen.getByRole("button", { name: "Save" })).toBeEnabled();
   });
 
   it("previews each folder's first source live, through the server, from the address it carries", async () => {

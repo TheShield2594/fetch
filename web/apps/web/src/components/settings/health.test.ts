@@ -11,6 +11,7 @@ import {
   type JobStatus,
   mediaServersHealth,
   trackerHealth,
+  webhookHealth,
 } from "./health";
 
 const timeAgo = () => "4m ago";
@@ -221,5 +222,12 @@ describe("mediaServersHealth", () => {
   it("counts the servers and reports the most recent sync", () => {
     const health = mediaServersHealth([{ lastSyncedAt: "2026-01-01" }, { lastSyncedAt: "2026-03-01" }, { lastSyncedAt: null }], ago);
     expect(health).toEqual({ tone: "ok", label: "3 servers · synced at 2026-03-01", short: "Synced at 2026-03-01" });
+  });
+});
+
+describe("webhookHealth", () => {
+  it("can only say whether there is a link, since no delivery is recorded", () => {
+    expect(webhookHealth({ configured: true })).toEqual({ tone: "ok", label: "Link set up" });
+    expect(webhookHealth({ configured: false }).tone).toBe("idle");
   });
 });

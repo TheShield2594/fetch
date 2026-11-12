@@ -6,7 +6,7 @@ import type { ShowToast } from "../../hooks/useToast";
 import { AddToListControl } from "../AddToListControl";
 
 export function ListsSection({
-  imdbId, type, name, initialListIds, onError, onToast,
+  imdbId, type, name, initialListIds, onError, onToast, showToast,
 }: {
   imdbId: string;
   type: MediaType;
@@ -14,6 +14,12 @@ export function ListsSection({
   initialListIds: string[];
   onError?: (message: string) => void;
   onToast?: (message: string, type: "success" | "info") => void;
+  /**
+   * The app's own toast, which can carry an action. When given it is used
+   * as-is, so a removal's toast offers Undo like it does everywhere else;
+   * `onError`/`onToast` remain for callers that only pass the two callbacks.
+   */
+  showToast?: ShowToast | undefined;
 }) {
   const [lists, setLists] = useState<CatalogList[]>([]);
   const [listsLoading, setListsLoading] = useState(true);
@@ -52,16 +58,17 @@ export function ListsSection({
     return () => { cancelled = true; };
   }, []);
 
-  // The panel's toasts come in as two callbacks; the shared hook speaks the
-  // app's one toast signature. An Undo can't ride through `onToast`, so a
-  // removal made here says what happened and the chip is the way back.
-  const notify = useCallback<ShowToast>(
+  // With the app's toast, the shared hook's messages — Undo included — go
+  // straight through. With only the two callbacks, an Undo can't ride along,
+  // so a removal says what happened and the chip is the way back.
+  const fallbackNotify = useCallback<ShowToast>(
     (message, kind = "success") => {
       if (kind === "error") onError?.(message);
       else onToast?.(message, kind);
     },
     [onError, onToast]
   );
+  const notify = showToast ?? fallbackNotify;
   const membership = useListMembership(notify);
   const title = { type, imdbId, name };
 

@@ -747,8 +747,7 @@ export function DetailPanel({
                 type={item.type}
                 name={item.name}
                 initialListIds={item.lists}
-                onError={(msg) => onShowToast(msg, "error")}
-                onToast={(msg, type) => onShowToast(msg, type)}
+                showToast={onShowToast}
               />
               <StarRating imdbId={item.imdbId} type={item.type} onError={(msg) => onShowToast(msg, "error")} />
               <TagsSection imdbId={item.imdbId} type={item.type} onError={(msg) => onShowToast(msg, "error")} />

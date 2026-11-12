@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router";
@@ -479,6 +479,28 @@ describe("ListsPage inside a list", () => {
     await waitFor(() =>
       expect(titlesInOrder()).toEqual(["Open details for Solaris", "Open details for Mirror", "Open details for Stalker"])
     );
+  });
+
+  it("arranges the list by dragging a card onto another", async () => {
+    const user = userEvent.setup();
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.click(screen.getByRole("button", { name: "Reorder" }));
+    const card = (label: string) => screen.getByRole("button", { name: `Move ${label} up` }).closest<HTMLElement>('[draggable="true"]')!;
+    const dataTransfer = { setData: vi.fn(), effectAllowed: "" };
+    const mirror = card("Mirror");
+    const solaris = card("Solaris");
+    fireEvent.dragStart(mirror, { dataTransfer });
+    fireEvent.dragOver(solaris, { dataTransfer });
+    fireEvent.drop(solaris, { dataTransfer });
+    await user.click(screen.getByRole("button", { name: "Save order" }));
+
+    expect(reorderList).toHaveBeenCalledWith(SCIFI.id, [
+      expect.objectContaining({ imdbId: "tt-mirror" }),
+      expect.objectContaining({ imdbId: "tt-solaris" }),
+      expect.objectContaining({ imdbId: "tt-stalker" }),
+    ]);
   });
 
   it("follows the saved positions in My order", async () => {

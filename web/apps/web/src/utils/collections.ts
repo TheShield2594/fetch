@@ -56,7 +56,7 @@ export const TMDB_NETWORKS: { id: number; name: string }[] = [
   { id: 49, name: "HBO" },
   { id: 3186, name: "HBO Max" },
   { id: 2739, name: "Disney+" },
-  { id: 2552, name: "Apple TV+" },
+  { id: 2552, name: "Apple TV" },
   { id: 1024, name: "Prime Video" },
   { id: 453, name: "Hulu" },
   { id: 4330, name: "Paramount+" },

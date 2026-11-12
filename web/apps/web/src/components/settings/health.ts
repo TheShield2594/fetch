@@ -158,6 +158,15 @@ export function mediaServersHealth(
 }
 
 /**
+ * Plex, Jellyfin and Emby webhooks. The server keeps no record of the last
+ * delivery, so this can only say whether the account has a link to paste —
+ * which is still the difference between "set up" and "nothing will arrive".
+ */
+export function webhookHealth(status: { configured: boolean }): SectionHealth {
+  return status.configured ? { tone: "ok", label: "Link set up" } : { tone: "idle", label: "No link yet", short: "No link" };
+}
+
+/**
  * TMDB is the one key whose absence is a fault rather than a preference —
  * without it there is no artwork, no runtime and no episode list, so the whole
  * app is visibly degraded. The optional keys below get `idle` for the same
@@ -204,3 +213,4 @@ export function healthSummary(sections: Record<string, SectionHealth>): string {
   const idle = all.length - live.length;
   return idle > 0 ? `${head} · ${idle} not set up` : head;
 }
+

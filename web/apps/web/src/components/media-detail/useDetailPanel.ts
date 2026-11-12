@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api, type DetailBundle, type SearchResult, type WatchEvent } from "../../api";
 import { getCacheScope } from "../../utils/dataCache";
 import { createScopedMemoCache } from "../../utils/scopedMemoCache";
@@ -50,6 +50,14 @@ export function useDetailPanel() {
   const [panelHistoryLoading, setPanelHistoryLoading] = useState(false);
   const [detail, setDetail] = useState<PanelDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  // The bundle request failed, as opposed to answering with nothing: the panel
+  // says so and offers a Retry, rather than drawing a hero over a page whose
+  // missing sections could equally mean "TMDB has no cast for this".
+  const [detailFailed, setDetailFailed] = useState(false);
+  // Bumped by `retryDetail`, which is what re-runs the effect below for the
+  // same title.
+  const [attempt, setAttempt] = useState(0);
+  const retryDetail = useCallback(() => setAttempt((n) => n + 1), []);
 
   // Keyed on the identity of the title rather than on the `selectedItem` object.
   // Applying the fetched metadata replaces that object, so depending on it meant
@@ -60,6 +68,7 @@ export function useDetailPanel() {
   useEffect(() => {
     if (!imdbId || !type) {
       setDetail(null);
+      setDetailFailed(false);
       setPanelHistory([]);
       return;
     }
@@ -106,6 +115,7 @@ export function useDetailPanel() {
 
     const cacheKey = bundleCacheKey(type, imdbId);
     const cached = bundleCache.get(cacheKey);
+    setDetailFailed(false);
     if (cached) {
       // Synchronously, in the same commit that opened the panel: no spinner, no
       // empty cast row that fills in a moment later.
@@ -124,8 +134,10 @@ export function useDetailPanel() {
           bundleCache.setForScope(scope, cacheKey, bundle);
           if (!cancelled) applyBundle(bundle);
         } catch {
-          // Every section renders an empty state of its own, so a failed bundle
-          // leaves the panel showing the title it already had rather than an error.
+          // The title it already had stays on screen; the sections the bundle
+          // would have filled are replaced by one error with a Retry. An abort
+          // is this effect being cleaned up, which is not a failure.
+          if (!cancelled) setDetailFailed(true);
         } finally {
           if (!cancelled) setDetailLoading(false);
         }
@@ -145,11 +157,13 @@ export function useDetailPanel() {
     })();
 
     return () => { cancelled = true; controller.abort(); };
-  }, [imdbId, type]);
+    // `attempt` is read by nothing inside: it is here so a Retry re-runs this.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imdbId, type, attempt]);
 
   return {
     selectedItem, setSelectedItem,
     panelHistory, setPanelHistory, panelHistoryLoading,
-    detail, detailLoading,
+    detail, detailLoading, detailFailed, retryDetail,
   };
 }

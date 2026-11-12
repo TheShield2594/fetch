@@ -184,7 +184,7 @@ export function TitlePanelProvider({
   const {
     selectedItem, setSelectedItem,
     panelHistory, setPanelHistory, panelHistoryLoading,
-    detail, detailLoading,
+    detail, detailLoading, detailFailed, retryDetail,
   } = useDetailPanel();
 
   const paramValue = new URLSearchParams(location.search).get(TITLE_PARAM);
@@ -288,6 +288,8 @@ export function TitlePanelProvider({
           historyLoading={panelHistoryLoading}
           detail={detail}
           detailLoading={detailLoading}
+          detailFailed={detailFailed}
+          onRetryDetail={retryDetail}
           staticScrim={overScrim}
           onClose={close}
           onShowToast={showToast}

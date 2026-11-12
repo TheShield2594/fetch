@@ -247,6 +247,88 @@ export const discoverParams = (mediaType: "movie" | "tv", filters: TmdbCollectio
   return params;
 };
 
+/**
+ * The genres the web client's Search filter offers, by name, with the TMDB id
+ * each one has for films and for shows. TMDB keeps two separate genre lists and
+ * they do not line up: shows have no Horror, Romance or Thriller, and fold
+ * Action and Adventure into one. A genre with no id for a media type matches
+ * nothing of that type, which is the honest answer — a TV "Horror" filter that
+ * quietly returned every show would be worse.
+ */
+export const BROWSE_GENRES: Record<string, { movie?: number; tv?: number }> = {
+  Action: { movie: 28, tv: 10759 },
+  Adventure: { movie: 12, tv: 10759 },
+  Animation: { movie: 16, tv: 16 },
+  Comedy: { movie: 35, tv: 35 },
+  Crime: { movie: 80, tv: 80 },
+  Documentary: { movie: 99, tv: 99 },
+  Drama: { movie: 18, tv: 18 },
+  Family: { movie: 10751, tv: 10751 },
+  Fantasy: { movie: 14, tv: 10765 },
+  History: { movie: 36 },
+  Horror: { movie: 27 },
+  Music: { movie: 10402 },
+  Mystery: { movie: 9648, tv: 9648 },
+  Romance: { movie: 10749 },
+  "Sci-Fi": { movie: 878, tv: 10765 },
+  Thriller: { movie: 53 },
+  War: { movie: 10752, tv: 10768 },
+  Western: { movie: 37, tv: 37 },
+};
+
+export type BrowseSort = "relevance" | "rating" | "year_desc" | "year_asc" | "title";
+
+export type BrowseQuery = {
+  /** A text query. Without one, the browse is a TMDB `/discover` over the filters. */
+  query?: string | null;
+  genre?: string | null;
+  yearMin?: number | null;
+  yearMax?: number | null;
+  ratingMin?: number | null;
+  sort?: BrowseSort | null;
+  /** 1-based. For a text query it is the TMDB search page to start scanning from. */
+  page?: number;
+};
+
+export type BrowsePage = { results: MetadataPayload[]; page: number; nextPage: number | null };
+
+/** Page size the client asks for; also how many candidates a filtered scan collects. */
+const BROWSE_PAGE_RESULTS = 20;
+
+/**
+ * How many TMDB search pages one filtered call will scan for matches before it
+ * answers with what it has. A filter like "Horror, 1980–1989" on a common word
+ * can leave one match in a hundred; scanning forever would hold the request
+ * open for that, and the client can always ask for the next stretch.
+ */
+const BROWSE_SCAN_PAGES = 5;
+
+/** TMDB refuses `page` past 500 on every list endpoint. */
+const TMDB_MAX_PAGE = 500;
+
+/** Below this many votes a 9.4 average is three people's opinion, not a rating. */
+const RATING_MIN_VOTES = 100;
+
+/** Search's sort options as TMDB `/discover` `sort_by` values. Movies and TV name their fields differently. */
+export const discoverSort = (mediaType: "movie" | "tv", sort: BrowseSort): string => {
+  const date = mediaType === "movie" ? "primary_release_date" : "first_air_date";
+  switch (sort) {
+    case "rating":
+      return "vote_average.desc";
+    case "year_desc":
+      return `${date}.desc`;
+    case "year_asc":
+      return `${date}.asc`;
+    case "title":
+      return mediaType === "movie" ? "title.asc" : "name.asc";
+    case "relevance":
+    default:
+      // Without a query there is nothing to be relevant to; popularity is
+      // what TMDB and every storefront fall back to.
+      return "popularity.desc";
+  }
+};
+
 export type MetadataPayload = {
   imdbId: string;
   type: MetadataType;
@@ -791,6 +873,100 @@ export class TmdbClient {
         return this.withImdbIds(response.results ?? [], fixed);
       }
     }
+  }
+
+  /**
+   * A page of Search results that honours its filters at the source.
+   *
+   * Search used to fetch one page and filter it in the browser, so "Horror,
+   * 1980–1989" narrowed twenty results rather than searching for horror from
+   * the eighties. Now:
+   *
+   *   - With no text query the filters *are* the query: one TMDB `/discover`
+   *     page, sorted by TMDB, paged by TMDB.
+   *   - With a query and no filters, page one is the ranked, cached `search()`
+   *     everything else uses, and later pages are TMDB's own.
+   *   - With a query and filters, TMDB search pages are scanned until a page's
+   *     worth of matches is found. The filter runs on the raw TMDB rows —
+   *     genre ids, release date, vote average are all on them — so only
+   *     matches pay for the IMDb-id lookup.
+   *
+   * `nextPage` is where the next call should start, or null when TMDB has no
+   * more. It is a TMDB page number, not a count of results: a filtered scan can
+   * consume several pages in one call.
+   */
+  async browse(type: MetadataType, input: BrowseQuery): Promise<BrowsePage> {
+    const mediaType = this.toMediaType(type);
+    const page = Math.min(Math.max(Math.floor(input.page ?? 1), 1), TMDB_MAX_PAGE);
+    const query = input.query?.trim() ?? "";
+    const genreId = input.genre ? BROWSE_GENRES[input.genre]?.[mediaType] : undefined;
+
+    // A genre this media type doesn't have matches none of it.
+    if (input.genre && genreId === undefined) return { results: [], page, nextPage: null };
+
+    const filtered =
+      genreId !== undefined || input.yearMin != null || input.yearMax != null || input.ratingMin != null;
+
+    if (!query) {
+      const params: Record<string, string> = {
+        ...discoverParams(mediaType, {
+          withGenres: genreId !== undefined ? String(genreId) : null,
+          releaseDateGte: input.yearMin != null ? `${input.yearMin}-01-01` : null,
+          releaseDateLte: input.yearMax != null ? `${input.yearMax}-12-31` : null,
+          voteAverageGte: input.ratingMin ?? null,
+        }),
+        sort_by: discoverSort(mediaType, input.sort ?? "relevance"),
+        page: String(page),
+      };
+      // A rating filter or sort over titles three people have voted on is noise.
+      if (input.ratingMin != null || input.sort === "rating") params["vote_count.gte"] = String(RATING_MIN_VOTES);
+      // Newest first should mean released, not announced for 2031.
+      if (input.sort === "year_desc" && input.yearMax == null) {
+        const dateKey = mediaType === "movie" ? "primary_release_date" : "first_air_date";
+        params[`${dateKey}.lte`] = new Date().toISOString().slice(0, 10);
+      }
+      const response = await this.request<TmdbSearchResponse>(`/discover/${mediaType}`, params);
+      const results = await this.withImdbIds(response.results ?? [], this.asType(type));
+      const total = Math.min(response.total_pages ?? 1, TMDB_MAX_PAGE);
+      return { results, page, nextPage: page < total ? page + 1 : null };
+    }
+
+    if (!filtered && page === 1) {
+      const results = await this.search(type, query);
+      return { results, page, nextPage: results.length > 0 ? 2 : null };
+    }
+
+    const matches = (result: TmdbSearchResult): boolean => {
+      if (genreId !== undefined && !(result.genre_ids ?? []).includes(genreId)) return false;
+      const year = Number((result.release_date ?? result.first_air_date ?? "").slice(0, 4)) || null;
+      if (input.yearMin != null && (year === null || year < input.yearMin)) return false;
+      if (input.yearMax != null && (year === null || year > input.yearMax)) return false;
+      if (input.ratingMin != null && (result.vote_average ?? 0) < input.ratingMin) return false;
+      return true;
+    };
+
+    const candidates: TmdbSearchResult[] = [];
+    let current = page;
+    let totalPages = page;
+    for (let scanned = 0; scanned < BROWSE_SCAN_PAGES && current <= totalPages; scanned++, current++) {
+      const response = await this.request<TmdbSearchResponse>(`/search/${mediaType}`, { query, page: String(current) });
+      totalPages = Math.min(response.total_pages ?? current, TMDB_MAX_PAGE);
+      for (const result of response.results ?? []) if (matches(result)) candidates.push(result);
+      if (candidates.length >= BROWSE_PAGE_RESULTS) {
+        current++;
+        break;
+      }
+    }
+
+    // Every match on a scanned page is kept — the next call starts on the page
+    // after — so a stretch can come back with up to a page more than asked for.
+    // `withImdbIds` takes twenty at a time.
+    const ranked = this.rankCandidates(candidates, normaliseTitle(query));
+    const results: MetadataPayload[] = [];
+    for (let i = 0; i < ranked.length; i += MAX_CATALOG_RESULTS) {
+      results.push(...(await this.withImdbIds(ranked.slice(i, i + MAX_CATALOG_RESULTS), this.asType(type))));
+    }
+    return { results, page, nextPage: current <= totalPages ? current : null };
   }
 
   async getShowDetails(tmdbId: number): Promise<ShowDetails | null> {

@@ -3,14 +3,12 @@ import { Link } from "react-router";
 import { Award, BarChart3, Film, Flame, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { api, type DetailedWatchStats, type SearchResult, type WatchStats, type YearInReviewStats } from "../api";
 import { useCachedState } from "../hooks/useCachedState";
-import { formatRating, ratingLabel } from "../utils/rating";
 import { seriesBar, seriesMax } from "../utils/monthlyBars";
 import { PAGE_TITLE, SECTION_TITLE, KICKER } from "../components/typography";
 import { SelectField } from "../components/SelectField";
 import { SectionError } from "../components/SectionError";
 import { PosterGrid } from "../components/PosterGrid";
-import { PosterCard } from "../components/PosterCard";
-import { MyRating } from "../components/MyRating";
+import { kindWord, metaRun, PosterCard } from "../components/PosterCard";
 import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { formatMinutes } from "./history-groups";
 
@@ -51,9 +49,6 @@ const PANEL = "glass-panel rounded-2xl p-5";
 const PANEL_STYLE = { border: "1px solid var(--border)", background: "var(--bg-1)" } as const;
 
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString()} ${n === 1 ? one : many}`;
-
-/** "Film" / "Series" — the caption under a poster, not the API's `movie` / `series`. */
-const kindLabel = (type: string): string => (type === "movie" ? "Film" : "Series");
 
 /** What the title panel needs to open on a poster from this page. */
 const toSearchResult = (item: { imdbId: string; type: string; name: string | null; poster: string | null }): SearchResult => ({
@@ -315,14 +310,13 @@ export function StatsPage() {
                   name={item.name}
                   eager={index < 5}
                   onOpen={() => openTitle(toSearchResult(item))}
-                >
-                  <p className="mt-1.5 truncate text-sm font-medium" style={{ color: "var(--text)" }}>{item.name}</p>
-                  <p className="meta-row" style={{ color: "var(--text-mute)" }}>
-                    {item.type === "series"
+                  meta={metaRun(
+                    kindWord(item.type),
+                    item.type === "series"
                       ? plural(item.plays, "episode", "episodes")
-                      : item.plays > 1 ? `Film · ${item.plays} plays` : "Film"}
-                  </p>
-                </PosterCard>
+                      : item.plays > 1 ? `${item.plays} plays` : null
+                  )}
+                />
               ))}
             </PosterGrid>
           </div>
@@ -338,15 +332,11 @@ export function StatsPage() {
                   poster={item.poster}
                   name={item.name ?? item.imdbId}
                   onOpen={() => openTitle(toSearchResult(item))}
-                >
-                  <p className="mt-1.5 truncate text-sm font-medium" style={{ color: "var(--text)" }}>{item.name ?? item.imdbId}</p>
-                  {/* Your own rating wears stars, here and on History. A
-                      community score is a number — see the grid further down. */}
-                  <p className="meta-row flex items-center gap-2" style={{ color: "var(--text-mute)" }}>
-                    <MyRating rating={item.rating} />
-                    {kindLabel(item.type)}
-                  </p>
-                </PosterCard>
+                  meta={kindWord(item.type)}
+                  // Your own rating wears stars, here and on History. A
+                  // community score is a number — see the grid further down.
+                  rating={{ source: "mine", value: item.rating }}
+                />
               ))}
             </PosterGrid>
           </div>
@@ -451,19 +441,10 @@ export function StatsPage() {
                 poster={item.poster}
                 name={item.name}
                 onOpen={() => openTitle(toSearchResult(item))}
-              >
-                <p className="mt-1.5 truncate text-sm font-medium" style={{ color: "var(--text)" }}>{item.name}</p>
-                {/* A community score: a number, with whose it is beside it. */}
-                <p className="meta-row" style={{ color: "var(--text-mute)" }}>
-                  {kindLabel(item.type)}
-                  {item.rating != null && (
-                    <>
-                      {" · "}
-                      <span role="img" aria-label={`TMDB: ${ratingLabel(item.rating)}`}>TMDB {formatRating(item.rating)}</span>
-                    </>
-                  )}
-                </p>
-              </PosterCard>
+                meta={kindWord(item.type)}
+                // A community score: a number, with whose it is beside it.
+                rating={item.rating != null ? { source: "tmdb", value: item.rating } : null}
+              />
             ))}
           </PosterGrid>
         </section>

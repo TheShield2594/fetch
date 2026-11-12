@@ -11,7 +11,7 @@ import { SearchAddDialog, SearchAddResultRow } from "../components/SearchAddDial
 import { Poster } from "../components/Poster";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { PosterGrid } from "../components/PosterGrid";
-import { PosterCard } from "../components/PosterCard";
+import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 import { ListLinkPanel } from "../components/ListLinkPanel";
 
 type SortOption = "added" | "name" | "year" | "rating";
@@ -786,11 +786,7 @@ export function ListsPage() {
             {loadingItems ? (
               <PosterGrid>
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i}>
-                    <div className="skeleton rounded-xl" style={{ aspectRatio: "2/3" }} />
-                    <div className="skeleton mt-2 h-4 w-3/4 rounded" />
-                    <div className="skeleton mt-1 h-3 w-1/2 rounded" />
-                  </div>
+                  <PosterCardSkeleton key={i} />
                 ))}
               </PosterGrid>
             ) : items.length === 0 ? (
@@ -815,46 +811,30 @@ export function ListsPage() {
               <PosterGrid>
                 {visibleItems.map((item, index) => {
                   const name = itemName(item);
-                  const poster = item.metadata?.poster;
-                  const year = item.metadata?.year;
+                  const rating = item.metadata?.rating;
                   return (
                     <PosterCard
                       key={`${item.type}:${item.imdbId}`}
-                      poster={poster}
+                      poster={item.metadata?.poster}
                       name={name}
                       onOpen={() => openTitle(toSearchResult(item, selectedList))}
                       openLabel={`Open details for ${name}`}
                       eager={index < 5}
-                      actions={
+                      meta={metaRun(kindWord(item.type), item.metadata?.year)}
+                      rating={rating != null && rating > 0 ? { source: "tmdb", value: rating } : null}
+                      cornerAction={
                         <button
                           type="button"
                           disabled={removingIds[item.imdbId]}
                           onClick={() => handleRemove(item)}
-                          className="pointer-events-auto absolute top-2.5 right-2.5 rounded-full bg-black/60 p-2 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-[opacity,color,background-color] duration-base hover:bg-rose-500 hover:text-white disabled:opacity-50 backdrop-blur-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-ring-offset"
-                          aria-label="Remove from list"
+                          className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 transition-[opacity,background-color] duration-base hover:bg-rose-500 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                          style={{ background: "rgba(0,0,0,0.6)" }}
+                          aria-label={`Remove ${name} from list`}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       }
-                      overlay={
-                        <>
-                          <span
-                            className={`absolute top-2.5 left-2.5 rounded-md px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide shadow-e1 ring-1 ring-black/15 ${
-                              item.type === "movie"
-                                ? "bg-accent-500 text-accent-on"
-                                : "bg-plum-500/90 text-white"
-                            }`}
-                            style={item.type === "movie" ? undefined : { textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
-                          >
-                            {item.type === "movie" ? "Movie" : "Series"}
-                          </span>
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 transition-opacity duration-slow sm:opacity-0 sm:group-hover:opacity-100" />
-                        </>
-                      }
-                    >
-                      <p className="mt-2.5 truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{name}</p>
-                      <p className="meta-row" style={{ color: "var(--text-mute)" }}>{year ?? "Unknown year"}</p>
-                    </PosterCard>
+                    />
                   );
                 })}
               </PosterGrid>

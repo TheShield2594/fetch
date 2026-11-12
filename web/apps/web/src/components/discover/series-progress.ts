@@ -6,12 +6,6 @@ import type { SeriesProgress } from "../../api";
 
 const pctOf = (watched: number, total: number) => Math.min(Math.max((watched / total) * 100, 0), 100);
 
-export function computeProgressPct(s: SeriesProgress): number | null {
-  return typeof s.watchedEpisodes === "number" && s.totalEpisodes && s.totalEpisodes > 0
-    ? pctOf(s.watchedEpisodes, s.totalEpisodes)
-    : null;
-}
-
 export type ProgressSummary = { label: string; watched: number; total: number; pct: number };
 
 /**

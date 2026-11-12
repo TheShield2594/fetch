@@ -110,7 +110,7 @@ describe("useSearchFilters", () => {
   });
 
   describe("clearFilters", () => {
-    it("keeps the query and media type but clears the rest", () => {
+    it("keeps the query, media type and sort but clears the filters", () => {
       const { result } = renderFilters(
         "/search?q=dune&filter=movie&genre=Sci-Fi&yearMin=1990&ratingMin=7&sort=rating"
       );
@@ -123,7 +123,8 @@ describe("useSearchFilters", () => {
         genre: "",
         yearMin: "",
         ratingMin: "",
-        sort: "relevance",
+        // A sort orders what is there; clearing filters doesn't reset it.
+        sort: "rating",
       });
     });
   });
@@ -141,9 +142,14 @@ describe("useSearchFilters", () => {
       expect(result.current.activeFilterCount).toBe(1);
     });
 
-    it("counts genre, year range, rating and sort separately", () => {
+    it("counts genre, year range and rating separately, and not the sort", () => {
       const { result } = renderFilters("/search?genre=Horror&yearMin=1990&ratingMin=7&sort=title");
-      expect(result.current.activeFilterCount).toBe(4);
+      expect(result.current.activeFilterCount).toBe(3);
+    });
+
+    it("doesn't call a sort on its own a filter", () => {
+      const { result } = renderFilters("/search?q=dune&sort=title");
+      expect(result.current.hasActiveFilters).toBe(false);
     });
   });
 });

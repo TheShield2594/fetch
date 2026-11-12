@@ -11,9 +11,9 @@ export function CarouselSkeleton({ count = 5 }: { count?: number | undefined }) 
     <div className="flex gap-4 overflow-hidden pb-2">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="flex-none">
-          <div className="skeleton aspect-poster w-poster-card rounded-xl" />
-          <div className="skeleton mt-2.5 h-4 w-32 rounded" />
-          <div className="skeleton mt-1.5 h-3 w-20 rounded" />
+          <div className="skeleton aspect-poster w-poster-card rounded-2xl" />
+          <div className="skeleton mt-2 h-3.5 w-32 rounded" />
+          <div className="skeleton mt-1 h-3 w-20 rounded" />
         </div>
       ))}
     </div>

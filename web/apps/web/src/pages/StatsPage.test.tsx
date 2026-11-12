@@ -249,6 +249,6 @@ describe("StatsPage — everything leads somewhere", () => {
 
     expect(screen.queryByText("movie")).toBeNull();
     expect(screen.queryByText("series")).toBeNull();
-    expect(screen.getByText("142 episodes")).toBeInTheDocument();
+    expect(screen.getByText("Show · 142 episodes")).toBeInTheDocument();
   });
 });

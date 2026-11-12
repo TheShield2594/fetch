@@ -517,7 +517,7 @@ export function DiscoverPage() {
           {trending.loading ? (
             <div className="grid grid-cols-2 gap-3 sm:[grid-template-columns:repeat(auto-fit,var(--poster-card-w))]">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="skeleton aspect-poster rounded-xl" />
+                <div key={i} className="skeleton aspect-poster rounded-2xl" />
               ))}
             </div>
           ) : trendingMovies.length === 0 ? (

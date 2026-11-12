@@ -113,7 +113,7 @@ describe("DetailPanel section degradation", () => {
     // The bundle's own sections are simply absent — not stuck on skeletons.
     expect(screen.queryByText("Cast")).not.toBeInTheDocument();
     expect(screen.queryByText("Where to Watch")).not.toBeInTheDocument();
-    expect(screen.queryByText("More Like This")).not.toBeInTheDocument();
+    expect(screen.queryByText("More like this")).not.toBeInTheDocument();
   });
 
   // #502: a failed request is said out loud, with a way back, rather than

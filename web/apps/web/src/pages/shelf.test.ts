@@ -14,6 +14,7 @@ import {
   shelfEntryFromPlayback,
   shelfEntryFromSeriesProgress,
   shelfSummary,
+  sortShelf,
 } from "./shelf";
 import { first } from "../test/present";
 
@@ -105,7 +106,6 @@ describe("shelfEntryFromSeriesProgress", () => {
 
     expect(entry.ruler).toMatchObject({ value: 3, total: 8, discrete: true });
     expect(entry.meta).toBe("Show · S3 E4 of 8");
-    expect(entry.trailing).toBe("3/8 ep");
   });
 
   it("falls back to the series total, and says so, when the season's length is unknown", () => {
@@ -141,7 +141,6 @@ describe("shelfEntryFromSeriesProgress", () => {
     // The series-wide numbers take over, because they are the ones that still
     // describe where the viewer is.
     expect(entry.ruler).toMatchObject({ value: 19, total: 24 });
-    expect(entry.trailing).toBe("19/24 ep");
   });
 
   it("keeps the season's length while the next episode is still in that season", () => {
@@ -155,10 +154,9 @@ describe("shelfEntryFromSeriesProgress", () => {
 
   it("draws no ruler at all when TMDB knows neither total", () => {
     expect(shelfEntryFromSeriesProgress(series(), null).ruler).toBeNull();
-    expect(shelfEntryFromSeriesProgress(series(), null).trailing).toBeNull();
   });
 
-  it("part-fills the tick in flight and trades the count for the time left, on the checked-in show", () => {
+  it("part-fills the tick in flight and adds the time left to the run, on the checked-in show", () => {
     const checkin: CheckIn = {
       type: "episode",
       imdbId: "tt9-s3e4",
@@ -174,7 +172,7 @@ describe("shelfEntryFromSeriesProgress", () => {
     );
 
     expect(entry.ruler?.partial).toBeCloseTo(0.3, 5);
-    expect(entry.trailing).toBe("42 min left");
+    expect(entry.meta).toBe("Show · S3 E4 of 8 · 42 min left");
   });
 
   it("leaves every other show's tick unfilled — one check-in is about one title", () => {
@@ -193,7 +191,7 @@ describe("shelfEntryFromSeriesProgress", () => {
     );
 
     expect(entry.ruler?.partial).toBe(0);
-    expect(entry.trailing).toBe("3/8 ep");
+    expect(entry.meta).toBe("Show · S3 E4 of 8");
   });
 });
 
@@ -208,6 +206,8 @@ describe("buildShelf", () => {
     expect(shelf).toHaveLength(1);
     // The earliest add is when it actually arrived, whatever a later list says.
     expect(first(shelf, "shelf entry").addedAt).toBe(new Date("2026-03-01T00:00:00.000Z").getTime());
+    // And it remembers every list it was in, for the Library's list filter.
+    expect(first(shelf, "shelf entry").lists.sort()).toEqual(["a", "b", "c"]);
   });
 
   it("keeps a film and a series with the same id apart", () => {
@@ -299,7 +299,6 @@ describe("Continue Watching rows", () => {
       kind: "film",
       title: "Understudy",
       meta: "Film · 72 min left",
-      trailing: "72 min left",
       ruler: { value: 40, total: 100, discrete: false, label: "Understudy: 72 min left" },
     });
     expect(entry.playback?.id).toBe("p1");
@@ -326,5 +325,34 @@ describe("Continue Watching rows", () => {
     expect(isResumedNextEpisode(s, [paused])).toBe(true);
     expect(isResumedNextEpisode(s, [{ ...paused, episode: 3 }])).toBe(false);
     expect(isResumedNextEpisode(s, [{ ...paused, imdbId: "tt8" }])).toBe(false);
+  });
+});
+
+describe("sortShelf", () => {
+  const shelf = buildShelf([
+    listItem({ imdbId: "tt1", addedAt: "2026-03-01T00:00:00.000Z", metadata: { name: "Bravo", poster: null, year: 1999, genres: [], rating: null } }),
+    listItem({ imdbId: "tt2", addedAt: "2026-05-01T00:00:00.000Z", metadata: { name: "Alpha", poster: null, year: null, genres: [], rating: null } }),
+    listItem({ imdbId: "tt3", addedAt: "2026-01-01T00:00:00.000Z", metadata: { name: "Charlie", poster: null, year: 2021, genres: [], rating: null } }),
+  ]);
+  const titles = (entries: ReturnType<typeof buildShelf>) => entries.map((entry) => entry.title);
+
+  it("leaves recently added as buildShelf ordered it", () => {
+    expect(sortShelf(shelf, "added")).toBe(shelf);
+  });
+
+  it("sorts by title", () => {
+    expect(titles(sortShelf(shelf, "title"))).toEqual(["Alpha", "Bravo", "Charlie"]);
+  });
+
+  it("sorts newest year first, with an unknown year last rather than as year zero", () => {
+    expect(titles(sortShelf(shelf, "year"))).toEqual(["Charlie", "Bravo", "Alpha"]);
+  });
+
+  it("sorts by the profile's own rating, unrated last", () => {
+    const ratings = new Map([
+      ["movie:tt1", 6],
+      ["movie:tt3", 9],
+    ]);
+    expect(titles(sortShelf(shelf, "rating", ratings))).toEqual(["Charlie", "Bravo", "Alpha"]);
   });
 });

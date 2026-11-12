@@ -30,11 +30,14 @@ const VALID_SORTS: SortOption[] = ["relevance", "rating", "year_desc", "year_asc
 
 export const SORT_LABELS: Record<SortOption, string> = {
   relevance: "Relevance",
-  rating: "Highest Rated",
-  year_desc: "Newest First",
-  year_asc: "Oldest First",
+  rating: "Highest rated",
+  year_desc: "Newest first",
+  year_asc: "Oldest first",
   title: "Title A–Z",
 };
+
+/** What "relevance" means with nothing typed: there is no query to be relevant to. */
+export const BROWSE_RELEVANCE_LABEL = "Most popular";
 
 export const GENRE_OPTIONS = [
   "Action", "Adventure", "Animation", "Comedy", "Crime", "Documentary",
@@ -116,21 +119,23 @@ export function useSearchFilters() {
   const clearFilters = useCallback(() => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      // Keep query and media type filter
+      // Keep the query, the media type, the sort and an open title: clearing
+      // filters narrows nothing further, it does not start over.
       for (const key of [...next.keys()]) {
-        if (key !== "q" && key !== "filter") next.delete(key);
+        if (key !== "q" && key !== "filter" && key !== "sort" && key !== TITLE_PARAM) next.delete(key);
       }
       return next;
     }, { replace: true, state: locationState });
   }, [setSearchParams, locationState]);
 
+  // The sort is not a filter: it orders what is there and narrows nothing, so
+  // it neither lights the Filters button nor counts towards its badge.
   const hasActiveFilters = useMemo(() => {
     return (
       filters.genre !== DEFAULTS.genre ||
       filters.yearMin !== DEFAULTS.yearMin ||
       filters.yearMax !== DEFAULTS.yearMax ||
-      filters.ratingMin !== DEFAULTS.ratingMin ||
-      filters.sort !== DEFAULTS.sort
+      filters.ratingMin !== DEFAULTS.ratingMin
     );
   }, [filters]);
 
@@ -139,7 +144,6 @@ export function useSearchFilters() {
     if (filters.genre) count++;
     if (filters.yearMin || filters.yearMax) count++;
     if (filters.ratingMin) count++;
-    if (filters.sort !== "relevance") count++;
     return count;
   }, [filters]);
 

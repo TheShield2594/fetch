@@ -1,5 +1,5 @@
 /*
- * One grid, four rulers.
+ * One ruler, two shapes.
  *
  * Merging shows and films onto a single shelf costs precision unless each
  * kind keeps its own unit. A show is watched in episodes — discrete,
@@ -62,6 +62,12 @@ export type ProgressRulerProps = {
    * subject of its section rather than a caption under a title.
    */
   size?: "sm" | "md";
+  /**
+   * Drawn over artwork rather than on a theme surface. The unfilled track is
+   * then a fixed translucent white: `--border-strong` is a theme colour, and on
+   * the light theme it is a pale grey that disappears into a dark scrim.
+   */
+  onArt?: boolean | undefined;
   className?: string;
 };
 
@@ -75,8 +81,10 @@ export function ProgressRuler({
   label,
   decorative = false,
   size = "sm",
+  onArt = false,
   className = "",
 }: ProgressRulerProps) {
+  const track = onArt ? "rgba(255,255,255,0.28)" : "var(--border-strong)";
   // Nothing to measure against. A ruler with no total is a full-width empty
   // track, which reads as "0% done" rather than as "unknown" — so draw nothing
   // and let the row's mono metadata carry whatever is actually known.
@@ -121,7 +129,7 @@ export function ProgressRuler({
               className="flex-1 overflow-hidden rounded-[2px]"
               style={{
                 height: thickness,
-                background: filled ? "rgb(var(--accent-rgb))" : "var(--border-strong)",
+                background: filled ? "rgb(var(--accent-rgb))" : track,
               }}
             >
               {/* The tick in flight. Drawn as a child fill rather than as a
@@ -145,7 +153,7 @@ export function ProgressRuler({
     <div
       {...a11y}
       className={`w-full overflow-hidden rounded-full ${className}`}
-      style={{ height: thickness, background: "var(--border-strong)" }}
+      style={{ height: thickness, background: track }}
     >
       <div
         className="h-full rounded-full transition-[width] duration-slow ease-out"

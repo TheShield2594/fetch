@@ -11,8 +11,8 @@ import type { CheckIn, ListItemWithMeta, PlaybackProgress, SearchResult, SeriesP
  * Unifying them is only an improvement if it costs no precision, which is the
  * whole reason this file exists rather than a `toCard()` in the page. A show is
  * counted in episodes, a film in one number and nothing else. Every builder
- * below produces the same `ShelfEntry`, but each one fills `meta`, `ruler` and
- * `trailing` in its own unit.
+ * below produces the same `ShelfEntry`, but each one fills `meta` and `ruler`
+ * in its own unit.
  *
  * Kept out of ShelfPage.tsx so the unit choices can be tested as facts rather
  * than asserted against rendered markup.
@@ -51,11 +51,13 @@ export type ShelfEntry = {
    * than to 1970.
    */
   addedAt: number | null;
-  /** The mono run under the title — "Show · S3 E4 of 8". Rendered uppercase. */
+  /** The metadata run that goes with the title — "Show · S3 E4 of 8", "Film · 2019". */
   meta: string;
   ruler: ShelfRuler | null;
-  /** The right-hand mono value on an in-progress row — "42 min left", "18.4 h". */
-  trailing: string | null;
+  /** Release year where the source knows it, for the Library's year sort. */
+  year: number | null;
+  /** Ids of the lists this title is in. Empty for rows that come from a feed rather than a list. */
+  lists: string[];
   /** Set on show and film rows, so the page can open the media detail panel. */
   item?: SearchResult;
   /** Set on Continue Watching rows: the resume point the card is drawn from. */
@@ -133,7 +135,8 @@ export function shelfEntryFromListItem(item: ListItemWithMeta): ShelfEntry {
     // Drawing an empty track here would say "not started" about a show you are
     // four episodes into.
     ruler: null,
-    trailing: null,
+    year: year ?? null,
+    lists: [item.listId],
     item: listItemToSearchResult(item),
   };
 }
@@ -143,8 +146,8 @@ export function shelfEntryFromListItem(item: ListItemWithMeta): ShelfEntry {
  *
  * The check-in carries a start and an expiry stamped from the runtime, so the
  * elapsed fraction between them is the only partial-play signal the app has. It
- * is what part-fills the tick for the episode in flight, and what turns the
- * row's trailing value from a count into "42 min left".
+ * is what part-fills the tick for the episode in flight, and what makes the
+ * row's run say "42 min left".
  *
  * Read at call time rather than on a timer: the Shelf remounts on navigation
  * and refetches on focus, and a minute-by-minute re-render of the whole grid to
@@ -235,16 +238,13 @@ export function shelfEntryFromSeriesProgress(s: SeriesProgress, checkin: CheckIn
     // were added, so this is unused for them — and inventing a timestamp the
     // feed doesn't carry would be worse than admitting there isn't one.
     addedAt: null,
-    meta: metaLine(KIND_LABEL.show, episodeOfSeason),
+    // The time left joins the run only while an episode is checked in: the
+    // ticks already say how many are watched, and saying it again in words
+    // under them was a second caption nobody read.
+    meta: metaLine(KIND_LABEL.show, episodeOfSeason, minutesLeft !== null ? `${minutesLeft} min left` : null),
     ruler,
-    trailing:
-      minutesLeft !== null
-        ? `${minutesLeft} min left`
-        : seasonKnown
-          ? `${s.seasonWatchedEpisodes}/${s.seasonTotalEpisodes} ep`
-          : seriesKnown
-            ? `${s.watchedEpisodes}/${s.totalEpisodes} ep`
-            : null,
+    year: null,
+    lists: [],
     item: {
       imdbId: s.imdbId,
       type: "series",
@@ -313,7 +313,8 @@ export function shelfEntryFromPlayback(p: PlaybackProgress): ShelfEntry {
       discrete: false,
       label: episode ? `${title} ${episode}: ${left}` : `${title}: ${left}`,
     },
-    trailing: left,
+    year: null,
+    lists: [],
     item: {
       imdbId: p.imdbId,
       type: isEpisode ? "series" : "movie",
@@ -350,7 +351,8 @@ export const isResumedNextEpisode = (s: SeriesProgress, playback: PlaybackProgre
  *
  * A title in three lists is one thing on a shelf, so the same `type:imdbId`
  * collapses to a single entry — the earliest-added one wins, because that is
- * when it actually arrived, whatever a later list says. Rows with no usable
+ * when it actually arrived, whatever a later list says — carrying the ids of
+ * every list it was found in. Rows with no usable
  * timestamp sort last rather than to the epoch, which would file every
  * metadata-less import above everything the user added deliberately.
  */
@@ -364,8 +366,11 @@ export function buildShelf(items: ListItemWithMeta[]): ShelfEntry[] {
       byKey.set(entry.key, entry);
       continue;
     }
+    const lists = existing.lists.includes(item.listId) ? existing.lists : [...existing.lists, item.listId];
     if (existing.addedAt === null || (entry.addedAt !== null && entry.addedAt < existing.addedAt)) {
-      byKey.set(entry.key, entry);
+      byKey.set(entry.key, { ...entry, lists });
+    } else {
+      byKey.set(entry.key, { ...existing, lists });
     }
   }
 
@@ -403,4 +408,41 @@ export function shelfSummary(entries: ShelfEntry[], lastActivity: string | null)
     kinds > 0 ? `${kinds} ${kinds === 1 ? "kind" : "kinds"}` : null,
     lastActivity
   );
+}
+
+/* ─── The Library's sort ─────────────────────────────────── */
+
+export type ShelfSort = "added" | "title" | "year" | "rating";
+
+export const SHELF_SORTS: readonly { value: ShelfSort; label: string }[] = [
+  { value: "added", label: "Recently added" },
+  { value: "title", label: "Title" },
+  { value: "year", label: "Year" },
+  { value: "rating", label: "My rating" },
+] as const;
+
+/** The key a rating is looked up by: the same `type:imdbId` a list row's entry is keyed by. */
+export const ratingKey = (type: string, imdbId: string) => `${type}:${imdbId}`;
+
+/**
+ * The library in the order asked for. `buildShelf` already returns it newest
+ * first, so "added" is the identity. Everything else keeps title as the
+ * tiebreak, and puts what it can't place — no year, no rating — at the end
+ * rather than treating unknown as zero and filing it first or last by accident.
+ */
+export function sortShelf(entries: ShelfEntry[], sort: ShelfSort, ratings: ReadonlyMap<string, number> = new Map()): ShelfEntry[] {
+  if (sort === "added") return entries;
+  const byTitle = (a: ShelfEntry, b: ShelfEntry) => a.title.localeCompare(b.title);
+  if (sort === "title") return [...entries].sort(byTitle);
+
+  const value = (entry: ShelfEntry): number | null =>
+    sort === "year" ? entry.year : (ratings.get(entry.key) ?? null);
+  return [...entries].sort((a, b) => {
+    const va = value(a);
+    const vb = value(b);
+    if (va === vb) return byTitle(a, b);
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    return vb - va;
+  });
 }

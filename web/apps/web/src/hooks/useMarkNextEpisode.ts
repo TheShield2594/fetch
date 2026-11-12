@@ -50,29 +50,34 @@ export function useMarkNextEpisode(onChanged: () => unknown) {
       setMarking((prev) => new Set(prev).add(imdbId));
       try {
         // What the server marked, which is not always what the card showed: a
-        // card can be stale if another device moved the show on. The card's
-        // guess is the fallback for an API from before the answer had a body.
+        // card can be stale if another device moved the show on. An API from
+        // before the answer had a body (204) can't say, so that toast names no
+        // episode and offers no Undo — one aimed at the card's guess could take
+        // back the wrong episode.
         const marked = await api.markNextEpisodeWatched(imdbId);
-        const season = marked?.season ?? s.nextSeason;
-        const episodeNumber = marked?.episode ?? s.nextEpisode;
-        const episode = `S${season}:E${episodeNumber}`;
-        showToast(`Marked ${episode} of ${name}`, "success", {
-          action: {
-            label: "Undo",
-            onAction: () => {
-              if (runtimeConfig.getProfileId() !== profileId) {
-                showToast(`Couldn't undo: ${episode} of ${name} was marked on another profile`, "error");
-                return;
-              }
-              void api
-                .unmarkEpisodeWatched(imdbId, season, episodeNumber)
-                .then(changed)
-                .catch((err: unknown) =>
-                  showToast(err instanceof Error ? err.message : `Couldn't unmark ${episode}`, "error")
-                );
+        if (!marked) {
+          showToast(`Marked the next episode of ${name}`, "success");
+        } else {
+          const { season, episode: episodeNumber } = marked;
+          const episode = `S${season}:E${episodeNumber}`;
+          showToast(`Marked ${episode} of ${name}`, "success", {
+            action: {
+              label: "Undo",
+              onAction: () => {
+                if (runtimeConfig.getProfileId() !== profileId) {
+                  showToast(`Couldn't undo: ${episode} of ${name} was marked on another profile`, "error");
+                  return;
+                }
+                void api
+                  .unmarkEpisodeWatched(imdbId, season, episodeNumber)
+                  .then(changed)
+                  .catch((err: unknown) =>
+                    showToast(err instanceof Error ? err.message : `Couldn't unmark ${episode}`, "error")
+                  );
+              },
             },
-          },
-        });
+          });
+        }
         // The whole in-progress block moves when an episode lands — the show
         // can finish a season, change position, or leave the list entirely —
         // so the page refetches rather than patching one row.

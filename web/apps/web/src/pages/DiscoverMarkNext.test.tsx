@@ -85,7 +85,7 @@ beforeEach(() => {
   vi.mocked(api.getTrending).mockResolvedValue({ metas: [] } as never);
   vi.mocked(api.getCalendar).mockResolvedValue({ calendar: [] } as never);
   vi.mocked(api.getAiConfig).mockResolvedValue({ configured: false, lastGeneratedAt: null } as never);
-  markNextEpisodeWatched.mockResolvedValue(undefined as never);
+  markNextEpisodeWatched.mockResolvedValue({ season: 1, episode: 4 } as never);
 });
 
 const markButton = () => screen.findByRole("button", { name: "Mark S1:E4 of Severance watched" });
@@ -138,6 +138,16 @@ describe("Discover's pick-up strip", () => {
     expect(await screen.findByText("Marked S1:E5 of Severance")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Undo" }));
     expect(api.unmarkEpisodeWatched).toHaveBeenCalledWith("tt11280740", 1, 5);
+  });
+
+  it("offers no Undo when an older API doesn't say which episode it marked", async () => {
+    markNextEpisodeWatched.mockResolvedValue(undefined as never);
+    const user = userEvent.setup();
+    renderDiscover();
+    await user.click(await markButton());
+
+    expect(await screen.findByText("Marked the next episode of Severance")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
   });
 
   it("refuses an Undo once a different profile is active", async () => {

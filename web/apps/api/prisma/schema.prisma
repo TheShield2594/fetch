@@ -173,12 +173,14 @@ model Item {
 // indexes, so they aren't declared here — don't let `prisma migrate dev` generate a
 // migration that drops them.
 model List {
-  id        String     @id @default(uuid()) @db.Uuid
-  name      String
-  kind      ListKind
-  createdAt DateTime   @default(now()) @db.Timestamptz(6)
-  items     ListItem[]
-  link      ListLink?
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String
+  // Optional free text shown on the list's card; capped at 280 by the route.
+  description String?
+  kind        ListKind
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6)
+  items       ListItem[]
+  link        ListLink?
 
   profileId String  @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -221,6 +223,9 @@ model ListItem {
   type    ListItemType
   imdbId  String
   addedAt DateTime     @default(now()) @db.Timestamptz(6)
+  // The list's manual order ("My order" in the web app), 0-based. NULL means
+  // never arranged; those rows sort after the arranged ones, newest first.
+  position Int?
 
   list List @relation(fields: [listId], references: [id], onDelete: Cascade)
 

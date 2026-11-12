@@ -6,6 +6,7 @@ import { request } from "./client";
 import type {
   CatalogList,
   ItemListMembership,
+  ListItemRef,
   ListItemWithMeta,
   ListLink,
   ListLinkProvider,
@@ -18,10 +19,10 @@ export const listsApi = {
   getLists(signal?: AbortSignal) {
     return request<{ lists: CatalogList[] }>("/lists", { signal });
   },
-  createList(name: string) {
+  createList(name: string, description?: string) {
     return request<{ list: CatalogList }>("/lists", {
       method: "POST",
-      body: JSON.stringify({ name, kind: "custom" })
+      body: JSON.stringify(description ? { name, kind: "custom", description } : { name, kind: "custom" })
     });
   },
   deleteList(listId: string) {
@@ -31,6 +32,27 @@ export const listsApi = {
     return request<{ list: CatalogList }>(`/lists/${encodeURIComponent(listId)}`, {
       method: "PATCH",
       body: JSON.stringify({ name }),
+    });
+  },
+  /** Either field alone is an edit; an empty description clears it. */
+  updateList(listId: string, changes: { name?: string; description?: string }) {
+    return request<{ list: CatalogList }>(`/lists/${encodeURIComponent(listId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(changes),
+    });
+  },
+  /** The list's manual order: `items` in the order they should appear. */
+  reorderList(listId: string, items: ListItemRef[]) {
+    return request<void>(`/lists/${encodeURIComponent(listId)}/order`, {
+      method: "PUT",
+      body: JSON.stringify({ items: items.map(({ type, imdbId }) => ({ type, imdbId })) }),
+    });
+  },
+  /** Answers with the titles actually removed; ones already gone are skipped. */
+  removeFromListBulk(listId: string, items: ListItemRef[]) {
+    return request<{ removed: ListItemRef[] }>(`/lists/${encodeURIComponent(listId)}/items/remove`, {
+      method: "POST",
+      body: JSON.stringify({ items: items.map(({ type, imdbId }) => ({ type, imdbId })) }),
     });
   },
   addToList(listId: string, payload: { type: MediaType; imdbId: string; title: string }) {

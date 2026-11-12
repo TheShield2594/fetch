@@ -15,11 +15,13 @@ const prismaMock = {
     update: vi.fn(),
     delete: vi.fn(),
   },
-  listItem: { create: vi.fn(), findMany: vi.fn(), deleteMany: vi.fn() },
+  listItem: { create: vi.fn(), findMany: vi.fn(), deleteMany: vi.fn(), updateMany: vi.fn() },
   item: { upsert: vi.fn(), findMany: vi.fn() },
   metadata: { findMany: vi.fn() },
   listLink: { findFirst: vi.fn(), findUnique: vi.fn() },
   $transaction: vi.fn(),
+  $queryRaw: vi.fn(),
+  $executeRaw: vi.fn(),
 };
 
 const syncMetadata = vi.fn();
@@ -100,6 +102,8 @@ describe("lists routes", () => {
     // running the callback against the same mock keeps assertions on the inner
     // calls working.
     prismaMock.$transaction.mockImplementation((fn: (tx: unknown) => unknown) => fn(prismaMock));
+    prismaMock.$queryRaw.mockResolvedValue([]);
+    prismaMock.$executeRaw.mockResolvedValue(0);
   });
 
   describe("POST /lists", () => {
@@ -180,6 +184,29 @@ describe("lists routes", () => {
       expect(res.json().lists).toEqual([
         expect.objectContaining({ name: "Watchlist", itemCount: 4 }),
         expect.objectContaining({ name: "Collection", itemCount: 0 }),
+      ]);
+    });
+
+    it("gives each list its description and up to four cover posters from one query", async () => {
+      prismaMock.list.findMany.mockResolvedValue([
+        { ...listRow({ kind: "custom", name: "Weekend", description: "Short ones" }), _count: { items: 5 } },
+        { ...listRow({ id: OTHER_LIST_ID, name: "Collection", kind: "collection" }), _count: { items: 0 } },
+      ]);
+      prismaMock.$queryRaw.mockResolvedValue([
+        { listId: LIST_ID, poster: "p1" },
+        { listId: LIST_ID, poster: "p2" },
+        { listId: LIST_ID, poster: "p3" },
+        { listId: LIST_ID, poster: "p4" },
+      ]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/lists" });
+
+      // Covers for every list come from a single query, not one per list.
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(res.json().lists).toEqual([
+        expect.objectContaining({ description: "Short ones", covers: ["p1", "p2", "p3", "p4"] }),
+        expect.objectContaining({ description: null, covers: [] }),
       ]);
     });
 
@@ -323,6 +350,47 @@ describe("lists routes", () => {
       });
     });
 
+    it("sets a description without touching the name or the linked list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom", name: "Weekend" }));
+      prismaMock.list.update.mockResolvedValue(listRow({ kind: "custom", name: "Weekend", description: "Short" }));
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "PATCH",
+        url: `/lists/${LIST_ID}`,
+        payload: { description: "  Short  " },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(prismaMock.list.update).toHaveBeenCalledWith({ where: { id: LIST_ID }, data: { description: "Short" } });
+      expect(listLinks.pushListLinkRename).not.toHaveBeenCalled();
+    });
+
+    it("clears the description on an empty string", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow());
+      prismaMock.list.update.mockResolvedValue(listRow());
+      const app = await buildApp();
+
+      await app.inject({ method: "PATCH", url: `/lists/${LIST_ID}`, payload: { description: "" } });
+
+      expect(prismaMock.list.update).toHaveBeenCalledWith({ where: { id: LIST_ID }, data: { description: null } });
+    });
+
+    it("rejects an over-long description and an empty body", async () => {
+      const app = await buildApp();
+
+      const long = await app.inject({
+        method: "PATCH",
+        url: `/lists/${LIST_ID}`,
+        payload: { description: "x".repeat(281) },
+      });
+      const empty = await app.inject({ method: "PATCH", url: `/lists/${LIST_ID}`, payload: {} });
+
+      expect(long.statusCode).toBe(400);
+      expect(empty.statusCode).toBe(400);
+      expect(prismaMock.list.update).not.toHaveBeenCalled();
+    });
+
     it("rejects an id that is not a UUID before touching the database", async () => {
       const app = await buildApp();
 
@@ -342,6 +410,148 @@ describe("lists routes", () => {
 
       expect(res.statusCode).toBe(404);
       expect(prismaMock.list.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("PUT /lists/:id/order", () => {
+    const order = [
+      { type: "movie", imdbId: "tt2" },
+      { type: "series", imdbId: "tt1" },
+    ];
+
+    it("writes positions for the named items in one transaction", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom" }));
+      prismaMock.listItem.findMany.mockResolvedValue([
+        { type: "series", imdbId: "tt1" },
+        { type: "movie", imdbId: "tt2" },
+        { type: "movie", imdbId: "tt3" },
+      ]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "PUT", url: `/lists/${LIST_ID}/order`, payload: { items: order } });
+
+      expect(res.statusCode).toBe(204);
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+      // Everything goes back to unarranged first, so a title the body leaves
+      // out sorts after the ones it names.
+      expect(prismaMock.listItem.updateMany).toHaveBeenCalledWith({
+        where: { listId: LIST_ID },
+        data: { position: null },
+      });
+      const [sql] = prismaMock.$executeRaw.mock.calls[0] as [{ values: unknown[] }];
+      expect(sql.values).toEqual(["movie", "tt2", 0, "series", "tt1", 1, LIST_ID]);
+    });
+
+    it("refuses an item that isn't in the list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom" }));
+      prismaMock.listItem.findMany.mockResolvedValue([{ type: "series", imdbId: "tt1" }]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "PUT", url: `/lists/${LIST_ID}/order`, payload: { items: order } });
+
+      expect(res.statusCode).toBe(400);
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["no items", {}],
+      ["a bad type", { items: [{ type: "episode", imdbId: "tt1" }] }],
+      ["a duplicate", { items: [order[0], order[0]] }],
+    ])("rejects %s before looking the list up", async (_label, payload) => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "PUT", url: `/lists/${LIST_ID}/order`, payload });
+
+      expect(res.statusCode).toBe(400);
+      expect(prismaMock.list.findFirst).not.toHaveBeenCalled();
+    });
+
+    it("404s on another profile's list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(null);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "PUT", url: `/lists/${LIST_ID}/order`, payload: { items: order } });
+
+      expect(res.statusCode).toBe(404);
+    });
+  });
+
+  describe("POST /lists/:listId/items/remove", () => {
+    const items = [
+      { type: "movie", imdbId: "tt1" },
+      { type: "series", imdbId: "tt2" },
+      { type: "movie", imdbId: "tt-gone" },
+    ];
+
+    it("removes the named items in one delete and reports the ones it found", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom" }));
+      prismaMock.listItem.findMany.mockResolvedValue([
+        { type: "movie", imdbId: "tt1" },
+        { type: "series", imdbId: "tt2" },
+      ]);
+      prismaMock.listItem.deleteMany.mockResolvedValue({ count: 2 });
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "POST", url: `/lists/${LIST_ID}/items/remove`, payload: { items } });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json().removed).toEqual(items.slice(0, 2));
+      expect(prismaMock.listItem.deleteMany).toHaveBeenCalledTimes(1);
+      expect(prismaMock.listItem.deleteMany).toHaveBeenCalledWith({
+        where: { listId: LIST_ID, OR: items },
+      });
+      expect(listLinks.pushListLinkChange).toHaveBeenCalledTimes(2);
+      expect(listLinks.pushListLinkChange).toHaveBeenCalledWith(
+        LIST_ID,
+        "remove",
+        { type: "series", imdbId: "tt2" },
+        expect.anything()
+      );
+    });
+
+    it("mirrors each removal to Trakt for a watchlist", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "watchlist" }));
+      prismaMock.listItem.findMany.mockResolvedValue([
+        { type: "movie", imdbId: "tt1" },
+        { type: "series", imdbId: "tt2" },
+      ]);
+      prismaMock.listItem.deleteMany.mockResolvedValue({ count: 2 });
+      const app = await buildApp();
+
+      await app.inject({ method: "POST", url: `/lists/${LIST_ID}/items/remove`, payload: { items } });
+
+      await vi.waitFor(() => expect(pushTraktWatchlistChange).toHaveBeenCalledTimes(2));
+      expect(pushTraktWatchlistChange).toHaveBeenCalledWith(
+        "remove",
+        { type: "series", imdbId: "tt2" },
+        expect.anything(),
+        PROFILE_ID
+      );
+      expect(listLinks.pushListLinkChange).not.toHaveBeenCalled();
+    });
+
+    it("caps how many titles one call can name", async () => {
+      const app = await buildApp();
+      const tooMany = Array.from({ length: 501 }, (_, i) => ({ type: "movie", imdbId: `tt${i}` }));
+
+      const res = await app.inject({
+        method: "POST",
+        url: `/lists/${LIST_ID}/items/remove`,
+        payload: { items: tooMany },
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(prismaMock.listItem.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it("404s on another profile's list", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(null);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "POST", url: `/lists/${LIST_ID}/items/remove`, payload: { items } });
+
+      expect(res.statusCode).toBe(404);
+      expect(prismaMock.listItem.deleteMany).not.toHaveBeenCalled();
     });
   });
 

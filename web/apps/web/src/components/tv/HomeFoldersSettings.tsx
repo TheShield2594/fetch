@@ -343,7 +343,7 @@ function SourceBuilder({
           };
           return { provider: "tmdb", tmdbSourceType: "DISCOVER", title: rowTitle.trim() || "Discover", mediaType, sortBy, filters };
         }
-        let picked: { id: number; name: string } | null = null;
+        let picked: { id: number; name: string } | null;
         if (ENTITY_KIND[tmdbType]) picked = entity;
         else if (tmdbType === "NETWORK") {
           const network = TMDB_NETWORKS.find((n) => String(n.id) === networkId);

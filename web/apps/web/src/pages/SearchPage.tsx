@@ -1,9 +1,10 @@
 import { type FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
-import { Check, ChevronDown, ChevronUp, Clock, Film, Filter, Plus, Search, SlidersHorizontal, Tv, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, Film, Filter, Search, SlidersHorizontal, Tv, X } from "lucide-react";
 import { api, type CatalogList, type SearchResult, type TrendingMeta } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
-import { useToast } from "../hooks/useToast";
+import { type ShowToast, useToast } from "../hooks/useToast";
+import { useAddToList } from "../components/AddToListControl";
 import { mergeByRelevance } from "../utils/mergeSearchResults";
 import { clearRecentSearches, loadRecentSearches, rememberSearch } from "../utils/recentSearches";
 import {
@@ -116,17 +117,11 @@ export function SearchPage() {
   const [lists, setLists] = useState<CatalogList[]>([]);
   const [trending, setTrending] = useState<SearchResult[] | null>(null);
   const [recent, setRecent] = useState<string[]>(() => loadRecentSearches());
-  // Keys are deleted when an add settles, not set to `false`: a `false` entry
-  // reads the same as an absent one but keeps the `listId:imdbId` string alive
-  // for the life of the tab, so the map only ever grew.
-  const [pendingAdds, setPendingAdds] = useState<Record<string, true>>({});
   const { showToast } = useToast();
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(hasActiveFilters);
   const advancedFiltersId = useId();
   const sortId = useId();
   const { openTitle } = useTitlePanel();
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const requestIdRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -158,15 +153,6 @@ export function SearchPage() {
   }, [showToast]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
-
-  // Close the add menu on an outside click.
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpenDropdown(null);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   // Trending, for the browse state. Asked once, the first time the page has
   // nothing else to show, and best-effort: a failure leaves the genres and
@@ -298,63 +284,24 @@ export function SearchPage() {
     if (active) void run(false);
   };
 
-  const markAdded = (imdbId: string, listId: string) => {
-    const add = (r: SearchResult) => (r.imdbId === imdbId && !r.lists.includes(listId) ? { ...r, lists: [...r.lists, listId] } : r);
-    setResults((prev) => prev?.map(add) ?? null);
-    setTrending((prev) => prev?.map(add) ?? null);
+  // Membership lives on the results themselves (and on trending, which draws
+  // the same cards), so a toggle is written to both; the list's count follows.
+  const setMember = (imdbId: string, listId: string, member: boolean) => {
+    const update = (r: SearchResult) => {
+      if (r.imdbId !== imdbId || r.lists.includes(listId) === member) return r;
+      return { ...r, lists: member ? [...r.lists, listId] : r.lists.filter((id) => id !== listId) };
+    };
+    setResults((prev) => prev?.map(update) ?? null);
+    setTrending((prev) => prev?.map(update) ?? null);
+    setLists((prev) =>
+      prev.map((l) => (l.id === listId ? { ...l, itemCount: Math.max(0, l.itemCount + (member ? 1 : -1)) } : l))
+    );
   };
 
-  const handleAdd = async (listId: string, result: SearchResult) => {
-    const key = `${listId}:${result.imdbId}`;
-    if (pendingAdds[key]) return;
-
-    setPendingAdds((current) => ({ ...current, [key]: true }));
-
-    try {
-      await api.addToList(listId, { type: result.type, imdbId: result.imdbId, title: result.name });
-      const listName = listMap.get(listId)?.name ?? "list";
-      showToast(`Added "${result.name}" to ${listName}`, "success");
-      setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, itemCount: l.itemCount + 1 } : l)));
-      markAdded(result.imdbId, listId);
-      setOpenDropdown(null);
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "Unable to add item", "error");
-    } finally {
-      setPendingAdds((current) => {
-        const next = { ...current };
-        delete next[key];
-        return next;
-      });
-    }
-  };
-
-  const handleCreateAndAdd = async (rawName: string, result: SearchResult) => {
-    const name = rawName.trim();
-    if (!name) return;
-    // createList and addToList are two separate calls: keep a successfully created
-    // list in state even if the add then fails, report the two failures distinctly,
-    // and only claim full success once both complete. The created list stays in the
-    // menu so the user can retry the add without spawning a duplicate list.
-    let list: CatalogList;
-    try {
-      ({ list } = await api.createList(name));
-      setLists((prev) => [...prev, list]);
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "Unable to create list", "error");
-      return;
-    }
-    try {
-      await api.addToList(list.id, { type: result.type, imdbId: result.imdbId, title: result.name });
-    } catch (err) {
-      const reason = err instanceof Error ? err.message : "unknown error";
-      showToast(`Created "${list.name}", but couldn't add "${result.name}" (${reason})`, "error");
-      setOpenDropdown(null);
-      return;
-    }
-    showToast(`Created "${list.name}" and added "${result.name}"`, "success");
-    setLists((prev) => prev.map((l) => (l.id === list.id ? { ...l, itemCount: l.itemCount + 1 } : l)));
-    markAdded(result.imdbId, list.id);
-    setOpenDropdown(null);
+  // A list made from a card's panel stays in every card's panel, even when the
+  // add into it failed — retrying should add to it, not make a second one.
+  const addCreatedList = (list: CatalogList) => {
+    setLists((prev) => (prev.some((l) => l.id === list.id) ? prev : [...prev, list]));
   };
 
   const filterOptions: { value: FilterType; label: string; icon?: typeof Film }[] = [
@@ -391,13 +338,9 @@ export function SearchPage() {
       eager={index < 7}
       lists={lists}
       listMap={listMap}
-      pendingAdds={pendingAdds}
-      openDropdown={openDropdown}
-      dropdownRef={dropdownRef}
-      onToggleDropdown={(id) => setOpenDropdown(openDropdown === id ? null : id)}
-      onCloseDropdown={() => setOpenDropdown(null)}
-      onAdd={handleAdd}
-      onCreateAndAdd={handleCreateAndAdd}
+      onMemberChange={setMember}
+      onListCreated={addCreatedList}
+      notify={showToast}
       onSelect={openTitle}
     />
   );
@@ -621,7 +564,7 @@ export function SearchPage() {
               </p>
               {needsTmdb && (
                 <Link
-                  to="/settings?tab=integrations"
+                  to="/settings?section=tmdb"
                   className="mt-3 rounded-full px-4 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-[var(--surface)]"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
                 >
@@ -846,98 +789,33 @@ function ResultCard({
   eager = false,
   lists,
   listMap,
-  pendingAdds,
-  openDropdown,
-  dropdownRef,
-  onToggleDropdown,
-  onCloseDropdown,
-  onAdd,
-  onCreateAndAdd,
+  onMemberChange,
+  onListCreated,
+  notify,
   onSelect,
 }: {
   result: SearchResult;
   eager?: boolean;
   lists: CatalogList[];
   listMap: Map<string, CatalogList>;
-  pendingAdds: Record<string, true>;
-  openDropdown: string | null;
-  dropdownRef: React.RefObject<HTMLDivElement | null>;
-  onToggleDropdown: (id: string) => void;
-  onCloseDropdown: () => void;
-  onAdd: (listId: string, result: SearchResult) => Promise<void>;
-  onCreateAndAdd: (name: string, result: SearchResult) => Promise<void>;
+  onMemberChange: (imdbId: string, listId: string, member: boolean) => void;
+  onListCreated: (list: CatalogList) => void;
+  notify: ShowToast;
   onSelect: (result: SearchResult) => void;
 }) {
-  const isOpen = openDropdown === result.imdbId;
-  const [creating, setCreating] = useState(false);
-  const [newListName, setNewListName] = useState("");
-  const [savingNewList, setSavingNewList] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const createButtonRef = useRef<HTMLButtonElement>(null);
-  const restoreCreateFocus = useRef(false);
-  const panelId = useId();
+  // The shared add-to-list control, split so its trigger sits over the art and
+  // its panel hangs under the caption at the card's full width — anchored to
+  // the button, it would run off the left edge of a phone's first column.
+  const { trigger, panel } = useAddToList({
+    title: { type: result.type, imdbId: result.imdbId, name: result.name },
+    lists,
+    memberIds: result.lists,
+    onMemberChange: (listId, member) => onMemberChange(result.imdbId, listId, member),
+    onListCreated,
+    notify,
+    panelClassName: "absolute left-0 right-0",
+  });
 
-  // Reset the inline create form whenever this card's menu closes.
-  useEffect(() => {
-    if (!isOpen) { setCreating(false); setNewListName(""); }
-  }, [isOpen]);
-
-  // Move focus into the popup on open. Without this a keyboard user is left on
-  // the trigger with the panel hanging open behind them, and has to tab through
-  // the rest of the card to reach it.
-  useEffect(() => {
-    if (!isOpen) return;
-    panelRef.current?.querySelector<HTMLElement>("button:not([disabled]), input")?.focus();
-  }, [isOpen]);
-
-  const closeAndFocusTrigger = () => {
-    onCloseDropdown();
-    triggerRef.current?.focus();
-  };
-
-  // Backing out of the create field unmounts the focused input, so hand focus
-  // to the button that replaces it — otherwise the panel is left with no
-  // focused child and handlePanelBlur closes the whole dropdown.
-  const exitCreate = () => {
-    setCreating(false);
-    setNewListName("");
-    restoreCreateFocus.current = true;
-  };
-
-  useEffect(() => {
-    if (creating || !restoreCreateFocus.current) return;
-    restoreCreateFocus.current = false;
-    createButtonRef.current?.focus();
-  }, [creating]);
-
-  // Tab (or anything else) taking focus out of the panel closes it. Checked on
-  // the next frame rather than straight off relatedTarget, because toggling the
-  // inline create form unmounts the focused button and fires a focusout with a
-  // null relatedTarget before the new field has mounted to receive focus.
-  //
-  // The trigger is exempt from both checks: focus lands on it before its own
-  // click runs, and closing here first would leave that click to reopen the
-  // panel it was meant to dismiss.
-  const handlePanelBlur = (e: React.FocusEvent) => {
-    const next = e.relatedTarget as Node | null;
-    if (e.currentTarget.contains(next) || (next && next === triggerRef.current)) return;
-    requestAnimationFrame(() => {
-      const active = document.activeElement;
-      if (active === triggerRef.current) return;
-      if (panelRef.current && !panelRef.current.contains(active)) onCloseDropdown();
-    });
-  };
-
-  const submitNewList = async () => {
-    if (!newListName.trim() || savingNewList) return;
-    setSavingNewList(true);
-    try {
-      await onCreateAndAdd(newListName, result);
-    } finally {
-      setSavingNewList(false);
-    }
-  };
   const listNames = result.lists
     .map((id) => listMap.get(id)?.name)
     .filter(Boolean) as string[];
@@ -951,135 +829,11 @@ function ResultCard({
       meta={metaRun(kindWord(result.type), result.year)}
       rating={result.rating != null && result.rating > 0 ? { source: "tmdb", value: result.rating } : null}
       inLists={listNames}
-      quickAction={
-        <button
-          ref={triggerRef}
-          type="button"
-          // The outside-click handler is a document mousedown listener and the
-          // trigger sits outside the panel, so without this it closed the
-          // dropdown on mousedown and the click that followed reopened it —
-          // making the button unable to dismiss its own panel.
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleDropdown(result.imdbId);
-          }}
-          // Visible at rest on every pointer, not only on hover: the one thing
-          // Search does that the title panel doesn't is add without opening.
-          className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full bg-accent-500 text-accent-on shadow-e2 transition-[transform,background-color] duration-base hover:bg-accent-600 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-          aria-label={`Add ${result.name} to a list`}
-          aria-expanded={isOpen}
-          aria-controls={isOpen ? panelId : undefined}
-        >
-          <Plus className="h-4 w-4" strokeWidth={3} />
-        </button>
-      }
+      // Visible at rest on every pointer, not only on hover: the one thing
+      // Search does that the title panel doesn't is add without opening.
+      quickAction={trigger}
     >
-      {/* Quick-add dropdown */}
-      {isOpen && (
-        <div ref={dropdownRef} className="relative z-30 mt-1">
-          {/*
-            Deliberately not role="menu". The panel holds a text field and a
-            submit button for the inline create flow, which the ARIA menu
-            pattern doesn't allow — announcing a menu promised arrow-key
-            navigation that was never implemented, which is worse for
-            assistive-tech users than the plain disclosure this actually is.
-            Trigger keeps aria-expanded/aria-controls; the buttons stay in the
-            natural tab order, and Escape closes and restores focus.
-          */}
-          <div
-            ref={panelRef}
-            id={panelId}
-            role="group"
-            aria-label={`Add ${result.name} to a list`}
-            onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeAndFocusTrigger(); } }}
-            onBlur={handlePanelBlur}
-            className="absolute left-0 right-0 overflow-hidden rounded-2xl shadow-e2"
-            style={{ background: "var(--bg-0)", borderWidth: 1, borderStyle: "solid", borderColor: "var(--border)" }}
-          >
-            <p className={`px-3 py-2.5 ${MICRO_LABEL}`} style={{ borderBottomWidth: 1, borderBottomStyle: "solid", borderBottomColor: "var(--border)", color: "var(--text-mute)" }}>
-              Add to list
-            </p>
-            {lists.length === 0 && !creating && (
-              <p className="px-3 py-2.5 text-2xs" style={{ color: "var(--text-mute)" }}>
-                No lists yet — create one below.
-              </p>
-            )}
-            {lists.map((list) => {
-              const already = result.lists.includes(list.id);
-              const key = `${list.id}:${result.imdbId}`;
-              const pending = pendingAdds[key];
-              return (
-                <button
-                  key={list.id}
-                  type="button"
-                  disabled={already || pending}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    void onAdd(list.id, result);
-                  }}
-                  className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[var(--surface)] disabled:opacity-50"
-                >
-                  {already ? (
-                    <Check className="h-3.5 w-3.5 text-success" />
-                  ) : (
-                    <Plus className="h-3.5 w-3.5" style={{ color: "var(--text-mute)" }} />
-                  )}
-                  <span style={{ color: already ? "var(--text-mute)" : "var(--text-dim)" }}>{list.name}</span>
-                  {already && <span className="ml-auto text-2xs" style={{ color: "var(--text-mute)" }}>Added</span>}
-                  {pending && (
-                    <span className="ml-auto inline-block h-3 w-3 animate-spin rounded-full border border-accent-500 border-t-transparent" />
-                  )}
-                </button>
-              );
-            })}
-            {creating ? (
-              <div
-                className="flex items-center gap-2 px-3 py-2.5"
-                style={{ borderTopWidth: lists.length > 0 ? 1 : 0, borderTopStyle: "solid", borderTopColor: "var(--border)" }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <input
-                  autoFocus
-                  value={newListName}
-                  onChange={(e) => setNewListName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") { e.preventDefault(); void submitNewList(); }
-                    // stopPropagation so Escape backs out of the create field
-                    // only — the panel's handler would otherwise close the
-                    // whole dropdown in the same keystroke.
-                    if (e.key === "Escape") { e.stopPropagation(); exitCreate(); }
-                  }}
-                  placeholder="List name…"
-                  aria-label="New list name"
-                  className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm field-control"
-                  style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-1)", color: "var(--text)" }}
-                />
-                <button
-                  type="button"
-                  disabled={!newListName.trim() || savingNewList}
-                  onClick={(e) => { e.stopPropagation(); void submitNewList(); }}
-                  className="btn-primary btn-xs flex-none"
-                >
-                  {savingNewList ? "…" : "Add"}
-                </button>
-              </div>
-            ) : (
-              <button
-                ref={createButtonRef}
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setCreating(true); }}
-                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-accent-text transition-colors hover:bg-[var(--surface)]"
-                style={{ borderTopWidth: lists.length > 0 ? 1 : 0, borderTopStyle: "solid", borderTopColor: "var(--border)" }}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Create new list
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
+      {panel && <div className="relative z-30 mt-1">{panel}</div>}
     </PosterCard>
   );
 }

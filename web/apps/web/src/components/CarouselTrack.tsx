@@ -38,6 +38,7 @@ export function CarouselTrack({
   canScrollRight,
   className = "",
   fadeColor = "var(--bg-0)",
+  label,
   children,
 }: {
   scrollRef: (el: HTMLDivElement | null) => void;
@@ -47,13 +48,22 @@ export function CarouselTrack({
   className?: string;
   /** The colour the edges fade into; must match what sits behind the row. */
   fadeColor?: string;
+  /**
+   * Makes the track itself a named, focusable region, for a row whose items
+   * are not focusable — the cast rail is photos and names, so without this a
+   * keyboard user had nothing to land on and no way to scroll it (axe's
+   * `scrollable-region-focusable`). Rows of buttons leave it unset: Tab reaches
+   * their cards, and focusing one scrolls it into view.
+   */
+  label?: string | undefined;
   children: ReactNode;
 }) {
   return (
     <div className="relative -m-2">
       <div
         ref={scrollRef}
-        className={`flex overflow-x-auto scroll-smooth scroll-px-8 snap-x snap-proximity [&>*]:snap-start scrollbar-hide p-2 ${className}`}
+        {...(label ? { role: "region", "aria-label": label, tabIndex: 0 } : {})}
+        className={`flex overflow-x-auto ${label ? "rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-focus" : ""} scroll-smooth scroll-px-8 snap-x snap-proximity [&>*]:snap-start scrollbar-hide p-2 ${className}`}
       >
         {children}
       </div>

@@ -61,7 +61,7 @@ const spokenRating = (rating: MdbListRating): string => {
 function TextBadge({ label, background, color = "#fff" }: { label: string; background: string; color?: string }) {
   return (
     <span
-      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[10px] font-black leading-none"
+      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-2xs font-black leading-none"
       style={{ background, color }}
     >
       {label}
@@ -80,9 +80,13 @@ function SourceMark({ rating }: { rating: MdbListRating }) {
     case "metacritic":
       return <McIcon score={rating.value} />;
     case "audience":
-      return <TextBadge label={rating.value >= 60 ? "HOT" : "STALE"} background={rating.value >= 60 ? "#FA320A" : "#69BE28"} />;
+      return // Darker than the brand red and black on the green: white on #FA320A
+      // was 3.8:1 and on #69BE28 2.3:1, both below AA for 12px text.
+      return rating.value >= 60
+        ? <TextBadge label="HOT" background="#D62C00" />
+        : <TextBadge label="STALE" background="#69BE28" color="#000" />;;
     case "trakt":
-      return <TextBadge label="trakt" background="#ED1C24" />;
+      return <TextBadge label="trakt" background="#C8102E" />;
     case "letterboxd":
       return <TextBadge label="LB" background="#202830" color="#40BCF4" />;
     case "mal":

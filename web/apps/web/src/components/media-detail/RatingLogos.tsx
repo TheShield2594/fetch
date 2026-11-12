@@ -1,7 +1,14 @@
+/*
+ * The text badges are 12px, the app's floor (`text-2xs`), and every text and
+ * background pair here clears 4.5:1 — normal-size text by WCAG's measure,
+ * however heavy the weight. They were 10–11px, and TMDB's white-on-cyan was
+ * 2.4:1; TMDB's own wordmark pairs that cyan with its navy, which is used here.
+ */
+
 export function ImdbLogo() {
   return (
     <span
-      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[11px] font-black leading-none text-black"
+      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-2xs font-black leading-none text-black"
       style={{ background: "#F5C518", fontFamily: "Arial Black, Arial, sans-serif" }}
     >
       IMDb
@@ -12,8 +19,8 @@ export function ImdbLogo() {
 export function TmdbLogo() {
   return (
     <span
-      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[10px] font-black leading-none text-white"
-      style={{ background: "#01b4e4" }}
+      className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-2xs font-black leading-none"
+      style={{ background: "#01b4e4", color: "#0d253f" }}
     >
       TMDB
     </span>

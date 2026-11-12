@@ -158,7 +158,6 @@ export function useDetailPanel() {
 
     return () => { cancelled = true; controller.abort(); };
     // `attempt` is read by nothing inside: it is here so a Retry re-runs this.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imdbId, type, attempt]);
 
   return {

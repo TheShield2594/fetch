@@ -50,6 +50,7 @@ export function CastSection({ cast, loading }: { cast: CastMember[]; loading: bo
         canScrollLeft={canScrollLeft}
         canScrollRight={canScrollRight}
         className="gap-3"
+        label="Cast"
       >
         {/* Fewer, wider cards. At 64px the rail fitted about eight of them and
             truncated both lines on nearly every one — `Marguerit…` over

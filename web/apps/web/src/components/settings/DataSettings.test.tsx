@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { csvRecords, DataSettings, previewHistoryCsv, previewJsonExport, slugify } from "./DataSettings";
@@ -139,6 +139,19 @@ describe("DataSettings", () => {
     await user.upload(fileInputs()[0]!, file("not json", "bad.json", "application/json"));
     expect(await screen.findByRole("alert")).toHaveTextContent(/isn't valid JSON/);
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+
+  it("returns focus to the button that opened the review when it is cancelled", async () => {
+    const user = userEvent.setup();
+    render(<DataSettings />);
+
+    await user.click(screen.getByRole("button", { name: "Clear ratings" }));
+    const review = screen.getByRole("alertdialog", { name: /clear alex's ratings/i });
+    expect(within(review).getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.click(within(review).getByRole("button", { name: "Cancel" }));
+
+    // Not the first control in the row ("Clear watch history"), but the one it came from.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Clear ratings" })).toHaveFocus());
   });
 
   it("clears watch history after confirming, and says how much went", async () => {

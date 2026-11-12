@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 
 /**
@@ -41,6 +41,15 @@ export function ConfirmReview({
   className?: string;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
+  // The control that opened the panel, read during the first render, before
+  // the caller's re-render has taken it out of the page. Callers render a new
+  // element for it when the panel closes, so it is found again by its name
+  // rather than kept as a node.
+  const [triggerName] = useState(() => {
+    const active = typeof document === "undefined" ? null : document.activeElement;
+    if (!active || active === document.body) return null;
+    return active.getAttribute("aria-label") ?? active.textContent?.trim() ?? null;
+  });
 
   // Callers swap the button that opened this panel for the panel itself, so
   // focus would otherwise fall to the page. It moves to the first field (a
@@ -60,10 +69,16 @@ export function ConfirmReview({
         const active = document.activeElement;
         if (active && active !== document.body) return;
         if (!host?.isConnected) return;
-        host.querySelector<HTMLElement>("button:not([disabled]), a[href], input:not([disabled])")?.focus();
+        const controls = Array.from(
+          host.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled])")
+        );
+        const trigger = triggerName
+          ? controls.find((el) => (el.getAttribute("aria-label") ?? el.textContent?.trim()) === triggerName)
+          : undefined;
+        (trigger ?? controls[0])?.focus();
       });
     };
-  }, []);
+  }, [triggerName]);
 
   return (
     <div ref={panelRef} role="alertdialog" aria-label={label} className={className} style={{ borderColor: "var(--border)" }}>

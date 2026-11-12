@@ -71,7 +71,7 @@ web/
    cp .env.example .env
    ```
 
-   - **Required:** `API_TOKEN` and `POSTGRES_PASSWORD` — `docker compose up` will refuse to start without them (used by both `api` and `addon` services — they share the same `API_TOKEN`). Generate a token with `openssl rand -hex 32`.
+   - **Required:** `API_TOKEN` and `POSTGRES_PASSWORD` — `docker compose up` will refuse to start without them (used by both `api` and `addon` services — they share the same `API_TOKEN`). Generate a token with `openssl rand -hex 32`; the API refuses to start in production with one shorter than 32 characters, since every encryption and signing key is derived from it. Changing it later has a cost — see [Secrets at rest](#secrets-at-rest).
    - **Recommended for LAN devices** (phone/Apple TV): update the URLs in `api`, `addon`, and `web` services to use your LAN IP instead of `localhost`
    - **Optional integrations:** `TMDB_API_KEY`, `TRAKT_CLIENT_ID` (in `api` service). Trakt needs only the app's Client ID: sign-in uses PKCE, so there is no Client Secret to set. `TMDB_API_KEY` can also be set from the app instead: the setup wizard asks for it, and **Settings → TMDB Metadata** changes it later. A key saved there takes precedence over this variable. When the variable is the key in use (none is saved in Settings), that Settings section is left out, since there is nothing to enter.
    - **Optional:** `SENTRY_DSN` — reports unhandled errors from the `api`, `addon`, and `web` services to a Sentry project (or compatible service). Leave unset to disable; no error data leaves your server by default.
@@ -584,7 +584,13 @@ The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from t
 2. Reconnect Trakt, and re-enter the API keys and notification tokens, from Settings.
 3. Web push is the exception worth planning around: the VAPID keypair identifies this server to every browser that ever subscribed, so it cannot be regenerated without silently unsubscribing all of them. Rather than do that quietly, the API refuses to send push at all and says why. Restore the old `API_TOKEN` if you have it; otherwise delete the `push:vapidKeys` row and have each browser re-subscribe.
 
-Rotating also invalidates every add-on URL and every profile access token, as it did before this — so plan a rotation as a maintenance task, not a config edit.
+Rotating also invalidates everything else derived from it, so plan a rotation as a maintenance task, not a config edit. In full, a new `API_TOKEN` means:
+
+- every stored credential above is unreadable until re-entered;
+- every profile unlock (a PIN-protected profile has to be unlocked again);
+- every add-on URL, the built-in Stremio catalog and the separate add-on service alike — reinstall each from Settings;
+- the addon service's token to the API, which it derives itself, so restart both services together;
+- scripts and anything else holding the old token as a bearer.
 
 Rows written before this shipped are read back unchanged and encrypted in place on the next start, so upgrading needs nothing from you. A deployment running without `API_TOKEN` at all (development only — production refuses to start without one) keeps writing plaintext, and logs a warning saying so.
 

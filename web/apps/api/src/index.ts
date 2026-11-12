@@ -76,6 +76,7 @@ import embyWebhookRoutes from "./routes/webhooks/emby.js";
 import profileAddonsRoutes from "./routes/profile-addons.js";
 import profileDocumentsRoutes from "./routes/profile-documents.js";
 import syncOverviewRoutes from "./routes/sync-overview.js";
+import { productionConfigIssues } from "./lib/startup-config.js";
 
 // Every interval goes through the same validator: reading one as `Number(raw ??
 // fallback)` turns a typo into NaN, and `NaN > 0` is false, so a mistyped value
@@ -315,14 +316,7 @@ const start = async () => {
   instrumentUpstreamFetch();
 
   if (process.env.NODE_ENV === "production") {
-    const startupConfigIssues = [
-      !process.env.API_TOKEN && "API_TOKEN is not set",
-      process.env.API_TOKEN === "dev-token" && "API_TOKEN is set to the development default \"dev-token\"",
-      // A missing DATABASE_URL is not checked here: `lib/prisma.ts` refuses at
-      // import time, which is long before this runs, and in every environment
-      // rather than production alone.
-      (process.env.DATABASE_URL ?? "").includes(":postgres@") && "DATABASE_URL uses the development default Postgres password",
-    ].filter((message): message is string => Boolean(message));
+    const startupConfigIssues = productionConfigIssues(process.env);
 
     if (startupConfigIssues.length > 0) {
       app.log.error(

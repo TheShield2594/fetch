@@ -35,6 +35,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **Importing a backup can no longer lift a kids profile's parental limits.** `POST /import` now applies the same check as `PATCH /profiles/:id` and a TV's sync: without a grown-up's authority, imported settings that would turn kids mode off, raise the rating cap or allow unrated titles are left out, a tightening still applies, and the import summary lists the skipped fields as `parentalLimitsSkipped` ([#543](https://github.com/TheShield2594/fetch/issues/543)).
 
+- **A short `API_TOKEN` is refused in production.** Every encryption and signing key derives from it, so the API now refuses to start with a token shorter than 32 characters and says to generate one with `openssl rand -hex 32`. The README lists everything rotating it invalidates ([#547](https://github.com/TheShield2594/fetch/issues/547)).
+
 ## [0.4.0] - 2026-11-11
 
 ### Added

@@ -239,6 +239,10 @@ export function HistoryPage() {
     // Every search and month shares one narrowed list. Left in place, a failed
     // fetch would show the previous filter's rows under the error.
     if (narrowed) setNarrowedFirstPage([]);
+    // The pages scrolled to belong to the list being replaced, whichever kind
+    // it was. Kept until the new first page landed, they sat under the new
+    // list's rows — and stayed there if that request failed.
+    setExtraPages([]);
     setLoading(true);
     (async () => {
       try {

@@ -658,6 +658,21 @@ describe("HistoryPage binges, days and finding things", () => {
     );
   });
 
+  it("shows none of the previous list's rows when the next one fails to load", async () => {
+    const user = userEvent.setup();
+    getWatchHistory.mockImplementation(async (_limit, _offset, opts) => {
+      if (opts?.type === "movie") throw new Error("Network down");
+      return [ALIEN, SOLARIS];
+    });
+    renderPage();
+    await screen.findByText("Alien");
+
+    await user.click(screen.getByRole("button", { name: "Movies" }));
+
+    expect(await screen.findByText("Network down")).toBeInTheDocument();
+    expect(screen.queryByText("Alien")).toBeNull();
+  });
+
   it("does not file a filtered list in the cache as the history", async () => {
     getWatchHistory.mockResolvedValue([ALIEN]);
     renderPage("/history?q=alien");

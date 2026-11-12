@@ -6,22 +6,32 @@ import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useExitAnimation } from "../../hooks/useExitAnimation";
 import { useVisualViewport } from "../../hooks/useVisualViewport";
 import { SECTION_TITLE } from "../typography";
+import { clampEpisode, EpisodePicker, type PickerSeason } from "./EpisodePicker";
+
+const NO_SEASONS: readonly PickerSeason[] = [];
 
 export function CheckInModal({
   seriesName,
+  seasons = NO_SEASONS,
   defaultSeason,
   defaultEpisode,
   onCheckIn,
   onClose,
 }: {
   seriesName: string;
+  /** The show's seasons. Without them the pickers fall back to typed numbers. */
+  seasons?: readonly PickerSeason[];
   defaultSeason: number;
   defaultEpisode: number;
   onCheckIn: (season: number, episode: number) => Promise<void>;
   onClose: () => void;
 }) {
-  const [season, setSeason] = useState(String(defaultSeason));
-  const [episode, setEpisode] = useState(String(defaultEpisode));
+  const [chosen, setPicked] = useState({ season: defaultSeason, episode: defaultEpisode });
+  // Clamped on every render rather than once in the initial state: the season
+  // list can arrive after this dialog has opened, and a number typed (or
+  // defaulted) before it did must not be submitted once the selects that
+  // replace the number fields have no option for it.
+  const picked = clampEpisode(seasons, chosen);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useFocusTrap<HTMLDivElement>();
@@ -32,13 +42,10 @@ export function CheckInModal({
   useEscapeKey(requestClose);
 
   const submit = async () => {
-    const s = parseInt(season, 10);
-    const ep = parseInt(episode, 10);
-    if (!s || !ep || s < 1 || ep < 1) { setError("Enter valid season and episode numbers"); return; }
     setSaving(true);
     setError(null);
     try {
-      await onCheckIn(s, ep);
+      await onCheckIn(picked.season, picked.episode);
       requestClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to check in");
@@ -48,7 +55,8 @@ export function CheckInModal({
 
   /*
    * `viewportStyle` pins this to the part of the screen the keyboard leaves
-   * behind — the season/episode number fields below open one, and without it
+   * behind — the season and episode fields open one when there is no season
+   * data to pick from, and without it
    * this dialog is laid out against the full layout viewport and sits under
    * it. Same fix ef2e068 applied to the command palette and the three search
    * modals; these two were missed.
@@ -86,28 +94,13 @@ export function CheckInModal({
         </div>
         <div className="px-5 py-4 space-y-4">
           <p className="text-sm" style={{ color: "var(--text-dim)" }}>Which episode of <span className="font-semibold" style={{ color: "var(--text)" }}>{seriesName}</span> are you watching?</p>
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label htmlFor="checkin-season" className="mb-1.5 block text-xs font-medium" style={{ color: "var(--text-mute)" }}>Season</label>
-              <input
-                id="checkin-season"
-                type="number" min="1" value={season}
-                onChange={(e) => setSeason(e.target.value)}
-                className="w-full rounded-xl border px-3 py-2.5 text-sm field-control"
-                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
-              />
-            </div>
-            <div className="flex-1">
-              <label htmlFor="checkin-episode" className="mb-1.5 block text-xs font-medium" style={{ color: "var(--text-mute)" }}>Episode</label>
-              <input
-                id="checkin-episode"
-                type="number" min="1" value={episode}
-                onChange={(e) => setEpisode(e.target.value)}
-                className="w-full rounded-xl border px-3 py-2.5 text-sm field-control"
-                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
-              />
-            </div>
-          </div>
+          <EpisodePicker
+            idPrefix="checkin"
+            seasons={seasons}
+            season={picked.season}
+            episode={picked.episode}
+            onChange={setPicked}
+          />
           {error && <p role="alert" className="text-xs text-danger">{error}</p>}
           <div className="flex gap-3 pt-1">
             <button

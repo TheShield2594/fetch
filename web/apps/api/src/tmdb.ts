@@ -90,6 +90,7 @@ type TmdbSeasonResponse = {
     air_date?: string | null;
     still_path?: string | null;
     runtime?: number | null;
+    overview?: string | null;
   }[];
 };
 
@@ -162,6 +163,8 @@ export type EpisodeInfo = {
   airDate: string | null;
   still: string | null;
   runtime: number | null;
+  /** The episode's synopsis, or null when TMDB has none. A spoiler for anyone who hasn't seen it. */
+  overview: string | null;
 };
 
 export type WatchProvider = {
@@ -889,6 +892,7 @@ export class TmdbClient {
         airDate: e.air_date ?? null,
         still: e.still_path ? `${TmdbClient.imageBaseUrl}${e.still_path}` : null,
         runtime: typeof e.runtime === "number" ? e.runtime : null,
+        overview: e.overview?.trim() || null,
       }));
     } catch {
       return [];

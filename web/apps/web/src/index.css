@@ -1668,6 +1668,43 @@ body {
   animation: overlay-sheet-in 260ms var(--overlay-sheet-ease);
 }
 
+/*
+ * The scrim over the title panel's artwork. It fades to --bg-0 rather than to
+ * black: the app has light themes, and a hero whose bottom is always black
+ * would end in a hard edge against a pale panel, with the only white text on
+ * the screen set over it. Fading to the panel's own background lets the title
+ * take --text on every theme.
+ *
+ * On a desktop the header (poster, title, overview, ratings) is set over the
+ * lower half of a much taller picture rather than over its last few lines, so
+ * the fade starts higher and is most of the way to the page colour by the time
+ * the first of that text begins.
+ */
+.title-hero-scrim {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-0) 22%, transparent) 0%,
+    transparent 26%,
+    transparent 46%,
+    color-mix(in srgb, var(--bg-0) 86%, transparent) 80%,
+    var(--bg-0) 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .title-hero-scrim {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--bg-0) 22%, transparent) 0%,
+        transparent 14%,
+        color-mix(in srgb, var(--bg-0) 62%, transparent) 38%,
+        color-mix(in srgb, var(--bg-0) 90%, transparent) 62%,
+        var(--bg-0) 100%
+      );
+  }
+}
+
 /* Detail panels: full-screen sheet on phones, centered dialog from sm: up —
    the same breakpoint their layout switches on. */
 .overlay-panel {

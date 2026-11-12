@@ -167,7 +167,7 @@ row genuinely is not found. Another account's profile is a `404` the same way.
 | `GET` | `/meta/:type/:imdbId/cast` | Cast and director. |
 | `GET` | `/meta/:type/:imdbId/providers` | Where to stream it, for the configured region. |
 | `GET` | `/meta/series/:imdbId/seasons` | Season list. |
-| `GET` | `/meta/series/:imdbId/season/:seasonNumber/episodes` | Episodes for one season; `seasonNumber` must be a positive integer. Fetched on demand as a season is expanded. |
+| `GET` | `/meta/series/:imdbId/season/:seasonNumber/episodes` | Episodes for one season, each `{ episodeNumber, name, airDate, still, runtime, overview }`; `seasonNumber` must be a positive integer. Fetched on demand as a season is expanded. |
 | `POST` | `/metadata/sync` | `{ imdbId, type }` — refresh one title from TMDB. |
 | `POST` | `/metadata/refresh-all?limit=` | Re-fetch stored metadata in batches of 5. `limit` defaults to 50, caps at 500. |
 | `GET` | `/genres` | Every genre present in your stored metadata. |

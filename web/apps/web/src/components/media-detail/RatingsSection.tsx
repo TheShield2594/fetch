@@ -7,14 +7,13 @@ import { STARS_MAX } from "../../utils/rating";
 import { KICKER } from "../typography";
 
 /**
- * The "view on" row.
+ * The TMDB link, as the last entry of the ratings row.
  *
- * IMDb is deliberately absent: it used to appear here as a link chip directly
- * below its own score in `Ratings`, so the panel showed the same mark twice in
- * adjacent rows with different treatments. The score up there is the link now —
- * one IMDb entry, and the affordance sits on the number it belongs to.
+ * It was a row of its own under the ratings, holding one small link. IMDb is
+ * deliberately absent from it: the IMDb score in the row is its own link, so
+ * the mark appears once, on the number it belongs to.
  */
-export function ExternalLinks({
+export function TmdbLink({
   tmdbId, type,
 }: {
   tmdbId: number | null | undefined;
@@ -22,28 +21,27 @@ export function ExternalLinks({
 }) {
   if (tmdbId == null) return null;
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {tmdbId != null && (
-        <a
-          href={`https://www.themoviedb.org/${type === "movie" ? "movie" : "tv"}/${tmdbId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1 rounded-md px-1 py-0.5 text-xs transition-opacity hover:opacity-80"
-          style={{ color: "var(--text-dim)" }}
-          aria-label="View on TMDB"
-        >
-          <TmdbLogo />
-          <ExternalLink className="h-3 w-3" />
-        </a>
-      )}
-    </div>
+    <a
+      href={`https://www.themoviedb.org/${type === "movie" ? "movie" : "tv"}/${tmdbId}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-1 rounded-md py-0.5 text-xs transition-opacity hover:opacity-80"
+      style={{ color: "var(--text-dim)" }}
+      aria-label="View on TMDB"
+    >
+      <TmdbLogo />
+      <ExternalLink className="h-3 w-3" />
+    </a>
   );
 }
 
 export function ExternalRatings({
-  imdbId, imdbRating, rtScore, mcScore, loading = false,
+  imdbId, imdbRating, rtScore, mcScore, tmdbId, type, loading = false,
 }: {
-  /** Makes the IMDb score its own link — see the note on `ExternalLinks`. */
+  /** For the TMDB link that closes the row. */
+  tmdbId: number | null | undefined;
+  type: MediaType;
+  /** Makes the IMDb score its own link — see the note on `TmdbLink`. */
   imdbId: string;
   imdbRating: number | null | undefined;
   rtScore: number | null | undefined;
@@ -54,7 +52,16 @@ export function ExternalRatings({
   if (imdbRating == null && rtScore == null && mcScore == null) {
     // Scores often arrive with the detail bundle rather than on the item
     // itself; hold the row's space instead of springing it open mid-read.
-    if (!loading) return null;
+    if (!loading) {
+      // No scores, but still a way out to the title's TMDB page.
+      if (tmdbId == null) return null;
+      return (
+        <div>
+          <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>Ratings</h3>
+          <TmdbLink tmdbId={tmdbId} type={type} />
+        </div>
+      );
+    }
     return (
       <div>
         <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>Ratings</h3>
@@ -97,6 +104,7 @@ export function ExternalRatings({
             <span className="text-xs" style={{ color: "var(--text-mute)" }}>/100</span>
           </div>
         )}
+        <TmdbLink tmdbId={tmdbId} type={type} />
       </div>
     </div>
   );

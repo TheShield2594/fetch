@@ -267,6 +267,8 @@ export type EpisodeInfo = {
   airDate: string | null;
   still: string | null;
   runtime: number | null;
+  /** Optional: a response cached from before the API sent it has none. */
+  overview?: string | null | undefined;
 };
 
 export type WatchedEpisode = {

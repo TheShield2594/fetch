@@ -1,4 +1,4 @@
-import { Calendar, Clock, Film, Trash2, Tv } from "lucide-react";
+import { Clock, Film, Trash2, Tv } from "lucide-react";
 import { Poster } from "../Poster";
 import type { WatchEvent } from "../../api";
 import { watchEventLabel, watchEventTitle } from "../../utils/watchEvents";
@@ -12,28 +12,20 @@ import { KICKER } from "../typography";
 export function WatchHistorySection({
   history,
   loading,
-  onLogWatch,
   onDeleteEvent,
 }: {
   history: WatchEvent[];
   loading: boolean;
-  onLogWatch: () => void;
   onDeleteEvent: (event: WatchEvent) => void;
 }) {
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className={`flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
-          <Clock className="h-3.5 w-3.5" /> Watch History
-        </h3>
-        <button
-          type="button"
-          onClick={onLogWatch}
-          className="btn-tonal btn-sm"
-        >
-          <Calendar className="h-3 w-3" /> Log a Watch
-        </button>
-      </div>
+      {/* No "Log a Watch" button beside the heading: the panel's primary
+          action is that button, and two of them a scroll apart read as two
+          different things. */}
+      <h3 className={`mb-3 flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
+        <Clock className="h-3.5 w-3.5" /> Watch History
+      </h3>
 
       {loading ? (
         <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-14 rounded-lg" />)}</div>

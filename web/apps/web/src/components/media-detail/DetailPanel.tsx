@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
   Check, Film, Play, Star, X,
 } from "lucide-react";
+import { Poster } from "../Poster";
+import { parseSizedTmdbImage, tmdbImageAtWidth } from "../../poster-widths";
 import { api, type CheckIn, OfflineWriteQueuedError, type SearchResult, type TrendingMeta, type WatchEvent, type WatchProviders } from "../../api";
 import { WatchDateModal } from "./WatchDateModal";
 import { CheckInModal } from "./CheckInModal";
-import { ExternalLinks, ExternalRatings, StarRating } from "./RatingsSection";
+import { ExternalRatings, StarRating } from "./RatingsSection";
 import { MdbListRatings, useMdbListRatings } from "./MdbListRatings";
 import { ListsSection } from "./ListsSection";
 import { TagsSection } from "./TagsSection";
@@ -14,7 +16,7 @@ import { SeasonsSection, type SeasonInfo } from "./SeasonsSection";
 import { ProvidersSection } from "./ProvidersSection";
 import { CheckInBlock } from "./CheckInBlock";
 import { WatchHistorySection } from "./WatchHistorySection";
-import { DropShowButton } from "./DropShowButton";
+import { MoreActionsMenu } from "./MoreActionsMenu";
 import { RecommendationsSection } from "./RecommendationsSection";
 import { buildMetaLine, formatRuntime, nextEpisodeUp, statusColor, type WatchLogTarget } from "./detailPanelUtils";
 import { formatRating, ratingLabel, RATING_MAX } from "../../utils/rating";
@@ -26,6 +28,25 @@ import type { ShowToast } from "../../hooks/useToast";
 import { relogWatchEvent } from "../../utils/watchEvents";
 import { invalidateDetailBundle, type PanelDetail } from "./useDetailPanel";
 import { PAGE_TITLE, KICKER, MICRO_LABEL } from "../typography";
+
+/**
+ * The backdrop at the size a page-width header needs.
+ *
+ * The API stores every TMDB image at w500, which a 672px card could get away
+ * with and a 1440px header cannot. TMDB serves the same picture at any of its
+ * widths, so the hero asks for the one that fits: 780 on a phone or the tablet
+ * card, 1280 on a desktop. Anything that isn't a sized TMDB URL (another
+ * artwork provider, a data URI) is used as it came.
+ */
+function heroBackdropSources(src: string): { src: string; srcSet?: string; sizes?: string } {
+  const image = parseSizedTmdbImage(src);
+  if (!image) return { src };
+  return {
+    src: tmdbImageAtWidth(image, 1280),
+    srcSet: `${tmdbImageAtWidth(image, 780)} 780w, ${tmdbImageAtWidth(image, 1280)} 1280w`,
+    sizes: "(min-width: 1024px) 100vw, (min-width: 640px) 672px, 100vw",
+  };
+}
 
 /* ─── Detail Panel ────────────────────────────────────────── */
 
@@ -61,6 +82,7 @@ export function DetailPanel({
   staticScrim?: boolean;
 }) {
   const dialogRef = useFocusTrap<HTMLDivElement>();
+  const trackingHeadingId = useId();
   const { exiting, requestClose, onExitAnimationEnd } = useExitAnimation(onClose);
 
   // Undo runs from a toast that outlives the interaction that raised it: the
@@ -352,7 +374,7 @@ export function DetailPanel({
    *
    * `handleCheckin` deliberately does not catch: `CheckInModal` awaits it and
    * keeps itself open with its own error when it rejects. The two callers that
-   * fire and forget — the button in the hero and `CheckInBlock` — were dropping
+   * The button beside the primary action fires and forgets, and was dropping
    * that rejection on the floor with `void`, so a failed check-in was a button
    * that did nothing at all.
    */
@@ -360,10 +382,12 @@ export function DetailPanel({
     void handleCheckin(season, episode).catch(() => onShowToast("Could not check in", "error"));
   };
 
+  const backdrop = item.background ? heroBackdropSources(item.background) : null;
+
   return (
     <>
       <div
-        className={`overlay-scrim fixed inset-0 z-50 flex items-center justify-center overflow-hidden sm:p-6 ${staticScrim ? "" : "overlay-fade"} ${exiting ? "overlay-exit" : ""}`}
+        className={`overlay-scrim fixed inset-0 z-50 flex items-center justify-center overflow-hidden sm:p-6 lg:p-0 ${staticScrim ? "" : "overlay-fade"} ${exiting ? "overlay-exit" : ""}`}
         onClick={requestClose}
       >
         {item.background && (
@@ -382,12 +406,16 @@ export function DetailPanel({
           tabIndex={-1}
           onClick={(e) => e.stopPropagation()}
           onAnimationEnd={onExitAnimationEnd}
-          // A column at every size now, where it used to become a side-by-side
-          // row on `sm`. The hero *is* the top of this screen — a full-bleed
-          // still with the title over it, the way a product page opens on the
-          // platform — and a poster in a 38% left column is a different design
-          // that happens to contain the same facts.
-          className={`glass-surface overlay-panel relative flex h-full w-full max-h-screen flex-col overflow-hidden shadow-e3 sm:h-auto sm:max-h-[88vh] sm:max-w-2xl sm:rounded-3xl sm:border ${exiting ? "overlay-exit" : ""}`}
+          /*
+           * Three sizes of one surface.
+           *
+           * A phone gets the full screen, and a tablet a centred card. From
+           * `lg` the panel is the page: it takes the window's width and height,
+           * because a 672px card on a 1440px window was the phone sheet floated
+           * in the middle of a blurred copy of the page behind it, with every
+           * section in one narrow scrolling column.
+           */
+          className={`glass-surface overlay-panel relative flex h-full w-full max-h-screen flex-col overflow-hidden shadow-e3 sm:h-auto sm:max-h-[88vh] sm:max-w-2xl sm:rounded-3xl sm:border lg:h-full lg:max-h-none lg:max-w-[110rem] lg:rounded-none lg:border-y-0 ${exiting ? "overlay-exit" : ""}`}
           style={{ background: "var(--bg-0)", borderColor: "var(--border)" }}
         >
           {/* Close — the 36px glass circle the platform floats over artwork,
@@ -397,106 +425,105 @@ export function DetailPanel({
               theme where it mattered most. */}
           <button
             type="button" onClick={requestClose}
-            className="tap-target bar-glass absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-[var(--text)]"
+            className="tap-target bar-glass absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:text-[var(--text)] lg:right-6 lg:top-6"
             style={{ color: "var(--text-dim)" }}
             aria-label="Close detail panel"
           >
             <X className="h-4 w-4" />
           </button>
 
+          <div ref={contentRef} className="relative z-20 min-h-0 flex-1 overflow-y-auto">
+          {/* `isolate`: on a desktop the artwork sits behind the header at a
+              negative z-index, and this is the stacking context that keeps it
+              in front of the panel's own background. */}
+          <div className="relative isolate">
+          {/*
+            * One set of sections, laid out twice.
+            *
+            * Below `lg` this is a column, and `order` puts the sections in the
+            * order a phone reads them: header, the primary action, the episode
+            * list, then what the title is, then your tracking, then more like
+            * it. From `lg` it is a three-column grid — poster, title and
+            * action, and the overview and ratings beside them — over two
+            * columns of sections: content on the left, your tracking on the
+            * right.
+            *
+            * Reordered with CSS rather than rendered twice because the sections
+            * fetch for themselves: two copies of the lists control would be two
+            * requests and two sets of state that disagree after the first tap.
+            */}
+          <div className="flex flex-col gap-6 px-5 pb-10 sm:px-8 lg:mx-auto lg:grid lg:max-w-[86rem] lg:grid-cols-[13rem_minmax(0,1fr)_minmax(0,24rem)] lg:gap-x-10 lg:gap-y-0 lg:px-12 lg:pb-16 lg:pt-[14rem]">
           {/*
             * The hero.
             *
-            * Was a poster: a 2:3 column beside the content on a desktop, and a
-            * shallow band with the whole poster letterboxed inside it on a
-            * phone. Both were the artwork shown *next to* the title. A product
-            * page on the platform opens on the still, full-bleed, with the
-            * title set over the bottom of it — the picture is the top of the
-            * screen rather than an illustration on it.
+            * A full-bleed still with the title set over the bottom of it — the
+            * picture is the top of the screen rather than an illustration on
+            * it. Inside the scroller, not pinned above it: a hero that stays
+            * put spends 42vh of every screen on a picture you have already
+            * looked at.
             *
-            * Key art if the record has it, the poster cropped to the frame if
-            * not. A poster in a 16:9 crop is its middle third, which is a worse
-            * picture than the still and a much better one than a grey box; the
-            * blurred copy behind it fills the width for the many titles whose
-            * art is portrait.
+            * On a phone this box is the picture's frame. From `lg` it is
+            * `contents`: the artwork becomes a band across the top of the whole
+            * panel, and the title becomes a cell of the grid above.
             */}
-          <div ref={contentRef} className="relative z-20 min-h-0 flex-1 overflow-y-auto">
-          {/* Inside the scroller, not pinned above it. A hero that stays put
-              spends 42vh of every screen on a picture you have already looked
-              at — and the episode list, which is what the rest of the scroll is
-              for, would never get more than half the panel. It scrolls away
-              like the top of a page, which is what it is. */}
-          <div className="relative z-0 h-[42vh] max-h-[26rem] min-h-[15rem] w-full overflow-hidden sm:h-[22rem]">
-            {heroArt ? (
-              <>
-                <img
-                  src={heroArt}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
-                />
-                <img
-                  src={heroArt}
-                  alt=""
-                  aria-hidden="true"
-                  className={
-                    heroArtIsPoster
-                      ? "relative mx-auto h-full w-auto max-w-full object-contain"
-                      : "relative h-full w-full object-cover"
-                  }
-                />
-              </>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center" style={{ background: "linear-gradient(to bottom right, var(--bg-1), var(--bg-0))" }}>
-                <Film className="h-20 w-20" style={{ color: "var(--border-strong)" }} />
-              </div>
-            )}
-            {/*
-              * The scrim fades to --bg-0 rather than to black.
-              *
-              * The design is drawn on a black page, where a scrim to #000 and a
-              * white title are the same decision. This app has five themes, two
-              * of which are light, and a hero whose bottom is always black
-              * would end in a hard edge against a #f2f2f7 panel — and a white
-              * title over it would be the only white text on the screen.
-              *
-              * Fading to the panel's own background instead means the picture
-              * dissolves into the page on every theme, and the title can take
-              * --text: by the time it starts, the scrim is near-opaque, so it
-              * is reading against the page colour rather than against whatever
-              * the artwork happens to be.
-              */}
-            <div
-              aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, color-mix(in srgb, var(--bg-0) 22%, transparent) 0%, transparent 26%, transparent 46%, color-mix(in srgb, var(--bg-0) 86%, transparent) 80%, var(--bg-0) 100%)",
-              }}
-            />
-
-            <div className="absolute inset-x-5 bottom-0 sm:inset-x-8">
+          <div className="relative z-0 -mx-5 flex h-[42vh] max-h-[26rem] min-h-[15rem] flex-col justify-end overflow-hidden sm:-mx-8 sm:h-[22rem] lg:contents">
+            <div aria-hidden="true" className="absolute inset-0 overflow-hidden lg:inset-x-0 lg:bottom-auto lg:-z-10 lg:h-[36rem]">
               {/*
-                * No "MOVIE"/"SERIES" chip over the artwork.
-                *
-                * It was the loudest thing in the hero — a filled pill in a
-                * colour that means nothing, above the title, saying what the
-                * row under the title says quietly and what the rest of the
-                * panel makes obvious: a film has a runtime and no seasons, a
-                * series has an episode list. It is the same badge the Shelf's
-                * grid dropped for the same reason.
-                *
-                * The status stays. "Returning" and "Ended" are the one thing
-                * here a reader cannot infer, and `.status-chip` carries it in
-                * words as well as in colour — so it joins the fact row rather
-                * than floating above the title on its own.
+                * Key art if the record has it, the poster if not. A poster in a
+                * 16:9 crop is its middle third, so it is contained at its own
+                * ratio with a blurred copy filling the sides. On a desktop the
+                * poster has a place of its own in the header, so there only
+                * the blurred copy is drawn behind it.
                 */}
-              <h2 className={PAGE_TITLE} style={{ color: "var(--text)" }}>{item.name}</h2>
+              {heroArt ? (
+                <>
+                  <img
+                    src={heroArt}
+                    alt=""
+                    className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+                  />
+                  {backdrop ? (
+                    <img
+                      src={backdrop.src}
+                      srcSet={backdrop.srcSet}
+                      sizes={backdrop.sizes}
+                      alt=""
+                      className="relative h-full w-full object-cover lg:object-[center_20%]"
+                    />
+                  ) : (
+                    heroArtIsPoster && (
+                      <img
+                        src={heroArt}
+                        alt=""
+                        className="relative mx-auto h-full w-auto max-w-full object-contain lg:hidden"
+                      />
+                    )
+                  )}
+                </>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center" style={{ background: "linear-gradient(to bottom right, var(--bg-1), var(--bg-0))" }}>
+                  <Film className="h-20 w-20 lg:hidden" style={{ color: "var(--border-strong)" }} />
+                </div>
+              )}
+              {/* Fades to --bg-0 rather than to black, so the picture dissolves
+                  into the page on every theme and the title can take --text.
+                  See `.title-hero-scrim` in index.css. */}
+              <div className="title-hero-scrim absolute inset-0" />
+            </div>
+
+            <div className="relative px-5 sm:px-8 lg:col-start-2 lg:row-start-1 lg:self-end lg:px-0">
+              {/*
+                * No "MOVIE"/"SERIES" chip over the artwork: the row under the
+                * title says it quietly and the rest of the panel makes it
+                * obvious. The status stays, in the fact row — "Returning" and
+                * "Ended" are the one thing here a reader cannot infer.
+                */}
+              <h2 className={`${PAGE_TITLE} lg:text-[2.75rem] lg:leading-[1.05]`} style={{ color: "var(--text)" }}>{item.name}</h2>
 
               {/* One line of facts, and the certification as a badge at the end
                   of it — see `buildMetaLine` for why that one leaves the run. */}
               {(factLine.length > 0 || item.certification || hasRating || item.status) && (
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8125rem]" style={{ color: "var(--text-dim)" }}>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8125rem] lg:mt-2.5 lg:text-[0.9375rem]" style={{ color: "var(--text-dim)" }}>
                   {factLine.map((part, index) => (
                     <span key={part} className="flex items-center gap-2">
                       {index > 0 && <span aria-hidden="true" style={{ color: "var(--text-mute)" }}>·</span>}
@@ -541,7 +568,7 @@ export function DetailPanel({
                   person is not the same kind of fact as a year or a genre, and
                   it is the one line here that names someone. */}
               {director && (
-                <p className="mt-1 truncate text-[0.8125rem]" style={{ color: "var(--text-mute)" }}>
+                <p className="mt-1 truncate text-[0.8125rem] lg:text-[0.9375rem]" style={{ color: "var(--text-mute)" }}>
                   {item.type === "movie" ? "Directed by " : "Created by "}
                   <span style={{ color: "var(--text-dim)" }}>{director}</span>
                 </p>
@@ -549,162 +576,172 @@ export function DetailPanel({
             </div>
           </div>
 
-          {/* Content */}
-          <div className="space-y-6 px-5 pb-10 pt-4 sm:px-8">
+          {/* The poster, on a desktop only: the phone's hero is the picture,
+              and a poster beside the title there is the layout this panel was
+              redesigned away from. */}
+          <div className="hidden overflow-hidden rounded-xl shadow-e3 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:block lg:self-end">
+            <Poster src={item.poster ?? undefined} alt={item.name} className="aspect-[2/3] w-full" sizes="208px" />
+          </div>
 
           {/*
-            * One primary action, and one beside it.
+            * One primary action, and the two that go with it.
             *
-            * The panel's two verbs were buried: "Log a Watch" sat inside the
-            * watch-history section near the bottom, and the check-in was a
-            * block below the tracking divider. They are what the screen is
-            * *for* — a wide filled button and a square secondary is how the
-            * platform says so, directly under the title.
-            *
-            * Two buttons rather than the design's three: it draws a tick and a
-            * plus beside the primary, and this app has no third verb that
-            * isn't already a control further down. Inventing one to fill the
-            * slot would be drawing the design rather than building it.
+            * A wide filled button and square secondaries is how the platform
+            * says what a screen is for. Each of these is the only one of its
+            * kind on the panel: logging a watch is the primary button and
+            * nowhere else, and so is checking in.
             */}
-          <div className="flex items-stretch gap-2.5">
-            <button
-              type="button"
-              onClick={openWatchModal}
-              disabled={!progressionReady}
-              className="btn-primary h-[3.125rem] flex-1 rounded-2xl text-[1.0625rem]"
-            >
-              <Play className="h-4 w-4 translate-x-[1px] fill-current" />
-              {/* Named only once the episode is known — see `progressionReady`.
-                  "Continue" alone is true while we are still finding out; a
-                  number would not be. */}
-              {item.type === "movie"
-                ? "Log a watch"
-                : nextUp
-                  ? `Continue · S${nextUp.season} E${nextUp.episode}`
-                  : "Continue"}
-            </button>
-            <button
-              type="button"
-              onClick={() => (item.type === "series" ? setShowCheckinModal(true) : checkInAndReport())}
-              disabled={checkinLoading || !!activeCheckin}
-              // Named for what it does rather than for its glyph, and titled as
-              // well — it is a 50px square with no label under it.
-              aria-label={activeCheckin ? "Already checked in" : `Check in to ${item.name}`}
-              title={activeCheckin ? "Already checked in" : "Check in"}
-              className="btn-secondary h-[3.125rem] w-[3.125rem] flex-none rounded-2xl px-0"
-            >
-              <Check className="h-[1.125rem] w-[1.125rem]" />
-            </button>
+          <div className="order-1 -mt-2 lg:col-start-2 lg:row-start-2 lg:mt-6">
+            <div className="flex items-stretch gap-2.5 lg:max-w-md">
+              <button
+                type="button"
+                onClick={openWatchModal}
+                disabled={!progressionReady}
+                className="btn-primary h-[3.125rem] min-w-0 flex-1 rounded-2xl text-[1.0625rem]"
+              >
+                <Play className="h-4 w-4 translate-x-[1px] fill-current" />
+                {/* Named only once the episode is known — see `progressionReady`.
+                    "Continue" alone is true while we are still finding out; a
+                    number would not be. */}
+                {item.type === "movie"
+                  ? "Log a watch"
+                  : nextUp
+                    ? `Continue · S${nextUp.season} E${nextUp.episode}`
+                    : "Continue"}
+              </button>
+              <button
+                type="button"
+                onClick={() => (item.type === "series" ? setShowCheckinModal(true) : checkInAndReport())}
+                // A series waits for its history and seasons as the primary
+                // action does: the dialog this opens defaults to the next
+                // episode, which is not known until both have arrived.
+                disabled={checkinLoading || !!activeCheckin || !progressionReady}
+                // Named for what it does rather than for its glyph, and titled as
+                // well — it is a 50px square with no label under it.
+                aria-label={activeCheckin ? "Already checked in" : `Check in to ${item.name}`}
+                title={activeCheckin ? "Already checked in" : "Check in"}
+                className="btn-secondary h-[3.125rem] w-[3.125rem] flex-none rounded-2xl px-0"
+              >
+                <Check className="h-[1.125rem] w-[1.125rem]" />
+              </button>
+              {/* Series only, and only once the dropped state is known — which
+                  covers both "still loading" and "the bundle failed". Offering
+                  to drop a show that is already dropped is worse than waiting. */}
+              {item.type === "series" && !sectionsLoading && isDropped !== null && (
+                <MoreActionsMenu isDropped={isDropped} onToggleDrop={() => void handleToggleDrop()} />
+              )}
+            </div>
+            {/* What is playing, when it is this title. Under the button that
+                started it rather than in a section of its own further down. */}
+            {activeCheckin && (
+              <div className="mt-3 lg:max-w-md">
+                <CheckInBlock activeCheckin={activeCheckin} onCheckout={(logWatch) => void handleCheckout(logWatch)} />
+              </div>
+            )}
           </div>
 
           {/* ─── What it is ───────────────────────────────────────
-              Opening a title you don't recognise has to answer "what is
-              this?" before it offers anywhere to file it, so everything
-              descriptive leads and the tracking controls follow. */}
+              The overview and the scores. Under the episode list on a phone
+              (a show you are part-way through is opened for its next episode,
+              not its premise); beside the title on a desktop. */}
+          <div className="order-3 space-y-6 empty:hidden lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:self-end">
+            {item.description && (
+              <div>
+                <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>Overview</h3>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>{item.description}</p>
+              </div>
+            )}
 
-          {/* Description */}
-          {item.description && (
-            <div>
-              <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>Overview</h3>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>{item.description}</p>
-            </div>
-          )}
-
-          {/* External Ratings: the profile's MDBList ratings when it has them on,
-              else the scores that came with the title. */}
-          {mdbList.ratings.length > 0 ? (
-            <MdbListRatings imdbId={item.imdbId} ratings={mdbList.ratings} />
-          ) : (
-            <ExternalRatings
-              imdbId={item.imdbId}
-              imdbRating={item.imdbRating}
-              rtScore={item.rtScore}
-              mcScore={item.mcScore}
-              loading={sectionsLoading || mdbList.loading}
-            />
-          )}
-
-          {/* External Links */}
-          <ExternalLinks tmdbId={item.tmdbId} type={item.type} />
-
-          {/* Where to watch */}
-          <ProvidersSection providers={providers} loading={sectionsLoading} />
-
-          {/* Cast */}
-          <CastSection cast={cast} loading={sectionsLoading} />
-
-          {/* ─── Your tracking ──────────────────────────────────── */}
-          <div className="flex items-center gap-3 pt-1">
-            <span className={MICRO_LABEL} style={{ color: "var(--text-mute)" }}>
-              Your tracking
-            </span>
-            <span aria-hidden="true" className="h-px flex-1" style={{ background: "var(--border)" }} />
+            {/* External ratings: the profile's MDBList ratings when it has them
+                on, else the scores that came with the title. The TMDB link is
+                the last entry of whichever row is drawn. */}
+            {mdbList.ratings.length > 0 ? (
+              <MdbListRatings imdbId={item.imdbId} ratings={mdbList.ratings} tmdbId={item.tmdbId} type={item.type} />
+            ) : (
+              <ExternalRatings
+                imdbId={item.imdbId}
+                imdbRating={item.imdbRating}
+                rtScore={item.rtScore}
+                mcScore={item.mcScore}
+                tmdbId={item.tmdbId}
+                type={item.type}
+                loading={sectionsLoading || mdbList.loading}
+              />
+            )}
           </div>
 
-          {/* Check-in / Now Watching */}
-          <CheckInBlock
-            loading={checkinLoading}
-            activeCheckin={activeCheckin}
-            isSeries={item.type === "series"}
-            onStartCheckin={() => checkInAndReport()}
-            onStartSeriesCheckin={() => setShowCheckinModal(true)}
-            onCheckout={(logWatch) => void handleCheckout(logWatch)}
-          />
+          {/* ─── Content: episodes, where to watch, cast, more like this ───
+              A wrapper only on a desktop, where it is the wide column. Below
+              that it is `contents`, and its sections take their place in the
+              one column by `order`. */}
+          <div className="contents lg:col-span-2 lg:row-start-3 lg:mt-12 lg:block lg:space-y-10">
+            {/* The episode list leads on a series: it is the most-used surface
+                on the panel, and it used to sit below the ratings, the cast,
+                the lists, the stars, the tags and the drop control. */}
+            {item.type === "series" && (
+              <div className="order-2 empty:hidden">
+                <SeasonsSection
+                  imdbId={item.imdbId}
+                  seasons={seasons}
+                  loading={sectionsLoading}
+                  onError={(msg) => onShowToast(msg, "error")}
+                  onToast={(msg, type) => onShowToast(msg, type)}
+                />
+              </div>
+            )}
 
-          {/* Lists */}
-          <ListsSection
-            imdbId={item.imdbId}
-            type={item.type}
-            name={item.name}
-            initialListIds={item.lists}
-            onError={(msg) => onShowToast(msg, "error")}
-            onToast={(msg, type) => onShowToast(msg, type)}
-          />
+            <div className="order-4 empty:hidden">
+              <ProvidersSection providers={providers} loading={sectionsLoading} />
+            </div>
 
-          {/* User Rating */}
-          <StarRating imdbId={item.imdbId} type={item.type} onError={(msg) => onShowToast(msg, "error")} />
+            <div className="order-5 empty:hidden">
+              <CastSection cast={cast} loading={sectionsLoading} />
+            </div>
 
-          {/* Tags */}
-          <TagsSection imdbId={item.imdbId} type={item.type} onError={(msg) => onShowToast(msg, "error")} />
+            <div className="order-8 empty:hidden">
+              <RecommendationsSection
+                items={recommendations}
+                loading={sectionsLoading}
+                onSelect={handleSelectRecommendation}
+              />
+            </div>
+          </div>
 
-          {/* Drop (series only) — a tracking change, so it lives with the rest
-              of them rather than as a footnote after every other section. */}
-          {item.type === "series" && (
-            <DropShowButton
-              isDropped={isDropped ?? false}
-              // Hidden until the dropped state is actually known, which covers
-              // both "still loading" and "the bundle failed".
-              loading={sectionsLoading || isDropped === null}
-              onToggle={() => void handleToggleDrop()}
-            />
-          )}
+          {/* ─── Your tracking ─── the narrow column on a desktop. */}
+          <div className="contents lg:col-start-3 lg:row-start-3 lg:mt-12 lg:block lg:space-y-10">
+            {/* Lists, your rating and tags as one block: three controls that
+                file the same title, where there used to be three sections
+                under a divider. */}
+            <section
+              aria-labelledby={trackingHeadingId}
+              className="order-6 space-y-4 rounded-2xl border p-4"
+              style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+            >
+              <h3 id={trackingHeadingId} className={MICRO_LABEL} style={{ color: "var(--text-mute)" }}>
+                Your tracking
+              </h3>
+              <ListsSection
+                imdbId={item.imdbId}
+                type={item.type}
+                name={item.name}
+                initialListIds={item.lists}
+                onError={(msg) => onShowToast(msg, "error")}
+                onToast={(msg, type) => onShowToast(msg, type)}
+              />
+              <StarRating imdbId={item.imdbId} type={item.type} onError={(msg) => onShowToast(msg, "error")} />
+              <TagsSection imdbId={item.imdbId} type={item.type} onError={(msg) => onShowToast(msg, "error")} />
+            </section>
 
-          {/* Season Breakdown (series only) */}
-          {item.type === "series" && (
-            <SeasonsSection
-              imdbId={item.imdbId}
-              seasons={seasons}
-              loading={sectionsLoading}
-              onError={(msg) => onShowToast(msg, "error")}
-              onToast={(msg, type) => onShowToast(msg, type)}
-            />
-          )}
+            <div className="order-7">
+              <WatchHistorySection
+                history={history}
+                loading={historyLoading}
+                onDeleteEvent={(event) => void handleDeleteEvent(event)}
+              />
+            </div>
+          </div>
 
-          {/* Watch History */}
-          <WatchHistorySection
-            history={history}
-            loading={historyLoading}
-            onLogWatch={openWatchModal}
-            onDeleteEvent={(event) => void handleDeleteEvent(event)}
-          />
-
-          {/* More Like This */}
-          <RecommendationsSection
-            items={recommendations}
-            loading={sectionsLoading}
-            onSelect={handleSelectRecommendation}
-          />
-
+          </div>
           </div>
           </div>
         </div>
@@ -714,17 +751,20 @@ export function DetailPanel({
       {watchTarget && (
         <WatchDateModal
           target={watchTarget}
+          seasons={seasons}
           onLog={handleLog}
           onClose={() => setWatchTarget(null)}
         />
       )}
 
-      {/* Check-in Modal (series only) */}
+      {/* Check-in Modal (series only). Opens on the same episode the primary
+          action names, once that is known. */}
       {showCheckinModal && item.type === "series" && (
         <CheckInModal
           seriesName={item.name}
-          defaultSeason={history.find((e) => e.season != null)?.season ?? 1}
-          defaultEpisode={(history.find((e) => e.episode != null)?.episode ?? 0) + 1}
+          seasons={seasons}
+          defaultSeason={nextUp?.season ?? history.find((e) => e.season != null)?.season ?? 1}
+          defaultEpisode={nextUp?.episode ?? (history.find((e) => e.episode != null)?.episode ?? 0) + 1}
           onCheckIn={async (season, episode) => { await handleCheckin(season, episode); }}
           onClose={() => setShowCheckinModal(false)}
         />

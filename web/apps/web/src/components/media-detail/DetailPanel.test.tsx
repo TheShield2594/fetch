@@ -121,13 +121,15 @@ describe("DetailPanel section degradation", () => {
     expect(screen.getByText(/Andrei Tarkovsky/)).toBeInTheDocument();
   });
 
-  it("keeps the drop button hidden while the dropped state is unknown", async () => {
+  it("keeps the drop control hidden while the dropped state is unknown", async () => {
+    const user = userEvent.setup();
     const { rerender } = renderPanel({ item: SERIES });
 
     await screen.findByRole("dialog", { name: "Severance" });
     // A failed bundle leaves `dropped` unknown, and defaulting it to false would
-    // offer to drop a show that is already dropped.
-    expect(screen.queryByRole("button", { name: /drop/i })).not.toBeInTheDocument();
+    // offer to drop a show that is already dropped. Dropping is the overflow's
+    // only item, so there is no overflow either.
+    expect(screen.queryByRole("button", { name: "More actions" })).not.toBeInTheDocument();
 
     rerender(
       <DetailPanel
@@ -143,7 +145,17 @@ describe("DetailPanel section degradation", () => {
       />
     );
 
-    expect(await screen.findByRole("button", { name: /drop/i })).toBeInTheDocument();
+    // In the overflow, not on the panel: nothing says "drop" until it is opened.
+    const more = await screen.findByRole("button", { name: "More actions" });
+    expect(screen.queryByRole("button", { name: /drop/i })).not.toBeInTheDocument();
+    await user.click(more);
+    expect(screen.getByRole("button", { name: /Drop this show/ })).toBeInTheDocument();
+
+    // Choosing it closes the overflow, and focus goes back to its trigger
+    // rather than to nowhere.
+    vi.mocked(api.dropShow).mockResolvedValue(undefined as never);
+    await user.click(screen.getByRole("button", { name: /Drop this show/ }));
+    expect(more).toHaveFocus();
   });
 
   it("survives the sections that fetch for themselves failing", async () => {
@@ -253,5 +265,89 @@ describe("DetailPanel MDBList ratings", () => {
 
     expect(await screen.findByText("7.9")).toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Ratings from MDBList" })).not.toBeInTheDocument();
+  });
+});
+
+const SEASONS_DETAIL: PanelDetail = {
+  ...FULL_DETAIL,
+  seasons: [
+    { seasonNumber: 1, name: "Season 1", episodeCount: 9, airYear: 2022, poster: null },
+    { seasonNumber: 2, name: "Season 2", episodeCount: 10, airYear: 2025, poster: null },
+  ],
+};
+
+const EPISODE_WATCH: WatchEvent = {
+  id: "ev-2",
+  imdbId: SERIES.imdbId,
+  type: "episode",
+  name: "Severance",
+  season: 1,
+  episode: 9,
+  watchedAt: "2026-01-02T20:00:00.000Z",
+  dateUnknown: false,
+};
+
+// The panel used to offer "Log a watch" twice and check-in twice, and gave a
+// rare destructive action a section of its own above the episode list.
+describe("DetailPanel actions", () => {
+  beforeEach(() => {
+    vi.mocked(api.getSeasonEpisodes).mockResolvedValue({ episodes: [] });
+  });
+
+  it("offers logging a watch and checking in once each", async () => {
+    renderPanel({ detail: FULL_DETAIL });
+
+    await screen.findByText("Donatas Banionis");
+    expect(screen.getAllByRole("button", { name: /log a watch/i })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /check in/i })).toHaveLength(1);
+  });
+
+  it("puts the episode list ahead of the overview on a series", async () => {
+    renderPanel({ item: SERIES, history: [], detail: SEASONS_DETAIL });
+
+    const seasons = await screen.findByText("Seasons");
+    const overview = screen.getByText("Overview");
+    const orderOf = (el: HTMLElement) => {
+      const cls = el.closest('[class*="order-"]')?.className ?? "";
+      return Number(/(?:^|\s)order-(\d+)/.exec(cls)?.[1]);
+    };
+    // The sections are one column ordered with CSS, so the order is the class.
+    expect(orderOf(seasons)).toBeLessThan(orderOf(overview));
+  });
+
+  it("opens the watch dialog on the next episode, bounded by the show's seasons", async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.logWatch).mockResolvedValue(undefined as never);
+    vi.mocked(api.getWatchHistory).mockResolvedValue([]);
+    renderPanel({ item: SERIES, history: [EPISODE_WATCH], detail: SEASONS_DETAIL });
+
+    // Season 1 is finished, so the next one up is the start of season 2.
+    await user.click(await screen.findByRole("button", { name: "Continue · S2 E1" }));
+
+    const season = screen.getByLabelText("Season") as HTMLSelectElement;
+    const episode = screen.getByLabelText("Episode") as HTMLSelectElement;
+    expect(season.value).toBe("2");
+    expect(within(season).getAllByRole("option").map((o) => o.textContent)).toEqual(["Season 1", "Season 2"]);
+    expect(within(episode).getAllByRole("option")).toHaveLength(10);
+
+    await user.selectOptions(season, "1");
+    expect(within(episode).getAllByRole("option")).toHaveLength(9);
+    await user.selectOptions(episode, "9");
+    await user.click(screen.getByRole("button", { name: "Just finished" }));
+
+    await waitFor(() =>
+      expect(api.logWatch).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "episode", seriesImdbId: SERIES.imdbId, season: 1, episode: 9 })
+      )
+    );
+  });
+
+  it("links to TMDB from the ratings row", async () => {
+    renderPanel({ item: { ...MOVIE, imdbRating: 7.9, tmdbId: 593 } });
+
+    const link = await screen.findByRole("link", { name: "View on TMDB" });
+    expect(link).toHaveAttribute("href", "https://www.themoviedb.org/movie/593");
+    // Inside the row the scores are in, not in one of its own.
+    expect(link.parentElement).toContainElement(screen.getByText("7.9"));
   });
 });

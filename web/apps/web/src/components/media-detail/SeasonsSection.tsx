@@ -4,6 +4,7 @@ import { api, type EpisodeInfo, OfflineWriteQueuedError, WATCH_STATE_STALE_EVENT
 import { ProgressRuler } from "../ProgressRuler";
 import { StarPicker } from "../StarPicker";
 import { KICKER } from "../typography";
+import { parseSizedTmdbImage, tmdbImageAtWidth } from "../../poster-widths";
 
 export interface SeasonInfo {
   seasonNumber: number;
@@ -11,6 +12,50 @@ export interface SeasonInfo {
   episodeCount: number;
   airYear: number | null;
   poster: string | null;
+}
+
+/**
+ * The widths TMDB lists for stills that suit a 112px thumbnail: 185 for a 1x
+ * screen, 300 for a denser one. Not the poster ladder `buildTmdbSrcSet` offers:
+ * that includes w154 and w342, which TMDB publishes for posters and not for
+ * stills, and a still that failed to load at one of them would be dropped.
+ */
+const STILL_WIDTHS = [185, 300] as const;
+
+function stillSrcSet(src: string): string | undefined {
+  const image = parseSizedTmdbImage(src);
+  if (!image) return undefined;
+  return STILL_WIDTHS.map((w) => `${tmdbImageAtWidth(image, w)} ${w}w`).join(", ");
+}
+
+/**
+ * An episode's still, in a 16:9 frame beside its name.
+ *
+ * Decorative: the name is on the row, and a still's content is not something
+ * the app can describe. A frame with no picture (TMDB has none, or it failed to
+ * load) keeps its place so the names in a season stay in one column.
+ */
+function EpisodeStill({ src, dimmed }: { src: string | null | undefined; dimmed: boolean }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <div
+      className="aspect-video w-24 flex-none overflow-hidden rounded-md sm:w-28"
+      style={{ background: "var(--surface-strong)" }}
+    >
+      {src && !failed && (
+        <img
+          src={src}
+          srcSet={stillSrcSet(src)}
+          sizes="112px"
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+          className={`h-full w-full object-cover ${dimmed ? "opacity-60" : ""}`}
+        />
+      )}
+    </div>
+  );
 }
 
 const episodeKey = (season: number, episode: number) => `${season}:${episode}`;
@@ -50,6 +95,9 @@ export function SeasonsSection({
   const [seasonRatings, setSeasonRatings] = useState<Record<number, number>>({});
   const [episodeRatings, setEpisodeRatings] = useState<Record<string, number>>({});
   const [pendingRating, setPendingRating] = useState<Record<string, boolean>>({});
+  // Which synopses are open: revealed, for an episode not yet watched; shown in
+  // full rather than clamped, for one that has been.
+  const [openSynopsis, setOpenSynopsis] = useState<Record<string, boolean>>({});
   /*
    * Guards every late-arriving response below against a show that has since
    * been swapped underneath it.
@@ -89,6 +137,7 @@ export function SeasonsSection({
     setEpisodesLoading({});
     setSeasonRatings({});
     setEpisodeRatings({});
+    setOpenSynopsis({});
     api.getWatchedEpisodes(imdbId)
       .then((res) => {
         if (!cancelled) setWatched(new Set(res.episodes.map((e) => episodeKey(e.season, e.episode))));
@@ -404,6 +453,7 @@ export function SeasonsSection({
           const currentEpisode = episodes?.find(
             (ep) => !watchedSet.has(episodeKey(s.seasonNumber, ep.episodeNumber))
           )?.episodeNumber;
+          const seasonHasStills = episodes?.some((ep) => !!ep.still) ?? false;
 
           return (
             // A grouped inset list per season — the group carries the fill and
@@ -510,121 +560,157 @@ export function SeasonsSection({
                       // twenty rows in two states with nothing saying where you
                       // stopped.
                       const isCurrent = !isWatched && ep.episodeNumber === currentEpisode;
+                      const synopsis = ep.overview?.trim() || null;
+                      const synopsisOpen = openSynopsis[k] === true;
+                      // Stars on an episode you have seen — or one you have
+                      // already rated. Rating an episode you have not watched
+                      // is not a thing anyone does, so the rows that don't need
+                      // the picker don't pay for it. The second half is not
+                      // symmetry: unmarking an episode deletes the watch event
+                      // and leaves the rating, and this is the only control in
+                      // the app that can clear one.
+                      const showStars = isWatched || episodeRatings[k] != null;
                       return (
                         /*
-                          * The platform's checklist row: the number leads, the
-                          * name and its facts take the middle, and the control
-                          * that changes anything is the circle on the trailing
-                          * edge.
+                          * The number leads, then the still, then the name and
+                          * its facts, and the control that changes anything is
+                          * the circle on the trailing edge. The synopsis and
+                          * the stars sit on lines of their own under that, at
+                          * the still's left edge: the star picker is 240px
+                          * wide, which the column beside a still cannot spare
+                          * on a phone.
                           *
-                          * The whole row used to be the watched toggle, with
-                          * the circle at its head — so the thing you read and
-                          * the thing you pressed were the same 300px target,
-                          * and the row's own metadata had to sit outside the
-                          * button that contained most of it. A row, not one big
-                          * button: the episode's stars are buttons of their own
-                          * and cannot be nested inside another.
+                          * A row, not one big button: the stars and the
+                          * synopsis are buttons of their own and cannot be
+                          * nested inside another.
                           */
                         <div
                           key={ep.episodeNumber}
-                          className="list-row flex w-full items-center gap-3 px-4 py-2.5"
+                          className="list-row w-full px-4 py-2.5"
                           // Past the number column and its gap, so the hairline
-                          // starts under the episode's name rather than under
-                          // the figure beside it.
+                          // starts under the still rather than under the figure
+                          // beside it.
                           style={{ "--list-inset": "2.75rem" } as React.CSSProperties}
                         >
-                          <span
-                            className={`w-5 flex-none text-[0.9375rem] tabular-nums ${isCurrent ? "font-semibold" : ""}`}
-                            style={{
-                              color: isCurrent
-                                ? "var(--accent-text)"
-                                : isWatched
-                                  ? "var(--text-mute)"
-                                  : "var(--text-dim)",
-                            }}
-                          >
-                            {ep.episodeNumber}
-                          </span>
-
-                          <div className="min-w-0 flex-1">
-                            <p
-                              className={`truncate text-[0.9375rem] ${isCurrent ? "font-semibold" : ""}`}
-                              style={{ color: isWatched ? "var(--text-mute)" : "var(--text)" }}
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`w-5 flex-none text-[0.9375rem] tabular-nums ${isCurrent ? "font-semibold" : ""}`}
+                              style={{
+                                color: isCurrent
+                                  ? "var(--accent-text)"
+                                  : isWatched
+                                    ? "var(--text-mute)"
+                                    : "var(--text-dim)",
+                              }}
                             >
-                              {ep.name}
-                            </p>
-                            {(ep.runtime || ep.airDate) && (
-                              <p className="mt-0.5 truncate text-[0.8125rem]" style={{ color: "var(--text-mute)" }}>
-                                {[
-                                  ep.runtime ? `${ep.runtime} min` : null,
-                                  // `2025-02-14` parses as UTC midnight, which
-                                  // is the 13th anywhere west of Greenwich. An
-                                  // air date is a calendar date, not an
-                                  // instant, so it is read in local time.
-                                  ep.airDate
-                                    ? new Date(`${ep.airDate.slice(0, 10)}T00:00:00`).toLocaleDateString(
-                                        undefined,
-                                        { month: "short", day: "numeric", year: "numeric" }
-                                      )
-                                    : null,
-                                ]
-                                  .filter(Boolean)
-                                  .join(" · ")}
+                              {ep.episodeNumber}
+                            </span>
+
+                            {/* Only in a season that has stills at all — a
+                                season with none stays the plain checklist
+                                rather than a column of empty frames. */}
+                            {seasonHasStills && (
+                              <EpisodeStill src={ep.still} dimmed={isWatched} />
+                            )}
+
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className={`truncate text-[0.9375rem] ${isCurrent ? "font-semibold" : ""}`}
+                                style={{ color: isWatched ? "var(--text-mute)" : "var(--text)" }}
+                              >
+                                {ep.name}
                               </p>
-                            )}
-                            {/*
-                              * On an episode you have seen — or one you have
-                              * already rated.
-                              *
-                              * The picker is ten pointer targets and 240px
-                              * wide, so on a phone it wrapped onto a line of
-                              * its own and every row — watched or not — was
-                              * twice as tall as the design's. Rating an episode
-                              * you have not watched is not a thing anyone does,
-                              * so the rows that don't need it don't pay for it.
-                              *
-                              * The second half of the condition is not
-                              * symmetry: unmarking an episode deletes the watch
-                              * event and leaves the rating, and this is the
-                              * only control in the app that can clear one — so
-                              * hiding it on an unwatched row would strand a
-                              * score with no way to take it back.
-                              */}
-                            {(isWatched || episodeRatings[k] != null) && (
-                              <StarPicker
-                                value={episodeRatings[k] ?? null}
-                                onRate={(value) => void rateEpisode(s.seasonNumber, ep.episodeNumber, value)}
-                                disabled={pendingRating[`e${k}`]}
-                                size="sm"
-                                subject={ep.name}
-                              />
-                            )}
+                              {(ep.runtime || ep.airDate) && (
+                                <p className="mt-0.5 truncate text-[0.8125rem]" style={{ color: "var(--text-mute)" }}>
+                                  {[
+                                    ep.runtime ? `${ep.runtime} min` : null,
+                                    // `2025-02-14` parses as UTC midnight, which
+                                    // is the 13th anywhere west of Greenwich. An
+                                    // air date is a calendar date, not an
+                                    // instant, so it is read in local time.
+                                    ep.airDate
+                                      ? new Date(`${ep.airDate.slice(0, 10)}T00:00:00`).toLocaleDateString(
+                                          undefined,
+                                          { month: "short", day: "numeric", year: "numeric" }
+                                        )
+                                      : null,
+                                  ]
+                                    .filter(Boolean)
+                                    .join(" · ")}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Filled when watched, an open ring when not — the
+                                two states of a checklist row on the platform.
+                                `ring-inset` so the ring is the edge of the circle
+                                rather than a halo around it, which at 20px is
+                                most of the circle. `tap-target` because 20px is
+                                well under the 44px SC 2.5.5 asks for, and the
+                                circle is deliberately not growing to meet it. */}
+                            <button
+                              type="button"
+                              onClick={() => void toggleEpisode(s.seasonNumber, ep.episodeNumber)}
+                              disabled={pendingEpisode[k]}
+                              className={`tap-target flex h-5 w-5 flex-none items-center justify-center rounded-full transition-opacity hover:opacity-75 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset ${
+                                isWatched ? "" : "ring-[1.5px] ring-current ring-inset"
+                              }`}
+                              style={
+                                isWatched
+                                  ? { background: "rgb(var(--accent-rgb))" }
+                                  : { color: "var(--text-mute)" }
+                              }
+                              aria-pressed={isWatched}
+                              aria-label={`${isWatched ? "Unmark" : "Mark"} ${ep.name} watched`}
+                            >
+                              {isWatched && <Check className="h-3 w-3 text-claw-on" strokeWidth={3} />}
+                            </button>
                           </div>
 
-                          {/* Filled when watched, an open ring when not — the
-                              two states of a checklist row on the platform.
-                              `ring-inset` so the ring is the edge of the circle
-                              rather than a halo around it, which at 20px is
-                              most of the circle. `tap-target` because 20px is
-                              well under the 44px SC 2.5.5 asks for, and the
-                              circle is deliberately not growing to meet it. */}
-                          <button
-                            type="button"
-                            onClick={() => void toggleEpisode(s.seasonNumber, ep.episodeNumber)}
-                            disabled={pendingEpisode[k]}
-                            className={`tap-target flex h-5 w-5 flex-none items-center justify-center rounded-full transition-opacity hover:opacity-75 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset ${
-                              isWatched ? "" : "ring-[1.5px] ring-current ring-inset"
-                            }`}
-                            style={
-                              isWatched
-                                ? { background: "rgb(var(--accent-rgb))" }
-                                : { color: "var(--text-mute)" }
-                            }
-                            aria-pressed={isWatched}
-                            aria-label={`${isWatched ? "Unmark" : "Mark"} ${ep.name} watched`}
-                          >
-                            {isWatched && <Check className="h-3 w-3 text-claw-on" strokeWidth={3} />}
-                          </button>
+                          {(synopsis || showStars) && (
+                            <div className="mt-1.5 pl-8">
+                              {/*
+                                * The synopsis of an episode you have not seen is
+                                * a spoiler, so it is not drawn until asked for —
+                                * left out rather than blurred, since blurred
+                                * text is still read out by a screen reader. One
+                                * you have seen shows its first two lines. Either
+                                * way the text is the button: pressing it opens
+                                * the whole synopsis, pressing again puts it back.
+                                */}
+                              {synopsis && (
+                                <button
+                                  type="button"
+                                  onClick={() => setOpenSynopsis((p) => ({ ...p, [k]: !synopsisOpen }))}
+                                  aria-expanded={synopsisOpen}
+                                  // Named only while the text is withheld; once
+                                  // it is drawn, the text is the name.
+                                  aria-label={isWatched || synopsisOpen ? undefined : `Show synopsis of ${ep.name}`}
+                                  className="block w-full rounded-md text-left text-[0.8125rem] leading-snug focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                                  style={{ color: "var(--text-dim)" }}
+                                >
+                                  {isWatched || synopsisOpen ? (
+                                    <span className={synopsisOpen ? "" : "line-clamp-2"}>{synopsis}</span>
+                                  ) : (
+                                    <span className="underline-offset-2 hover:underline" style={{ color: "var(--text-mute)" }}>
+                                      Show synopsis
+                                    </span>
+                                  )}
+                                </button>
+                              )}
+                              {showStars && (
+                                <div className={synopsis ? "mt-1.5" : ""}>
+                                  <StarPicker
+                                    value={episodeRatings[k] ?? null}
+                                    onRate={(value) => void rateEpisode(s.seasonNumber, ep.episodeNumber, value)}
+                                    disabled={pendingRating[`e${k}`]}
+                                    size="sm"
+                                    subject={ep.name}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })

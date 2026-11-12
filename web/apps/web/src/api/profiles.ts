@@ -56,6 +56,13 @@ export const profilesApi = {
   // `currentPin` is required by the server for a PIN-protected profile unless
   // the stored profile token was minted for that same profile — deleting one
   // takes its whole history with it, so it is gated like a PIN change.
+  /** The admin clears a forgotten PIN on a profile in their own account. */
+  clearProfilePin(profileId: string, password: string) {
+    return request<{ profile: Profile }>(`/profiles/${encodeURIComponent(profileId)}/clear-pin`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+  },
   deleteProfile(profileId: string, currentPin?: string) {
     return request<void>(`/profiles/${encodeURIComponent(profileId)}`, {
       method: "DELETE",

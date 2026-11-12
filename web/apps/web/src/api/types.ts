@@ -360,6 +360,16 @@ export type Device = {
   name: string;
   createdAt: string;
   lastSeenAt: string | null;
+  /** What the TV reported after its last sync. Absent from an older API. */
+  appVersion?: string | null;
+  flavor?: string | null;
+  lastSyncAt?: string | null;
+  lastSyncOk?: boolean | null;
+  lastSyncError?: string | null;
+  /** The profile the TV last said it was using. */
+  currentProfile?: { id: string; name: string } | null;
+  /** The profiles on the TV, in its order. */
+  profiles?: { id: string; name: string; slot: number }[];
 };
 
 /**

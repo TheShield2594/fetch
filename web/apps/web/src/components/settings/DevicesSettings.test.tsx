@@ -8,7 +8,13 @@ vi.mock("../../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../api")>();
   return {
     ...actual,
-    api: { getDevices: vi.fn(), confirmPairing: vi.fn(), revokeDevice: vi.fn(), renameDevice: vi.fn() },
+    api: {
+      getDevices: vi.fn(),
+      confirmPairing: vi.fn(),
+      revokeDevice: vi.fn(),
+      renameDevice: vi.fn(),
+      revokeAllDevices: vi.fn(),
+    },
   };
 });
 
@@ -17,6 +23,7 @@ const getDevices = vi.mocked(api.getDevices);
 const confirmPairing = vi.mocked(api.confirmPairing);
 const revokeDevice = vi.mocked(api.revokeDevice);
 const renameDevice = vi.mocked(api.renameDevice);
+const revokeAllDevices = vi.mocked(api.revokeAllDevices);
 
 const LIVING_ROOM = { id: "d1", name: "Living room", createdAt: "2026-10-01T00:00:00Z", lastSeenAt: null };
 
@@ -126,6 +133,46 @@ describe("DevicesSettings", () => {
     await user.click(screen.getByRole("button", { name: "Sign out" }));
 
     await waitFor(() => expect(revokeDevice).toHaveBeenCalledWith("d1"));
+    await waitFor(() => expect(screen.queryByRole("list", { name: "Signed-in devices" })).not.toBeInTheDocument());
+  });
+
+  it("shows each TV's build, its last sync and who is on it", async () => {
+    getDevices.mockResolvedValue({
+      devices: [
+        {
+          ...LIVING_ROOM,
+          appVersion: "1.4.0",
+          lastSyncAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+          lastSyncOk: false,
+          lastSyncError: "Timed out",
+          currentProfile: { id: "p2", name: "Kids" },
+          profiles: [
+            { id: "p1", name: "Alex", slot: 1 },
+            { id: "p2", name: "Kids", slot: 2 },
+          ],
+        },
+        { id: "d2", name: "Bedroom", createdAt: "2026-10-01T00:00:00Z", lastSeenAt: null, lastSyncOk: null },
+      ],
+    });
+    await renderDevices();
+
+    expect(screen.getByText("Last sync failed 5m ago: Timed out")).toBeInTheDocument();
+    expect(screen.getByText("App 1.4.0 · Using Kids · Profiles: Alex, Kids")).toBeInTheDocument();
+    expect(screen.getByText("Hasn't synced yet")).toBeInTheDocument();
+  });
+
+  it("signs out every TV after confirming", async () => {
+    const user = userEvent.setup();
+    getDevices.mockResolvedValue({ devices: [LIVING_ROOM, { ...LIVING_ROOM, id: "d2", name: "Bedroom" }] });
+    revokeAllDevices.mockResolvedValue({ count: 2 });
+    await renderDevices();
+
+    await user.click(screen.getByRole("button", { name: "Sign out all TVs" }));
+    expect(revokeAllDevices).not.toHaveBeenCalled();
+    expect(screen.getByRole("alertdialog", { name: "Sign out all TVs?" })).toBeInTheDocument();
+    await user.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Sign out all TVs" }));
+
+    await waitFor(() => expect(revokeAllDevices).toHaveBeenCalled());
     await waitFor(() => expect(screen.queryByRole("list", { name: "Signed-in devices" })).not.toBeInTheDocument());
   });
 });

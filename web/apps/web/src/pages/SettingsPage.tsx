@@ -284,7 +284,8 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     group: "you",
     title: "Account",
     icon: <UserCircle size={20} />,
-    keywords: "sign in sign out log out password username login",
+    keywords:
+      "sign in sign out log out password username login sessions devices browsers sign out everywhere activity log security delete account",
     content: <AccountSettings />,
   },
   // This server: what it offers and to whom, and how its own work is going.
@@ -312,7 +313,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     group: "server",
     title: "Invites & accounts",
     icon: <UserPlus size={20} />,
-    keywords: "invite friend share sign up users accounts members remove",
+    keywords: "invite friend share sign up users accounts members remove reset password temporary admin transfer",
     content: <InvitesSettings />,
   },
   {

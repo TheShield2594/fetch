@@ -133,17 +133,17 @@ describe("NotificationChannelsSettings", () => {
 
   it("asks before removing a channel, and drops it from the list once removed", async () => {
     getNotificationChannels.mockResolvedValue({ channels: [channel()] });
-    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
     await renderChannels();
 
     await userEvent.click(screen.getByRole("button", { name: /remove phone/i }));
     expect(deleteNotificationChannel).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
 
-    confirm.mockReturnValue(true);
     await userEvent.click(screen.getByRole("button", { name: /remove phone/i }));
+    await userEvent.click(screen.getByRole("button", { name: "Remove channel" }));
 
     await waitFor(() => expect(screen.queryByText("Phone")).not.toBeInTheDocument());
-    confirm.mockRestore();
   });
 
   it("says the list couldn't be loaded rather than showing an empty one", async () => {

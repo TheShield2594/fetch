@@ -43,4 +43,8 @@ export const devicesApi = {
   revokeDevice(deviceId: string) {
     return request<void>(`/devices/${encodeURIComponent(deviceId)}`, { method: "DELETE" });
   },
+  /** Signs out every TV this account paired. */
+  revokeAllDevices() {
+    return request<{ count: number }>("/devices", { method: "DELETE" });
+  },
 };

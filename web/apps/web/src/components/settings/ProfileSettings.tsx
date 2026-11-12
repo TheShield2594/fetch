@@ -4,7 +4,12 @@ import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } fr
 import { api, ApiError, type Profile, type ProfileSummary } from "../../api";
 import { useProfile } from "../../hooks/useProfile";
 import { useToast } from "../../hooks/useToast";
+import { useAccount } from "../../hooks/useAccount";
+import { IDLE_LOCK_CHOICES, setIdleLockMinutes, useIdleLockMinutes } from "../../hooks/useIdleLock";
 import { ProfileAvatar } from "../ProfileAvatar";
+import { ConfirmReview } from "../ConfirmReview";
+import { PasswordField } from "../PasswordField";
+import { SelectField } from "../SelectField";
 import { ProfileEditor } from "./ProfileEditor";
 
 // A PIN-protected profile this browser hasn't unlocked needs its PIN for any
@@ -79,6 +84,7 @@ function RenameForm({ profile, needsPin, onSaved, onCancel }: { profile: Profile
 // profile's PIN protection without ever knowing it, defeating its purpose.
 function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p: Profile) => void; onCancel: () => void }) {
   const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
   const [currentPin, setCurrentPin] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,6 +97,12 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
     if (profile.hasPin && !currentPin.trim()) return;
     if (!isValidPinFormat(trimmed)) {
       setError(`${PIN_FORMAT_ERROR}.`);
+      return;
+    }
+    // Typed twice: one slip here and the profile, with its history, is behind
+    // a PIN nobody knows.
+    if (trimmed !== confirmPin.trim()) {
+      setError("The PINs don't match.");
       return;
     }
     setSaving(true);
@@ -144,9 +156,20 @@ function PinForm({ profile, onSaved, onCancel }: { profile: Profile; onSaved: (p
         className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
         style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
       />
+      <input
+        type="password"
+        inputMode="numeric"
+        autoComplete="new-password"
+        value={confirmPin}
+        onChange={(e) => setConfirmPin(e.target.value)}
+        placeholder="Confirm PIN"
+        aria-label={`Confirm the new PIN for ${profile.name}`}
+        className="w-full min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-sm field-control"
+        style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
+      />
       <button
         type="submit"
-        disabled={saving || !pin.trim() || (profile.hasPin && !currentPin.trim())}
+        disabled={saving || !pin.trim() || !confirmPin.trim() || (profile.hasPin && !currentPin.trim())}
         aria-label="Save PIN"
         className="flex-none rounded-lg p-1.5 text-success hover:bg-[var(--surface-strong)] disabled:opacity-50"
       >
@@ -350,6 +373,65 @@ function DeleteReview({
   );
 }
 
+/**
+ * A forgotten PIN, cleared by the admin with their account password (the
+ * server allows it only for a profile in the admin's own account). The
+ * profile is then open to anyone using the account until a new PIN is set.
+ */
+function ClearPinReview({ profile, onCleared, onCancel }: { profile: Profile; onCleared: (p: Profile) => void; onCancel: () => void }) {
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const clear = async () => {
+    if (!password) {
+      setError("Enter your account password.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const { profile: updated } = await api.clearProfilePin(profile.id, password);
+      onCleared(updated);
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.status === 401
+          ? "Incorrect password."
+          : err instanceof Error
+            ? err.message
+            : "Could not clear the PIN."
+      );
+      setBusy(false);
+    }
+  };
+
+  return (
+    <ConfirmReview
+      label={`Clear the PIN on ${profile.name}?`}
+      message={
+        <>
+          Clear the PIN on <strong>{profile.name}</strong>? Anyone using this account will be able to open it until you
+          set a new one.
+        </>
+      }
+      confirmLabel="Clear PIN"
+      icon={<Unlock size={14} />}
+      onConfirm={() => void clear()}
+      onCancel={onCancel}
+      busy={busy}
+      error={error}
+    >
+      <PasswordField
+        label="Your account password"
+        value={password}
+        onChange={setPassword}
+        autoComplete="current-password"
+        autoFocus
+      />
+    </ConfirmReview>
+  );
+}
+
 function ProfileRow({
   profile,
   isActive,
@@ -366,8 +448,12 @@ function ProfileRow({
   onDeleted: (id: string) => void;
 }) {
   const [editing, setEditing] = useState<
-    "none" | "name" | "pin" | "removePin" | "settings" | "reviewDelete" | "confirmDelete"
+    "none" | "name" | "pin" | "removePin" | "clearPin" | "settings" | "reviewDelete" | "confirmDelete"
   >("none");
+  // Only a signed-in admin may clear a forgotten PIN (`account` is null under
+  // the API token, which has the server's `fetch clear-pin` instead).
+  const { account, isAdmin } = useAccount();
+  const canClearPin = isAdmin && account !== null;
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { showToast } = useToast();
@@ -498,6 +584,28 @@ function ProfileRow({
           </>
         )}
       </div>
+      {profile.hasPin && (editing === "pin" || editing === "removePin") && (
+        canClearPin ? (
+          <button
+            type="button"
+            onClick={() => setEditing("clearPin")}
+            className="mt-1.5 text-xs font-medium text-accent-text hover:underline"
+          >
+            Forgot the PIN?
+          </button>
+        ) : (
+          <p className="mt-1.5 text-xs" style={{ color: "var(--text-mute)" }}>
+            Forgot the PIN? Ask the admin to clear it.
+          </p>
+        )
+      )}
+      {editing === "clearPin" && (
+        <ClearPinReview
+          profile={profile}
+          onCleared={(p) => { onUpdated(p); setEditing("none"); showToast(`PIN cleared for ${p.name}`); }}
+          onCancel={() => setEditing("none")}
+        />
+      )}
       {editing === "settings" && (
         <ProfileEditor
           profile={profile}
@@ -516,6 +624,34 @@ function ProfileRow({
         />
       )}
       {error && <p role="alert" className="mt-1.5 flex items-center gap-1.5 text-xs text-danger"><AlertCircle size={13} /> {error}</p>}
+    </div>
+  );
+}
+
+/**
+ * How long a PIN profile stays open on this browser without use. Per browser,
+ * not per profile: it is about whether this computer is shared.
+ */
+function IdleLockSetting() {
+  const minutes = useIdleLockMinutes();
+  const id = useId();
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <label htmlFor={id} className="text-sm" style={{ color: "var(--text-dim)" }}>
+        Lock PIN profiles on this browser after
+      </label>
+      <SelectField
+        id={id}
+        value={String(minutes)}
+        onChange={(e) => setIdleLockMinutes(Number(e.target.value))}
+        className="rounded-xl px-3 py-2 text-sm font-medium"
+      >
+        {IDLE_LOCK_CHOICES.map((choice) => (
+          <option key={choice} value={choice}>
+            {choice === 0 ? "Never (stay open 12 hours)" : `${choice} minutes of inactivity`}
+          </option>
+        ))}
+      </SelectField>
     </div>
   );
 }
@@ -623,6 +759,8 @@ export function ProfileSettings() {
       >
         <Users size={16} /> Switch Profile
       </button>
+
+      {profiles.some((p) => p.hasPin) && <IdleLockSetting />}
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>

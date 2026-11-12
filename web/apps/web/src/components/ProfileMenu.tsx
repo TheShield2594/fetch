@@ -1,9 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router";
-import { Download, LogOut, Palette, Users, UserCog } from "lucide-react";
+import { Download, Lock, LogOut, Palette, Users, UserCog } from "lucide-react";
 import { api } from "../api";
-import { useProfile } from "../hooks/useProfile";
+import { lockActiveProfile, useProfile } from "../hooks/useProfile";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { MANUAL_INSTALL_HINT, useInstallOffer } from "../hooks/useInstallOffer";
 import { ProfileAvatar } from "./ProfileAvatar";
@@ -190,6 +190,22 @@ function ProfileMenuPanel({
         <Users className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-dim)" }} />
         Switch profile
       </button>
+      {/* Only a PIN profile has anything to lock: without a PIN the picker
+          would open it again with a tap. Locking keeps the account signed in. */}
+      {profile?.hasPin && (
+        <button
+          type="button"
+          className={ROW}
+          style={{ color: "var(--text)" }}
+          onClick={() => {
+            onClose(false);
+            lockActiveProfile();
+          }}
+        >
+          <Lock className="h-4 w-4 flex-none" aria-hidden="true" style={{ color: "var(--text-dim)" }} />
+          Lock {profile.name}
+        </button>
+      )}
       <Link
         to="/settings?section=profile"
         className={ROW}

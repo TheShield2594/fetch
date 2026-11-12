@@ -1,10 +1,17 @@
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
-import { Check, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
+import { Check, Loader2, AlertCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { type Account, api, ApiError, inviteCodeFromPath, runtimeConfig } from "../api";
 import { BrandLockup } from "../components/BrandMark";
 import { TmdbSettings } from "../components/settings/TmdbSettings";
 import { TraktSettings } from "../components/settings/TraktSettings";
 import { SECTION_TITLE } from "../components/typography";
+import {
+  FIELD_LABEL_CLASS as LABEL_CLASS,
+  FieldError,
+  newPasswordProblem,
+  PASSWORD_INPUT_CLASS as INPUT_CLASS,
+  PasswordField,
+} from "../components/PasswordField";
 
 type Step = "account" | "tmdb" | "trakt" | "done";
 
@@ -89,21 +96,6 @@ function WizardShell({
 
 type AccountMode = "bootstrap" | "login" | "register";
 
-const INPUT_CLASS =
-  "w-full rounded-xl border border-[var(--border-field)] bg-[var(--bg-0)] px-4 py-3 text-sm text-[var(--text)] field-control";
-
-const LABEL_CLASS = "block text-xs font-semibold";
-
-/** The message under a field that failed validation, read out as its description. */
-function FieldError({ id, message }: { id: string; message: string | undefined }) {
-  if (!message) return null;
-  return (
-    <p id={id} className="mt-1.5 flex items-center gap-1.5 text-xs text-danger">
-      <AlertCircle size={14} aria-hidden="true" /> {message}
-    </p>
-  );
-}
-
 /**
  * A labelled text field. The label sits above the field and stays while you
  * type: a placeholder standing in for one vanished on the first keystroke, and
@@ -145,57 +137,11 @@ function TextField({
   );
 }
 
-/** A labelled password field with a show/hide toggle. */
-function PasswordInput({
-  label,
-  value,
-  onChange,
-  autoComplete,
-  error,
-  inputRef,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  autoComplete: string;
-  error?: string | undefined;
-  inputRef?: React.Ref<HTMLInputElement>;
-}) {
-  const [visible, setVisible] = useState(false);
-  const id = useId();
-  const errorId = `${id}-error`;
-  return (
-    <div>
-      <label htmlFor={id} className={LABEL_CLASS} style={{ color: "var(--text)" }}>
-        {label}
-      </label>
-      <div className="relative mt-1.5">
-        <input
-          id={id}
-          ref={inputRef}
-          type={visible ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          autoComplete={autoComplete}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
-          className={`${INPUT_CLASS} pr-12`}
-        />
-        <button
-          type="button"
-          onClick={() => setVisible((p) => !p)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-[var(--text-mute)] transition-colors hover:bg-[var(--surface-strong)] hover:text-[var(--text)]"
-          aria-label={visible ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
-        >
-          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-      </div>
-      <FieldError id={errorId} message={error} />
-    </div>
-  );
-}
-
 type AccountField = "apiToken" | "username" | "password" | "confirm";
+
+/** Where an admin who forgot their password is sent: the server-side reset. */
+export const RECOVERY_GUIDE_URL =
+  "https://github.com/TheShield2594/fetch/blob/main/web/docs/troubleshooting.md#forgotten-password-or-pin";
 
 const ACCOUNT_COPY: Record<AccountMode, { title: string; body: string; submit: string }> = {
   bootstrap: {
@@ -222,7 +168,7 @@ function AccountStep({
 }: {
   mode: AccountMode;
   inviteCode: string | null;
-  onSignedIn: (account: Account) => void;
+  onSignedIn: (account: Account, password: string) => void;
 }) {
   // A token already on this device from before accounts existed is the API
   // token, so it fills in the first-run form rather than being asked for again.
@@ -251,6 +197,10 @@ function AccountStep({
     if (mode === "bootstrap" && !apiToken.trim()) errors.apiToken = "Enter the API token your server was configured with.";
     if (!username.trim()) errors.username = "Enter a username.";
     if (!password) errors.password = "Enter a password.";
+    else if (creating) {
+      const problem = newPasswordProblem(password);
+      if (problem) errors.password = problem;
+    }
     if (creating) {
       if (!confirm) errors.confirm = "Enter the password again.";
       else if (password && password !== confirm) errors.confirm = "The passwords don't match.";
@@ -279,7 +229,7 @@ function AccountStep({
           : mode === "register"
             ? await api.register(inviteCode ?? "", username.trim(), password)
             : await api.login(username.trim(), password);
-      onSignedIn(account);
+      onSignedIn(account, password);
     } catch (err) {
       if (mode === "bootstrap" && err instanceof ApiError && err.status === 401) {
         setError("That API token was rejected by the server. Double-check it and try again.");
@@ -302,7 +252,7 @@ function AccountStep({
         </p>
       </div>
       {mode === "bootstrap" && (
-        <PasswordInput
+        <PasswordField
           label="API token"
           value={apiToken}
           onChange={setApiToken}
@@ -323,16 +273,17 @@ function AccountStep({
         error={fieldErrors.username}
         inputRef={usernameRef}
       />
-      <PasswordInput
+      <PasswordField
         label="Password"
         value={password}
         onChange={setPassword}
         autoComplete={creating ? "new-password" : "current-password"}
         error={fieldErrors.password}
         inputRef={passwordRef}
+        newPassword={creating}
       />
       {creating && (
-        <PasswordInput
+        <PasswordField
           label="Confirm password"
           value={confirm}
           onChange={setConfirm}
@@ -346,6 +297,89 @@ function AccountStep({
       )}
       <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full">
         {submitting ? <><Loader2 size={16} className="animate-spin" /> Working…</> : <>{copy.submit} <ArrowRight size={16} /></>}
+      </button>
+      {mode === "login" && (
+        <p className="text-xs leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          Forgot your password? Ask the admin to set a temporary one. If you are the admin, see the{" "}
+          <a href={RECOVERY_GUIDE_URL} target="_blank" rel="noreferrer" className="font-medium text-accent-text underline">
+            recovery guide
+          </a>
+          .
+        </p>
+      )}
+    </form>
+  );
+}
+
+/**
+ * After signing in with a password someone else chose — a temporary one from
+ * the admin, or one reset on the server — the account picks its own before
+ * going any further.
+ */
+function NewPasswordStep({
+  account,
+  currentPassword,
+  onDone,
+}: {
+  account: Account;
+  currentPassword: string;
+  onDone: (account: Account) => void;
+}) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [errors, setErrors] = useState<{ password?: string | undefined; confirm?: string | undefined }>({});
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const next = {
+      password: newPasswordProblem(password) ?? (password === currentPassword ? "Choose a different password." : undefined),
+      confirm: !confirm ? "Enter the password again." : confirm !== password ? "The passwords don't match." : undefined,
+    };
+    setErrors(next);
+    if (next.password || next.confirm) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await api.changePassword(currentPassword, password);
+      onDone({ ...account, mustChangePassword: false });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not change the password.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} noValidate className="space-y-4">
+      <div>
+        <h1 className={SECTION_TITLE}>Choose a new password</h1>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          You signed in with a temporary password. Choose your own to continue.
+        </p>
+      </div>
+      <PasswordField
+        label="New password"
+        value={password}
+        onChange={setPassword}
+        autoComplete="new-password"
+        error={errors.password}
+        newPassword
+        autoFocus
+      />
+      <PasswordField
+        label="Confirm new password"
+        value={confirm}
+        onChange={setConfirm}
+        autoComplete="new-password"
+        error={errors.confirm}
+      />
+      {error && (
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+      )}
+      <button type="submit" disabled={saving} className="btn-primary btn-lg w-full">
+        {saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : <>Save and continue <ArrowRight size={16} /></>}
       </button>
     </form>
   );
@@ -448,6 +482,8 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
   const [mode, setMode] = useState<AccountMode | null>(inviteCode ? "register" : null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
+  // The temporary password just used to sign in, while a new one is chosen.
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -472,8 +508,13 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
     onComplete();
   };
 
-  const signedIn = (next: Account) => {
+  const signedIn = (next: Account, password?: string) => {
     setAccount(next);
+    if (next.mustChangePassword && password) {
+      setTemporaryPassword(password);
+      return;
+    }
+    setTemporaryPassword(null);
     // Only the admin's first run goes on to the server's integrations; anyone
     // signing in to an install that is already set up goes straight in.
     if (mode === "bootstrap") setStep("tmdb");
@@ -486,7 +527,12 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
 
   return (
     <WizardShell step={step} showProgress={mode === "bootstrap"}>
-      {step === "account" && account && <SignedInStep account={account} onContinue={() => setStep("tmdb")} />}
+      {step === "account" && account && temporaryPassword !== null && (
+        <NewPasswordStep account={account} currentPassword={temporaryPassword} onDone={(next) => signedIn(next)} />
+      )}
+      {step === "account" && account && temporaryPassword === null && (
+        <SignedInStep account={account} onContinue={() => setStep("tmdb")} />
+      )}
       {step === "account" && !account && mode && (
         <AccountStep mode={mode} inviteCode={inviteCode} onSignedIn={signedIn} />
       )}

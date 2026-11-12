@@ -13,6 +13,13 @@ export const dataApi = {
   exportData() {
     return request<ExportPayload>("/export", { timeoutMs: 60000 });
   },
+  /** Clears the active profile's watch history (and resume points), its ratings, or both. */
+  clearProfileData(what: { history?: boolean; ratings?: boolean }) {
+    return request<{ cleared: { watchEvents: number; seriesProgress: number; playbackProgress: number; ratings: number } }>(
+      "/data/clear",
+      { method: "POST", body: JSON.stringify(what) }
+    );
+  },
   importData(payload: ExportPayload) {
     return request<{ status: string; summary: ImportSummary }>("/import", {
       method: "POST",

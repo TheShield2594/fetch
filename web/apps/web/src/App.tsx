@@ -17,7 +17,8 @@ import { SettingsHealthProvider } from "./hooks/useSettingsHealth";
 import { type Theme, ThemeContext, toTheme, useTheme } from "./hooks/useTheme";
 import { ToastProvider } from "./hooks/useToast";
 import { TitlePanelProvider } from "./components/media-detail/titlePanel";
-import { ProfileProvider, useProfile } from "./hooks/useProfile";
+import { lockActiveProfile, ProfileProvider, useProfile } from "./hooks/useProfile";
+import { useIdleLock } from "./hooks/useIdleLock";
 import { AccountProvider } from "./hooks/useAccount";
 import { ShelfPage } from "./pages/ShelfPage";
 import {
@@ -260,6 +261,10 @@ function AppShell({
   // make those writes: the tab that logs a watch offline is rarely the surface
   // still open when the network returns.
   useOfflineWriteQueue();
+
+  // A PIN profile locks itself after the browser's chosen spell of inactivity
+  // (Settings → Profile); off unless someone picked a limit on this browser.
+  useIdleLock(Boolean(profile?.hasPin), lockActiveProfile);
 
   // Warm the chunks a tap can reach with no hover to warn us first. Runs on
   // idle, so it queues behind Discover's own render and requests.

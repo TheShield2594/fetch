@@ -204,26 +204,25 @@ function NewPinFields({
 function ClearPinReview({ profile, onCleared, onCancel }: { profile: Profile; onCleared: (p: Profile) => void; onCancel: () => void }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  // The password's own errors go on its field, where they mark it invalid
+  // and are read with it; anything else is the review's.
+  const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const clear = async () => {
     if (!password) {
-      setError("Enter your account password.");
+      setPasswordError("Enter your account password.");
       return;
     }
     setBusy(true);
     setError(null);
+    setPasswordError(undefined);
     try {
       const { profile: updated } = await api.clearProfilePin(profile.id, password);
       onCleared(updated);
     } catch (err) {
-      setError(
-        err instanceof ApiError && err.status === 401
-          ? "Incorrect password."
-          : err instanceof Error
-            ? err.message
-            : "Could not clear the PIN."
-      );
+      if (err instanceof ApiError && err.status === 401) setPasswordError("Incorrect password.");
+      else setError(err instanceof Error ? err.message : "Could not clear the PIN.");
       setBusy(false);
     }
   };
@@ -248,6 +247,7 @@ function ClearPinReview({ profile, onCleared, onCancel }: { profile: Profile; on
         label="Your account password"
         value={password}
         onChange={setPassword}
+        error={passwordError}
         autoComplete="current-password"
         autoFocus
       />

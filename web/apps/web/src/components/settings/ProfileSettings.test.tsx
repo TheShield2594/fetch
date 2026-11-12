@@ -515,6 +515,8 @@ describe("ProfileSettings recovery and locking", () => {
     await user.type(within(review).getByLabelText("Your account password"), "wrong-one");
     await user.click(within(review).getByRole("button", { name: "Clear PIN" }));
     expect(await within(review).findByText("Incorrect password.")).toBeInTheDocument();
+    expect(within(review).getByLabelText("Your account password")).toHaveAttribute("aria-invalid", "true");
+    expect(within(review).getByLabelText("Your account password")).toHaveAccessibleDescription(/Incorrect password/);
 
     await user.clear(within(review).getByLabelText("Your account password"));
     await user.type(within(review).getByLabelText("Your account password"), "owner-password");

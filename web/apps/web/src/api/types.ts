@@ -158,7 +158,13 @@ export type NotificationChannel = {
   id: string;
   kind: NotificationChannelKind;
   name: string;
+  /**
+   * Masked for display (`https://ntfy.sh/…opic`): the full URL is write-only,
+   * since for a webhook it is the secret. Empty when `urlReadable` is false.
+   */
   url: string;
+  /** False when the stored URL was encrypted under an API_TOKEN the server no longer has. */
+  urlReadable: boolean;
   /** The token itself is write-only — the API never sends it back. */
   hasToken: boolean;
   enabled: boolean;

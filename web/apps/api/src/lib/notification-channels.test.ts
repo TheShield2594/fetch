@@ -296,5 +296,50 @@ describe("sendToChannel", () => {
         /API_TOKEN has changed since it was saved/
       );
     });
+
+    it("posts to the decrypted URL, not what the column holds", async () => {
+      process.env.API_TOKEN = "channel-token-key";
+      const { sendToChannel } = await loadModule();
+      const { SECRET_CONTEXT, encryptSecret } = await import("./secret-box.js");
+      const stored = encryptSecret(SECRET_CONTEXT.notificationChannelUrl, "https://ntfy.sh/fetch");
+
+      await sendToChannel(channel({ url: stored }), EVENT, LAN);
+
+      expect(first(fetchMock.mock.calls, "fetchMock call")[0]).toBe("https://ntfy.sh/fetch");
+    });
+
+    it("says why rather than posting nowhere when the URL won't decrypt", async () => {
+      process.env.API_TOKEN = "channel-token-key";
+      const { sendToChannel, ChannelSendError } = await loadModule();
+      const { SECRET_CONTEXT, encryptSecret } = await import("./secret-box.js");
+      const stored = encryptSecret(SECRET_CONTEXT.notificationChannelUrl, "https://ntfy.sh/fetch");
+      process.env.API_TOKEN = "rotated-key";
+
+      const error = await sendToChannel(channel({ name: "Phone", url: stored }), EVENT, LAN).catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(ChannelSendError);
+      expect((error as InstanceType<typeof ChannelSendError>).outcome).toBe("misconfigured");
+      expect((error as Error).message).toMatch(/Phone: stored URL could not be decrypted/);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe("maskChannelUrl", () => {
+  it("keeps the host and the last few characters, and nothing else of the path", async () => {
+    const { maskChannelUrl } = await loadModule();
+    expect(maskChannelUrl("https://discord.com/api/webhooks/123/tok-abcd")).toBe("https://discord.com/…abcd");
+    expect(maskChannelUrl("https://ntfy.sh/my-private-topic")).toBe("https://ntfy.sh/…opic");
+  });
+
+  it("keeps a port, and hides a query string's secret too", async () => {
+    const { maskChannelUrl } = await loadModule();
+    expect(maskChannelUrl("http://192.168.1.25:8080/hook?key=s3cr3tvalue")).toBe("http://192.168.1.25:8080/…alue");
+  });
+
+  it("shows a bare server as it is, and a short path as only an ellipsis", async () => {
+    const { maskChannelUrl } = await loadModule();
+    expect(maskChannelUrl("http://gotify.lan")).toBe("http://gotify.lan");
+    expect(maskChannelUrl("https://ntfy.sh/abc")).toBe("https://ntfy.sh/…");
   });
 });

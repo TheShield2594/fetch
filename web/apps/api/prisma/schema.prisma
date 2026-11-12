@@ -585,7 +585,14 @@ model ProfileCollections {
 // which keeps an addon the TV pushed listed by its URL rather than dropped.
 model ProfileAddon {
   id          String  @id @default(uuid()) @db.Uuid
+  // Encrypted at rest (lib/secret-box.ts): a manifest URL often carries a
+  // debrid or account key in its path.
   manifestUrl String
+  // Keyed hash of the plaintext URL (`secretLookupKey`), which is what keeps one
+  // profile from installing the same addon twice now that the ciphertext
+  // differs on every write. Null only on a row written before encryption,
+  // until the startup sweep fills it in.
+  manifestUrlKey String?
   position    Int
   enabled     Boolean @default(true)
 
@@ -607,7 +614,7 @@ model ProfileAddon {
   profileId String  @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
-  @@unique([profileId, manifestUrl])
+  @@unique([profileId, manifestUrlKey])
   @@index([profileId, position])
 }
 

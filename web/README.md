@@ -568,9 +568,16 @@ Every credential Fetch stores on your behalf is encrypted in the database with A
 | --- | --- |
 | Trakt access + refresh tokens | `TraktToken` |
 | ntfy / Gotify / webhook tokens | `NotificationChannel.token` |
+| Notification channel URLs (a Discord or generic webhook URL is its own secret, as is an ntfy topic) | `NotificationChannel.url` |
+| Stremio add-on manifest URLs, which often carry a debrid or account key in the path | `ProfileAddon.manifestUrl` |
+| A profile's own connections: Simkl, MDBList, Plex, Jellyfin and Emby sign-ins | `ProfileConnection.credentials` |
 | TMDB, OMDB and RPDB API keys | `KV` |
 | AI provider config, including its `Authorization` header (one per account) | `KV` |
 | VAPID private key (web push) | `KV` |
+
+Notification channel URLs are also write-only: Settings shows them masked (`https://ntfy.sh/…opic`). An add-on's manifest URL is still sent in full to its own profile's website and TV, which need it to run the add-on. A keyed hash of the manifest URL (`ProfileAddon.manifestUrlKey`) is stored beside it so one profile can't install the same add-on twice; it reveals only whether two rows hold the same URL.
+
+**Not encrypted:** web-push subscriptions (`PushSubscription.endpoint`, `p256dh` and `auth`). `p256dh` is a public key, and sending to a subscription also needs the VAPID private key above, so a dump alone can't push to anyone's browser.
 
 The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from the one secret you already have" approach as the add-on URL secret and profile access tokens — so there is no extra variable to set and no key file to lose. Each value is also bound to the column it lives in, so a ciphertext lifted out of one row and pasted into another fails to decrypt rather than being accepted somewhere it doesn't belong.
 
@@ -586,7 +593,7 @@ The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from t
 
 Rotating also invalidates everything else derived from it, so plan a rotation as a maintenance task, not a config edit. In full, a new `API_TOKEN` means:
 
-- every stored credential above is unreadable until re-entered;
+- every stored credential above is unreadable until re-entered (a notification channel whose URL can't be read says so in Settings: remove it and add it again; an add-on whose URL can't be read drops out of the list until it is reinstalled or the TV next syncs);
 - every profile unlock (a PIN-protected profile has to be unlocked again);
 - every add-on URL, the built-in Stremio catalog and the separate add-on service alike — reinstall each from Settings;
 - the addon service's token to the API, which it derives itself, so restart both services together;

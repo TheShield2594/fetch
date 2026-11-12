@@ -248,9 +248,16 @@ export function NotificationChannelsSettings() {
                     </button>
                   </span>
                 </div>
-                <p className="mt-1 truncate font-mono text-xs" style={{ color: "var(--text-mute)" }}>
-                  {channel.url}
-                </p>
+                {channel.urlReadable ? (
+                  <p className="mt-1 truncate font-mono text-xs" style={{ color: "var(--text-mute)" }}>
+                    {channel.url}
+                  </p>
+                ) : (
+                  <p className="mt-1 flex items-center gap-2 text-xs text-danger">
+                    <AlertCircle size={14} /> This channel's address can no longer be read (the server's API token
+                    changed). Remove it and add it again.
+                  </p>
+                )}
                 {result && (
                   <p
                     className={`mt-2 flex items-center gap-2 text-xs ${result.ok ? "text-success" : "text-danger"}`}

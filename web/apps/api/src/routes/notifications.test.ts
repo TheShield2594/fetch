@@ -84,6 +84,37 @@ describe("notification channel routes", () => {
       expect(res.json().channels[0]).toMatchObject({ hasToken: true });
       expect(JSON.stringify(res.json())).not.toContain("secret-token");
     });
+
+    it("returns the URL masked, since for a webhook the URL is the secret", async () => {
+      const webhook = "https://discord.com/api/webhooks/123/very-secret-abcd";
+      prismaMock.notificationChannel.findMany.mockResolvedValue([storedChannel({ kind: "discord", url: webhook })]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/notifications/channels" });
+
+      expect(res.json().channels[0]).toMatchObject({ url: "https://discord.com/…abcd", urlReadable: true });
+      expect(JSON.stringify(res.json())).not.toContain("very-secret");
+    });
+
+    it("flags a URL it can no longer decrypt rather than failing the list", async () => {
+      const originalToken = process.env.API_TOKEN;
+      try {
+        const { SECRET_CONTEXT, encryptSecret } = await import("../lib/secret-box.js");
+        process.env.API_TOKEN = "old-notifications-token";
+        const locked = encryptSecret(SECRET_CONTEXT.notificationChannelUrl, "https://ntfy.sh/fetch");
+        process.env.API_TOKEN = "new-notifications-token";
+        prismaMock.notificationChannel.findMany.mockResolvedValue([storedChannel({ url: locked })]);
+        const app = await buildApp();
+
+        const res = await app.inject({ method: "GET", url: "/notifications/channels" });
+
+        expect(res.statusCode).toBe(200);
+        expect(res.json().channels[0]).toMatchObject({ url: "", urlReadable: false });
+      } finally {
+        if (originalToken === undefined) delete process.env.API_TOKEN;
+        else process.env.API_TOKEN = originalToken;
+      }
+    });
   });
 
   describe("POST /notifications/channels", () => {
@@ -114,6 +145,27 @@ describe("notification channel routes", () => {
       const res = await create(app, { kind: "gotify", url: "http://192.168.1.25:8080", token: "app-token" });
 
       expect(res.statusCode).toBe(201);
+    });
+
+    it("stores the URL encrypted and answers with it masked", async () => {
+      const originalToken = process.env.API_TOKEN;
+      process.env.API_TOKEN = "notifications-route-token";
+      try {
+        const { SECRET_CONTEXT, decryptSecret } = await import("../lib/secret-box.js");
+        const app = await buildApp();
+        const webhook = "https://example.com/hooks/secret-path-1234";
+
+        const res = await create(app, { kind: "webhook", url: webhook });
+
+        expect(res.statusCode).toBe(201);
+        const { url } = first(prismaMock.notificationChannel.create.mock.calls, "create call")[0].data;
+        expect(url).not.toContain("secret-path");
+        expect(decryptSecret(SECRET_CONTEXT.notificationChannelUrl, url)).toBe(webhook);
+        expect(res.json().channel.url).toBe("https://example.com/…1234");
+      } finally {
+        if (originalToken === undefined) delete process.env.API_TOKEN;
+        else process.env.API_TOKEN = originalToken;
+      }
     });
 
     it("stores the token encrypted when API_TOKEN is set", async () => {
@@ -221,7 +273,7 @@ describe("notification channel routes", () => {
       expect(res.statusCode).toBe(200);
       expect(prismaMock.notificationChannel.update).toHaveBeenCalledWith({
         where: { id: CHANNEL_ID },
-        data: { url: "https://ntfy.sh/fetch", token: null, enabled: false },
+        data: { token: null, enabled: false },
       });
     });
 
@@ -283,6 +335,25 @@ describe("notification channel routes", () => {
         const res = await patch(app, { name: "Renamed" });
 
         expect(res.statusCode).toBe(200);
+      } finally {
+        if (originalToken === undefined) delete process.env.API_TOKEN;
+        else process.env.API_TOKEN = originalToken;
+      }
+    });
+
+    it("can still pause a channel whose URL it can no longer read, but not change its token", async () => {
+      const originalToken = process.env.API_TOKEN;
+      try {
+        const { SECRET_CONTEXT, encryptSecret } = await import("../lib/secret-box.js");
+        process.env.API_TOKEN = "old-notifications-token";
+        const locked = encryptSecret(SECRET_CONTEXT.notificationChannelUrl, "https://ntfy.sh/fetch");
+        process.env.API_TOKEN = "new-notifications-token";
+        prismaMock.notificationChannel.findFirst.mockResolvedValue(storedChannel({ url: locked }));
+        const app = await buildApp();
+
+        expect((await patch(app, { enabled: false })).statusCode).toBe(200);
+        expect((await patch(app, { token: "new" })).statusCode).toBe(400);
+        expect((await patch(app, { url: "https://ntfy.sh/again", token: "new" })).statusCode).toBe(200);
       } finally {
         if (originalToken === undefined) delete process.env.API_TOKEN;
         else process.env.API_TOKEN = originalToken;

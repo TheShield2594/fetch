@@ -674,9 +674,9 @@ re-resolved immediately before each send. Redirects are refused, not followed.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/notifications/channels` | The profile's channels. The stored token is never returned — only `hasToken`. |
+| `GET` | `/notifications/channels` | The profile's channels. The stored token is never returned — only `hasToken` — and `url` is masked (`https://ntfy.sh/…opic`), since for a webhook the URL is the secret. `urlReadable` is `false` when the URL was encrypted under a previous `API_TOKEN`. |
 | `POST` | `/notifications/channels` | `{ kind, url, name?, token?, enabled? }`. An ntfy URL must include its topic; Gotify requires a token. Ten channels per profile. |
-| `PATCH` | `/notifications/channels/:id` | `{ name?, url?, token?, enabled? }`. Omitting `token` keeps the stored one; `""` clears it. |
+| `PATCH` | `/notifications/channels/:id` | `{ name?, url?, token?, enabled? }`. Omitting `url` or `token` keeps the stored one; `""` clears the token. |
 | `DELETE` | `/notifications/channels/:id` | |
 | `POST` | `/notifications/channels/:id/test` | Sends a real test notification. Returns `{ success }`, or `{ success: false, outcome, error }` with the same collapsed `outcome` set as `/ai/test` — an upstream failure is a result, not a `500`, and neither the status code nor the socket error is echoed back. |
 
@@ -691,7 +691,7 @@ the web UI lives.
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, resume points (`playback`), collections, and the profile's appearance and parental settings (`profile.settings`). Carries a `version` field. Paired devices are not included: they belong to the install, not a profile, and a restored server pairs its TVs again. |
-| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
+| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported, except that a request without parental authority (see `PATCH /profiles/:id`) cannot use them to lift the profile's parental limits: those fields are left out, a tightening still applies, and the summary's `parentalLimitsSkipped` names what was skipped. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
 | `POST` | `/import/csv` | Header must include `imdbId,type,watchedAt`; `season,episode` optional. |
 | `POST` | `/import/external` | `{ format, csv }` where format is `letterboxd-diary`, `letterboxd-ratings`, `imdb-ratings` or `simkl`. |
 

@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import type { NotificationChannelKind } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
-import { SECRET_CONTEXT, encryptSecret } from "../lib/secret-box.js";
+import { SECRET_CONTEXT, decryptSecret, encryptSecret } from "../lib/secret-box.js";
 import { type OutboundScope, validateNotificationUrl } from "../lib/ssrf.js";
 import { outboundScopeForProfile } from "../lib/integration-owner.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
@@ -10,6 +10,7 @@ import {
   ChannelSendError,
   NOTIFICATION_CHANNEL_KINDS,
   isNotificationChannelKind,
+  maskChannelUrl,
   sendToChannel,
 } from "../lib/notification-channels.js";
 import { outboundFailure } from "../lib/outbound-test.js";
@@ -40,8 +41,15 @@ const PUBLIC_URL_ERROR =
 // between a 400 and a logged exception.
 const CHANNEL_ID_ERROR = "id must be a valid UUID";
 
+const readChannelUrl = (stored: string): string | null => decryptSecret(SECRET_CONTEXT.notificationChannelUrl, stored);
+const storeChannelUrl = (url: string): string => encryptSecret(SECRET_CONTEXT.notificationChannelUrl, url);
+
 // The token is write-only: it is a credential for someone else's server, and
-// nothing in the UI needs it back — only whether one is set.
+// nothing in the UI needs it back — only whether one is set. The URL is
+// write-only too, for the same reason (a webhook URL is its own secret), and
+// comes back masked: enough to recognize, not enough to post to.
+// `urlReadable` is false when it was encrypted under an API_TOKEN this
+// process no longer has, so the UI can ask for it again.
 const publicChannel = (channel: {
   id: string;
   kind: NotificationChannelKind;
@@ -50,15 +58,19 @@ const publicChannel = (channel: {
   token: string | null;
   enabled: boolean;
   createdAt: Date;
-}) => ({
-  id: channel.id,
-  kind: channel.kind,
-  name: channel.name,
-  url: channel.url,
-  hasToken: !!channel.token,
-  enabled: channel.enabled,
-  createdAt: channel.createdAt.toISOString(),
-});
+}) => {
+  const url = readChannelUrl(channel.url);
+  return {
+    id: channel.id,
+    kind: channel.kind,
+    name: channel.name,
+    url: url === null ? "" : maskChannelUrl(url),
+    urlReadable: url !== null,
+    hasToken: !!channel.token,
+    enabled: channel.enabled,
+    createdAt: channel.createdAt.toISOString(),
+  };
+};
 
 /**
  * Rules a channel's URL/token have to satisfy beyond being a safe outbound
@@ -141,7 +153,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
       data: {
         kind,
         name,
-        url,
+        url: storeChannelUrl(url),
         token: token && encryptSecret(SECRET_CONTEXT.notificationChannelToken, token),
         enabled: body.enabled === undefined ? true : body.enabled !== false,
         profileId: request.profileId!,
@@ -164,7 +176,10 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!existing) return reply.code(404).send({ error: "Channel not found" });
 
-      const url = typeof body?.url === "string" ? body.url.trim() : existing.url;
+      // Omitting `url` keeps the stored one, which is all the UI can do: it
+      // only ever sees the masked form.
+      const newUrl = typeof body?.url === "string" ? body.url.trim() : undefined;
+      const url = newUrl ?? readChannelUrl(existing.url);
       // An empty string clears a stored token; omitting the field keeps it,
       // which is what the UI sends back when it never saw the token to begin with.
       const newToken =
@@ -180,8 +195,19 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
           ? existing.token
           : newToken && encryptSecret(SECRET_CONTEXT.notificationChannelToken, newToken);
 
-      const problem = validateForKind(existing.kind, url, !!token, await outboundScopeForProfile(request.profileId!));
-      if (problem) return reply.code(400).send({ error: problem });
+      if (url === null) {
+        // Encrypted under an API_TOKEN this process no longer has. Renaming or
+        // pausing the channel needs no URL; changing its token does, since the
+        // pair is validated together.
+        if (newToken !== undefined) {
+          return reply.code(400).send({
+            error: "The stored URL can't be read since API_TOKEN changed; enter the URL again along with the token",
+          });
+        }
+      } else {
+        const problem = validateForKind(existing.kind, url, !!token, await outboundScopeForProfile(request.profileId!));
+        if (problem) return reply.code(400).send({ error: problem });
+      }
       if (newToken && newToken.length > MAX_TOKEN_LENGTH) {
         return reply.code(400).send({ error: `token must be at most ${MAX_TOKEN_LENGTH} characters` });
       }
@@ -189,7 +215,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
       const channel = await prisma.notificationChannel.update({
         where: { id: existing.id },
         data: {
-          url,
+          ...(newUrl !== undefined ? { url: storeChannelUrl(newUrl) } : {}),
           token,
           ...(typeof body?.name === "string" && body.name.trim()
             ? { name: body.name.trim().slice(0, MAX_NAME_LENGTH) }

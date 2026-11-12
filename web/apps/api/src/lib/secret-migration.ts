@@ -7,6 +7,7 @@ import {
   isEncryptedSecret,
   isSecretEncryptionAvailable,
   kvSecretContext,
+  secretLookupKey,
 } from "./secret-box.js";
 import { invalidateKv } from "./kv.js";
 import { TMDB_API_KEY_KV } from "./tmdb-client.js";
@@ -48,7 +49,7 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
 
   if (!isSecretEncryptionAvailable()) {
     logger.warn(
-      "API_TOKEN is not set, so stored credentials (API keys, Trakt tokens) are being kept in plaintext"
+      "API_TOKEN is not set, so stored credentials (API keys, Trakt tokens, webhook and add-on URLs) are being kept in plaintext"
     );
     return sweep;
   }
@@ -88,14 +89,43 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
     );
   }
 
-  const channels = await prisma.notificationChannel.findMany({ where: { NOT: { token: null } } });
-  for (const channel of channels) {
-    await visit(
-      SECRET_CONTEXT.notificationChannelToken,
-      `Notification channel token (${channel.name})`,
-      channel.token!,
-      (value) => prisma.notificationChannel.update({ where: { id: channel.id }, data: { token: value } })
+  // A channel's URL is a credential too: for Discord and generic webhooks it
+  // is the only one.
+  for (const channel of await prisma.notificationChannel.findMany()) {
+    if (channel.token !== null) {
+      await visit(
+        SECRET_CONTEXT.notificationChannelToken,
+        `Notification channel token (${channel.name})`,
+        channel.token,
+        (value) => prisma.notificationChannel.update({ where: { id: channel.id }, data: { token: value } })
+      );
+    }
+    await visit(SECRET_CONTEXT.notificationChannelUrl, `Notification channel URL (${channel.name})`, channel.url, (value) =>
+      prisma.notificationChannel.update({ where: { id: channel.id }, data: { url: value } })
     );
+  }
+
+  // An addon's URL also needs its lookup key, which is what keeps the same
+  // addon from being installed twice; both are written together.
+  for (const addon of await prisma.profileAddon.findMany()) {
+    const context = SECRET_CONTEXT.profileAddonManifestUrl;
+    if (isEncryptedSecret(addon.manifestUrl)) {
+      const plain = decryptSecret(context, addon.manifestUrl);
+      if (plain === null) {
+        sweep.unreadable.push(`Add-on URL (${addon.name})`);
+      } else if (addon.manifestUrlKey === null) {
+        await prisma.profileAddon.update({
+          where: { id: addon.id },
+          data: { manifestUrlKey: secretLookupKey(context, plain) },
+        });
+      }
+      continue;
+    }
+    await prisma.profileAddon.update({
+      where: { id: addon.id },
+      data: { manifestUrl: encryptIfPlaintext(context, addon.manifestUrl)!, manifestUrlKey: secretLookupKey(context, addon.manifestUrl) },
+    });
+    sweep.encrypted += 1;
   }
 
   for (const connection of await prisma.profileConnection.findMany()) {

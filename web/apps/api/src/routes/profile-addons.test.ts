@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
+import { SECRET_CONTEXT, decryptSecret, encryptSecret, secretLookupKey } from "../lib/secret-box.js";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const ADDON_ID = "22222222-2222-4222-8222-222222222222";
@@ -60,6 +61,7 @@ const CACHED = {
 const row = (overrides: Record<string, unknown> = {}) => ({
   id: ADDON_ID,
   manifestUrl: URL_A,
+  manifestUrlKey: null,
   position: 0,
   enabled: true,
   addonId: "com.example",
@@ -218,7 +220,7 @@ describe("profile addon routes", () => {
 
   describe("PUT /profiles/:id/addons/order", () => {
     it("rewrites every position", async () => {
-      prismaMock.profileAddon.findMany.mockResolvedValue([{ id: ADDON_ID }, { id: OTHER_ID }]);
+      prismaMock.profileAddon.findMany.mockResolvedValue([row(), row({ id: OTHER_ID, manifestUrl: URL_B })]);
       const app = await buildApp();
       const response = await app.inject({
         method: "PUT",
@@ -231,7 +233,7 @@ describe("profile addon routes", () => {
     });
 
     it("refuses an order that leaves an addon out", async () => {
-      prismaMock.profileAddon.findMany.mockResolvedValue([{ id: ADDON_ID }, { id: OTHER_ID }]);
+      prismaMock.profileAddon.findMany.mockResolvedValue([row(), row({ id: OTHER_ID, manifestUrl: URL_B })]);
       const app = await buildApp();
       const response = await app.inject({
         method: "PUT",
@@ -262,11 +264,11 @@ describe("profile addon routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(prismaMock.profileAddon.deleteMany).toHaveBeenCalledWith({
-        where: { profileId: PROFILE_ID, manifestUrl: { notIn: [URL_B, URL_A] } },
+        where: { profileId: PROFILE_ID, id: { notIn: [ADDON_ID] } },
       });
       // The unreachable one is kept, named by what the TV called it.
       expect(prismaMock.profileAddon.create).toHaveBeenCalledWith({
-        data: { profileId: PROFILE_ID, manifestUrl: URL_B, position: 0, enabled: false, name: "Unreachable" },
+        data: expect.objectContaining({ profileId: PROFILE_ID, position: 0, enabled: false, name: "Unreachable" }),
       });
       expect(prismaMock.profileAddon.update).toHaveBeenCalledWith({
         where: { id: ADDON_ID },
@@ -275,6 +277,33 @@ describe("profile addon routes", () => {
       // Only the new addon is fetched.
       expect(fetchManifest).toHaveBeenCalledTimes(1);
       expect(pruneHomeLayoutForAddons).toHaveBeenCalled();
+    });
+
+    it("replaces a row whose URL can't be read any more", async () => {
+      const original = process.env.API_TOKEN;
+      try {
+        process.env.API_TOKEN = "old-token-".padEnd(40, "x");
+        const locked = encryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, URL_A);
+        process.env.API_TOKEN = "new-token-".padEnd(40, "y");
+        prismaMock.profileAddon.findMany.mockResolvedValue([row({ manifestUrl: locked })]);
+        fetchManifest.mockResolvedValue({ ok: true, manifest: CACHED });
+
+        const app = await buildApp();
+        const response = await app.inject({
+          method: "PUT",
+          url: `/profiles/${PROFILE_ID}/addons`,
+          payload: { addons: [{ manifestUrl: URL_A }] },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(prismaMock.profileAddon.deleteMany).toHaveBeenCalledWith({
+          where: { profileId: PROFILE_ID, id: { notIn: [] } },
+        });
+        expect(prismaMock.profileAddon.create).toHaveBeenCalledTimes(1);
+      } finally {
+        if (original === undefined) delete process.env.API_TOKEN;
+        else process.env.API_TOKEN = original;
+      }
     });
 
     it("rejects an entry that isn't a manifest address", async () => {
@@ -287,5 +316,70 @@ describe("profile addon routes", () => {
       expect(response.statusCode).toBe(400);
       expect(response.json().error).toContain("addons.0.manifestUrl");
     });
+  });
+  describe("manifest URLs at rest", () => {
+    const original = process.env.API_TOKEN;
+    const withToken = async (work: () => Promise<void>) => {
+      process.env.API_TOKEN = "addon-route-token-".padEnd(48, "z");
+      try {
+        await work();
+      } finally {
+        if (original === undefined) delete process.env.API_TOKEN;
+        else process.env.API_TOKEN = original;
+      }
+    };
+
+    it("stores a new addon's URL encrypted, with a lookup key, and answers with it in full", () =>
+      withToken(async () => {
+        prismaMock.profileAddon.findMany.mockResolvedValue([]);
+        fetchManifest.mockResolvedValue({ ok: true, manifest: CACHED });
+        prismaMock.profileAddon.create.mockImplementation(async ({ data }: { data: Record<string, unknown> }) =>
+          row(data)
+        );
+
+        const app = await buildApp();
+        const response = await app.inject({
+          method: "POST",
+          url: `/profiles/${PROFILE_ID}/addons`,
+          payload: { manifestUrl: URL_A },
+        });
+
+        expect(response.statusCode).toBe(201);
+        const data = prismaMock.profileAddon.create.mock.calls[0]![0].data;
+        expect(data.manifestUrl).not.toContain("secret-config");
+        expect(decryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, data.manifestUrl)).toBe(URL_A);
+        expect(data.manifestUrlKey).toBe(secretLookupKey(SECRET_CONTEXT.profileAddonManifestUrl, URL_A));
+        expect(response.json().addon.manifestUrl).toBe(URL_A);
+      }));
+
+    it("refuses a second install of the same URL even though the ciphertext differs", () =>
+      withToken(async () => {
+        prismaMock.profileAddon.findMany.mockResolvedValue([
+          row({ manifestUrl: encryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, URL_A) }),
+        ]);
+        const app = await buildApp();
+        const response = await app.inject({
+          method: "POST",
+          url: `/profiles/${PROFILE_ID}/addons`,
+          payload: { manifestUrl: URL_A },
+        });
+        expect(response.statusCode).toBe(409);
+      }));
+
+    it("leaves a row it can't decrypt out of the list", () =>
+      withToken(async () => {
+        const readable = row({ manifestUrl: encryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, URL_B) });
+        process.env.API_TOKEN = "a-different-token-".padEnd(48, "q");
+        const locked = row({ id: OTHER_ID, manifestUrl: encryptSecret(SECRET_CONTEXT.profileAddonManifestUrl, URL_A) });
+        process.env.API_TOKEN = "addon-route-token-".padEnd(48, "z");
+        prismaMock.profileAddon.findMany.mockResolvedValue([readable, locked]);
+        prismaMock.profileDocument.findUnique.mockResolvedValue(null);
+
+        const app = await buildApp();
+        const response = await app.inject({ method: "GET", url: `/profiles/${PROFILE_ID}/addons` });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json().addons.map((addon: { manifestUrl: string }) => addon.manifestUrl)).toEqual([URL_B]);
+      }));
   });
 });

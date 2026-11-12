@@ -12,6 +12,7 @@ export const PROFILE_VIEW_SELECT = {
   avatarColorHex: true,
   avatarId: true,
   profileBackgroundId: true,
+  webTheme: true,
   usesPrimaryAddons: true,
   usesPrimaryPlugins: true,
   isKidsProfile: true,
@@ -30,6 +31,7 @@ export const toProfileView = (profile: ProfileRow) => ({
   avatarColorHex: profile.avatarColorHex,
   avatarId: profile.avatarId,
   profileBackgroundId: profile.profileBackgroundId,
+  webTheme: profile.webTheme,
   usesPrimaryAddons: profile.usesPrimaryAddons,
   usesPrimaryPlugins: profile.usesPrimaryPlugins,
   parental: {
@@ -55,6 +57,9 @@ export const KIDS_PRESET = { maxRating: "PARENTAL_GUIDANCE", allowUnrated: false
 const COLOR_PATTERN = /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/;
 // Bundled avatars are `fetch:<key>`; a server catalog's ids are opaque but short.
 const ASSET_ID_PATTERN = /^[A-Za-z0-9:_.-]{1,100}$/;
+// A theme id from the web app, which owns the list (and renames in it), so the
+// server checks only that it looks like one.
+const THEME_ID_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
 
 export type ProfileAttributeUpdate = Partial<
   Pick<
@@ -62,6 +67,7 @@ export type ProfileAttributeUpdate = Partial<
     | "avatarColorHex"
     | "avatarId"
     | "profileBackgroundId"
+    | "webTheme"
     | "usesPrimaryAddons"
     | "usesPrimaryPlugins"
     | "isKidsProfile"
@@ -87,7 +93,7 @@ export const parseProfileAttributes = (
   const data: ProfileAttributeUpdate = {};
 
   const nullableString = (
-    key: "avatarColorHex" | "avatarId" | "profileBackgroundId",
+    key: "avatarColorHex" | "avatarId" | "profileBackgroundId" | "webTheme",
     value: unknown,
     pattern: RegExp,
     message: string
@@ -110,7 +116,8 @@ export const parseProfileAttributes = (
       body.profileBackgroundId,
       ASSET_ID_PATTERN,
       "profileBackgroundId is not a valid background id"
-    );
+    ) ??
+    nullableString("webTheme", body.webTheme, THEME_ID_PATTERN, "webTheme is not a valid theme id");
   if (error) return { ok: false, error };
 
   for (const key of ["usesPrimaryAddons", "usesPrimaryPlugins"] as const) {

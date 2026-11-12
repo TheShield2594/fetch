@@ -1,16 +1,20 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import { App } from "./App";
-import { runtimeConfig } from "./api";
+import { api, runtimeConfig } from "./api";
 import { first } from "./test/present";
 
 vi.mock("./api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./api")>();
   return {
     ...actual,
-    api: { ...actual.api, getProfiles: vi.fn().mockResolvedValue({ profiles: [] }) },
+    api: {
+      ...actual.api,
+      getProfiles: vi.fn().mockResolvedValue({ profiles: [] }),
+      updateProfile: vi.fn().mockResolvedValue({ profile: {} }),
+    },
   };
 });
 
@@ -148,5 +152,77 @@ describe("the profile gate", () => {
     renderAt("/settings");
 
     expect(await screen.findByText(/create your first profile/i)).toBeInTheDocument();
+  });
+});
+
+/*
+ * The shell's profile and theme: the avatar the person chose is the one drawn
+ * at the top, the header carries no theme or install control, and the theme is
+ * the profile's — applied when it arrives, saved to it when picked.
+ */
+describe("the profile in the shell", () => {
+  const alice = {
+    id: "profile-1",
+    name: "Alice",
+    hasPin: false,
+    avatarColorHex: "#1e88e5",
+    avatarId: null,
+    webTheme: "matinee",
+  };
+
+  beforeEach(() => {
+    vi.mocked(api.getProfiles).mockResolvedValue({ profiles: [alice] });
+    vi.mocked(api.updateProfile).mockClear();
+    document.documentElement.removeAttribute("data-theme");
+  });
+
+  it("puts no theme or install control in the top bar", async () => {
+    renderAt("/");
+    await screen.findByText("shelf");
+    const header = first(document.querySelectorAll("header"), "header");
+    expect(header.querySelector('[aria-label="Choose theme"]')).toBeNull();
+    expect(header.querySelector('[aria-label="Install Fetch"]')).toBeNull();
+  });
+
+  // The rail's footer and the phone header each carry one; CSS shows one.
+  const headerTrigger = async () => {
+    await screen.findAllByRole("button", { name: "Profile menu, Alice" });
+    const header = first(document.querySelectorAll("header"), "header");
+    return within(header).getByRole("button", { name: "Profile menu, Alice" });
+  };
+
+  it("draws the profile's own avatar in the header and the rail, not an initial on the accent", async () => {
+    renderAt("/");
+    const trigger = await headerTrigger();
+    // ProfileAvatar paints the profile's colour behind its initials.
+    const avatar = first(trigger.querySelectorAll("span"), "avatar");
+    expect(avatar).toHaveStyle({ backgroundColor: "#1e88e5" });
+    expect(avatar).toHaveTextContent("A");
+    const rail = within(first(document.querySelectorAll("aside"), "rail")).getByRole("button", {
+      name: "Profile menu, Alice",
+    });
+    expect(first(rail.querySelectorAll("span"), "rail avatar")).toHaveStyle({ backgroundColor: "#1e88e5" });
+  });
+
+  it("applies the profile's saved theme when the profile arrives", async () => {
+    renderAt("/");
+    await waitFor(() => expect(document.documentElement).toHaveAttribute("data-theme", "matinee"));
+  });
+
+  it("saves a theme picked in the profile menu to the profile", async () => {
+    const user = userEvent.setup();
+    renderAt("/");
+    await user.click(await headerTrigger());
+    const menu = screen.getByRole("dialog", { name: "Profile" });
+
+    await user.click(within(menu).getByRole("radio", { name: "Glass" }));
+
+    expect(document.documentElement).toHaveAttribute("data-theme", "glass");
+    expect(api.updateProfile).toHaveBeenCalledWith("profile-1", { webTheme: "glass" });
+  });
+
+  it("sends the old profiles address to Settings → Profile", async () => {
+    renderAt("/profiles");
+    expect(await screen.findByRole("heading", { name: "Profile" })).toBeInTheDocument();
   });
 });

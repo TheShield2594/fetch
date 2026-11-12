@@ -76,7 +76,7 @@
  * a palette of backgrounds and borders can't supply on its own.
  *
  * Declared here, ahead of the themes, and derived from --text / --bg-1 so the
- * themes that don't restate them (glass, midnight, letterboxd, fetch) still get
+ * themes that don't restate them (glass, midnight, matinee, fetch) still get
  * a segmented control and a tab bar that belong to their own palette. Custom
  * properties substitute at use time rather than at declaration, so these read
  * whichever theme's --text is in force on the element.
@@ -136,19 +136,22 @@
      contrast note at the top. */
   --text-dim: rgba(60,60,67,0.85);
   --text-mute: rgba(60,60,67,0.75);
-  --accent: #ff9500;
-  --accent-2: #ffb340;
+  /* Fetch red, as on the dark themes: Light is Fetch's palette on a light
+     ground rather than a platform palette of its own. White on the fill is
+     4.7:1; red text needs the deeper --accent-text, 6.2:1 on --bg-0. */
+  --accent: #dc2b33;
+  --accent-2: #ff5a5f;
   --accent-3: #34c759;
-  --accent-rgb: 255 149 0;
-  --accent-2-rgb: 255 179 64;
-  --accent-strong-rgb: 224 134 0;
-  --accent-tint-rgb: 255 240 219;
-  --accent-light-rgb: 255 201 128;
-  --on-accent-rgb: 0 0 0;
+  --accent-rgb: 220 43 51;
+  --accent-2-rgb: 255 90 95;
+  --accent-strong-rgb: 179 20 29;
+  --accent-tint-rgb: 255 224 225;
+  --accent-light-rgb: 255 150 153;
+  --on-accent-rgb: 255 255 255;
   --on-accent: rgb(var(--on-accent-rgb));
-  --accent-text-rgb: 168 80 0;
+  --accent-text-rgb: 179 20 29;
   --accent-text: rgb(var(--accent-text-rgb));
-  --focus-ring: #b25400;
+  --focus-ring: #b3141d;
 
 }
 
@@ -156,7 +159,7 @@
  * Light's chrome surfaces, in a block of their own. They used to sit in the
  * `:root, [data-theme="light"]` block above, and `:root` is the <html> element
  * under every theme: the themes that don't restate these (glass, midnight,
- * letterboxd, fetch) took light's white segmented thumb under their own
+ * matinee, fetch) took light's white segmented thumb under their own
  * near-white text, so the selected segment's label vanished, and a white tab
  * bar. Scoped to light, those themes get the derived values in the first
  * :root block, which follow their own --text and --bg-1.
@@ -180,57 +183,6 @@
   --bar-tint: rgba(255,255,255,0.72);
   --bar-hairline: rgba(255,255,255,0.8);
   --bar-highlight: rgba(255,255,255,0.9);
-}
-
-[data-theme="dark"] {
-  color-scheme: dark;
-  --poster-ratio: 2 / 3;
-
-  /*
-   * True black, not a warm near-black. The page is #000 so an OLED phone
-   * paints nothing at all where the artwork isn't — artwork leads, and the
-   * chrome around it is absent — and the grouped surface above it is a fixed
-   * grey rather than a tint of the text colour.
-   */
-  --bg-0: #000000;
-  --bg-1: #1c1c1e;
-  --bg-2: #ffffff;
-  --surface: rgba(118,118,128,0.24);
-  --surface-strong: rgba(118,118,128,0.36);
-  --border: rgba(84,84,88,0.65);
-  --border-strong: rgba(235,235,245,0.2);
-  --border-field: #6e6e73;
-  --text: #ffffff;
-  --text-dim: rgba(235,235,245,0.6);
-  --text-mute: rgba(235,235,245,0.5);
-  --accent: #ff9f0a;
-  --accent-2: #ffb340;
-  --accent-3: #30d158;
-  --accent-rgb: 255 159 10;
-  --accent-2-rgb: 255 179 64;
-  --accent-strong-rgb: 224 139 0;
-  --accent-tint-rgb: 255 240 219;
-  --accent-light-rgb: 255 201 128;
-  --on-accent-rgb: 0 0 0;
-  --on-accent: rgb(var(--on-accent-rgb));
-  --accent-text-rgb: 255 159 10;
-  --accent-text: rgb(var(--accent-text-rgb));
-  --focus-ring: #ffb340;
-
-  --tint-green: #30d158;
-  --tint-blue: #0a84ff;
-  --tint-indigo: #5e5ce6;
-  --tint-purple: #bf5af2;
-  --tint-pink: #ff375f;
-  --tint-cyan: #64d2ff;
-  --tint-teal: #40cbe0;
-
-  --segment-track: rgba(118,118,128,0.24);
-  --segment-thumb: #636366;
-  --segment-thumb-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
-  --bar-tint: rgba(40,40,44,0.72);
-  --bar-hairline: rgba(255,255,255,0.14);
-  --bar-highlight: rgba(255,255,255,0.12);
 }
 
 [data-theme="glass"] {
@@ -281,7 +233,10 @@
   color-scheme: dark;
   --poster-ratio: 2 / 3;
 
-  /* Midnight Cinema — near-black navy with a marquee-red accent */
+  /* Midnight Cinema — near-black navy, warm paper text, and marquee gold.
+     Gold rather than the red it used to share with Fetch: two dark themes
+     with one accent were the same theme with a tint. Dark text on the fill
+     (12:1), gold text on either ground (11.4:1 and up). */
   --bg-0: #07080d;
   --bg-1: #0e1018;
   --bg-2: #f4f1ea;
@@ -293,26 +248,28 @@
   --text: #f4f1ea;
   --text-dim: #a3a6b8;
   --text-mute: #878a9c;
-  --accent: #e02f44;
-  --accent-2: #ff5a6e;
-  --accent-3: #f0c419;
-  --accent-rgb: 224 47 68;
-  --accent-2-rgb: 255 90 110;
-  --accent-strong-rgb: 184 39 56;
-  --accent-tint-rgb: 255 222 226;
-  --accent-light-rgb: 255 159 171;
-  --on-accent-rgb: 255 255 255;
+  --accent: #f0c419;
+  --accent-2: #ffd95a;
+  --accent-3: #e02f44;
+  --accent-rgb: 240 196 25;
+  --accent-2-rgb: 255 217 90;
+  --accent-strong-rgb: 255 214 64;
+  --accent-tint-rgb: 255 246 214;
+  --accent-light-rgb: 255 228 140;
+  --on-accent-rgb: 7 8 13;
   --on-accent: rgb(var(--on-accent-rgb));
-  --accent-text-rgb: 230 89 106;
+  --accent-text-rgb: 240 196 25;
   --accent-text: rgb(var(--accent-text-rgb));
-  --focus-ring: #ff5a6e;
+  --focus-ring: #ffd95a;
 }
 
-[data-theme="letterboxd"] {
+[data-theme="matinee"] {
   color-scheme: dark;
   --poster-ratio: 2 / 3;
 
-  /* Letterboxd-ish — charcoal canvas, signature orange/green/blue accents */
+  /* Matinee — a blue-grey charcoal with an orange accent: the warm one of the
+     dark themes. (It was named after another product; saved choices of that
+     name land here — see useTheme.ts.) */
   --bg-0: #14181c;
   --bg-1: #1c2228;
   --bg-2: #ffffff;
@@ -325,18 +282,18 @@
   --text-dim: #9ab;
   --text-mute: #909eac;
   --accent: #ff8000;
-  --accent-2: #00e054;
+  --accent-2: #ffa040;
   --accent-3: #40bcf4;
   --accent-rgb: 255 128 0;
-  --accent-2-rgb: 0 224 84;
+  --accent-2-rgb: 255 160 64;
   --accent-strong-rgb: 209 105 0;
-  --accent-tint-rgb: 204 249 221;
-  --accent-light-rgb: 107 237 156;
+  --accent-tint-rgb: 255 233 209;
+  --accent-light-rgb: 255 191 128;
   --on-accent-rgb: 20 24 28;
   --on-accent: rgb(var(--on-accent-rgb));
   --accent-text-rgb: 255 128 0;
   --accent-text: rgb(var(--accent-text-rgb));
-  --focus-ring: #00e054;
+  --focus-ring: #ffa040;
 }
 
 [data-theme="fetch"] {
@@ -396,11 +353,10 @@
  *       another dialog, which shares the tier and wins on z-index.
  *
  * Split light/dark because one rgba can't do both: 8% alpha of near-black is
- * visible over a #f2f2f7 page and nothing at all over a #000 one. The dark
- * themes get real black at the alpha it takes to read against their own
- * backgrounds — and on the true-black theme the shadow is doing less work than
- * it does anywhere else, because a card there is a *lighter* fill on black
- * rather than a raised plane.
+ * visible over a #f2f2f7 page and nothing at all over a near-black one. The
+ * dark themes get real black at the alpha it takes to read against their own
+ * backgrounds — and there the shadow is doing less work than on light, because
+ * a card is a *lighter* fill on a dark ground rather than a raised plane.
  */
 :root,
 [data-theme="light"] {
@@ -409,10 +365,9 @@
   --elevation-3: 0 6px 16px rgba(0, 0, 0, 0.10), 0 24px 48px rgba(0, 0, 0, 0.18);
 }
 
-[data-theme="dark"],
 [data-theme="glass"],
 [data-theme="midnight"],
-[data-theme="letterboxd"],
+[data-theme="matinee"],
 [data-theme="fetch"] {
   --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.40), 0 2px 6px rgba(0, 0, 0, 0.32);
   --elevation-2: 0 2px 8px rgba(0, 0, 0, 0.45), 0 10px 28px rgba(0, 0, 0, 0.45);
@@ -480,8 +435,9 @@
    *
    * The fallback for the themes that aren't Fetch. The Fetch theme sets its
    * interface in Schibsted Grotesk, the TV app's face, which is what makes the
-   * two read as one product (see the @font-face at the top); the other five
-   * themes are alternate palettes and take each device's own UI face at no
+   * two read as one product (see the @font-face at the top), and so does
+   * Light, which is Fetch on a light ground. The other three themes are
+   * alternate palettes and take each device's own UI face at no
    * download cost, rather than a third-party webfont that would be neither
    * Fetch's nor the device's.
    *
@@ -513,10 +469,12 @@
  * and the accent only on the page you are on (router links mark it with
  * aria-current="page"). The accent means "go" or "here", not decoration.
  */
-[data-theme="fetch"] {
+[data-theme="fetch"],
+[data-theme="light"] {
   --nav-glyph: var(--text-dim);
 }
-[data-theme="fetch"] [aria-current="page"] {
+[data-theme="fetch"] [aria-current="page"],
+[data-theme="light"] [aria-current="page"] {
   --nav-glyph: rgb(var(--accent-rgb));
 }
 
@@ -525,7 +483,8 @@
  * at :root[data-theme] specificity, because a [data-theme] block and :root tie
  * and the later declaration would otherwise put the system face back.
  */
-:root[data-theme="fetch"] {
+:root[data-theme="fetch"],
+:root[data-theme="light"] {
   --font-ui: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -554,10 +513,9 @@
   --status-warn: #96450a;
 }
 
-[data-theme="dark"],
 [data-theme="glass"],
 [data-theme="midnight"],
-[data-theme="letterboxd"],
+[data-theme="matinee"],
 [data-theme="fetch"] {
   --status-ok: #34d399;
   --status-bad: #fb7185;
@@ -565,8 +523,8 @@
 }
 
 /*
- * Selection. The UA default is a fixed blue that belongs to none of the five
- * themes — over the Letterboxd charcoal or the Midnight navy it reads as a
+ * Selection. The UA default is a fixed blue that belongs to none of the
+ * themes — over the Matinee charcoal or the Midnight navy it reads as a
  * rendering fault rather than a selection. Accent tint with the accent's own
  * contrast-safe foreground instead.
  */
@@ -895,7 +853,7 @@ body {
 
   /*
    * The checkbox. `appearance: none` because the native control paints itself
-   * from the OS accent and a white box, which is a hole in four of the five
+   * from the OS accent and a white box, which is a hole in most of the
    * themes — and because the three settings checkboxes were carrying Tailwind
    * form classes (`text-accent-500`, `border-*`) that a native checkbox ignores,
    * so they only looked styled.

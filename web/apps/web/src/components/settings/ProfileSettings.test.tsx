@@ -389,7 +389,7 @@ describe("ProfileSettings deletion", () => {
     createProfile.mockResolvedValue({ profile: { id: "p-sam", name: "Sam", hasPin: false } });
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Add Profile" }));
+    await user.click(screen.getByRole("button", { name: "Add profile" }));
     await user.type(screen.getByLabelText("New profile name"), "Sam");
     await user.click(screen.getByRole("button", { name: "Add" }));
 

@@ -1,9 +1,9 @@
 /**
  * The routes offered as long-press shortcuts on the installed app's icon.
  *
- * Everything the tab bar reaches directly — its four tabs plus the search
- * circle beside them — minus the Shelf, which is start_url and would be a
- * long-press target for the page a plain tap already opens.
+ * Everything the tab bar reaches directly — its four tabs — minus the Shelf,
+ * which is start_url and would be a long-press target for the page a plain tap
+ * already opens.
  *
  * It cannot import components/MobileTabBar.tsx directly: this is read by
  * vite.config.ts while the config is being loaded, and that module pulls in
@@ -13,7 +13,6 @@
  */
 export const PWA_SHORTCUTS: { label: string; url: string }[] = [
   { label: "Discover", url: "/discover" },
-  { label: "Calendar", url: "/calendar" },
-  { label: "Stats", url: "/stats" },
   { label: "Search", url: "/search" },
+  { label: "Lists", url: "/lists" },
 ];

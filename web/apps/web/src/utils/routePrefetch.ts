@@ -30,7 +30,6 @@ export const loadCalendarPage = () => import("../pages/CalendarPage");
 export const loadHistoryPage = () => import("../pages/HistoryPage");
 export const loadStatsPage = () => import("../pages/StatsPage");
 export const loadSettingsPage = () => import("../pages/SettingsPage");
-export const loadProfilesPage = () => import("../pages/ProfilesPage");
 export const loadPairPage = () => import("../pages/PairPage");
 export const loadLinkPage = () => import("../pages/LinkPage");
 export const loadNotFoundPage = () => import("../pages/NotFoundPage");
@@ -109,7 +108,6 @@ const ROUTE_LOADERS: Record<string, Loader> = {
   "/history": loadHistoryPage,
   "/stats": loadStatsPage,
   "/settings": loadSettingsPage,
-  "/profiles": loadProfilesPage
 };
 
 const started = new Set<Loader>();

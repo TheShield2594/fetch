@@ -1,7 +1,7 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { BarChart3, CalendarDays, Compass, History, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
-import { api, type CatalogList, type Profile } from "../api";
+import { BarChart3, CalendarDays, Compass, History, Library, List, Pin, PinOff, Search, Settings } from "lucide-react";
+import { api, type CatalogList } from "../api";
 import { BrandMark, BrandWordmark } from "./BrandMark";
 import { healthDotClass } from "./settings/health";
 import { listTint, orderListsForRail, railSources } from "./sidebar-data";
@@ -29,15 +29,12 @@ export const SIDEBAR_NAV_ITEMS = [
 ] as const;
 
 /**
- * The last group: the TV's Home rows, who is in the household, and how it all
- * works — where you go to *change* things, as opposed to the six above, which
- * are places to look at them. Settings closes the column, where a source list
- * keeps it.
+ * The last group: where you go to *change* things, as opposed to the six
+ * above, which are places to look at them. Settings closes the column, where a
+ * source list keeps it. Profiles are managed in Settings → Profile, reached
+ * from the profile menu in the footer.
  */
-export const SIDEBAR_MANAGE_ITEMS = [
-  { to: "/profiles", label: "Profiles", icon: Users, end: false },
-  { to: "/settings", label: "Settings", icon: Settings, end: false },
-] as const;
+export const SIDEBAR_MANAGE_ITEMS = [{ to: "/settings", label: "Settings", icon: Settings, end: false }] as const;
 
 /** The width from which the rail opens pinned unless someone has said otherwise. */
 export const PIN_BY_DEFAULT_QUERY = "(min-width: 1024px)";
@@ -103,13 +100,12 @@ const HINT_AUTO_DISMISS_MS = 15000;
 export function Sidebar({
   pinned,
   onPinnedChange,
-  profile,
-  onSwitchProfile,
+  profileMenu,
 }: {
   pinned: boolean;
   onPinnedChange: (pinned: boolean) => void;
-  profile?: Profile | null;
-  onSwitchProfile?: () => void;
+  /** The footer's profile control, given whether the rail is showing labels. */
+  profileMenu?: ((expanded: boolean) => ReactNode) | undefined;
 }) {
   /*
    * Pointer hover no longer opens the rail. It used to, after 200ms, and the
@@ -529,33 +525,7 @@ export function Sidebar({
             them — which is what they became once the nav grew tall enough to
             reach down here. */}
         <div className="mt-2 flex-none px-2.5 pt-2" style={{ borderTop: "0.5px solid var(--border)" }}>
-          {onSwitchProfile && (
-            <button
-              type="button"
-              onClick={onSwitchProfile}
-              className="flex w-full items-center gap-2.5 rounded-[0.4375rem] px-2.5 py-[0.4375rem] text-[0.8125rem] transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-              style={{ color: "var(--text-dim)" }}
-              aria-label={profile ? `Switch profile (currently ${profile.name})` : "Switch profile"}
-              title={expanded ? undefined : (profile?.name ?? "Switch profile")}
-            >
-              {/* An icon rather than the profile's initial: at this size the
-                  letter came out at 8px, under the 12px floor, and the name
-                  beside it (or the tooltip on the rail) already says whose. */}
-              <span
-                className="flex h-[1.0625rem] w-[1.0625rem] flex-none items-center justify-center rounded-full"
-                aria-hidden="true"
-                style={{
-                  background: "linear-gradient(145deg, rgb(var(--accent-2-rgb)), rgb(var(--accent-rgb)))",
-                  color: "var(--on-accent)",
-                }}
-              >
-                <User className="h-3 w-3" />
-              </span>
-              <span className="truncate whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
-                {profile?.name ?? "Switch profile"}
-              </span>
-            </button>
-          )}
+          {profileMenu?.(expanded)}
           <button
             type="button"
             onClick={togglePin}

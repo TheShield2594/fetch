@@ -2,7 +2,7 @@ import { render, screen, waitFor, waitForElementToBeRemoved, within } from "@tes
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router";
-import { MORE_NAV_ITEMS, MobileTabBar, PRIMARY_NAV_ITEMS, SEARCH_ITEM } from "./MobileTabBar";
+import { MORE_NAV_ITEMS, MobileTabBar, PRIMARY_NAV_ITEMS } from "./MobileTabBar";
 import { first, present } from "../test/present";
 
 // Closing the sheet plays its exit animation before it leaves the DOM. jsdom
@@ -21,23 +21,28 @@ const renderBar = (pathname = "/") =>
 const tabBar = () => screen.getByRole("navigation", { name: "Mobile navigation" });
 
 describe("MobileTabBar", () => {
-  it("shows five slots in the pill, the count it can fit at 320px", () => {
+  it("shows five labelled slots — Shelf, Discover, Search, Lists and More", () => {
     renderBar();
     const bar = tabBar();
-    // The four tabs and the search circle. Search is a link too, but it sits
-    // outside the pill — see the note on SEARCH_ITEM.
-    expect(within(bar).getAllByRole("link")).toHaveLength(PRIMARY_NAV_ITEMS.length + 1);
+    expect(within(bar).getAllByRole("link").map((link) => link.textContent)).toEqual([
+      "Shelf",
+      "Discover",
+      "Search",
+      "Lists",
+    ]);
     expect(within(bar).getByRole("button", { name: /more/i })).toBeInTheDocument();
-    expect(PRIMARY_NAV_ITEMS.length + 1).toBe(5);
   });
 
-  // Search is the one destination you arrive at with something already in
-  // mind, so it gets an affordance of its own instead of a fifth of the pill.
-  it("gives search a button of its own beside the pill", () => {
+  it("marks Search as a tab like the others", () => {
     renderBar("/search");
-    const search = within(tabBar()).getByRole("link", { name: SEARCH_ITEM.label });
-    expect(search).toHaveAttribute("href", SEARCH_ITEM.to);
+    const search = within(tabBar()).getByRole("link", { name: "Search" });
+    expect(search).toHaveAttribute("href", "/search");
     expect(search).toHaveAttribute("aria-current", "page");
+  });
+
+  it("keeps the labels apart: every tab pads its own slot", () => {
+    renderBar();
+    for (const tab of within(tabBar()).getAllByRole("link")) expect(tab.className).toContain("px-1");
   });
 
   it("keeps every destination reachable — the four that moved are behind More", async () => {
@@ -55,9 +60,7 @@ describe("MobileTabBar", () => {
   it("lets a tab label shrink rather than push the bar past the viewport", () => {
     renderBar();
     const labelled = [
-      // The search circle carries an icon and no label, so it is not one of
-      // these — it is a fixed 64px and the pill flexes around it.
-      ...within(tabBar()).getAllByRole("link", { name: /shelf|discover|calendar|stats/i }),
+      ...within(tabBar()).getAllByRole("link"),
       within(tabBar()).getByRole("button", { name: /more/i }),
     ];
     expect(labelled).toHaveLength(PRIMARY_NAV_ITEMS.length + 1);
@@ -68,8 +71,8 @@ describe("MobileTabBar", () => {
   });
 
   it("marks the current primary tab", () => {
-    renderBar("/calendar/2026-09");
-    expect(within(tabBar()).getByRole("link", { name: /calendar/i })).toHaveAttribute("aria-current", "page");
+    renderBar("/lists/abc");
+    expect(within(tabBar()).getByRole("link", { name: /lists/i })).toHaveAttribute("aria-current", "page");
     expect(within(tabBar()).getByRole("link", { name: /shelf/i })).not.toHaveAttribute("aria-current");
   });
 

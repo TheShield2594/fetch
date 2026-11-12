@@ -13,8 +13,7 @@ import {
 import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { LoadErrorBanner } from "../components/LoadErrorBanner";
 import { SectionError } from "../components/SectionError";
-import { LandscapeCard, type LandscapeAction } from "../components/LandscapeCard";
-import { ProgressRuler } from "../components/ProgressRuler";
+import { UpNextCard, type UpNextItem } from "../components/UpNextCard";
 import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { SelectField } from "../components/SelectField";
 import { SECTION_TITLE } from "../components/typography";
@@ -22,6 +21,7 @@ import { EmptyState } from "../components/EmptyState";
 import { PageFrame, PageHeader } from "../components/PageFrame";
 import { useCachedState } from "../hooks/useCachedState";
 import { useToast } from "../hooks/useToast";
+import { useMarkNextEpisode } from "../hooks/useMarkNextEpisode";
 import { loadErrorMessage } from "../utils/loadError";
 import { timeAgo } from "../utils/timeAgo";
 import {
@@ -116,22 +116,6 @@ function kindOptions(counts: Record<ShelfFilter, number>): SegmentedOption<Shelf
 /* ─── Up Next ──────────────────────────────────────────────── */
 
 /**
- * One card in Up Next: what it is, and the one thing its action does.
- *
- * Continue Watching and Up Next were two rows of the same card a heading
- * apart, and the difference between them — a resume point versus the next
- * episode — is the action, not the section. So they are one ordered row: what
- * you paused comes first, newest pause first, then the shows whose next
- * episode is waiting, in the order the API ranks them.
- */
-type UpNextItem = {
-  key: string;
-  entry: ShelfEntry;
-  action?: LandscapeAction | undefined;
-  dismiss?: { label: string; onClick: () => void } | undefined;
-};
-
-/**
  * The Shelf while its first answer is out: the Up next row and the library
  * grid, at the sizes they land at, so nothing moves when the real cards
  * arrive. A centred spinner here meant the whole page jumped twice — once when
@@ -161,53 +145,6 @@ function ShelfSkeleton() {
         </PosterGrid>
       </div>
     </div>
-  );
-}
-
-function UpNextCard({
-  item,
-  lead,
-  eager,
-  onOpen,
-}: {
-  item: UpNextItem;
-  lead: boolean;
-  eager: boolean;
-  onOpen: () => void;
-}) {
-  const { entry } = item;
-  return (
-    <LandscapeCard
-      // The landscape still if the record carries one, the poster if not. A
-      // poster in a 16:9 frame is cropped to its middle, which is a worse
-      // picture than the still and a much better one than a grey box.
-      art={entry.item?.background ?? entry.art}
-      artIsBackdrop={!!entry.item?.background}
-      title={entry.title}
-      eyebrow={entry.meta}
-      progress={
-        entry.ruler ? (
-          <ProgressRuler
-            value={entry.ruler.value}
-            total={entry.ruler.total}
-            partial={entry.ruler.partial}
-            discrete={entry.ruler.discrete}
-            // Nothing on the card writes the count out in words — the ticks
-            // are the count — so this is the only thing that can say "4 of 10
-            // episodes watched" to someone who can't see them.
-            label={entry.ruler.label}
-            onArt
-          />
-        ) : undefined
-      }
-      onOpen={onOpen}
-      openLabel={`Open details for ${entry.title}`}
-      action={item.action}
-      dismiss={item.dismiss}
-      size={lead ? "lead" : "rail"}
-      eager={eager}
-      className={lead ? "w-full" : "w-[15rem] flex-none snap-start"}
-    />
   );
 }
 
@@ -276,7 +213,6 @@ export function ShelfPage() {
   // summary line counts what is on the shelf, and before a load has succeeded
   // "0 titles" is not a count, it is a guess.
   const [loaded, setLoaded] = useState(itemsMeta.hadCachedValue);
-  const [markingId, setMarkingId] = useState<string | null>(null);
   const [playbackBusyId, setPlaybackBusyId] = useState<string | null>(null);
   const [renderLimit, setRenderLimit] = useState(RENDER_PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -336,6 +272,9 @@ export function ShelfPage() {
     void load();
     return () => loadAbortRef.current?.abort();
   }, [load]);
+
+  // The same mark, toast and Undo as Discover's pick-up strip.
+  const { markNext, isMarking } = useMarkNextEpisode(load);
 
   // The panel can mark episodes watched and change lists, which moves the rows
   // on this page — and rate things, which moves the Library under "My rating".
@@ -454,22 +393,6 @@ export function ShelfPage() {
     if (entry.item) openTitle(entry.item);
   };
 
-  const markNext = async (s: SeriesProgress) => {
-    setMarkingId(s.imdbId);
-    try {
-      await api.markNextEpisodeWatched(s.imdbId);
-      showToast(`Marked S${s.nextSeason}:E${s.nextEpisode} of ${s.name}`, "success");
-      // The whole in-progress block moves when an episode lands — the show can
-      // finish a season, change position, or leave the list entirely — so this
-      // refetches rather than patching one row and hoping the rest still agree.
-      await load();
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "Failed to mark episode", "error");
-    } finally {
-      setMarkingId(null);
-    }
-  };
-
   /**
    * Logs the paused title as watched. That is an ordinary watch, so it goes
    * through the offline queue like any other — and recording it is what clears
@@ -584,7 +507,7 @@ export function ShelfPage() {
                   icon: "play",
                   label: `Mark S${series.nextSeason}:E${series.nextEpisode} of ${entry.title} watched`,
                   onClick: () => void markNext(series),
-                  busy: markingId !== null && `series:${markingId}` === entry.key,
+                  busy: isMarking(series.imdbId),
                 }
               : undefined,
           };

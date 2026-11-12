@@ -151,6 +151,41 @@ describe("ToastProvider", () => {
     expect(screen.getByRole("button", { name: "Undo" })).toBeInTheDocument();
   });
 
+  it("folds a burst of identical toasts into one, with a count", () => {
+    renderToasts();
+    act(() => {
+      show("Too many requests. Try again in a moment.", "error");
+      show("Too many requests. Try again in a moment.", "error");
+      show("Too many requests. Try again in a moment.", "error");
+    });
+
+    expect(screen.getAllByText(/Too many requests/)).toHaveLength(1);
+    expect(screen.getByRole("alert")).toHaveTextContent("×3");
+  });
+
+  it("restarts the timer of a toast that is raised again", () => {
+    renderToasts();
+    act(() => show("Saved"));
+    advance(2500);
+    act(() => show("Saved"));
+    advance(2500);
+    // 5s after the first, but only 2.5s after the repeat — still up.
+    expect(screen.getByText("Saved")).toBeInTheDocument();
+    advance(600);
+    finishExit();
+    expect(screen.queryByText("Saved")).not.toBeInTheDocument();
+  });
+
+  it("keeps different messages as separate toasts", () => {
+    renderToasts();
+    act(() => {
+      show("Saved");
+      show("Saved", "error");
+      show("Removed");
+    });
+    expect(screen.getAllByText(/Saved|Removed/)).toHaveLength(3);
+  });
+
   it("gives an error long enough to read the reason it carries", () => {
     renderToasts();
     act(() => show('Created "Watchlist", but couldn\'t add "Alien" (TMDB timed out)', "error"));

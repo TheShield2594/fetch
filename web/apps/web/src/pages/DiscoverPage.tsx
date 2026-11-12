@@ -1,60 +1,108 @@
-import { useEffect, useState, useCallback, useRef } from "react";
-import { Clock } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { Clock, Sparkles } from "lucide-react";
 import {
   api,
   ApiError,
   type CalendarEntry,
+  type CatalogList,
   type CheckIn,
-  type DetailedWatchStats,
+  type ListItemWithMeta,
+  type MediaType,
   runtimeConfig,
   type ScrobbleSession,
   type SearchResult,
   type SeriesProgress,
   type TrendingMeta,
   type WatchEvent,
-  type WatchStats,
 } from "../api";
 import { Link } from "react-router";
-import { CarouselTrack } from "../components/CarouselTrack";
-import { useHorizontalScroll } from "../components/carousel-utils";
 import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { historyItemImdbId, watchEventTitle } from "../utils/watchEvents";
 import { timeUntil } from "../utils/timeAgo";
 import { loadErrorMessage } from "../utils/loadError";
 import { useCachedState } from "../hooks/useCachedState";
-import { ScrollArrows } from "../components/ScrollArrows";
+import { useToast } from "../hooks/useToast";
+import { useListMembership } from "../hooks/useListMembership";
+import { useMarkNextEpisode } from "../hooks/useMarkNextEpisode";
 import { SectionHeader } from "../components/SectionHeader";
 import { SectionError } from "../components/SectionError";
 import { LoadErrorBanner } from "../components/LoadErrorBanner";
 import { useDiscoverSection } from "../hooks/useDiscoverSection";
-import { CarouselSkeleton } from "../components/discover/CarouselSkeleton";
-import { ContinueWatchingCard } from "../components/discover/ContinueWatchingCard";
-import { ContinueWatchingHero } from "../components/discover/ContinueWatchingHero";
-import { PageFrame } from "../components/PageFrame";
+import { PageFrame, PageHeader } from "../components/PageFrame";
 import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
-import { DiscoverHeader, PageHeading } from "../components/discover/DiscoverHeader";
-import { DiscoverSubRow } from "../components/discover/DiscoverSubRow";
-import { DiscoveryCard } from "../components/discover/DiscoveryCard";
+import { UpNextCard, type UpNextItem } from "../components/UpNextCard";
+import { DiscoverFeature } from "../components/discover/DiscoverFeature";
+import { DiscoverRail } from "../components/discover/DiscoverRail";
+import type { DiscoveryItem } from "../components/discover/DiscoveryCard";
 import { NowPlayingList } from "../components/discover/NowPlayingList";
 import { NowWatchingHero } from "../components/discover/NowWatchingHero";
-import { RecentlyWatchedCard } from "../components/discover/RecentlyWatchedCard";
-import { recentTitles } from "./history-groups";
-import { UpcomingList } from "../components/discover/UpcomingList";
+import { UpcomingTimeline } from "../components/discover/UpcomingTimeline";
+import { shelfEntryFromSeriesProgress } from "./shelf";
+
+/*
+ * Discover: things the viewer has not seen.
+ *
+ * It used to open on a greeting and five stat chips, then lead with the show
+ * the viewer was already watching, then spend two-thirds of the page on the
+ * same in-progress shows the Shelf opens with — under a "Continue Watching"
+ * that meant something else on the Shelf, with a different progress bar and a
+ * different kind of feedback for the same tap.
+ *
+ * "What's mine and what's next" belongs to the Shelf. Discover keeps one small
+ * strip of it, drawn with the Shelf's own card, ruler and toast, and gives the
+ * rest of the page to a lead title the viewer hasn't seen and rails that each
+ * say why they are there.
+ */
 
 /** What `GET /recommendations/ai` answers with. */
 type AiRecommendationsResponse = { metas: TrendingMeta[]; reasons?: Record<string, string> | undefined };
 
-/* ─── Main component ─── */
+/** The watchlist, if the profile has one, and what is on it. */
+type Watchlist = { list: Pick<CatalogList, "id" | "name"> | null; items: TrendingMeta[] };
+
+/** "Because you watched X": the title the rail is seeded from, and its neighbours. */
+type BecauseYouWatched = { seed: { imdbId: string; type: MediaType; name: string } | null; metas: TrendingMeta[] };
+
+/** How many in-progress shows the pick-up strip holds. The rest are on the Shelf. */
+const PICK_UP_LIMIT = 3;
+
+const fromListItem = (item: ListItemWithMeta): TrendingMeta => ({
+  id: item.imdbId,
+  type: item.type,
+  name: item.metadata?.name ?? item.title ?? item.imdbId,
+  poster: item.metadata?.poster ?? undefined,
+  year: item.metadata?.year ?? undefined,
+  genres: item.metadata?.genres,
+  rating: item.metadata?.rating ?? undefined,
+});
+
+/** The newest watch, as the title a "Because you watched" rail is about. */
+function seedFrom(history: WatchEvent[]): BecauseYouWatched["seed"] {
+  const latest = history[0];
+  if (!latest) return null;
+  return {
+    imdbId: historyItemImdbId(latest),
+    type: latest.type === "movie" ? "movie" : "series",
+    name: watchEventTitle(latest),
+  };
+}
+
+/** Films and shows alternately, so the lead and the rails aren't all one kind. */
+function interleave<T>(a: T[], b: T[]): T[] {
+  const out: T[] = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (i < a.length) out.push(a[i]!);
+    if (i < b.length) out.push(b[i]!);
+  }
+  return out;
+}
 
 export function DiscoverPage() {
-  // Each section keeps its data in the shared cache, so leaving Discover
-  // and coming back paints the same content in the first frame rather than
-  // spinning while the requests it already made are made again. The loads below
-  // are unchanged and still run on mount — they now refresh what is on screen
-  // instead of replacing it.
+  // Each section keeps its data in the shared cache, so leaving Discover and
+  // coming back paints the same content in the first frame rather than
+  // spinning while the requests it already made are made again.
   const [progress, setProgress, progressMeta] = useCachedState<SeriesProgress[]>("dash:progress", []);
   const [history, setHistory, historyMeta] = useCachedState<WatchEvent[]>("dash:history", []);
-  const [stats, setStats] = useCachedState<WatchStats | null>("dash:stats", null);
 
   const [loading, setLoading] = useState(!progressMeta.hadCachedValue && !historyMeta.hadCachedValue);
   const [error, setError] = useState<string | null>(null);
@@ -65,16 +113,21 @@ export function DiscoverPage() {
   const [movieReasons, setMovieReasons] = useState<Record<string, string>>({});
   const [seriesReasons, setSeriesReasons] = useState<Record<string, string>>({});
 
-  // Each rail loads, fails and retries on its own, so each gets its own
-  // section — which is what keeps a Retry on one from invalidating a request
-  // still in flight beside it. See `useDiscoverSection` for the guard.
-  const detailed = useDiscoverSection<DetailedWatchStats | null>(
-    "dash:detailed-stats",
-    null,
-    useCallback(() => api.getDetailedStats(), []),
+  const [activeCheckin, setActiveCheckin] = useState<CheckIn | null>(null);
+  const [nowPlaying, setNowPlaying] = useState<ScrobbleSession[]>([]);
+
+  const { showToast } = useToast();
+  const { setMembership, isPending } = useListMembership(showToast);
+  const [addedToWatchlist, setAddedToWatchlist] = useState<ReadonlySet<string>>(() => new Set());
+
+  // Each rail loads, fails and retries on its own. See `useDiscoverSection`.
+  const isTmdbMissing = useCallback(
+    (err: unknown) =>
+      (err instanceof ApiError && err.code === "tmdb_not_configured") || (err instanceof Error && /tmdb/i.test(err.message)),
+    []
   );
 
-  const trending = useDiscoverSection<TrendingMeta[], { metas: TrendingMeta[] }>(
+  const trendingMovies = useDiscoverSection<TrendingMeta[], { metas: TrendingMeta[] }>(
     "dash:trending",
     [],
     useCallback(() => api.getTrending("movie", "week"), []),
@@ -85,15 +138,40 @@ export function DiscoverPage() {
         // "needs a TMDB API key" note outlived the key it asked for.
         setTrendingNeedsTmdb(false);
       },
-      // An unconfigured TMDB key is the one failure worth naming: the rail then
+      // An unconfigured TMDB key is the one failure worth naming: the page then
       // says what to go and set rather than offering a Retry that cannot work.
-      onError: useCallback((err: unknown) => {
-        setTrendingNeedsTmdb(
-          (err instanceof ApiError && err.code === "tmdb_not_configured") ||
-            (err instanceof Error && /tmdb/i.test(err.message))
-        );
-      }, []),
+      onError: useCallback((err: unknown) => setTrendingNeedsTmdb(isTmdbMissing(err)), [isTmdbMissing]),
     },
+  );
+
+  const trendingSeries = useDiscoverSection<TrendingMeta[], { metas: TrendingMeta[] }>(
+    "dash:trending:series",
+    [],
+    useCallback(() => api.getTrending("series", "week"), []),
+    { apply: (res, set) => set(res.metas ?? []) },
+  );
+
+  const watchlistSection = useDiscoverSection<Watchlist>(
+    "dash:watchlist",
+    { list: null, items: [] },
+    useCallback(async () => {
+      const { lists } = await api.getLists();
+      const list = lists.find((l) => l.kind === "watchlist");
+      if (!list) return { list: null, items: [] };
+      const { items } = await api.getListItems(list.id);
+      return { list: { id: list.id, name: list.name }, items: items.map(fromListItem) };
+    }, []),
+  );
+
+  const seed = useMemo(() => seedFrom(history), [history]);
+  const because = useDiscoverSection<BecauseYouWatched>(
+    "dash:because",
+    { seed: null, metas: [] },
+    useCallback(async () => {
+      if (!seed) return { seed: null, metas: [] };
+      const res = await api.getRecommendationsFor(seed.type, seed.imdbId);
+      return { seed, metas: res.metas ?? [] };
+    }, [seed]),
   );
 
   const movieRecs = useDiscoverSection<TrendingMeta[], AiRecommendationsResponse>(
@@ -127,26 +205,10 @@ export function DiscoverPage() {
     { apply: (res, set) => set(res.calendar ?? []) },
   );
 
-  const detailedStats = detailed.value;
-  const trendingMovies = trending.value;
-  const recommendations = movieRecs.value;
-  const seriesRecs = seriesRecsSection.value;
-  const calendarEntries = calendar.value;
-
-  const [markingNext, setMarkingNext] = useState<Set<string>>(new Set());
-  const [markedDone, setMarkedDone] = useState<Set<string>>(new Set());
-  const [activeCheckin, setActiveCheckin] = useState<CheckIn | null>(null);
-  const [nowPlaying, setNowPlaying] = useState<ScrobbleSession[]>([]);
-
-  const continueScroll = useHorizontalScroll();
-  const recentScroll = useHorizontalScroll();
-  const recsScroll = useHorizontalScroll();
-  const seriesRecsScroll = useHorizontalScroll();
-
   const { openTitle } = useTitlePanel();
 
   const toSearchResult = useCallback((imdbId: string, type: "movie" | "series", name: string, opts?: {
-    poster?: string | undefined;
+    poster?: string | null | undefined;
     year?: number | null | undefined;
     description?: string | null | undefined;
     genres?: string[] | undefined;
@@ -165,23 +227,35 @@ export function DiscoverPage() {
     background: opts?.background ?? null,
   }), []);
 
-  // Takes the signal the mount effect cancels on unmount. Five requests that
-  // outlive the page are five answers arriving for a profile that may no longer
-  // be the one on screen — a switch mid-flight used to land the previous
-  // profile's Continue Watching in the new one's cache.
+  const openMeta = useCallback(
+    (i: DiscoveryItem | TrendingMeta) =>
+      openTitle(
+        toSearchResult(i.id, i.type === "series" ? "series" : "movie", i.name, {
+          poster: i.poster,
+          year: i.year,
+          description: i.description,
+          genres: i.genres,
+          rating: i.rating,
+          background: "background" in i ? i.background : undefined,
+        })
+      ),
+    [openTitle, toSearchResult]
+  );
+
+  // Takes the signal the mount effect cancels on unmount: requests that outlive
+  // the page are answers arriving for a profile that may no longer be the one
+  // on screen.
   const load = useCallback(async (signal?: AbortSignal) => {
     try {
-      const [progressRes, historyRes, statsRes, checkinRes, nowPlayingRes] = await Promise.all([
+      const [progressRes, historyRes, checkinRes, nowPlayingRes] = await Promise.all([
         api.getSeriesProgress(signal),
         api.getWatchHistory(20, 0, { signal }),
-        api.getWatchStats(signal),
         api.getCheckin(signal).catch(() => ({ checkin: null })),
         api.getNowPlaying(signal).catch(() => ({ sessions: [] })),
       ]);
       if (signal?.aborted) return;
       setProgress(progressRes ?? []);
       setHistory(historyRes ?? []);
-      setStats(statsRes);
       setActiveCheckin(checkinRes.checkin);
       setNowPlaying(nowPlayingRes.sessions ?? []);
       setError(null);
@@ -191,12 +265,7 @@ export function DiscoverPage() {
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-    // The `setX` names below all come from useCachedState, which memoises its
-    // setter on the cache key — a string literal at every call site here — so
-    // every one of these dependency lists is stable across renders. They are
-    // named rather than omitted so the lists describe what the closures
-    // actually read, which is what makes exhaustive-deps worth enforcing.
-  }, [setProgress, setHistory, setStats]);
+  }, [setProgress, setHistory]);
 
   const refreshProgress = useCallback(async () => {
     try {
@@ -205,8 +274,16 @@ export function DiscoverPage() {
     } catch { /* keep showing the last known list */ }
   }, [setProgress]);
 
-  // The panel can mark episodes watched, which moves the rows on this page.
-  useOnTitleClose(() => { void refreshProgress(); });
+  // The same mark, toast and Undo as the Shelf's Up next.
+  const { markNext, isMarking } = useMarkNextEpisode(refreshProgress);
+
+  // The panel can mark episodes watched and change lists, which moves the rows
+  // on this page.
+  const loadWatchlist = watchlistSection.load;
+  useOnTitleClose(() => {
+    void refreshProgress();
+    void loadWatchlist();
+  });
 
   const profileId = runtimeConfig.getProfileId();
 
@@ -214,9 +291,7 @@ export function DiscoverPage() {
   // it surfaces as a failure on both rather than as two empty rows.
   //
   // Destructured rather than closing over the two section objects: those are
-  // rebuilt on every render, so depending on them would make this callback new
-  // on every render too — and the effect that calls it runs on its identity.
-  // Everything below is stable for the life of the section.
+  // rebuilt on every render, and the effect that calls this runs on its identity.
   const {
     claim: claimMovieRecs,
     isCurrent: movieRecsIsCurrent,
@@ -233,9 +308,7 @@ export function DiscoverPage() {
   } = seriesRecsSection;
 
   const loadAiSection = useCallback(async () => {
-    // Both rails restart from here, so both tokens move — an answer either rail
-    // had in flight belongs to the previous run of this section and is no
-    // longer the one on screen.
+    // Both rails restart from here, so both tokens move.
     const movieToken = claimMovieRecs();
     const seriesToken = claimSeriesRecs();
     const superseded = () => !movieRecsIsCurrent(movieToken) || !seriesRecsIsCurrent(seriesToken);
@@ -278,15 +351,23 @@ export function DiscoverPage() {
     setSeriesRecsFailed,
   ]);
 
-  const loadDetailed = detailed.load;
-  const loadTrending = trending.load;
+  const loadTrendingMovies = trendingMovies.load;
+  const loadTrendingSeries = trendingSeries.load;
   const loadCalendar = calendar.load;
   useEffect(() => {
-    void loadDetailed();
-    void loadTrending();
+    void loadTrendingMovies();
+    void loadTrendingSeries();
+    void loadWatchlist();
     void loadAiSection();
     void loadCalendar();
-  }, [profileId, loadDetailed, loadTrending, loadAiSection, loadCalendar]);
+  }, [profileId, loadTrendingMovies, loadTrendingSeries, loadWatchlist, loadAiSection, loadCalendar]);
+
+  // Asked again whenever the newest watch changes, which is what it is about.
+  const loadBecause = because.load;
+  const seedId = seed?.imdbId ?? null;
+  useEffect(() => {
+    if (seedId) void loadBecause();
+  }, [profileId, seedId, loadBecause]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -294,103 +375,55 @@ export function DiscoverPage() {
     return () => controller.abort();
   }, [load, profileId]);
 
-  // The "marked!" confirmation on a Continue Watching card holds for 1.2s and
-  // then reloads Discover, so the timer that does it can outlive the page:
-  // mark an episode, tap through to Settings inside that window, and five
-  // requests fire for a page that no longer exists — and their answers are then
-  // written into the shared cache, under whichever profile is active by the
-  // time they land. One timer per card, since several can be marked at once.
-  const markTimersRef = useRef(new Set<ReturnType<typeof setTimeout>>());
-  // Read by the failure path in `handleMarkNext`, which reloads from inside an
-  // async handler that can resume after the page is gone.
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    // Assigned on mount rather than only at declaration: a Strict Mode
-    // remount reuses the ref, and the first cleanup would otherwise leave the
-    // second mount marked unmounted for the rest of its life.
-    mountedRef.current = true;
-    const timers = markTimersRef.current;
-    return () => {
-      mountedRef.current = false;
-      for (const timer of timers) clearTimeout(timer);
-      timers.clear();
-    };
-  }, []);
-
-  // Pulled out of the rail objects rather than called as methods on them.
-  // useHorizontalScroll hands back a fresh object literal every render, so a
-  // dependency on `continueScroll` re-arms this timer on every render; the
-  // `checkScroll` it carries is a useCallback with an empty dependency list and
-  // never changes. Same four calls, but now the dependency list says so.
-  const { checkScroll: checkContinueScroll } = continueScroll;
-  const { checkScroll: checkRecentScroll } = recentScroll;
-  const { checkScroll: checkRecsScroll } = recsScroll;
-  const { checkScroll: checkSeriesRecsScroll } = seriesRecsScroll;
-
-  useEffect(() => {
-    if (loading) return;
-    const timer = setTimeout(() => {
-      checkContinueScroll();
-      checkRecentScroll();
-      checkRecsScroll();
-      checkSeriesRecsScroll();
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [loading, trending.loading, movieRecs.loading, seriesRecsSection.loading, progress.length, history.length,
-    checkContinueScroll, checkRecentScroll, checkRecsScroll, checkSeriesRecsScroll]);
-
-  const handleMarkNext = async (imdbId: string) => {
-    setMarkingNext((prev) => new Set(prev).add(imdbId));
-    try {
-      await api.markNextEpisodeWatched(imdbId);
-      // The request can outlast the page, and the cleanup below has then already
-      // run: a timer armed past it is one nothing will ever clear, which is the
-      // leak this whole path is about, reintroduced a second later.
-      if (!mountedRef.current) return;
-      setMarkedDone((prev) => new Set(prev).add(imdbId));
-      const timer = setTimeout(() => {
-        markTimersRef.current.delete(timer);
-        setMarkedDone((prev) => { const next = new Set(prev); next.delete(imdbId); return next; });
-        void load();
-      }, 1200);
-      markTimersRef.current.add(timer);
-    } catch {
-      // Mark failed (e.g. the series turned out to already be fully watched) —
-      // reload so a now-stale card can be dropped from the list. Same reason the
-      // timer above is cleared on unmount: the await this resumes from can land
-      // after the page is gone.
-      if (mountedRef.current) void load();
-    } finally {
-      setMarkingNext((prev) => { const next = new Set(prev); next.delete(imdbId); return next; });
-    }
-  };
-
   /*
    * Whether the page has anything true to show without this load: a cached
-   * answer from an earlier visit, or one this mount already received.
-   *
-   * A failed refresh with that in hand is a banner above the cached sections,
-   * not a page that throws them away — the whole screen used to go to "Unable
-   * to connect to the API" while every section below had data to show. With
-   * nothing in hand, the error is the page, because the empty states the
-   * sections would otherwise fall back to ("No series in progress") would be
-   * claims about a library this page never heard from.
+   * answer from an earlier visit, or one this mount already received. A failed
+   * refresh with that in hand is a banner above the cached sections; with
+   * nothing in hand, the error is the page.
    */
   const hasContent =
-    progressMeta.hadCachedValue || historyMeta.hadCachedValue || stats != null || progress.length > 0 || history.length > 0;
+    progressMeta.hadCachedValue || historyMeta.hadCachedValue || progress.length > 0 || history.length > 0;
 
   const retryLoad = () => {
     setError(null);
-    // Skeletons while the retry is out, rather than the empty states a page
-    // with nothing loaded would otherwise fall through to for a moment.
     if (!hasContent) setLoading(true);
     void load();
   };
 
+  /* ── What the viewer has already met, so the page can leave it out ── */
+
+  const watchlist = watchlistSection.value;
+  const seen = useMemo(() => {
+    const ids = new Set<string>();
+    for (const s of progress) ids.add(s.imdbId);
+    for (const e of history) ids.add(historyItemImdbId(e));
+    return ids;
+  }, [progress, history]);
+  const onWatchlist = useMemo(
+    () => new Set([...watchlist.items.map((i) => i.id), ...addedToWatchlist]),
+    [watchlist.items, addedToWatchlist]
+  );
+
+  const trending = useMemo(
+    () => interleave(trendingMovies.value, trendingSeries.value),
+    [trendingMovies.value, trendingSeries.value]
+  );
+  // The lead: the first trending title the viewer has neither watched nor
+  // saved, preferring one with a backdrop to draw it on.
+  const feature = useMemo(() => {
+    const fresh = trending.filter((m) => !seen.has(m.id) && !watchlist.items.some((i) => i.id === m.id));
+    return fresh.find((m) => m.background) ?? fresh[0] ?? null;
+  }, [trending, seen, watchlist.items]);
+
+  const unseen = useCallback(
+    (items: TrendingMeta[]) => items.filter((m) => !seen.has(m.id) && m.id !== feature?.id),
+    [seen, feature]
+  );
+
   if (error && !hasContent) {
     return (
       <PageFrame>
-        <PageHeading />
+        <PageHeader title="Discover" />
         <SectionError variant="page" message={error} onRetry={retryLoad}>
           <p className="mt-2 text-sm" style={{ color: "var(--text-dim)" }}>
             API base: <span className="font-mono">{runtimeConfig.getApiBase()}</span>
@@ -412,264 +445,236 @@ export function DiscoverPage() {
     if (logWatch) void load();
   };
 
-  // Includes the failure case so the column — and the two-column grid with it —
-  // stays put and reports the problem instead of quietly reflowing to one column.
-  const hasUpcoming = calendar.loading || calendarEntries.length > 0 || calendar.failed;
+  const addFeatureToWatchlist = (item: TrendingMeta) => {
+    const list = watchlist.list;
+    if (!list) return;
+    void setMembership(
+      list,
+      { type: item.type, imdbId: item.id, name: item.name },
+      true,
+      (member) =>
+        setAddedToWatchlist((prev) => {
+          const next = new Set(prev);
+          if (member) next.add(item.id);
+          else next.delete(item.id);
+          return next;
+        })
+    );
+  };
 
-  // The check-in hero and the Continue Watching hero can end up showing the same series
-  // (e.g. actively checked into the episode that's also furthest along in progress).
-  // When that happens, skip the redundant Continue hero and fold that series into the row instead.
-  const checkinSeriesId = activeCheckin ? (activeCheckin.type === "episode" ? activeCheckin.seriesImdbId : activeCheckin.imdbId) : null;
-  const checkinMatchesTopProgress = checkinSeriesId != null && progress[0]?.imdbId === checkinSeriesId;
-  const continueHeroItem = checkinMatchesTopProgress ? undefined : progress[0];
-  const continueRowItems = checkinMatchesTopProgress ? progress : progress.slice(1);
+  const pickUp: UpNextItem[] = progress.slice(0, PICK_UP_LIMIT).map((s) => {
+    const entry = shelfEntryFromSeriesProgress(s, activeCheckin);
+    return {
+      key: entry.key,
+      entry,
+      action: {
+        icon: "play",
+        label: `Mark S${s.nextSeason}:E${s.nextEpisode} of ${s.name} watched`,
+        onClick: () => void markNext(s),
+        busy: isMarking(s.imdbId),
+      },
+    };
+  });
+
+  const watchlistRail = watchlist.items.filter((i) => !seen.has(i.id));
+  const becauseRail = because.value.seed?.imdbId === seedId ? unseen(because.value.metas) : [];
+  const trendingFailed = trendingMovies.failed && trendingSeries.failed;
+  const trendingLoading = trendingMovies.loading && trendingSeries.loading && trending.length === 0;
+  const hasUpcoming = calendar.loading || calendar.value.length > 0 || calendar.failed;
+
+  const aiMarker = (
+    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
+      <Sparkles aria-hidden="true" className="h-2.5 w-2.5" />
+      AI
+    </span>
+  );
+  const aiRefresh = aiActive && aiLastGeneratedAt ? (() => {
+    const nextRefresh = new Date(new Date(aiLastGeneratedAt).getTime() + 7 * 24 * 60 * 60 * 1000);
+    return nextRefresh <= new Date() ? "refresh due" : `refreshes ${timeUntil(nextRefresh.toISOString())}`;
+  })() : null;
+  const aiReason = (
+    <span className="inline-flex items-center gap-1.5">
+      Chosen by your AI provider from what you watch
+      {aiRefresh && (
+        <>
+          <span aria-hidden="true">&middot;</span>
+          <Clock aria-hidden="true" size={12} />
+          {aiRefresh}
+        </>
+      )}
+    </span>
+  );
+
+  const seeAll = (to: string, label: string) => (
+    <Link to={to} className="whitespace-nowrap text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
+      {label} &rarr;
+    </Link>
+  );
 
   return (
-    <PageFrame className="space-y-7">
-      <PageHeading />
-      {/* ── Header stat row ── */}
-      <DiscoverHeader
-        playsThisWeek={stats?.playsThisWeek ?? 0}
-        streak={detailedStats?.currentStreak ?? 0}
-        longestStreak={detailedStats?.longestStreak ?? 0}
-        totalMovies={stats?.totalMovies ?? 0}
-        totalEpisodes={stats?.totalEpisodes ?? 0}
-        topGenre={detailedStats?.genreDistribution[0]?.genre}
-        loading={loading}
-        statsLoading={detailed.loading}
-        statsFailed={detailed.failed}
-        onRetryStats={() => void loadDetailed()}
-      />
+    <PageFrame className="space-y-9">
+      <PageHeader title="Discover" className="" />
 
       {/* A refresh that failed over a cached page: the sections below keep the
           last answer, and this says it is not the newest one. */}
       {error && <LoadErrorBanner message={error} onRetry={retryLoad} className="" />}
 
-      {/* ── Hero: Now Watching ── */}
+      {/* ── The lead: something new ── */}
+      {trendingNeedsTmdb && trending.length === 0 ? (
+        <EmptyState
+          title="Trending needs a TMDB key"
+          action={<Link to="/settings?section=tmdb" className={EMPTY_STATE_ACTION}>Set it up in Settings &rarr;</Link>}
+        >
+          Trending needs a TMDB API key to fetch content.
+        </EmptyState>
+      ) : trendingLoading ? (
+        <div className="skeleton min-h-[26rem] rounded-3xl sm:min-h-[50vh] lg:min-h-[min(60vh,42rem)]" aria-hidden="true" />
+      ) : feature ? (
+        <DiscoverFeature
+          item={feature}
+          reason={`Trending this week · ${feature.type === "series" ? "Show" : "Film"}`}
+          onOpen={() => openMeta(feature)}
+          watchlist={
+            watchlist.list
+              ? {
+                  state: onWatchlist.has(feature.id)
+                    ? "added"
+                    : isPending(watchlist.list.id, { type: feature.type, imdbId: feature.id })
+                      ? "busy"
+                      : "idle",
+                  onAdd: () => addFeatureToWatchlist(feature),
+                }
+              : null
+          }
+        />
+      ) : null}
+
+      {/* ── Yours, briefly: what's playing, and where you left off ── */}
       {activeCheckin && <NowWatchingHero checkin={activeCheckin} onCheckout={(logWatch) => void handleCheckout(logWatch)} />}
-
-      {/* ── Live: Plex/Jellyfin scrobble sessions ── */}
       <NowPlayingList sessions={nowPlaying} />
-
-      {/* ── Continue Watching ── */}
-      <section>
-        <SectionHeader title="Continue Watching" count={progress.length}>
-          {!loading && progress.length > 0 && (
-            <ScrollArrows
-              canScrollLeft={continueScroll.canScrollLeft}
-              canScrollRight={continueScroll.canScrollRight}
-              onScroll={continueScroll.scroll}
-            />
-          )}
-        </SectionHeader>
-        {loading ? (
-          <CarouselSkeleton />
-        ) : progress.length === 0 ? (
-          <EmptyState
-            size="section"
-            title="No series in progress"
-            action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to watch &rarr;</Link>}
-          >
-            Series you start watching pick up here.
-          </EmptyState>
-        ) : (
-          <>
-            {continueHeroItem && (
-              <ContinueWatchingHero
-                s={continueHeroItem}
-                isMarking={markingNext.has(continueHeroItem.imdbId)}
-                isDone={markedDone.has(continueHeroItem.imdbId)}
-                onMarkNext={() => void handleMarkNext(continueHeroItem.imdbId)}
-                onSelect={() => openTitle(toSearchResult(continueHeroItem.imdbId, "series", continueHeroItem.name, { poster: continueHeroItem.poster, background: continueHeroItem.background }))}
+      {!loading && pickUp.length > 0 && (
+        <section aria-labelledby="discover-pick-up">
+          <div className="mb-3 flex items-end justify-between gap-4">
+            <h2 id="discover-pick-up" className="text-[1.0625rem] font-bold" style={{ color: "var(--text)" }}>
+              Pick up where you left off
+            </h2>
+            {seeAll("/", "Your Shelf")}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {pickUp.map((item, index) => (
+              <UpNextCard
+                key={item.key}
+                item={item}
+                lead={false}
+                eager={index < 3}
+                className="w-full"
+                onOpen={() => item.entry.item && openTitle(item.entry.item)}
               />
-            )}
-            {continueRowItems.length > 0 && (
-              <CarouselTrack
-                scrollRef={continueScroll.ref}
-                canScrollLeft={continueScroll.canScrollLeft}
-                canScrollRight={continueScroll.canScrollRight}
-                className="gap-4"
-              >
-                {continueRowItems.map((s, index) => (
-                  <ContinueWatchingCard
-                    key={s.imdbId}
-                    s={s}
-                    eager={index < 4}
-                    isMarking={markingNext.has(s.imdbId)}
-                    isDone={markedDone.has(s.imdbId)}
-                    onMarkNext={() => void handleMarkNext(s.imdbId)}
-                    onSelect={() => openTitle(toSearchResult(s.imdbId, "series", s.name, { poster: s.poster, background: s.background }))}
-                  />
-                ))}
-              </CarouselTrack>
-            )}
-          </>
-        )}
-      </section>
-
-      {/* ── Trending Now + Upcoming — two-column, breaks scroll monotony ── */}
-      <div className={`grid gap-5 ${hasUpcoming ? "lg:grid-cols-[1fr_268px]" : ""}`}>
-        <section>
-          <SectionHeader title="Trending Now">
-            <Link to="/search" className="text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-              Search &rarr;
-            </Link>
-          </SectionHeader>
-          {trending.loading ? (
-            <div className="grid grid-cols-2 gap-3 sm:[grid-template-columns:repeat(auto-fit,var(--poster-card-w))]">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="skeleton aspect-poster rounded-2xl" />
-              ))}
-            </div>
-          ) : trendingMovies.length === 0 ? (
-            /* Three different things, which used to share one "Unable to load"
-               card: a key to go and set, a request to retry, and a week that
-               simply had nothing in it. */
-            trendingNeedsTmdb ? (
-              <EmptyState
-                size="section"
-                title="Trending needs a TMDB key"
-                action={<Link to="/settings?section=tmdb" className={EMPTY_STATE_ACTION}>Set it up in Settings &rarr;</Link>}
-              >
-                Trending needs a TMDB API key to fetch content.
-              </EmptyState>
-            ) : trending.failed ? (
-              <SectionError message="Couldn't load trending titles." onRetry={() => void loadTrending()} />
-            ) : (
-              <EmptyState size="section" title="Nothing trending this week" />
-            )
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:[grid-template-columns:repeat(auto-fit,var(--poster-card-w))]">
-              {trendingMovies.slice(0, 4).map((item, index) => (
-                <DiscoveryCard
-                  key={item.id}
-                  item={item}
-                  eager={index < 4}
-                  fill
-                  onSelect={(i) => openTitle(toSearchResult(i.id, (i.type ?? "movie") as "movie" | "series", i.name, { poster: i.poster, year: i.year, description: item.description, genres: i.genres, rating: i.rating }))}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {hasUpcoming && (
-          <section>
-            <SectionHeader title="Upcoming" count={calendarEntries.length}>
-              <Link to="/calendar" className="text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-                Full calendar &rarr;
-              </Link>
-            </SectionHeader>
-            {calendar.loading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="skeleton h-16 rounded-xl" />
-                ))}
-              </div>
-            ) : calendar.failed ? (
-              <SectionError message="Couldn't load upcoming episodes." onRetry={() => void loadCalendar()} />
-            ) : (
-              <UpcomingList entries={calendarEntries} />
-            )}
-          </section>
-        )}
-      </div>
-
-      {/* ── Discover: shared section for both recommendation rails ── */}
-      {(movieRecs.loading || recommendations.length > 0 || movieRecs.failed || seriesRecsSection.loading || seriesRecs.length > 0 || seriesRecsSection.failed) && (
-        <section>
-          <SectionHeader title={aiActive ? "AI Picks" : "Discover"}>
-            {aiActive && aiLastGeneratedAt && (() => {
-              const nextRefresh = new Date(new Date(aiLastGeneratedAt).getTime() + 7 * 24 * 60 * 60 * 1000);
-              const label = nextRefresh <= new Date() ? "Refresh due" : `Refreshes ${timeUntil(nextRefresh.toISOString())}`;
-              return (
-                <span title={`Next refresh: ${nextRefresh.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}`} className="flex items-center gap-1 text-xs cursor-default" style={{ color: "var(--text-dim)" }}>
-                  <Clock size={12} />
-                  {label}
-                </span>
-              );
-            })()}
-          </SectionHeader>
-          <div className="space-y-5">
-            <DiscoverSubRow
-              label="Movies"
-              loading={movieRecs.loading}
-              failed={movieRecs.failed}
-              onRetry={() => void (aiActive ? loadMovieRecs() : loadAiSection())}
-              items={recommendations}
-              reasons={movieReasons}
-              aiActive={aiActive}
-              scroll={recsScroll}
-              onSelect={(i) => openTitle(toSearchResult(i.id, (i.type ?? "movie") as "movie" | "series", i.name, { poster: i.poster, year: i.year, description: i.description, genres: i.genres, rating: i.rating }))}
-            />
-            <DiscoverSubRow
-              label="Series"
-              loading={seriesRecsSection.loading}
-              failed={seriesRecsSection.failed}
-              onRetry={() => void (aiActive ? loadSeriesRecs() : loadAiSection())}
-              items={seriesRecs}
-              reasons={seriesReasons}
-              aiActive={aiActive}
-              scroll={seriesRecsScroll}
-              onSelect={(i) => openTitle(toSearchResult(i.id, "series", i.name, { poster: i.poster, year: i.year, description: i.description, genres: i.genres, rating: i.rating }))}
-            />
+            ))}
           </div>
         </section>
       )}
 
-      {/* ── Recently Watched ── */}
-      <section>
-        <SectionHeader title="Recently Watched" count={history.length}>
-          {!loading && history.length > 0 && (
-            <ScrollArrows
-              canScrollLeft={recentScroll.canScrollLeft}
-              canScrollRight={recentScroll.canScrollRight}
-              onScroll={recentScroll.scroll}
+      {/* ── Rails, each with its reason ── */}
+      {!trendingNeedsTmdb && (
+        <>
+          <DiscoverRail
+            title="Trending films"
+            reason="What people are watching this week"
+            items={unseen(trendingMovies.value)}
+            loading={trendingMovies.loading && trendingMovies.value.length === 0}
+            failed={trendingMovies.failed && trendingMovies.value.length === 0}
+            onRetry={() => void loadTrendingMovies()}
+            empty={trendingFailed ? undefined : <EmptyState size="section" title="Nothing trending this week" />}
+            onSelect={openMeta}
+          />
+          <DiscoverRail
+            title="Trending shows"
+            reason="The series everyone is talking about this week"
+            items={unseen(trendingSeries.value)}
+            loading={trendingSeries.loading && trendingSeries.value.length === 0}
+            failed={trendingSeries.failed && trendingSeries.value.length === 0}
+            onRetry={() => void loadTrendingSeries()}
+            onSelect={openMeta}
+          />
+        </>
+      )}
+
+      {seed && (
+        <DiscoverRail
+          title={`Because you watched ${seed.name}`}
+          reason="Titles people who liked it went on to watch"
+          items={becauseRail}
+          loading={because.loading && becauseRail.length === 0}
+          onSelect={openMeta}
+        />
+      )}
+
+      {hasUpcoming && (
+        <section>
+          <SectionHeader title="Coming up">
+            {seeAll("/calendar", "Full calendar")}
+          </SectionHeader>
+          <p className="-mt-2 mb-3 text-sm" style={{ color: "var(--text-dim)" }}>
+            New episodes and releases from your library in the next two weeks
+          </p>
+          {calendar.loading && calendar.value.length === 0 ? (
+            <div className="flex gap-4 overflow-hidden" aria-hidden="true">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="skeleton aspect-video w-[15rem] flex-none rounded-2xl" />
+              ))}
+            </div>
+          ) : calendar.failed && calendar.value.length === 0 ? (
+            <SectionError message="Couldn't load upcoming episodes." onRetry={() => void loadCalendar()} />
+          ) : (
+            <UpcomingTimeline
+              entries={calendar.value}
+              onOpen={(entry) =>
+                openTitle(
+                  toSearchResult(entry.seriesImdbId, entry.kind === "movie" ? "movie" : "series", entry.seriesName, {
+                    poster: entry.poster,
+                    background: entry.backdrop,
+                  })
+                )
+              }
             />
           )}
-        </SectionHeader>
-        {loading ? (
-          <CarouselSkeleton count={6} />
-        ) : history.length === 0 ? (
-          <EmptyState
-            size="section"
-            title="No watch history yet"
-            action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to watch &rarr;</Link>}
-          >
-            Anything you mark watched shows up here.
-          </EmptyState>
-        ) : (
-          <CarouselTrack
-            scrollRef={recentScroll.ref}
-            canScrollLeft={recentScroll.canScrollLeft}
-            canScrollRight={recentScroll.canScrollRight}
-            className="content-in gap-4"
-          >
-            {/* One card per title: a run of one show is one poster with a
-                count, not the same poster six times. */}
-            {recentTitles(history).map((title) => {
-              const event = title.latest;
-              return (
-                <RecentlyWatchedCard
-                  key={event.id}
-                  title={title}
-                  onSelect={() =>
-                    openTitle(
-                      toSearchResult(
-                        historyItemImdbId(event),
-                        event.type === "movie" ? "movie" : "series",
-                        watchEventTitle(event),
-                        { poster: event.poster }
-                      )
-                    )
-                  }
-                />
-              );
-            })}
-          </CarouselTrack>
-        )}
-      </section>
+        </section>
+      )}
 
+      {watchlist.list && (
+        <DiscoverRail
+          title="From your watchlist"
+          reason="Saved and not started yet"
+          items={watchlistRail}
+          loading={watchlistSection.loading && watchlistRail.length === 0}
+          action={seeAll("/lists", "All lists")}
+          onSelect={openMeta}
+        />
+      )}
+
+      <DiscoverRail
+        title="Films picked for you"
+        reason={aiReason}
+        items={movieRecs.value}
+        loading={movieRecs.loading && aiActive}
+        failed={movieRecs.failed}
+        onRetry={() => void (aiActive ? loadMovieRecs() : loadAiSection())}
+        reasons={movieReasons}
+        marker={aiMarker}
+        onSelect={openMeta}
+      />
+      <DiscoverRail
+        title="Shows picked for you"
+        reason={aiReason}
+        items={seriesRecsSection.value}
+        loading={seriesRecsSection.loading && aiActive}
+        failed={seriesRecsSection.failed}
+        onRetry={() => void (aiActive ? loadSeriesRecs() : loadAiSection())}
+        reasons={seriesReasons}
+        marker={aiMarker}
+        onSelect={(i) => openMeta({ ...i, type: "series" })}
+      />
     </PageFrame>
   );
 }

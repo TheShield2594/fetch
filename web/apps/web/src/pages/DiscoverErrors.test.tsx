@@ -17,13 +17,15 @@ vi.mock("../api", async (importOriginal) => {
   return {
     ...actual,
     api: {
-      getWatchStats: vi.fn(),
       getSeriesProgress: vi.fn(),
       getWatchHistory: vi.fn(),
       getCheckin: vi.fn(),
       getNowPlaying: vi.fn(),
-      getDetailedStats: vi.fn(),
       getTrending: vi.fn(),
+      getLists: vi.fn(async () => ({ lists: [] })),
+      getListItems: vi.fn(async () => ({ items: [] })),
+      getRecommendationsFor: vi.fn(async () => ({ metas: [] })),
+      unmarkEpisodeWatched: vi.fn(async () => undefined),
       getAiConfig: vi.fn(),
       getAiRecommendations: vi.fn(),
       getCalendar: vi.fn(),
@@ -63,18 +65,10 @@ const discover = () => (
 beforeEach(() => {
   resetDataCacheForTests();
   runtimeConfig.setProfileId("first-profile");
-  vi.mocked(api.getWatchStats).mockResolvedValue({ totalMovies: 0, totalEpisodes: 0, totalMinutes: 0 } as never);
   getSeriesProgress.mockResolvedValue([severance]);
   vi.mocked(api.getWatchHistory).mockResolvedValue([]);
   vi.mocked(api.getCheckin).mockResolvedValue({ checkin: null } as never);
   vi.mocked(api.getNowPlaying).mockResolvedValue({ sessions: [] } as never);
-  vi.mocked(api.getDetailedStats).mockResolvedValue({
-    monthly: [],
-    genreDistribution: [],
-    currentStreak: 0,
-    longestStreak: 0,
-    topRated: [],
-  });
   getTrending.mockResolvedValue({ metas: [] } as never);
   vi.mocked(api.getCalendar).mockResolvedValue({ calendar: [] } as never);
   vi.mocked(api.getAiConfig).mockResolvedValue({ configured: false, lastGeneratedAt: null } as never);
@@ -111,12 +105,25 @@ describe("Discover when the core load fails", () => {
   });
 });
 
+describe("Discover's lead", () => {
+  it("leads with a trending title the viewer hasn't watched", async () => {
+    getTrending.mockImplementation(async (type) =>
+      ({ metas: type === "movie" ? [meta("Severance"), meta("Arrival")] : [] }) as never
+    );
+    getSeriesProgress.mockResolvedValue([{ ...severance, imdbId: "tt-severance" }]);
+    render(discover());
+
+    expect(await screen.findByRole("heading", { level: 2, name: "Arrival" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Open details for Arrival" })).toBeInTheDocument();
+  });
+});
+
 describe("Discover's trending rail", () => {
   it("says an empty week is empty, not that it failed", async () => {
     render(discover());
 
     expect(await screen.findByText("Nothing trending this week")).toBeInTheDocument();
-    expect(screen.queryByText("Couldn't load trending titles.")).toBeNull();
+    expect(screen.queryByText("Couldn't load trending films.")).toBeNull();
   });
 
   it("offers a Retry when the request fails", async () => {
@@ -124,11 +131,13 @@ describe("Discover's trending rail", () => {
     getTrending.mockRejectedValueOnce(new ApiError("Bad gateway", 502));
     render(discover());
 
-    expect(await screen.findByText("Couldn't load trending titles.")).toBeInTheDocument();
-    getTrending.mockResolvedValue({ metas: [meta("Arrival")] } as never);
+    expect(await screen.findByText("Couldn't load trending films.")).toBeInTheDocument();
+    getTrending.mockResolvedValue({ metas: [meta("Arrival"), meta("Solaris")] } as never);
     await user.click(screen.getByRole("button", { name: "Retry" }));
 
-    expect(await screen.findByRole("button", { name: "View details for Arrival" })).toBeInTheDocument();
+    // The first comes back as the lead, the rest as the rail.
+    expect(await screen.findByRole("button", { name: "Open details for Arrival" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "View details for Solaris" })).toBeInTheDocument();
   });
 
   it("drops the needs-a-key note once a load succeeds", async () => {
@@ -142,7 +151,7 @@ describe("Discover's trending rail", () => {
     act(() => runtimeConfig.setProfileId("second-profile"));
     rerender(discover());
 
-    expect(await screen.findByRole("button", { name: "View details for Arrival" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Open details for Arrival" })).toBeInTheDocument();
     expect(screen.queryByText("Trending needs a TMDB API key to fetch content.")).toBeNull();
   });
 });

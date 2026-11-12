@@ -205,10 +205,10 @@ describe("SearchPage query handling", () => {
     search.mockRejectedValue(new Error("Network down"));
     renderPage("/search?q=alien");
 
-    // The toast fades; the page underneath has to keep saying what happened,
-    // rather than settling into "no results" for a search that never ran.
+    // The page says what happened, rather than settling into "no results" for
+    // a search that never ran — and says it once: no toast on top of it.
     expect(await screen.findByText(/search failed/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Network down").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Network down")).toHaveLength(1);
     expect(screen.queryByText(/no results found/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/tmdb api key/i)).not.toBeInTheDocument();
   });

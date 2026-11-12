@@ -150,16 +150,41 @@ describe("request error reporting", () => {
     expect((err as ApiError).status).toBe(404);
   });
 
-  it("falls back to the raw body when the error is not JSON", async () => {
+  it("says what a status means rather than showing a proxy's HTML page", async () => {
     fetchMock.mockResolvedValue(new Response("<html>502 Bad Gateway</html>", { status: 502 }));
 
-    await expect(api.getLists()).rejects.toThrow("<html>502 Bad Gateway</html>");
+    await expect(api.getLists()).rejects.toThrow("The server isn't available right now. Try again in a moment.");
   });
 
-  it("falls back to the status when the body is empty", async () => {
+  it("says what a status means when the body is empty", async () => {
     fetchMock.mockResolvedValue(new Response("", { status: 500 }));
 
-    await expect(api.getLists()).rejects.toThrow("Request failed: 500");
+    await expect(api.getLists()).rejects.toThrow("Something went wrong on the server. Try again in a moment.");
+  });
+
+  it("never shows a bare reason phrase as the message", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ statusCode: 429, error: "Too Many Requests", message: "Rate limit exceeded, retry in 1 minute" }), {
+        status: 429,
+        headers: { "content-type": "application/json" },
+      })
+    );
+
+    const err = await api.getLists().catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).message).toBe("Too many requests. Try again in a moment.");
+    expect((err as ApiError).status).toBe(429);
+  });
+
+  it("uses Fastify's message when the error field is only the reason phrase", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ statusCode: 400, error: "Bad Request", message: "body/name must be a string" }), {
+        status: 400,
+        headers: { "content-type": "application/json" },
+      })
+    );
+
+    await expect(api.getLists()).rejects.toThrow("body/name must be a string");
   });
 
   it("explains that the URL points at the wrong server when HTML comes back with a 200", async () => {
@@ -173,7 +198,7 @@ describe("request error reporting", () => {
   it("reports an unreachable API rather than a bare network error", async () => {
     fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
 
-    await expect(api.getLists()).rejects.toThrow(/cannot reach/);
+    await expect(api.getLists()).rejects.toThrow(/Can't reach the server/);
   });
 
   it("says the device is offline instead of blaming the server when there is no network", async () => {
@@ -592,8 +617,8 @@ describe("sharing a GET that is already in flight", () => {
     const first = api.getWatchStats();
     const second = api.getWatchStats();
 
-    await expect(first).rejects.toThrow(/Network error/);
-    await expect(second).rejects.toThrow(/Network error/);
+    await expect(first).rejects.toThrow(/Can't reach the server/);
+    await expect(second).rejects.toThrow(/Can't reach the server/);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 

@@ -93,6 +93,8 @@ export type FetchMetaPreview = {
   description?: string | undefined;
   genres?: string[] | undefined;
   rating?: number | undefined;
+  /** The title's 16:9 backdrop, where the feed carries one (trending does). */
+  background?: string | undefined;
 };
 
 export type MetasResponse = { metas: FetchMetaPreview[] };
@@ -110,6 +112,7 @@ export const parseMetasResponse = (value: unknown): MetasResponse => {
       description: optionalString(meta.description, `metas[${index}].description`),
       genres: optionalStringArray(meta.genres, `metas[${index}].genres`),
       rating: optionalNumber(meta.rating, `metas[${index}].rating`),
+      background: optionalString(meta.background, `metas[${index}].background`),
     };
   });
   return { metas };

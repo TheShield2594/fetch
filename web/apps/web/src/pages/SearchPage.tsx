@@ -247,8 +247,9 @@ export function SearchPage() {
         setResults([]);
         setNextPages({});
         setNeedsTmdb(/tmdb/i.test(message));
+        // Reported in the page body, where the results would have been — a
+        // toast saying the same thing in the corner was the same failure twice.
         setSearchError(message);
-        showToast(message, "error");
       } finally {
         if (requestIdRef.current === requestId) {
           setIsSearching(false);

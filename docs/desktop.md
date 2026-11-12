@@ -367,7 +367,10 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   styling, downmix channels, normalization, volume boost, cache size; an IntroDB server of
   your own and the Skip button toggle.
 - **Recent searches**, hide unreleased titles, a Configure button for configurable addons, and
-  an update check (Settings › About) that links the package for this install.
+  an update check (Settings › About) at start-up and every six hours that links the package
+  for this install. A newer version found while Fetch is running also raises a desktop
+  notification (through `notify-send`), once per version. An install that follows Fetch's APT
+  repository is shown the `apt` command to run instead of a download.
 - **Ambient Mode** (Settings › Appearance), on by default as on TV: after five minutes (or the
   time you pick) with no mouse or keyboard input, and never while something plays, the window
   shows a slideshow of backdrops from up to three Home rows, or a clock with what to resume.

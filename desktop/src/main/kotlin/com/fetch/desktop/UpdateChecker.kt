@@ -12,8 +12,17 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-/** A newer release on GitHub, with the Linux package that fits this install. */
-data class AvailableUpdate(val version: String, val pageUrl: String, val packageUrl: String?, val notes: String?)
+/**
+ * A newer release on GitHub, with the Linux package that fits this install. [viaApt] when this
+ * install follows Fetch's APT repository, so `apt upgrade` installs it and nothing needs downloading.
+ */
+data class AvailableUpdate(
+    val version: String,
+    val pageUrl: String,
+    val packageUrl: String?,
+    val notes: String?,
+    val viaApt: Boolean = false
+)
 
 /**
  * The TV app's update check, for desktop: GitHub releases, stable only unless betas are wanted,
@@ -23,7 +32,9 @@ class UpdateChecker(
     private val scope: CoroutineScope,
     private val http: OkHttpClient = OkHttpClient(),
     private val current: () -> String = { AppInfo.version },
-    private val releasesUrl: String = "https://api.github.com/repos/TheShield2594/fetch/releases?per_page=20"
+    private val releasesUrl: String = "https://api.github.com/repos/TheShield2594/fetch/releases?per_page=20",
+    /** Tells the desktop (a system notification) about a newer version, once per version. */
+    private val notifier: (AvailableUpdate) -> Unit = DesktopNotification::updateAvailable
 ) {
     var available: AvailableUpdate? by mutableStateOf(null)
         private set
@@ -32,17 +43,35 @@ class UpdateChecker(
     /** The last result, for Settings › About ("Fetch is up to date"). */
     var status: String? by mutableStateOf(null)
         private set
-    /** Hidden for this run after "Later". */
+    /** The banner is hidden after "Later" until a still newer version turns up. */
     var dismissed by mutableStateOf(false)
+    /** The version the desktop was last told about, so a notification goes out once per version. */
+    private var notifiedVersion: String? = null
 
-    fun check(beta: Boolean) {
+    /**
+     * Looks for a newer release. [notify] (the periodic background check) also raises a system
+     * notification for a version not announced yet, for when Fetch's window isn't in front.
+     */
+    fun check(beta: Boolean, notify: Boolean = false) {
         if (checking) return
+        // Set before launching, so a second call can't start a parallel check in between.
+        checking = true
         scope.launch {
-            checking = true
             try {
-                val (releases, kind) = withContext(Dispatchers.IO) { fetch() to packageKind() }
-                available = pick(releases, current(), beta, kind)
-                status = if (available == null) "Fetch ${current()} is up to date" else "Fetch ${available?.version} is available"
+                val (releases, kind, apt) = withContext(Dispatchers.IO) {
+                    val kind = packageKind()
+                    Triple(fetch(), kind, kind == ".deb" && aptRepoConfigured())
+                }
+                val previous = available?.version
+                val found = pick(releases, current(), beta, kind, apt)
+                available = found
+                if (found != null && found.version != previous) dismissed = false
+                // Not after "Later" or "Download" for this version: the user already knows.
+                if (found != null && notify && !dismissed && found.version != notifiedVersion) {
+                    notifiedVersion = found.version
+                    withContext(Dispatchers.IO) { runCatching { notifier(found) } }
+                }
+                status = if (found == null) "Fetch ${current()} is up to date" else "Fetch ${found.version} is available"
             } catch (e: Exception) {
                 status = "Couldn't check for updates: ${e.message}"
             } finally {
@@ -107,8 +136,39 @@ class UpdateChecker(
             }
         }.getOrDefault(false)
 
+        /** Fetch's APT repository on GitHub Pages, as a sources entry names it. */
+        const val APT_REPO_HOST = "theshield2594.github.io/fetch"
+
+        /** What a user runs to install an update from the APT repository. */
+        const val APT_UPGRADE_COMMAND = "sudo apt update && sudo apt install --only-upgrade fetch"
+
+        /**
+         * Whether apt follows Fetch's repository: an entry in sources.list or sources.list.d (the
+         * one-line .list form or deb822 .sources) that isn't commented out and names its URL.
+         */
+        fun aptRepoConfigured(sources: List<String> = aptSources()): Boolean = sources.any { text ->
+            // deb822 stanzas are separated by blank lines; a one-line entry is its own stanza.
+            text.split(Regex("\\n\\s*\\n")).any { stanza ->
+                val lines = stanza.lines().map { it.trim() }.filter { it.isNotEmpty() && !it.startsWith("#") }
+                val names = lines.any { line ->
+                    line.contains(APT_REPO_HOST, ignoreCase = true) &&
+                        (line.startsWith("deb ") || line.startsWith("deb\t") || line.startsWith("URIs:", ignoreCase = true))
+                }
+                val disabled = lines.any { line ->
+                    line.startsWith("Enabled:", ignoreCase = true) && line.substringAfter(':').trim().equals("no", ignoreCase = true)
+                }
+                names && !disabled
+            }
+        }
+
+        private fun aptSources(): List<String> {
+            val files = listOf(java.io.File("/etc/apt/sources.list")) +
+                (java.io.File("/etc/apt/sources.list.d").listFiles { f -> f.name.endsWith(".list") || f.name.endsWith(".sources") }?.toList().orEmpty())
+            return files.mapNotNull { runCatching { it.readText() }.getOrNull() }
+        }
+
         /** The newest release above [current] (betas only when [beta]), or null. */
-        fun pick(releases: List<Release>, current: String, beta: Boolean, kind: String): AvailableUpdate? {
+        fun pick(releases: List<Release>, current: String, beta: Boolean, kind: String, apt: Boolean = false): AvailableUpdate? {
             val local = Version.parse(current) ?: return null
             return releases
                 .filter { !it.draft && (beta || (!it.prerelease && Version.parse(it.tag_name)?.prerelease?.isEmpty() == true)) }
@@ -120,7 +180,9 @@ class UpdateChecker(
                         version = r.tag_name.removePrefix("v"),
                         pageUrl = r.html_url,
                         packageUrl = r.assets.firstOrNull { it.name.contains("linux") && it.name.endsWith(kind) }?.browser_download_url,
-                        notes = r.body?.lines()?.firstOrNull { it.isNotBlank() }
+                        notes = r.body?.lines()?.firstOrNull { it.isNotBlank() },
+                        // The APT repository only carries stable releases, so a beta still downloads.
+                        viaApt = apt && !r.prerelease && Version.parse(r.tag_name)?.prerelease?.isEmpty() == true
                     )
                 }
         }

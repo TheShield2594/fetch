@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fetch.desktop.AppInfo
 import com.fetch.desktop.AppState
+import com.fetch.desktop.UpdateChecker
 import com.fetch.desktop.Screen
 import com.fetch.desktop.SettingsPage
 import com.fetch.desktop.data.AppDirs
@@ -990,7 +991,7 @@ private fun AboutPage(state: AppState) {
     SettingsSection("Updates") {
         val s = state.settings
         val updates = state.updates
-        SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up. Installing stays with apt, dnf or the tarball.", s.checkForUpdates) { v ->
+        SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up and every few hours. Installing stays with apt, dnf or the tarball.", s.checkForUpdates) { v ->
             state.updateSettings { it.copy(checkForUpdates = v) }
         }
         SettingsToggle("Include beta releases", null, s.betaUpdates) { v -> state.updateSettings { it.copy(betaUpdates = v) } }
@@ -1000,7 +1001,15 @@ private fun AboutPage(state: AppState) {
             onClick = { updates.dismissed = false; updates.check(beta = s.betaUpdates) }
         ) { Chevron() }
         updates.available?.let { update ->
-            SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) }) { Chevron() }
+            val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+            if (update.viaApt) {
+                SettingsRow("Install Fetch ${update.version} with apt", "${UpdateChecker.APT_UPGRADE_COMMAND} (click to copy)", onClick = {
+                    clipboard.setText(androidx.compose.ui.text.AnnotatedString(UpdateChecker.APT_UPGRADE_COMMAND))
+                    state.message = "Copied. Run it in a terminal, then restart Fetch."
+                }) { Chevron() }
+            } else {
+                SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) }) { Chevron() }
+            }
         }
     }
     SettingsSection("Links") {

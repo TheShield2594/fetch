@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fetch.desktop.AppInfo
 import com.fetch.desktop.AppState
+import com.fetch.desktop.UpdateChecker
 import com.fetch.desktop.data.AutoPlayMode
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.player.MpvArgs
@@ -230,10 +231,18 @@ fun EssentialAboutPage(state: AppState) {
         SettingsRow(tr("Version %1\$s", AppInfo.version), "Same version as the TV app.")
     }
     SettingsSection("Updates") {
-        SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up.", s.checkForUpdates) { v -> state.updateSettings { it.copy(checkForUpdates = v) } }
+        SettingsToggle("Check for updates", "Look for a newer Fetch on GitHub at start-up and every few hours.", s.checkForUpdates) { v -> state.updateSettings { it.copy(checkForUpdates = v) } }
         SettingsRow(if (updates.checking) "Checking…" else "Check now", updates.status, onClick = { updates.dismissed = false; updates.check(beta = s.betaUpdates) })
         updates.available?.let { update ->
-            SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) })
+            val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
+            if (update.viaApt) {
+                SettingsRow("Install Fetch ${update.version} with apt", "${UpdateChecker.APT_UPGRADE_COMMAND} (click to copy)", onClick = {
+                    clipboard.setText(androidx.compose.ui.text.AnnotatedString(UpdateChecker.APT_UPGRADE_COMMAND))
+                    state.message = "Copied. Run it in a terminal, then restart Fetch."
+                })
+            } else {
+                SettingsRow("Download Fetch ${update.version}", update.packageUrl ?: update.pageUrl, onClick = { state.openInBrowser(update.packageUrl ?: update.pageUrl) })
+            }
         }
     }
     SettingsSection("Legal") {

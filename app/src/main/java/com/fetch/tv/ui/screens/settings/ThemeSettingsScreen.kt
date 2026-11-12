@@ -466,7 +466,6 @@ private fun ThemeSwatchChip(
     }
 }
 
-@Composable
 /**
  * Language tags offered in res/xml/locale_config.xml. Indonesian is kept as "in", the tag this
  * screen has always stored, so an existing choice still matches.
@@ -484,6 +483,7 @@ private fun offeredLocaleTags(context: android.content.Context): List<String> {
     return tags
 }
 
+@Composable
 private fun AppTheme.localizedName(): String = when (this) {
     AppTheme.CUSTOM -> stringResource(R.string.theme_color_custom)
     AppTheme.GOLD -> stringResource(R.string.theme_color_gold)

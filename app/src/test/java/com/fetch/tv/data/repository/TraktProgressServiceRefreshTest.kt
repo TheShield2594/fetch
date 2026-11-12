@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -57,6 +58,9 @@ class TraktProgressServiceRefreshTest {
 
     @Volatile
     private var playbackHangs = false
+
+    @Volatile
+    private var metadataHangs = false
 
     @Test
     fun `watch action refetches only the changed watched list and the next poll skips it`() = runBlocking {
@@ -159,12 +163,17 @@ class TraktProgressServiceRefreshTest {
     }
 
     @Test
-    fun `metadata warm-up waits for the app to be back on screen`() = runBlocking {
-        createService()
-        waitUntil { playbackCalls.get() >= 1 }
-        // Leave the screen before the warm-up delay (3 s from service start) runs out.
+    fun `metadata fetch cut off by leaving the screen is redone on return`() = runBlocking {
+        metadataHangs = true
+        val service = createService()
+        // SystemClock is stubbed to 0 here, so the real warm-up delay would never run out.
+        service.initialMetadataHydrationDelayMs = 0L
+        waitUntil { metadataCalls.get() >= 1 }
+
         AppForeground.set(false)
-        delay(METADATA_WARMUP_MS + SETTLE_MS)
+        metadataHangs = false
+        metadataCalls.set(0)
+        delay(SETTLE_MS * 2)
         assertEquals("metadata fetched off screen", 0, metadataCalls.get())
 
         AppForeground.set(true)
@@ -244,7 +253,7 @@ class TraktProgressServiceRefreshTest {
         val metaRepository = mockk<MetaRepository>()
         every { metaRepository.getMetaFromAllAddons(any(), any(), any()) } answers {
             metadataCalls.incrementAndGet()
-            emptyFlow()
+            if (metadataHangs) flow { awaitCancellation() } else emptyFlow()
         }
         val settings = mockk<TraktSettingsDataStore>()
         every { settings.continueWatchingDaysCap } returns
@@ -274,6 +283,5 @@ class TraktProgressServiceRefreshTest {
         const val MOVIE_ID = "tt0000001"
         const val TIMEOUT_MS = 15_000L
         const val SETTLE_MS = 500L
-        const val METADATA_WARMUP_MS = 3_000L
     }
 }

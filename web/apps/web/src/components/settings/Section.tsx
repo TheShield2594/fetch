@@ -53,6 +53,15 @@ export function Section({
   children: ReactNode;
 }) {
   const [storedOpen, setStoredOpen] = useState(() => requested || readStoredOpen(storageKey, defaultOpen ?? false));
+  // A link can ask for a section that is already on screen (the rail's source
+  // rows, while Settings is open). It opens then too — adjusted during render,
+  // the way React recommends deriving from a changed prop — and, as on
+  // arrival, without writing over the stored open/closed choice.
+  const [wasRequested, setWasRequested] = useState(requested);
+  if (requested !== wasRequested) {
+    setWasRequested(requested);
+    if (requested) setStoredOpen(true);
+  }
   const rootRef = useRef<HTMLDivElement>(null);
   const open = alwaysOpen || storedOpen;
   const contentRef = useRef<HTMLDivElement>(null);

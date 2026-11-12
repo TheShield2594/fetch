@@ -478,11 +478,20 @@ const asAirDate = (value: unknown, what: string): string => {
   return real ? date : fail(`${what} must be a day that exists, got "${date}"`);
 };
 
-/** An ISO instant that parses, or null for an absent one. */
+/**
+ * An ISO 8601 instant — a date, a time and an explicit offset — or null for an
+ * absent one. `Date.parse` alone would take a bare "2026-09-15", which has no
+ * time zone and lands on the 14th west of Greenwich; the date part must also
+ * be a day that exists, for the reason `asAirDate` gives.
+ */
+const ISO_INSTANT = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
 const asInstantOrNull = (value: unknown, what: string): string | null => {
   if (value === undefined || value === null) return null;
   const text = asString(value, what);
-  return Number.isNaN(Date.parse(text)) ? fail(`${what} must be an ISO 8601 instant, got "${text}"`) : text;
+  const match = ISO_INSTANT.exec(text);
+  if (!match || Number.isNaN(Date.parse(text))) return fail(`${what} must be an ISO 8601 instant with an offset, got "${text}"`);
+  asAirDate(match[1], what);
+  return text;
 };
 
 const CALENDAR_KINDS: readonly CalendarEntryKind[] = ["episode", "premiere", "movie"];

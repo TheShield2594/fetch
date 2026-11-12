@@ -161,6 +161,22 @@ describe("CalendarPage agenda", () => {
     expect(screen.queryByRole("heading", { name: /^today/i })).not.toBeInTheDocument();
   });
 
+  it("leaves out an entry that aired earlier than today here, though it is dated today", async () => {
+    const lastNight = new Date();
+    lastNight.setDate(lastNight.getDate() - 1);
+    lastNight.setHours(23, 30, 0, 0);
+    getCalendar.mockResolvedValue({
+      calendar: [
+        { ...episode("Severance", 3, daysFromToday(0)), airsAt: lastNight.toISOString() },
+        episode("Andor", 4, daysFromToday(0)),
+      ],
+    });
+    renderPage();
+
+    expect(await screen.findByText("Andor")).toBeInTheDocument();
+    expect(screen.queryByText("Severance")).not.toBeInTheDocument();
+  });
+
   it("calls an episode 1 a premiere", async () => {
     getCalendar.mockResolvedValue({ calendar: [episode("Severance", 1, daysFromToday(2))] });
     renderPage();
@@ -234,7 +250,7 @@ describe("CalendarPage month view", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("pages back into months that have aired, asking for that month from its first day", async () => {
+  it("pages back into months that have aired, asking for that month with a day of margin either side", async () => {
     const user = userEvent.setup();
     await renderMonthView(user);
 
@@ -246,8 +262,47 @@ describe("CalendarPage month view", () => {
     prev.setMonth(prev.getMonth() - 1);
     const key = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
     const length = new Date(prev.getFullYear(), prev.getMonth() + 1, 0).getDate();
+    const dayBefore = new Date(prev.getFullYear(), prev.getMonth(), 0);
+    const startKey = `${dayBefore.getFullYear()}-${String(dayBefore.getMonth() + 1).padStart(2, "0")}-${String(dayBefore.getDate()).padStart(2, "0")}`;
     expect(currentSearch()).toBe(`?view=month&month=${key}`);
-    await waitFor(() => expect(getCalendar).toHaveBeenCalledWith(length, `${key}-01`));
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledWith(length + 2, startKey));
+  });
+
+  /*
+   * The API windows by dated day; an episode dated the last day of the month
+   * before can air, by the clock here, on this month's first.
+   */
+  it("shows an entry dated the day before the month on the month's first, where it airs here", async () => {
+    const user = userEvent.setup();
+    const first = new Date();
+    first.setDate(1);
+    first.setHours(1, 0, 0, 0);
+    const dayBefore = new Date(first.getFullYear(), first.getMonth(), 0);
+    const dated = `${dayBefore.getFullYear()}-${String(dayBefore.getMonth() + 1).padStart(2, "0")}-${String(dayBefore.getDate()).padStart(2, "0")}`;
+    getCalendar.mockResolvedValue({ calendar: [{ ...episode("Andor", 3, dated), airsAt: first.toISOString() }] });
+    await renderMonthView(user);
+
+    const label = first.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    expect(await screen.findByRole("button", { name: new RegExp(`^${label}.*1 episode`) })).toBeInTheDocument();
+  });
+
+  it("keeps only the newest window's answer when two land out of order", async () => {
+    const user = userEvent.setup();
+    let resolveSlow: (value: { calendar: CalendarEntry[] }) => void = () => {};
+    getCalendar.mockImplementation((days?: number) =>
+      days === 30
+        ? new Promise((resolve) => { resolveSlow = resolve; })
+        : Promise.resolve({ calendar: [episode("Silo", 4, daysFromToday(2))] })
+    );
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: "14 days" }));
+    expect(await screen.findByText("Silo")).toBeInTheDocument();
+
+    resolveSlow({ calendar: [episode("Severance", 4, daysFromToday(2))] });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.getByText("Silo")).toBeInTheDocument();
+    expect(screen.queryByText("Severance")).not.toBeInTheDocument();
   });
 
   it("stops a year back, and says why", async () => {

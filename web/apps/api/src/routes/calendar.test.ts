@@ -105,8 +105,9 @@ describe("calendar routes", () => {
     expect(windowArg().start.getTime()).toBe(today.getTime());
 
     getCalendar.mockClear();
+    // As far back as the month grid's earliest month asks: a year and a month.
     const past = new Date(today);
-    past.setUTCDate(past.getUTCDate() - 40);
+    past.setUTCDate(past.getUTCDate() - 397);
     const iso = past.toISOString().slice(0, 10);
     await app.inject({ method: "GET", url: `/calendar?start=${iso}&days=31` });
     expect(windowArg()).toEqual({ start: past, days: 31 });
@@ -115,7 +116,7 @@ describe("calendar routes", () => {
   it("refuses a start that is not a real day, or more than a year away", async () => {
     const app = await buildApp();
 
-    for (const start of ["2026-02-30", "soon", "2001-01-01"]) {
+    for (const start of ["2026-02-30", "soon", "2001-01-01", "2999-01-01"]) {
       const res = await app.inject({ method: "GET", url: `/calendar?start=${start}` });
       expect(res.statusCode).toBe(400);
     }

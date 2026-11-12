@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { api, type CalendarEntry, type SearchResult } from "../api";
@@ -94,6 +94,10 @@ function addMonths(d: Date, n: number): Date {
 
 function dateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function sameMonth(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
 function monthParam(d: Date): string {
@@ -331,11 +335,15 @@ export function CalendarPage() {
     setParams({ month: next.getTime() === startOfMonth(today).getTime() ? null : monthParam(next) });
 
   // The question asked of the API. The agenda is the selected range from
-  // today; a month is that month, from its first day, past or future.
+  // today. A month is that month with a day of margin either side: the API
+  // windows by the *dated* day, and an episode dated the 31st that airs at
+  // 01:00 UTC belongs on the 1st for a reader in Europe — without the margin
+  // neither month would show it. The grid draws only the month's own days.
   const monthKey = monthParam(monthCursor);
-  const queryStart = view === "month" ? `${monthKey}-01` : undefined;
+  const queryStart =
+    view === "month" ? dateKey(new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 0)) : undefined;
   const queryDays =
-    view === "month" ? new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate() : agendaDays;
+    view === "month" ? new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate() + 2 : agendaDays;
 
   // Keyed by the question, because seeding one window's answer into another's
   // view would paint the wrong thing for a frame.
@@ -349,16 +357,23 @@ export function CalendarPage() {
   const atLatestMonth = monthCursor.getTime() >= latestMonth.getTime();
   const pastMonth = monthCursor.getTime() < startOfMonth(today).getTime();
 
+  // Paging months or flicking ranges quickly puts several requests in flight,
+  // and they can land out of order. Only the newest may touch the page: an
+  // older one finishing last would paint the previous window's entries under
+  // this one's header, and file them under this window's cache key.
+  const latestLoad = useRef(0);
   const load = useCallback(async (days: number, start: string | undefined) => {
+    const request = ++latestLoad.current;
+    const isCurrent = () => request === latestLoad.current;
     setLoading(true);
     setError(null);
     try {
       const res = await api.getCalendar(days, start);
-      setEntries(res.calendar);
+      if (isCurrent()) setEntries(res.calendar);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load calendar");
+      if (isCurrent()) setError(err instanceof Error ? err.message : "Failed to load calendar");
     } finally {
-      setLoading(false);
+      if (isCurrent()) setLoading(false);
     }
     // `setEntries` is bound to the current day range's cache key, so it has to
     // be a dependency — capturing the first range's setter would file every
@@ -396,7 +411,11 @@ export function CalendarPage() {
       .sort((a, b) => a.date.getTime() - b.date.getTime() || (a.entry.airsAt ?? "").localeCompare(b.entry.airsAt ?? ""));
     const result: Bucket[] = [];
     for (const { entry, date } of sorted) {
-      const label = bucketFor(dayDiff(date, today));
+      // An entry dated today whose instant was yesterday evening here has
+      // already aired; the agenda is what is still to come.
+      const diff = dayDiff(date, today);
+      if (diff < 0) continue;
+      const label = bucketFor(diff);
       let bucket = result[result.length - 1];
       if (!bucket || bucket.label !== label) {
         bucket = { label, days: [] };
@@ -557,7 +576,7 @@ export function CalendarPage() {
               columns, so a screen reader can tell which 12 a cell is, while the
               CSS grid stays as it is. `table` rather than `grid`, which would
               owe arrow-key cell navigation. */}
-          {pastMonth && !loading && entries.length === 0 ? (
+          {pastMonth && !loading && !entries.some((e) => sameMonth(calendarEntryDay(e), monthCursor)) ? (
             <EmptyState title={`Nothing aired in ${monthTitle}`}>
               Nothing from the series you are watching, or the films and shows on your watchlist, came out this month.
             </EmptyState>

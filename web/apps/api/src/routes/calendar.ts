@@ -4,7 +4,12 @@ import { resolveProfile } from "../lib/profile.js";
 import { getSpoilerProtection } from "../lib/settings.js";
 import { ownerForRequest } from "../lib/integration-owner.js";
 
-const MAX_START_OFFSET_DAYS = 366;
+/*
+ * A year and a month: the month grid pages twelve months either way and asks
+ * for each from the day before its first (see CalendarPage), so the earliest
+ * month it offers starts up to ~397 days ago.
+ */
+const MAX_START_OFFSET_DAYS = 400;
 
 /** A UTC midnight for a real `YYYY-MM-DD` day, or null. */
 const parseStart = (value: string): Date | null => {
@@ -19,8 +24,9 @@ const calendarRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", resolveProfile);
 
   /*
-   * `days` days from `start` (YYYY-MM-DD, default today). The window is at
-   * most 90 days long and starts no more than a year either side of today:
+   * `days` days from `start` (YYYY-MM-DD, default today), both ends inclusive.
+   * The window is at most 90 days long and starts no more than ~13 months
+   * either side of today:
    * the month grid pages back through what has aired as well as forward.
    */
   app.get<{ Querystring: { days?: string; start?: string } }>("/calendar", async (request, reply) => {

@@ -482,7 +482,7 @@ export function Sidebar({
               {sources.map((source) => (
                 <Link
                   key={source.id}
-                  to={`/settings?section=${encodeURIComponent(source.id)}`}
+                  to={source.href}
                   className={`${RAIL_ROW} hover:bg-[var(--surface)]`}
                   style={{ color: "var(--text-dim)" }}
                   title={`${source.label} — ${source.health.label}`}

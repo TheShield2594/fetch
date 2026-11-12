@@ -53,11 +53,13 @@ async function traktAirTimes(
   log?: FastifyBaseLogger
 ): Promise<Map<string, string>> {
   const key = `${profileId}:${isoDay(window.start)}:${window.days}`;
-  const cached = traktTimesCache.get(key);
-  if (cached) return cached;
   const times = new Map<string, string>();
   try {
+    // Asked before the cache, so a profile that has just disconnected Trakt
+    // stops seeing that account's times at once rather than half an hour on.
     if (!(await isTraktConnected(profileId))) return times;
+    const cached = traktTimesCache.get(key);
+    if (cached) return cached;
     const client = await getTraktClient(profileId);
     // A show airing late in the evening in the Americas is already the next UTC
     // day, so the request starts a day early to catch the window's first night.
@@ -152,8 +154,10 @@ export const getCalendar = async (
   spoilerProtection = false,
   log?: FastifyBaseLogger
 ): Promise<CalendarEntry[]> => {
+  // Inclusive at both ends, so `days` is the number of days covered: 30 from
+  // today runs to today + 29.
   const end = new Date(window.start);
-  end.setUTCDate(end.getUTCDate() + window.days);
+  end.setUTCDate(end.getUTCDate() + window.days - 1);
   const range = { from: isoDay(window.start), to: isoDay(end) };
   const today = new Date();
   today.setUTCHours(0, 0, 0, 0);

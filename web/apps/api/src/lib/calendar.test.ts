@@ -150,6 +150,27 @@ describe("getCalendar", () => {
     expect(fetchMyShowsCalendar).toHaveBeenCalledWith(day(-1), 32, expect.anything());
   });
 
+  it("covers exactly the days asked for: 30 from today ends on today + 29", async () => {
+    followed([tmdbEpisode(3, day(29)), tmdbEpisode(4, day(30))]);
+
+    const entries = await getCalendar(nextProfile(), window30());
+
+    expect(entries.map((e) => e.episode)).toEqual([3]);
+  });
+
+  it("stops using cached Trakt times once the profile disconnects", async () => {
+    followed([tmdbEpisode(3, day(1))]);
+    const profileId = nextProfile();
+    isTraktConnected.mockResolvedValue(true);
+    fetchMyShowsCalendar.mockResolvedValue([
+      { first_aired: `${day(2)}T01:00:00.000Z`, episode: { season: 2, number: 3 }, show: { ids: { imdb: "ttA" } } },
+    ]);
+    expect((await getCalendar(profileId, window30()))[0]?.airsAt).not.toBeNull();
+
+    isTraktConnected.mockResolvedValue(false);
+    expect((await getCalendar(profileId, window30()))[0]?.airsAt).toBeNull();
+  });
+
   it("still answers when Trakt fails, just without times", async () => {
     followed([tmdbEpisode(3, day(1))]);
     isTraktConnected.mockResolvedValue(true);
@@ -212,7 +233,7 @@ describe("getCalendar", () => {
       overview: "Shapes.",
     });
     const movieQuery = prismaMock.metadata.findMany.mock.calls.find((c) => c[0].where.type === "movie")?.[0];
-    expect(movieQuery).toMatchObject({ where: { releaseDate: { gte: day(0), lte: day(30) } } });
+    expect(movieQuery).toMatchObject({ where: { releaseDate: { gte: day(0), lte: day(29) } } });
   });
 
   it("orders by day, then time, then premieres, episodes and films", async () => {

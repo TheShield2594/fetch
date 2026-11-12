@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
 import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server } from "lucide-react";
 import { Section } from "../components/settings/Section";
@@ -32,6 +32,7 @@ import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
 import { TvSettingsForm } from "../components/tv/TvSettingsForm";
 import { PAGE_TITLE } from "../components/typography";
 import { PageFrame } from "../components/PageFrame";
+import { SegmentedControl, segmentedTabId } from "../components/SegmentedControl";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown";
@@ -363,6 +364,14 @@ export function SettingsPage() {
   const tabParam = searchParams.get("tab");
   const tab: SettingsTab = isSettingsTab(tabParam) ? tabParam : requestedSection?.tab ?? "preferences";
   const [query, setQuery] = useState("");
+  // A link to one section (a rail source row) asks to see that section. A
+  // search left in the box would filter it out of view, so a new request
+  // clears it — derived during render rather than in an effect.
+  const [lastRequestedSection, setLastRequestedSection] = useState(requestedSectionId);
+  if (requestedSectionId !== lastRequestedSection) {
+    setLastRequestedSection(requestedSectionId);
+    if (requestedSectionId) setQuery("");
+  }
   const searching = query.trim().length > 0;
 
   const setTab = (next: SettingsTab) => {
@@ -374,34 +383,6 @@ export function SettingsPage() {
   };
 
   const tabsId = useId();
-  const tablistRef = useRef<HTMLDivElement>(null);
-
-  // Automatic activation — arrow moves focus and selects in one step, which the
-  // pattern recommends when switching panels is cheap, and these two are just a
-  // filter over a list already in memory. Focus is moved by hand because the
-  // roving tabindex means the newly selected tab is the only one that can hold
-  // it, and it does not get it merely by being re-rendered.
-  const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    const deltas: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-    const current = SETTINGS_TABS.findIndex((t) => t.id === tab);
-    const delta = deltas[event.key];
-    let nextIndex: number;
-    if (delta !== undefined) nextIndex = (current + delta + SETTINGS_TABS.length) % SETTINGS_TABS.length;
-    else if (event.key === "Home") nextIndex = 0;
-    else if (event.key === "End") nextIndex = SETTINGS_TABS.length - 1;
-    else return;
-
-    // The arithmetic above stays in range, so this is the checker's question
-    // rather than a real one — but answering it before `preventDefault` means a
-    // key that somehow lands outside still does what the browser would.
-    const nextTab = SETTINGS_TABS[nextIndex];
-    if (!nextTab) return;
-
-    event.preventDefault();
-    setTab(nextTab.id);
-    tablistRef.current?.querySelectorAll<HTMLElement>('[role="tab"]')[nextIndex]?.focus();
-  };
-
   const { isAdmin } = useAccount();
   const showExtras = useExtrasEnabled();
   const visible = useMemo(() => {
@@ -474,53 +455,16 @@ export function SettingsPage() {
             : `${visible.length} ${visible.length === 1 ? "section" : "sections"} across every tab.`}
         </p>
       ) : (
-        // A real tablist rather than two buttons whose selected state is a
-        // background colour. The ARIA tabs pattern is a promise of arrow-key
-        // navigation and a roving tabindex, so both are implemented below —
-        // announcing the role without them is the mistake ListsSection's
-        // `role="menu"` made.
-        // The segmented control's shape, and this strip's own semantics. It
-        // borrows `.segmented` from index.css — the track, the raised sliding
-        // thumb, the type — but stays a real `tablist` with the roving tabindex
-        // and arrow keys the role promises, which the shared `SegmentedControl`
-        // component deliberately does not claim.
-        <div
-          ref={tablistRef}
-          role="tablist"
-          aria-label="Settings sections"
-          className="segmented max-w-md"
-        >
-          <span
-            aria-hidden="true"
-            className="segmented-thumb"
-            style={{
-              width: `calc((100% - 4px) / ${SETTINGS_TABS.length})`,
-              transform: `translateX(${SETTINGS_TABS.findIndex((t) => t.id === tab) * 100}%)`,
-            }}
-          />
-          {SETTINGS_TABS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="tab"
-              id={`${tabsId}-tab-${t.id}`}
-              aria-selected={tab === t.id}
-              aria-controls={`${tabsId}-panel`}
-              // Roving tabindex: the tablist is one Tab stop, and the arrow keys
-              // move within it.
-              tabIndex={tab === t.id ? 0 : -1}
-              // On the tabs rather than on the tablist. Key events bubble, so
-              // either works; only the focusable element carrying its own
-              // handler is a shape jsx-a11y can recognise as a keyboard-operable
-              // control, and only one tab is focusable at a time anyway.
-              onKeyDown={onTabKeyDown}
-              onClick={() => setTab(t.id)}
-              className="segmented-option truncate focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        // A real tablist — the shared segmented control in its `tabs` mode,
+        // which carries the roving tabindex and arrow keys the role promises.
+        <SegmentedControl
+          label="Settings sections"
+          options={SETTINGS_TABS.map((t) => ({ value: t.id, label: t.label }))}
+          value={tab}
+          onChange={setTab}
+          semantics={{ kind: "tabs", idPrefix: tabsId, panelId: `${tabsId}-panel` }}
+          className="max-w-md"
+        />
       )}
 
       {/* Only a tabpanel while the tablist above is the thing selecting it. A
@@ -530,7 +474,7 @@ export function SettingsPage() {
         className="space-y-4"
         {...(searching
           ? {}
-          : { role: "tabpanel", id: `${tabsId}-panel`, "aria-labelledby": `${tabsId}-tab-${tab}` })}
+          : { role: "tabpanel", id: `${tabsId}-panel`, "aria-labelledby": segmentedTabId(tabsId, tab) })}
       >
         {visible.map((section, index) => (
           <div key={section.id} className="space-y-4">

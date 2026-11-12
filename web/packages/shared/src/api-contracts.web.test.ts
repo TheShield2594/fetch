@@ -79,7 +79,12 @@ describe("parseCalendarResponse", () => {
   });
 
   it("rejects an airsAt that is not an instant, and a watched that is not a boolean", () => {
-    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), airsAt: "tonight" }] })).toThrow(/airsAt/);
+    for (const airsAt of ["tonight", "2026-09-15", "2026-09-15T01:00:00", "2026-02-30T01:00:00Z"]) {
+      expect(() => parseCalendarResponse({ calendar: [{ ...entry(), airsAt }] })).toThrow(/airsAt/);
+    }
+    expect(parseCalendarResponse({ calendar: [{ ...entry(), airsAt: "2026-09-14T21:00:00-04:00" }] }).calendar[0]?.airsAt).toBe(
+      "2026-09-14T21:00:00-04:00"
+    );
     expect(() => parseCalendarResponse({ calendar: [{ ...entry(), watched: "yes" }] })).toThrow(/watched/);
   });
 

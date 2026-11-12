@@ -159,7 +159,7 @@ export type NotificationChannel = {
   kind: NotificationChannelKind;
   name: string;
   /**
-   * Masked for display (`https://ntfy.sh/…opic`): the full URL is write-only,
+   * Masked for display (`https://ntfy.sh/…`): the full URL is write-only,
    * since for a webhook it is the secret. Empty when `urlReadable` is false.
    */
   url: string;

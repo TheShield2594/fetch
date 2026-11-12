@@ -575,7 +575,7 @@ Every credential Fetch stores on your behalf is encrypted in the database with A
 | AI provider config, including its `Authorization` header (one per account) | `KV` |
 | VAPID private key (web push) | `KV` |
 
-Notification channel URLs are also write-only: Settings shows them masked (`https://ntfy.sh/…opic`). An add-on's manifest URL is still sent in full to its own profile's website and TV, which need it to run the add-on. A keyed hash of the manifest URL (`ProfileAddon.manifestUrlKey`) is stored beside it so one profile can't install the same add-on twice; it reveals only whether two rows hold the same URL.
+Notification channel URLs are also write-only: Settings shows them masked (`https://ntfy.sh/…`). An add-on's manifest URL is still sent in full to its own profile's website and TV, which need it to run the add-on. A keyed hash of the manifest URL (`ProfileAddon.manifestUrlKey`) is stored beside it so one profile can't install the same add-on twice; it reveals only whether two rows hold the same URL.
 
 **Not encrypted:** web-push subscriptions (`PushSubscription.endpoint`, `p256dh` and `auth`). `p256dh` is a public key, and sending to a subscription also needs the VAPID private key above, so a dump alone can't push to anyone's browser.
 

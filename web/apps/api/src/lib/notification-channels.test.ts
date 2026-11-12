@@ -326,27 +326,23 @@ describe("sendToChannel", () => {
 });
 
 describe("maskChannelUrl", () => {
-  it("keeps the host and the last few characters, and nothing else of the path", async () => {
+  it("keeps the scheme, host and port, and nothing of the path or query", async () => {
     const { maskChannelUrl } = await loadModule();
-    expect(maskChannelUrl("https://discord.com/api/webhooks/123/tok-abcd")).toBe("https://discord.com/…abcd");
-    expect(maskChannelUrl("https://ntfy.sh/my-private-topic")).toBe("https://ntfy.sh/…opic");
+    expect(maskChannelUrl("https://discord.com/api/webhooks/123/tok-abcd")).toBe("https://discord.com/…");
+    expect(maskChannelUrl("https://ntfy.sh/my-private-topic")).toBe("https://ntfy.sh/…");
+    expect(maskChannelUrl("http://192.168.1.25:8080/hook?key=s3cr3t")).toBe("http://192.168.1.25:8080/…");
   });
 
-  it("hides a short path or query entirely, so the suffix is never the whole secret", async () => {
+  it("hides a short secret however long the path before it is", async () => {
     const { maskChannelUrl } = await loadModule();
     expect(maskChannelUrl("https://ntfy.sh/home")).toBe("https://ntfy.sh/…");
-    expect(maskChannelUrl("https://ntfy.sh/topic-15-chars")).toBe("https://ntfy.sh/…");
-    expect(maskChannelUrl("https://hooks.lan/x?token=abcd")).toBe("https://hooks.lan/…");
+    expect(maskChannelUrl("https://ntfy.sh/longtopic?token=abcd")).toBe("https://ntfy.sh/…");
+    expect(maskChannelUrl("https://hooks.example/a/very/long/path/prefix?token=ab")).toBe("https://hooks.example/…");
   });
 
-  it("keeps a port, and hides a query string's secret too", async () => {
-    const { maskChannelUrl } = await loadModule();
-    expect(maskChannelUrl("http://192.168.1.25:8080/hook?key=a-long-s3cr3tvalue")).toBe("http://192.168.1.25:8080/…alue");
-  });
-
-  it("shows a bare server as it is, and a short path as only an ellipsis", async () => {
+  it("shows a bare server as it is", async () => {
     const { maskChannelUrl } = await loadModule();
     expect(maskChannelUrl("http://gotify.lan")).toBe("http://gotify.lan");
-    expect(maskChannelUrl("https://ntfy.sh/abc")).toBe("https://ntfy.sh/…");
+    expect(maskChannelUrl("http://gotify.lan/")).toBe("http://gotify.lan");
   });
 });

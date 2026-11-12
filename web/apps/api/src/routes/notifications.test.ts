@@ -92,7 +92,7 @@ describe("notification channel routes", () => {
 
       const res = await app.inject({ method: "GET", url: "/notifications/channels" });
 
-      expect(res.json().channels[0]).toMatchObject({ url: "https://discord.com/…abcd", urlReadable: true });
+      expect(res.json().channels[0]).toMatchObject({ url: "https://discord.com/…", urlReadable: true });
       expect(JSON.stringify(res.json())).not.toContain("very-secret");
     });
 
@@ -161,7 +161,7 @@ describe("notification channel routes", () => {
         const { url } = first(prismaMock.notificationChannel.create.mock.calls, "create call")[0].data;
         expect(url).not.toContain("secret-path");
         expect(decryptSecret(SECRET_CONTEXT.notificationChannelUrl, url)).toBe(webhook);
-        expect(res.json().channel.url).toBe("https://example.com/…1234");
+        expect(res.json().channel.url).toBe("https://example.com/…");
       } finally {
         if (originalToken === undefined) delete process.env.API_TOKEN;
         else process.env.API_TOKEN = originalToken;

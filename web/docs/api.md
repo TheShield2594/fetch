@@ -674,7 +674,7 @@ re-resolved immediately before each send. Redirects are refused, not followed.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/notifications/channels` | The profile's channels. The stored token is never returned — only `hasToken` — and `url` is masked (`https://ntfy.sh/…opic`), since for a webhook the URL is the secret. `urlReadable` is `false` when the URL was encrypted under a previous `API_TOKEN`. |
+| `GET` | `/notifications/channels` | The profile's channels. The stored token is never returned — only `hasToken` — and `url` is masked (`https://ntfy.sh/…`), since for a webhook the URL is the secret. `urlReadable` is `false` when the URL was encrypted under a previous `API_TOKEN`. |
 | `POST` | `/notifications/channels` | `{ kind, url, name?, token?, enabled? }`. An ntfy URL must include its topic; Gotify requires a token. Ten channels per profile. |
 | `PATCH` | `/notifications/channels/:id` | `{ name?, url?, token?, enabled? }`. Omitting `url` or `token` keeps the stored one; `""` clears the token. |
 | `DELETE` | `/notifications/channels/:id` | |

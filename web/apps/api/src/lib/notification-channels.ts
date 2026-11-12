@@ -201,14 +201,12 @@ export const buildChannelRequest = (channel: ChannelTarget, event: NotificationE
 };
 
 /**
- * A form of a channel URL that is safe to show back: the scheme and host, and
- * the last few characters of the rest so two channels on one server stay
- * tellable apart. The full URL is write-only — for a Discord or generic
- * webhook it is the secret, and for ntfy the topic is.
+ * A form of a channel URL that is safe to show back: the scheme and host, with
+ * the path and query replaced by an ellipsis. Nothing of the path or query is
+ * kept, since any part of it can be the whole secret — an ntfy topic, a short
+ * token at the end of a long query. Channels on one server are told apart by
+ * their names. The full URL is write-only.
  */
-const MASK_SUFFIX_LENGTH = 4;
-const MASK_MIN_LENGTH_FOR_SUFFIX = 16;
-
 export const maskChannelUrl = (url: string): string => {
   let parsed: URL;
   try {
@@ -218,11 +216,7 @@ export const maskChannelUrl = (url: string): string => {
   }
   const origin = `${parsed.protocol}//${parsed.host}`;
   const rest = `${parsed.pathname}${parsed.search}`.replace(/^\/+$/, "");
-  if (!rest) return origin;
-  // The suffix is only shown where it is a small part of a long path, so it
-  // can never be the whole secret: a short ntfy topic (`/home`) or a short
-  // query value would otherwise come back complete.
-  return rest.length >= MASK_MIN_LENGTH_FOR_SUFFIX ? `${origin}/…${rest.slice(-MASK_SUFFIX_LENGTH)}` : `${origin}/…`;
+  return rest ? `${origin}/…` : origin;
 };
 
 /**

@@ -8,13 +8,19 @@ import { useExitAnimation } from "../../hooks/useExitAnimation";
 import { useVisualViewport } from "../../hooks/useVisualViewport";
 import { SECTION_TITLE } from "../typography";
 import { utcNoonIsoFromIsoDate } from "../../utils/calendarDate";
+import { clampEpisode, EpisodePicker, type PickerSeason } from "./EpisodePicker";
+
+const NO_SEASONS: readonly PickerSeason[] = [];
 
 export function WatchDateModal({
   target,
+  seasons = NO_SEASONS,
   onLog,
   onClose,
 }: {
   target: WatchLogTarget;
+  /** The show's seasons, for an episode target. Without them the pickers fall back to typed numbers. */
+  seasons?: readonly PickerSeason[];
   onLog: (date: string, episode?: { season: number; episode: number }, dateUnknown?: boolean) => Promise<void>;
   onClose: () => void;
 }) {
@@ -29,15 +35,18 @@ export function WatchDateModal({
   useScrollLock();
   useEscapeKey(requestClose);
 
-  // For episode mode: let user pick season+episode
-  const [season, setSeason] = useState(target.kind === "episode" ? target.season : 1);
-  const [episode, setEpisode] = useState(target.kind === "episode" ? target.episode : 1);
+  // The episode being logged. It opens on the target — the next one up — pulled
+  // inside the real season data, since that target is worked out from history
+  // and can name an episode past the end of a season nobody told it the length of.
+  const [picked, setPicked] = useState(() =>
+    clampEpisode(seasons, target.kind === "episode" ? target : { season: 1, episode: 1 })
+  );
 
   const submit = async (dateIso: string, dateUnknown?: boolean) => {
     setSaving(true);
     setError(null);
     try {
-      const episodeInfo = target.kind === "episode" ? { season, episode } : undefined;
+      const episodeInfo = target.kind === "episode" ? picked : undefined;
       await onLog(dateIso, episodeInfo, dateUnknown);
       requestClose();
     } catch (err) {
@@ -50,7 +59,8 @@ export function WatchDateModal({
 
   /*
    * `viewportStyle` pins this to the part of the screen the keyboard leaves
-   * behind — the season/episode number fields below open one, and without it
+   * behind — the date field below opens one (as do the season and episode
+   * fields, when there is no season data to pick from), and without it
    * this dialog is laid out against the full layout viewport and sits under
    * it. Same fix ef2e068 applied to the command palette and the three search
    * modals; these two were missed.
@@ -85,33 +95,16 @@ export function WatchDateModal({
           </button>
         </div>
 
-        {/* Episode pickers for series */}
+        {/* Which episode, bounded by the seasons the show has. */}
         {target.kind === "episode" && (
-          <div className="mb-4 flex gap-3">
-            <div className="flex-1">
-              <label htmlFor="watch-date-season" className="mb-1 block text-xs" style={{ color: "var(--text-mute)" }}>Season</label>
-              <input
-                id="watch-date-season"
-                type="number"
-                min={1}
-                value={season}
-                onChange={(e) => setSeason(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full rounded-lg border px-3 py-2 text-sm field-control"
-                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
-              />
-            </div>
-            <div className="flex-1">
-              <label htmlFor="watch-date-episode" className="mb-1 block text-xs" style={{ color: "var(--text-mute)" }}>Episode</label>
-              <input
-                id="watch-date-episode"
-                type="number"
-                min={1}
-                value={episode}
-                onChange={(e) => setEpisode(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full rounded-lg border px-3 py-2 text-sm field-control"
-                style={{ borderColor: "var(--border-field)", background: "var(--surface)", color: "var(--text)" }}
-              />
-            </div>
+          <div className="mb-4">
+            <EpisodePicker
+              idPrefix="watch-date"
+              seasons={seasons}
+              season={picked.season}
+              episode={picked.episode}
+              onChange={setPicked}
+            />
           </div>
         )}
 

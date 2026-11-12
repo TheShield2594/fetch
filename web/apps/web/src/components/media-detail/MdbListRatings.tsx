@@ -4,6 +4,7 @@ import { MDBLIST_RATING_LABELS, type MdbListRatingSource } from "@fetch/shared/t
 import { api, type MdbListRating, type MediaType } from "../../api";
 import { ImdbLogo, McIcon, RtLogo, TmdbLogo } from "./RatingLogos";
 import { KICKER } from "../typography";
+import { TmdbLink } from "./RatingsSection";
 
 /**
  * The profile's MDBList ratings for a title, in its order. Empty while they
@@ -90,7 +91,15 @@ function SourceMark({ rating }: { rating: MdbListRating }) {
 }
 
 /** The MDBList counterpart of `ExternalRatings`, with the same heading and the IMDb score as its link. */
-export function MdbListRatings({ imdbId, ratings }: { imdbId: string; ratings: MdbListRating[] }) {
+export function MdbListRatings({
+  imdbId, ratings, tmdbId, type,
+}: {
+  imdbId: string;
+  ratings: MdbListRating[];
+  /** For the TMDB link that closes the row. */
+  tmdbId: number | null | undefined;
+  type: MediaType;
+}) {
   return (
     <div>
       <h3 className={`mb-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>Ratings</h3>
@@ -130,6 +139,11 @@ export function MdbListRatings({ imdbId, ratings }: { imdbId: string; ratings: M
             </li>
           );
         })}
+        {tmdbId != null && (
+          <li>
+            <TmdbLink tmdbId={tmdbId} type={type} />
+          </li>
+        )}
       </ul>
     </div>
   );

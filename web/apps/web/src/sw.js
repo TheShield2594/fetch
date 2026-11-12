@@ -233,8 +233,14 @@ const API_CACHE_NAME = "api-runtime-v1";
 // Two profiles (or two accounts) sharing this app must never see each
 // other's cached responses. Workbox's default cache key is just the
 // request URL, which carries no auth/profile info — fold the profile id and
-// a digest of the auth token into the key so each identity gets its own
-// cache partition.
+// the session into the key so each identity gets its own cache partition.
+//
+// The session is an HttpOnly cookie that neither the page nor this worker can
+// read, so it is identified by its id instead: `X-Fetch-Session`, the API's
+// non-secret row id for it, which the page sends on every request. Hashed
+// anyway, with `Authorization` as the fallback for the one load in which a
+// pre-cookie token is still sent as a bearer header (and for anything else
+// that calls the API with one).
 async function digest(text) {
   const bytes = new TextEncoder().encode(text);
   const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
@@ -247,7 +253,10 @@ const scopedCacheKeyPlugin = {
   cacheKeyWillBeUsed: async ({ request }) => {
     const url = new URL(request.url);
     const profileId = request.headers.get("x-profile-id") || "none";
-    const authHash = await digest(request.headers.get("Authorization") || "");
+    const sessionId = request.headers.get("X-Fetch-Session");
+    const authHash = await digest(
+      sessionId ? `session:${sessionId}` : `bearer:${request.headers.get("Authorization") || ""}`
+    );
     url.searchParams.set("__profile", profileId);
     url.searchParams.set("__auth", authHash.slice(0, 16));
     return url.toString();

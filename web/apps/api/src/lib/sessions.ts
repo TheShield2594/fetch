@@ -19,10 +19,18 @@ const randomSecret = () => randomBytes(32).toString("base64url");
 export const sessionExpiry = (createdAt: number, now: number): Date =>
   new Date(Math.min(now + SESSION_TTL_MS, createdAt + SESSION_MAX_AGE_MS));
 
-export const createSession = async (accountId: string, origin?: RequestOrigin): Promise<string> => {
+/**
+ * A new session's token, and its row id — which is not a secret: the website
+ * keeps it to partition its offline cache per sign-in, since it can no longer
+ * read the token itself.
+ */
+export const createSession = async (
+  accountId: string,
+  origin?: RequestOrigin
+): Promise<{ token: string; sessionId: string }> => {
   const token = `${SESSION_TOKEN_PREFIX}${randomSecret()}`;
   const now = Date.now();
-  await prisma.session.create({
+  const session = await prisma.session.create({
     data: {
       accountId,
       tokenHash: hashSecret(token),
@@ -30,21 +38,27 @@ export const createSession = async (accountId: string, origin?: RequestOrigin): 
       userAgent: origin?.userAgent ?? null,
       ipAddress: origin?.ipAddress ?? null,
     },
+    select: { id: true },
   });
-  return token;
+  return { token, sessionId: session.id };
 };
 
 /** A fresh invite code. Callers store `hashSecret(code)` and show `code` once. */
 export const mintInviteCode = (): string => randomSecret();
 
+/** How long a session cookie is told to live: the same as the session itself. */
+export const SESSION_COOKIE_MAX_AGE_SEC = SESSION_TTL_MS / 1000;
+
 /**
  * The session a token belongs to, or null if it is unknown or expired. An
  * expired row is deleted on the way out; `sweepExpiredSessions` removes the
- * ones whose token is never presented again.
+ * ones whose token is never presented again. `renewed` says the expiry was
+ * just pushed out, so a cookie carrying the token can be re-issued with a
+ * fresh lifetime to match.
  */
 export const findSession = async (
   token: string
-): Promise<Extract<AuthPrincipal, { kind: "session" }> | null> => {
+): Promise<(Extract<AuthPrincipal, { kind: "session" }> & { renewed: boolean; expiresAt: Date }) | null> => {
   const session = await prisma.session.findUnique({
     where: { tokenHash: hashSecret(token) },
     select: {
@@ -63,7 +77,8 @@ export const findSession = async (
     return null;
   }
 
-  if (now - session.lastUsedAt.getTime() > SESSION_TOUCH_INTERVAL_MS) {
+  const renewed = now - session.lastUsedAt.getTime() > SESSION_TOUCH_INTERVAL_MS;
+  if (renewed) {
     await prisma.session.updateMany({
       where: { id: session.id },
       data: { lastUsedAt: new Date(now), expiresAt: sessionExpiry(session.createdAt.getTime(), now) },
@@ -76,6 +91,8 @@ export const findSession = async (
     accountId: session.account.id,
     isAdmin: session.account.isAdmin,
     mustChangePassword: session.account.mustChangePassword,
+    renewed,
+    expiresAt: renewed ? sessionExpiry(session.createdAt.getTime(), now) : session.expiresAt,
   };
 };
 

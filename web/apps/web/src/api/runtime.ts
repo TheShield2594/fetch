@@ -3,7 +3,7 @@
  * follow from both.
  *
  * Everything here is state the whole client shares rather than a call: the base
- * URLs, the stored token and profile, the scoping that keeps one profile's
+ * URLs, the signed-in session and profile, the scoping that keeps one profile's
  * cached rows unreadable to the next, and the messages that keep the service
  * worker's own cache in step. `api/client.ts` makes the requests; the domain
  * modules describe them.
@@ -30,14 +30,57 @@ const ADDON_BASE_DEFAULT = stripTrailingSlash(
   window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"
 );
 const API_BASE_OVERRIDE_KEY = "fetch_api_base_override";
-const TOKEN_KEY = "fetch_token";
 const PROFILE_ID_KEY = "fetch_profile_id";
-const PROFILE_TOKEN_KEY = "fetch_profile_token";
+/**
+ * The signed-in session's id: the API's row id for it, which is *not* a
+ * credential. The credential itself is an HttpOnly cookie this code cannot
+ * read. The id is what says "someone is signed in on this browser" before the
+ * first request answers, and what the service worker partitions its offline
+ * cache by (sent as `X-Fetch-Session`).
+ */
+const SESSION_ID_KEY = "fetch_session_id";
+/**
+ * Where the session token and a PIN profile's access token used to live,
+ * readable by any script on the page. Only read now to move an existing
+ * sign-in into the cookie (`migrateLegacySession` in api/auth.ts), then deleted.
+ */
+export const LEGACY_TOKEN_KEY = "fetch_token";
+export const LEGACY_PROFILE_TOKEN_KEY = "fetch_profile_token";
+/** The API's SESSION_TOKEN_PREFIX. */
+export const SESSION_TOKEN_PREFIX = "fs1_";
 
 // Identity of whoever the in-memory cache's entries belong to. Bumped rather
-// than derived from the token itself: the counter is enough to make every old
-// key unreachable after a rotation, without putting a credential in a map key.
+// than derived from the session: the counter is enough to make every old key
+// unreachable after a sign-in or sign-out.
 let identityEpoch = 0;
+
+/**
+ * A pre-cookie session token that could not be moved into a cookie on this load
+ * (the API was unreachable), sent as a bearer header until the next load tries
+ * again. Memory only.
+ */
+let legacyBearer = "";
+/**
+ * A pre-accounts browser stored the server's `API_TOKEN` itself. It is taken
+ * out of storage on load and kept here only so the first-run form can offer it.
+ */
+let legacyApiToken = "";
+
+const readStorage = (key: string): string => {
+  try {
+    return window.localStorage.getItem(key) ?? "";
+  } catch {
+    return "";
+  }
+};
+
+const removeStorage = (key: string) => {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Storage unavailable — nothing was stored either.
+  }
+};
 
 /**
  * Who the client is acting as right now — the selected profile and the epoch
@@ -52,7 +95,7 @@ export const runtimeConfig = {
   apiBaseDefault: API_BASE_DEFAULT,
   addonBaseDefault: ADDON_BASE_DEFAULT,
   apiBaseOverrideKey: API_BASE_OVERRIDE_KEY,
-  tokenKey: TOKEN_KEY,
+  sessionIdKey: SESSION_ID_KEY,
   profileIdKey: PROFILE_ID_KEY,
   getApiBaseOverride() {
     return window.localStorage.getItem(API_BASE_OVERRIDE_KEY)?.trim() ?? "";
@@ -75,43 +118,73 @@ export const runtimeConfig = {
   getAddonBase() {
     return ADDON_BASE_DEFAULT;
   },
-  getToken() {
-    return window.localStorage.getItem(TOKEN_KEY) ?? "";
+  /** The signed-in session's (non-secret) id, or "" when signed out. */
+  getSessionId() {
+    return readStorage(SESSION_ID_KEY);
   },
   /**
-   * Whether the stored token is a signed-in session, as opposed to nothing or
-   * the server's API token (what browsers stored before accounts existed). The
-   * prefix is the API's SESSION_TOKEN_PREFIX.
+   * Whether this browser is signed in, as far as it can tell without asking:
+   * the cookie itself is out of reach, so this is the id stored beside it at
+   * sign-in. A cookie that has since expired shows up as the first request's
+   * 401, which signs the browser out (see `api/client.ts`).
    */
   hasSession() {
-    return runtimeConfig.getToken().startsWith("fs1_");
+    return Boolean(runtimeConfig.getSessionId() || legacyBearer);
   },
-  setToken(value: string) {
+  /**
+   * Records the session a sign-in started, or "" to forget it on sign-out.
+   *
+   * Cached GET responses are partitioned by the session id, so a new session
+   * can never *read* the old one's entries — but they stay in Cache Storage,
+   * readable by any same-origin script, until they expire a day later. Signing
+   * out or switching accounts has to take them with it, so the next person on a
+   * shared device inherits nothing.
+   */
+  setSessionId(value: string) {
     const trimmed = value.trim();
-    // Cached GET responses are partitioned by a digest of the token, so a new
-    // token can never *read* the old one's entries — but they stay in Cache
-    // Storage, readable by any same-origin script, until they expire a day
-    // later. Signing out or rotating the token has to take them with it, so
-    // the next person on a shared device inherits nothing.
-    const previous = runtimeConfig.getToken();
-    if (trimmed !== previous) {
+    const previous = runtimeConfig.getSessionId();
+    // A session still riding on a pre-cookie bearer token has no id yet, so
+    // signing it out changes the id from "" to "" — but it is a sign-out all
+    // the same.
+    if (trimmed !== previous || (!trimmed && legacyBearer)) {
       identityEpoch += 1;
       void purgeApiCache();
-      // Writes the worker is holding for later carry the previous token in
-      // their headers. Signed out (or someone else signed in) on a shared
-      // device, they would otherwise be replayed as that person the next time
-      // the connection comes back.
+      // Writes the worker is holding for later are replayed with whatever
+      // session cookie the browser has *then*. Signed out (or someone else
+      // signed in) on a shared device, they would otherwise be sent as the
+      // next person when the connection comes back. Not on the move from a
+      // pre-cookie token (previous id ""): those writes carry that same
+      // session's bearer header and still belong to it.
       if (previous) void clearQueuedWrites();
     }
 
     if (!trimmed) {
-      window.localStorage.removeItem(TOKEN_KEY);
+      removeStorage(SESSION_ID_KEY);
+      legacyBearer = "";
       applyCacheScope();
       return;
     }
 
-    window.localStorage.setItem(TOKEN_KEY, trimmed);
+    window.localStorage.setItem(SESSION_ID_KEY, trimmed);
     applyCacheScope();
+  },
+  /** Forgets the session on this side. The cookie is the API's to clear. */
+  clearSession() {
+    runtimeConfig.setSessionId("");
+  },
+  /** See `legacyBearer`. */
+  getLegacyBearer() {
+    return legacyBearer;
+  },
+  setLegacyBearer(value: string) {
+    legacyBearer = value;
+  },
+  /** See `legacyApiToken`. */
+  getLegacyApiToken() {
+    return legacyApiToken;
+  },
+  setLegacyApiToken(value: string) {
+    legacyApiToken = value;
   },
   getProfileId() {
     return window.localStorage.getItem(PROFILE_ID_KEY) ?? "";
@@ -134,35 +207,20 @@ export const runtimeConfig = {
   clearProfileId() {
     // Leaving a profile (its access token expired, or it locked) is a sign-out
     // of that profile — its cached responses go with it.
+    // The PIN capability that went with it is an HttpOnly cookie the API set
+    // at verification: it is signed for that one profile, so it opens no
+    // other, and the next verification replaces it.
     void purgeApiCache();
-    window.localStorage.removeItem(PROFILE_ID_KEY);
-    window.localStorage.removeItem(PROFILE_TOKEN_KEY);
+    removeStorage(PROFILE_ID_KEY);
     applyCacheScope();
   },
-  // Signed capability returned by POST /profiles/:id/verify. Sent as the
-  // x-profile-token header so PIN-protected profiles pass the server-side gate.
-  getProfileToken() {
-    return window.localStorage.getItem(PROFILE_TOKEN_KEY) ?? "";
-  },
-  setProfileToken(value: string) {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      window.localStorage.removeItem(PROFILE_TOKEN_KEY);
-      return;
-    }
-
-    window.localStorage.setItem(PROFILE_TOKEN_KEY, trimmed);
-  },
-  clearProfileToken() {
-    window.localStorage.removeItem(PROFILE_TOKEN_KEY);
-  }
 };
 
 /*
  * The cache scope starts at the identity already in storage, rather than at "".
  *
- * `setCacheScope` only ever ran from a *write* — setToken, setProfileId — so on
- * a plain reload, with a token and a profile id already stored, every cached
+ * `setCacheScope` only ever ran from a *write* — setSessionId, setProfileId — so on
+ * a plain reload, with a session and a profile id already stored, every cached
  * entry was written under the empty scope until something happened to move it.
  * That something was the shell's own profile fetch: it resolves a second in,
  * calls setProfileId with the id that was already there, and the scope steps

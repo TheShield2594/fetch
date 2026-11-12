@@ -1,9 +1,10 @@
-import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { accountScope } from "../lib/request-auth.js";
 import { findAdminAccountId } from "../lib/sessions.js";
 import { prisma } from "../lib/prisma.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
-import { mintProfileToken } from "../lib/profile-token.js";
+import { mintProfileToken, PROFILE_TOKEN_TTL_MS } from "../lib/profile-token.js";
+import { clearAuthCookies, isWebClient, PROFILE_COOKIE, setProfileCookie } from "../lib/session-cookie.js";
 import {
   hasParentalAuthority,
   hasValidProfileToken,
@@ -26,6 +27,27 @@ const pinAttemptKey = (profileId: string) => `pinattempts:${profileId}`;
 const getPinLockout = (profileId: string) => getLockout(pinAttemptKey(profileId));
 const recordPinFailure = (profileId: string) => recordFailure(pinAttemptKey(profileId));
 const clearPinAttempts = (profileId: string) => clearAttempts(pinAttemptKey(profileId));
+
+/**
+ * The answer to a successful verify. A TV (or any bearer client) gets the
+ * profile token in the body and sends it back as `x-profile-token`. The website
+ * gets it as an HttpOnly cookie instead and never sees it, which keeps it out of
+ * reach of any script on the page — the same reason the session moved there.
+ */
+const verifiedResponse = (
+  request: FastifyRequest,
+  reply: FastifyReply,
+  profile: { id: string; name: string },
+  // The PIN hash as stored now, which the token is bound to.
+  pinHash: string | null
+) => {
+  const profileToken = mintProfileToken(profile.id, pinHash);
+  if (isWebClient(request)) {
+    setProfileCookie(request, reply, profileToken, PROFILE_TOKEN_TTL_MS / 1000);
+    return reply.code(200).send({ id: profile.id, name: profile.name });
+  }
+  return reply.code(200).send({ id: profile.id, name: profile.name, profileToken });
+};
 
 /**
  * Re-hashes a PIN that just verified against a pre-scrypt (unsalted SHA-256)
@@ -151,6 +173,14 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     return reply.code(201).send({ profile: toProfileView(profile) });
   });
 
+  // Locks the profile in use on this browser: expires the website's profile
+  // cookie, so the PIN is needed again. The page can't do that itself — the
+  // cookie is HttpOnly. A TV forgets its own `x-profile-token` instead.
+  app.post("/profiles/lock", async (request, reply) => {
+    clearAuthCookies(request, reply, [PROFILE_COOKIE]);
+    return reply.code(204).send();
+  });
+
   app.post<{ Params: { id: string }; Body: unknown }>(
     "/profiles/:id/verify",
     { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
@@ -162,11 +192,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       const profile = await findOwnedProfileRow(request, request.params.id);
       if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
-      if (!profile.pinHash) {
-        return reply
-          .code(200)
-          .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id, null) });
-      }
+      if (!profile.pinHash) return verifiedResponse(request, reply, profile, null);
 
       const lockout = await getPinLockout(profile.id);
       if (lockout.locked) {
@@ -184,9 +210,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
 
       const storedPinHash = await upgradePinHashIfNeeded(app, profile.id, pin, profile.pinHash);
       await clearPinAttempts(profile.id);
-      return reply
-        .code(200)
-        .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id, storedPinHash) });
+      return verifiedResponse(request, reply, profile, storedPinHash);
     },
   );
 

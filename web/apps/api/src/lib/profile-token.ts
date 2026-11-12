@@ -16,7 +16,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 // changing, setting or removing a PIN invalidates every token minted under the
 // old one at once, rather than letting a leaked token ride out its 12h TTL.
 
-const PROFILE_TOKEN_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+export const PROFILE_TOKEN_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 // v2: the signed message gained the PIN generation. A v1 token is simply
 // rejected (the holder re-verifies), never read as a v2 one.
 const TOKEN_VERSION = "v2";

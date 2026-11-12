@@ -272,13 +272,13 @@ describe("onQueuedWritesReplayed", () => {
 });
 
 describe("the offline write queue on sign-out", () => {
-  it("asks the worker to drop the queued writes, which carry the old token", async () => {
+  it("asks the worker to drop the queued writes, which would replay under the next cookie", async () => {
     const controller = ackingController();
     installController(controller);
     const { runtimeConfig } = await loadApi();
-    window.localStorage.setItem(runtimeConfig.tokenKey, "fs1_signed-in");
+    window.localStorage.setItem(runtimeConfig.sessionIdKey, "session-signed-in");
 
-    runtimeConfig.setToken("");
+    runtimeConfig.clearSession();
 
     await vi.waitFor(() =>
       expect(controller.postMessage).toHaveBeenCalledWith({ type: "CLEAR_WRITE_QUEUE" })
@@ -289,9 +289,9 @@ describe("the offline write queue on sign-out", () => {
     const controller = ackingController();
     installController(controller);
     const { runtimeConfig } = await loadApi();
-    window.localStorage.removeItem(runtimeConfig.tokenKey);
+    window.localStorage.removeItem(runtimeConfig.sessionIdKey);
 
-    runtimeConfig.setToken("fs1_new-session");
+    runtimeConfig.setSessionId("session-new");
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(controller.postMessage).not.toHaveBeenCalledWith({ type: "CLEAR_WRITE_QUEUE" });

@@ -37,24 +37,21 @@ const INPUT_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", 
  * profile token, then makes it the active one. Resolves to false when the flow
  * was overtaken meanwhile, in which case nothing changed.
  *
- * POST /profiles mints no profile token, and the one in storage (if any)
- * belongs to the previous profile. Without a fresh one, the first request as a
+ * POST /profiles mints no profile token, and the cookie (if any) holds the
+ * previous profile's. Without a fresh one, the first request as a
  * PIN-protected profile 401s and drops the user straight back to "Who's
- * watching?" to type the PIN they set a second ago. Verifying with no PIN also
- * clears the stale token for an unprotected profile.
+ * watching?" to type the PIN they set a second ago. The token comes back as an
+ * HttpOnly cookie the API sets, so the page never holds it.
  */
 async function enterNewProfile(profile: Profile, pin: string, isCurrent: () => boolean): Promise<boolean> {
-  let profileToken: string | null;
   try {
-    profileToken = (await api.verifyProfile(profile.id, pin || undefined, { persist: false })).profileToken ?? "";
+    await api.verifyProfile(profile.id, pin || undefined);
   } catch {
     // The profile exists either way; worst case the shell asks for the PIN
-    // once. Don't send a stale token.
-    profileToken = null;
+    // once. A previous profile's token is signed for that profile and opens
+    // nothing here.
   }
   if (!isCurrent()) return false;
-  if (profileToken === null) runtimeConfig.clearProfileToken();
-  else runtimeConfig.setProfileToken(profileToken);
   runtimeConfig.setProfileId(profile.id);
   return true;
 }

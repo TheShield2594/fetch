@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { api, ApiContractError, ApiError, invalidatedCachePrefixes, OfflineWriteQueuedError, runtimeConfig } from "./api";
+import { api, ApiContractError, ApiError, invalidatedCachePrefixes, migrateLegacySession, OfflineWriteQueuedError, runtimeConfig } from "./api";
 import { readCache, resetDataCacheForTests, writeCache } from "./utils/dataCache";
 import { first } from "./test/present";
 
@@ -28,11 +28,13 @@ let fetchMock: FetchMock;
 beforeEach(() => {
   fetchMock = vi.fn();
   vi.stubGlobal("fetch", fetchMock);
-  runtimeConfig.setToken("stored-token");
+  runtimeConfig.setSessionId("session-1");
 });
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  runtimeConfig.setLegacyBearer("");
+  runtimeConfig.setLegacyApiToken("");
   window.localStorage.clear();
 });
 
@@ -40,24 +42,47 @@ const lastRequestInit = () => first(fetchMock.mock.calls, "fetch call")[1] as Re
 const lastHeaders = () => lastRequestInit().headers as Record<string, string>;
 
 describe("request auth headers", () => {
-  it("sends the stored bearer token", async () => {
+  it("sends the session cookie, not a token, and marks itself as the website", async () => {
     fetchMock.mockResolvedValue(json({ lists: [] }));
 
     await api.getLists();
 
     expect(first(fetchMock.mock.calls, "fetch call")[0]).toBe(`${runtimeConfig.getApiBase()}/lists`);
-    expect(lastHeaders().Authorization).toBe("Bearer stored-token");
+    expect(lastRequestInit().credentials).toBe("include");
+    expect(lastHeaders()).not.toHaveProperty("Authorization");
+    expect(lastHeaders()["X-Fetch-Client"]).toBe("web");
+    // The non-secret id the service worker partitions its cache by.
+    expect(lastHeaders()["X-Fetch-Session"]).toBe("session-1");
   });
 
-  it("sends the profile id and profile token when a profile is selected", async () => {
+  it("sends a pre-cookie token as a bearer header only while it is waiting to move", async () => {
+    runtimeConfig.setLegacyBearer("fs1_old");
+    fetchMock.mockResolvedValue(json({ lists: [] }));
+
+    await api.getLists();
+
+    expect(lastHeaders().Authorization).toBe("Bearer fs1_old");
+  });
+
+  it("keeps no credential in localStorage", async () => {
     runtimeConfig.setProfileId("profile-1");
-    runtimeConfig.setProfileToken("signed-capability");
+    fetchMock.mockResolvedValue(json({ lists: [] }));
+
+    await api.getLists();
+
+    expect(window.localStorage.getItem("fetch_token")).toBeNull();
+    expect(window.localStorage.getItem("fetch_profile_token")).toBeNull();
+  });
+
+  it("sends the profile id, but no profile token, when a profile is selected", async () => {
+    runtimeConfig.setProfileId("profile-1");
     fetchMock.mockResolvedValue(json({ lists: [] }));
 
     await api.getLists();
 
     expect(lastHeaders()["x-profile-id"]).toBe("profile-1");
-    expect(lastHeaders()["x-profile-token"]).toBe("signed-capability");
+    // The PIN capability is an HttpOnly cookie now.
+    expect(lastHeaders()).not.toHaveProperty("x-profile-token");
   });
 
   it("omits the profile headers entirely when no profile is selected", async () => {
@@ -82,35 +107,35 @@ describe("request auth headers", () => {
 });
 
 describe("request 401 handling", () => {
-  it("clears the stored token and announces it when the token itself is rejected", async () => {
+  it("forgets the session and announces it when the session itself is rejected", async () => {
     const onUnauthorized = vi.fn();
     window.addEventListener("fetch:unauthorized", onUnauthorized);
     fetchMock.mockResolvedValue(unauthorized());
 
     await expect(api.getLists()).rejects.toThrow(ApiError);
 
-    expect(runtimeConfig.getToken()).toBe("");
+    expect(runtimeConfig.getSessionId()).toBe("");
+    expect(runtimeConfig.hasSession()).toBe(false);
     expect(onUnauthorized).toHaveBeenCalledOnce();
     window.removeEventListener("fetch:unauthorized", onUnauthorized);
   });
 
-  it("keeps the token on a route-level 401 that carries no WWW-Authenticate header", async () => {
+  it("keeps the session on a route-level 401 that carries no WWW-Authenticate header", async () => {
     const onUnauthorized = vi.fn();
     window.addEventListener("fetch:unauthorized", onUnauthorized);
     fetchMock.mockResolvedValue(routeError(401, { error: "Incorrect PIN." }));
 
     await expect(api.getLists()).rejects.toThrow("Incorrect PIN.");
 
-    expect(runtimeConfig.getToken()).toBe("stored-token");
+    expect(runtimeConfig.getSessionId()).toBe("session-1");
     expect(onUnauthorized).not.toHaveBeenCalled();
     window.removeEventListener("fetch:unauthorized", onUnauthorized);
   });
 
-  it("drops the profile selection and its token when profile verification is required", async () => {
+  it("drops the profile selection when profile verification is required", async () => {
     const onLocked = vi.fn();
     window.addEventListener("fetch:profile-locked", onLocked);
     runtimeConfig.setProfileId("profile-1");
-    runtimeConfig.setProfileToken("signed-capability");
     fetchMock.mockResolvedValue(
       routeError(401, { error: "Profile verification required", code: "profile_verification_required" })
     );
@@ -118,10 +143,9 @@ describe("request 401 handling", () => {
     await expect(api.getLists()).rejects.toThrow(ApiError);
 
     expect(runtimeConfig.getProfileId()).toBe("");
-    expect(runtimeConfig.getProfileToken()).toBe("");
     expect(onLocked).toHaveBeenCalledOnce();
-    // The bearer token is unrelated to a locked profile and must survive.
-    expect(runtimeConfig.getToken()).toBe("stored-token");
+    // The session is unrelated to a locked profile and must survive.
+    expect(runtimeConfig.getSessionId()).toBe("session-1");
     window.removeEventListener("fetch:profile-locked", onLocked);
   });
 
@@ -318,23 +342,114 @@ describe("request response decoding", () => {
 });
 
 describe("verifyProfile", () => {
-  it("stores the signed capability returned by the server", async () => {
-    fetchMock.mockResolvedValue(json({ id: "profile-1", name: "Ben", profileToken: "signed-capability" }));
+  it("sends the PIN and leaves the capability to the cookie the API sets", async () => {
+    fetchMock.mockResolvedValue(json({ id: "profile-1", name: "Ben" }));
 
-    await api.verifyProfile("profile-1", "1234");
+    await expect(api.verifyProfile("profile-1", "1234")).resolves.toEqual({ id: "profile-1", name: "Ben" });
 
-    expect(runtimeConfig.getProfileToken()).toBe("signed-capability");
     expect(lastRequestInit().body).toBe(JSON.stringify({ pin: "1234" }));
+    expect(lastRequestInit().credentials).toBe("include");
+    expect(window.localStorage.getItem("fetch_profile_token")).toBeNull();
   });
 
-  it("clears any stale capability when the profile has no PIN", async () => {
-    runtimeConfig.setProfileToken("stale-capability");
+  it("sends an empty body when the profile has no PIN", async () => {
     fetchMock.mockResolvedValue(json({ id: "profile-1", name: "Ben" }));
 
     await api.verifyProfile("profile-1");
 
-    expect(runtimeConfig.getProfileToken()).toBe("");
     expect(lastRequestInit().body).toBe("{}");
+  });
+});
+
+describe("signing in", () => {
+  it("records the session id from the response, never a token", async () => {
+    runtimeConfig.clearSession();
+    fetchMock.mockResolvedValue(json({ account: { id: "a1", username: "ben", isAdmin: false }, sessionId: "session-2" }));
+
+    await api.login("ben", "hunter22");
+
+    expect(lastHeaders()["X-Fetch-Client"]).toBe("web");
+    expect(lastRequestInit().credentials).toBe("include");
+    expect(runtimeConfig.getSessionId()).toBe("session-2");
+    expect(runtimeConfig.hasSession()).toBe(true);
+    expect(window.localStorage.getItem("fetch_token")).toBeNull();
+  });
+
+  it("forgets the session on sign-out even when the API can't be reached", async () => {
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await expect(api.logout()).rejects.toThrow();
+
+    expect(runtimeConfig.hasSession()).toBe(false);
+  });
+});
+
+describe("moving a pre-cookie sign-in into the cookie", () => {
+  beforeEach(() => {
+    runtimeConfig.clearSession();
+  });
+
+  it("exchanges a stored session token once and deletes it", async () => {
+    window.localStorage.setItem("fetch_token", "fs1_legacy");
+    window.localStorage.setItem("fetch_profile_token", "v1.123.sig");
+    runtimeConfig.setProfileId("profile-1");
+    fetchMock.mockResolvedValue(json({ account: { id: "a1", username: "ben", isAdmin: false }, sessionId: "session-9" }));
+
+    await migrateLegacySession();
+
+    const [url, init] = first(fetchMock.mock.calls, "fetch call") as [string, RequestInit];
+    expect(url).toBe(`${runtimeConfig.getApiBase()}/auth/session`);
+    expect(init.method).toBe("POST");
+    expect(init.credentials).toBe("include");
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer fs1_legacy");
+    expect(headers["X-Fetch-Client"]).toBe("web");
+    // The PIN capability moves with it.
+    expect(headers["x-profile-token"]).toBe("v1.123.sig");
+    expect(headers["x-profile-id"]).toBe("profile-1");
+
+    expect(window.localStorage.getItem("fetch_token")).toBeNull();
+    expect(window.localStorage.getItem("fetch_profile_token")).toBeNull();
+    expect(runtimeConfig.getSessionId()).toBe("session-9");
+    expect(runtimeConfig.getLegacyBearer()).toBe("");
+  });
+
+  it("deletes a token the API turns down, leaving the browser signed out", async () => {
+    window.localStorage.setItem("fetch_token", "fs1_revoked");
+    fetchMock.mockResolvedValue(unauthorized());
+
+    await migrateLegacySession();
+
+    expect(window.localStorage.getItem("fetch_token")).toBeNull();
+    expect(runtimeConfig.hasSession()).toBe(false);
+  });
+
+  it("keeps the token for next time, and uses it for now, when the API is unreachable", async () => {
+    window.localStorage.setItem("fetch_token", "fs1_legacy");
+    fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await migrateLegacySession();
+
+    expect(window.localStorage.getItem("fetch_token")).toBe("fs1_legacy");
+    expect(runtimeConfig.getLegacyBearer()).toBe("fs1_legacy");
+    expect(runtimeConfig.hasSession()).toBe(true);
+  });
+
+  it("takes a pre-accounts API token out of storage, keeping it only for the first-run form", async () => {
+    window.localStorage.setItem("fetch_token", "the-api-token");
+
+    await migrateLegacySession();
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem("fetch_token")).toBeNull();
+    expect(runtimeConfig.getLegacyApiToken()).toBe("the-api-token");
+    expect(runtimeConfig.hasSession()).toBe(false);
+  });
+
+  it("does nothing at all when there is nothing to move", async () => {
+    await migrateLegacySession();
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 
@@ -356,11 +471,11 @@ describe("runtimeConfig", () => {
     expect(runtimeConfig.getApiBase()).toBe(runtimeConfig.apiBaseDefault);
   });
 
-  it("removes the token rather than storing a blank one", () => {
-    runtimeConfig.setToken("  ");
+  it("removes the session id rather than storing a blank one", () => {
+    runtimeConfig.setSessionId("  ");
 
-    expect(window.localStorage.getItem(runtimeConfig.tokenKey)).toBeNull();
-    expect(runtimeConfig.getToken()).toBe("");
+    expect(window.localStorage.getItem(runtimeConfig.sessionIdKey)).toBeNull();
+    expect(runtimeConfig.getSessionId()).toBe("");
   });
 
   /*
@@ -383,14 +498,12 @@ describe("runtimeConfig", () => {
     expect(getCacheScope()).toContain("profile-9");
   });
 
-  it("clears the profile token alongside the profile id", () => {
+  it("clears the profile id", () => {
     runtimeConfig.setProfileId("profile-1");
-    runtimeConfig.setProfileToken("signed-capability");
 
     runtimeConfig.clearProfileId();
 
     expect(runtimeConfig.getProfileId()).toBe("");
-    expect(runtimeConfig.getProfileToken()).toBe("");
   });
 });
 
@@ -402,22 +515,22 @@ describe("API response cache on sign-out", () => {
     vi.stubGlobal("caches", { delete: cachesDelete });
   });
 
-  it("drops the cache when the token changes", async () => {
-    runtimeConfig.setToken("a-new-token");
+  it("drops the cache when the session changes", async () => {
+    runtimeConfig.setSessionId("session-2");
     await Promise.resolve();
 
     expect(cachesDelete).toHaveBeenCalledWith("api-runtime-v1");
   });
 
-  it("drops the cache when the token is cleared on sign-out", async () => {
-    runtimeConfig.setToken("");
+  it("drops the cache when the session is cleared on sign-out", async () => {
+    runtimeConfig.clearSession();
     await Promise.resolve();
 
     expect(cachesDelete).toHaveBeenCalledWith("api-runtime-v1");
   });
 
-  it("leaves the cache alone when the same token is written back", async () => {
-    runtimeConfig.setToken("stored-token");
+  it("leaves the cache alone when the same session is written back", async () => {
+    runtimeConfig.setSessionId("session-1");
     await Promise.resolve();
 
     expect(cachesDelete).not.toHaveBeenCalled();
@@ -435,17 +548,17 @@ describe("API response cache on sign-out", () => {
 
     await expect(api.getLists()).rejects.toThrow();
 
-    expect(runtimeConfig.getToken()).toBe("");
+    expect(runtimeConfig.getSessionId()).toBe("");
     expect(cachesDelete).toHaveBeenCalledWith("api-runtime-v1");
   });
 
   it("still signs out when Cache Storage rejects", async () => {
     cachesDelete.mockRejectedValue(new Error("unavailable"));
 
-    runtimeConfig.setToken("");
+    runtimeConfig.clearSession();
     await Promise.resolve();
 
-    expect(runtimeConfig.getToken()).toBe("");
+    expect(runtimeConfig.getSessionId()).toBe("");
   });
 });
 

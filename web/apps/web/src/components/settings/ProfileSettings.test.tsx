@@ -467,7 +467,7 @@ describe("ProfileSettings adding", () => {
     const user = userEvent.setup();
     const sam: Profile = { id: "p-sam", name: "Sam", hasPin: false };
     createProfile.mockResolvedValue({ profile: sam });
-    verifyProfile.mockResolvedValue({ id: sam.id, name: sam.name, profileToken: "" });
+    verifyProfile.mockResolvedValue({ id: sam.id, name: sam.name });
     await renderSettings();
 
     await user.click(screen.getByRole("button", { name: "Add profile" }));

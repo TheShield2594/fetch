@@ -76,10 +76,12 @@ People sign in to the website with their own account (username and password;
 the install is invite-only, see "Accounts and invites" in `web/README.md`), and
 each sign-in is a session the account can see and revoke in Settings → Account → Where you're signed in
 (`GET /auth/sessions`, `web/apps/api/src/lib/sessions.ts`), alongside its TVs.
-The shared `API_TOKEN` in `.env` only creates the first (admin) account and stays
-as a recovery key against the API. Profiles can still have PIN tokens. A TV never
+The browser holds that session, and a PIN profile's access token, as `HttpOnly`
+cookies the page cannot read (#455). The shared `API_TOKEN` in `.env` only creates
+the first (admin) account and stays as a recovery key against the API. A TV never
 types a password or the API token: it signs in by **device pairing** (#91), and
-each paired TV gets its own token that can be revoked on its own:
+each paired TV gets its own token, sent as `Authorization: Bearer` (which the API
+always prefers over a cookie), that can be revoked on its own:
 
 1. Settings → Account → Sync → Fetch website on the TV (or the first-run Server
    step) opens on a **code from the pairing hub** at `watchfetch.tv`

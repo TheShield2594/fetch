@@ -152,6 +152,17 @@ describe("profiles routes", () => {
     });
   });
 
+  describe("POST /profiles/lock", () => {
+    it("expires the website's profile cookie, so the PIN is asked again", async () => {
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "POST", url: "/profiles/lock", headers: { "x-fetch-client": "web" } });
+
+      expect(response.statusCode).toBe(204);
+      expect(String(response.headers["set-cookie"])).toMatch(/^fetch_profile=; Path=\/; Max-Age=0; /);
+    });
+  });
+
   describe("POST /profiles/:id/verify — PIN lockout behavior", () => {
     it("rejects a non-UUID id", async () => {
       const app = await buildApp();
@@ -185,6 +196,49 @@ describe("profiles routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(prismaMock.kV.deleteMany).toHaveBeenCalled();
+    });
+
+    it("hands a TV the profile token in the body, and sets no cookie", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("4321") });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: `/profiles/${PROFILE_ID}/verify`,
+        payload: { pin: "4321" },
+      });
+
+      expect(response.json().profileToken).toMatch(/^v2\./);
+      expect(response.headers["set-cookie"]).toBeUndefined();
+    });
+
+    it("hands the website the profile token as an HttpOnly cookie, not in the body", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("4321") });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: `/profiles/${PROFILE_ID}/verify`,
+        headers: { "x-fetch-client": "web" },
+        payload: { pin: "4321" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ id: PROFILE_ID, name: "Alice" });
+      const cookie = String(response.headers["set-cookie"]);
+      expect(cookie).toMatch(/^fetch_profile=v2\.[^;]+; Path=\/; Max-Age=43200; HttpOnly; SameSite=Lax$/);
+
+      // And that cookie is what opens the locked profile afterwards.
+      const { hasValidProfileToken } = await import("../lib/profile.js");
+      const token = cookie.split(";")[0]?.split("=")[1] ?? "";
+      const cookieOnly = { headers: { cookie: `fetch_profile=${token}` } } as never;
+      // Bound to the PIN as stored after verifying (a legacy hash is upgraded).
+      const updated = prismaMock.profile.update.mock.calls.at(-1)?.[0] as { data: { pinHash: string } } | undefined;
+      const pinHash = updated?.data.pinHash ?? hashPin("4321");
+      expect(hasValidProfileToken(cookieOnly, { id: PROFILE_ID, pinHash })).toBe(true);
+      expect(hasValidProfileToken(cookieOnly, { id: OTHER_PROFILE_ID, pinHash })).toBe(false);
+      // And a PIN change retires it.
+      expect(hasValidProfileToken(cookieOnly, { id: PROFILE_ID, pinHash: "something-else" })).toBe(false);
     });
 
     it("rejects an incorrect PIN and records a failed attempt", async () => {

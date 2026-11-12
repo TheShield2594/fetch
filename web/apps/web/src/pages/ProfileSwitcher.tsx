@@ -145,9 +145,8 @@ function PinPrompt({
     setVerifying(true);
     setError(null);
     try {
-      const result = await api.verifyProfile(profile.id, attempt, { persist: false });
+      const result = await api.verifyProfile(profile.id, attempt);
       if (!isCurrent()) return;
-      runtimeConfig.setProfileToken(result.profileToken ?? "");
       onVerified({ ...profile, id: result.id, name: result.name, hasPin: true });
     } catch (err) {
       if (!isCurrent()) return;
@@ -420,9 +419,8 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
     setSelectError(null);
     setPending(profile.id);
     try {
-      const result = await api.verifyProfile(profile.id, undefined, { persist: false });
+      const result = await api.verifyProfile(profile.id);
       if (!isCurrent()) return;
-      runtimeConfig.setProfileToken(result.profileToken ?? "");
       runtimeConfig.setProfileId(result.id);
       onSelected({ ...profile, id: result.id, name: result.name });
     } catch (err) {

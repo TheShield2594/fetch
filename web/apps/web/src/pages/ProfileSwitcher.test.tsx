@@ -12,6 +12,7 @@ vi.mock("../api", async (importOriginal) => {
       getProfiles: vi.fn(),
       createProfile: vi.fn(),
       verifyProfile: vi.fn(),
+      lockProfile: vi.fn(),
     },
   };
 });
@@ -21,6 +22,7 @@ const { api } = await import("../api");
 const getProfiles = vi.mocked(api.getProfiles);
 const createProfile = vi.mocked(api.createProfile);
 const verifyProfile = vi.mocked(api.verifyProfile);
+const lockProfile = vi.mocked(api.lockProfile);
 
 const BEN: Profile = { id: "p-ben", name: "Ben", hasPin: false };
 const LOCKED: Profile = { id: "p-kid", name: "Kid", hasPin: true };
@@ -82,7 +84,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(await screen.findByRole("button", { name: /ben/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(BEN));
-      expect(verifyProfile).toHaveBeenCalledWith(BEN.id, undefined, { persist: false });
+      expect(verifyProfile).toHaveBeenCalledWith(BEN.id);
       expect(runtimeConfig.getProfileId()).toBe(BEN.id);
     });
 
@@ -124,7 +126,7 @@ describe("ProfileSwitcher", () => {
     });
 
     it("unlocks the profile on a correct PIN", async () => {
-      verifyProfile.mockResolvedValue({ id: LOCKED.id, name: LOCKED.name, profileToken: "signed" });
+      verifyProfile.mockResolvedValue({ id: LOCKED.id, name: LOCKED.name });
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
@@ -132,8 +134,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.click(screen.getByRole("button", { name: /unlock/i }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(LOCKED));
-      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "1234", { persist: false });
-      expect(runtimeConfig.getProfileToken()).toBe("signed");
+      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "1234");
       expect(runtimeConfig.getProfileId()).toBe(LOCKED.id);
     });
 
@@ -161,14 +162,14 @@ describe("ProfileSwitcher", () => {
     });
 
     it("goes ahead on its own once all 8 digits are in", async () => {
-      verifyProfile.mockResolvedValue({ id: LOCKED.id, name: LOCKED.name, profileToken: "signed" });
+      verifyProfile.mockResolvedValue({ id: LOCKED.id, name: LOCKED.name });
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
       await userEvent.type(screen.getByLabelText("PIN"), "12345678");
 
       await waitFor(() => expect(onSelected).toHaveBeenCalled());
-      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "12345678", { persist: false });
+      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "12345678");
     });
 
     it("clears and marks a wrong PIN so the next try starts empty", async () => {
@@ -212,7 +213,7 @@ describe("ProfileSwitcher", () => {
     });
 
     it("still takes a PIN set before the digits-only rule", async () => {
-      verifyProfile.mockResolvedValue({ id: LOCKED.id, name: LOCKED.name, profileToken: "signed" });
+      verifyProfile.mockResolvedValue({ id: LOCKED.id, name: LOCKED.name });
       const { onSelected } = renderSwitcher();
 
       await userEvent.click(await screen.findByRole("button", { name: /kid/i }));
@@ -220,7 +221,7 @@ describe("ProfileSwitcher", () => {
       await userEvent.type(screen.getByLabelText("PIN"), "hunter2{Enter}");
 
       await waitFor(() => expect(onSelected).toHaveBeenCalled());
-      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "hunter2", { persist: false });
+      expect(verifyProfile).toHaveBeenCalledWith(LOCKED.id, "hunter2");
     });
 
     it("returns to the picker without selecting anything", async () => {
@@ -278,7 +279,7 @@ describe("ProfileSwitcher", () => {
     it("sends the trimmed name with no PIN, then asks before switching to it", async () => {
       const created: Profile = { id: "p-new", name: "Sam", hasPin: false };
       createProfile.mockResolvedValue({ profile: created });
-      verifyProfile.mockResolvedValue({ id: created.id, name: created.name, profileToken: "" });
+      verifyProfile.mockResolvedValue({ id: created.id, name: created.name });
       const { onSelected } = renderSwitcher();
 
       await create("  Sam  ");
@@ -309,7 +310,7 @@ describe("ProfileSwitcher", () => {
       getProfiles.mockResolvedValue({ profiles: [] });
       const created: Profile = { id: "p-new", name: "Sam", hasPin: false };
       createProfile.mockResolvedValue({ profile: created });
-      verifyProfile.mockResolvedValue({ id: created.id, name: created.name, profileToken: "" });
+      verifyProfile.mockResolvedValue({ id: created.id, name: created.name });
       const { onSelected } = renderSwitcher();
 
       await userEvent.type(await screen.findByLabelText("Profile name"), "Sam");
@@ -355,15 +356,14 @@ describe("ProfileSwitcher", () => {
     it("verifies a new PIN profile with its PIN before entering it, so it isn't locked out at once", async () => {
       const created: Profile = { id: "p-new", name: "Sam", hasPin: true };
       createProfile.mockResolvedValue({ profile: created });
-      verifyProfile.mockResolvedValue({ id: created.id, name: created.name, profileToken: "signed" });
+      verifyProfile.mockResolvedValue({ id: created.id, name: created.name });
       const { onSelected } = renderSwitcher();
 
       await create("Sam", "4321");
       await userEvent.click(await screen.findByRole("button", { name: "Switch to Sam" }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
-      expect(verifyProfile).toHaveBeenCalledWith("p-new", "4321", { persist: false });
-      expect(runtimeConfig.getProfileToken()).toBe("signed");
+      expect(verifyProfile).toHaveBeenCalledWith("p-new", "4321");
     });
 
     // #391: the switcher was closed while the create was in flight.
@@ -372,7 +372,6 @@ describe("ProfileSwitcher", () => {
       let finishCreate!: (value: { profile: Profile }) => void;
       createProfile.mockReturnValue(new Promise((resolve) => { finishCreate = resolve; }));
       runtimeConfig.setProfileId("p-previous");
-      runtimeConfig.setProfileToken("previous-profile-token");
       const onClose = vi.fn();
       const { onSelected } = renderSwitcher({ onClose });
 
@@ -385,14 +384,12 @@ describe("ProfileSwitcher", () => {
       expect(verifyProfile).not.toHaveBeenCalled();
       expect(onSelected).not.toHaveBeenCalled();
       expect(runtimeConfig.getProfileId()).toBe("p-previous");
-      expect(runtimeConfig.getProfileToken()).toBe("previous-profile-token");
     });
 
     it("changes nothing when the form is cancelled before the new profile is ready", async () => {
       const created: Profile = { id: "p-new", name: "Sam", hasPin: false };
       let finishCreate!: (value: { profile: Profile }) => void;
       createProfile.mockReturnValue(new Promise((resolve) => { finishCreate = resolve; }));
-      runtimeConfig.setProfileToken("previous-profile-token");
       const { onSelected } = renderSwitcher();
 
       await create("Sam");
@@ -401,23 +398,20 @@ describe("ProfileSwitcher", () => {
 
       await new Promise((resolve) => setTimeout(resolve, 0));
       expect(onSelected).not.toHaveBeenCalled();
-      expect(runtimeConfig.getProfileToken()).toBe("previous-profile-token");
       expect(screen.getByText(/who's watching/i)).toBeInTheDocument();
       expect(screen.queryByText("Sam is ready")).not.toBeInTheDocument();
     });
 
-    it("drops the previous profile's token and still enters the new profile if verifying fails", async () => {
+    it("still enters the new profile if verifying fails", async () => {
       const created: Profile = { id: "p-new", name: "Sam", hasPin: true };
       createProfile.mockResolvedValue({ profile: created });
       verifyProfile.mockRejectedValue(new ApiError("Profile store unavailable", 500));
-      runtimeConfig.setProfileToken("previous-profile-token");
       const { onSelected } = renderSwitcher();
 
       await create("Sam", "4321");
       await userEvent.click(await screen.findByRole("button", { name: "Switch to Sam" }));
 
       await waitFor(() => expect(onSelected).toHaveBeenCalledWith(created));
-      expect(runtimeConfig.getProfileToken()).toBe("");
     });
 
     it.each(["123", "12ab"])("explains the PIN rule instead of creating a profile with PIN %j", async (pin) => {
@@ -568,7 +562,7 @@ describe("ProfileSwitcher", () => {
 describe("locking the profile in use", () => {
   it("offers to lock the active PIN profile, which leaves it without signing out", async () => {
     runtimeConfig.setProfileId(LOCKED.id);
-    runtimeConfig.setProfileToken("kid-token");
+    lockProfile.mockResolvedValue(undefined);
     const locked = vi.fn();
     window.addEventListener("fetch:profile-locked", locked);
     renderSwitcher({ onClose: vi.fn() });
@@ -577,7 +571,8 @@ describe("locking the profile in use", () => {
 
     expect(locked).toHaveBeenCalledOnce();
     expect(runtimeConfig.getProfileId()).toBe("");
-    expect(runtimeConfig.getProfileToken()).toBe("");
+    // The PIN capability is an HttpOnly cookie, so the API is asked to drop it.
+    expect(lockProfile).toHaveBeenCalledOnce();
     window.removeEventListener("fetch:profile-locked", locked);
   });
 

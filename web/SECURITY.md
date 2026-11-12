@@ -82,8 +82,9 @@ the port on your LAN.
   a DNS-rebinding window between the check and the request.
 - Webhook authentication bypass on `/webhooks/plex` or `/webhooks/jellyfin`.
 - OAuth CSRF or account-binding problems in the Trakt sign-in flow.
-- XSS, CSP bypass, or any route that gets the browser's bearer token off the
-  page.
+- XSS, CSP bypass, or any route that gets the browser's session off the page
+  (it is an `HttpOnly` cookie), and any cookie-authenticated write that gets
+  past the CSRF check without `X-Fetch-Client: web` from the website's origin.
 - SQL injection, path traversal, unauthenticated writes, or a bypass of the
   per-route rate limits.
 - A dependency vulnerability you can show is reachable from Fetch's own code
@@ -95,8 +96,13 @@ These are documented positions rather than oversights. If you think one of them
 is wrong, an issue arguing that is welcome — it just isn't a vulnerability
 report.
 
-- The bearer token living in `localStorage`, and what an XSS bug could therefore
-  do with it. The README states the trade-off and the stronger fix.
+- What an XSS bug could do through the session *while the page is open* —
+  the cookie keeps the session itself out of reach, not the requests it
+  authorizes. The README states that limit.
+- The session cookie not being sent when the site and the API are on different
+  sites (the site at a LAN IP calling the API at a domain). That is the
+  browser's `SameSite` rule doing its job; the README documents the supported
+  layouts.
 - The add-on service on port 7001 being unauthenticated, and anything that
   follows from choosing to expose it.
 - Anything that assumes the attacker can already run code as the `api`

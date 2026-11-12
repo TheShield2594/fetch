@@ -47,6 +47,7 @@ class TraktProgressServiceRefreshTest {
     private val playbackCalls = AtomicInteger()
     private val watchedMoviesCalls = AtomicInteger()
     private val watchedShowsCalls = AtomicInteger()
+    private val metadataCalls = AtomicInteger()
 
     @Volatile
     private var episodesWatchedAt = "2026-01-01T00:00:00.000Z"
@@ -157,6 +158,19 @@ class TraktProgressServiceRefreshTest {
         waitUntil { playbackCalls.get() >= 2 }
     }
 
+    @Test
+    fun `metadata warm-up waits for the app to be back on screen`() = runBlocking {
+        createService()
+        waitUntil { playbackCalls.get() >= 1 }
+        // Leave the screen before the warm-up delay (3 s from service start) runs out.
+        AppForeground.set(false)
+        delay(METADATA_WARMUP_MS + SETTLE_MS)
+        assertEquals("metadata fetched off screen", 0, metadataCalls.get())
+
+        AppForeground.set(true)
+        waitUntil { metadataCalls.get() >= 1 }
+    }
+
     private suspend fun loadedService(): TraktProgressService {
         val service = createService()
         withTimeout(TIMEOUT_MS) {
@@ -228,7 +242,10 @@ class TraktProgressServiceRefreshTest {
         }
 
         val metaRepository = mockk<MetaRepository>()
-        every { metaRepository.getMetaFromAllAddons(any(), any(), any()) } returns emptyFlow()
+        every { metaRepository.getMetaFromAllAddons(any(), any(), any()) } answers {
+            metadataCalls.incrementAndGet()
+            emptyFlow()
+        }
         val settings = mockk<TraktSettingsDataStore>()
         every { settings.continueWatchingDaysCap } returns
             flowOf(TraktSettingsDataStore.DEFAULT_CONTINUE_WATCHING_DAYS_CAP)
@@ -257,5 +274,6 @@ class TraktProgressServiceRefreshTest {
         const val MOVIE_ID = "tt0000001"
         const val TIMEOUT_MS = 15_000L
         const val SETTLE_MS = 500L
+        const val METADATA_WARMUP_MS = 3_000L
     }
 }

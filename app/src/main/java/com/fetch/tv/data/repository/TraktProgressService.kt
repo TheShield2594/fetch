@@ -2908,20 +2908,54 @@ class TraktProgressService @Inject constructor(
                 if (!shouldFetch) return@launch
 
                 try {
-                    metadataFetchSemaphore.withPermit {
-                        val metadata = fetchContentMetadata(
-                            contentId = contentId,
-                            contentType = progress.contentType
-                        ) ?: return@launch
-                        metadataState.update { current ->
-                            current + (contentId to metadata)
+                    // Off screen nothing goes out (roadmap G2, #485): the fetch waits for the
+                    // foreground, and one cut off by the app leaving the screen runs again on return.
+                    val metadata = runOnScreen {
+                        metadataFetchSemaphore.withPermit {
+                            fetchContentMetadata(
+                                contentId = contentId,
+                                contentType = progress.contentType
+                            )
                         }
+                    } ?: return@launch
+                    metadataState.update { current ->
+                        current + (contentId to metadata)
                     }
                 } finally {
                     metadataMutex.withLock {
                         inFlightMetadataKeys.remove(contentId)
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Runs [block] only while the app is on screen. It waits for the foreground first; if the app
+     * leaves the screen mid-run, the block is cancelled and run again once the app is back.
+     */
+    private suspend fun <T> runOnScreen(block: suspend () -> T): T {
+        while (true) {
+            AppForeground.awaitForeground()
+            var leftScreen = false
+            try {
+                return coroutineScope {
+                    val work = async { block() }
+                    val watcher = launch {
+                        AppForeground.isForeground.first { !it }
+                        leftScreen = true
+                        work.cancel()
+                    }
+                    try {
+                        work.await()
+                    } finally {
+                        watcher.cancel()
+                    }
+                }
+            } catch (e: CancellationException) {
+                // Our own cancellation (the service shutting down) propagates.
+                currentCoroutineContext().ensureActive()
+                if (!leftScreen) throw e
             }
         }
     }

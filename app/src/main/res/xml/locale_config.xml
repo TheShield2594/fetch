@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Languages offered in the system's per-app language picker and in Settings → Appearance → Language.
+  A language is offered once enough of it is translated: scripts/locale_coverage.py checks every
+  locale here in CI. Romanian, Lithuanian, Hindi, Norwegian, Bosnian and Swedish are under 60% (#445),
+  so they are not offered; their values-* folders stay for devices already set to those languages.
+-->
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en"/>
     <locale android:name="ru"/>
@@ -18,22 +24,16 @@
     <locale android:name="pt-BR"/>
     <locale android:name="tr"/>
     <locale android:name="uk"/>
-    <locale android:name="no"/>
     <locale android:name="cs"/>
     <locale android:name="sk"/>
     <locale android:name="sl"/>
     <locale android:name="sq"/>
     <locale android:name="sr-Latn"/>
-    <locale android:name="sv"/>
     <locale android:name="ta"/>
-    <locale android:name="ro"/>
     <locale android:name="ja"/>
     <locale android:name="nl"/>
     <locale android:name="vi"/>
-    <locale android:name="hi"/>
-    <locale android:name="lt"/>
     <locale android:name="el"/>
-    <locale android:name="bs"/>
     <locale android:name="zh-CN"/>
     <locale android:name="zh-TW"/>
     <locale android:name="bn"/>

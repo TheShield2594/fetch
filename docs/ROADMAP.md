@@ -50,10 +50,13 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 - **No torrent engine.** Fetch plays debrid and direct links only, for legal and UX reasons
   (#15). The upstream torrent service stub, P2P settings, consent dialog and player torrent
   overlay were removed.
-- **Translations.** Changed and new strings are translated in every locale, unused strings
-  are pruned (lint `UnusedResources` is clean for strings), and brand-name grammar was
-  reviewed after the Nuvio → Fetch replacement. Older locales that were already incomplete
-  upstream still fall back to English for strings that existed before the fork.
+- **Translations.** No locale is complete: the offered ones are 61–81% translated, and the
+  rest falls back to English, often mid-screen. Unused strings are pruned (lint
+  `UnusedResources` is clean for strings) and brand-name grammar was reviewed after the
+  Nuvio → Fetch replacement. Romanian, Lithuanian, Hindi, Norwegian, Bosnian and Swedish
+  (31–46%) are no longer offered in the language pickers; their strings stay for devices
+  already set to those languages (#445). `scripts/locale_coverage.py` prints coverage per
+  locale, and CI fails if an offered locale has no strings or drops under 60%.
 - `TraktAuthServiceTest` needs Trakt client credentials and is skipped without them.
 
 ## Tracking

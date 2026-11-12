@@ -81,7 +81,7 @@ const monthHref = (month: string): string => `/history?month=${month}`;
  * It leads with the year — in the reader's own artwork, not in tiles — and
  * everything on it goes somewhere: a poster opens the title, a genre opens the
  * library filtered to it, a month opens History at that month. It used to be a
- * dashboard with no way out: four stat tiles, a chart and two grids of posters
+ * wall of numbers with no way out: four stat tiles, a chart and two grids of posters
  * that were pictures rather than links.
  */
 export function StatsPage() {
@@ -216,7 +216,7 @@ export function StatsPage() {
           <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
             Every figure here — streaks, genres, badges, your year in review — is built from your watch history.
           </p>
-          <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+          <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
             Find something to watch &rarr;
           </Link>
         </div>
@@ -292,7 +292,7 @@ export function StatsPage() {
                 {busiestMonth?.name && (
                   <>
                     Busiest in{" "}
-                    <Link to={monthHref(busiestMonth.key)} className="font-medium text-claw-text underline-offset-2 hover:underline">
+                    <Link to={monthHref(busiestMonth.key)} className="font-medium text-accent-text underline-offset-2 hover:underline">
                       {busiestMonth.name}
                     </Link>
                     , with {review.busiestMonthCount.toLocaleString()} watched.
@@ -420,10 +420,10 @@ export function StatsPage() {
                   aria-label={`${g.genre}, ${g.count} watched. Show ${g.genre} in your library`}
                   className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
-                  <span className="w-28 shrink-0 truncate text-sm group-hover:text-claw-text" style={{ color: "var(--text)" }}>{g.genre}</span>
+                  <span className="w-28 shrink-0 truncate text-sm group-hover:text-accent-text" style={{ color: "var(--text)" }}>{g.genre}</span>
                   <span className="h-2 flex-1 overflow-hidden rounded-full" style={{ background: "var(--surface-strong)" }}>
                     <span
-                      className="block h-full rounded-full bg-claw-500/80 transition-[width] duration-slow"
+                      className="block h-full rounded-full bg-accent-500/80 transition-[width] duration-slow"
                       style={{ width: `${(g.count / maxGenreCount) * 100}%` }}
                     />
                   </span>
@@ -564,7 +564,7 @@ function MonthlyChart({ monthly }: { monthly: DetailedWatchStats["monthly"] }) {
                   {/* The films' band, under a hairline: a second axis, not a
                       continuation of the first. */}
                   <span className="mt-4 block w-full border-t pt-4" style={{ borderColor: "var(--border)" }}>
-                    {band(m.movies, filmMax, "bg-claw-500/70 group-hover:bg-claw-500", "h-[56px]")}
+                    {band(m.movies, filmMax, "bg-accent-500/70 group-hover:bg-accent-500", "h-[56px]")}
                   </span>
                   <span className="meta-row" style={{ color: "var(--text-mute)" }}>
                     {date.toLocaleDateString(undefined, { month: "short" })}
@@ -580,7 +580,7 @@ function MonthlyChart({ monthly }: { monthly: DetailedWatchStats["monthly"] }) {
           <span className="h-2.5 w-2.5 rounded-sm bg-plum-500/70" /> Episodes
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-sm bg-claw-500/70" /> Films
+          <span className="h-2.5 w-2.5 rounded-sm bg-accent-500/70" /> Films
         </span>
         <span style={{ color: "var(--text-mute)" }}>Each on its own scale. Pick a month to see it in History.</span>
       </div>

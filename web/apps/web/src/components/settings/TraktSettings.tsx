@@ -115,7 +115,7 @@ export function TraktSettings() {
           <p className="text-xs" style={{ color: "var(--text-dim)" }}>
             Your Trakt app's <strong style={{ color: "var(--text-dim)" }}>Redirect URI</strong> must be set to:
           </p>
-          <code className="block text-sm text-claw-text break-all select-all">{status.redirectUri}</code>
+          <code className="block text-sm text-accent-text break-all select-all">{status.redirectUri}</code>
           <p className="text-xs" style={{ color: "var(--text-dim)" }}>
             Set this at trakt.tv under Settings &gt; Your API Apps &gt; Edit. A mismatch causes an OAuth error. Only the app's Client ID is needed; no Client Secret.
           </p>

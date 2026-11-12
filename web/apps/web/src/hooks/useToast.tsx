@@ -151,7 +151,7 @@ function ToastRegion({
               ? "border-emerald-500/30"
               : toast.type === "error"
                 ? "border-rose-500/30"
-                : "border-claw-500/30"
+                : "border-accent-500/30"
           }`}
           style={{ borderLeftWidth: "4px", background: "var(--bg-1)" }}
         >
@@ -160,7 +160,7 @@ function ToastRegion({
           ) : toast.type === "error" ? (
             <X aria-hidden="true" className="h-5 w-5 flex-none text-danger" />
           ) : (
-            <Heart aria-hidden="true" className="h-5 w-5 flex-none text-claw-text" />
+            <Heart aria-hidden="true" className="h-5 w-5 flex-none text-accent-text" />
           )}
           <span className="text-sm font-medium" style={{ color: "var(--text)" }}>{toast.message}</span>
           {toast.action && (
@@ -178,7 +178,7 @@ function ToastRegion({
                 toast.action?.onAction();
                 onDismiss(toast.id);
               }}
-              className="ml-1 flex flex-none items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-claw-text transition-colors hover:bg-claw-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+              className="ml-1 flex flex-none items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-accent-text transition-colors hover:bg-accent-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
             >
               <Undo2 aria-hidden="true" className="h-3.5 w-3.5" />
               {toast.action.label}
@@ -314,7 +314,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // A fresh object here would re-render every `useToast()` consumer — the
-  // dashboard, search grid, lists, history, calendar, command palette, detail
+  // Discover, search grid, lists, history, calendar, command palette, detail
   // panel — three or four times per toast, as this provider re-renders on each
   // add, exit-flag flip and removal. `showToast` is already callback-stable, so
   // the memo holds one identity for the life of the provider.

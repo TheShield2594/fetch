@@ -23,7 +23,7 @@ function airDateLabel(airDate: string): { label: string; isToday: boolean; isTom
   };
 }
 
-/** The next fortnight of episodes, in the dashboard's narrow right-hand column. */
+/** The next fortnight of episodes, in Discover's narrow right-hand column. */
 export function UpcomingList({ entries }: { entries: CalendarEntry[] }) {
   return (
     <div className="space-y-2">
@@ -48,7 +48,7 @@ export function UpcomingList({ entries }: { entries: CalendarEntry[] }) {
             <span
               className={`meta-row flex-none rounded-full px-2 py-1 font-semibold ${
                 isToday
-                  ? "bg-claw-500/15 text-claw-text"
+                  ? "bg-accent-500/15 text-accent-text"
                   : isTomorrow
                     ? "bg-amber-500/15 text-warning"
                     : ""

@@ -64,7 +64,7 @@ describe("ErrorBoundary", () => {
     expect(screen.getByRole("alert").className).toContain("min-h-screen");
   });
 
-  it("rebuilds the children from scratch on Try Again", async () => {
+  it("rebuilds the children from scratch on Try again", async () => {
     const user = userEvent.setup();
     // Flipped by the test rather than by the component's own first render:
     // React retries a failed concurrent render synchronously, so a
@@ -85,7 +85,7 @@ describe("ErrorBoundary", () => {
     // Stands in for whatever the retry is hoping has changed — a request that
     // failed the first time, a feed that was mid-write.
     broken = false;
-    await user.click(screen.getByRole("button", { name: "Try Again" }));
+    await user.click(screen.getByRole("button", { name: "Try again" }));
     expect(screen.getByText("page content")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });

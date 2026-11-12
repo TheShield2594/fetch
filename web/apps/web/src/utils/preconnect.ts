@@ -4,7 +4,7 @@
  *
  * The API base is a runtime value (window.__FETCH_API_BASE__, written into
  * config.js at container start), so it can't be a static <link> in index.html
- * the way the TMDB image host is. Without this, the dashboard's opening burst of
+ * the way the TMDB image host is. Without this, Discover's opening burst of
  * requests all queue behind one DNS + TCP + TLS handshake — on a remote host
  * over a mobile link that is comfortably a few hundred milliseconds of nothing
  * on screen.

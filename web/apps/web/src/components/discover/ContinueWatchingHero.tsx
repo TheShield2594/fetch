@@ -26,7 +26,7 @@ import { computeProgressSummary, seasonCountSuffix } from "./series-progress";
  * own: black text in a light well on the light theme, white in a dark one on
  * the dark themes.
  *
- * Shared with the Now Watching hero on the dashboard, which is the same
+ * Shared with the Now Watching hero on Discover, which is the same
  * treatment applied to a check-in rather than to series progress.
  */
 export const HERO_SCRIM =
@@ -58,7 +58,7 @@ export function ContinueWatchingHero({
   // The kicker, the title, the S:E line, the progress meter and the two actions
   // — the same content in the cinematic and the flat layout, so the branch
   // below is only ever choosing where to stand it, never what to say.
-  const kicker = <p className={`${MICRO_LABEL} text-claw-text`}>Series &middot; In Progress</p>;
+  const kicker = <p className={`${MICRO_LABEL} text-accent-text`}>Series &middot; In Progress</p>;
   const meta = (
     <p className="meta-row mt-1" style={{ color: "var(--text-dim)" }}>
       S{s.lastSeason}:E{s.lastEpisode}
@@ -69,10 +69,10 @@ export function ContinueWatchingHero({
     <div className="mt-3 max-w-sm">
       <div className="meta-row mb-1.5 flex items-center justify-between" style={{ color: "var(--text-mute)" }}>
         <span>{progress.label}</span>
-        <span className="font-semibold text-claw-text">{progress.watched} / {progress.total} episodes</span>
+        <span className="font-semibold text-accent-text">{progress.watched} / {progress.total} episodes</span>
       </div>
       <div className="h-1.5 w-full overflow-hidden rounded-full" style={{ background: "var(--surface-strong)" }}>
-        <div className="h-full rounded-full bg-claw-500 transition-[width] duration-slow" style={{ width: `${progress.pct}%` }} />
+        <div className="h-full rounded-full bg-accent-500 transition-[width] duration-slow" style={{ width: `${progress.pct}%` }} />
       </div>
     </div>
   );

@@ -21,7 +21,7 @@
  * Two accent tokens exist because one accent colour can't do both jobs at a
  * readable contrast:
  *
- *   --on-accent   text/icons sitting ON an accent fill (bg-claw-500 buttons,
+ *   --on-accent   text/icons sitting ON an accent fill (bg-accent-500 buttons,
  *                 active pills). White clears 4.5:1 only on the darkest accents
  *                 — the warm oranges and the blue need near-black instead.
  *   --accent-text accent-coloured text sitting on a page background. Light
@@ -29,7 +29,7 @@
  *
  * Every pairing below is measured at >= 4.5:1 (WCAG AA, normal text) against
  * --bg-0, --bg-1, the --surface / --surface-strong tints, and accent tints up
- * to bg-claw-500/20. --accent-strong-rgb — the `hover:bg-claw-600` fill — is
+ * to bg-accent-500/20. --accent-strong-rgb — the `hover:bg-accent-600` fill — is
  * tuned to stay above 4.5:1 against --on-accent too, so hover states don't
  * quietly drop below the threshold.
  *
@@ -427,7 +427,7 @@
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 
   /*
-   * The poster card — the dashboard's repeating grid unit.
+   * The poster card — Discover's repeating rail unit.
    *
    * The three rails each used to size themselves: the Continue Watching
    * carousel at a literal 13rem, Recently Watched and DiscoveryCard at a
@@ -580,7 +580,7 @@ html {
    *
    * Tab moves focus and the browser scrolls the new target barely into view —
    * it has no idea the app has pinned a 76px header to the top and, below `sm`,
-   * a tab bar to the bottom. Tabbing down the mobile dashboard landed the
+   * a tab bar to the bottom. Tabbing down the mobile Discover page landed the
    * carousel's "Scroll right" button at y=800 in an 844px viewport: entirely
    * behind the tab bar, which is what SC 2.4.11 is about. Scroll padding is
    * what tells the browser those bands are occupied.
@@ -598,7 +598,7 @@ html {
    * This used to live only under [data-display-mode="standalone"], alongside
    * the pinch-zoom rules — but the reason those are scoped to the installed app
    * is WCAG 1.4.4, and it has nothing to say about a refresh gesture. In a tab
-   * the cost was real: the dashboard opens with horizontal carousels at
+   * the cost was real: Discover opens with horizontal carousels at
    * scrollTop 0, so a swipe along a poster row that drifts a few degrees
    * vertical reloaded the whole app.
    *
@@ -707,8 +707,8 @@ body {
  *   frosted surfaces, and without them the two things that most obviously
  *   float over the page were opaque slabs.
  *
- * .glass-panel — the in-flow panels that tile a page: dashboard cards, stats
- *   and settings sections, calendar and history cards. A dashboard can stack a
+ * .glass-panel — the in-flow panels that tile a page: Discover cards, stats
+ *   and settings sections, calendar and history cards. A page can stack a
  *   dozen, so they take a lighter blur and a slightly denser tint, which keeps
  *   text readable over the ambient gradients without asking the compositor for
  *   a dozen full-size blurred layers.
@@ -871,7 +871,7 @@ body {
    * The checkbox. `appearance: none` because the native control paints itself
    * from the OS accent and a white box, which is a hole in four of the five
    * themes — and because the three settings checkboxes were carrying Tailwind
-   * form classes (`text-claw-500`, `border-*`) that a native checkbox ignores,
+   * form classes (`text-accent-500`, `border-*`) that a native checkbox ignores,
    * so they only looked styled.
    */
   .checkbox-control {
@@ -966,7 +966,7 @@ body {
     border-radius: 999px;
     /* The off-state knob sits on --surface-strong, which is a tint of the text
        colour rather than an opaque fill, so the knob is painted from the page
-       background to stay visible on all five themes. */
+       background to stay visible on all six themes. */
     background: var(--bg-0);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
     transform: translate(0, -50%);
@@ -1086,7 +1086,7 @@ body {
    * `.btn-saved` below can still put an inset hairline in the same slot.
    */
   .btn-primary {
-    @apply bg-claw-500 text-claw-on hover:bg-claw-600;
+    @apply bg-accent-500 text-accent-on hover:bg-accent-600;
     --tw-shadow: 0 0 #0000;
     box-shadow: var(--tw-shadow);
   }
@@ -1105,12 +1105,12 @@ body {
   /* Accent-tinted, for the in-panel actions that are the accent action of their
      section but not of the screen — "Log a Watch", "Mark watched". */
   .btn-tonal {
-    @apply bg-claw-500/10 text-claw-text ring-1 ring-claw-500/20 hover:bg-claw-500/20;
+    @apply bg-accent-500/10 text-accent-text ring-1 ring-accent-500/20 hover:bg-accent-500/20;
   }
 
   /* Confirmed destructive actions — the second step of a delete, never the
      first. Rose is fixed rather than themed: a delete has to read as a delete
-     on all five themes, and it is white-on-rose either way. Its focus ring
+     on all six themes, and it is white-on-rose either way. Its focus ring
      matches, so the ring doesn't say "accent" on a button that means danger. */
   .btn-danger {
     @apply bg-rose-600 text-white hover:bg-rose-700;
@@ -1488,7 +1488,7 @@ body {
  * Custom scrollbar.
  *
  * The thumb was a hard-coded warm grey — the dark theme's --text-mute, shipped
- * to all five themes, so it read as a brown smear down the edge of the two cool
+ * to all six themes, so it read as a brown smear down the edge of the two cool
  * navy ones. Mixing it out of --text-mute instead keeps it the same relationship
  * to the text on every theme, warm or cool, light or dark.
  */
@@ -1633,7 +1633,7 @@ body {
   from {
     opacity: 0;
     transform: translateY(-8px);
-    background-color: color-mix(in srgb, #f97316 18%, var(--surface));
+    background-color: color-mix(in srgb, var(--accent) 18%, var(--surface));
   }
   to {
     opacity: 1;
@@ -1951,7 +1951,7 @@ body {
  * top edge, the sheen a physical card catches from a light above it. The sheen
  * is a fixed low-alpha white rather than a theme token for the same reason the
  * rating chip's amber is fixed: it sits on poster art, not on a theme surface,
- * so it reads the same on all five themes (and simply disappears where the top
+ * so it reads the same on all six themes (and simply disappears where the top
  * of a poster is already bright, which is harmless).
  *
  * Hover trades the resting lift for the strongest elevation and firms the edge
@@ -1980,7 +1980,7 @@ body {
  * Body, fringe and pupils are all --accent, so the ghost picks up whichever
  * theme is live. The sclera is the one fixed colour: --on-accent is the
  * token that guarantees contrast on an accent fill, but it resolves to
- * near-black on four of the five themes, which turns the eyes into hollow
+ * near-black on most of the six themes, which turns the eyes into hollow
  * sockets and costs the shape its read as a Pac-Man ghost. White holds that
  * read everywhere, at 2.4:1 (dark, the weakest accent) to 4.0:1 (midnight)
  * against the body — under the text threshold, but this is a 40px decorative
@@ -1994,15 +1994,15 @@ body {
  * the 27 single-property rules here instead would triple the size of this
  * block for nothing. Only paint and flicker phase live in CSS.
  */
-.cg-ghost {
+.fetch-ghost {
   position: relative;
   width: 140px;
   height: 140px;
   /* The layout box stays 140px square — this only changes the painted size. */
-  transform: scale(var(--cg-ghost-scale, 0.8));
+  transform: scale(var(--fetch-ghost-scale, 0.8));
 }
 
-.cg-ghost__body {
+.fetch-ghost__body {
   position: relative;
   width: 140px;
   height: 140px;
@@ -2027,20 +2027,20 @@ body {
     "an1 an2 an3 an5 an6 an8 an9 an9 an11 an12 an14 an15 an17 an18";
 }
 
-.cg-ghost__cell {
+.fetch-ghost__cell {
   background-color: var(--accent);
 }
 
 /* The two fringe phases run in antiphase, so the notches appear to slide. */
-.cg-ghost__cell--flicker-a {
+.fetch-ghost__cell--flicker-a {
   animation: ghost-flicker-a 0.5s infinite;
 }
 
-.cg-ghost__cell--flicker-b {
+.fetch-ghost__cell--flicker-b {
   animation: ghost-flicker-b 0.5s infinite;
 }
 
-.cg-ghost__eye {
+.fetch-ghost__eye {
   position: absolute;
   top: 30px;
   left: 10px;
@@ -2048,33 +2048,33 @@ body {
   height: 50px;
 }
 
-.cg-ghost__eye--right {
+.fetch-ghost__eye--right {
   left: auto;
   right: 30px;
 }
 
 /* A plus-shaped sclera: a tall bar crossed by a wide one. */
-.cg-ghost__eye::before,
-.cg-ghost__eye::after {
+.fetch-ghost__eye::before,
+.fetch-ghost__eye::after {
   content: "";
   display: block;
   position: absolute;
   background-color: #fff;
 }
 
-.cg-ghost__eye::before {
+.fetch-ghost__eye::before {
   width: 20px;
   height: 50px;
   transform: translateX(10px);
 }
 
-.cg-ghost__eye::after {
+.fetch-ghost__eye::after {
   width: 40px;
   height: 30px;
   transform: translateY(10px);
 }
 
-.cg-ghost__pupil {
+.fetch-ghost__pupil {
   position: absolute;
   top: 50px;
   left: 10px;
@@ -2085,12 +2085,12 @@ body {
   animation: ghost-look 3s infinite;
 }
 
-.cg-ghost__pupil--right {
+.fetch-ghost__pupil--right {
   left: auto;
   right: 50px;
 }
 
-.cg-ghost__shadow {
+.fetch-ghost__shadow {
   position: absolute;
   top: 80%;
   width: 140px;
@@ -2159,14 +2159,14 @@ body {
    * animations outright and paint the whole fringe instead, so what's left is
    * a still ghost rather than a broken one.
    */
-  .cg-ghost__body,
-  .cg-ghost__pupil,
-  .cg-ghost__shadow {
+  .fetch-ghost__body,
+  .fetch-ghost__pupil,
+  .fetch-ghost__shadow {
     animation: none;
   }
 
-  .cg-ghost__cell--flicker-a,
-  .cg-ghost__cell--flicker-b {
+  .fetch-ghost__cell--flicker-a,
+  .fetch-ghost__cell--flicker-b {
     animation: none;
     background-color: var(--accent);
   }

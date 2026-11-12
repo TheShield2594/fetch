@@ -739,7 +739,7 @@ export function HistoryPage() {
             <button
               type="button"
               onClick={() => jumpToMonth(null)}
-              className="font-medium text-claw-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+              className="font-medium text-accent-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
             >
               Back to latest
             </button>
@@ -788,7 +788,7 @@ export function HistoryPage() {
                     return params;
                   });
                 }}
-                className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline"
+                className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline"
               >
                 Show all history
               </button>
@@ -805,7 +805,7 @@ export function HistoryPage() {
               </p>
               {/* The search page is the way out of this one: a brand-new install
                   lands here with nothing to filter and no other route onward. */}
-              <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+              <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
                 Find something to watch &rarr;
               </Link>
             </>
@@ -842,7 +842,7 @@ export function HistoryPage() {
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-4">
           {loadingMore && (
-            <p className="text-sm" style={{ color: "var(--text-dim)" }}>Loading...</p>
+            <p className="text-sm" style={{ color: "var(--text-dim)" }}>Loading…</p>
           )}
         </div>
       )}

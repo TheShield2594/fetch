@@ -51,7 +51,7 @@ const renderSettings = async () => {
       <ProfileSettings />
     </ToastProvider>
   );
-  await waitFor(() => expect(screen.queryByText("Loading profiles...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading profiles…")).not.toBeInTheDocument());
 };
 
 /** The row for a profile — the name also appears in the "watching as" line. */

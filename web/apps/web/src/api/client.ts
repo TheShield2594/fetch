@@ -74,13 +74,13 @@ const authHeaders = (hasBody: boolean) => {
 
 declare global {
   interface Window {
-    /** Set by public/preload-dashboard.js — in-flight responses started during HTML parse. */
+    /** Set by the inline preload script in index.html — in-flight responses started during HTML parse. */
     __FETCH_PRELOAD__?: Record<string, Promise<Response | null>> | undefined;
   }
 }
 
 /**
- * Claims the response that `preload-dashboard.js` started for `path`, if there
+ * Claims the response that the inline preload script in index.html started for `path`, if there
  * is one. Each is claimed at most once and removed as it is taken, so a later
  * refresh of the same endpoint goes to the network as normal — this stands in
  * for the very first request of a session, not for the cache.
@@ -292,7 +292,7 @@ export function validated<T>(path: string, parse: (value: unknown) => T, body: u
 /**
  * GETs already in flight, by what they are asking for.
  *
- * The dashboard is what this is for: its sections load in parallel and
+ * Discover is what this is for: its sections load in parallel and
  * independently, and the Shelf and the detail panel ask for overlapping rows
  * on top of that — so the same endpoint was fetched two and three times over
  * within a few milliseconds of each other, each one a full round trip. The API

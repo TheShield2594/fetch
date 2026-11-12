@@ -6,7 +6,7 @@
  * four roles were spelled eleven different ways — page titles were `text-2xl
  * font-bold` on six pages but `font-heading text-2xl font-extrabold
  * tracking-tight` on the hero and the detail panels, section headers were
- * `font-bold` on the dashboard, `font-semibold` on stats and a size smaller
+ * `font-bold` on Discover, `font-semibold` on stats and a size smaller
  * again in settings, and the uppercase labels drifted across four size/weight
  * pairs, twice within a single panel.
  *

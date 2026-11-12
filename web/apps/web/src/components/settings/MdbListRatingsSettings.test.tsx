@@ -39,8 +39,8 @@ const STORED = {
 
 async function renderSettings() {
   render(<MdbListRatingsSettings />);
-  await waitFor(() => expect(screen.queryByText("Loading rating settings...")).not.toBeInTheDocument());
-  await waitFor(() => expect(screen.queryByText("Checking the MDBList key...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading rating settings…")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Checking the MDBList key…")).not.toBeInTheDocument());
 }
 
 describe("MdbListRatingsSettings", () => {

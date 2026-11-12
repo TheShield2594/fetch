@@ -33,24 +33,24 @@ describe("GhostLoader", () => {
   it("hides the drawing from assistive tech, leaving only the label to read", () => {
     const { container } = render(<GhostLoader label="Loading…" />);
 
-    expect(container.querySelector(".cg-ghost")).toHaveAttribute("aria-hidden", "true");
+    expect(container.querySelector(".fetch-ghost")).toHaveAttribute("aria-hidden", "true");
   });
 
   it("leaves the scale variable unset by default, so the stylesheet's 0.8 stands", () => {
     const { container } = render(<GhostLoader />);
 
-    expect(container.querySelector<HTMLElement>(".cg-ghost")!.style.getPropertyValue("--cg-ghost-scale")).toBe("");
+    expect(container.querySelector<HTMLElement>(".fetch-ghost")!.style.getPropertyValue("--fetch-ghost-scale")).toBe("");
   });
 
   it("passes an explicit scale through as the CSS variable the stylesheet reads", () => {
     const { container } = render(<GhostLoader scale={0.5} />);
 
-    expect(container.querySelector<HTMLElement>(".cg-ghost")!.style.getPropertyValue("--cg-ghost-scale")).toBe("0.5");
+    expect(container.querySelector<HTMLElement>(".fetch-ghost")!.style.getPropertyValue("--fetch-ghost-scale")).toBe("0.5");
   });
 
   it("places every cell the grid template names, and no cell it does not", () => {
     const { container } = render(<GhostLoader />);
-    const placed = [...container.querySelectorAll<HTMLElement>(".cg-ghost__cell")]
+    const placed = [...container.querySelectorAll<HTMLElement>(".fetch-ghost__cell")]
       .map((cell) => cell.style.gridArea);
 
     // Spelled out rather than counted. A cell whose area name is misspelled is

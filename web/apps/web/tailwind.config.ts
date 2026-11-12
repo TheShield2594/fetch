@@ -18,14 +18,14 @@ export default {
           900: "#1c1814",
           950: "#14110d",
         },
-        claw: {
+        accent: {
           100: "rgb(var(--accent-tint-rgb))",
           300: "rgb(var(--accent-light-rgb))",
           400: "rgb(var(--accent-2-rgb))",
           500: "rgb(var(--accent-rgb))",
           600: "rgb(var(--accent-strong-rgb))",
           // Contrast-safe pair for the accent — see the comment at the top of
-          // src/index.css. `on` goes on top of a claw-500/600 fill; `text` is
+          // src/index.css. `on` goes on top of an accent-500/600 fill; `text` is
           // the accent used as text on a page background.
           on: "rgb(var(--on-accent-rgb))",
           text: "rgb(var(--accent-text-rgb))",
@@ -54,18 +54,6 @@ export default {
         plum: {
           500: "#7e5570",
           600: "#6b4560",
-        },
-        accent: {
-          50: "#fffbeb",
-          100: "#fef3c7",
-          200: "#fde68a",
-          300: "#fcd34d",
-          400: "#fbbf24",
-          500: "#f59e0b",
-          600: "#d97706",
-          700: "#b45309",
-          800: "#92400e",
-          900: "#78350f",
         },
       },
       // One interface face, and a mono face for content that is genuinely code.

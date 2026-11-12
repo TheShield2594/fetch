@@ -12,7 +12,7 @@ export function formatRuntime(minutes: number): string {
  * against a dark background — on the light theme's cream they sat at roughly
  * 2:1 and the badge was a smudge. `.status-chip` in index.css derives text,
  * fill and ring from one per-theme token instead, so each status stays legible
- * on all five themes; the unmatched case falls through to the chip's default,
+ * on all six themes; the unmatched case falls through to the chip's default,
  * which is --text-mute.
  */
 export function statusColor(status: string): string {

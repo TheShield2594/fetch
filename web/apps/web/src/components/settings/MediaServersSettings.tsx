@@ -200,7 +200,7 @@ function ServerRow({ server, onChange }: { server: MediaServer; onChange: () => 
             })
           }
         >
-          {busy === "libraries" ? "Checking..." : "Check the server for libraries"}
+          {busy === "libraries" ? "Checking…" : "Check the server for libraries"}
         </button>
       </fieldset>
       {result && <p role="status" className="text-xs">{result}</p>}
@@ -290,7 +290,7 @@ export function MediaServersSettings() {
   if (!servers && !error) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
-        <Loader2 size={16} className="animate-spin" /> Loading...
+        <Loader2 size={16} className="animate-spin" /> Loading…
       </div>
     );
   }
@@ -332,7 +332,7 @@ export function MediaServersSettings() {
               {plexLink.code}
             </p>
             <p className="flex items-center gap-2 text-xs" style={{ color: "var(--text-mute)" }}>
-              <Loader2 size={12} className="animate-spin" /> Waiting for you to enter it...
+              <Loader2 size={12} className="animate-spin" /> Waiting for you to enter it…
             </p>
           </div>
         ) : (

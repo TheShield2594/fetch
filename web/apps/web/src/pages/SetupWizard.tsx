@@ -65,7 +65,7 @@ function WizardShell({
             {WIZARD_STEPS.map((s, i) => (
               <span
                 key={s}
-                className={`h-1.5 w-8 rounded-full transition-colors ${i <= index ? "bg-claw-500" : ""}`}
+                className={`h-1.5 w-8 rounded-full transition-colors ${i <= index ? "bg-accent-500" : ""}`}
                 style={i <= index ? undefined : { backgroundColor: "var(--surface)" }}
               />
             ))}
@@ -425,7 +425,7 @@ function DoneStep({ onFinish, onBack }: { onFinish: () => void; onBack: () => vo
       <div>
         <h1 className={SECTION_TITLE}>You're all set</h1>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
-          Start searching for movies and shows to build your catalog.
+          Add a few titles from Search, or connect a source in Settings, and your shelf fills itself in. The TV app reads the same lists.
         </p>
       </div>
       <button

@@ -41,14 +41,14 @@ export function ContinueWatchingCard({
         <div className="relative flex h-full flex-col">
           <button
             type="button"
-            className="flex-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-claw-300"
+            className="flex-1 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-300"
             aria-label={`View details for ${s.name}`}
             onClick={onSelect}
           />
           <div className="bg-gradient-to-t from-black via-black/80 to-transparent px-3 pb-3 pt-16">
             {progressPct !== null && (
               <div className="mb-2 h-1 w-full overflow-hidden rounded-full bg-white/20">
-                <div className="h-full rounded-full bg-claw-500 transition-[width] duration-slow" style={{ width: `${progressPct}%` }} />
+                <div className="h-full rounded-full bg-accent-500 transition-[width] duration-slow" style={{ width: `${progressPct}%` }} />
               </div>
             )}
             <p className="meta-row text-white/75">
@@ -60,7 +60,7 @@ export function ContinueWatchingCard({
               disabled={isMarking || isDone}
               onClick={onMarkNext}
               aria-label={isMarking ? "Marking" : isDone ? "Marked" : `Mark S${s.nextSeason}:E${s.nextEpisode}`}
-              className={`mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-[transform,color,background-color,box-shadow] duration-base active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-claw-300 ${
+              className={`mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold transition-[transform,color,background-color,box-shadow] duration-base active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-300 ${
                 isMarking ? "bg-white/10 text-white/50" : isDone ? "bg-emerald-500/20 text-success" : "bg-white/15 text-white backdrop-blur-sm hover:bg-white/25"
               }`}
             >
@@ -77,7 +77,7 @@ export function ContinueWatchingCard({
       </div>
       {/* Plain text, not a third control: it opened the same panel the poster
           already opens, which cost a keyboard user an extra stop per card. */}
-      <p className="mt-2.5 truncate text-sm font-semibold text-[var(--text)] transition-colors group-hover:text-claw-text">
+      <p className="mt-2.5 truncate text-sm font-semibold text-[var(--text)] transition-colors group-hover:text-accent-text">
         {s.name}
       </p>
       {progressPct !== null && (

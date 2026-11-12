@@ -18,13 +18,13 @@ export function CheckInBlock({
   if (!activeCheckin) return null;
 
   return (
-    <div className="rounded-xl border border-claw-500/30 bg-claw-500/5 p-4 space-y-3">
+    <div className="rounded-xl border border-accent-500/30 bg-accent-500/5 p-4 space-y-3">
       <div className="flex items-center gap-2">
         <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-claw-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-claw-500" />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
+          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-500" />
         </span>
-        <span className="text-sm font-semibold text-claw-text">Now Watching</span>
+        <span className="text-sm font-semibold text-accent-text">Now Watching</span>
         {activeCheckin.season != null && activeCheckin.episode != null && (
           <span className="text-xs" style={{ color: "var(--text-mute)" }}>S{String(activeCheckin.season).padStart(2, "0")}:E{String(activeCheckin.episode).padStart(2, "0")}</span>
         )}

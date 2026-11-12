@@ -42,7 +42,7 @@ const POSTER_CACHE_NAME = "poster-images-v1";
  *
  * The problem this solves: `Poster.tsx` offers six TMDB widths, and one title
  * really is requested at several of them — a 28px history thumbnail, a 192px
- * dashboard card and a 304px shelf hero are three different pictures as far as
+ * Discover card and a 304px shelf hero are three different pictures as far as
  * a URL-keyed cache is concerned. `maxEntries: 400` counts URLs, so the number
  * of *titles* that survive offline is a fraction of what that number reads.
  *

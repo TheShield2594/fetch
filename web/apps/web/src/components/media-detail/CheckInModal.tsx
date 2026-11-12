@@ -85,7 +85,7 @@ export function CheckInModal({
       >
         <div className="flex items-center justify-between border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
           <div className="flex items-center gap-2">
-            <Radio className="h-4 w-4 text-claw-text" />
+            <Radio className="h-4 w-4 text-accent-text" />
             <h3 id="checkin-modal-title" className={SECTION_TITLE} style={{ color: "var(--text)" }}>Check In</h3>
           </div>
           <button onClick={requestClose} aria-label="Close" className="rounded-lg p-1.5 hover:bg-[var(--surface-strong)]" style={{ color: "var(--text-mute)" }}>

@@ -31,7 +31,7 @@ export function RecentlyWatchedCard({ title, onSelect }: { title: RecentTitle; o
               {range}
             </span>
           ) : latest.type === "movie" ? (
-            <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold text-claw-300 backdrop-blur-sm bg-claw-500/20">
+            <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-semibold text-accent-300 backdrop-blur-sm bg-accent-500/20">
               <Film className="h-3 w-3" /> Movie
             </span>
           ) : null}
@@ -43,7 +43,7 @@ export function RecentlyWatchedCard({ title, onSelect }: { title: RecentTitle; o
         </div>
       }
     >
-      <p className="mt-2.5 truncate text-sm font-semibold text-[var(--text)] transition-colors group-hover:text-claw-text">
+      <p className="mt-2.5 truncate text-sm font-semibold text-[var(--text)] transition-colors group-hover:text-accent-text">
         {name}
       </p>
       <p className="meta-row" style={{ color: "var(--text-dim)" }}>

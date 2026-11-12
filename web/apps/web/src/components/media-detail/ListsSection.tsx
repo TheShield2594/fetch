@@ -169,7 +169,7 @@ export function ListsSection({
           onClick={() => void toggle(watchlist)}
           disabled={pending[watchlist.id]}
           aria-label={`Add ${name} to Watchlist`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-claw-500 px-3 py-1.5 text-xs font-semibold text-claw-on transition-colors hover:bg-claw-600 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-full bg-accent-500 px-3 py-1.5 text-xs font-semibold text-accent-on transition-colors hover:bg-accent-600 disabled:opacity-50"
         >
           <Heart className="h-3 w-3" /> Watchlist
         </button>
@@ -247,7 +247,7 @@ export function ListsSection({
                       setNewListName("");
                     }
                   }}
-                  placeholder="List name..."
+                  placeholder="List name…"
                   aria-label="New list name"
                   className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-1)", color: "var(--text)" }}
@@ -265,7 +265,7 @@ export function ListsSection({
               <button
                 type="button"
                 onClick={() => setCreating(true)}
-                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-claw-text transition-colors hover:bg-[var(--surface)]"
+                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-accent-text transition-colors hover:bg-[var(--surface)]"
                 style={{ borderTopWidth: otherLists.length > 0 ? 1 : 0, borderTopStyle: "solid", borderTopColor: "var(--border)" }}
               >
                 <Plus className="h-3.5 w-3.5" />

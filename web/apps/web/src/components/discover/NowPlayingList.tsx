@@ -7,7 +7,7 @@ export function NowPlayingList({ sessions }: { sessions: ScrobbleSession[] }) {
   if (sessions.length === 0) return null;
   return (
     <section className="space-y-2">
-      {/* h2, not h3: this is a top-level dashboard section, and the only
+      {/* h2, not h3: this is a top-level Discover section, and the only
           heading above it is the sr-only h1. The KICKER class is what makes
           it look like a kicker — the level says where it sits. */}
       <h2 className={`flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>

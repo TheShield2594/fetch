@@ -36,7 +36,7 @@ const ROWS = [
 
 async function renderLayout() {
   render(<HomeLayoutSettings />);
-  await waitFor(() => expect(screen.queryByText("Loading Home rows...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading Home rows…")).not.toBeInTheDocument());
 }
 
 describe("HomeLayoutSettings", () => {

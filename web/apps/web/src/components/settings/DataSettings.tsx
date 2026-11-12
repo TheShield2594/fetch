@@ -129,7 +129,7 @@ export function DataSettings() {
           disabled={syncing}
           className="btn-primary"
         >
-          {syncing ? <><Loader2 size={16} className="animate-spin" /> Syncing...</> : "Sync all metadata"}
+          {syncing ? <><Loader2 size={16} className="animate-spin" /> Syncing…</> : "Sync all metadata"}
         </button>
         {result && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {result}</p>}
         {error && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>}
@@ -150,7 +150,7 @@ export function DataSettings() {
           disabled={exporting}
           className="btn-secondary"
         >
-          {exporting ? <><Loader2 size={16} className="animate-spin" /> Exporting...</> : <><Download size={16} /> Download export</>}
+          {exporting ? <><Loader2 size={16} className="animate-spin" /> Exporting…</> : <><Download size={16} /> Download export</>}
         </button>
       </div>
 
@@ -179,7 +179,7 @@ export function DataSettings() {
             disabled={importingJson}
             className="btn-secondary"
           >
-            {importingJson ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : <><Upload size={16} /> Import JSON export</>}
+            {importingJson ? <><Loader2 size={16} className="animate-spin" /> Importing…</> : <><Upload size={16} /> Import JSON export</>}
           </button>
 
           <input
@@ -199,7 +199,7 @@ export function DataSettings() {
             disabled={importingCsv}
             className="btn-secondary"
           >
-            {importingCsv ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : <><Upload size={16} /> Import CSV history</>}
+            {importingCsv ? <><Loader2 size={16} className="animate-spin" /> Importing…</> : <><Upload size={16} /> Import CSV history</>}
           </button>
         </div>
         {importResult && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {importResult}</p>}
@@ -242,7 +242,7 @@ export function DataSettings() {
             disabled={importingExternal}
             className="btn-secondary"
           >
-            {importingExternal ? <><Loader2 size={16} className="animate-spin" /> Importing...</> : <><Upload size={16} /> Import CSV</>}
+            {importingExternal ? <><Loader2 size={16} className="animate-spin" /> Importing…</> : <><Upload size={16} /> Import CSV</>}
           </button>
         </div>
         {externalResult && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {externalResult}</p>}

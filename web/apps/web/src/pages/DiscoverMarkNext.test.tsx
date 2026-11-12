@@ -5,13 +5,13 @@ import { MemoryRouter } from "react-router";
 import type { SeriesProgress } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { resetDataCacheForTests } from "../utils/dataCache";
-import { DashboardPage } from "./DashboardPage";
+import { DiscoverPage } from "./DiscoverPage";
 
 /*
  * "Mark next episode" and the timer behind its confirmation.
  *
  * The button holds a "Marked" state for 1.2 seconds and then reloads the
- * dashboard, so the work it schedules outlives the click by more than a
+ * Discover page, so the work it schedules outlives the click by more than a
  * navigation takes: marking an episode and tapping through to Settings inside
  * that window used to fire the page's five requests for a page that had already
  * gone, and write their answers into the cache the next profile reads from.
@@ -64,11 +64,11 @@ const severance: SeriesProgress = {
   nextEpisode: 4,
 };
 
-const renderDashboard = () =>
+const renderDiscover = () =>
   render(
     <MemoryRouter>
       <ToastProvider>
-        <DashboardPage />
+        <DiscoverPage />
       </ToastProvider>
     </MemoryRouter>
   );
@@ -110,9 +110,9 @@ async function markNext() {
   await act(async () => {});
 }
 
-describe("Dashboard mark-next confirmation timer", () => {
-  it("reloads the dashboard when the confirmation expires", async () => {
-    renderDashboard();
+describe("Discover mark-next confirmation timer", () => {
+  it("reloads Discover when the confirmation expires", async () => {
+    renderDiscover();
     await screen.findByRole("button", { name: "Mark S1:E4" });
     const beforeMark = getSeriesProgress.mock.calls.length;
 
@@ -128,7 +128,7 @@ describe("Dashboard mark-next confirmation timer", () => {
   });
 
   it("does not reload after the page is gone", async () => {
-    const { unmount } = renderDashboard();
+    const { unmount } = renderDiscover();
     await screen.findByRole("button", { name: "Mark S1:E4" });
 
     await markNext();
@@ -153,7 +153,7 @@ describe("Dashboard mark-next confirmation timer", () => {
       () => new Promise((resolve) => { finishMark = () => resolve(undefined as never); })
     );
 
-    const { unmount } = renderDashboard();
+    const { unmount } = renderDiscover();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     await user.click(await screen.findByRole("button", { name: "Mark S1:E4" }));
 
@@ -176,7 +176,7 @@ describe("Dashboard mark-next confirmation timer", () => {
       () => new Promise((_, reject) => { failMark = reject; })
     );
 
-    const { unmount } = renderDashboard();
+    const { unmount } = renderDiscover();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     await user.click(await screen.findByRole("button", { name: "Mark S1:E4" }));
 

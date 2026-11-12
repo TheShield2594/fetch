@@ -29,7 +29,7 @@ export type ArtVariant = keyof typeof PLACEHOLDER_WIDTH;
 const LADDER: Record<ArtVariant, readonly number[]> = { poster: TMDB_SRCSET_WIDTHS, backdrop: TMDB_BACKDROP_WIDTHS };
 
 /*
- * `sizes` for the dashboard's poster cards. These have to be literal lengths —
+ * `sizes` for Discover's poster cards. These have to be literal lengths —
  * the attribute is read by the preload scanner before any stylesheet, so it
  * can't reference --poster-card-w. Keep both in step with that token (12rem =
  * 192px); a stale hint only costs bytes, not layout.

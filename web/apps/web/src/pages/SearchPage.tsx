@@ -358,7 +358,7 @@ export function SearchPage() {
           <input
             value={filters.query}
             onChange={(e) => setFilters({ query: e.target.value })}
-            placeholder="Search movies & TV shows..."
+            placeholder="Search movies & TV shows…"
             aria-label="Search movies and TV shows"
             className="w-full rounded-full py-3.5 pl-14 pr-12 text-base placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
             style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-0)", color: "var(--text)" }}
@@ -393,7 +393,7 @@ export function SearchPage() {
                   aria-pressed={active}
                   className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-[color,background-color,box-shadow] duration-base ${
                     active
-                      ? "bg-claw-500 text-claw-on shadow-e1"
+                      ? "bg-accent-500 text-accent-on shadow-e1"
                       : "text-[var(--text-mute)] hover:text-[var(--text)]"
                   }`}
                 >
@@ -419,14 +419,14 @@ export function SearchPage() {
             aria-label={activeFilterCount > 0 ? `Filters (${activeFilterCount} active)` : "Filters"}
             className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[color,background-color,border-color] duration-base ${
               hasActiveFilters
-                ? "border-claw-500/50 bg-claw-500/10 text-claw-text"
+                ? "border-accent-500/50 bg-accent-500/10 text-accent-text"
                 : "border-[var(--border-strong)] bg-[var(--surface)] text-[var(--text-mute)] hover:text-[var(--text)]"
             }`}
           >
             <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Filters</span>
             {activeFilterCount > 0 && (
-              <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-claw-500 text-2xs font-bold text-claw-on">
+              <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-500 text-2xs font-bold text-accent-on">
                 {activeFilterCount}
               </span>
             )}
@@ -448,8 +448,8 @@ export function SearchPage() {
 
           {isSearching && (
             <span className="ml-auto flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-claw-500 border-t-transparent" />
-              Searching...
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              Searching…
             </span>
           )}
         </div>
@@ -588,7 +588,7 @@ export function SearchPage() {
             {needsTmdb && (
               <Link
                 to="/settings?tab=integrations"
-                className="mt-3 rounded-full px-4 py-2 text-sm font-medium text-claw-text transition-colors hover:bg-[var(--surface)]"
+                className="mt-3 rounded-full px-4 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-[var(--surface)]"
                 style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
               >
                 Set up TMDB in Settings &rarr;
@@ -863,7 +863,7 @@ function ResultCard({
               e.stopPropagation();
               onToggleDropdown(result.imdbId);
             }}
-            className="pointer-events-auto absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-claw-500 text-claw-on opacity-100 sm:opacity-60 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 shadow-e2 transition-[transform,opacity,background-color] duration-slow hover:bg-claw-600 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-claw-300 focus-ring-offset"
+            className="pointer-events-auto absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-accent-500 text-accent-on opacity-100 sm:opacity-60 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 shadow-e2 transition-[transform,opacity,background-color] duration-slow hover:bg-accent-600 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-300 focus-ring-offset"
             aria-label={`Add ${result.name} to a list`}
             aria-expanded={isOpen}
             aria-controls={isOpen ? panelId : undefined}
@@ -874,8 +874,8 @@ function ResultCard({
           {/* Decorative, so it takes no clicks — the `actions` box it sits in
               passes them through to the full-card button underneath. */}
           {listNames.length > 0 && (
-            <div className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-claw-500 shadow-e1">
-              <Heart className="h-4 w-4 fill-claw-on text-claw-on" />
+            <div className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-accent-500 shadow-e1">
+              <Heart className="h-4 w-4 fill-accent-on text-accent-on" />
             </div>
           )}
         </>
@@ -886,7 +886,7 @@ function ResultCard({
           <span
             className={`absolute left-2.5 top-2.5 flex items-center gap-1 rounded-md px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide shadow-e1 ring-1 ring-black/15 ${
               result.type === "movie"
-                ? "bg-claw-500 text-claw-on"
+                ? "bg-accent-500 text-accent-on"
                 : "bg-plum-500/90 text-white"
             }`}
             // The movie badge takes its foreground from --on-accent, which is already
@@ -957,7 +957,7 @@ function ResultCard({
                   <span style={{ color: already ? "var(--text-mute)" : "var(--text-dim)" }}>{list.name}</span>
                   {already && <span className="ml-auto text-2xs" style={{ color: "var(--text-mute)" }}>Added</span>}
                   {pending && (
-                    <span className="ml-auto inline-block h-3 w-3 animate-spin rounded-full border border-claw-500 border-t-transparent" />
+                    <span className="ml-auto inline-block h-3 w-3 animate-spin rounded-full border border-accent-500 border-t-transparent" />
                   )}
                 </button>
               );
@@ -979,7 +979,7 @@ function ResultCard({
                     // whole dropdown in the same keystroke.
                     if (e.key === "Escape") { e.stopPropagation(); exitCreate(); }
                   }}
-                  placeholder="List name..."
+                  placeholder="List name…"
                   aria-label="New list name"
                   className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-1)", color: "var(--text)" }}
@@ -998,7 +998,7 @@ function ResultCard({
                 ref={createButtonRef}
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setCreating(true); }}
-                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-claw-text transition-colors hover:bg-[var(--surface)]"
+                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-accent-text transition-colors hover:bg-[var(--surface)]"
                 style={{ borderTopWidth: lists.length > 0 ? 1 : 0, borderTopStyle: "solid", borderTopColor: "var(--border)" }}
               >
                 <Plus className="h-3.5 w-3.5" />

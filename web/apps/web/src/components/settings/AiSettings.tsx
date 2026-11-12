@@ -297,7 +297,7 @@ export function AiSettings() {
         className="flex items-center gap-2 text-sm"
         style={{ color: "var(--text-dim)" }}
       >
-        <Loader2 size={16} className="animate-spin" /> Loading...
+        <Loader2 size={16} className="animate-spin" /> Loading…
       </div>
     );
   }
@@ -427,7 +427,7 @@ export function AiSettings() {
                 color: "var(--text)",
                 background: "var(--bg-1)",
               }}
-              placeholder="sk-..."
+              placeholder="sk-…"
               autoComplete="off"
               aria-invalid={fieldErrors.apiKey ? true : undefined}
               aria-describedby={fieldErrors.apiKey ? "ai-key-error" : undefined}

@@ -21,7 +21,7 @@ import { AccountProvider } from "./hooks/useAccount";
 import { ShelfPage } from "./pages/ShelfPage";
 import {
   loadCalendarPage,
-  loadDashboardPage,
+  loadDiscoverPage,
   loadHistoryPage,
   loadListsPage,
   loadNotFoundPage,
@@ -60,7 +60,7 @@ const CalendarPage = lazy(() => loadCalendarPage().then((m) => ({ default: m.Cal
 // Discovery — trending, recommendations, the poster rails. This was the landing
 // route until the Shelf took that job; it is now the second destination rather
 // than the first, so it is code-split like every other one.
-const DashboardPage = lazy(() => loadDashboardPage().then((m) => ({ default: m.DashboardPage })));
+const DiscoverPage = lazy(() => loadDiscoverPage().then((m) => ({ default: m.DiscoverPage })));
 const HistoryPage = lazy(() => loadHistoryPage().then((m) => ({ default: m.HistoryPage })));
 const ListsPage = lazy(() => loadListsPage().then((m) => ({ default: m.ListsPage })));
 const NotFoundPage = lazy(() => loadNotFoundPage().then((m) => ({ default: m.NotFoundPage })));
@@ -266,7 +266,7 @@ function AppShell({
   useOfflineWriteQueue();
 
   // Warm the chunks a tap can reach with no hover to warn us first. Runs on
-  // idle, so it queues behind the dashboard's own render and requests.
+  // idle, so it queues behind Discover's own render and requests.
   useEffect(() => { schedulePrefetchOnIdle(); }, []);
 
   // Latches on first open and never unmounts after — see the lazy import above.
@@ -478,7 +478,7 @@ function AppShell({
         {/* Keyed on the pathname so the entrance replays once per navigation.
             The key also remounts the outgoing page, which `<Routes>` does on a
             route change anyway — this only extends it to a same-element route
-            (the dashboard's own link), where a replay is still what's wanted. */}
+            (Discover's own link), where a replay is still what's wanted. */}
         <div key={location.pathname} className="route-enter">
           {/* The second boundary, inside the shell. main.tsx's wraps the whole
               tree, so before this one a render error on any page took the
@@ -495,7 +495,7 @@ function AppShell({
               <Routes key={profile?.id ?? runtimeConfig.getProfileId() ?? "default"}>
                 <Route path="/" element={<ShelfPage />} />
                 <Route path="/search" element={<SearchPage />} />
-                <Route path="/discover" element={<DashboardPage />} />
+                <Route path="/discover" element={<DiscoverPage />} />
                 <Route path="/lists" element={<ListsPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/history" element={<HistoryPage />} />

@@ -173,7 +173,7 @@ export function AddonSettings() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}><Loader2 size={16} className="animate-spin" /> Loading configuration...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}><Loader2 size={16} className="animate-spin" /> Loading configuration…</div>;
   }
 
   if (loadError) {
@@ -286,7 +286,7 @@ export function AddonSettings() {
         disabled={saving}
         className={`btn-primary ${saved ? "btn-saved" : ""}`}
       >
-        {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save Configuration"}
+        {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : "Save configuration"}
       </button>
       {error && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>}
     </div>

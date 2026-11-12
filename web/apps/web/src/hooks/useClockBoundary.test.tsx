@@ -81,7 +81,7 @@ describe("useClockBoundary", () => {
     expect(result.current.getDate()).toBe(16);
   });
 
-  it("takes the caller's cutoffs, which is how the dashboard wakes for its greeting", () => {
+  it("takes the caller's cutoffs, which is how Discover wakes for its greeting", () => {
     const { result } = renderHook(() => useClockBoundary([0, 5, 12, 18], () => false));
     const first = result.current;
 

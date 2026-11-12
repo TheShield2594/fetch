@@ -31,13 +31,13 @@ const SCREENSHOTS = [
     sizes: "1920x1080",
     type: "image/png",
     form_factor: "wide" as const,
-    label: "The Fetch dashboard",
+    label: "Your shelf on a wide screen",
   },
 ];
 
 const screenshots = SCREENSHOTS.filter((shot) => existsSync(join(publicDir, shot.src)));
 
-// Long-press targets on the installed icon. Dashboard is deliberately not among
+// Long-press targets on the installed icon. The Shelf is deliberately not among
 // them: it is start_url, so it would be a shortcut to the page the icon already
 // opens.
 const navShortcuts = () =>
@@ -97,7 +97,7 @@ export default defineConfig({
         name: "Fetch",
         short_name: "Fetch",
         description:
-          "Track what you watch and play, keep your lists in sync, and browse it all from Stremio.",
+          "Track what you watch, keep your lists in sync, and browse it all from Stremio.",
         start_url: "/",
         // Same value the start_url directory implies, written down so it stops
         // being an accident of the start_url.
@@ -105,13 +105,11 @@ export default defineConfig({
         display: "standalone",
         // Both of these are what Android paints for an installed app — the
         // launch splash and the system bar — so they have to be a theme the app
-        // actually has. The accent orange was neither: none of the five themes
-        // is orange-topped, so a light-theme user launched into a black splash
-        // and then sat under an orange status bar. These match the light theme,
-        // which is also what index.html ships as its <meta name="theme-color">;
-        // theme-init.js still overrides that meta per theme wherever a browser
-        // honours it.
-        // Keep in sync with THEME_BG.light in apps/web/src/hooks/useTheme.ts.
+        // actually has. They are the default Fetch theme's --bg-0, which is
+        // what a first launch opens on and what index.html ships as its
+        // <meta name="theme-color">; theme-init.js still overrides that meta
+        // per theme wherever a browser honours it.
+        // Keep in sync with THEME_BG.fetch in apps/web/src/hooks/useTheme.ts.
         background_color: "#0a0a0b",
         theme_color: "#0a0a0b",
         shortcuts: navShortcuts(),

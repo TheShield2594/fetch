@@ -475,7 +475,7 @@ export function TvSettingsForm() {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
-        <Loader2 size={16} className="animate-spin" /> Loading TV settings...
+        <Loader2 size={16} className="animate-spin" /> Loading TV settings…
       </div>
     );
   }

@@ -16,7 +16,7 @@ export function NotFoundPage() {
         to="/"
         className="btn-primary mt-6"
       >
-        Back to Dashboard
+        Back to the Shelf
       </Link>
     </div>
   );

@@ -10,7 +10,7 @@ declare global {
 
 const dsn = (window.__FETCH_SENTRY_DSN__ || import.meta.env.VITE_SENTRY_DSN || "").trim();
 
-// @sentry/react is ~28 kB gzipped — close to a quarter of the entry bundle — and
+// @sentry/react builds to a chunk of about 150 kB gzipped — more than the entry bundle — and
 // the DSN is an opt-in that most self-hosted installs never set. Imported
 // statically, every visit downloaded and parsed an error reporter that would
 // never report anything. It rides in its own chunk now, fetched only when a DSN

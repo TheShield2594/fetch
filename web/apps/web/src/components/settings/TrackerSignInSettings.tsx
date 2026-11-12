@@ -134,7 +134,7 @@ export function TrackerSignInSettings({
   if (!status && !error) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
-        <Loader2 size={16} className="animate-spin" /> Loading...
+        <Loader2 size={16} className="animate-spin" /> Loading…
       </div>
     );
   }
@@ -169,7 +169,7 @@ export function TrackerSignInSettings({
             {status.pending.userCode}
           </p>
           <p className="flex items-center gap-2 text-xs" style={{ color: "var(--text-mute)" }}>
-            <Loader2 size={12} className="animate-spin" /> Waiting for you to enter it...
+            <Loader2 size={12} className="animate-spin" /> Waiting for you to enter it…
           </p>
         </div>
       )}

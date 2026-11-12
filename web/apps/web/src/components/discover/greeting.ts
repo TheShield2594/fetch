@@ -1,4 +1,4 @@
-// The two clock-derived strings in the dashboard header, and when they change.
+// The two clock-derived strings in Discover header, and when they change.
 
 export function timeOfDayGreeting(now: Date) {
   const hour = now.getHours();

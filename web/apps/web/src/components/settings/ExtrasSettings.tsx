@@ -20,7 +20,7 @@ export function ExtrasSettings() {
           Show AI recommendations
         </span>
         <p className="mt-0.5 text-xs" style={{ color: "var(--text-mute)" }}>
-          Adds the AI Recommendations section to Settings on this device. Off by default.
+          Adds the AI recommendations section to Settings on this device. Off by default.
         </p>
       </div>
     </label>

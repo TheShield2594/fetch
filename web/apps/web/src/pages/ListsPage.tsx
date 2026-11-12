@@ -131,7 +131,7 @@ function AddItemModal({
       titleId="add-item-modal-title"
       query={query}
       onQueryChange={setQuery}
-      placeholder="Search movies & series..."
+      placeholder="Search movies & series…"
       inputLabel="Search movies and series"
       onClose={onClose}
       filters={
@@ -151,7 +151,7 @@ function AddItemModal({
                 onClick={() => setFilter(opt.value)}
                 aria-pressed={active}
                 className={`flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-medium transition-[color,background-color,box-shadow] duration-base ${
-                  active ? "bg-claw-500 text-claw-on shadow-e1" : "text-[var(--text-mute)] hover:text-[var(--text)]"
+                  active ? "bg-accent-500 text-accent-on shadow-e1" : "text-[var(--text-mute)] hover:text-[var(--text)]"
                 }`}
               >
                 {Icon && <Icon className="h-3 w-3" />}
@@ -163,7 +163,7 @@ function AddItemModal({
       }
     >
       {error && <p role="alert" className="mb-2 rounded-lg bg-rose-500/10 border border-rose-500/20 px-3 py-2 text-xs text-danger">{error}</p>}
-      {searching && <p className="py-6 text-center text-sm" style={{ color: "var(--text-mute)" }}>Searching...</p>}
+      {searching && <p className="py-6 text-center text-sm" style={{ color: "var(--text-mute)" }}>Searching…</p>}
       {!searching && query.trim() && results.length === 0 && (
         <p className="py-6 text-center text-sm" style={{ color: "var(--text-mute)" }}>No results found.</p>
       )}
@@ -192,7 +192,7 @@ function AddItemModal({
                   <span
                     role="status"
                     aria-label={`Adding ${r.name}`}
-                    className="h-4 w-4 flex-none animate-spin rounded-full border-2 border-claw-500 border-t-transparent"
+                    className="h-4 w-4 flex-none animate-spin rounded-full border-2 border-accent-500 border-t-transparent"
                   />
                 ) : already ? (
                   <span className="flex flex-none items-center gap-1 text-2xs font-semibold" style={{ color: "var(--text-mute)" }}>
@@ -200,7 +200,7 @@ function AddItemModal({
                     Added
                   </span>
                 ) : (
-                  <Plus className="h-4 w-4 flex-none text-claw-text" />
+                  <Plus className="h-4 w-4 flex-none text-accent-text" />
                 )
               }
             />
@@ -583,7 +583,7 @@ export function ListsPage() {
               ) : (
                 <div className={`group flex items-center rounded-xl border transition-colors duration-base md:w-full ${
                   selectedListId === list.id
-                    ? "border-claw-500/40 bg-claw-500/10"
+                    ? "border-accent-500/40 bg-accent-500/10"
                     : "glass-row hover:bg-[var(--surface)] hover:border-[var(--border-strong)]"
                 }`}
                 style={{
@@ -596,12 +596,12 @@ export function ListsPage() {
                     onClick={() => selectList(list.id)}
                     aria-current={selectedListId === list.id ? "true" : undefined}
                     className={`min-w-0 flex-1 px-4 py-3.5 text-left text-sm font-medium ${
-                      selectedListId === list.id ? "text-claw-text" : ""
+                      selectedListId === list.id ? "text-accent-text" : ""
                     }`}
                     style={selectedListId === list.id ? undefined : { color: "var(--text-dim)" }}
                   >
                     <p
-                      className={`truncate font-semibold ${selectedListId === list.id ? "text-claw-text" : "text-[var(--text)]"}`}
+                      className={`truncate font-semibold ${selectedListId === list.id ? "text-accent-text" : "text-[var(--text)]"}`}
                     >
                       {list.name}
                     </p>
@@ -634,7 +634,7 @@ export function ListsPage() {
           <input
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
-            placeholder="New list name..."
+            placeholder="New list name…"
             aria-label="New list name"
             className="min-w-0 flex-1 rounded-xl border px-3.5 py-2.5 text-sm field-control"
             style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
@@ -752,7 +752,7 @@ export function ListsPage() {
                   <input
                     value={filterQuery}
                     onChange={(e) => setFilterQuery(e.target.value)}
-                    placeholder="Search this list..."
+                    placeholder="Search this list…"
                     aria-label="Search within list"
                     className="w-full rounded-full border py-2 pl-9 pr-3 text-sm field-control"
                     style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
@@ -771,7 +771,7 @@ export function ListsPage() {
                       onClick={() => setSortBy(value)}
                       aria-pressed={sortBy === value}
                       className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-base ${
-                        sortBy === value ? "bg-claw-500 text-claw-on" : "hover:text-[var(--text)]"
+                        sortBy === value ? "bg-accent-500 text-accent-on" : "hover:text-[var(--text)]"
                       }`}
                       style={sortBy === value ? undefined : { color: "var(--text-mute)" }}
                     >
@@ -800,7 +800,7 @@ export function ListsPage() {
                 </div>
                 <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>This list is empty</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-                  Click <span className="font-semibold text-claw-text">+ Add</span> to search and add titles.
+                  Click <span className="font-semibold text-accent-text">+ Add</span> to search and add titles.
                 </p>
               </div>
             ) : displayedItems.length === 0 ? (
@@ -841,7 +841,7 @@ export function ListsPage() {
                           <span
                             className={`absolute top-2.5 left-2.5 rounded-md px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide shadow-e1 ring-1 ring-black/15 ${
                               item.type === "movie"
-                                ? "bg-claw-500 text-claw-on"
+                                ? "bg-accent-500 text-accent-on"
                                 : "bg-plum-500/90 text-white"
                             }`}
                             style={item.type === "movie" ? undefined : { textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}

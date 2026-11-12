@@ -24,7 +24,7 @@ export function WatchHistorySection({
           action is that button, and two of them a scroll apart read as two
           different things. */}
       <h3 className={`mb-3 flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
-        <Clock className="h-3.5 w-3.5" /> Watch History
+        <Clock className="h-3.5 w-3.5" /> Watch history
       </h3>
 
       {loading ? (

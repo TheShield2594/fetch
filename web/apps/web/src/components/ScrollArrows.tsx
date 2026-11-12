@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 /**
  * The previous/next cluster that sits beside a horizontal rail's heading.
  *
- * Written twice — once on the dashboard and once inside the cast rail — at two
+ * Written twice — once on Discover and once inside the cast rail — at two
  * sizes, with the same fade-when-there-is-nothing-to-scroll trick and the same
  * `aria-hidden` gate implemented separately. The cast copy had drifted: no
  * focus ring, and 24px buttons with no touch target around them.

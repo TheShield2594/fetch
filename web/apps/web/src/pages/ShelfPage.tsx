@@ -63,7 +63,7 @@ import { PosterCard } from "../components/PosterCard";
 const RENDER_PAGE_SIZE = 60;
 
 /**
- * Shared with the dashboard's `dash:progress`. Two surfaces asking the same question should not each pay
+ * Shared with Discover's `dash:progress`. Two surfaces asking the same question should not each pay
  * for it, and arriving on either from the other then paints in the first frame.
  */
 const PROGRESS_CACHE_KEY = "dash:progress";
@@ -776,7 +776,7 @@ export function ShelfPage() {
                       { replace: true }
                     )
                   }
-                  className="font-medium text-claw-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  className="font-medium text-accent-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
                   Show every genre
                 </button>
@@ -789,7 +789,7 @@ export function ShelfPage() {
                   Nothing on the shelf in {genre}.{" "}
                   <Link
                     to={`/search?genre=${encodeURIComponent(genre)}`}
-                    className="font-medium text-claw-text underline-offset-2 hover:underline"
+                    className="font-medium text-accent-text underline-offset-2 hover:underline"
                   >
                     Browse {genre} in Search
                   </Link>

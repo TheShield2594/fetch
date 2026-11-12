@@ -43,7 +43,7 @@ export function DiscoverSubRow({
         <SectionError message={`Couldn't load ${label.toLowerCase()} recommendations.`} onRetry={onRetry} />
       ) : loading ? (
         aiActive
-          ? <p className="text-sm italic" style={{ color: "var(--text-dim)" }}>Generating AI recommendations...</p>
+          ? <p className="text-sm italic" style={{ color: "var(--text-dim)" }}>Generating AI recommendations…</p>
           : <CarouselSkeleton />
       ) : (
         <CarouselTrack

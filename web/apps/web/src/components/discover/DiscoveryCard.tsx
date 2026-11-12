@@ -62,7 +62,7 @@ export function DiscoveryCard({ item, badge, reason, onSelect, eager, fill }: {
         </>
       }
     >
-      <p className="mt-2.5 truncate text-sm font-semibold text-[var(--text)] transition-colors group-hover:text-claw-text">
+      <p className="mt-2.5 truncate text-sm font-semibold text-[var(--text)] transition-colors group-hover:text-accent-text">
         {item.name}
       </p>
       <p className="meta-row truncate" style={{ color: "var(--text-dim)" }}>

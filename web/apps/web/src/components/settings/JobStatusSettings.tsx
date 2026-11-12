@@ -56,7 +56,7 @@ export function JobStatusSettings() {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
-        <Loader2 size={16} className="animate-spin" /> Checking background job status...
+        <Loader2 size={16} className="animate-spin" /> Checking background job status…
       </div>
     );
   }

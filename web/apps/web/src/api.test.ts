@@ -568,7 +568,7 @@ describe("sharing a GET that is already in flight", () => {
   };
 
   it("issues one request for two callers asking for the same thing at once", async () => {
-    // What the dashboard does: several sections load in parallel, and more than
+    // What Discover does: several sections load in parallel, and more than
     // one of them wants the same endpoint.
     const answer = deferredFetch();
 

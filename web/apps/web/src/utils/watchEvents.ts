@@ -20,7 +20,7 @@ export function watchEventTitle(event: WatchEvent): string {
  * An episode row carries the episode's own id in `imdbId` and its series' in
  * `seriesImdbId`. The panel is about the series — opening it on the episode id
  * looks up a title that isn't there. `HistoryPage` has always made this
- * distinction; the dashboard's Recently Watched carousel did not.
+ * distinction; Discover's Recently Watched carousel did not.
  */
 export function historyItemImdbId(
   event: Pick<WatchEvent, "type" | "imdbId" | "seriesImdbId">

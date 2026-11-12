@@ -26,7 +26,7 @@ const renderDevices = async () => {
       <DevicesSettings />
     </ToastProvider>
   );
-  await waitFor(() => expect(screen.queryByText("Loading devices...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading devices…")).not.toBeInTheDocument());
 };
 
 beforeEach(() => {

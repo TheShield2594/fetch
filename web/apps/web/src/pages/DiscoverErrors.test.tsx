@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router";
 import type { SeriesProgress, TrendingMeta } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { resetDataCacheForTests } from "../utils/dataCache";
-import { DashboardPage } from "./DashboardPage";
+import { DiscoverPage } from "./DiscoverPage";
 
 /*
  * How Discover fails (#514): a failed refresh over cached sections keeps them,
@@ -52,10 +52,10 @@ const severance: SeriesProgress = {
 
 const meta = (name: string): TrendingMeta => ({ id: `tt-${name.toLowerCase()}`, name, type: "movie" });
 
-const dashboard = () => (
+const discover = () => (
   <MemoryRouter>
     <ToastProvider>
-      <DashboardPage />
+      <DiscoverPage />
     </ToastProvider>
   </MemoryRouter>
 );
@@ -84,12 +84,12 @@ beforeEach(() => {
 describe("Discover when the core load fails", () => {
   it("keeps cached sections on screen and shows a banner instead of replacing the page", async () => {
     // A first visit fills the cache.
-    const first = render(dashboard());
+    const first = render(discover());
     expect(await screen.findAllByText("Severance")).not.toHaveLength(0);
     first.unmount();
 
     getSeriesProgress.mockRejectedValue(new ApiError("Too Many Requests", 429));
-    render(dashboard());
+    render(discover());
 
     expect(await screen.findByText("Couldn't load Discover. Try again in a moment.")).toBeInTheDocument();
     expect(screen.getAllByText("Severance")).not.toHaveLength(0);
@@ -99,7 +99,7 @@ describe("Discover when the core load fails", () => {
   it("shows a page error with a working Retry when there is nothing cached", async () => {
     const user = userEvent.setup();
     getSeriesProgress.mockRejectedValueOnce(new Error("Network error"));
-    render(dashboard());
+    render(discover());
 
     expect(await screen.findByText("Couldn't load Discover. Try again in a moment.")).toBeInTheDocument();
     expect(screen.queryByText("Continue Watching")).toBeNull();
@@ -113,7 +113,7 @@ describe("Discover when the core load fails", () => {
 
 describe("Discover's trending rail", () => {
   it("says an empty week is empty, not that it failed", async () => {
-    render(dashboard());
+    render(discover());
 
     expect(await screen.findByText("Nothing trending this week.")).toBeInTheDocument();
     expect(screen.queryByText("Couldn't load trending titles.")).toBeNull();
@@ -122,7 +122,7 @@ describe("Discover's trending rail", () => {
   it("offers a Retry when the request fails", async () => {
     const user = userEvent.setup();
     getTrending.mockRejectedValueOnce(new ApiError("Bad gateway", 502));
-    render(dashboard());
+    render(discover());
 
     expect(await screen.findByText("Couldn't load trending titles.")).toBeInTheDocument();
     getTrending.mockResolvedValue({ metas: [meta("Arrival")] } as never);
@@ -133,14 +133,14 @@ describe("Discover's trending rail", () => {
 
   it("drops the needs-a-key note once a load succeeds", async () => {
     getTrending.mockRejectedValueOnce(new ApiError("TMDB is not configured", 503, "tmdb_not_configured"));
-    const { rerender } = render(dashboard());
+    const { rerender } = render(discover());
 
     expect(await screen.findByText("Trending needs a TMDB API key to fetch content.")).toBeInTheDocument();
 
     // A key added in Settings; the next load of the rail succeeds.
     getTrending.mockResolvedValue({ metas: [meta("Arrival")] } as never);
     act(() => runtimeConfig.setProfileId("second-profile"));
-    rerender(dashboard());
+    rerender(discover());
 
     expect(await screen.findByRole("button", { name: "View details for Arrival" })).toBeInTheDocument();
     expect(screen.queryByText("Trending needs a TMDB API key to fetch content.")).toBeNull();

@@ -332,9 +332,16 @@ describe("maskChannelUrl", () => {
     expect(maskChannelUrl("https://ntfy.sh/my-private-topic")).toBe("https://ntfy.sh/…opic");
   });
 
+  it("hides a short path or query entirely, so the suffix is never the whole secret", async () => {
+    const { maskChannelUrl } = await loadModule();
+    expect(maskChannelUrl("https://ntfy.sh/home")).toBe("https://ntfy.sh/…");
+    expect(maskChannelUrl("https://ntfy.sh/topic-15-chars")).toBe("https://ntfy.sh/…");
+    expect(maskChannelUrl("https://hooks.lan/x?token=abcd")).toBe("https://hooks.lan/…");
+  });
+
   it("keeps a port, and hides a query string's secret too", async () => {
     const { maskChannelUrl } = await loadModule();
-    expect(maskChannelUrl("http://192.168.1.25:8080/hook?key=s3cr3tvalue")).toBe("http://192.168.1.25:8080/…alue");
+    expect(maskChannelUrl("http://192.168.1.25:8080/hook?key=a-long-s3cr3tvalue")).toBe("http://192.168.1.25:8080/…alue");
   });
 
   it("shows a bare server as it is, and a short path as only an ellipsis", async () => {

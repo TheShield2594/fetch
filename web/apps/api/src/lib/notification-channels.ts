@@ -206,6 +206,9 @@ export const buildChannelRequest = (channel: ChannelTarget, event: NotificationE
  * tellable apart. The full URL is write-only — for a Discord or generic
  * webhook it is the secret, and for ntfy the topic is.
  */
+const MASK_SUFFIX_LENGTH = 4;
+const MASK_MIN_LENGTH_FOR_SUFFIX = 16;
+
 export const maskChannelUrl = (url: string): string => {
   let parsed: URL;
   try {
@@ -216,7 +219,10 @@ export const maskChannelUrl = (url: string): string => {
   const origin = `${parsed.protocol}//${parsed.host}`;
   const rest = `${parsed.pathname}${parsed.search}`.replace(/^\/+$/, "");
   if (!rest) return origin;
-  return rest.length > 4 ? `${origin}/…${rest.slice(-4)}` : `${origin}/…`;
+  // The suffix is only shown where it is a small part of a long path, so it
+  // can never be the whole secret: a short ntfy topic (`/home`) or a short
+  // query value would otherwise come back complete.
+  return rest.length >= MASK_MIN_LENGTH_FOR_SUFFIX ? `${origin}/…${rest.slice(-MASK_SUFFIX_LENGTH)}` : `${origin}/…`;
 };
 
 /**

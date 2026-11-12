@@ -139,8 +139,11 @@ it from the server, where the API container runs:
 docker compose exec api fetch reset-password <username>
 ```
 
-It prints a temporary password, signs the account out everywhere and asks for a
-new password at the next sign-in. Add `--password '<new password>'` to choose
+It prints a temporary password, signs the account out of every browser and asks
+for a new password at the next sign-in; until then that sign-in can do nothing
+else. Paired TVs stay signed in: if the account may have been used by someone
+else, sign its TVs out too, from Settings → Account → Where you're signed in
+once signed in again (or Settings → TVs & devices → Sign out all TVs). Add `--password '<new password>'` to choose
 it yourself. `docker compose exec api fetch accounts` lists the accounts and
 their profiles if you're not sure of a username.
 
@@ -150,10 +153,12 @@ own account: Settings → Profile, open **Change PIN** on that profile, then
 server:
 
 ```bash
-docker compose exec api fetch clear-pin <profile name or id>
+docker compose exec api fetch clear-pin "Kids Room"
 ```
 
-Add `--account <username>` when two accounts have a profile of that name. The
+Give the profile's name, in quotes if it has a space (the command refuses a name
+split into two words rather than guessing), or its id. Add `--account <username>`
+when two accounts have a profile of that name. The
 profile is then open to anyone using that account until a new PIN is set.
 
 **The admin's account should be someone else's.** The admin hands the role on

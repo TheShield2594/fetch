@@ -76,12 +76,14 @@ export function csvRecords(text: string): string[][] {
  * picked.
  */
 type ImportPreview =
-  | { kind: "json"; fileName: string; payload: ExportPayload; parts: string[] }
+  | { kind: "json"; fileName: string; payload: ExportPayload; parts: string[]; replacesSettings: boolean }
   | { kind: "csv"; fileName: string; csv: string; rows: number }
   | { kind: "external"; fileName: string; csv: string; rows: number; format: ExternalFormat };
 
 /** Reads a Fetch JSON export, or says why it isn't one. */
-export function previewJsonExport(text: string): { payload: ExportPayload; parts: string[] } | { error: string } {
+export function previewJsonExport(
+  text: string
+): { payload: ExportPayload; parts: string[]; replacesSettings: boolean } | { error: string } {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
@@ -93,17 +95,29 @@ export function previewJsonExport(text: string): { payload: ExportPayload; parts
   }
   const payload = parsed as ExportPayload;
   const count = (value: unknown) => (Array.isArray(value) ? value.length : 0);
-  const lists = Array.isArray(payload.lists) ? payload.lists : [];
-  const items = lists.reduce((total, list) => total + count((list as { items?: unknown }).items), 0);
+  const lists: unknown[] = Array.isArray(payload.lists) ? payload.lists : [];
+  // A list that isn't an object can't be read, so the file is refused here
+  // rather than failing halfway through working out the preview.
+  if (lists.some((list) => !list || typeof list !== "object")) {
+    return { error: "That file isn't a Fetch export this version can read." };
+  }
+  const items = lists.reduce<number>((total, list) => total + count((list as { items?: unknown }).items), 0);
   const playback = count((payload as { playback?: unknown }).playback);
+  const collections = count((payload as { collections?: unknown }).collections);
+  const settings = (payload.profile as { settings?: unknown } | undefined)?.settings;
+  // The server restores a file's profile settings over the profile's own, so
+  // the preview says so rather than promising nothing is replaced.
+  const replacesSettings = Boolean(settings && typeof settings === "object" && Object.keys(settings).length > 0);
   const parts = [
     lists.length > 0 && `${plural(lists.length, "list", "lists")} (${plural(items, "title", "titles")})`,
     count(payload.watchEvents) > 0 && plural(count(payload.watchEvents), "watch event", "watch events"),
     count(payload.seriesProgress) > 0 && plural(count(payload.seriesProgress), "series progress entry", "series progress entries"),
     count(payload.ratings) > 0 && plural(count(payload.ratings), "rating", "ratings"),
     playback > 0 && plural(playback, "resume point", "resume points"),
+    collections > 0 && plural(collections, "Home folder", "Home folders"),
+    replacesSettings && "profile settings",
   ].filter((part): part is string => Boolean(part));
-  return { payload, parts };
+  return { payload, parts, replacesSettings };
 }
 
 const REQUIRED_CSV_COLUMNS = ["imdbid", "type", "watchedat"];
@@ -286,7 +300,14 @@ export function DataSettings() {
     return (
       <>
         <strong>{p.fileName}</strong> holds {what}. Importing adds it to <strong>{profileName}</strong>: it never deletes
-        or replaces anything, and entries already here are skipped.
+        anything, and entries already here are skipped.
+        {p.kind === "json" && p.replacesSettings && (
+          <>
+            {" "}
+            Its profile settings (appearance and parental limits) replace {profileName}&apos;s current ones, though a
+            limit you can&apos;t lift is left as it is.
+          </>
+        )}
       </>
     );
   };

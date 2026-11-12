@@ -7,8 +7,8 @@ import { invalidateDeviceCache } from "../lib/device-token.js";
 import { invalidateProfileCache } from "../lib/profile.js";
 import { adoptLegacyAiConfig, claimLegacyIntegrations } from "../lib/integration-owner.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
-import { hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
-import { createSession, findAdminAccountId, mintInviteCode } from "../lib/sessions.js";
+import { ADMIN_REQUIRED_RESPONSE, hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
+import { createSession, findAdminAccountId, mintInviteCode, SESSION_MAX_AGE_MS } from "../lib/sessions.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { listAccountEvents, recordAccountEvent, requestOrigin } from "../lib/account-events.js";
 import {
@@ -305,7 +305,16 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to see your sign-ins" });
     const { accountId, sessionId } = request.auth;
     const [sessions, devices] = await Promise.all([
-      prisma.session.findMany({ where: { accountId, expiresAt: { gt: new Date() } }, orderBy: { lastUsedAt: "desc" } }),
+      // Both limits, as findSession applies them: a session from before the
+      // absolute lifetime existed can still carry a later sliding expiry.
+      prisma.session.findMany({
+        where: {
+          accountId,
+          expiresAt: { gt: new Date() },
+          createdAt: { gt: new Date(Date.now() - SESSION_MAX_AGE_MS) },
+        },
+        orderBy: { lastUsedAt: "desc" },
+      }),
       prisma.device.findMany({ where: { accountId }, orderBy: { createdAt: "asc" } }),
     ]);
     return {
@@ -521,11 +530,28 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       const proof = await verifyAdminReauth(request, bodyOf(request).adminPassword);
       if (!proof.ok) return reply.code(proof.status).send(proof.body);
 
-      const previous = await prisma.account.findMany({ where: { isAdmin: true }, select: { id: true, username: true } });
-      await prisma.$transaction([
-        prisma.account.updateMany({ where: { isAdmin: true }, data: { isAdmin: false } }),
-        prisma.account.update({ where: { id: target.id }, data: { isAdmin: true } }),
-      ]);
+      // One transfer at a time: two running at once under READ COMMITTED could
+      // each demote the old admin and promote their own target, leaving two
+      // admins. The advisory lock serialises them, and the checks are made
+      // again under it, so the second one finds the state the first left.
+      const outcome = await prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('fetch:admin-transfer'))`;
+        if (request.auth?.kind === "session") {
+          const caller = await tx.account.findUnique({ where: { id: request.auth.accountId }, select: { isAdmin: true } });
+          if (!caller?.isAdmin) return "not_admin" as const;
+        }
+        const current = await tx.account.findUnique({ where: { id: target.id }, select: { isAdmin: true } });
+        if (!current) return "gone" as const;
+        if (current.isAdmin) return "already" as const;
+        const demoted = await tx.account.findMany({ where: { isAdmin: true }, select: { id: true, username: true } });
+        await tx.account.updateMany({ where: { isAdmin: true }, data: { isAdmin: false } });
+        await tx.account.update({ where: { id: target.id }, data: { isAdmin: true } });
+        return demoted;
+      });
+      if (outcome === "not_admin") return reply.code(403).send(ADMIN_REQUIRED_RESPONSE);
+      if (outcome === "gone") return reply.code(404).send({ error: "Account not found" });
+      if (outcome === "already") return reply.code(400).send({ error: "That account is already the admin" });
+      const previous = outcome;
       await recordAccountEvent(target.id, "admin_granted", {
         request,
         detail: previous.length ? `From ${previous.map((account) => account.username).join(", ")}` : null,

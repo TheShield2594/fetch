@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getIdleLockMinutes, IDLE_LOCK_KEY, setIdleLockMinutes, useIdleLock } from "./useIdleLock";
+import { getIdleLockMinutes, IDLE_ACTIVITY_KEY, IDLE_LOCK_KEY, setIdleLockMinutes, useIdleLock } from "./useIdleLock";
 
 const MINUTE = 60_000;
 
@@ -32,6 +32,29 @@ describe("useIdleLock", () => {
     expect(onLock).toHaveBeenCalledTimes(1);
     act(() => { vi.advanceTimersByTime(30 * MINUTE); });
     expect(onLock).toHaveBeenCalledTimes(1);
+  });
+
+  it("doesn't lock while someone is active in another tab", () => {
+    setIdleLockMinutes(5);
+    const onLock = vi.fn();
+    renderHook(() => useIdleLock(true, onLock));
+
+    // Another tab records activity every couple of minutes; this one sits idle.
+    for (let i = 0; i < 5; i += 1) {
+      act(() => { vi.advanceTimersByTime(2 * MINUTE); });
+      window.localStorage.setItem(IDLE_ACTIVITY_KEY, String(Date.now()));
+    }
+    expect(onLock).not.toHaveBeenCalled();
+
+    act(() => { vi.advanceTimersByTime(6 * MINUTE); });
+    expect(onLock).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares its own activity with other tabs", () => {
+    setIdleLockMinutes(5);
+    renderHook(() => useIdleLock(true, vi.fn()));
+    act(() => { window.dispatchEvent(new Event("keydown")); });
+    expect(Number(window.localStorage.getItem(IDLE_ACTIVITY_KEY))).toBe(Date.now());
   });
 
   it("starts the clock again on activity", () => {

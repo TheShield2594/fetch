@@ -42,6 +42,8 @@ export function PasswordField({
   inputRef,
   newPassword = false,
   autoFocus,
+  required,
+  maxLength = MAX_PASSWORD_LENGTH,
 }: {
   label: string;
   value: string;
@@ -51,6 +53,10 @@ export function PasswordField({
   inputRef?: React.Ref<HTMLInputElement>;
   newPassword?: boolean;
   autoFocus?: boolean;
+  /** Exposes a required field to assistive technology. */
+  required?: boolean;
+  /** The password rule's length by default; null for a value that isn't a password, such as the API token. */
+  maxLength?: number | null;
 }) {
   const [visible, setVisible] = useState(false);
   const id = useId();
@@ -73,7 +79,8 @@ export function PasswordField({
           autoComplete={autoComplete}
           // eslint-disable-next-line jsx-a11y/no-autofocus -- only where the field is what was just opened
           autoFocus={autoFocus}
-          maxLength={MAX_PASSWORD_LENGTH}
+          maxLength={maxLength ?? undefined}
+          required={required}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={`${PASSWORD_INPUT_CLASS} pr-12`}

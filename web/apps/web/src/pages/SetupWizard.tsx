@@ -259,6 +259,8 @@ function AccountStep({
           autoComplete="off"
           error={fieldErrors.apiToken}
           inputRef={apiTokenRef}
+          maxLength={null}
+          required
         />
       )}
       <TextField
@@ -272,6 +274,7 @@ function AccountStep({
         spellCheck={false}
         error={fieldErrors.username}
         inputRef={usernameRef}
+        required
       />
       <PasswordField
         label="Password"
@@ -281,6 +284,7 @@ function AccountStep({
         error={fieldErrors.password}
         inputRef={passwordRef}
         newPassword={creating}
+        required
       />
       {creating && (
         <PasswordField
@@ -290,6 +294,7 @@ function AccountStep({
           autoComplete="new-password"
           error={fieldErrors.confirm}
           inputRef={confirmRef}
+          required
         />
       )}
       {error && (
@@ -318,13 +323,16 @@ function AccountStep({
  */
 function NewPasswordStep({
   account,
-  currentPassword,
+  currentPassword: knownPassword,
   onDone,
 }: {
   account: Account;
-  currentPassword: string;
+  /** The temporary password just typed, or null when it must be asked again (after a reload). */
+  currentPassword: string | null;
   onDone: (account: Account) => void;
 }) {
+  const [typedCurrent, setTypedCurrent] = useState("");
+  const currentPassword = knownPassword ?? typedCurrent;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState<{ password?: string | undefined; confirm?: string | undefined }>({});
@@ -333,6 +341,10 @@ function NewPasswordStep({
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!currentPassword) {
+      setError("Enter the temporary password you signed in with.");
+      return;
+    }
     const next = {
       password: newPasswordProblem(password) ?? (password === currentPassword ? "Choose a different password." : undefined),
       confirm: !confirm ? "Enter the password again." : confirm !== password ? "The passwords don't match." : undefined,
@@ -359,6 +371,16 @@ function NewPasswordStep({
           You signed in with a temporary password. Choose your own to continue.
         </p>
       </div>
+      {knownPassword === null && (
+        <PasswordField
+          label="Temporary password"
+          value={typedCurrent}
+          onChange={setTypedCurrent}
+          autoComplete="current-password"
+          autoFocus
+          required
+        />
+      )}
       <PasswordField
         label="New password"
         value={password}
@@ -366,7 +388,8 @@ function NewPasswordStep({
         autoComplete="new-password"
         error={errors.password}
         newPassword
-        autoFocus
+        autoFocus={knownPassword !== null}
+        required
       />
       <PasswordField
         label="Confirm new password"
@@ -374,6 +397,7 @@ function NewPasswordStep({
         onChange={setConfirm}
         autoComplete="new-password"
         error={errors.confirm}
+        required
       />
       {error && (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
@@ -486,6 +510,24 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
   const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
+  // A session that is still waiting on a new password (the page was reloaded
+  // after signing in with a temporary one) goes straight back to that step.
+  useEffect(() => {
+    if (inviteCode || !runtimeConfig.hasSession()) return;
+    let cancelled = false;
+    api.getMe().then(
+      (me) => {
+        if (cancelled || !me.account?.mustChangePassword) return;
+        setAccount(me.account);
+        setTemporaryPassword("");
+      },
+      () => {}
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [inviteCode]);
+
   useEffect(() => {
     if (inviteCode) return;
     let cancelled = false;
@@ -528,7 +570,11 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
   return (
     <WizardShell step={step} showProgress={mode === "bootstrap"}>
       {step === "account" && account && temporaryPassword !== null && (
-        <NewPasswordStep account={account} currentPassword={temporaryPassword} onDone={(next) => signedIn(next)} />
+        <NewPasswordStep
+          account={account}
+          currentPassword={temporaryPassword || null}
+          onDone={(next) => signedIn(next)}
+        />
       )}
       {step === "account" && account && temporaryPassword === null && (
         <SignedInStep account={account} onContinue={() => setStep("tmdb")} />

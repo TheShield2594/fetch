@@ -26,11 +26,26 @@ const EXPORT = {
   version: 1,
   exportedAt: "2026-11-01T00:00:00Z",
   profile: { name: "Alex" },
-  lists: [{ name: "Watchlist", kind: "watchlist", items: [{}, {}, {}] }],
-  watchEvents: [{}, {}],
-  seriesProgress: [{}],
+  lists: [
+    {
+      name: "Watchlist",
+      kind: "watchlist",
+      items: [
+        { type: "movie", imdbId: "tt0111161", addedAt: "2026-10-01T00:00:00Z" },
+        { type: "series", imdbId: "tt0903747", addedAt: "2026-10-02T00:00:00Z" },
+        { type: "movie", imdbId: "tt0068646", addedAt: "2026-10-03T00:00:00Z" },
+      ],
+    },
+  ],
+  watchEvents: [
+    { type: "movie", imdbId: "tt0111161", seriesImdbId: null, season: null, episode: null, watchedAt: "2026-10-04T00:00:00Z", plays: 1 },
+    { type: "episode", imdbId: "tt0959621", seriesImdbId: "tt0903747", season: 1, episode: 1, watchedAt: "2026-10-05T00:00:00Z", plays: 1 },
+  ],
+  seriesProgress: [{ seriesImdbId: "tt0903747", lastSeason: 1, lastEpisode: 1, lastWatchedAt: "2026-10-05T00:00:00Z" }],
   ratings: [],
-  playback: [{}],
+  playback: [
+    { type: "movie", imdbId: "tt0068646", season: 0, episode: 0, progress: 0.4, positionSeconds: 2400, durationSeconds: 6000, pausedAt: "2026-10-06T00:00:00Z" },
+  ],
 };
 
 const file = (contents: string, name: string, type: string) => new File([contents], name, { type });
@@ -58,6 +73,23 @@ describe("previews", () => {
   it("refuses something that isn't a Fetch export", () => {
     expect(previewJsonExport("{nope")).toHaveProperty("error");
     expect(previewJsonExport(JSON.stringify({ version: 9 }))).toHaveProperty("error");
+    expect(previewJsonExport(JSON.stringify({ ...EXPORT, lists: [null] }))).toHaveProperty("error");
+  });
+
+  it("counts settings and Home folders, and says the settings replace the profile's", () => {
+    const settingsOnly = {
+      ...EXPORT,
+      lists: [],
+      watchEvents: [],
+      seriesProgress: [],
+      playback: [],
+      collections: [{ id: "c1" }],
+      profile: { name: "Alex", settings: { avatarColorHex: "#ff0000" } },
+    };
+    expect(previewJsonExport(JSON.stringify(settingsOnly))).toMatchObject({
+      parts: ["1 Home folder", "profile settings"],
+      replacesSettings: true,
+    });
   });
 
   it("counts CSV rows the way the server parses them, quoted line breaks included", () => {
@@ -86,7 +118,7 @@ describe("DataSettings", () => {
 
     const review = await screen.findByRole("alertdialog", { name: "Import backup.json?" });
     expect(review).toHaveTextContent("2 watch events");
-    expect(review).toHaveTextContent(/never deletes or replaces anything/);
+    expect(review).toHaveTextContent(/never deletes anything/);
     expect(api.importData).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole("button", { name: "Import" }));

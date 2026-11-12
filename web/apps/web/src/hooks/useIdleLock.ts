@@ -16,6 +16,30 @@ export const IDLE_LOCK_CHOICES = [0, 5, 15, 30, 60] as const;
 const CHANGED_EVENT = "fetch:idle-lock-changed";
 /** How often the clock is checked while the tab is open. */
 const CHECK_INTERVAL_MS = 15_000;
+/**
+ * The last activity in any tab, so a tab left idle doesn't lock the profile
+ * (whose credentials every tab shares) while someone is using it in another.
+ * Written at most this often, not on every pointer move.
+ */
+export const IDLE_ACTIVITY_KEY = "fetch_idle_last_activity";
+const SHARE_INTERVAL_MS = 5_000;
+
+const readSharedActivity = (): number => {
+  try {
+    const value = Number(window.localStorage.getItem(IDLE_ACTIVITY_KEY));
+    return Number.isFinite(value) ? value : 0;
+  } catch {
+    return 0;
+  }
+};
+
+const writeSharedActivity = (at: number): void => {
+  try {
+    window.localStorage.setItem(IDLE_ACTIVITY_KEY, String(at));
+  } catch {
+    /* storage unavailable: each tab then goes by its own activity */
+  }
+};
 
 /** The chosen limit in minutes; 0 is off. Storage that can't be read is off. */
 export function getIdleLockMinutes(): number {
@@ -72,10 +96,13 @@ export function useIdleLock(enabled: boolean, onLock: () => void): void {
     if (!enabled || minutes <= 0) return;
     const limitMs = minutes * 60_000;
     let lastActivity = Date.now();
+    let lastShared = 0;
     let locked = false;
 
     const check = () => {
-      if (locked || Date.now() - lastActivity < limitMs) return;
+      if (locked) return;
+      const latest = Math.max(lastActivity, readSharedActivity());
+      if (Date.now() - latest < limitMs) return;
       locked = true;
       onLockRef.current();
     };
@@ -83,7 +110,12 @@ export function useIdleLock(enabled: boolean, onLock: () => void): void {
       // Activity in a tab that has sat past the limit doesn't reopen it: the
       // check runs first.
       check();
+      if (locked) return;
       lastActivity = Date.now();
+      if (lastActivity - lastShared >= SHARE_INTERVAL_MS) {
+        lastShared = lastActivity;
+        writeSharedActivity(lastActivity);
+      }
     };
     const onVisibility = () => {
       if (document.visibilityState === "visible") check();

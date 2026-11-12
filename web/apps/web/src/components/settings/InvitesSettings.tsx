@@ -112,8 +112,8 @@ function TemporaryPasswordForm({
       style={{ borderColor: "var(--border)" }}
     >
       <p className="text-sm" style={{ color: "var(--text)" }}>
-        Give <strong>{account.username}</strong> a temporary password. They&apos;re signed out everywhere, and asked to
-        choose their own when they next sign in. Their TVs stay signed in. Pass the password on to them yourself.
+        Give <strong>{account.username}</strong> a temporary password. They&apos;re signed out of every browser and asked
+        to choose their own when they next sign in. Their TVs stay signed in. Pass the password on to them yourself.
       </p>
       <PasswordField
         label="Temporary password"
@@ -169,11 +169,16 @@ function AccountRow({
     setError(null);
     try {
       await api.deleteAccount(account.id);
-      onChanged();
     } catch (err) {
       setError(describeError(err, "Could not remove the account."));
       setBusy(false);
+      return;
     }
+    // Done whether or not the list reloads: a failed reload must not leave
+    // the review stuck on a busy button for an account that is gone.
+    setBusy(false);
+    setAction(null);
+    onChanged();
   };
 
   const makeAdmin = async () => {
@@ -289,11 +294,16 @@ function InviteRow({ invite, onRevoked }: { invite: ListedInvite; onRevoked: () 
     setError(null);
     try {
       await api.revokeInvite(invite.id);
-      await onRevoked();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not revoke the invite.");
       setBusy(false);
+      return;
     }
+    // As for an account: the review closes on success, whether or not the
+    // list then reloads (the reload reports its own failure).
+    setBusy(false);
+    setConfirming(false);
+    await onRevoked();
   };
 
   return (

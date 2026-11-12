@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AlertCircle, Globe, Loader2, LogOut, Tv } from "lucide-react";
 import { api, type SignIn } from "../../api";
 import { useToast } from "../../hooks/useToast";
@@ -105,12 +105,18 @@ export function SignInsSettings({ epoch = 0, onChanged }: { epoch?: number; onCh
   const [allError, setAllError] = useState<string | null>(null);
   const { showToast } = useToast();
 
+  // Only the newest read is applied: a slower, older one coming back after a
+  // later sign-out would otherwise put the signed-out row back on the list.
+  const latestLoad = useRef(0);
   const load = useCallback(async () => {
+    const attempt = ++latestLoad.current;
     try {
       const { sessions } = await api.getSignIns();
+      if (attempt !== latestLoad.current) return;
       setSignIns(sessions);
       setError(null);
     } catch (err) {
+      if (attempt !== latestLoad.current) return;
       setError(err instanceof Error ? err.message : "Could not load where you're signed in.");
     }
   }, []);
@@ -123,11 +129,15 @@ export function SignInsSettings({ epoch = 0, onChanged }: { epoch?: number; onCh
   const otherBrowsers = others.filter((s) => s.kind === "browser").length;
   const tvs = others.filter((s) => s.kind === "tv").length;
 
+  // With no other browser signed in, the only thing the bulk action can end is
+  // the TVs, so it says so and does that rather than offering a default that
+  // signs nothing out.
+  const tvsOnly = otherBrowsers === 0;
   const endAll = async () => {
     setEndingAll(true);
     setAllError(null);
     try {
-      const result = await api.revokeOtherSessions(includeTvs);
+      const result = await api.revokeOtherSessions(tvsOnly || includeTvs);
       const parts = [
         result.browsers > 0 && `${result.browsers} ${result.browsers === 1 ? "browser" : "browsers"}`,
         result.tvs > 0 && `${result.tvs} ${result.tvs === 1 ? "TV" : "TVs"}`,
@@ -145,7 +155,12 @@ export function SignInsSettings({ epoch = 0, onChanged }: { epoch?: number; onCh
   };
 
   if (error) {
-    return <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>;
+    return (
+      <div className="space-y-2">
+        <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>
+        <button type="button" onClick={() => void load()} className="btn-secondary btn-sm">Try again</button>
+      </div>
+    );
   }
   if (!signIns) {
     return (
@@ -177,15 +192,19 @@ export function SignInsSettings({ epoch = 0, onChanged }: { epoch?: number; onCh
       {others.length > 0 &&
         (confirmingAll ? (
           <ConfirmReview
-            label="Sign out everywhere else?"
+            label={tvsOnly ? "Sign out all TVs?" : "Sign out everywhere else?"}
             className="space-y-3"
             message={
-              <>
-                Sign out every other browser
-                {otherBrowsers > 0 ? ` (${otherBrowsers})` : ""}? This browser stays signed in.
-              </>
+              tvsOnly ? (
+                <>
+                  Sign out {tvs === 1 ? "the TV" : `all ${tvs} TVs`}? {tvs === 1 ? "It" : "They"} will need pairing again.
+                  This browser stays signed in.
+                </>
+              ) : (
+                <>Sign out every other browser ({otherBrowsers})? This browser stays signed in.</>
+              )
             }
-            confirmLabel="Sign out everywhere else"
+            confirmLabel={tvsOnly ? "Sign out all TVs" : "Sign out everywhere else"}
             icon={<LogOut size={14} />}
             onConfirm={() => void endAll()}
             onCancel={() => {
@@ -195,7 +214,7 @@ export function SignInsSettings({ epoch = 0, onChanged }: { epoch?: number; onCh
             busy={endingAll}
             error={allError}
           >
-            {tvs > 0 && (
+            {tvs > 0 && !tvsOnly && (
               <label className="flex items-start gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
                 <input type="checkbox" checked={includeTvs} onChange={(e) => setIncludeTvs(e.target.checked)} className="mt-0.5" />
                 <span>
@@ -206,7 +225,7 @@ export function SignInsSettings({ epoch = 0, onChanged }: { epoch?: number; onCh
           </ConfirmReview>
         ) : (
           <button type="button" onClick={() => setConfirmingAll(true)} className="btn-secondary">
-            <LogOut size={16} /> Sign out everywhere else
+            <LogOut size={16} /> {tvsOnly ? "Sign out all TVs" : "Sign out everywhere else"}
           </button>
         ))}
     </div>

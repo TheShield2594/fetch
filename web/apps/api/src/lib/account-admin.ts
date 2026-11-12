@@ -51,14 +51,17 @@ export const clearProfilePin = async (profileId: string): Promise<void> => {
 
 /** Deletes an account and everything its profiles own, TVs included. */
 export const deleteAccountAndData = async (accountId: string): Promise<void> => {
-  const profileIds = (await prisma.profile.findMany({ where: { accountId }, select: { id: true } })).map(
-    (profile) => profile.id
-  );
-  await prisma.$transaction(async (tx) => {
+  const profileIds = await prisma.$transaction(async (tx) => {
+    // Locking the account row holds off a profile being created for it until
+    // this commits (the insert's foreign-key check waits on the lock), so the
+    // profiles read next are every profile the delete below takes with it.
+    await tx.$executeRaw`SELECT id FROM "Account" WHERE id = ${accountId}::uuid FOR UPDATE`;
+    const ids = (await tx.profile.findMany({ where: { accountId }, select: { id: true } })).map((profile) => profile.id);
     // Kept in KV, keyed by id rather than tied to the rows by a foreign key.
     await deleteOwnerIntegrations(tx, accountId);
-    await deleteProfileConnectionState(tx, profileIds);
+    await deleteProfileConnectionState(tx, ids);
     await tx.account.delete({ where: { id: accountId } });
+    return ids;
   });
   for (const profileId of profileIds) resetTraktClient(profileId);
   invalidateProfileCache();

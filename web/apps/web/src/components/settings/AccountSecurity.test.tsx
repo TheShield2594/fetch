@@ -131,6 +131,45 @@ describe("where you're signed in", () => {
   });
 });
 
+describe("where you're signed in, edge cases", () => {
+  it("offers to sign out the TVs, not 'everywhere else', when only TVs are left", async () => {
+    vi.mocked(api.getSignIns).mockResolvedValue({
+      sessions: [
+        {
+          kind: "browser",
+          id: "s1",
+          current: true,
+          userAgent: FIREFOX,
+          ipAddress: null,
+          createdAt: "2026-11-01T00:00:00Z",
+          lastUsedAt: new Date().toISOString(),
+          expiresAt: "2026-12-01T00:00:00Z",
+        },
+        { kind: "tv", id: "d1", current: false, name: "Den", appVersion: null, createdAt: "2026-10-01T00:00:00Z", lastUsedAt: null },
+      ],
+    });
+    const user = userEvent.setup();
+    render(<AccountSettings />);
+
+    expect(screen.queryByRole("button", { name: /sign out everywhere else/i })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Sign out all TVs" }));
+    const review = screen.getByRole("alertdialog", { name: /sign out all tvs/i });
+    // Focus moves into the panel, to Cancel, rather than falling to the page.
+    expect(within(review).getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await user.click(within(review).getByRole("button", { name: "Sign out all TVs" }));
+    await waitFor(() => expect(api.revokeOtherSessions).toHaveBeenCalledWith(true));
+  });
+
+  it("offers to try again when the list can't be loaded", async () => {
+    vi.mocked(api.getSignIns).mockRejectedValueOnce(new Error("Server unavailable"));
+    const user = userEvent.setup();
+    render(<AccountSettings />);
+
+    await user.click(await screen.findByRole("button", { name: /try again/i }));
+    expect(await screen.findByText(/Safari on iPhone/)).toBeInTheDocument();
+  });
+});
+
 describe("recent activity", () => {
   it("lists what happened, with failed attempts called out", async () => {
     render(<AccountSettings />);

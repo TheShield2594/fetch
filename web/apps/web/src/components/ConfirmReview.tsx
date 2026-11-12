@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 
 /**
@@ -40,8 +40,33 @@ export function ConfirmReview({
   children?: ReactNode;
   className?: string;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Callers swap the button that opened this panel for the panel itself, so
+  // focus would otherwise fall to the page. It moves to the first field (a
+  // password asked again) or else to Cancel — the safe choice under a
+  // keyboard. On closing, focus goes back to the row the panel sat in, to the
+  // control it opened from where that control is back, rather than to the top
+  // of the page.
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const host = panel.parentElement;
+    const first = panel.querySelector<HTMLElement>("input, select, textarea") ?? panel.querySelector<HTMLElement>("[data-confirm-cancel]");
+    first?.focus();
+    return () => {
+      // After the caller has re-rendered without the panel.
+      requestAnimationFrame(() => {
+        const active = document.activeElement;
+        if (active && active !== document.body) return;
+        if (!host?.isConnected) return;
+        host.querySelector<HTMLElement>("button:not([disabled]), a[href], input:not([disabled])")?.focus();
+      });
+    };
+  }, []);
+
   return (
-    <div role="alertdialog" aria-label={label} className={className} style={{ borderColor: "var(--border)" }}>
+    <div ref={panelRef} role="alertdialog" aria-label={label} className={className} style={{ borderColor: "var(--border)" }}>
       <div className="text-sm" style={{ color: "var(--text)" }}>{message}</div>
       {children}
       {error && <p role="alert" className="text-xs text-danger">{error}</p>}
@@ -54,7 +79,7 @@ export function ConfirmReview({
         >
           {busy ? <Loader2 size={14} className="animate-spin" /> : icon} {confirmLabel}
         </button>
-        <button type="button" onClick={onCancel} disabled={busy} className="btn-secondary btn-sm">
+        <button type="button" onClick={onCancel} disabled={busy} data-confirm-cancel className="btn-secondary btn-sm">
           Cancel
         </button>
       </div>

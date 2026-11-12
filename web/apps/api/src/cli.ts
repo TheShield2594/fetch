@@ -29,15 +29,24 @@ const USAGE = `Usage: fetch <command> [options]
 Commands:
   accounts                         List accounts and their profiles.
   reset-password <username>        Give an account a temporary password. It is
-      [--password <password>]      signed out everywhere and asked for a new
-                                   password at its next sign-in. Without
-                                   --password a random one is made and printed.
+      [--password <password>]      signed out of every browser (not its TVs)
+                                   and asked for a new password at its next
+                                   sign-in. Without --password a random one is
+                                   made and printed.
   clear-pin <profile>              Remove a profile's PIN. <profile> is its id,
-      [--account <username>]       or its name (add --account when two accounts
-                                   have a profile of that name).
+      [--account <username>]       or its name, in quotes if it has a space
+                                   ("Kids Room"). Add --account when two
+                                   accounts have a profile of that name.
 `;
 
 class UsageError extends Error {}
+
+/** What each command accepts. Anything else is refused before it runs. */
+const COMMANDS: Record<string, { args: number; argName?: string; options: string[] }> = {
+  accounts: { args: 0, options: [] },
+  "reset-password": { args: 1, argName: "a username", options: ["password"] },
+  "clear-pin": { args: 1, argName: "a profile id or name", options: ["account"] },
+};
 
 /** `--name value` options and the positional arguments around them. */
 export const parseArgs = (argv: string[]) => {
@@ -86,7 +95,8 @@ const resetPassword = async (username: string | undefined, chosen: string | unde
   const password = chosen ?? generateTemporaryPassword();
   await setTemporaryPassword(account.id, password);
   await recordAccountEvent(account.id, "password_reset", { detail: "From the server" });
-  out(`${account.username} has a temporary password and has been signed out everywhere.`);
+  out(`${account.username} has a temporary password and has been signed out of every browser.`);
+  out("Their TVs stay signed in; they can sign those out in Settings → Account.");
   if (chosen === undefined) out(`Temporary password: ${password}`);
   out("They'll be asked to choose a new one when they sign in.");
 };
@@ -128,6 +138,23 @@ export const run = async (argv: string[], out: (line: string) => void = console.
       out(USAGE);
       return command || options.help ? 0 : 1;
     }
+    // Each command's options and arguments, checked before anything is read
+    // or written: a misspelt option, or a profile name with a space left
+    // unquoted, must be refused rather than run as if it weren't there —
+    // `clear-pin Kids Room` would otherwise clear the PIN on "Kids".
+    const spec = COMMANDS[command];
+    if (!spec) throw new UsageError(`Unknown command "${command}".\n\n${USAGE}`);
+    const unknown = Object.keys(options).filter((name) => !spec.options.includes(name));
+    if (unknown.length > 0) {
+      throw new UsageError(`${command} doesn't take ${unknown.map((name) => `--${name}`).join(", ")}.\n\n${USAGE}`);
+    }
+    if (rest.length !== spec.args) {
+      throw new UsageError(
+        rest.length > spec.args
+          ? `${command} takes ${spec.args === 0 ? "no arguments" : "one argument"}; got ${rest.length}. Put a name with spaces in quotes: "Kids Room".`
+          : `${command} needs ${spec.argName}.`
+      );
+    }
     switch (command) {
       case "accounts":
         await listAccounts(out);
@@ -135,11 +162,9 @@ export const run = async (argv: string[], out: (line: string) => void = console.
       case "reset-password":
         await resetPassword(rest[0], options.password, out);
         return 0;
-      case "clear-pin":
+      default:
         await clearPin(rest[0], options.account, out);
         return 0;
-      default:
-        throw new UsageError(`Unknown command "${command}".\n\n${USAGE}`);
     }
   } catch (error) {
     if (error instanceof UsageError) {

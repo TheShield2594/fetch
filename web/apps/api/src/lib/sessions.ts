@@ -52,7 +52,7 @@ export const findSession = async (
       createdAt: true,
       expiresAt: true,
       lastUsedAt: true,
-      account: { select: { id: true, isAdmin: true } },
+      account: { select: { id: true, isAdmin: true, mustChangePassword: true } },
     },
   });
   if (!session) return null;
@@ -70,7 +70,13 @@ export const findSession = async (
     });
   }
 
-  return { kind: "session", sessionId: session.id, accountId: session.account.id, isAdmin: session.account.isAdmin };
+  return {
+    kind: "session",
+    sessionId: session.id,
+    accountId: session.account.id,
+    isAdmin: session.account.isAdmin,
+    mustChangePassword: session.account.mustChangePassword,
+  };
 };
 
 /** Deletes sessions past their expiry, so a sign-in nobody returns to doesn't stay on record. */

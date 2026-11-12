@@ -145,6 +145,18 @@ describe("where you're signed in", () => {
     expect((await call(kept.token, { method: "GET", url: "/devices/me" })).statusCode).toBe(401);
   });
 
+  it("leaves a sign-in past its absolute lifetime off the list, whatever its stored expiry", async () => {
+    const { token } = await bootstrapAdmin();
+    const old = (await login("owner", "owner-password", "Old browser")).json().token as string;
+    void old;
+    await prisma.session.updateMany({
+      where: { userAgent: "Old browser" },
+      data: { createdAt: new Date(Date.now() - 91 * 24 * 60 * 60 * 1000), expiresAt: new Date(Date.now() + 86_400_000) },
+    });
+    const listed = (await signInsOf(token)).filter((s) => s.kind === "browser");
+    expect(listed.map((s) => s.userAgent)).not.toContain("Old browser");
+  });
+
   it("ends a sign-in past its absolute lifetime, however recently it was used", async () => {
     const { token } = await bootstrapAdmin();
     await prisma.session.updateMany({ data: { createdAt: new Date(Date.now() - 91 * 24 * 60 * 60 * 1000) } });
@@ -258,6 +270,29 @@ describe("the admin's recovery actions", () => {
     expect((await call(token, { method: "GET", url: "/auth/me" })).json().account.mustChangePassword).toBe(false);
   });
 
+  it("keeps a temporary password to changing it until a new one is chosen", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    await call(admin.token, {
+      method: "POST",
+      url: `/auth/accounts/${friend.account.id}/password`,
+      payload: { newPassword: "temporary-pass", adminPassword: "owner-password" },
+    });
+    const token = (await login("friend", "temporary-pass")).json().token as string;
+
+    const blocked = await call(token, { method: "GET", url: "/profiles" });
+    expect(blocked.statusCode).toBe(403);
+    expect(blocked.json().code).toBe("password_change_required");
+    expect((await call(token, { method: "GET", url: "/auth/me" })).statusCode).toBe(200);
+
+    await call(token, {
+      method: "POST",
+      url: "/auth/password",
+      payload: { currentPassword: "temporary-pass", newPassword: "friends-own-password" },
+    });
+    expect((await call(token, { method: "GET", url: "/profiles" })).statusCode).toBe(200);
+  });
+
   it("can't be used by a member", async () => {
     const admin = await bootstrapAdmin();
     const friend = await inviteFriend(admin.token);
@@ -282,6 +317,31 @@ describe("the admin's recovery actions", () => {
     expect((await call(admin.token, { method: "GET", url: "/auth/me" })).json().isAdmin).toBe(false);
     expect((await call(friend.token, { method: "GET", url: "/auth/me" })).json().isAdmin).toBe(true);
     expect((await call(admin.token, { method: "GET", url: "/auth/accounts" })).statusCode).toBe(403);
+    expect(await prisma.account.count({ where: { isAdmin: true } })).toBe(1);
+  });
+
+  it("leaves exactly one admin when two transfers race", async () => {
+    const admin = await bootstrapAdmin();
+    const friend = await inviteFriend(admin.token);
+    const { invite } = (await call(admin.token, { method: "POST", url: "/auth/invites", payload: {} })).json();
+    const third = (
+      await call(null, {
+        method: "POST",
+        url: "/auth/register",
+        payload: { inviteCode: invite.code, username: "third", password: "third-password" },
+      })
+    ).json() as { account: { id: string } };
+
+    const results = await Promise.all(
+      [friend.account.id, third.account.id].map((id) =>
+        call(admin.token, {
+          method: "POST",
+          url: `/auth/accounts/${id}/make-admin`,
+          payload: { adminPassword: "owner-password" },
+        })
+      )
+    );
+    expect(results.map((r) => r.statusCode).sort()).toEqual([204, 403]);
     expect(await prisma.account.count({ where: { isAdmin: true } })).toBe(1);
   });
 
@@ -399,6 +459,16 @@ describe("the fetch command", () => {
     const { code } = await runCli("clear-pin", "kids");
     expect(code).toBe(0);
     expect((await prisma.profile.findFirstOrThrow({ where: { name: "Kids" } })).pinHash).toBeNull();
+  });
+
+  it("refuses a misspelt option or an unquoted name instead of guessing", async () => {
+    const { token } = await bootstrapAdmin();
+    await call(token, { method: "POST", url: "/profiles", payload: { name: "Kids", pin: "1234" } });
+
+    expect((await runCli("clear-pin", "Kids", "--accout", "owner")).code).toBe(2);
+    expect((await runCli("clear-pin", "Kids", "Room")).code).toBe(2);
+    expect((await runCli("accounts", "extra")).code).toBe(2);
+    expect((await prisma.profile.findFirstOrThrow({ where: { name: "Kids" } })).pinHash).not.toBeNull();
   });
 
   it("refuses an unknown account or an ambiguous profile name", async () => {

@@ -73,7 +73,7 @@ function UsernameForm({ current, onDone, onCancel }: { current: string; onDone: 
         <button type="submit" disabled={saving || !password || normalized === current} className="btn-primary btn-sm">
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />} Save username
         </button>
-        <button type="button" onClick={onCancel} className="btn-secondary btn-sm">Cancel</button>
+        <button type="button" onClick={onCancel} disabled={saving} className="btn-secondary btn-sm">Cancel</button>
       </div>
     </form>
   );

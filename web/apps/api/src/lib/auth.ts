@@ -61,8 +61,10 @@ export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) 
     // A password someone else set (the admin, or `fetch reset-password`) is
     // only good for choosing a new one: until then the session can say who it
     // is, change the password and sign out, and nothing else.
-    const route = `${request.method} ${request.url.split("?", 1)[0] ?? request.url}`;
-    if (session.mustChangePassword && !PASSWORD_CHANGE_ROUTES.has(route)) {
+    if (
+      session.mustChangePassword &&
+      !PASSWORD_CHANGE_ROUTES.has(`${request.method} ${request.url.split("?", 1)[0] ?? request.url}`)
+    ) {
       return reply
         .code(403)
         .send({ error: "Choose a new password to continue", code: "password_change_required" });

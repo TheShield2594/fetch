@@ -145,6 +145,16 @@ export function App() {
     // (a reload in the middle, say): the server refuses everything else, so
     // the wizard takes over again at its new-password step.
     window.addEventListener("fetch:password-change-required", handleUnauthorized);
+    // A page that makes no protected request on load (`/pair`, say) would
+    // otherwise never hear the 403, so the account is asked once at start.
+    if (runtimeConfig.hasSession()) {
+      api.getMe().then(
+        (me) => {
+          if (me.account?.mustChangePassword) handleUnauthorized();
+        },
+        () => {}
+      );
+    }
     return () => {
       window.removeEventListener("fetch:unauthorized", handleUnauthorized);
       window.removeEventListener("fetch:password-change-required", handleUnauthorized);

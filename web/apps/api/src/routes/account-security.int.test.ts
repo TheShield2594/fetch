@@ -284,6 +284,16 @@ describe("the admin's recovery actions", () => {
     expect(blocked.statusCode).toBe(403);
     expect(blocked.json().code).toBe("password_change_required");
     expect((await call(token, { method: "GET", url: "/auth/me" })).statusCode).toBe(200);
+    // The same path, but changes the account: not with a temporary password.
+    const rename = await call(token, {
+      method: "PATCH",
+      url: "/auth/me",
+      payload: { username: "taken-over", currentPassword: "temporary-pass" },
+    });
+    expect(rename.statusCode).toBe(403);
+    const remove = await call(token, { method: "DELETE", url: "/auth/me", payload: { currentPassword: "temporary-pass" } });
+    expect(remove.statusCode).toBe(403);
+    expect(await prisma.account.count({ where: { username: "friend" } })).toBe(1);
 
     await call(token, {
       method: "POST",

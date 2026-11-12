@@ -22,7 +22,7 @@ export type AuthPrincipal =
       sessionId: string;
       accountId: string;
       isAdmin: boolean;
-      /** Signed in with a password someone else set; see `PASSWORD_CHANGE_PATHS`. */
+      /** Signed in with a password someone else set; see `PASSWORD_CHANGE_ROUTES`. */
       mustChangePassword?: boolean;
     }
   | { kind: "device"; deviceId: string; accountId: string | null };

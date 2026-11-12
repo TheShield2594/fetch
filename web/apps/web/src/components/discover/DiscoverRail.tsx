@@ -70,14 +70,21 @@ export function DiscoverRail({
         </div>
         <div className="flex flex-none items-center gap-3">
           {action}
-          {!loading && !failed && items.length > 0 && (
+          {items.length > 0 && (
             <ScrollArrows canScrollLeft={scroll.canScrollLeft} canScrollRight={scroll.canScrollRight} onScroll={scroll.scroll} />
           )}
         </div>
       </div>
-      {loading ? (
+      {/* What is already here stays on screen through a refresh, and through
+          a failed one — with the Retry above it rather than in its place. */}
+      {failed && items.length > 0 && (
+        <div className="mb-3">
+          <SectionError message={`Couldn't refresh ${title.toLowerCase()}.`} onRetry={onRetry ?? noop} />
+        </div>
+      )}
+      {items.length === 0 && loading ? (
         <CarouselSkeleton />
-      ) : failed ? (
+      ) : items.length === 0 && failed ? (
         <SectionError message={`Couldn't load ${title.toLowerCase()}.`} onRetry={onRetry ?? noop} />
       ) : items.length === 0 ? (
         empty

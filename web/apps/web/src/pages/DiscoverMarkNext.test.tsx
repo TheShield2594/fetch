@@ -128,6 +128,32 @@ describe("Discover's pick-up strip", () => {
     expect(api.unmarkEpisodeWatched).toHaveBeenCalledWith("tt11280740", 1, 4);
   });
 
+  it("names and undoes the episode the server marked, not the card's guess", async () => {
+    // Another device moved the show on: the card still says E4, the server marked E5.
+    markNextEpisodeWatched.mockResolvedValue({ season: 1, episode: 5 } as never);
+    const user = userEvent.setup();
+    renderDiscover();
+    await user.click(await markButton());
+
+    expect(await screen.findByText("Marked S1:E5 of Severance")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+    expect(api.unmarkEpisodeWatched).toHaveBeenCalledWith("tt11280740", 1, 5);
+  });
+
+  it("refuses an Undo once a different profile is active", async () => {
+    const user = userEvent.setup();
+    renderDiscover();
+    await user.click(await markButton());
+    await screen.findByText("Marked S1:E4 of Severance");
+    vi.mocked(api.unmarkEpisodeWatched).mockClear();
+
+    act(() => runtimeConfig.setProfileId("second-profile"));
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+
+    expect(api.unmarkEpisodeWatched).not.toHaveBeenCalled();
+    expect(await screen.findByText(/was marked on another profile/)).toBeInTheDocument();
+  });
+
   it("does not refetch when the mark lands after the page is gone", async () => {
     let finishMark: () => void = () => {};
     markNextEpisodeWatched.mockImplementation(

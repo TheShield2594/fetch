@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, type SeriesProgress } from "../api";
+import { api, runtimeConfig, type SeriesProgress } from "../api";
 import { useToast } from "./useToast";
 
 /**
@@ -42,17 +42,30 @@ export function useMarkNextEpisode(onChanged: () => unknown) {
 
   const markNext = useCallback(
     async (s: SeriesProgress) => {
-      const { imdbId, name, nextSeason, nextEpisode } = s;
-      const episode = `S${nextSeason}:E${nextEpisode}`;
+      const { imdbId, name } = s;
+      // The profile the mark is recorded against. The toast outlives the page
+      // and survives a profile switch, and the Undo's DELETE would otherwise go
+      // out under whichever profile is active when it is pressed.
+      const profileId = runtimeConfig.getProfileId();
       setMarking((prev) => new Set(prev).add(imdbId));
       try {
-        await api.markNextEpisodeWatched(imdbId);
+        // What the server marked, which is not always what the card showed: a
+        // card can be stale if another device moved the show on. The card's
+        // guess is the fallback for an API from before the answer had a body.
+        const marked = await api.markNextEpisodeWatched(imdbId);
+        const season = marked?.season ?? s.nextSeason;
+        const episodeNumber = marked?.episode ?? s.nextEpisode;
+        const episode = `S${season}:E${episodeNumber}`;
         showToast(`Marked ${episode} of ${name}`, "success", {
           action: {
             label: "Undo",
             onAction: () => {
+              if (runtimeConfig.getProfileId() !== profileId) {
+                showToast(`Couldn't undo: ${episode} of ${name} was marked on another profile`, "error");
+                return;
+              }
               void api
-                .unmarkEpisodeWatched(imdbId, nextSeason, nextEpisode)
+                .unmarkEpisodeWatched(imdbId, season, episodeNumber)
                 .then(changed)
                 .catch((err: unknown) =>
                   showToast(err instanceof Error ? err.message : `Couldn't unmark ${episode}`, "error")

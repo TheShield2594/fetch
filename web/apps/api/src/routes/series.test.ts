@@ -153,6 +153,23 @@ describe("series routes — completion drops from Continue Watching", () => {
       expect(response.statusCode).toBe(409);
       expect(prismaMock.watchEvent.create).not.toHaveBeenCalled();
     });
+
+    it("answers with the episode it marked", async () => {
+      prismaMock.seriesProgress.findUnique.mockResolvedValue({
+        seriesImdbId: "tt-office",
+        lastSeason: 2,
+        lastEpisode: 4,
+      });
+      prismaMock.metadata.findUnique.mockResolvedValue({ tmdbId: 2316, totalEpisodes: null });
+      nextEpisodeMock.computeNextEpisode.mockResolvedValue({ season: 2, episode: 5 });
+      prismaMock.watchEvent.create.mockResolvedValue({});
+
+      const app = await buildApp();
+      const response = await app.inject({ method: "POST", url: "/series/tt-office/watch-next" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ season: 2, episode: 5 });
+    });
   });
 });
 

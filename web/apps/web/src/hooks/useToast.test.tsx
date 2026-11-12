@@ -176,6 +176,21 @@ describe("ToastProvider", () => {
     expect(screen.queryByText("Saved")).not.toBeInTheDocument();
   });
 
+  it("brings a repeat of a toast that had slipped out of view back into it", () => {
+    renderToasts();
+    act(() => {
+      show("First");
+      show("Second");
+      show("Third");
+      show("Fourth");
+    });
+    expect(screen.queryByText("First")).not.toBeInTheDocument();
+
+    act(() => show("First"));
+
+    expect(screen.getByText("First")).toBeInTheDocument();
+  });
+
   it("keeps different messages as separate toasts", () => {
     renderToasts();
     act(() => {

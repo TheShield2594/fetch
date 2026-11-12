@@ -72,15 +72,21 @@ export function UpcomingTimeline({
     checkScroll();
   }, [entries.length, checkScroll]);
 
-  // Consecutive entries on the same local day share one label.
-  const days: { key: string; label: string; entries: CalendarEntry[] }[] = [];
+  // One group per local day, whatever order the entries arrive in: the API
+  // sorts by air date, but an entry's local day comes from its air instant
+  // where one is known, and the two orders can disagree across a midnight.
+  const byDay = new Map<string, { time: number; label: string; entries: CalendarEntry[] }>();
   for (const entry of entries) {
     const day = calendarEntryDay(entry);
-    const key = Number.isNaN(day.getTime()) ? "unknown" : day.toDateString();
-    const last = days[days.length - 1];
-    if (last && last.key === key) last.entries.push(entry);
-    else days.push({ key, label: dayLabel(day), entries: [entry] });
+    const time = day.getTime();
+    const key = Number.isNaN(time) ? "unknown" : day.toDateString();
+    const group = byDay.get(key);
+    if (group) group.entries.push(entry);
+    else byDay.set(key, { time: Number.isNaN(time) ? Infinity : time, label: dayLabel(day), entries: [entry] });
   }
+  const days = [...byDay.entries()]
+    .map(([key, group]) => ({ key, ...group }))
+    .sort((a, b) => a.time - b.time);
 
   return (
     <div>

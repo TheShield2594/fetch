@@ -284,7 +284,10 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
         lastWatchedAt: watchedAt,
       });
 
-      return reply.code(204).send();
+      // Which episode this marked. The client's card can be stale — another
+      // device may have moved the show on — so the toast and its Undo name
+      // what the server actually recorded, not what the card guessed.
+      return reply.send({ season: nextSeason, episode: nextEpisode });
     }
   );
 

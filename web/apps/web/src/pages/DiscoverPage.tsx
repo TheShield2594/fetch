@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { Clock, Sparkles } from "lucide-react";
 import {
   api,
@@ -118,7 +118,6 @@ export function DiscoverPage() {
 
   const { showToast } = useToast();
   const { setMembership, isPending } = useListMembership(showToast);
-  const [addedToWatchlist, setAddedToWatchlist] = useState<ReadonlySet<string>>(() => new Set());
 
   // Each rail loads, fails and retries on its own. See `useDiscoverSection`.
   const isTmdbMissing = useCallback(
@@ -267,9 +266,15 @@ export function DiscoverPage() {
     }
   }, [setProgress, setHistory]);
 
+  // A mark and its Undo each refresh, and the two can overlap: only the
+  // newest refresh's answer is applied, so an older one landing late can't
+  // put back a card the Undo already moved.
+  const refreshGeneration = useRef(0);
   const refreshProgress = useCallback(async () => {
+    const generation = ++refreshGeneration.current;
     try {
       const progressRes = await api.getSeriesProgress();
+      if (generation !== refreshGeneration.current) return;
       setProgress(progressRes ?? []);
     } catch { /* keep showing the last known list */ }
   }, [setProgress]);
@@ -393,6 +398,15 @@ export function DiscoverPage() {
   /* ── What the viewer has already met, so the page can leave it out ── */
 
   const watchlist = watchlistSection.value;
+  // Titles added here since the watchlist was last read. A fresh read is the
+  // authority — it has the additions that stuck and not the ones taken out
+  // again in the title panel — so the overlay is dropped whenever one lands.
+  const [added, setAdded] = useState<{ base: TrendingMeta[]; ids: ReadonlySet<string> }>(() => ({
+    base: watchlist.items,
+    ids: new Set(),
+  }));
+  if (added.base !== watchlist.items) setAdded({ base: watchlist.items, ids: new Set() });
+  const addedToWatchlist = added.ids;
   const seen = useMemo(() => {
     const ids = new Set<string>();
     for (const s of progress) ids.add(s.imdbId);
@@ -453,13 +467,17 @@ export function DiscoverPage() {
       { type: item.type, imdbId: item.id, name: item.name },
       true,
       (member) =>
-        setAddedToWatchlist((prev) => {
-          const next = new Set(prev);
-          if (member) next.add(item.id);
-          else next.delete(item.id);
-          return next;
+        setAdded((prev) => {
+          const ids = new Set(prev.ids);
+          if (member) ids.add(item.id);
+          else ids.delete(item.id);
+          return { ...prev, ids };
         })
-    );
+    ).then((stuck) => {
+      // Read it back, so the rail below gains the title and the overlay
+      // above gives way to the server's answer.
+      if (stuck) void loadWatchlist();
+    });
   };
 
   const pickUp: UpNextItem[] = progress.slice(0, PICK_UP_LIMIT).map((s) => {
@@ -605,7 +623,9 @@ export function DiscoverPage() {
           title={`Because you watched ${seed.name}`}
           reason="Titles people who liked it went on to watch"
           items={becauseRail}
-          loading={because.loading && becauseRail.length === 0}
+          loading={because.loading}
+          failed={because.failed}
+          onRetry={() => void loadBecause()}
           onSelect={openMeta}
         />
       )}
@@ -642,12 +662,14 @@ export function DiscoverPage() {
         </section>
       )}
 
-      {watchlist.list && (
+      {(watchlist.list || watchlistSection.failed) && (
         <DiscoverRail
           title="From your watchlist"
           reason="Saved and not started yet"
           items={watchlistRail}
-          loading={watchlistSection.loading && watchlistRail.length === 0}
+          loading={watchlistSection.loading}
+          failed={watchlistSection.failed}
+          onRetry={() => void loadWatchlist()}
           action={seeAll("/lists", "All lists")}
           onSelect={openMeta}
         />

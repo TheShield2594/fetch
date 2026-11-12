@@ -297,11 +297,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         remaining: duration,
         startedAt: Date.now(),
       });
-      setToasts((prev) =>
-        prev.map((t) =>
-          t.id === existing ? { ...t, count: (t.count ?? 1) + 1, action: options?.action ?? t.action } : t
-        )
-      );
+      // Moved to the end as well: the stack shows only the newest few, and a
+      // repeat of a toast that had slipped out of view is news again.
+      setToasts((prev) => {
+        const current = prev.find((t) => t.id === existing);
+        if (!current) return prev;
+        const refreshed = { ...current, count: (current.count ?? 1) + 1, action: options?.action ?? current.action };
+        return [...prev.filter((t) => t.id !== existing), refreshed];
+      });
       return;
     }
 

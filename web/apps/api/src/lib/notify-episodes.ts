@@ -49,7 +49,9 @@ export const checkUpcomingEpisodesAndNotify = async (log: FastifyBaseLogger): Pr
           event: "upcoming-episode",
           title: `${ep.seriesName} — new episode today`,
           body: `S${ep.season}E${ep.episode} "${ep.episodeName}" airs today`,
-          path: "/calendar",
+          // Straight to the show, over the calendar it is airing on: the web
+          // app reads `?title=` and opens the title panel on arrival.
+          path: `/calendar?title=${encodeURIComponent(`series:${ep.seriesImdbId}`)}`,
           data: {
             seriesImdbId: ep.seriesImdbId,
             seriesName: ep.seriesName,

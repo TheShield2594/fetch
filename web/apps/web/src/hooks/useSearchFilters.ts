@@ -1,3 +1,4 @@
+import { TITLE_PARAM } from "../components/media-detail/titlePanel";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router";
 
@@ -85,7 +86,13 @@ export function useSearchFilters() {
         const base = parseParams(prev);
         const merged = { ...base, ...updates };
 
+        // Rebuilt from empty so a parameter that was never a filter is dropped
+        // — with one exception. An open title lives in `?title=`, and a
+        // debounced query landing after a result was clicked used to rebuild
+        // the string without it, closing the panel the click had just opened.
         const next = new URLSearchParams();
+        const openTitle = prev.get(TITLE_PARAM);
+        if (openTitle) next.set(TITLE_PARAM, openTitle);
 
         for (const [key, paramName] of Object.entries(PARAM_MAP)) {
           const val = merged[key as keyof SearchFilters];

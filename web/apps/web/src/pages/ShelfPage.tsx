@@ -10,7 +10,7 @@ import {
   type SeriesProgress,
   type WatchEvent,
 } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { GhostLoader } from "../components/GhostLoader";
 import { Poster } from "../components/Poster";
 import { ProgressRuler } from "../components/ProgressRuler";
@@ -324,15 +324,7 @@ export function ShelfPage() {
   const loadAbortRef = useRef<AbortController | null>(null);
 
   const { showToast } = useToast();
-  const {
-    selectedItem,
-    setSelectedItem,
-    panelHistory,
-    setPanelHistory,
-    panelHistoryLoading,
-    detail: panelDetail,
-    detailLoading: panelDetailLoading,
-  } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
 
   const load = useCallback(async () => {
     loadAbortRef.current?.abort();
@@ -460,7 +452,7 @@ export function ShelfPage() {
   /* ── Actions ── */
 
   const openEntry = (entry: ShelfEntry) => {
-    if (entry.item) setSelectedItem(entry.item);
+    if (entry.item) openTitle(entry.item);
   };
 
   const markNext = async (s: SeriesProgress) => {
@@ -751,19 +743,6 @@ export function ShelfPage() {
         </div>
       )}
 
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={setPanelHistory}
-          onSelectItem={setSelectedItem}
-        />
-      )}
 
     </div>
   );

@@ -16,8 +16,7 @@ import {
 import { Link } from "react-router";
 import { CarouselTrack } from "../components/CarouselTrack";
 import { useHorizontalScroll } from "../components/carousel-utils";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
-import { useToast } from "../hooks/useToast";
+import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { historyItemImdbId, watchEventTitle } from "../utils/watchEvents";
 import { timeUntil } from "../utils/timeAgo";
 import { useCachedState } from "../hooks/useCachedState";
@@ -130,8 +129,7 @@ export function DashboardPage() {
   const recsScroll = useHorizontalScroll();
   const seriesRecsScroll = useHorizontalScroll();
 
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
-  const { showToast } = useToast();
+  const { openTitle } = useTitlePanel();
 
   const toSearchResult = useCallback((imdbId: string, type: "movie" | "series", name: string, opts?: {
     poster?: string | undefined;
@@ -191,6 +189,9 @@ export function DashboardPage() {
       setProgress(progressRes ?? []);
     } catch { /* keep showing the last known list */ }
   }, [setProgress]);
+
+  // The panel can mark episodes watched, which moves the rows on this page.
+  useOnTitleClose(() => { void refreshProgress(); });
 
   const profileId = runtimeConfig.getProfileId();
 
@@ -453,7 +454,7 @@ export function DashboardPage() {
                 isMarking={markingNext.has(continueHeroItem.imdbId)}
                 isDone={markedDone.has(continueHeroItem.imdbId)}
                 onMarkNext={() => void handleMarkNext(continueHeroItem.imdbId)}
-                onSelect={() => setSelectedItem(toSearchResult(continueHeroItem.imdbId, "series", continueHeroItem.name, { poster: continueHeroItem.poster, background: continueHeroItem.background }))}
+                onSelect={() => openTitle(toSearchResult(continueHeroItem.imdbId, "series", continueHeroItem.name, { poster: continueHeroItem.poster, background: continueHeroItem.background }))}
               />
             )}
             {continueRowItems.length > 0 && (
@@ -471,7 +472,7 @@ export function DashboardPage() {
                     isMarking={markingNext.has(s.imdbId)}
                     isDone={markedDone.has(s.imdbId)}
                     onMarkNext={() => void handleMarkNext(s.imdbId)}
-                    onSelect={() => setSelectedItem(toSearchResult(s.imdbId, "series", s.name, { poster: s.poster, background: s.background }))}
+                    onSelect={() => openTitle(toSearchResult(s.imdbId, "series", s.name, { poster: s.poster, background: s.background }))}
                   />
                 ))}
               </CarouselTrack>
@@ -529,7 +530,7 @@ export function DashboardPage() {
                   item={item}
                   eager={index < 4}
                   fill
-                  onSelect={(i) => setSelectedItem(toSearchResult(i.id, (i.type ?? "movie") as "movie" | "series", i.name, { poster: i.poster, year: i.year, description: item.description, genres: i.genres, rating: i.rating }))}
+                  onSelect={(i) => openTitle(toSearchResult(i.id, (i.type ?? "movie") as "movie" | "series", i.name, { poster: i.poster, year: i.year, description: item.description, genres: i.genres, rating: i.rating }))}
                 />
               ))}
             </div>
@@ -583,7 +584,7 @@ export function DashboardPage() {
               reasons={movieReasons}
               aiActive={aiActive}
               scroll={recsScroll}
-              onSelect={(i) => setSelectedItem(toSearchResult(i.id, (i.type ?? "movie") as "movie" | "series", i.name, { poster: i.poster, year: i.year, description: i.description, genres: i.genres, rating: i.rating }))}
+              onSelect={(i) => openTitle(toSearchResult(i.id, (i.type ?? "movie") as "movie" | "series", i.name, { poster: i.poster, year: i.year, description: i.description, genres: i.genres, rating: i.rating }))}
             />
             <DiscoverSubRow
               label="Series"
@@ -594,7 +595,7 @@ export function DashboardPage() {
               reasons={seriesReasons}
               aiActive={aiActive}
               scroll={seriesRecsScroll}
-              onSelect={(i) => setSelectedItem(toSearchResult(i.id, "series", i.name, { poster: i.poster, year: i.year, description: i.description, genres: i.genres, rating: i.rating }))}
+              onSelect={(i) => openTitle(toSearchResult(i.id, "series", i.name, { poster: i.poster, year: i.year, description: i.description, genres: i.genres, rating: i.rating }))}
             />
           </div>
         </section>
@@ -635,7 +636,7 @@ export function DashboardPage() {
                 key={event.id}
                 event={event}
                 onSelect={() =>
-                  setSelectedItem(
+                  openTitle(
                     toSearchResult(
                       historyItemImdbId(event),
                       event.type === "movie" ? "movie" : "series",
@@ -650,20 +651,6 @@ export function DashboardPage() {
         )}
       </section>
 
-      {/* ── Detail Panel ── */}
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => { setSelectedItem(null); void refreshProgress(); }}
-          onShowToast={showToast}
-          onHistoryChange={(events) => setPanelHistory(events)}
-          onSelectItem={setSelectedItem}
-        />
-      )}
     </div>
   );
 }

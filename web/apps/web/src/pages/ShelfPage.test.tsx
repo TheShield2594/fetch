@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
+import { TitlePanelProvider } from "../components/media-detail/titlePanel";
 import { type CatalogList, type ListItemWithMeta, OfflineWriteQueuedError, type PlaybackProgress, type SeriesProgress } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { ShelfPage } from "./ShelfPage";
@@ -86,7 +87,9 @@ function renderShelf(path = "/") {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <ToastProvider>
-        <ShelfPage />
+        <TitlePanelProvider pageTitle="Shelf" appName="Fetch">
+          <ShelfPage />
+        </TitlePanelProvider>
       </ToastProvider>
     </MemoryRouter>
   );

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
 import { Calendar, Film, NotebookPen, Trash2, Tv } from "lucide-react";
 import { api, type SearchResult, type WatchEvent } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
 import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
@@ -87,7 +87,7 @@ export function HistoryPage() {
   const [savingNote, setSavingNote] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { showToast } = useToast();
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
 
   // The filter goes to the server, not to the loaded page: filtering in memory
   // only ever saw the rows already fetched, so picking "Movies" on a history
@@ -398,7 +398,7 @@ export function HistoryPage() {
                       it. */}
                   <button
                     type="button"
-                    onClick={() => setSelectedItem(toSearchResult(event))}
+                    onClick={() => openTitle(toSearchResult(event))}
                     aria-label={`View details for ${watchEventLabel(event)}`}
                     className="absolute inset-0 z-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-focus"
                   />
@@ -522,19 +522,6 @@ export function HistoryPage() {
         </div>
       )}
 
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={(updated) => setPanelHistory(updated)}
-          onSelectItem={setSelectedItem}
-        />
-      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } fro
 import { useSearchParams } from "react-router";
 import { AlertTriangle, Check, Film, FolderOpen, Pencil, Plus, Search, Trash2, Tv } from "lucide-react";
 import { api, type CatalogList, type ListItemWithMeta, type MediaType, type SearchResult } from "../api";
-import { DetailPanel, useDetailPanel } from "../components/MediaDetailPanel";
+import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
 import { useCachedState } from "../hooks/useCachedState";
 import { useDebouncedSearch } from "../hooks/useDebouncedSearch";
@@ -259,7 +259,7 @@ export function ListsPage() {
   // The one in-flight items request, so a newer one can cancel it.
   const itemsRequestRef = useRef<AbortController | null>(null);
   const { showToast } = useToast();
-  const { selectedItem, setSelectedItem, panelHistory, setPanelHistory, panelHistoryLoading, detail: panelDetail, detailLoading: panelDetailLoading } = useDetailPanel();
+  const { openTitle } = useTitlePanel();
 
   // Pushing (rather than replacing) is what makes Back undo a list switch. The
   // one exception is the initial default, which the user never chose.
@@ -822,7 +822,7 @@ export function ListsPage() {
                       key={`${item.type}:${item.imdbId}`}
                       poster={poster}
                       name={name}
-                      onOpen={() => setSelectedItem(toSearchResult(item, selectedList))}
+                      onOpen={() => openTitle(toSearchResult(item, selectedList))}
                       openLabel={`Open details for ${name}`}
                       eager={index < 5}
                       actions={
@@ -876,19 +876,6 @@ export function ListsPage() {
       )}
 
       {/* Detail panel */}
-      {selectedItem && (
-        <DetailPanel
-          item={selectedItem}
-          history={panelHistory}
-          historyLoading={panelHistoryLoading}
-          detail={panelDetail}
-          detailLoading={panelDetailLoading}
-          onClose={() => setSelectedItem(null)}
-          onShowToast={showToast}
-          onHistoryChange={(events) => setPanelHistory(events)}
-          onSelectItem={setSelectedItem}
-        />
-      )}
     </div>
   );
 }

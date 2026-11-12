@@ -5,6 +5,7 @@ import { MemoryRouter, useLocation } from "react-router";
 import type { SearchResult } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { CommandPalette } from "./CommandPalette";
+import { TitlePanelProvider } from "./media-detail/titlePanel";
 
 vi.mock("../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../api")>();
@@ -66,8 +67,11 @@ function renderPalette(open = true) {
   const view = render(
     <MemoryRouter initialEntries={["/"]}>
       <ToastProvider>
-        <CommandPalette open={open} onClose={onClose} />
-        <LocationProbe />
+        {/* The shell's job in the app: it draws the panel the palette opens. */}
+        <TitlePanelProvider pageTitle="Shelf" appName="Fetch">
+          <CommandPalette open={open} onClose={onClose} />
+          <LocationProbe />
+        </TitlePanelProvider>
       </ToastProvider>
     </MemoryRouter>
   );
@@ -133,7 +137,8 @@ describe("CommandPalette", () => {
     await user.click(await screen.findByRole("option", { name: /Solaris/ }));
 
     expect(await screen.findByText("Detail panel: Solaris")).toBeInTheDocument();
-    expect(path()).toBe("/");
+    // Same page, with the title in its address.
+    expect(path()).toBe("/?title=movie%3Att-solaris");
   });
 
   it("hands the palette back when that panel closes, query intact", async () => {

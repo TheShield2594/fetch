@@ -1,4 +1,6 @@
+import type { Prisma } from "@prisma/client";
 import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import { resolveKidsRulesWrite } from "../lib/kids-rules.js";
 import { accountScope } from "../lib/request-auth.js";
 import { findAdminAccountId } from "../lib/sessions.js";
 import { prisma } from "../lib/prisma.js";
@@ -160,12 +162,14 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (!(await hasParentalAuthority(request))) {
       return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
     }
+    const kidsRules = attributes.kidsRules ? resolveKidsRulesWrite(null, attributes.kidsRules) : null;
+    if (kidsRules && !kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
     const pinHash = pin ? await hashPin(pin) : null;
 
     // A profile made with API_TOKEN goes to the admin, who is the operator.
     const accountId = accountScope(request) ?? (await findAdminAccountId());
     const profile = await prisma.profile.create({
-      data: { name, pinHash, accountId, ...attributes.data },
+      data: { name, pinHash, accountId, ...attributes.data, ...(kidsRules?.ok ? kidsRules.data : {}) },
       select: PROFILE_VIEW_SELECT,
     });
     invalidateProfileCache();
@@ -225,7 +229,8 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     const body = (request.body ?? {}) as { name?: unknown; pin?: unknown; currentPin?: unknown };
     const attributes = parseProfileAttributes(body);
     if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
-    const data: { name?: string; pinHash?: string | null } & typeof attributes.data = { ...attributes.data };
+    const data: { name?: string; pinHash?: string | null } & typeof attributes.data &
+      Partial<Pick<Prisma.ProfileUpdateInput, "kidsRules" | "kidsRulesUpdatedAt">> = { ...attributes.data };
 
     if (body.name !== undefined) {
       if (typeof body.name !== "string" || !body.name.trim()) {
@@ -238,6 +243,17 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // request comes from: a kids profile may tighten its own, never lift them.
     if (loosensParentalLimits(profile, attributes.data) && !(await hasParentalAuthority(request))) {
       return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+    }
+
+    // Kids rules are a grown-up's to set, tighter or looser: a kids profile
+    // can't change its own. Of two writes, the one that changed them later
+    // wins (lib/kids-rules.ts).
+    if (attributes.kidsRules) {
+      if (!(await hasParentalAuthority(request))) return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+      const kidsRules = resolveKidsRulesWrite(profile, attributes.kidsRules);
+      if (!kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
+      // Null: what is stored changed later than this write, so it stays.
+      if (kidsRules.data) Object.assign(data, kidsRules.data);
     }
 
     // pin: omitted = leave as-is, null = remove PIN protection, string = set/change PIN.
@@ -288,6 +304,11 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (Object.keys(data).length === 0) {
+      if (attributes.kidsRules) {
+        // Only kids rules older than the stored ones: answer with what is kept.
+        const current = await prisma.profile.findUnique({ where: { id: profile.id }, select: PROFILE_VIEW_SELECT });
+        if (current) return { profile: toProfileView(current) };
+      }
       return reply.code(400).send({ error: "Nothing to update" });
     }
 

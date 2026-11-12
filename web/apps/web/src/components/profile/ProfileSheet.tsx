@@ -5,11 +5,14 @@ import {
   api,
   ApiError,
   RATING_LEVELS,
+  type KidsRules,
   type Profile,
   type ProfileParental,
+  type ProfileSettingsUpdate,
   type ProfileSummary,
   type RatingLevel,
 } from "../../api";
+import { useProfile } from "../../hooks/useProfile";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useExitAnimation } from "../../hooks/useExitAnimation";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
@@ -39,7 +42,54 @@ const KIDS_PRESET: Pick<ProfileParental, "maxRating" | "allowUnrated"> = {
   allowUnrated: false,
 };
 
-const UNRESTRICTED: ProfileParental = { isKidsProfile: false, maxRating: null, allowUnrated: true };
+type Limits = Omit<ProfileParental, "kidsRules">;
+
+const UNRESTRICTED: Limits = { isKidsProfile: false, maxRating: null, allowUnrated: true };
+
+/** The rule fields edited here; approved titles are added on a TV. */
+type RulesDraft = Omit<KidsRules, "approvedTitles" | "updatedAt">;
+
+/** What a TV starts a kids profile with (`KidsRules.Default`). */
+const DEFAULT_RULES: RulesDraft = {
+  autoplayEpisodeCap: 3,
+  approvedTitlesOnly: false,
+  dailyMinutes: null,
+  bedtimeStartMinute: null,
+  bedtimeEndMinute: null,
+  hardStop: false,
+};
+
+/** The TV's choices, so a rule set on either side reads the same on both. */
+const AUTOPLAY_CHOICES = [1, 2, 3, 5];
+const DAILY_CHOICES = [30, 60, 90, 120, 180];
+const DEFAULT_BEDTIME = { start: 20 * 60, end: 7 * 60 };
+
+const rulesOf = (rules: KidsRules | null | undefined): RulesDraft => ({
+  autoplayEpisodeCap: rules ? rules.autoplayEpisodeCap : DEFAULT_RULES.autoplayEpisodeCap,
+  approvedTitlesOnly: rules?.approvedTitlesOnly ?? DEFAULT_RULES.approvedTitlesOnly,
+  dailyMinutes: rules?.dailyMinutes ?? null,
+  bedtimeStartMinute: rules?.bedtimeStartMinute ?? null,
+  bedtimeEndMinute: rules?.bedtimeEndMinute ?? null,
+  hardStop: rules?.hardStop ?? DEFAULT_RULES.hardStop,
+});
+
+const sameRules = (a: RulesDraft, b: RulesDraft) =>
+  (Object.keys(a) as (keyof RulesDraft)[]).every((key) => a[key] === b[key]);
+
+/** "20:00" for a minute of the day, and back. */
+const timeOf = (minute: number) =>
+  `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
+const minuteOf = (time: string): number | null => {
+  const match = /^(\d{2}):(\d{2})$/.exec(time);
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
+};
+
+const minutesLabel = (minutes: number) =>
+  minutes < 60 ? `${minutes} min` : minutes % 60 === 0 ? `${minutes / 60} h` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
+
+/** The choices, plus the current value when a TV set one that isn't among them. */
+const withCurrent = (choices: number[], current: number | null) =>
+  current === null || choices.includes(current) ? choices : [...choices, current].sort((a, b) => a - b);
 
 const FIELD_CLASS = "w-full rounded-xl border px-3.5 py-2.5 text-sm field-control";
 const FIELD_STYLE = { borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" };
@@ -616,15 +666,20 @@ type Draft = {
   name: string;
   look: AvatarChoice;
   usesPrimaryAddons: boolean;
-  parental: ProfileParental;
+  parental: Limits;
+  rules: RulesDraft;
 };
 
-const draftOf = (profile: Profile): Draft => ({
-  name: profile.name,
-  look: { avatarColorHex: profile.avatarColorHex ?? null, avatarId: profile.avatarId ?? null },
-  usesPrimaryAddons: profile.usesPrimaryAddons ?? false,
-  parental: profile.parental ?? UNRESTRICTED,
-});
+const draftOf = (profile: Profile): Draft => {
+  const { kidsRules, ...limits }: ProfileParental = profile.parental ?? UNRESTRICTED;
+  return {
+    name: profile.name,
+    look: { avatarColorHex: profile.avatarColorHex ?? null, avatarId: profile.avatarId ?? null },
+    usesPrimaryAddons: profile.usesPrimaryAddons ?? false,
+    parental: limits,
+    rules: rulesOf(kidsRules),
+  };
+};
 
 const sameDraft = (a: Draft, b: Draft) =>
   a.name.trim() === b.name.trim() &&
@@ -633,7 +688,8 @@ const sameDraft = (a: Draft, b: Draft) =>
   a.usesPrimaryAddons === b.usesPrimaryAddons &&
   a.parental.isKidsProfile === b.parental.isKidsProfile &&
   a.parental.maxRating === b.parental.maxRating &&
-  a.parental.allowUnrated === b.parental.allowUnrated;
+  a.parental.allowUnrated === b.parental.allowUnrated &&
+  sameRules(a.rules, b.rules);
 
 /**
  * Everything about one profile, in one sheet: its name and picture, PIN,
@@ -686,9 +742,15 @@ export function ProfileSheet({
   const [unlock, setUnlock] = useState("");
 
   const dirty = !sameDraft(draft, draftOf(saved));
+  // Kids rules are a grown-up's to change (the API refuses a kids profile), so
+  // acting as one shows them read-only.
+  const parentalLocked = useProfile().profile?.parental?.isKidsProfile === true;
 
-  const setParental = (next: Partial<ProfileParental>) =>
+  const setParental = (next: Partial<Limits>) =>
     setDraft((d) => ({ ...d, parental: { ...d.parental, ...next } }));
+
+  const setRules = (next: Partial<RulesDraft>) =>
+    setDraft((d) => ({ ...d, rules: { ...d.rules, ...next } }));
 
   const toggleKids = (isKidsProfile: boolean) =>
     setParental(isKidsProfile ? { isKidsProfile, ...KIDS_PRESET } : { isKidsProfile });
@@ -714,12 +776,19 @@ export function ProfileSheet({
     setError(null);
     setErrorField(null);
     try {
+      // Kids rules go only when changed: what is sent is stamped now and
+      // replaces what a TV set, rule by rule.
+      const rulesChanged =
+        !parentalLocked && draft.parental.isKidsProfile && !sameRules(draft.rules, draftOf(saved).rules);
+      const parental: ProfileSettingsUpdate["parental"] = rulesChanged
+        ? { ...draft.parental, kidsRules: draft.rules }
+        : draft.parental;
       const { profile: updated } = await api.updateProfile(saved.id, {
         ...(name !== saved.name ? { name } : {}),
         avatarColorHex: draft.look.avatarColorHex,
         avatarId: draft.look.avatarId,
         ...(isPrimary ? {} : { usesPrimaryAddons: draft.usesPrimaryAddons }),
-        parental: draft.parental,
+        parental,
         ...(needsPin ? { currentPin: unlock.trim() } : {}),
       });
       accept(updated);
@@ -735,6 +804,8 @@ export function ProfileSheet({
   };
 
   const preview = { name: draft.name.trim() || saved.name, ...draft.look };
+  const approvedTitles = saved.parental?.kidsRules?.approvedTitles ?? [];
+  const hasBedtime = draft.rules.bedtimeStartMinute !== null && draft.rules.bedtimeEndMinute !== null;
 
   return (
     <div className="fixed inset-0 z-[150]" role="presentation">
@@ -859,6 +930,121 @@ export function ProfileSheet({
               description={draft.parental.maxRating === null ? "Applies once a rating limit is set." : undefined}
             />
           </SheetSection>
+
+          {draft.parental.isKidsProfile && (
+            <SheetSection
+              title="Kids rules"
+              description={
+                parentalLocked
+                  ? "Switch to a grown-up's profile to change these."
+                  : "Every paired TV applies these rules. Each TV counts the screen time used today on its own, so the limit keeps working when a TV is offline."
+              }
+            >
+              <fieldset className="space-y-3" disabled={parentalLocked}>
+                <legend className="sr-only">Kids rules</legend>
+                <div>
+                  <label htmlFor={`${nameId}-autoplay`} className={LABEL} style={{ color: "var(--text)" }}>Autoplay in a row</label>
+                  <SelectField
+                    id={`${nameId}-autoplay`}
+                    value={draft.rules.autoplayEpisodeCap ?? ""}
+                    onChange={(e) => setRules({ autoplayEpisodeCap: e.target.value ? Number(e.target.value) : null })}
+                    wrapperClassName="mt-1.5"
+                    className="w-full rounded-xl border py-2.5 pl-3.5 pr-9 text-sm"
+                    style={FIELD_STYLE}
+                    chevronSize={16}
+                  >
+                    {withCurrent(AUTOPLAY_CHOICES, draft.rules.autoplayEpisodeCap).map((cap) => (
+                      <option key={cap} value={cap}>{cap === 1 ? "1 episode" : `${cap} episodes`}</option>
+                    ))}
+                    <option value="">No limit</option>
+                  </SelectField>
+                </div>
+                <SwitchRow
+                  checked={draft.rules.approvedTitlesOnly}
+                  disabled={parentalLocked}
+                  onChange={(approvedTitlesOnly) => setRules({ approvedTitlesOnly })}
+                  label="Approved titles only"
+                  description={
+                    approvedTitles.length === 0
+                      ? "No titles approved yet. Allow a title from its poster on a TV, on the main profile."
+                      : `${approvedTitles.length} ${approvedTitles.length === 1 ? "title" : "titles"} approved: ${approvedTitles
+                          .slice(0, 5)
+                          .map((title) => title.name || title.ids[0])
+                          .join(", ")}${approvedTitles.length > 5 ? ", …" : ""}. Add more from a TV.`
+                  }
+                />
+                <div>
+                  <label htmlFor={`${nameId}-daily`} className={LABEL} style={{ color: "var(--text)" }}>Daily screen time</label>
+                  <SelectField
+                    id={`${nameId}-daily`}
+                    value={draft.rules.dailyMinutes ?? ""}
+                    onChange={(e) => setRules({ dailyMinutes: e.target.value ? Number(e.target.value) : null })}
+                    wrapperClassName="mt-1.5"
+                    className="w-full rounded-xl border py-2.5 pl-3.5 pr-9 text-sm"
+                    style={FIELD_STYLE}
+                    chevronSize={16}
+                  >
+                    <option value="">No limit</option>
+                    {withCurrent(DAILY_CHOICES, draft.rules.dailyMinutes).map((minutes) => (
+                      <option key={minutes} value={minutes}>{minutesLabel(minutes)}</option>
+                    ))}
+                  </SelectField>
+                </div>
+                <SwitchRow
+                  checked={hasBedtime}
+                  disabled={parentalLocked}
+                  onChange={(on) =>
+                    setRules(
+                      on
+                        ? { bedtimeStartMinute: DEFAULT_BEDTIME.start, bedtimeEndMinute: DEFAULT_BEDTIME.end }
+                        : { bedtimeStartMinute: null, bedtimeEndMinute: null }
+                    )
+                  }
+                  label="Bedtime"
+                />
+                {hasBedtime && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label htmlFor={`${nameId}-bed-from`} className={LABEL} style={{ color: "var(--text)" }}>From</label>
+                      <input
+                        id={`${nameId}-bed-from`}
+                        type="time"
+                        value={timeOf(draft.rules.bedtimeStartMinute ?? DEFAULT_BEDTIME.start)}
+                        onChange={(e) => {
+                          const minute = minuteOf(e.target.value);
+                          if (minute !== null) setRules({ bedtimeStartMinute: minute });
+                        }}
+                        className={`mt-1.5 ${FIELD_CLASS}`}
+                        style={FIELD_STYLE}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor={`${nameId}-bed-until`} className={LABEL} style={{ color: "var(--text)" }}>Until</label>
+                      <input
+                        id={`${nameId}-bed-until`}
+                        type="time"
+                        value={timeOf(draft.rules.bedtimeEndMinute ?? DEFAULT_BEDTIME.end)}
+                        onChange={(e) => {
+                          const minute = minuteOf(e.target.value);
+                          if (minute !== null) setRules({ bedtimeEndMinute: minute });
+                        }}
+                        className={`mt-1.5 ${FIELD_CLASS}`}
+                        style={FIELD_STYLE}
+                      />
+                    </div>
+                  </div>
+                )}
+                {(draft.rules.dailyMinutes !== null || hasBedtime) && (
+                  <SwitchRow
+                    checked={draft.rules.hardStop}
+                    disabled={parentalLocked}
+                    onChange={(hardStop) => setRules({ hardStop })}
+                    label="At the limit, stop right away instead of finishing what's playing"
+                  />
+                )}
+              </fieldset>
+            </SheetSection>
+          )}
 
           <SheetSection
             title="TV addons"

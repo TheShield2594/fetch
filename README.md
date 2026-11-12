@@ -76,8 +76,8 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the full requirements list and what i
 and manage profiles, lists, watch history and settings from a phone or computer.
 A paired TV syncs its profiles, library, watch progress, watched marks, addons, Home rows and
 playback settings with it, and the website's lists reach the TV through its Stremio addon.
-Anime and TMDB-only titles sync too, under their TMDB or anime-catalog id; kids rules and
-screen time stay on each TV. [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has what syncs and
+Anime and TMDB-only titles sync too, under their TMDB or anime-catalog id. Kids rules travel
+with the profile, but the day's screen time is counted on each TV. [docs/ECOSYSTEM.md](docs/ECOSYSTEM.md) has what syncs and
 [web/README.md](web/README.md) has setup.
 
 ## Supported devices and installing

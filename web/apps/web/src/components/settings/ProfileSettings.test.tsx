@@ -483,6 +483,82 @@ describe("ProfileSettings adding", () => {
     await waitFor(() => expect(setActiveProfile).toHaveBeenCalledWith(sam));
   });
 
+  describe("kids rules", () => {
+    const KIDS_RULES = {
+      autoplayEpisodeCap: 3,
+      approvedTitlesOnly: true,
+      dailyMinutes: 60,
+      bedtimeStartMinute: null,
+      bedtimeEndMinute: null,
+      hardStop: false,
+      approvedTitles: [{ ids: ["tmdb:603"], type: "movie", name: "A film", poster: null, background: null }],
+      updatedAt: "2026-11-12T09:00:00.000Z",
+    };
+    // No PIN here, so saving doesn't ask for one.
+    const KIDS_KID: Profile = {
+      ...KID,
+      hasPin: false,
+      parental: { isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false, kidsRules: KIDS_RULES },
+    };
+
+    it("shows a TV's rules and saves the ones changed here", async () => {
+      const user = userEvent.setup();
+      getProfiles.mockResolvedValue({ profiles: [ALEX, KIDS_KID] });
+      updateProfile.mockResolvedValue({ profile: KIDS_KID });
+      await renderSettings();
+
+      const sheet = await openSheet(user, "Kid");
+      expect(sheet.getByLabelText("Daily screen time")).toHaveValue("60");
+      expect(sheet.getByText(/1 title approved: A film/)).toBeInTheDocument();
+      await user.selectOptions(sheet.getByLabelText("Daily screen time"), "90");
+      await user.click(sheet.getByRole("switch", { name: "Bedtime" }));
+      await user.click(sheet.getByRole("button", { name: "Save changes" }));
+
+      await waitFor(() =>
+        expect(updateProfile).toHaveBeenCalledWith(KID.id, expect.objectContaining({
+          parental: {
+            isKidsProfile: true,
+            maxRating: "PARENTAL_GUIDANCE",
+            allowUnrated: false,
+            kidsRules: {
+              autoplayEpisodeCap: 3,
+              approvedTitlesOnly: true,
+              dailyMinutes: 90,
+              bedtimeStartMinute: 20 * 60,
+              bedtimeEndMinute: 7 * 60,
+              hardStop: false,
+            },
+          },
+        }))
+      );
+    });
+
+    it("leaves a TV's rules alone when they weren't changed here", async () => {
+      const user = userEvent.setup();
+      getProfiles.mockResolvedValue({ profiles: [ALEX, KIDS_KID] });
+      updateProfile.mockResolvedValue({ profile: KIDS_KID });
+      await renderSettings();
+
+      const sheet = await openSheet(user, "Kid");
+      await user.selectOptions(sheet.getByLabelText("Highest rating allowed on the TV"), "ALL_AGES");
+      await user.click(sheet.getByRole("button", { name: "Save changes" }));
+
+      await waitFor(() => expect(updateProfile).toHaveBeenCalled());
+      expect(updateProfile.mock.calls[0]![1].parental).not.toHaveProperty("kidsRules");
+    });
+
+    it("shows kids rules read-only while the website is used as a kids profile", async () => {
+      const user = userEvent.setup();
+      activeProfile = KIDS_KID;
+      getProfiles.mockResolvedValue({ profiles: [ALEX, KIDS_KID] });
+      await renderSettings();
+
+      const sheet = await openSheet(user, "Kid");
+      expect(sheet.getByLabelText("Daily screen time")).toBeDisabled();
+      expect(sheet.getByText("Switch to a grown-up's profile to change these.")).toBeInTheDocument();
+    });
+  });
+
   it("stays as the current profile when asked to", async () => {
     const user = userEvent.setup();
     createProfile.mockResolvedValue({ profile: { id: "p-sam", name: "Sam", hasPin: false } });

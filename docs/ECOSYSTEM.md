@@ -64,7 +64,7 @@ sync too. The columns are still called `imdbId`.
 
 | TV sync service | Website today | Gap |
 | --- | --- | --- |
-| `ProfileSyncService` | `/profiles` with colour, avatar and parental limits; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96) |
+| `ProfileSyncService` | `/profiles` with colour, avatar, parental limits and kids rules; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96). The day's screen time stays counted on each TV |
 | Watch progress (tracking provider) | `/playback`, `/scrobble/*` (resume points) | None — while paired the website is a tracking provider (`data/website/FetchWebsiteTracking.kt`): scrobbles and resume points go to it, and Continue Watching reads from it when chosen as the watch progress source |
 | Watched marks (tracking provider) | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
 | Library (tracking provider) | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
@@ -120,13 +120,16 @@ always prefers over a cookie), that can be revoked on its own:
    revoked TV gets a bearer 401 on its next request and says it was signed out.
 
 While paired, every domain above goes to the website: profiles (colour, avatar,
-parental limit), and each profile's collections, addons, Home rows and settings.
-Parental limits are written into the TV's own restriction store, so they keep
-applying offline.
+parental limit, kids rules), and each profile's collections, addons, Home rows and
+settings. Parental limits and kids rules are written into the TV's own restriction
+store, so they keep applying offline. Kids rules (autoplay cap, approved titles,
+daily screen time, bedtime) can be changed on any TV or on the website, and the
+change made last wins; the screen time used today is counted on each TV and never
+leaves it.
 The website does not filter titles by a profile's rating limit; the profile
 editor says so. On the website a kids profile is kept out of Settings, its data
 and signing in a TV, and the server refuses it anything that would loosen its
-own limits or add a profile.
+own limits (kids rules included) or add a profile.
 
 The Stremio addon keeps its per-profile secret URL, which already works.
 

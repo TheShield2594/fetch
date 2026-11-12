@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { parseKidsRulesWrite, toKidsRulesView, type KidsRulesWrite } from "./kids-rules.js";
 
 /**
  * The profile as every route answers with it. Shared by `/profiles` and the
@@ -18,6 +19,8 @@ export const PROFILE_VIEW_SELECT = {
   isKidsProfile: true,
   maxRating: true,
   allowUnrated: true,
+  kidsRules: true,
+  kidsRulesUpdatedAt: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.ProfileSelect;
@@ -38,6 +41,9 @@ export const toProfileView = (profile: ProfileRow) => ({
     isKidsProfile: profile.isKidsProfile,
     maxRating: profile.maxRating,
     allowUnrated: profile.allowUnrated,
+    // Null until a TV or the website sets them. The screen time used today
+    // isn't here: each TV counts its own.
+    kidsRules: toKidsRulesView(profile.kidsRules, profile.kidsRulesUpdatedAt),
   },
   createdAt: profile.createdAt.toISOString(),
   updatedAt: profile.updatedAt.toISOString(),
@@ -83,10 +89,15 @@ export type ProfileAttributeUpdate = Partial<
  *
  * `parental` may arrive nested (`{ parental: { maxRating } }`, the shape the
  * API answers with) or flat; nested wins.
+ *
+ * `parental.kidsRules` comes back apart from `data`, as `kidsRules`: what it
+ * writes depends on what is stored (see `resolveKidsRulesWrite`).
  */
 export const parseProfileAttributes = (
   rawBody: unknown
-): { ok: true; data: ProfileAttributeUpdate } | { ok: false; error: string } => {
+):
+  | { ok: true; data: ProfileAttributeUpdate; kidsRules?: KidsRulesWrite | undefined }
+  | { ok: false; error: string } => {
   const body = (rawBody ?? {}) as Record<string, unknown>;
   const parental =
     body.parental && typeof body.parental === "object" ? (body.parental as Record<string, unknown>) : body;
@@ -144,6 +155,9 @@ export const parseProfileAttributes = (
     }
   }
 
+  const kidsRules = parseKidsRulesWrite(parental.kidsRules);
+  if (!kidsRules.ok) return kidsRules;
+
   // Switching kids mode on applies the preset unless the same request says
   // otherwise, as the TV's own toggle does.
   if (data.isKidsProfile === true) {
@@ -151,5 +165,5 @@ export const parseProfileAttributes = (
     if (data.allowUnrated === undefined) data.allowUnrated = KIDS_PRESET.allowUnrated;
   }
 
-  return { ok: true, data };
+  return { ok: true, data, ...(kidsRules.value ? { kidsRules: kidsRules.value } : {}) };
 };

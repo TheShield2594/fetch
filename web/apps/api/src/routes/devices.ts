@@ -22,6 +22,7 @@ import {
   type SlottedProfile,
 } from "../lib/device-slots.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../lib/profile-view.js";
+import { resolveKidsRulesWrite } from "../lib/kids-rules.js";
 import {
   hasParentalAuthority,
   invalidateProfileCache,
@@ -467,9 +468,19 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
           loosensParentalLimits(current, attributes.data) && !(await hasParentalAuthority(request))
             ? withoutLoosenedLimits(current, attributes.data).data
             : attributes.data;
+        // Kids rules settle by when they changed: a TV that was offline while
+        // they were changed elsewhere sends older ones, which are kept out.
+        // Like a loosened limit, they're left out when the profile in use on
+        // the TV is a kids profile.
+        let kidsRulesData = {};
+        if (attributes.kidsRules && (await hasParentalAuthority(request))) {
+          const kidsRules = resolveKidsRulesWrite(current, attributes.kidsRules);
+          if (!kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
+          kidsRulesData = kidsRules.data ?? {};
+        }
         const profile = await prisma.profile.update({
           where: { id: current.id },
-          data: { ...data, ...(name ? { name } : {}) },
+          data: { ...data, ...kidsRulesData, ...(name ? { name } : {}) },
           select: PROFILE_VIEW_SELECT,
         });
         invalidateProfileCache();
@@ -483,9 +494,11 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       if (!(await hasParentalAuthority(request))) {
         return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
       }
+      const kidsRules = attributes.kidsRules ? resolveKidsRulesWrite(null, attributes.kidsRules) : null;
+      if (kidsRules && !kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
       const profile = await prisma.$transaction(async (tx) => {
         const created = await tx.profile.create({
-          data: { name, accountId, ...attributes.data },
+          data: { name, accountId, ...attributes.data, ...(kidsRules?.ok ? kidsRules.data : {}) },
           select: PROFILE_VIEW_SELECT,
         });
         await tx.deviceProfileSlot.create({ data: { deviceId, slot, profileId: created.id } });

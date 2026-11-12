@@ -752,6 +752,106 @@ describe("device routes", () => {
       });
     });
 
+    it("saves kids rules a TV changed later than the website's", async () => {
+      prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      prismaMock.profile.findUnique.mockResolvedValue({
+        ...profileRow(PROFILE_ID, "Kid", "2026-01-01T00:00:00Z"),
+        kidsRules: { dailyMinutes: 60 },
+        kidsRulesUpdatedAt: new Date("2026-01-01T09:00:00.000Z"),
+      });
+      prismaMock.profile.update.mockResolvedValue(profileRow(PROFILE_ID, "Kid", "2026-01-01T00:00:00Z"));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/devices/me/profiles/2",
+        headers: asDevice,
+        payload: {
+          parental: {
+            isKidsProfile: true,
+            maxRating: "ALL_AGES",
+            allowUnrated: false,
+            kidsRules: {
+              autoplayEpisodeCap: 2,
+              approvedTitlesOnly: false,
+              dailyMinutes: 30,
+              bedtimeStartMinute: null,
+              bedtimeEndMinute: null,
+              hardStop: false,
+              approvedTitles: [{ ids: ["kitsu:1"], type: "series", name: "Show" }],
+              updatedAt: "2026-01-01T10:00:00.000Z",
+            },
+          },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const data = prismaMock.profile.update.mock.calls[0]![0].data;
+      expect(data.kidsRules).toMatchObject({ autoplayEpisodeCap: 2, dailyMinutes: 30 });
+      expect(data.kidsRulesUpdatedAt).toEqual(new Date("2026-01-01T10:00:00.000Z"));
+    });
+
+    it("keeps the website's kids rules when the TV's are older, and still saves the rest", async () => {
+      prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      prismaMock.profile.findUnique.mockResolvedValue({
+        ...profileRow(PROFILE_ID, "Kid", "2026-01-01T00:00:00Z"),
+        kidsRules: { dailyMinutes: 60 },
+        kidsRulesUpdatedAt: new Date("2026-01-01T09:00:00.000Z"),
+      });
+      prismaMock.profile.update.mockResolvedValue(profileRow(PROFILE_ID, "Kid", "2026-01-01T00:00:00Z"));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/devices/me/profiles/2",
+        headers: asDevice,
+        payload: { name: "Kid", parental: { kidsRules: { dailyMinutes: 30, updatedAt: "2026-01-01T08:00:00.000Z" } } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(expect.objectContaining({ data: { name: "Kid" } }));
+    });
+
+    it("leaves kids rules out of a push from a TV being used as a kids profile, and saves the rest", async () => {
+      prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      prismaMock.profile.findUnique.mockResolvedValue({
+        ...profileRow(PROFILE_ID, "Kid", "2026-01-01T00:00:00Z"),
+        accountId: "acc-1",
+        isKidsProfile: true,
+        maxRating: "PARENTAL_GUIDANCE",
+        allowUnrated: false,
+        kidsRules: { dailyMinutes: 60 },
+        kidsRulesUpdatedAt: new Date("2026-01-01T09:00:00.000Z"),
+      });
+      prismaMock.profile.update.mockResolvedValue(profileRow(PROFILE_ID, "Kid", "2026-01-01T00:00:00Z"));
+      const app = await buildApp({ kind: "device", deviceId: DEVICE_ID, accountId: "acc-1" });
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/devices/me/profiles/2",
+        headers: { ...asDevice, "x-profile-id": PROFILE_ID },
+        payload: { name: "Kiddo", parental: { kidsRules: { dailyMinutes: null, updatedAt: "2026-01-01T10:00:00.000Z" } } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(expect.objectContaining({ data: { name: "Kiddo" } }));
+    });
+
+    it("rejects invalid kids rules from a TV", async () => {
+      prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/devices/me/profiles/2",
+        headers: asDevice,
+        payload: { parental: { kidsRules: { approvedTitles: [{ ids: [42], type: "movie", name: "x" }] } } },
+      });
+
+      expect(response.statusCode).toBe(400);
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+
     it("rejects a slot the TV doesn't have", async () => {
       const app = await buildApp();
       const response = await app.inject({ method: "PUT", url: "/devices/me/profiles/7", headers: asDevice, payload: {} });

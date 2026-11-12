@@ -38,7 +38,37 @@ sealed interface WebsitePairingPoll {
 data class WebsiteParental(
     val isKidsProfile: Boolean = false,
     val maxRating: String? = null,
-    val allowUnrated: Boolean = true
+    val allowUnrated: Boolean = true,
+    /** Null when neither a TV nor the website has set any, or from a website that doesn't carry them. */
+    val kidsRules: WebsiteKidsRules? = null
+)
+
+/**
+ * A kids profile's rules as the website carries them: the TV's [com.fetch.tv.data.local.KidsRules]
+ * without the TV's own list choices, plus the profile's always-allowed titles. The screen time
+ * used today isn't here; each TV counts its own. [updatedAt] is when they last changed, and the
+ * newer of the website's copy and a TV's wins.
+ */
+@Serializable
+data class WebsiteKidsRules(
+    val autoplayEpisodeCap: Int? = com.fetch.tv.data.local.KidsRules.DEFAULT_AUTOPLAY_EPISODE_CAP,
+    val approvedTitlesOnly: Boolean = false,
+    val dailyMinutes: Int? = null,
+    val bedtimeStartMinute: Int? = null,
+    val bedtimeEndMinute: Int? = null,
+    val hardStop: Boolean = false,
+    val approvedTitles: List<WebsiteApprovedTitle> = emptyList(),
+    val updatedAt: String? = null
+)
+
+/** An always-allowed title. [ids] are content ids from any addon, not only IMDb's. */
+@Serializable
+data class WebsiteApprovedTitle(
+    val ids: List<String>,
+    val type: String,
+    val name: String = "",
+    val poster: String? = null,
+    val background: String? = null
 )
 
 /** A website profile as `/devices/me/profiles` reports it: in the slot it occupies on this TV. */

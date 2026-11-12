@@ -22,7 +22,7 @@ private val SEGMENT_STORED = mapOf(
  */
 fun RemoteSharedSettings.applyTo(settings: DesktopSettings): DesktopSettings {
     var s = settings
-    theme?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }?.let { s = s.copy(theme = it.name) }
+    AppTheme.fromStoredName(theme)?.let { s = s.copy(theme = it.name) }
     appearance?.let { s = s.copy(appearance = it.applyTo(s.appearance)) }
     experience?.let { s = s.copy(experience = it.applyTo(s.experience)) }
     showContinueWatching?.let { s = s.copy(showContinueWatching = it) }

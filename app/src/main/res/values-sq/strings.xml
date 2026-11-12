@@ -305,17 +305,9 @@
     <string name="appearance_subtitle">Zgjidh temën e ngjyrave, fontin dhe gjuhën</string>
     <string name="appearance_color_theme">Tema e ngjyrave</string>
     <string name="appearance_color_theme_subtitle">Zgjidh ngjyrën e theksit që përdoret në të gjithë aplikacionin</string>
-    <string name="theme_color_gold">Ari</string>
-    <string name="theme_color_jade">Jade</string>
-    <string name="theme_color_rose_gold">Ari rozë</string>
-    <string name="theme_color_arctic_blue">Blu arktike</string>
-    <string name="theme_color_graphite">Grafit</string>
-    <string name="theme_color_crimson">E kuqe e mbyllur</string>
     <string name="theme_color_ocean">Oqean</string>
-    <string name="theme_color_violet">Vjollcë</string>
     <string name="theme_color_emerald">Smerald</string>
     <string name="theme_color_amber">Qelibar</string>
-    <string name="theme_color_rose">Rozë</string>
     <string name="theme_color_white">E bardhë</string>
     <string name="appearance_amoled_mode">Modaliteti AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Përdor të zezë të pastër për sfondet e aplikacionit</string>
@@ -2455,4 +2447,5 @@
     <string name="screen_time_rest_of_day">Pa kufi për pjesën tjetër të ditës</string>
     <string name="kids_hours">%1$d orë</string>
     <string name="kids_hours_minutes">%1$d orë %2$d min</string>
+    <string name="custom_theme_low_contrast">Teksti do të lexohej me vështirësi mbi këto ngjyra. Zgjidhni ngjyra me ndriçim më të afërt për ta ruajtur.</string>
 </resources>

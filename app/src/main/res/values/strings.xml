@@ -347,17 +347,9 @@
     <string name="appearance_subtitle">Choose your color theme, font and language</string>
     <string name="appearance_color_theme">Color Theme</string>
     <string name="appearance_color_theme_subtitle">Pick the accent color used across the app</string>
-    <string name="theme_color_gold">Gold</string>
-    <string name="theme_color_jade">Jade</string>
-    <string name="theme_color_rose_gold">Rose Gold</string>
-    <string name="theme_color_arctic_blue">Arctic Blue</string>
-    <string name="theme_color_graphite">Graphite</string>
-    <string name="theme_color_crimson">Crimson</string>
     <string name="theme_color_ocean">Ocean</string>
-    <string name="theme_color_violet">Violet</string>
     <string name="theme_color_emerald">Emerald</string>
     <string name="theme_color_amber">Amber</string>
-    <string name="theme_color_rose">Rose</string>
     <string name="theme_color_white">White</string>
     <string name="theme_color_fetch">Fetch</string>
     <string name="best_match_cached">Cached</string>
@@ -430,6 +422,7 @@
     <string name="custom_theme_preview">PREVIEW</string>
     <string name="custom_theme_preview_action">Play</string>
     <string name="custom_theme_adjusted_for_contrast">Lightened a little so buttons stay visible on dark backgrounds</string>
+    <string name="custom_theme_low_contrast">Text would be hard to read on these colors. Pick colors closer in brightness to save.</string>
     <string name="appearance_high_contrast">Increase contrast</string>
     <string name="appearance_high_contrast_subtitle">Brighter secondary text and borders, and a heavier focus outline</string>
     <string name="appearance_reduce_motion">Reduce motion</string>

@@ -319,12 +319,9 @@
     <string name="appearance_subtitle">Vyberte si barevné téma, písmo a jazyk</string>
     <string name="appearance_color_theme">Barevné téma</string>
     <string name="appearance_color_theme_subtitle">Vyberte barvu zvýraznění používanou v celé aplikaci</string>
-    <string name="theme_color_crimson">Karmínová</string>
     <string name="theme_color_ocean">Oceánová</string>
-    <string name="theme_color_violet">Fialová</string>
     <string name="theme_color_emerald">Smaragdová</string>
     <string name="theme_color_amber">Jantarová</string>
-    <string name="theme_color_rose">Růžová</string>
     <string name="theme_color_white">Bílá</string>
     <string name="appearance_amoled_mode">AMOLED režim</string>
     <string name="appearance_amoled_mode_subtitle">Použít čistě černou pro pozadí aplikace</string>
@@ -2478,4 +2475,5 @@
     <string name="screen_time_rest_of_day">Bez limitu do konce dne</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">Text by na těchto barvách byl špatně čitelný. Pro uložení vyberte barvy s podobnějším jasem.</string>
 </resources>

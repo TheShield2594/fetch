@@ -333,12 +333,9 @@
     <string name="appearance_subtitle">إختر مظهر الألوان واللغة والخط</string>
     <string name="appearance_color_theme">مظهر الألوان</string>
     <string name="appearance_color_theme_subtitle">حدد اللون العام المستخدم في كافة أنحاء التطبيق</string>
-    <string name="theme_color_crimson">القرمزي</string>
     <string name="theme_color_ocean">المحيطي</string>
-    <string name="theme_color_violet">البنفسجي</string>
     <string name="theme_color_emerald">الزمردي</string>
     <string name="theme_color_amber">الكهرماني</string>
-    <string name="theme_color_rose">الوردي</string>
     <string name="theme_color_white">الأبيض</string>
     <string name="appearance_amoled_mode">الوضع الداكن</string>
     <string name="appearance_amoled_mode_subtitle">استخدام اللون الأسود الخالص لخلفيات التطبيق</string>
@@ -2087,11 +2084,6 @@
     <string name="sub_strip_sdh">إزالة ترجمات SDH</string>
     <string name="sub_strip_sdh_desc">إخفاء أوصاف الأصوات وأسماء المتحدثين من الترجمات النصية</string>
     <string name="subtitle_delay_reset">تصفير</string>
-    <string name="theme_color_arctic_blue">أزرق قطبي</string>
-    <string name="theme_color_gold">ذهبي</string>
-    <string name="theme_color_graphite">جرافيت</string>
-    <string name="theme_color_jade">يشمشي</string>
-    <string name="theme_color_rose_gold">ذهبي وردي</string>
     <string name="tracking_accounts_subtitle">ربط وإدارة خدمات التتبع</string>
     <string name="tracking_accounts_title">الحسابات</string>
     <string name="tracking_connecting_provider">جارٍ بدء الاتصال بـ %1$s\u2026</string>
@@ -2628,4 +2620,5 @@
     <string name="screen_time_rest_of_day">بلا حد لبقية اليوم</string>
     <string name="kids_hours">%1$d ساعة</string>
     <string name="kids_hours_minutes">%1$d ساعة %2$d دقيقة</string>
+    <string name="custom_theme_low_contrast">سيصعب قراءة النص على هذه الألوان. اختر ألوانًا متقاربة في السطوع لتتمكن من الحفظ.</string>
 </resources>

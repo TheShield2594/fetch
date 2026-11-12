@@ -1235,4 +1235,5 @@
     <string name="kids_hours">%1$d घंटे</string>
     <string name="kids_hours_minutes">%1$d घंटे %2$d मिनट</string>
     <string name="playback_parental_guide_sub">प्लेबैक शुरू होने पर सामग्री चेतावनियाँ दिखाता है। उन्हें खोजने के लिए हर शीर्षक की IMDb ID api.tiffara.com को भेजता है।</string>
+    <string name="custom_theme_low_contrast">इन रंगों पर टेक्स्ट पढ़ना मुश्किल होगा। सेव करने के लिए मिलती-जुलती चमक वाले रंग चुनें।</string>
 </resources>

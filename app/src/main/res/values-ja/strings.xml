@@ -311,12 +311,9 @@
     <string name="appearance_subtitle">カラーテーマ、フォント、言語を選択</string>
     <string name="appearance_color_theme">カラーテーマ</string>
     <string name="appearance_color_theme_subtitle">アプリ全体で使用するアクセントカラーを選択</string>
-    <string name="theme_color_crimson">クリムゾン</string>
     <string name="theme_color_ocean">オーシャン</string>
-    <string name="theme_color_violet">バイオレット</string>
     <string name="theme_color_emerald">エメラルド</string>
     <string name="theme_color_amber">アンバー</string>
-    <string name="theme_color_rose">ローズ</string>
     <string name="theme_color_white">ホワイト</string>
     <string name="appearance_amoled_mode">AMOLEDモード</string>
     <string name="appearance_amoled_mode_subtitle">アプリの背景に純粋な黒を使用</string>
@@ -2416,4 +2413,5 @@
     <string name="screen_time_rest_of_day">今日はこの後制限なし</string>
     <string name="kids_hours">%1$d時間</string>
     <string name="kids_hours_minutes">%1$d時間%2$d分</string>
+    <string name="custom_theme_low_contrast">この色の組み合わせでは文字が読みにくくなります。保存するには、明るさが近い色を選んでください。</string>
 </resources>

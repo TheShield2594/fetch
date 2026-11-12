@@ -76,7 +76,10 @@ internal fun AppIconPickerDialog(
         scrollable = true
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            AppIconOption.entries.chunked(3).forEach { options ->
+            // A retired style is listed only to whoever still has it on, so their current choice
+            // shows (and takes focus) until they move to one of the offered styles.
+            val listed = AppIconOption.offered + listOfNotNull(state.selected.takeIf { it.retired })
+            listed.chunked(3).forEach { options ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)

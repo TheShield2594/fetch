@@ -22,24 +22,18 @@ PALETTES = {
     "": ((220, 43, 51), (150, 18, 26)),
     "_copper": ((222, 140, 86), (176, 82, 52)),
     "_emerald": ((80, 220, 160), (16, 140, 110)),
+    # Retired from the picker (#455) but still drawn: the manifest keeps its launcher entry for
+    # anyone who already had it on.
     "_rose_gold": ((246, 190, 170), (214, 120, 130)),
     "_arctic_blue": ((140, 220, 255), (60, 130, 240)),
     "_graphite": ((170, 176, 186), (84, 90, 102)),
 }
 WORDMARK_COLORS = {
     "": (255, 255, 255),
-    "_gold": (244, 196, 92),
-    "_jade": (96, 210, 160),
-    "_rose_gold": (240, 178, 162),
-    "_arctic_blue": (150, 210, 255),
-    "_graphite": (190, 196, 206),
-    # Standard themes: each theme's 300 accent tone, 20% lighter so it reads on dark surfaces.
-    "_crimson": (255, 117, 117),
+    # Each accent theme's 300 accent tone, 20% lighter so it reads on dark surfaces.
     "_ocean": (104, 183, 247),
-    "_violet": (188, 108, 201),
     "_emerald": (133, 201, 136),
     "_amber": (255, 185, 81),
-    "_rose": (240, 102, 149),
 }
 # The TV banner's ground: the app's near-black (#0A0A0B) lifting slightly toward the bottom.
 BACKGROUND_TOP = (10, 10, 11)

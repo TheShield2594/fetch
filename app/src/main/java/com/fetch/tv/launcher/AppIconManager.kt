@@ -22,6 +22,9 @@ data class AppIconSettingsState(
 class AppIconManager @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
+    // Every launcher activity in the manifest, retired styles included: activate() has to switch
+    // them all off but the chosen one, and currentOption() has to recognise a retired style that
+    // is still on.
     private val launcherClasses = mapOf(
         AppIconOption.ORIGINAL to "com.fetch.tv.launcher.AppIconDefault",
         AppIconOption.ARCTIC_BLUE to "com.fetch.tv.launcher.AppIconArcticBlue",

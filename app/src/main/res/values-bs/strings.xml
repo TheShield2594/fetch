@@ -1617,4 +1617,5 @@
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="playback_parental_guide_sub">Prikazuje upozorenja o sadržaju kada reprodukcija počne. Šalje IMDb ID svakog naslova na api.tiffara.com radi pretrage.</string>
+    <string name="custom_theme_low_contrast">Tekst bi se teško čitao na ovim bojama. Odaberite boje sličnije svjetline da biste sačuvali.</string>
 </resources>

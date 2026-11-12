@@ -96,7 +96,7 @@ private fun ThemeEditorPreviewFrame(
     width: Dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    FetchTheme(appTheme = AppTheme.ROSE_GOLD) {
+    FetchTheme(appTheme = AppTheme.CUSTOM) {
         Box(
             Modifier.fillMaxSize().background(FetchTheme.colors.Background),
             contentAlignment = Alignment.Center

@@ -313,12 +313,9 @@
     <string name="appearance_subtitle">Избери цветова тема, шрифт и език</string>
     <string name="appearance_color_theme">Цветова тема</string>
     <string name="appearance_color_theme_subtitle">Избери акцентния цвят, използван в приложението</string>
-    <string name="theme_color_crimson">Кървавочервено</string>
     <string name="theme_color_ocean">Океан</string>
-    <string name="theme_color_violet">Виолетово</string>
     <string name="theme_color_emerald">Смарагдово</string>
     <string name="theme_color_amber">Кехлибар</string>
-    <string name="theme_color_rose">Роза</string>
     <string name="theme_color_white">Бяло</string>
     <string name="appearance_amoled_mode">AMOLED режим</string>
     <string name="appearance_amoled_mode_subtitle">Използвай чисто черно за фоновете на приложението</string>
@@ -2425,4 +2422,5 @@
     <string name="screen_time_rest_of_day">Без лимит до края на деня</string>
     <string name="kids_hours">%1$d ч</string>
     <string name="kids_hours_minutes">%1$d ч %2$d мин</string>
+    <string name="custom_theme_low_contrast">Текстът ще се чете трудно върху тези цветове. Изберете цветове с по-близка яркост, за да запазите.</string>
 </resources>

@@ -9,17 +9,9 @@ class ThemeBrandingTest {
     @Test
     fun colouredThemesUseMatchingWordmarks() {
         val expectedWordmarks = mapOf(
-            AppTheme.GOLD to R.drawable.app_logo_wordmark_gold,
-            AppTheme.JADE to R.drawable.app_logo_wordmark_jade,
-            AppTheme.ROSE_GOLD to R.drawable.app_logo_wordmark_rose_gold,
-            AppTheme.ARCTIC_BLUE to R.drawable.app_logo_wordmark_arctic_blue,
-            AppTheme.GRAPHITE to R.drawable.app_logo_wordmark_graphite,
-            AppTheme.CRIMSON to R.drawable.app_logo_wordmark_crimson,
             AppTheme.OCEAN to R.drawable.app_logo_wordmark_ocean,
-            AppTheme.VIOLET to R.drawable.app_logo_wordmark_violet,
             AppTheme.EMERALD to R.drawable.app_logo_wordmark_emerald,
-            AppTheme.AMBER to R.drawable.app_logo_wordmark_amber,
-            AppTheme.ROSE to R.drawable.app_logo_wordmark_rose
+            AppTheme.AMBER to R.drawable.app_logo_wordmark_amber
         )
 
         expectedWordmarks.forEach { (theme, wordmark) ->

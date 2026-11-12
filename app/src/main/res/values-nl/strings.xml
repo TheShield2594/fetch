@@ -317,17 +317,9 @@
     <string name="appearance_subtitle">Kies je kleurenthema, lettertype en taal</string>
     <string name="appearance_color_theme">Kleurthema</string>
     <string name="appearance_color_theme_subtitle">Kies de accentkleur die in de hele app wordt gebruikt</string>
-    <string name="theme_color_gold">Goud</string>
-    <string name="theme_color_jade">Jade</string>
-    <string name="theme_color_rose_gold">Roségoud</string>
-    <string name="theme_color_arctic_blue">Arctisch blauw</string>
-    <string name="theme_color_graphite">Grafiet</string>
-    <string name="theme_color_crimson">Karmozijn</string>
     <string name="theme_color_ocean">Oceaan</string>
-    <string name="theme_color_violet">Violet</string>
     <string name="theme_color_emerald">Smaragd</string>
     <string name="theme_color_amber">Amber</string>
-    <string name="theme_color_rose">Roze</string>
     <string name="theme_color_white">Wit</string>
     <string name="theme_color_custom">Aangepast</string>
     <string name="custom_theme_title">Je eigen kleurverloop</string>
@@ -2695,4 +2687,5 @@
     <string name="screen_time_rest_of_day">Geen limiet voor de rest van vandaag</string>
     <string name="kids_hours">%1$d u</string>
     <string name="kids_hours_minutes">%1$d u %2$d min</string>
+    <string name="custom_theme_low_contrast">Tekst zou op deze kleuren moeilijk leesbaar zijn. Kies kleuren met een meer gelijke helderheid om op te slaan.</string>
 </resources>

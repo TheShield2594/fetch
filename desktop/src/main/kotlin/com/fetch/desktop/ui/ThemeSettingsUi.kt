@@ -37,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.TextStyle
@@ -233,7 +232,11 @@ fun CustomThemeEditorDialog(initial: CustomThemeColors, onDismiss: () -> Unit, o
                 CustomThemePreview(colors)
             }
         },
-        confirmButton = { PrimaryButton("Save theme", icon = null, onClick = { onSave(colors) }) },
+        // Colours that fail the contrast check can't be saved; the preview says why.
+        confirmButton = {
+            val meetsContrast = customColorsMeetContrast(colors)
+            PrimaryButton("Save theme", icon = null, enabled = meetsContrast, onClick = { if (meetsContrast) onSave(colors) })
+        },
         dismissButton = { SecondaryButton("Cancel", onClick = onDismiss) }
     )
 }
@@ -363,7 +366,7 @@ private fun CustomThemePreview(colors: CustomThemeColors) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 tr("Play"),
-                color = if (accent.luminance() > 0.5f) Color.Black else Color.White,
+                color = readableOn(listOf(accent)),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clip(RoundedCornerShape(50)).background(accent).padding(horizontal = 22.dp, vertical = 10.dp)
             )
@@ -374,7 +377,9 @@ private fun CustomThemePreview(colors: CustomThemeColors) {
                 )
             }
         }
-        if (customAccentAdjusted(colors)) {
+        if (!customColorsMeetContrast(colors)) {
+            Text(tr("Text would be hard to read on these colors. Pick colors closer in brightness to save."), color = FetchPalette.Warning, fontSize = 13.sp)
+        } else if (customAccentAdjusted(colors)) {
             Text(tr("Lightened a little so buttons stay visible on dark backgrounds"), color = surfaces.textSecondary, fontSize = 13.sp)
         }
     }

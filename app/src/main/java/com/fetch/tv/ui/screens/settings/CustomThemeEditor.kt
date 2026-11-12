@@ -55,6 +55,7 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.accentBrush
 import com.fetch.tv.ui.theme.adjustedForContrast
+import com.fetch.tv.ui.theme.meetsContrastMinimum
 import com.fetch.tv.ui.theme.toColorPalette
 
 @Composable
@@ -107,6 +108,8 @@ internal fun CustomThemeEditor(
     val hexFocusRequester = remember { FocusRequester() }
     val cancelFocusRequester = remember { FocusRequester() }
     val selectedColor = colors.colors[selectedIndex]
+    // The same thresholds the built-in themes are held to; colours that miss them can't be saved.
+    val meetsContrast = remember(colors) { colors.meetsContrastMinimum }
 
     fun updateColor(color: Int) {
         draftColors = draftColors.withColor(if (gradientEnabled) selectedIndex else 1, color)
@@ -241,7 +244,8 @@ internal fun CustomThemeEditor(
                 Text(stringResource(R.string.action_cancel))
             }
             Button(
-                onClick = { onSave(colors) },
+                onClick = { if (meetsContrast) onSave(colors) },
+                enabled = meetsContrast,
                 modifier = Modifier.height(FetchTheme.sizes.controls.default).focusProperties { up = hexFocusRequester },
                 // Save is the primary action: the accent, kept on focus and marked by the ring.
                 colors = ButtonDefaults.colors(
@@ -348,7 +352,13 @@ private fun CustomThemeSample(colors: CustomThemeColors, modifier: Modifier = Mo
                     .padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.sm)
             )
         }
-        if (colors.adjustedForContrast) {
+        if (!colors.meetsContrastMinimum) {
+            Text(
+                stringResource(R.string.custom_theme_low_contrast),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.Warning
+            )
+        } else if (colors.adjustedForContrast) {
             Text(
                 stringResource(R.string.custom_theme_adjusted_for_contrast),
                 style = MaterialTheme.typography.bodySmall,

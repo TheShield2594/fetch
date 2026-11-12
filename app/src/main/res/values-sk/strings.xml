@@ -329,12 +329,9 @@
     <string name="appearance_subtitle">Vyberte farebnú tému, písmo a jazyk</string>
     <string name="appearance_color_theme">Farebná téma</string>
     <string name="appearance_color_theme_subtitle">Vyberte akcentovú farbu používanú v celej aplikácii</string>
-    <string name="theme_color_crimson">Karmínová</string>
     <string name="theme_color_ocean">Oceán</string>
-    <string name="theme_color_violet">Fialová</string>
     <string name="theme_color_emerald">Smaragdová</string>
     <string name="theme_color_amber">Jantárová</string>
-    <string name="theme_color_rose">Ružová</string>
     <string name="theme_color_white">Biela</string>
     <string name="appearance_amoled_mode">Režim AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Použiť čistú čiernu pre pozadie aplikácie</string>
@@ -2117,11 +2114,6 @@
 
     <string name="collections_editor_tmdb_without_watch_providers">Vylúčené ID poskytovateľov obsahu</string>
     <string name="collections_editor_tmdb_without_watch_providers_helper">Vylúčiť tituly dostupné od týchto čísel poskytovateľov TMDB vo vybranom regióne.</string>
-    <string name="theme_color_gold">Zlatá</string>
-    <string name="theme_color_jade">Nefritová</string>
-    <string name="theme_color_rose_gold">Ružové zlato</string>
-    <string name="theme_color_arctic_blue">Arktická</string>
-    <string name="theme_color_graphite">Grafitová</string>
     <string name="about_update_banner_title">Banner automatickej aktualizácie</string>
     <string name="about_update_banner_subtitle">Zobraziť banner, keď je k dispozícii nová verzia</string>
     <string name="audio_enable_downmix_subtitle">Používa trasu downmixu cez FFmpeg. Vyžaduje Uprednostniť dekodéry aplikácie (FFmpeg). Keď je funkcia vypnutá, zvuk sa riadi pôvodnou trasou zariadenia/Androidu.</string>
@@ -2920,4 +2912,5 @@
     <string name="screen_time_rest_of_day">Bez limitu do konca dňa</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">Text by bol na týchto farbách ťažko čitateľný. Na uloženie vyberte farby s podobnejším jasom.</string>
 </resources>

@@ -486,17 +486,9 @@ private fun offeredLocaleTags(context: android.content.Context): List<String> {
 @Composable
 private fun AppTheme.localizedName(): String = when (this) {
     AppTheme.CUSTOM -> stringResource(R.string.theme_color_custom)
-    AppTheme.GOLD -> stringResource(R.string.theme_color_gold)
-    AppTheme.JADE -> stringResource(R.string.theme_color_jade)
-    AppTheme.ROSE_GOLD -> stringResource(R.string.theme_color_rose_gold)
-    AppTheme.ARCTIC_BLUE -> stringResource(R.string.theme_color_arctic_blue)
-    AppTheme.GRAPHITE -> stringResource(R.string.theme_color_graphite)
-    AppTheme.CRIMSON -> stringResource(R.string.theme_color_crimson)
     AppTheme.OCEAN -> stringResource(R.string.theme_color_ocean)
-    AppTheme.VIOLET -> stringResource(R.string.theme_color_violet)
     AppTheme.EMERALD -> stringResource(R.string.theme_color_emerald)
     AppTheme.AMBER -> stringResource(R.string.theme_color_amber)
-    AppTheme.ROSE -> stringResource(R.string.theme_color_rose)
     AppTheme.WHITE -> stringResource(R.string.theme_color_white)
     AppTheme.FETCH -> stringResource(R.string.theme_color_fetch)
 }

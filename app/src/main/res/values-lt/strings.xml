@@ -1243,4 +1243,5 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="kids_hours">%1$d val.</string>
     <string name="kids_hours_minutes">%1$d val. %2$d min.</string>
     <string name="playback_parental_guide_sub">Pradėjus atkūrimą rodo turinio įspėjimus. Jiems rasti kiekvieno pavadinimo IMDb ID siunčiamas į api.tiffara.com.</string>
+    <string name="custom_theme_low_contrast">Tekstas šiose spalvose būtų sunkiai įskaitomas. Kad išsaugotumėte, pasirinkite panašesnio ryškumo spalvas.</string>
 </resources>

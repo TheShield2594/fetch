@@ -1727,4 +1727,5 @@
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="playback_parental_guide_sub">Visa innehållsvarningar när uppspelningen startar. Skickar varje titels IMDb-id till api.tiffara.com för att slå upp dem.</string>
+    <string name="custom_theme_low_contrast">Text blir svår att läsa på de här färgerna. Välj färger med mer lika ljusstyrka för att spara.</string>
 </resources>

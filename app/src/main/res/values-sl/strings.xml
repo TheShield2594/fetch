@@ -301,12 +301,9 @@
     <string name="appearance_subtitle">Izberite barvno temo in jezik</string>
 	<string name="appearance_color_theme">Barvna tema</string>
     <string name="appearance_color_theme_subtitle">Izberite poudarjeno barvo, ki se uporablja v celotni aplikaciji</string>
-    <string name="theme_color_crimson">Škrlatna</string>
     <string name="theme_color_ocean">Oceanska</string>
-    <string name="theme_color_violet">Vijolična</string>
     <string name="theme_color_emerald">Smaragdna</string>
     <string name="theme_color_amber">Jantarna</string>
-    <string name="theme_color_rose">Rožnata</string>
     <string name="theme_color_white">Bela</string>
     <string name="appearance_amoled_mode">Način AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Uporabi čisto črno za ozadja aplikacije</string>
@@ -2181,4 +2178,5 @@
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="playback_parental_guide_sub">Ob začetku predvajanja prikaže opozorila o vsebini. Za iskanje pošlje IMDb ID vsakega naslova na api.tiffara.com.</string>
+    <string name="custom_theme_low_contrast">Besedilo bi bilo na teh barvah težko berljivo. Za shranjevanje izberite barve s podobnejšo svetlostjo.</string>
 </resources>

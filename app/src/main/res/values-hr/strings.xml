@@ -328,17 +328,9 @@
     <string name="appearance_subtitle">Odaberi temu boja, font i jezik</string>
     <string name="appearance_color_theme">Tema boja</string>
     <string name="appearance_color_theme_subtitle">Odaberi naglasnu boju koja se koristi u aplikaciji</string>
-    <string name="theme_color_gold">Zlatna</string>
-    <string name="theme_color_jade">Žad</string>
-    <string name="theme_color_rose_gold">Ružičasto zlato</string>
-    <string name="theme_color_arctic_blue">Arktičko plava</string>
-    <string name="theme_color_graphite">Grafit</string>
-    <string name="theme_color_crimson">Grimizna</string>
     <string name="theme_color_ocean">Ocean</string>
-    <string name="theme_color_violet">Ljubičasta</string>
     <string name="theme_color_emerald">Smaragdna</string>
     <string name="theme_color_amber">Jantarna</string>
-    <string name="theme_color_rose">Ružičasta</string>
     <string name="theme_color_white">Bijela</string>
     <string name="theme_color_custom">Prilagođena</string>
     <string name="custom_theme_title">Tvoj prilagođeni gradijent</string>
@@ -2828,4 +2820,5 @@
     <string name="screen_time_rest_of_day">Bez ograničenja do kraja dana</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">Tekst bi se teško čitao na ovim bojama. Odaberite boje sličnije svjetline kako biste spremili.</string>
 </resources>

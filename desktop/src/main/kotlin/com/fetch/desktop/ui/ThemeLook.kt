@@ -70,10 +70,41 @@ fun surfaceColors(theme: AppTheme, appearance: AppearanceSettings): SurfaceColor
  * with the cards it sits on, as on TV, so a very dark pick still gives a visible Play button.
  * The stored colours never change.
  */
-fun customAccent(colors: CustomThemeColors): Color {
-    val card = lerp(Color(0xFF20242A), Color(colors.second or 0xFF000000.toInt()), 0.06f)
-    return Color(colors.second or 0xFF000000.toInt()).liftedForContrast(card, 3f)
+fun customAccent(colors: CustomThemeColors): Color =
+    Color(colors.second or 0xFF000000.toInt()).liftedForContrast(customCard(colors), MIN_CONTROL_CONTRAST)
+
+private fun customCard(colors: CustomThemeColors): Color =
+    lerp(Color(0xFF20242A), Color(colors.second or 0xFF000000.toInt()), 0.06f)
+
+/**
+ * The Custom editor's contrast check, as on TV (the TV draws a saved gradient, so all three
+ * colours count there): with the label black or white, whichever reads better, it reaches 4.5:1
+ * on every colour of the accent, and each colour reaches 3:1 against the cards. The editor
+ * won't save colours that fail.
+ */
+fun customColorsMeetContrast(colors: CustomThemeColors): Boolean {
+    val card = customCard(colors)
+    val brush = if (colors.isSolid) {
+        listOf(customAccent(colors))
+    } else {
+        colors.colors.map { Color(it or 0xFF000000.toInt()).liftedForContrast(card, MIN_CONTROL_CONTRAST) }
+    }
+    val label = readableOn(brush)
+    return brush.all { contrastRatio(label, it) >= MIN_TEXT_CONTRAST && contrastRatio(it, card) >= MIN_CONTROL_CONTRAST }
 }
+
+/** Black or white, whichever has the higher worst-case contrast on [fills] (as the TV's labels). */
+fun readableOn(fills: List<Color>): Color {
+    val onBlack = fills.minOf { contrastRatio(Color.Black, it) }
+    val onWhite = fills.minOf { contrastRatio(Color.White, it) }
+    return if (onBlack > onWhite) Color.Black else Color.White
+}
+
+/** WCAG's minimum for body-size text. */
+const val MIN_TEXT_CONTRAST = 4.5f
+
+/** WCAG's minimum for a control against what surrounds it. */
+const val MIN_CONTROL_CONTRAST = 3f
 
 /** True when [customAccent] had to lighten the picked colour. */
 fun customAccentAdjusted(colors: CustomThemeColors): Boolean =

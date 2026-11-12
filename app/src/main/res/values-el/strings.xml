@@ -330,18 +330,10 @@
   <string name="appearance_subtitle">Επιλέξτε χρωματικό θέμα, γραμματοσειρά και γλώσσα</string>
   <string name="appearance_color_theme">Χρωματικό θέμα</string>
   <string name="appearance_color_theme_subtitle">Επιλέξτε το χρώμα έμφασης που χρησιμοποιείται στην εφαρμογή</string>
-  <string name="theme_color_crimson">Βυσσινί</string>
   <string name="theme_color_ocean">Ωκεανός</string>
-  <string name="theme_color_violet">Βιολετί</string>
   <string name="theme_color_emerald">Σμαραγδί</string>
   <string name="theme_color_amber">Κεχριμπάρι</string>
-  <string name="theme_color_rose">Ροζ</string>
   <string name="theme_color_white">Λευκό</string>
-  <string name="theme_color_gold">Χρυσό</string>
-  <string name="theme_color_jade">Νεφρίτης</string>
-  <string name="theme_color_rose_gold">Ροζ χρυσό</string>
-  <string name="theme_color_arctic_blue">Αρκτικό</string>
-  <string name="theme_color_graphite">Γραφίτης</string>
   <string name="theme_color_custom">Προσαρμ.</string>
   <string name="custom_theme_title">Η προσαρμοσμένη διαβάθμισή σας</string>
   <string name="custom_theme_subtitle">Επιλέξτε τρία χρώματα για το θέμα σας. Επιλέξτε ένα χρώμα για να το επεξεργαστείτε.</string>
@@ -2807,4 +2799,5 @@
     <string name="screen_time_rest_of_day">Χωρίς όριο για την υπόλοιπη ημέρα</string>
     <string name="kids_hours">%1$d ώ.</string>
     <string name="kids_hours_minutes">%1$d ώ. %2$d λεπ.</string>
+    <string name="custom_theme_low_contrast">Το κείμενο θα διαβαζόταν δύσκολα σε αυτά τα χρώματα. Επιλέξτε χρώματα με πιο κοντινή φωτεινότητα για αποθήκευση.</string>
 </resources>

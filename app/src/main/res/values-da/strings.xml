@@ -313,12 +313,9 @@
     <string name="appearance_subtitle">Vælg farvetema, skrifttype og sprog</string>
     <string name="appearance_color_theme">Farvetema</string>
     <string name="appearance_color_theme_subtitle">Vælg accentfarven der bruges i hele appen</string>
-    <string name="theme_color_crimson">Crimson</string>
     <string name="theme_color_ocean">Ocean</string>
-    <string name="theme_color_violet">Violet</string>
     <string name="theme_color_emerald">Emerald</string>
     <string name="theme_color_amber">Amber</string>
-    <string name="theme_color_rose">Rose</string>
     <string name="theme_color_white">Hvid</string>
     <string name="appearance_amoled_mode">AMOLED-tilstand</string>
     <string name="appearance_amoled_mode_subtitle">Brug rent sort til app-baggrunde</string>
@@ -2425,4 +2422,5 @@
     <string name="screen_time_rest_of_day">Ingen grænse resten af dagen</string>
     <string name="kids_hours">%1$d t</string>
     <string name="kids_hours_minutes">%1$d t %2$d min</string>
+    <string name="custom_theme_low_contrast">Tekst vil være svær at læse på disse farver. Vælg farver med mere ens lysstyrke for at gemme.</string>
 </resources>

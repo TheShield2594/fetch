@@ -316,17 +316,9 @@
     <string name="appearance_subtitle">选择您的主题色、字体和语言</string>
     <string name="appearance_color_theme">主题色</string>
     <string name="appearance_color_theme_subtitle">选择应用的主强调色</string>
-    <string name="theme_color_gold">金色</string>
-    <string name="theme_color_jade">翡翠</string>
-    <string name="theme_color_rose_gold">玫瑰金</string>
-    <string name="theme_color_arctic_blue">极地蓝</string>
-    <string name="theme_color_graphite">石墨</string>
-    <string name="theme_color_crimson">深红</string>
     <string name="theme_color_ocean">海洋蓝</string>
-    <string name="theme_color_violet">紫罗兰</string>
     <string name="theme_color_emerald">翡翠绿</string>
     <string name="theme_color_amber">琥珀</string>
-    <string name="theme_color_rose">玫瑰</string>
     <string name="theme_color_white">白色</string>
     <string name="theme_color_custom">自定义</string>
     <string name="custom_theme_title">您的自定义渐变</string>
@@ -2760,4 +2752,5 @@
     <string name="screen_time_rest_of_day">今天剩余时间不限</string>
     <string name="kids_hours">%1$d 小时</string>
     <string name="kids_hours_minutes">%1$d 小时 %2$d 分钟</string>
+    <string name="custom_theme_low_contrast">在这些颜色上文字会难以阅读。请选择亮度更接近的颜色后再保存。</string>
 </resources>

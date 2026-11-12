@@ -318,12 +318,9 @@
     <string name="appearance_subtitle">Оберіть колірну тему, шрифт та мову</string>
     <string name="appearance_color_theme">Колірна тема</string>
     <string name="appearance_color_theme_subtitle">Оберіть акцентний колір застосунку</string>
-    <string name="theme_color_crimson">Малиновий</string>
     <string name="theme_color_ocean">Океан</string>
-    <string name="theme_color_violet">Фіолетовий</string>
     <string name="theme_color_emerald">Смарагдовий</string>
     <string name="theme_color_amber">Бурштиновий</string>
-    <string name="theme_color_rose">Рожевий</string>
     <string name="theme_color_white">Білий</string>
     <string name="appearance_amoled_mode">Режим AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Використовувати чисто чорний фон у застосунку</string>
@@ -2439,4 +2436,5 @@
     <string name="screen_time_rest_of_day">Без ліміту до кінця дня</string>
     <string name="kids_hours">%1$d год</string>
     <string name="kids_hours_minutes">%1$d год %2$d хв</string>
+    <string name="custom_theme_low_contrast">Текст на цих кольорах буде важко читати. Щоб зберегти, виберіть кольори з ближчою яскравістю.</string>
 </resources>

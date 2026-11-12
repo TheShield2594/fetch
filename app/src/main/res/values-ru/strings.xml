@@ -1343,17 +1343,9 @@
     <!-- Batch 2: appearance, licenses, settings experience, essential mode -->
     <string name="appearance_color_theme">Цветовая тема</string>
     <string name="appearance_color_theme_subtitle">Выберите акцентный цвет приложения</string>
-    <string name="theme_color_gold">Золотой</string>
-    <string name="theme_color_jade">Нефритовый</string>
-    <string name="theme_color_rose_gold">Розовое золото</string>
-    <string name="theme_color_arctic_blue">Арктический синий</string>
-    <string name="theme_color_graphite">Графит</string>
-    <string name="theme_color_crimson">Малиновый</string>
     <string name="theme_color_ocean">Океан</string>
-    <string name="theme_color_violet">Фиолетовый</string>
     <string name="theme_color_emerald">Изумрудный</string>
     <string name="theme_color_amber">Янтарный</string>
-    <string name="theme_color_rose">Розовый</string>
     <string name="theme_color_white">Белый</string>
     <string name="appearance_amoled_mode">Режим AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Использовать чисто чёрный фон в приложении</string>
@@ -2665,4 +2657,5 @@
     <string name="screen_time_rest_of_day">Без ограничений до конца дня</string>
     <string name="kids_hours">%1$d ч</string>
     <string name="kids_hours_minutes">%1$d ч %2$d мин</string>
+    <string name="custom_theme_low_contrast">Текст на этих цветах будет трудно читать. Чтобы сохранить, выберите цвета с более близкой яркостью.</string>
 </resources>

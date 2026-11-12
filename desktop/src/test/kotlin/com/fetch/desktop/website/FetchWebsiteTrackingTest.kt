@@ -191,9 +191,9 @@ class FetchWebsiteTrackingTest {
         assertEquals("p-main", sent.request.header("x-profile-id"))
         assertTrue("a stop reads the website back", fake.sent.any { it.request.url.encodedPath == "/watch/state" })
 
-        // Titles without an IMDb id stay on this computer.
+        // Titles without an IMDb id reach the website too, under their TMDB or anime id.
         tracker.scrobble(film.copy(contentId = "tmdb:5"), ScrobbleAction.START, 1f)
-        assertEquals(1, fake.sent.count { it.request.url.encodedPath.startsWith("/scrobble/") })
+        assertEquals(2, fake.sent.count { it.request.url.encodedPath.startsWith("/scrobble/") })
     }
 
     @Test

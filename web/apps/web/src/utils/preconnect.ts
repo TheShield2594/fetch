@@ -12,12 +12,12 @@
  * Same-origin deployments (the API behind a path on the same host) need no hint:
  * that connection is already open, having just delivered the page.
  */
-function addPreconnect(origin: string): void {
+function addPreconnect(origin: string, crossOrigin: "anonymous" | "use-credentials" = "anonymous"): void {
   if (document.head.querySelector(`link[rel="preconnect"][href="${origin}"]`)) return;
   const link = document.createElement("link");
   link.rel = "preconnect";
   link.href = origin;
-  link.crossOrigin = "anonymous";
+  link.crossOrigin = crossOrigin;
   document.head.appendChild(link);
 }
 
@@ -32,8 +32,8 @@ export function preconnectToApi(apiBase: string): void {
   }
   if (origin === window.location.origin) return;
 
-  // `request()` in api.ts uses fetch's default credentials mode, so its
-  // cross-origin calls carry no cookies and land in the anonymous connection
-  // pool. A credentialed preconnect would warm a pool they never touch.
-  addPreconnect(origin);
+  // `request()` in api/client.ts sends `credentials: "include"` (the session
+  // is a cookie), so its cross-origin calls land in the credentialed connection
+  // pool. An anonymous preconnect would warm a pool they never touch.
+  addPreconnect(origin, "use-credentials");
 }

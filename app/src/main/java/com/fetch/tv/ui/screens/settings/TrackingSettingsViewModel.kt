@@ -3,6 +3,8 @@ package com.fetch.tv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.tracking.TrackingImportService
+import com.fetch.tv.core.tracking.TrackingImportStatus
 import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.core.tracking.TrackingSourceController
 import com.fetch.tv.core.tracking.TrackingSourceSelection
@@ -39,6 +41,10 @@ data class TrackingSettingsUiState(
 
     val availableLibrarySourceModes: List<LibrarySourceMode>
         get() = availableLibrarySourceModes(connectedProviderIds)
+
+    /** Connected sources whose history can be imported into the source of truth. */
+    val importSources: List<WatchProgressSource>
+        get() = availableWatchProgressSources.filter { it != watchProgressSource }
 }
 
 @HiltViewModel
@@ -46,6 +52,7 @@ class TrackingSettingsViewModel @Inject constructor(
     private val sourceController: TrackingSourceController,
     private val settingsDataStore: TraktSettingsDataStore,
     private val simklSyncRepository: SimklSyncRepository,
+    private val importService: TrackingImportService,
     traktAuthDataStore: TraktAuthDataStore,
     simklAuthRepository: SimklAuthRepository,
     mdbListAuth: MdbListAuthStore,
@@ -54,6 +61,7 @@ class TrackingSettingsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TrackingSettingsUiState())
     val uiState: StateFlow<TrackingSettingsUiState> = _uiState.asStateFlow()
+    val importStatus: StateFlow<TrackingImportStatus> = importService.status
 
     init {
         viewModelScope.launch {
@@ -116,4 +124,10 @@ class TrackingSettingsViewModel @Inject constructor(
             simklSyncRepository.invalidateProjections(preference)
         }
     }
+
+    fun importFrom(source: WatchProgressSource) {
+        if (source in _uiState.value.importSources) importService.start(source)
+    }
+
+    fun acknowledgeImport() = importService.acknowledge()
 }

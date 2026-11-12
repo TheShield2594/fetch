@@ -11,7 +11,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import com.fetch.tv.domain.model.AppTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -49,7 +48,7 @@ object FetchPalette {
     /** The accent sunk into the background, for the selected sidebar tile. */
     val AccentDim: Color get() = lerp(Background, Accent, 0.22f)
     /** Text on the accent: dark on the light accents (White, Graphite, Amber…). */
-    val OnAccent: Color get() = if (Accent.luminance() > 0.5f) Color.Black else Color.White
+    val OnAccent: Color get() = readableOn(listOf(Accent))
 
     fun setTheme(theme: AppTheme) {
         this.theme = theme
@@ -65,23 +64,16 @@ object FetchPalette {
     }
     val Imdb = Color(0xFFF5C518)
     val Error = Color(0xFFFF6B6B)
+    val Warning = Color(0xFFFFB74D)
 }
 
 /** Each theme's accent, from the TV app's palettes. */
 fun accentFor(theme: AppTheme): Color = when (theme) {
     AppTheme.FETCH -> Color(0xFFDC2B33)
     AppTheme.CUSTOM -> FetchPalette.CustomAccent
-    AppTheme.GOLD -> Color(0xFFE8A91C)
-    AppTheme.JADE -> Color(0xFF22D37C)
-    AppTheme.ROSE_GOLD -> Color(0xFFEC70A9)
-    AppTheme.ARCTIC_BLUE -> Color(0xFF3185F5)
-    AppTheme.GRAPHITE -> Color(0xFFAAB2BE)
-    AppTheme.CRIMSON -> Color(0xFFE5484D)
     AppTheme.OCEAN -> Color(0xFF4CB5F5)
-    AppTheme.VIOLET -> Color(0xFFA78BFA)
     AppTheme.EMERALD -> Color(0xFF3DD68C)
     AppTheme.AMBER -> Color(0xFFF5A524)
-    AppTheme.ROSE -> Color(0xFFF06A9E)
     AppTheme.WHITE -> Color(0xFFF5F5F5)
 }
 

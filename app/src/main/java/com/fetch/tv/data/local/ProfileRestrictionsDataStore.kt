@@ -194,9 +194,14 @@ class ProfileRestrictionsDataStore internal constructor(
     constructor(@ApplicationContext context: Context) : this(context.profileRestrictionsDataStore)
 
     private val restrictionsKey = stringPreferencesKey("restrictions_map")
-    // Kept apart from the limits, which a website pull replaces; the lists are only set on this TV.
+    // Kept apart from the limits, which a website pull replaces. The hidden list is only set on
+    // this TV; a paired Fetch website carries the allowed list with the kids rules.
     private val titleListsKey = stringPreferencesKey("title_lists")
     private val kidsRulesKey = stringPreferencesKey("kids_rules")
+    // When a profile's kids rules or always-allowed titles last changed, as epoch ms: set by a
+    // parent's change here, or to the website's time when its copy is taken. A paired Fetch
+    // website keeps the newer of its copy and this TV's.
+    private val kidsRulesChangedAtKey = stringPreferencesKey("kids_rules_changed_at")
     private val lockUnrestrictedKey = booleanPreferencesKey("lock_unrestricted_profiles")
     private val corruptionResetKey = restrictionsCorruptionResetKey
     // The account's copy of each profile's limits and kids rules, and the profiles waiting to send
@@ -277,6 +282,68 @@ class ProfileRestrictionsDataStore internal constructor(
     private fun encodeKidsRules(map: Map<Int, KidsRules>): String =
         json.encodeToString(map.mapKeys { it.key.toString() })
 
+    /** When each profile's kids rules or always-allowed titles last changed; missing when never. */
+    val kidsRulesChangedAt: Flow<Map<Int, Long>> = dataStore.data.map { prefs ->
+        decodeChangedAt(prefs[kidsRulesChangedAtKey])
+    }
+
+    /** A parent changed the profile's kids rules or always-allowed titles on this TV at [atMs]. */
+    suspend fun markKidsRulesChanged(profileId: Int, atMs: Long) {
+        dataStore.edit { prefs ->
+            val current = decodeChangedAt(prefs[kidsRulesChangedAtKey])
+            prefs[kidsRulesChangedAtKey] = encodeChangedAt(current + (profileId to atMs))
+        }
+    }
+
+    /**
+     * Takes a paired Fetch website's copy of the profile's kids rules and always-allowed titles,
+     * which changed at [changedAtMs], in one write. The TV's own choice of the parent's lists
+     * ([KidsRules.approvedListIds]) and its hidden titles stay; a title the website allows comes
+     * off the hidden list, since a title is on one list at most. Returns false, changing nothing,
+     * when this TV's copy changed after [expectedLocalChangedAtMs] (a parent's change made here
+     * meanwhile, which wins).
+     */
+    suspend fun applyWebsiteKidsRules(
+        profileId: Int,
+        rules: KidsRules,
+        allowed: List<ParentalTitle>,
+        changedAtMs: Long,
+        expectedLocalChangedAtMs: Long?
+    ): Boolean {
+        var applied = false
+        dataStore.edit { prefs ->
+            val stamps = decodeChangedAt(prefs[kidsRulesChangedAtKey])
+            if (stamps[profileId] != expectedLocalChangedAtMs) return@edit
+            val allRules = decodeKidsRules(prefs[kidsRulesKey]).toMutableMap()
+            val merged = rules.copy(approvedListIds = allRules[profileId]?.approvedListIds.orEmpty())
+            if (merged == KidsRules.Default) allRules.remove(profileId) else allRules[profileId] = merged
+            prefs[kidsRulesKey] = encodeKidsRules(allRules)
+
+            val lists = decodeTitleLists(prefs[titleListsKey]).toMutableMap()
+            val current = lists[profileId] ?: ProfileTitleLists.Empty
+            val updated = ProfileTitleLists(
+                hidden = current.hidden.filterNot { hidden ->
+                    allowed.any { it.sameKind(hidden.type) && it.ids.any { id -> id in hidden.ids } }
+                },
+                allowed = allowed
+            )
+            if (updated.isEmpty) lists.remove(profileId) else lists[profileId] = updated
+            prefs[titleListsKey] = json.encodeToString(lists.mapKeys { it.key.toString() })
+
+            prefs[kidsRulesChangedAtKey] = encodeChangedAt(stamps + (profileId to changedAtMs))
+            applied = true
+        }
+        return applied
+    }
+
+    private fun encodeChangedAt(map: Map<Int, Long>): String = json.encodeToString(map.mapKeys { it.key.toString() })
+
+    private fun decodeChangedAt(raw: String?): Map<Int, Long> {
+        if (raw.isNullOrBlank()) return emptyMap()
+        val stored = runCatching { json.decodeFromString<Map<String, Long>>(raw) }.getOrNull() ?: return emptyMap()
+        return stored.mapNotNull { (id, at) -> id.toIntOrNull()?.let { it to at } }.toMap()
+    }
+
     /** Drops the profile's limits. Its title lists stay: they're kept on this TV whatever the website says. */
     suspend fun removeProfile(profileId: Int) {
         dataStore.edit { prefs ->
@@ -285,11 +352,15 @@ class ProfileRestrictionsDataStore internal constructor(
         }
     }
 
-    /** For a deleted profile: its limits, title lists and kids rules. */
+    /** For a deleted profile: its limits, title lists and kids rules, and when they changed. */
     suspend fun deleteProfile(profileId: Int) {
         removeProfile(profileId)
         updateTitleLists(profileId) { ProfileTitleLists.Empty }
         setKidsRules(profileId, KidsRules.Default)
+        dataStore.edit { prefs ->
+            val stamps = decodeChangedAt(prefs[kidsRulesChangedAtKey])
+            if (profileId in stamps) prefs[kidsRulesChangedAtKey] = encodeChangedAt(stamps - profileId)
+        }
     }
 
     suspend fun clearAll() {

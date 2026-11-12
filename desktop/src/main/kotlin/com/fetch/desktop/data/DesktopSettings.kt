@@ -79,7 +79,7 @@ data class DesktopSettings(
     /** Bumped when a saved default has to change; see [migrated]. */
     val schema: Int = 1
 ) {
-    val appTheme: AppTheme get() = AppTheme.entries.firstOrNull { it.name == theme } ?: AppTheme.FETCH
+    val appTheme: AppTheme get() = AppTheme.fromStoredName(theme) ?: AppTheme.FETCH
 
     /**
      * Brings an older settings file up to date. Schema 2: desktop used to save "prefer my own

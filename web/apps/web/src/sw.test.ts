@@ -347,6 +347,59 @@ describe("offline navigation", () => {
   });
 });
 
+describe("API cache keys", () => {
+  type ApiKeyPlugin = { cacheKeyWillBeUsed: (args: { request: Request }) => Promise<string> };
+
+  const apiKeyPlugin = (): ApiKeyPlugin => {
+    const route = registeredRoutes.find(
+      (r) => r.handler instanceof StrategyStub && r.handler.options.cacheName === "api-runtime-v1"
+    );
+    const plugins = (route?.handler as StrategyStub | undefined)?.options.plugins ?? [];
+    const plugin = plugins.find(
+      (p): p is ApiKeyPlugin => typeof (p as ApiKeyPlugin).cacheKeyWillBeUsed === "function"
+    );
+    if (!plugin) throw new Error("no cache-key plugin on the API route");
+    return plugin;
+  };
+
+  const keyFor = (headers: Record<string, string>) =>
+    apiKeyPlugin().cacheKeyWillBeUsed({
+      request: new Request("https://fetch.example/api/watchlist", { headers }),
+    });
+
+  it("partitions by session id now that the session is a cookie nobody can read", async () => {
+    await loadWorker("https://fetch.example/api");
+
+    const a = await keyFor({ "X-Fetch-Session": "session-a", "x-profile-id": "p1" });
+    const b = await keyFor({ "X-Fetch-Session": "session-b", "x-profile-id": "p1" });
+    const aAgain = await keyFor({ "X-Fetch-Session": "session-a", "x-profile-id": "p1" });
+
+    expect(a).not.toBe(b);
+    expect(a).toBe(aAgain);
+    // Hashed, not spelled out, in a key any same-origin script can list.
+    expect(a).not.toContain("session-a");
+  });
+
+  it("still partitions by profile within one session", async () => {
+    await loadWorker("https://fetch.example/api");
+
+    const p1 = await keyFor({ "X-Fetch-Session": "session-a", "x-profile-id": "p1" });
+    const p2 = await keyFor({ "X-Fetch-Session": "session-a", "x-profile-id": "p2" });
+
+    expect(p1).not.toBe(p2);
+  });
+
+  it("falls back to the bearer header for a request that carries one instead", async () => {
+    await loadWorker("https://fetch.example/api");
+
+    const one = await keyFor({ Authorization: "Bearer fs1_one", "x-profile-id": "p1" });
+    const two = await keyFor({ Authorization: "Bearer fs1_two", "x-profile-id": "p1" });
+
+    expect(one).not.toBe(two);
+    expect(one).not.toContain("fs1_one");
+  });
+});
+
 describe("poster cache keys", () => {
   const POSTER_CACHE = "poster-images-v1";
   const poster = (width: number) => `https://image.tmdb.org/t/p/w${width}/abc.jpg`;

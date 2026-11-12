@@ -601,8 +601,7 @@ open class MainActivity : ComponentActivity() {
                     // Resolve branded logo: focused theme (profile screen) > active theme > cached theme > default
                     val resolvedTheme = focusedSplashTheme
                         ?: activeTheme.takeIf { splashPreferencesReady }
-                        ?: splashPrefs.getString("theme_$activeProfileId", null)
-                            ?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
+                        ?: AppTheme.fromStoredName(splashPrefs.getString("theme_$activeProfileId", null))
                         ?: com.fetch.tv.domain.model.DEFAULT_APP_THEME
                     SplashBackground(
                         profileColorHex = if (hasFocusedOverride) focusedSplashColor else (colorHex ?: fallbackColor),

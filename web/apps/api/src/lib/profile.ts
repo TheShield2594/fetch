@@ -5,6 +5,7 @@ import { findAdminAccountId } from "./sessions.js";
 import { prisma } from "./prisma.js";
 import { type CachedProfile, profileCache, profileCacheClear, profileLookups } from "./cache.js";
 import { verifyProfileToken } from "./profile-token.js";
+import { PROFILE_COOKIE, readCookie } from "./session-cookie.js";
 import { isServiceRequest } from "./service-request.js";
 import { UUID_V4_PATTERN } from "./types.js";
 import { RATING_LEVELS } from "./profile-view.js";
@@ -136,13 +137,16 @@ export const findOwnedProfile = async (
 //
 // Takes the profile row rather than its id: a token is only good for the PIN
 // it was minted under, so the check needs the profile's current `pinHash`.
+//
+// A TV sends it as the `x-profile-token` header; the website holds it in an
+// HttpOnly cookie it cannot read (lib/session-cookie.ts). The header wins.
 export const hasValidProfileToken = (
   request: FastifyRequest,
   profile: { id: string; pinHash: string | null }
 ): boolean => {
   const headerValue = request.headers[PROFILE_TOKEN_HEADER];
-  const token = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-  return verifyProfileToken(token, profile.id, profile.pinHash);
+  const token = (Array.isArray(headerValue) ? headerValue[0] : headerValue) || readCookie(request, PROFILE_COOKIE);
+  return verifyProfileToken(token ?? undefined, profile.id, profile.pinHash);
 };
 
 /**

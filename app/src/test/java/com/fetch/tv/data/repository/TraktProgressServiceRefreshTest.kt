@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -47,6 +48,7 @@ class TraktProgressServiceRefreshTest {
     private val playbackCalls = AtomicInteger()
     private val watchedMoviesCalls = AtomicInteger()
     private val watchedShowsCalls = AtomicInteger()
+    private val metadataCalls = AtomicInteger()
 
     @Volatile
     private var episodesWatchedAt = "2026-01-01T00:00:00.000Z"
@@ -56,6 +58,9 @@ class TraktProgressServiceRefreshTest {
 
     @Volatile
     private var playbackHangs = false
+
+    @Volatile
+    private var metadataHangs = false
 
     @Test
     fun `watch action refetches only the changed watched list and the next poll skips it`() = runBlocking {
@@ -157,6 +162,24 @@ class TraktProgressServiceRefreshTest {
         waitUntil { playbackCalls.get() >= 2 }
     }
 
+    @Test
+    fun `metadata fetch cut off by leaving the screen is redone on return`() = runBlocking {
+        metadataHangs = true
+        val service = createService()
+        // SystemClock is stubbed to 0 here, so the real warm-up delay would never run out.
+        service.initialMetadataHydrationDelayMs = 0L
+        waitUntil { metadataCalls.get() >= 1 }
+
+        AppForeground.set(false)
+        metadataHangs = false
+        metadataCalls.set(0)
+        delay(SETTLE_MS * 2)
+        assertEquals("metadata fetched off screen", 0, metadataCalls.get())
+
+        AppForeground.set(true)
+        waitUntil { metadataCalls.get() >= 1 }
+    }
+
     private suspend fun loadedService(): TraktProgressService {
         val service = createService()
         withTimeout(TIMEOUT_MS) {
@@ -228,7 +251,10 @@ class TraktProgressServiceRefreshTest {
         }
 
         val metaRepository = mockk<MetaRepository>()
-        every { metaRepository.getMetaFromAllAddons(any(), any(), any()) } returns emptyFlow()
+        every { metaRepository.getMetaFromAllAddons(any(), any(), any()) } answers {
+            metadataCalls.incrementAndGet()
+            if (metadataHangs) flow { awaitCancellation() } else emptyFlow()
+        }
         val settings = mockk<TraktSettingsDataStore>()
         every { settings.continueWatchingDaysCap } returns
             flowOf(TraktSettingsDataStore.DEFAULT_CONTINUE_WATCHING_DAYS_CAP)

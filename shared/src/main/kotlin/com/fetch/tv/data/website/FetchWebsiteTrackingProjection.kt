@@ -146,13 +146,13 @@ class FetchWebsiteProgressProjection(snapshot: FetchWebsiteTrackingSnapshot?) {
         if (season != null && episode != null) season to episode in watchedShowEpisodes[contentId].orEmpty()
         else contentId in watchedMovieIds
 
-    /** For a Stremio-style episode id, `tt123:2:5`; null when [videoId] isn't one. */
+    /** For a Stremio-style episode id, `tt123:2:5` or `tmdb:603:2:5`; null when [videoId] isn't one. */
     fun isWatchedByVideoId(videoId: String, episode: Int): Boolean? {
         val parts = videoId.split(':')
         if (parts.size < 3 || parts.last().toIntOrNull() != episode) return null
         val season = parts[parts.lastIndex - 1].toIntOrNull() ?: return null
         val parent = parts.dropLast(2).joinToString(":")
-        if (!parent.startsWith("tt")) return null
+        if (!parent.startsWith("tt") && !isFetchWebsiteContentId(parent)) return null
         return isWatched(parent, season, episode)
     }
 

@@ -87,7 +87,7 @@ describe("conditional responses", () => {
   it("varies on the caller, so one profile's entry can't answer another's request", async () => {
     const app = buildApp();
     const response = await app.inject({ method: "GET", url: "/watch/history" });
-    expect(response.headers.vary).toBe("Authorization, X-Profile-Id");
+    expect(response.headers.vary).toBe("Authorization, Cookie, X-Profile-Id");
   });
 
   it("keeps the Vary the CORS hook set, instead of replacing it", async () => {
@@ -101,7 +101,7 @@ describe("conditional responses", () => {
 
     const response = await app.inject({ method: "GET", url: "/watch/history" });
 
-    expect(response.headers.vary).toBe("Origin, Authorization, X-Profile-Id");
+    expect(response.headers.vary).toBe("Origin, Authorization, Cookie, X-Profile-Id");
   });
 
   it("gives metadata a max-age but never marks it public", async () => {

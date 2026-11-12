@@ -1111,4 +1111,5 @@
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
     <string name="playback_parental_guide_sub">Afișează avertismente despre conținut la pornirea redării. Trimite ID-ul IMDb al fiecărui titlu către api.tiffara.com pentru a le căuta.</string>
+    <string name="custom_theme_low_contrast">Textul ar fi greu de citit pe aceste culori. Alege culori cu o luminozitate mai apropiată pentru a salva.</string>
 </resources>

@@ -299,7 +299,7 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   and IMDb's parents guide (the TV's source) show for five seconds at the top left.
 - **Settings**: Stream Selection (quality, codec, file size, audio languages, skipped release
   types, audio formats and release groups, result limits), Content & Discovery (Addons, and
-  Home catalogs to pin or hide rows), Appearance (the TV app's color themes), Layout (Continue
+  Home catalogs to pin or hide rows), Appearance (the TV app's color themes: Fetch, White, Ocean, Emerald, Amber and Custom), Layout (Continue
   Watching, catalog type and addon name on rows, poster labels, Discover location) and About.
   Ctrl+, opens them. **Search settings** (the field atop the rail, or Ctrl+F in Settings) finds
   any setting by name or a word such as "dolby" and opens its page with the row lit up.
@@ -314,7 +314,9 @@ These are the main profile's. Every other profile keeps its own copies in `profi
   changes when you switch.
 - **Appearance extras**, synced with the TV: Increase contrast, AMOLED Mode and Pure Black
   Surfaces, a Custom theme (a colour from swatches, sliders or a hex code; a TV's custom theme
-  shows here too) and the TV's fonts (Fetch, Inter, DM Sans, Open Sans).
+  shows here too; colours whose label wouldn't reach 4.5:1 can't be saved, as on TV) and the TV's
+  fonts (Fetch, Inter, DM Sans, Open Sans). A theme the TV has retired (Gold, Jade, Crimson…)
+  arriving from sync or an old `settings.json` reads as its nearest kept theme.
 - Home rows from every addon catalog that needs no search or genre input. Rows keep the
   catalog's poster shape, and hovering one shows arrows to page through it.
 - Search across every addon catalog that takes a search (Ctrl+F or Ctrl+K from anywhere).

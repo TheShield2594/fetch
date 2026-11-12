@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">从其他来源导入</string>
+    <string name="tracking_import_subtitle">将其他已连接服务中的观看记录和续播位置复制到 %1$s，即你的主要来源。</string>
+    <string name="tracking_import_running">正在导入…</string>
+    <string name="tracking_import_dialog_title">导入到 %1$s</string>
+    <string name="tracking_import_dialog_subtitle">在那里看过的内容会在 %1$s 中标记为已观看。除非 %1$s 已有更新的续播位置，否则会复制续播位置。不会删除任何内容。</string>
+    <string name="tracking_import_done_title">导入完成</string>
+    <string name="tracking_import_done_from">从 %1$s 导入到 %2$s</string>
+    <string name="tracking_import_done_watched">已观看：导入 %1$d 项，跳过 %2$d 项</string>
+    <string name="tracking_import_done_progress">续播位置：导入 %1$d 项，跳过 %2$d 项</string>
+    <string name="tracking_import_done_failed">%1$s 未接受：%2$d</string>
+    <string name="tracking_import_unsupported_watched">这些服务之间无法导入观看记录。</string>
+    <string name="tracking_import_unsupported_progress">这些服务之间无法导入续播位置。</string>
+    <string name="tracking_import_failed_title">导入失败</string>
+    <string name="tracking_import_failed_subtitle">Fetch 无法读取 %1$s 或写入 %2$s。请确认两者都已连接，然后重试。</string>
+</resources>

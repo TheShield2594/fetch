@@ -323,17 +323,9 @@
     <string name="appearance_subtitle">Chọn màu chủ đề, phông chữ và ngôn ngữ</string>
     <string name="appearance_color_theme">Màu chủ đề</string>
     <string name="appearance_color_theme_subtitle">Chọn màu nhấn dùng cho toàn bộ ứng dụng</string>
-    <string name="theme_color_gold">Vàng</string>
-    <string name="theme_color_jade">Ngọc bích</string>
-    <string name="theme_color_rose_gold">Vàng Hồng</string>
-    <string name="theme_color_arctic_blue">Xanh Bắc Cực</string>
-    <string name="theme_color_graphite">Than chì</string>
-    <string name="theme_color_crimson">Đỏ thẫm</string>
     <string name="theme_color_ocean">Xanh lam</string>
-    <string name="theme_color_violet">Tím</string>
     <string name="theme_color_emerald">Ngọc lục bảo</string>
     <string name="theme_color_amber">Cam</string>
-    <string name="theme_color_rose">Hồng</string>
     <string name="theme_color_white">Trắng</string>
     <string name="theme_color_custom">Tùy chỉnh</string>
     <string name="custom_theme_title">Dải màu chuyển tiếp tùy chỉnh của bạn</string>
@@ -2871,4 +2863,5 @@
     <string name="screen_time_rest_of_day">Không giới hạn đến hết hôm nay</string>
     <string name="kids_hours">%1$d giờ</string>
     <string name="kids_hours_minutes">%1$d giờ %2$d phút</string>
+    <string name="custom_theme_low_contrast">Chữ sẽ khó đọc trên các màu này. Hãy chọn các màu có độ sáng gần nhau hơn để lưu.</string>
 </resources>

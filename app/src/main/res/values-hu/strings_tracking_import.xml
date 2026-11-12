@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importálás másik forrásból</string>
+    <string name="tracking_import_subtitle">A megtekintési előzmények és a folytatási pontok átmásolása egy másik csatlakoztatott szolgáltatásból ide: %1$s, a fő forrásod.</string>
+    <string name="tracking_import_running">Importálás…</string>
+    <string name="tracking_import_dialog_title">Importálás ide: %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Az ott megnézett címek megnézettként jelennek meg itt: %1$s. A folytatási pontok átmásolódnak, kivéve ha itt (%1$s) újabb van. Semmi sem törlődik.</string>
+    <string name="tracking_import_done_title">Az importálás befejeződött</string>
+    <string name="tracking_import_done_from">Innen: %1$s, ide: %2$s</string>
+    <string name="tracking_import_done_watched">Megnézett: %1$d importálva, %2$d kihagyva</string>
+    <string name="tracking_import_done_progress">Folytatási pontok: %1$d importálva, %2$d kihagyva</string>
+    <string name="tracking_import_done_failed">Nem fogadta el (%1$s): %2$d</string>
+    <string name="tracking_import_unsupported_watched">A megtekintési előzmények nem importálhatók e szolgáltatások között.</string>
+    <string name="tracking_import_unsupported_progress">A folytatási pontok nem importálhatók e szolgáltatások között.</string>
+    <string name="tracking_import_failed_title">Sikertelen importálás</string>
+    <string name="tracking_import_failed_subtitle">A Fetch nem tudta olvasni ezt: %1$s, vagy nem tudott írni ide: %2$s. Ellenőrizd, hogy mindkettő csatlakoztatva van, majd próbáld újra.</string>
+</resources>

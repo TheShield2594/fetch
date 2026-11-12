@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importă din altă sursă</string>
+    <string name="tracking_import_subtitle">Copiază istoricul vizionărilor și punctele de reluare dintr-un alt serviciu conectat în %1$s, sursa ta principală.</string>
+    <string name="tracking_import_running">Se importă…</string>
+    <string name="tracking_import_dialog_title">Importă în %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Titlurile vizionate acolo sunt marcate ca vizionate în %1$s. Punctele de reluare sunt copiate, cu excepția cazului în care %1$s are unul mai recent. Nu se șterge nimic.</string>
+    <string name="tracking_import_done_title">Import finalizat</string>
+    <string name="tracking_import_done_from">Din %1$s în %2$s</string>
+    <string name="tracking_import_done_watched">Vizionate: %1$d importate, %2$d omise</string>
+    <string name="tracking_import_done_progress">Puncte de reluare: %1$d importate, %2$d omise</string>
+    <string name="tracking_import_done_failed">Neacceptate de %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Istoricul vizionărilor nu poate fi importat între aceste servicii.</string>
+    <string name="tracking_import_unsupported_progress">Punctele de reluare nu pot fi importate între aceste servicii.</string>
+    <string name="tracking_import_failed_title">Importul a eșuat</string>
+    <string name="tracking_import_failed_subtitle">Fetch nu a putut citi %1$s sau scrie în %2$s. Verifică dacă ambele sunt conectate și încearcă din nou.</string>
+</resources>

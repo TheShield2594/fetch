@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Impor dari sumber lain</string>
+    <string name="tracking_import_subtitle">Salin riwayat tontonan dan titik lanjut dari layanan lain yang terhubung ke %1$s, sumber utama Anda.</string>
+    <string name="tracking_import_running">Mengimpor…</string>
+    <string name="tracking_import_dialog_title">Impor ke %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Judul yang ditonton di sana ditandai sudah ditonton di %1$s. Titik lanjut disalin kecuali %1$s punya yang lebih baru. Tidak ada yang dihapus.</string>
+    <string name="tracking_import_done_title">Impor selesai</string>
+    <string name="tracking_import_done_from">Dari %1$s ke %2$s</string>
+    <string name="tracking_import_done_watched">Ditonton: %1$d diimpor, %2$d dilewati</string>
+    <string name="tracking_import_done_progress">Titik lanjut: %1$d diimpor, %2$d dilewati</string>
+    <string name="tracking_import_done_failed">Tidak diterima oleh %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Riwayat tontonan tidak dapat diimpor antara layanan ini.</string>
+    <string name="tracking_import_unsupported_progress">Titik lanjut tidak dapat diimpor antara layanan ini.</string>
+    <string name="tracking_import_failed_title">Impor gagal</string>
+    <string name="tracking_import_failed_subtitle">Fetch tidak dapat membaca %1$s atau menulis ke %2$s. Pastikan keduanya terhubung, lalu coba lagi.</string>
+</resources>

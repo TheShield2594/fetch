@@ -1311,4 +1311,5 @@
     <string name="kids_hours">%1$d t</string>
     <string name="kids_hours_minutes">%1$d t %2$d min</string>
     <string name="playback_parental_guide_sub">Vis innholdsadvarsler når avspillingen starter. Sender hver tittels IMDb-ID til api.tiffara.com for å slå dem opp.</string>
+    <string name="custom_theme_low_contrast">Tekst blir vanskelig å lese på disse fargene. Velg farger med likere lysstyrke for å lagre.</string>
 </resources>

@@ -1406,12 +1406,9 @@
     <string name="ambient_mode_catalogs_dialog_subtitle">Wybierz do 3 katalogów</string>
     <string name="ambient_mode_catalogs_default">Takie same jak hero</string>
     <string name="ambient_mode_catalogs_count">%1$d z %2$d</string>
-    <string name="theme_color_crimson">Karmazyn</string>
     <string name="theme_color_ocean">Ocean</string>
-    <string name="theme_color_violet">Fiolet</string>
     <string name="theme_color_emerald">Szmaragd</string>
     <string name="theme_color_amber">Bursztyn</string>
-    <string name="theme_color_rose">Róż</string>
     <string name="theme_color_white">Biel</string>
     <string name="collections_editor_add_source">Dodaj źródło</string>
     <string name="collections_editor_add_tmdb_source">Dodaj źródło TMDB</string>
@@ -2322,12 +2319,6 @@
     <string name="update_no_release_notes">Nie podano informacji o wydaniu.</string>
     <string name="update_preparing_download">Przygotowywanie pobierania</string>
     <string name="update_release_notes">Informacje o wydaniu</string>
-
-    <string name="theme_color_gold">Złoty</string>
-    <string name="theme_color_jade">Jadeit</string>
-    <string name="theme_color_rose_gold">Różowe złoto</string>
-    <string name="theme_color_arctic_blue">Arktyczny</string>
-    <string name="theme_color_graphite">Grafit</string>
     <string name="theme_color_custom">Własny</string>
 
 
@@ -2979,4 +2970,5 @@
     <string name="screen_time_rest_of_day">Bez limitu do końca dnia</string>
     <string name="kids_hours">%1$d godz.</string>
     <string name="kids_hours_minutes">%1$d godz. %2$d min</string>
+    <string name="custom_theme_low_contrast">Tekst byłby trudny do odczytania na tych kolorach. Aby zapisać, wybierz kolory o bardziej zbliżonej jasności.</string>
 </resources>

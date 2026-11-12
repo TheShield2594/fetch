@@ -328,17 +328,9 @@
     <string name="appearance_subtitle">Elige tu tema de color e idioma</string>
     <string name="appearance_color_theme">Tema de color</string>
     <string name="appearance_color_theme_subtitle">Elige el color de acento usado en toda la aplicación</string>
-    <string name="theme_color_gold">Dorado</string>
-    <string name="theme_color_jade">Jade</string>
-    <string name="theme_color_rose_gold">Oro rosa</string>
-    <string name="theme_color_arctic_blue">Azul ártico</string>
-    <string name="theme_color_graphite">Grafito</string>
-    <string name="theme_color_crimson">Carmesí</string>
     <string name="theme_color_ocean">Océano</string>
-    <string name="theme_color_violet">Violeta</string>
     <string name="theme_color_emerald">Esmeralda</string>
     <string name="theme_color_amber">Ámbar</string>
-    <string name="theme_color_rose">Rosa</string>
     <string name="theme_color_white">Blanco</string>
     <string name="theme_color_custom">Personalizado</string>
     <string name="custom_theme_title">Tu degradado personalizado</string>
@@ -2782,4 +2774,5 @@
     <string name="screen_time_rest_of_day">Sin límite el resto del día</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">El texto sería difícil de leer sobre estos colores. Elige colores con un brillo más parecido para guardar.</string>
 </resources>

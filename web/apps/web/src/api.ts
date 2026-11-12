@@ -17,6 +17,7 @@ export * from "./api/types";
 export type * from "./api/tv";
 export {
   inviteCodeFromPath,
+  migrateLegacySession,
   type Account,
   type AccountEvent,
   type AccountSummary,

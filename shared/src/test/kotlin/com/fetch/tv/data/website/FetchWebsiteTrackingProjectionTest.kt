@@ -210,8 +210,8 @@ class FetchWebsiteTrackingProjectionTest {
     @Test
     fun `a resume point is saved in whole seconds when the player knows them`() {
         val progress = WatchProgress(
-            contentId = "tt-show", contentType = "series", name = "A Show", poster = null, backdrop = null, logo = null,
-            videoId = "tt-show:1:2", season = 1, episode = 2, episodeTitle = null,
+            contentId = "tt0959621", contentType = "series", name = "A Show", poster = null, backdrop = null, logo = null,
+            videoId = "tt0959621:1:2", season = 1, episode = 2, episodeTitle = null,
             position = 61_500L, duration = 2_700_000L, lastWatched = 1L
         )
 
@@ -236,6 +236,27 @@ class FetchWebsiteTrackingProjectionTest {
         assertEquals("movie", body["type"]?.jsonPrimitive?.content)
         assertEquals(37.3, body["progress"]!!.jsonPrimitive.double, 0.001)
         assertNull(body["positionSeconds"])
-        assertNull(fetchWebsitePlaybackBody(progress.copy(contentId = "tmdb:5")))
+        assertNull(fetchWebsitePlaybackBody(progress.copy(contentId = "yt_id:abc")))
+    }
+
+    @Test
+    fun `a title without an IMDb id is saved under its prefixed id, with its name and poster`() {
+        val progress = WatchProgress(
+            contentId = "kitsu:1376", contentType = "series", name = "Cowboy Bebop",
+            poster = "https://media.kitsu.app/anime/1376/poster.jpg", backdrop = null, logo = null,
+            videoId = "kitsu:1376:5", season = 1, episode = 5, episodeTitle = null,
+            position = 600_000L, duration = 1_440_000L, lastWatched = 1L
+        )
+
+        val body = fetchWebsitePlaybackBody(progress)!!
+
+        assertEquals("kitsu:1376", body["imdbId"]?.jsonPrimitive?.content)
+        assertEquals("kitsu:1376", body["seriesImdbId"]?.jsonPrimitive?.content)
+        assertEquals("Cowboy Bebop", body["name"]?.jsonPrimitive?.content)
+        assertEquals("https://media.kitsu.app/anime/1376/poster.jpg", body["poster"]?.jsonPrimitive?.content)
+        val film = progress.copy(contentId = "tmdb:603", contentType = "movie", season = null, episode = null, poster = "not a url")
+        val filmBody = fetchWebsitePlaybackBody(film)!!
+        assertEquals("tmdb:603", filmBody["imdbId"]?.jsonPrimitive?.content)
+        assertNull(filmBody["poster"])
     }
 }

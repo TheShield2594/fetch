@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Uvozi iz drugega vira</string>
+    <string name="tracking_import_subtitle">Kopira zgodovino ogledov in točke nadaljevanja iz druge povezane storitve v %1$s, vaš glavni vir.</string>
+    <string name="tracking_import_running">Uvažanje…</string>
+    <string name="tracking_import_dialog_title">Uvozi v %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Naslovi, ogledani tam, bodo v %1$s označeni kot ogledani. Točke nadaljevanja se kopirajo, razen če ima %1$s novejšo. Nič se ne odstrani.</string>
+    <string name="tracking_import_done_title">Uvoz je končan</string>
+    <string name="tracking_import_done_from">Iz %1$s v %2$s</string>
+    <string name="tracking_import_done_watched">Ogledano: uvoženo %1$d, preskočeno %2$d</string>
+    <string name="tracking_import_done_progress">Točke nadaljevanja: uvoženo %1$d, preskočeno %2$d</string>
+    <string name="tracking_import_done_failed">%1$s ni sprejel: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Zgodovine ogledov med temi storitvami ni mogoče uvoziti.</string>
+    <string name="tracking_import_unsupported_progress">Točk nadaljevanja med temi storitvami ni mogoče uvoziti.</string>
+    <string name="tracking_import_failed_title">Uvoz ni uspel</string>
+    <string name="tracking_import_failed_subtitle">Fetch ni mogel prebrati %1$s ali pisati v %2$s. Preverite, ali sta obe povezani, in poskusite znova.</string>
+</resources>

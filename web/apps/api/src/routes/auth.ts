@@ -1,4 +1,12 @@
-import type { FastifyPluginAsync, FastifyRequest } from "fastify";
+import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import {
+  clearAuthCookies,
+  isWebClient,
+  PROFILE_COOKIE,
+  setProfileCookie,
+  setSessionCookie,
+} from "../lib/session-cookie.js";
+import { PROFILE_TOKEN_TTL_MS, verifyProfileToken } from "../lib/profile-token.js";
 import { prisma } from "../lib/prisma.js";
 import { bearerToken, isApiToken } from "../lib/auth.js";
 import { hashPin, pinMatches } from "../lib/pin-hash.js";
@@ -8,7 +16,13 @@ import { invalidateProfileCache } from "../lib/profile.js";
 import { adoptLegacyAiConfig, claimLegacyIntegrations } from "../lib/integration-owner.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
 import { ADMIN_REQUIRED_RESPONSE, hashSecret, isAdminRequest, requireAdmin } from "../lib/request-auth.js";
-import { createSession, findAdminAccountId, mintInviteCode, SESSION_MAX_AGE_MS } from "../lib/sessions.js";
+import {
+  createSession,
+  findAdminAccountId,
+  mintInviteCode,
+  SESSION_COOKIE_MAX_AGE_SEC,
+  SESSION_MAX_AGE_MS,
+} from "../lib/sessions.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { listAccountEvents, recordAccountEvent, requestOrigin } from "../lib/account-events.js";
 import {
@@ -109,7 +123,28 @@ const verifyAdminReauth = async (request: FastifyRequest, raw: unknown) => {
   return verifyOwnPassword(request, admin, raw);
 };
 
+const firstHeader = (value: string | string[] | undefined): string | undefined =>
+  (Array.isArray(value) ? value[0] : value)?.trim() || undefined;
+
 const bodyOf = (request: FastifyRequest) => (request.body ?? {}) as Record<string, unknown>;
+
+/**
+ * Starts a session for `account` and answers with it. The website (which says
+ * so with `X-Fetch-Client: web`) gets it as an HttpOnly cookie and never sees
+ * the token; any other client gets the token in the body, as it always has.
+ * The website's profile cookie belonged to whoever was signed in before, so it
+ * goes.
+ */
+const signedIn = async (request: FastifyRequest, reply: FastifyReply, account: AccountRow, status: 200 | 201) => {
+  const { token, sessionId } = await createSession(account.id, requestOrigin(request));
+  await recordAccountEvent(account.id, "sign_in", { request });
+  if (isWebClient(request)) {
+    clearAuthCookies(request, reply, [PROFILE_COOKIE]);
+    setSessionCookie(request, reply, token, SESSION_COOKIE_MAX_AGE_SEC);
+    return reply.code(status).send({ account: publicAccount(account), sessionId });
+  }
+  return reply.code(status).send({ token, account: publicAccount(account), sessionId });
+};
 
 const isUniqueViolation = (error: unknown) =>
   typeof error === "object" && error !== null && (error as { code?: unknown }).code === "P2002";
@@ -155,9 +190,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     invalidateProfileCache();
     resetTraktClient();
     await adoptLegacyAiConfig();
-    const token = await createSession(account.id, requestOrigin(request));
-    await recordAccountEvent(account.id, "sign_in", { request });
-    return reply.code(201).send({ token, account: publicAccount(account) });
+    return signedIn(request, reply, account, 201);
   });
 
   app.post("/auth/login", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
@@ -197,24 +230,69 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     }
 
     await clearAttempts(attemptKey);
-    const token = await createSession(account.id, requestOrigin(request));
-    await recordAccountEvent(account.id, "sign_in", { request });
-    return { token, account: publicAccount(account) };
+    return signedIn(request, reply, account, 200);
+  });
+
+  // Moves a browser's session from a bearer token into the cookie. The website
+  // used to keep its token in localStorage; on its first load after the switch
+  // it sends that token here once, gets the same session back as a cookie, and
+  // deletes its copy — so nobody is signed out by the upgrade. The session is
+  // not re-issued: its expiry, and revoking it from another device, work as
+  // they always did. Called with the cookie already in place it just answers.
+  app.post("/auth/session", async (request, reply) => {
+    if (request.auth?.kind !== "session") {
+      return reply.code(400).send({ error: "Only a signed-in session can be moved into a cookie" });
+    }
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) return reply.code(404).send({ error: "Account not found" });
+    const token = request.authVia === "bearer" ? bearerToken(request) : null;
+    if (token) setSessionCookie(request, reply, token, SESSION_COOKIE_MAX_AGE_SEC);
+    // A PIN-protected profile's access token moves the same way, if it is
+    // still good, so the upgrade doesn't ask for the PIN again either.
+    const profileId = firstHeader(request.headers["x-profile-id"]);
+    const profileToken = firstHeader(request.headers["x-profile-token"]);
+    if (token && profileId && profileToken && UUID_V4_PATTERN.test(profileId)) {
+      // Checked against the profile's PIN as it is now, like any use of the
+      // token, and only for one of this account's own profiles.
+      const profile = await prisma.profile.findUnique({
+        where: { id: profileId },
+        select: { id: true, pinHash: true, accountId: true },
+      });
+      if (
+        profile &&
+        profile.accountId === request.auth.accountId &&
+        verifyProfileToken(profileToken, profile.id, profile.pinHash)
+      ) {
+        setProfileCookie(request, reply, profileToken, PROFILE_TOKEN_TTL_MS / 1000);
+      }
+    }
+    return { account: publicAccount(account), sessionId: request.auth.sessionId };
   });
 
   app.post("/auth/logout", async (request, reply) => {
     if (request.auth?.kind === "session") {
       await prisma.session.deleteMany({ where: { id: request.auth.sessionId } });
     }
+    // Always, whatever the request authenticated with: a browser signing out
+    // must not keep a cookie behind, even one the server has already forgotten.
+    clearAuthCookies(request, reply);
     return reply.code(204).send();
   });
 
   // Who is signed in. `API_TOKEN` is not an account, so it answers null with
   // admin rights, which is what the web app uses to offer the first-run setup.
+  // `sessionId` is the session row's id — not a credential — which the website
+  // partitions its offline cache by.
   app.get("/auth/me", async (request) => {
-    if (request.auth?.kind !== "session") return { account: null, isAdmin: isAdminRequest(request) };
+    if (request.auth?.kind !== "session") {
+      return { account: null, isAdmin: isAdminRequest(request), sessionId: null };
+    }
     const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
-    return { account: account ? publicAccount(account) : null, isAdmin: isAdminRequest(request) };
+    return {
+      account: account ? publicAccount(account) : null,
+      isAdmin: isAdminRequest(request),
+      sessionId: request.auth.sessionId,
+    };
   });
 
   // Changing the username. The password is asked again, as for any change to
@@ -256,6 +334,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (!proof.ok) return reply.code(proof.status).send(proof.body);
 
     await deleteAccountAndData(account.id);
+    clearAuthCookies(request, reply);
     return reply.code(204).send();
   });
 
@@ -351,6 +430,9 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (count === 0) return reply.code(404).send({ error: "Sign-in not found" });
     if (request.params.id !== request.auth.sessionId) {
       await recordAccountEvent(request.auth.accountId, "session_revoked", { request });
+    } else {
+      // This browser's own sign-in: its cookie names nothing now.
+      clearAuthCookies(request, reply);
     }
     return reply.code(204).send();
   });
@@ -461,9 +543,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     }
 
     invalidateProfileCache();
-    const token = await createSession(account.id, requestOrigin(request));
-    await recordAccountEvent(account.id, "sign_in", { request });
-    return reply.code(201).send({ token, account: publicAccount(account) });
+    return signedIn(request, reply, account, 201);
   });
 
   // ─── Accounts (admin) ───

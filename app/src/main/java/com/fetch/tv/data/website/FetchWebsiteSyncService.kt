@@ -13,6 +13,7 @@ import com.fetch.tv.core.sync.shouldExcludePreferenceFromProfileSettingsSync
 import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
+import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.ProfileRestrictions
 import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.data.repository.AddonRepositoryImpl
@@ -38,6 +39,8 @@ private const val TAG = "FetchWebsiteSync"
 
 /** How long a profile token from the website is trusted here; the website issues them for 12 hours. */
 private const val PROFILE_TOKEN_TTL_MS = 11L * 60 * 60 * 1000
+/** The parent's profile, which has no kids rules. */
+private const val PRIMARY_SLOT = 1
 
 /**
  * The Fetch website's side of sync, for a TV signed in to one by pairing. It is reached
@@ -48,7 +51,9 @@ private const val PROFILE_TOKEN_TTL_MS = 11L * 60 * 60 * 1000
  * and parental limit) are pulled from it and written back when edited here, and each
  * profile's collections are read and saved as one document, the way the TV stores them.
  * Parental limits are written into the TV's own restriction store, so they keep applying
- * when the website is out of reach.
+ * when the website is out of reach. Kids rules (with the always-allowed titles) travel with
+ * the profile too, and the copy that changed last wins (see [FetchWebsiteMappings.decideKidsRules]);
+ * the screen time used today stays counted on each TV.
  *
  * Each profile's addons, Home row order and settings live there too. The TV's own sync
  * services ([AddonSyncService], [CollectionSyncService], [HomeCatalogSettingsSyncService],
@@ -179,6 +184,7 @@ class FetchWebsiteSyncService @Inject constructor(
         // Parental limits come from the website while paired: it is where they are set.
         val slots = remote.map { it.slot }.toSet()
         remote.forEach { restrictionsDataStore.setRestrictions(it.slot, FetchWebsiteMappings.toRestrictions(it.parental)) }
+        if (applyKidsRules(remote)) triggerProfilesPush()
         val stored = restrictionsDataStore.restrictions.first().keys + restrictionsDataStore.titleLists.first().keys
         stored.filter { it !in slots }.forEach {
             restrictionsDataStore.deleteProfile(it)
@@ -190,6 +196,57 @@ class FetchWebsiteSyncService @Inject constructor(
         remote.filter { !it.hasPin }.forEach { lockStateDataStore.setLocalPinHash(it.slot, null) }
         Log.d(TAG, "Pulled ${remote.size} profiles from the website")
         return true
+    }
+
+    /**
+     * Takes the website's kids rules where they changed after this TV's, keeping this TV's where
+     * they're newer. True when this TV has rules the website should get.
+     */
+    private suspend fun applyKidsRules(remote: List<WebsiteSlottedProfile>): Boolean {
+        val changedAt = restrictionsDataStore.kidsRulesChangedAt.first()
+        val localRules = restrictionsDataStore.kidsRules.first()
+        val localLists = restrictionsDataStore.titleLists.first()
+        var sendLocal = false
+        remote.filter { it.slot != PRIMARY_SLOT }.forEach { profile ->
+            val slot = profile.slot
+            val localChangedAt = changedAt[slot]
+            val hasRules = (localRules[slot]?.copy(approvedListIds = emptyList()) ?: KidsRules.Default) != KidsRules.Default ||
+                localLists[slot]?.allowed?.isNotEmpty() == true
+            when (val decision = FetchWebsiteMappings.decideKidsRules(profile.parental.kidsRules, localChangedAt, hasRules)) {
+                is FetchWebsiteMappings.KidsRulesSync.TakeWebsite -> restrictionsDataStore.applyWebsiteKidsRules(
+                    profileId = slot,
+                    rules = decision.rules,
+                    allowed = decision.allowed,
+                    changedAtMs = decision.changedAtMs,
+                    expectedLocalChangedAtMs = localChangedAt
+                )
+                FetchWebsiteMappings.KidsRulesSync.SendLocal -> {
+                    // Rules set here before this TV shared them: they count as changed now.
+                    if (localChangedAt == null) restrictionsDataStore.markKidsRulesChanged(slot, System.currentTimeMillis())
+                    sendLocal = true
+                }
+                FetchWebsiteMappings.KidsRulesSync.Keep -> Unit
+            }
+        }
+        return sendLocal
+    }
+
+    /**
+     * The website answers a push with the kids rules it kept: the ones sent, under its own
+     * time, or newer ones set elsewhere. Taken unless a parent changed them here while the push
+     * was out ([sentChangedAt] no longer matches).
+     */
+    private suspend fun takeKeptKidsRules(saved: WebsiteSlottedProfile, sentChangedAt: Long?) {
+        if (saved.slot == PRIMARY_SLOT || sentChangedAt == null) return
+        val kept = saved.parental.kidsRules ?: return
+        val keptAt = kept.updatedAt?.let(FetchWebsiteMappings::parseInstantMs) ?: return
+        restrictionsDataStore.applyWebsiteKidsRules(
+            profileId = saved.slot,
+            rules = FetchWebsiteMappings.fromWebsiteKidsRules(kept),
+            allowed = FetchWebsiteMappings.fromWebsiteApprovedTitles(kept),
+            changedAtMs = keptAt,
+            expectedLocalChangedAtMs = sentChangedAt
+        )
     }
 
     /**
@@ -224,6 +281,9 @@ class FetchWebsiteSyncService @Inject constructor(
         onSaved: (List<WebsiteSlottedProfile>) -> Unit = {}
     ): List<WebsiteSlottedProfile> {
         val restrictions = restrictionsDataStore.restrictions.first()
+        val kidsRulesChangedAt = restrictionsDataStore.kidsRulesChangedAt.first()
+        val kidsRules = restrictionsDataStore.kidsRules.first()
+        val titleLists = restrictionsDataStore.titleLists.first()
         val activeSlot = profileManager.activeProfileId.value
         var onWebsite = known
         val saved = mutableListOf<WebsiteSlottedProfile>()
@@ -234,9 +294,22 @@ class FetchWebsiteSyncService @Inject constructor(
             // Who is asking, and separately the token that unlocks a PIN-protected profile.
             val actingToken = acting?.let { profileToken(it.id) }
             val targetToken = target?.takeIf { it.hasPin }?.let { profileToken(it.id) }
-            val body = FetchWebsiteMappings.toWebsiteBody(profile, restrictions[profile.id] ?: ProfileRestrictions.None)
+            // Only rules this TV has a copy of: one that never had any can't wipe the website's.
+            val localKidsRules = kidsRulesChangedAt[profile.id]?.let { at ->
+                FetchWebsiteMappings.LocalKidsRules(
+                    rules = kidsRules[profile.id] ?: KidsRules.Default,
+                    allowed = titleLists[profile.id]?.allowed.orEmpty(),
+                    changedAtMs = at
+                )
+            }
+            val body = FetchWebsiteMappings.toWebsiteBody(
+                profile,
+                restrictions[profile.id] ?: ProfileRestrictions.None,
+                localKidsRules
+            )
             try {
                 val put = client.putProfile(profile.id, body, acting?.id, actingToken, targetToken)
+                takeKeptKidsRules(put, kidsRulesChangedAt[profile.id])
                 saved += put
                 onWebsite = onWebsite.filter { it.slot != put.slot } + put
             } catch (error: FetchWebsiteException) {

@@ -1,10 +1,12 @@
-import { Prisma, WatchEventType } from "@prisma/client";
+import { MetadataType, Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
 import { recordWatchEvent } from "../lib/watch-event.js";
 import { getDroppedSeriesIds } from "../lib/dropped-shows.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { CONTENT_ID_ERROR, normalizeContentId } from "../lib/content-id.js";
+import { rememberClientMetadata } from "../lib/metadata.js";
 
 /**
  * A note is a sentence or two about a watch, and `note` is a `text` column, so
@@ -78,6 +80,8 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       watchedAt?: unknown;
       dateUnknown?: unknown;
       note?: unknown;
+      name?: unknown;
+      poster?: unknown;
     };
 
     if (!Object.values(WatchEventType).includes(body.type as WatchEventType)) {
@@ -87,12 +91,24 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
     if (typeof body.imdbId !== "string" || !body.imdbId.trim()) {
       return reply.code(400).send({ error: "imdbId is required" });
     }
+    const imdbId = normalizeContentId(body.imdbId);
+    if (!imdbId) return reply.code(400).send({ error: CONTENT_ID_ERROR });
 
     if (
       body.seriesImdbId !== undefined &&
       (typeof body.seriesImdbId !== "string" || !body.seriesImdbId.trim())
     ) {
       return reply.code(400).send({ error: "seriesImdbId must be a non-empty string when provided" });
+    }
+    const seriesImdbId = body.seriesImdbId === undefined ? undefined : normalizeContentId(body.seriesImdbId);
+    if (seriesImdbId === null) return reply.code(400).send({ error: CONTENT_ID_ERROR.replace("imdbId", "seriesImdbId") });
+
+    // A client may name the title, for one TMDB can't be asked about.
+    if (body.name !== undefined && body.name !== null && typeof body.name !== "string") {
+      return reply.code(400).send({ error: "name must be a string when provided" });
+    }
+    if (body.poster !== undefined && body.poster !== null && typeof body.poster !== "string") {
+      return reply.code(400).send({ error: "poster must be a string when provided" });
     }
 
     if (
@@ -123,8 +139,6 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const type = body.type as WatchEventType;
-    const imdbId = (body.imdbId as string).trim();
-    const seriesImdbId = body.seriesImdbId ? (body.seriesImdbId as string).trim() : undefined;
     const season = (body.season as number | undefined) ?? null;
     const episode = (body.episode as number | undefined) ?? null;
     const dateUnknown = body.dateUnknown === true;
@@ -136,6 +150,12 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: noteTooLongMessage });
     }
     const note = typeof body.note === "string" ? body.note.trim() || null : undefined;
+
+    await rememberClientMetadata(
+      type === WatchEventType.movie ? imdbId : (seriesImdbId ?? imdbId),
+      type === WatchEventType.movie ? MetadataType.movie : MetadataType.series,
+      { name: body.name, poster: body.poster }
+    );
 
     const { watchEvent, wasCreated } = await recordWatchEvent({
       type,

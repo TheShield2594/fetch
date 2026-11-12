@@ -324,17 +324,9 @@
     <string name="appearance_subtitle">Válaszd ki a színtémát, a betűtípust és a nyelvet</string>
     <string name="appearance_color_theme">Színtéma</string>
     <string name="appearance_color_theme_subtitle">Válaszd ki az alkalmazásban használt kiemelő színt</string>
-    <string name="theme_color_gold">Arany</string>
-    <string name="theme_color_jade">Jáde</string>
-    <string name="theme_color_rose_gold">Rózsaarany</string>
-    <string name="theme_color_arctic_blue">Jégkék</string>
-    <string name="theme_color_graphite">Grafit</string>
-    <string name="theme_color_crimson">Karmazsin</string>
     <string name="theme_color_ocean">Óceán</string>
-    <string name="theme_color_violet">Ibolya</string>
     <string name="theme_color_emerald">Smaragd</string>
     <string name="theme_color_amber">Borostyán</string>
-    <string name="theme_color_rose">Rózsa</string>
     <string name="theme_color_white">Fehér</string>
     <string name="theme_color_custom">Egyéni</string>
     <string name="custom_theme_title">Saját színátmeneted</string>
@@ -2851,4 +2843,5 @@
     <string name="screen_time_rest_of_day">Nincs korlát a nap hátralévő részében</string>
     <string name="kids_hours">%1$d óra</string>
     <string name="kids_hours_minutes">%1$d ó %2$d perc</string>
+    <string name="custom_theme_low_contrast">Ezeken a színeken nehezen lenne olvasható a szöveg. A mentéshez válassz hasonlóbb fényerejű színeket.</string>
 </resources>

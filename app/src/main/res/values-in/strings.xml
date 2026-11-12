@@ -323,12 +323,9 @@
     <string name="appearance_subtitle">Pilih tema warna, font, dan bahasa</string>
     <string name="appearance_color_theme">Tema Warna</string>
     <string name="appearance_color_theme_subtitle">Pilih warna aksen yang digunakan di seluruh aplikasi</string>
-    <string name="theme_color_crimson">Delima</string>
     <string name="theme_color_ocean">Samudra</string>
-    <string name="theme_color_violet">Lavender</string>
     <string name="theme_color_emerald">Zamrud</string>
     <string name="theme_color_amber">Amber</string>
-    <string name="theme_color_rose">Mawar</string>
     <string name="theme_color_white">Melati</string>
     <string name="appearance_amoled_mode">Mode AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Gunakan hitam pekat untuk latar belakang aplikasi</string>
@@ -2274,4 +2271,5 @@
     <string name="screen_time_rest_of_day">Tanpa batas sampai akhir hari ini</string>
     <string name="kids_hours">%1$d j</string>
     <string name="kids_hours_minutes">%1$d j %2$d mnt</string>
+    <string name="custom_theme_low_contrast">Teks akan sulit dibaca pada warna-warna ini. Pilih warna dengan kecerahan yang lebih mirip untuk menyimpan.</string>
 </resources>

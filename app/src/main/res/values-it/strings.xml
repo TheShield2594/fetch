@@ -318,17 +318,9 @@
 <string name="appearance_subtitle">Scegli tema colori, font e lingua</string>
 <string name="appearance_color_theme">Tema Colore</string>
 <string name="appearance_color_theme_subtitle">Scegli il colore d\'accento usato nell\'app</string>
-<string name="theme_color_gold">Oro</string>
-<string name="theme_color_jade">Giada</string>
-<string name="theme_color_rose_gold">Oro rosa</string>
-<string name="theme_color_arctic_blue">Blu artico</string>
-<string name="theme_color_graphite">Grafite</string>
-<string name="theme_color_crimson">Cremisi</string>
 <string name="theme_color_ocean">Oceano</string>
-<string name="theme_color_violet">Violetto</string>
 <string name="theme_color_emerald">Smeraldo</string>
 <string name="theme_color_amber">Ambra</string>
-<string name="theme_color_rose">Rosa</string>
 <string name="theme_color_white">Bianco</string>
 <string name="appearance_amoled_mode">Modalità AMOLED</string>
 <string name="appearance_amoled_mode_subtitle">Usa il nero assoluto per gli sfondi dell\'app</string>
@@ -2893,4 +2885,5 @@
     <string name="screen_time_rest_of_day">Nessun limite per il resto della giornata</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">Il testo sarebbe difficile da leggere su questi colori. Scegli colori con luminosità più simile per salvare.</string>
 </resources>

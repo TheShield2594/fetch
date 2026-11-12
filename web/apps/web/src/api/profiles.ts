@@ -4,7 +4,6 @@
  */
 
 import { request } from "./client";
-import { runtimeConfig } from "./runtime";
 import type {
   Profile,
   ProfileSettingsUpdate,
@@ -22,24 +21,23 @@ export const profilesApi = {
       body: JSON.stringify(payload),
     });
   },
+  // The signed capability this mints, which later requests for a PIN-protected
+  // profile need, comes back as an HttpOnly cookie rather than in the body: the
+  // page never holds it, and verifying another profile replaces it. The API
+  // sets it as soon as it answers, so a caller that was overtaken meanwhile
+  // can't take it back; the worst that leaves is one extra PIN prompt.
+  verifyProfile(profileId: string, pin?: string) {
+    return request<{ id: string; name: string }>(`/profiles/${encodeURIComponent(profileId)}/verify`, {
+      method: "POST",
+      body: JSON.stringify(pin ? { pin } : {}),
+    });
+  },
   /**
-   * Checks the PIN (or its absence) and stores the profile token it returns.
-   * `persist: false` leaves storage alone, for a caller that may have been
-   * overtaken by the time the answer comes back and stores the token itself
-   * (`runtimeConfig.setProfileToken(result.profileToken ?? "")`) only if not.
+   * Drops this browser's profile token (an HttpOnly cookie the page can't
+   * touch), so the profile in use needs its PIN again. Signs nothing else out.
    */
-  async verifyProfile(profileId: string, pin?: string, { persist = true }: { persist?: boolean } = {}) {
-    const result = await request<{ id: string; name: string; profileToken?: string | undefined }>(
-      `/profiles/${encodeURIComponent(profileId)}/verify`,
-      {
-        method: "POST",
-        body: JSON.stringify(pin ? { pin } : {}),
-      }
-    );
-    // Persist the signed capability so subsequent requests for this profile
-    // clear the server-side PIN gate.
-    if (persist) runtimeConfig.setProfileToken(result.profileToken ?? "");
-    return result;
+  lockProfile() {
+    return request<void>("/profiles/lock", { method: "POST" });
   },
   updateProfile(
     profileId: string,

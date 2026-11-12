@@ -2,12 +2,13 @@
  * Signing in: the first-run admin, username and password, invites, and the
  * admin's list of accounts.
  *
- * Every call that signs someone in stores the session token it gets back, so a
- * caller only has to move on to the next screen.
+ * Every call that signs someone in gets the session back as an HttpOnly cookie
+ * and records the session's id, so a caller only has to move on to the next
+ * screen.
  */
 
-import { request } from "./client";
-import { runtimeConfig } from "./runtime";
+import { request, WEB_CLIENT_HEADERS } from "./client";
+import { LEGACY_PROFILE_TOKEN_KEY, LEGACY_TOKEN_KEY, runtimeConfig, SESSION_TOKEN_PREFIX } from "./runtime";
 
 export type Account = {
   id: string;
@@ -59,17 +60,116 @@ export type Invite = {
 
 export type AccountSummary = Account & { createdAt: string; profileCount: number };
 
-type SignedIn = { token: string; account: Account };
+/**
+ * What a sign-in answers the website with. The session itself arrived as an
+ * HttpOnly cookie on the same response; `sessionId` is its non-secret row id.
+ */
+type SignedIn = { account: Account; sessionId: string };
 
 /**
- * Starts a session for `token`. The profile picked on this device belonged to
- * whoever was signed in before, so it goes too.
+ * Records the session the API just set a cookie for. The profile picked on this
+ * device belonged to whoever was signed in before, so it goes too.
  */
 const signIn = (result: SignedIn) => {
   runtimeConfig.clearProfileId();
-  runtimeConfig.setToken(result.token);
+  runtimeConfig.setSessionId(result.sessionId);
   return result.account;
 };
+
+/** How long the one-off move into a cookie may hold up the first render. */
+const MIGRATION_TIMEOUT_MS = 8000;
+
+/**
+ * Moves a sign-in from before session cookies into one, so upgrading doesn't
+ * sign anybody out. Runs once, before the app renders.
+ *
+ * The session token (and a PIN profile's access token) used to sit in
+ * localStorage. If one is there, it is sent once to `POST /auth/session`,
+ * which answers with the same session as an HttpOnly cookie; both copies are
+ * then deleted. A token the API turns down is deleted too, and the app opens
+ * on the sign-in screen as it would have anyway. If the API can't be reached,
+ * the token stays where it was for the next load to try again, and this load
+ * uses it as a bearer header so the app still works.
+ *
+ * A token without the session prefix is the server's `API_TOKEN`, stored by a
+ * browser from before accounts existed. It is taken out of storage and kept in
+ * memory, for the first-run form to offer.
+ */
+export async function migrateLegacySession(): Promise<void> {
+  let legacy: string;
+  let legacyProfileToken: string;
+  try {
+    legacy = window.localStorage.getItem(LEGACY_TOKEN_KEY)?.trim() ?? "";
+    legacyProfileToken = window.localStorage.getItem(LEGACY_PROFILE_TOKEN_KEY)?.trim() ?? "";
+  } catch {
+    // Storage unavailable (private mode, blocked site data): nothing to move.
+    return;
+  }
+
+  const forgetLegacy = () => {
+    window.localStorage.removeItem(LEGACY_TOKEN_KEY);
+    window.localStorage.removeItem(LEGACY_PROFILE_TOKEN_KEY);
+  };
+
+  if (!legacy) {
+    if (legacyProfileToken) forgetLegacy();
+    return;
+  }
+
+  if (!legacy.startsWith(SESSION_TOKEN_PREFIX)) {
+    runtimeConfig.setLegacyApiToken(legacy);
+    forgetLegacy();
+    return;
+  }
+
+  const headers: Record<string, string> = { ...WEB_CLIENT_HEADERS, Authorization: `Bearer ${legacy}` };
+  const profileId = runtimeConfig.getProfileId();
+  // The PIN capability moves too, so a locked profile doesn't ask for its PIN
+  // again just because Fetch was upgraded.
+  if (profileId && legacyProfileToken) {
+    headers["x-profile-id"] = profileId;
+    headers["x-profile-token"] = legacyProfileToken;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), MIGRATION_TIMEOUT_MS);
+  let response: Response;
+  try {
+    response = await fetch(`${runtimeConfig.getApiBase()}/auth/session`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+      signal: controller.signal,
+    });
+  } catch {
+    runtimeConfig.setLegacyBearer(legacy);
+    return;
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  if (response.ok) {
+    const body = (await response.json().catch(() => null)) as { sessionId?: unknown } | null;
+    forgetLegacy();
+    if (typeof body?.sessionId === "string" && body.sessionId) {
+      runtimeConfig.setSessionId(body.sessionId);
+    } else {
+      // An API too old to know the route can't have set a cookie either.
+      runtimeConfig.setLegacyBearer(legacy);
+    }
+    return;
+  }
+
+  if (response.status === 401 || response.status === 403 || response.status === 400) {
+    // The token was already dead: signed out elsewhere, expired, or revoked.
+    forgetLegacy();
+    runtimeConfig.clearSession();
+    return;
+  }
+
+  // Anything else (a 5xx, a proxy error page) says nothing about the token.
+  runtimeConfig.setLegacyBearer(legacy);
+}
 
 export const authApi = {
   getAuthStatus() {
@@ -98,17 +198,23 @@ export const authApi = {
       })
     );
   },
-  /** Ends this device's session. Signs out locally even if the server can't be reached. */
+  /**
+   * Ends this device's session: the API deletes it and expires both cookies.
+   * Signs out locally even if the server can't be reached — the cookie is then
+   * left behind, but its session is still one a password change or another
+   * sign-out can end, and the next request that reaches the API with it after
+   * it expires takes it away.
+   */
   async logout() {
     try {
       await request<void>("/auth/logout", { method: "POST" });
     } finally {
       runtimeConfig.clearProfileId();
-      runtimeConfig.setToken("");
+      runtimeConfig.clearSession();
     }
   },
   getMe() {
-    return request<{ account: Account | null; isAdmin: boolean }>("/auth/me");
+    return request<{ account: Account | null; isAdmin: boolean; sessionId?: string | null | undefined }>("/auth/me");
   },
   /** Signs every other browser out; with `signOutTvs`, every TV too. */
   changePassword(currentPassword: string, newPassword: string, options: { signOutTvs?: boolean } = {}) {
@@ -127,7 +233,7 @@ export const authApi = {
   async deleteMyAccount(currentPassword: string) {
     await request<void>("/auth/me", { method: "DELETE", body: JSON.stringify({ currentPassword }) });
     runtimeConfig.clearProfileId();
-    runtimeConfig.setToken("");
+    runtimeConfig.clearSession();
   },
   getSignIns() {
     return request<{ sessions: SignIn[] }>("/auth/sessions");

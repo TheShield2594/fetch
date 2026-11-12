@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importar desde otra fuente</string>
+    <string name="tracking_import_subtitle">Copia el historial de vistos y los puntos de reanudación de otro servicio conectado a %1$s, tu fuente principal.</string>
+    <string name="tracking_import_running">Importando…</string>
+    <string name="tracking_import_dialog_title">Importar a %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Los títulos vistos allí se marcan como vistos en %1$s. Los puntos de reanudación se copian salvo que %1$s tenga uno más reciente. No se elimina nada.</string>
+    <string name="tracking_import_done_title">Importación terminada</string>
+    <string name="tracking_import_done_from">De %1$s a %2$s</string>
+    <string name="tracking_import_done_watched">Vistos: %1$d importados, %2$d omitidos</string>
+    <string name="tracking_import_done_progress">Puntos de reanudación: %1$d importados, %2$d omitidos</string>
+    <string name="tracking_import_done_failed">No aceptados por %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">El historial de vistos no se puede importar entre estos servicios.</string>
+    <string name="tracking_import_unsupported_progress">Los puntos de reanudación no se pueden importar entre estos servicios.</string>
+    <string name="tracking_import_failed_title">Error al importar</string>
+    <string name="tracking_import_failed_subtitle">Fetch no pudo leer %1$s ni escribir en %2$s. Comprueba que ambos estén conectados y vuelve a intentarlo.</string>
+</resources>

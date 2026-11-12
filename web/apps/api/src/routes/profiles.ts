@@ -1,9 +1,12 @@
-import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from "fastify";
+import type { Prisma } from "@prisma/client";
+import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
+import { resolveKidsRulesWrite } from "../lib/kids-rules.js";
 import { accountScope } from "../lib/request-auth.js";
 import { findAdminAccountId } from "../lib/sessions.js";
 import { prisma } from "../lib/prisma.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
-import { mintProfileToken } from "../lib/profile-token.js";
+import { mintProfileToken, PROFILE_TOKEN_TTL_MS } from "../lib/profile-token.js";
+import { clearAuthCookies, isWebClient, PROFILE_COOKIE, setProfileCookie } from "../lib/session-cookie.js";
 import {
   hasParentalAuthority,
   hasValidProfileToken,
@@ -26,6 +29,27 @@ const pinAttemptKey = (profileId: string) => `pinattempts:${profileId}`;
 const getPinLockout = (profileId: string) => getLockout(pinAttemptKey(profileId));
 const recordPinFailure = (profileId: string) => recordFailure(pinAttemptKey(profileId));
 const clearPinAttempts = (profileId: string) => clearAttempts(pinAttemptKey(profileId));
+
+/**
+ * The answer to a successful verify. A TV (or any bearer client) gets the
+ * profile token in the body and sends it back as `x-profile-token`. The website
+ * gets it as an HttpOnly cookie instead and never sees it, which keeps it out of
+ * reach of any script on the page — the same reason the session moved there.
+ */
+const verifiedResponse = (
+  request: FastifyRequest,
+  reply: FastifyReply,
+  profile: { id: string; name: string },
+  // The PIN hash as stored now, which the token is bound to.
+  pinHash: string | null
+) => {
+  const profileToken = mintProfileToken(profile.id, pinHash);
+  if (isWebClient(request)) {
+    setProfileCookie(request, reply, profileToken, PROFILE_TOKEN_TTL_MS / 1000);
+    return reply.code(200).send({ id: profile.id, name: profile.name });
+  }
+  return reply.code(200).send({ id: profile.id, name: profile.name, profileToken });
+};
 
 /**
  * Re-hashes a PIN that just verified against a pre-scrypt (unsalted SHA-256)
@@ -138,17 +162,27 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     if (!(await hasParentalAuthority(request))) {
       return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
     }
+    const kidsRules = attributes.kidsRules ? resolveKidsRulesWrite(null, attributes.kidsRules) : null;
+    if (kidsRules && !kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
     const pinHash = pin ? await hashPin(pin) : null;
 
     // A profile made with API_TOKEN goes to the admin, who is the operator.
     const accountId = accountScope(request) ?? (await findAdminAccountId());
     const profile = await prisma.profile.create({
-      data: { name, pinHash, accountId, ...attributes.data },
+      data: { name, pinHash, accountId, ...attributes.data, ...(kidsRules?.ok ? kidsRules.data : {}) },
       select: PROFILE_VIEW_SELECT,
     });
     invalidateProfileCache();
 
     return reply.code(201).send({ profile: toProfileView(profile) });
+  });
+
+  // Locks the profile in use on this browser: expires the website's profile
+  // cookie, so the PIN is needed again. The page can't do that itself — the
+  // cookie is HttpOnly. A TV forgets its own `x-profile-token` instead.
+  app.post("/profiles/lock", async (request, reply) => {
+    clearAuthCookies(request, reply, [PROFILE_COOKIE]);
+    return reply.code(204).send();
   });
 
   app.post<{ Params: { id: string }; Body: unknown }>(
@@ -162,11 +196,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       const profile = await findOwnedProfileRow(request, request.params.id);
       if (!profile) return reply.code(404).send({ error: "Profile not found" });
 
-      if (!profile.pinHash) {
-        return reply
-          .code(200)
-          .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id, null) });
-      }
+      if (!profile.pinHash) return verifiedResponse(request, reply, profile, null);
 
       const lockout = await getPinLockout(profile.id);
       if (lockout.locked) {
@@ -184,9 +214,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
 
       const storedPinHash = await upgradePinHashIfNeeded(app, profile.id, pin, profile.pinHash);
       await clearPinAttempts(profile.id);
-      return reply
-        .code(200)
-        .send({ id: profile.id, name: profile.name, profileToken: mintProfileToken(profile.id, storedPinHash) });
+      return verifiedResponse(request, reply, profile, storedPinHash);
     },
   );
 
@@ -201,7 +229,8 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     const body = (request.body ?? {}) as { name?: unknown; pin?: unknown; currentPin?: unknown };
     const attributes = parseProfileAttributes(body);
     if (!attributes.ok) return reply.code(400).send({ error: attributes.error });
-    const data: { name?: string; pinHash?: string | null } & typeof attributes.data = { ...attributes.data };
+    const data: { name?: string; pinHash?: string | null } & typeof attributes.data &
+      Partial<Pick<Prisma.ProfileUpdateInput, "kidsRules" | "kidsRulesUpdatedAt">> = { ...attributes.data };
 
     if (body.name !== undefined) {
       if (typeof body.name !== "string" || !body.name.trim()) {
@@ -214,6 +243,17 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // request comes from: a kids profile may tighten its own, never lift them.
     if (loosensParentalLimits(profile, attributes.data) && !(await hasParentalAuthority(request))) {
       return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+    }
+
+    // Kids rules are a grown-up's to set, tighter or looser: a kids profile
+    // can't change its own. Of two writes, the one that changed them later
+    // wins (lib/kids-rules.ts).
+    if (attributes.kidsRules) {
+      if (!(await hasParentalAuthority(request))) return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+      const kidsRules = resolveKidsRulesWrite(profile, attributes.kidsRules);
+      if (!kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
+      // Null: what is stored changed later than this write, so it stays.
+      if (kidsRules.data) Object.assign(data, kidsRules.data);
     }
 
     // pin: omitted = leave as-is, null = remove PIN protection, string = set/change PIN.
@@ -264,6 +304,11 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     }
 
     if (Object.keys(data).length === 0) {
+      if (attributes.kidsRules) {
+        // Only kids rules older than the stored ones: answer with what is kept.
+        const current = await prisma.profile.findUnique({ where: { id: profile.id }, select: PROFILE_VIEW_SELECT });
+        if (current) return { profile: toProfileView(current) };
+      }
       return reply.code(400).send({ error: "Nothing to update" });
     }
 

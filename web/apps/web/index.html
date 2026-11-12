@@ -102,18 +102,24 @@
           ).replace(/\/+$/, "");
           if (!base) return;
 
-          var token = window.localStorage.getItem("fetch_token");
+          // The session and a PIN profile's access are HttpOnly cookies, sent
+          // by `credentials: "include"` below; the session id beside them is
+          // not a secret, just the sign that there is a session at all.
+          var sessionId = window.localStorage.getItem("fetch_session_id");
           var profileId = window.localStorage.getItem("fetch_profile_id");
-          // No token means the setup wizard, no profile means the profile picker —
-          // neither of which shows any of this.
-          if (!token || !profileId) return;
+          // No session means the setup wizard, no profile means the profile
+          // picker — neither of which shows any of this. A token still in
+          // localStorage from before the cookies is moved by main.tsx first.
+          if (!sessionId || !profileId) return;
+          if (window.localStorage.getItem("fetch_token")) return;
 
+          // The same headers api/client.ts sends, so the service worker files
+          // the answers under the same cache key.
           var headers = {
-            Authorization: "Bearer " + token,
+            "X-Fetch-Client": "web",
+            "X-Fetch-Session": sessionId,
             "x-profile-id": profileId,
           };
-          var profileToken = window.localStorage.getItem("fetch_profile_token");
-          if (profileToken) headers["x-profile-token"] = profileToken;
 
           // These must stay character-for-character what api.ts requests, since that
           // is how it recognises them. A mismatch is not a breakage — the response
@@ -129,7 +135,7 @@
           var preloaded = {};
           for (var i = 0; i < paths.length; i++) {
             (function (path) {
-              preloaded[path] = fetch(base + path, { headers: headers }).catch(function () {
+              preloaded[path] = fetch(base + path, { headers: headers, credentials: "include" }).catch(function () {
                 // Claimed and discarded by api.ts, which then fetches normally.
                 return null;
               });

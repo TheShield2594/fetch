@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importeren uit een andere bron</string>
+    <string name="tracking_import_subtitle">Kopieer kijkgeschiedenis en hervatpunten van een andere gekoppelde dienst naar %1$s, je leidende bron.</string>
+    <string name="tracking_import_running">Importeren…</string>
+    <string name="tracking_import_dialog_title">Importeren in %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Titels die daar zijn bekeken, worden in %1$s als bekeken gemarkeerd. Hervatpunten worden gekopieerd tenzij %1$s een nieuwer punt heeft. Er wordt niets verwijderd.</string>
+    <string name="tracking_import_done_title">Importeren voltooid</string>
+    <string name="tracking_import_done_from">Van %1$s naar %2$s</string>
+    <string name="tracking_import_done_watched">Bekeken: %1$d geïmporteerd, %2$d overgeslagen</string>
+    <string name="tracking_import_done_progress">Hervatpunten: %1$d geïmporteerd, %2$d overgeslagen</string>
+    <string name="tracking_import_done_failed">Niet geaccepteerd door %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Kijkgeschiedenis kan niet tussen deze diensten worden geïmporteerd.</string>
+    <string name="tracking_import_unsupported_progress">Hervatpunten kunnen niet tussen deze diensten worden geïmporteerd.</string>
+    <string name="tracking_import_failed_title">Importeren mislukt</string>
+    <string name="tracking_import_failed_subtitle">Fetch kon %1$s niet lezen of niet naar %2$s schrijven. Controleer of beide zijn gekoppeld en probeer het opnieuw.</string>
+</resources>

@@ -316,17 +316,9 @@
     <string name="appearance_subtitle">選擇您的主題色、字體和語言</string>
     <string name="appearance_color_theme">主題色</string>
     <string name="appearance_color_theme_subtitle">選擇應用程式的主要強調色</string>
-    <string name="theme_color_gold">金色</string>
-    <string name="theme_color_jade">翡翠</string>
-    <string name="theme_color_rose_gold">玫瑰金</string>
-    <string name="theme_color_arctic_blue">極地藍</string>
-    <string name="theme_color_graphite">石墨</string>
-    <string name="theme_color_crimson">深紅</string>
     <string name="theme_color_ocean">海洋藍</string>
-    <string name="theme_color_violet">紫羅蘭</string>
     <string name="theme_color_emerald">翡翠綠</string>
     <string name="theme_color_amber">琥珀</string>
-    <string name="theme_color_rose">玫瑰</string>
     <string name="theme_color_white">白色</string>
     <string name="theme_color_custom">自訂</string>
     <string name="custom_theme_title">您的自訂漸層</string>
@@ -2760,4 +2752,5 @@
     <string name="screen_time_rest_of_day">今天剩餘時間不限</string>
     <string name="kids_hours">%1$d 小時</string>
     <string name="kids_hours_minutes">%1$d 小時 %2$d 分鐘</string>
+    <string name="custom_theme_low_contrast">在這些顏色上文字會難以閱讀。請選擇亮度更接近的顏色後再儲存。</string>
 </resources>

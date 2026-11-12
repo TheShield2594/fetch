@@ -158,6 +158,13 @@ model Profile {
   isKidsProfile       Boolean  @default(false)
   maxRating           String?
   allowUnrated        Boolean  @default(true)
+  // A kids profile's rules (autoplay cap, approved titles, daily screen time,
+  // bedtime): the TV's `KidsRules` plus its always-allowed titles. Null until
+  // a TV or the website sets them. `kidsRulesUpdatedAt` is when they last
+  // changed, and the newer of two writes wins. The day's screen time used is
+  // not here: each TV counts its own. See lib/kids-rules.ts.
+  kidsRules           Json?
+  kidsRulesUpdatedAt  DateTime? @db.Timestamptz(6)
   updatedAt           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   createdAt           DateTime @default(now()) @db.Timestamptz(6)
 

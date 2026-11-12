@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importer depuis une autre source</string>
+    <string name="tracking_import_subtitle">Copie l’historique de visionnage et les points de reprise d’un autre service connecté vers %1$s, votre source de référence.</string>
+    <string name="tracking_import_running">Importation…</string>
+    <string name="tracking_import_dialog_title">Importer dans %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Les titres vus là-bas sont marqués comme vus dans %1$s. Les points de reprise sont copiés sauf si %1$s en a un plus récent. Rien n’est supprimé.</string>
+    <string name="tracking_import_done_title">Importation terminée</string>
+    <string name="tracking_import_done_from">De %1$s vers %2$s</string>
+    <string name="tracking_import_done_watched">Vus : %1$d importés, %2$d ignorés</string>
+    <string name="tracking_import_done_progress">Points de reprise : %1$d importés, %2$d ignorés</string>
+    <string name="tracking_import_done_failed">Refusés par %1$s : %2$d</string>
+    <string name="tracking_import_unsupported_watched">L’historique de visionnage ne peut pas être importé entre ces services.</string>
+    <string name="tracking_import_unsupported_progress">Les points de reprise ne peuvent pas être importés entre ces services.</string>
+    <string name="tracking_import_failed_title">Échec de l’importation</string>
+    <string name="tracking_import_failed_subtitle">Fetch n’a pas pu lire %1$s ou écrire dans %2$s. Vérifiez que les deux sont connectés et réessayez.</string>
+</resources>

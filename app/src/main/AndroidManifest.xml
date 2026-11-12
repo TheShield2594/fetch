@@ -166,6 +166,9 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- Rose Gold is retired from the icon picker (#455) but stays here, disabled by default:
+             removing it would take Fetch off the launcher for anyone who has it switched on.
+             Picking any other style disables it. -->
         <activity-alias
             android:name=".launcher.AppIconRoseGold"
             android:banner="@mipmap/banner_rose_gold"

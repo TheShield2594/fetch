@@ -91,22 +91,21 @@ fun ThemeSettingsContent(
     val context = LocalContext.current
 
     val strLanguageSystem = stringResource(R.string.appearance_language_system)
-    val supportedLocales = remember(strLanguageSystem) {
-        val tags = listOf(
-            "en", "ru", "ar", "bg", "bs", "da", "de", "el", "es", "es-419", "hu", "fr", "in", "it",
-            "no", "pl", "pt-PT", "pt-BR", "tr", "uk", "cs", "sk", "sl", "sq", "sr-Latn", "sv", "ta", "ro", "ja",
-            "nl", "vi", "hi", "lt", "he", "zh-CN", "zh-TW", "bn", "hr"
-        )
-        listOf(null to strLanguageSystem) + tags.map { tag ->
-            val locale = Locale.forLanguageTag(tag)
-            tag to locale.getDisplayName(locale).replaceFirstChar { it.uppercase() }
-        }.sortedBy { it.second }
-    }
     var selectedTag by remember {
         mutableStateOf(
             context.getSharedPreferences("app_locale", android.content.Context.MODE_PRIVATE)
                 .getString("locale_tag", null)?.takeIf { it.isNotEmpty() }
         )
+    }
+    val supportedLocales = remember(strLanguageSystem) {
+        // The languages offered are the ones in res/xml/locale_config.xml, so this list and the
+        // system's per-app language picker always agree. A language picked before it was hidden
+        // (too little of it is translated) stays listed for whoever still has it selected.
+        val tags = (offeredLocaleTags(context) + listOfNotNull(selectedTag)).distinct()
+        listOf(null to strLanguageSystem) + tags.map { tag ->
+            val locale = Locale.forLanguageTag(tag)
+            tag to locale.getDisplayName(locale).replaceFirstChar { it.uppercase() }
+        }.sortedBy { it.second }
     }
     val currentLocaleName = supportedLocales.firstOrNull { it.first == selectedTag }?.second ?: stringResource(R.string.appearance_language_system)
     val strRestartHint = stringResource(R.string.appearance_language_restart_hint)
@@ -467,20 +466,29 @@ private fun ThemeSwatchChip(
     }
 }
 
+/**
+ * Language tags offered in res/xml/locale_config.xml. Indonesian is kept as "in", the tag this
+ * screen has always stored, so an existing choice still matches.
+ */
+private fun offeredLocaleTags(context: android.content.Context): List<String> {
+    val tags = mutableListOf<String>()
+    context.resources.getXml(R.xml.locale_config).use { parser ->
+        while (parser.next() != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
+            if (parser.eventType == org.xmlpull.v1.XmlPullParser.START_TAG && parser.name == "locale") {
+                val tag = parser.getAttributeValue("http://schemas.android.com/apk/res/android", "name")
+                if (!tag.isNullOrBlank()) tags += if (tag == "id") "in" else tag
+            }
+        }
+    }
+    return tags
+}
+
 @Composable
 private fun AppTheme.localizedName(): String = when (this) {
     AppTheme.CUSTOM -> stringResource(R.string.theme_color_custom)
-    AppTheme.GOLD -> stringResource(R.string.theme_color_gold)
-    AppTheme.JADE -> stringResource(R.string.theme_color_jade)
-    AppTheme.ROSE_GOLD -> stringResource(R.string.theme_color_rose_gold)
-    AppTheme.ARCTIC_BLUE -> stringResource(R.string.theme_color_arctic_blue)
-    AppTheme.GRAPHITE -> stringResource(R.string.theme_color_graphite)
-    AppTheme.CRIMSON -> stringResource(R.string.theme_color_crimson)
     AppTheme.OCEAN -> stringResource(R.string.theme_color_ocean)
-    AppTheme.VIOLET -> stringResource(R.string.theme_color_violet)
     AppTheme.EMERALD -> stringResource(R.string.theme_color_emerald)
     AppTheme.AMBER -> stringResource(R.string.theme_color_amber)
-    AppTheme.ROSE -> stringResource(R.string.theme_color_rose)
     AppTheme.WHITE -> stringResource(R.string.theme_color_white)
     AppTheme.FETCH -> stringResource(R.string.theme_color_fetch)
 }

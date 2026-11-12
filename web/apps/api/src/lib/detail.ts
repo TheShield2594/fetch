@@ -4,6 +4,7 @@ import type { FastifyBaseLogger } from "fastify";
 import { prisma } from "./prisma.js";
 import { getTmdb } from "./tmdb-client.js";
 import { fetchMetadata } from "./metadata.js";
+import { isImdbId } from "./content-id.js";
 import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
 import { getRegionSetting } from "./settings.js";
 import type { IntegrationOwner } from "./owner-keys.js";
@@ -171,14 +172,19 @@ export async function loadMeta(type: MetadataType, imdbId: string) {
     existing.runtime != null &&
     existing.releaseDate != null &&
     (existing.type !== "series" || existing.network != null) &&
-    (existing.imdbRating != null || existing.rtScore != null || existing.mcScore != null);
+    // OMDb scores exist for IMDb ids only, so a `tmdb:` title never gains them.
+    (!isImdbId(imdbId) || existing.imdbRating != null || existing.rtScore != null || existing.mcScore != null);
 
   if (isDetailComplete) {
     return { ...existing, poster: withRpdbPoster(imdbId, existing.poster, rpdbKey) };
   }
 
   const metadata = await fetchMetadata(type, imdbId);
-  if (!metadata) return null;
+  if (!metadata) {
+    // TMDB has nothing for it, or can't be asked (an anime catalog's id): what
+    // the row already holds, such as the name and poster the TV sent, is the panel.
+    return existing ? { ...existing, poster: withRpdbPoster(imdbId, existing.poster, rpdbKey) } : null;
+  }
 
   const fresh = await prisma.metadata.findUnique({ where: { imdbId_type: { imdbId, type } } });
   return fresh

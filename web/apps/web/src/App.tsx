@@ -123,10 +123,10 @@ const ProfileSwitcherFallback = () => (
 
 export function App() {
   const location = useLocation();
-  // Signed in means a session token. A token without the session prefix is the
-  // API token, stored by a browser from before accounts existed: it goes back
-  // through the wizard, which offers it for creating the admin. An invite link
-  // opens the wizard too, for whoever it was sent to.
+  // Signed in means a session (an HttpOnly cookie, recorded here by its id).
+  // A browser from before accounts existed stored the API token instead: it
+  // goes back through the wizard, which offers that token for creating the
+  // admin. An invite link opens the wizard too, for whoever it was sent to.
   const [needsSetup, setNeedsSetup] = useState(
     () => !runtimeConfig.hasSession() || inviteCodeFromPath(window.location.pathname) !== null
   );
@@ -169,8 +169,9 @@ export function App() {
     // A PIN-protected profile's access token expired or was cleared — send the
     // user back to the profile picker to re-verify.
     const handleProfileLocked = () => setNeedsProfile(true);
-    // Locked in another tab: the profile and its token are shared through
-    // localStorage, so its removal there means this tab is locked too, and
+    // Locked in another tab: the profile id is shared through localStorage
+    // (and its token is one cookie for the whole browser), so its removal
+    // there means this tab is locked too, and
     // should stop showing the profile now rather than at its next request.
     const handleStorage = (event: StorageEvent) => {
       if (event.key !== runtimeConfig.profileIdKey || event.newValue !== null) return;

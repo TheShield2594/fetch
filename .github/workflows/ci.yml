@@ -78,6 +78,13 @@ jobs:
           (cd scripts && python3 -m unittest discover -s tests -t .)
           python3 scripts/check_baseline_profiles.py
 
+      # Fails when locale_config.xml offers a language with no strings, or an offered language
+      # falls under 60% translated (#445). The table goes to the job summary.
+      - name: Locale coverage
+        run: |
+          python3 scripts/locale_coverage.py --markdown >> "$GITHUB_STEP_SUMMARY"
+          python3 scripts/locale_coverage.py --min 60
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

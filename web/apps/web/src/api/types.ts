@@ -310,11 +310,46 @@ export type ItemListMembership = {
 export const RATING_LEVELS = ["ALL_AGES", "OLDER_KIDS", "PARENTAL_GUIDANCE", "TEENS", "MATURE", "ADULTS_ONLY"] as const;
 export type RatingLevel = (typeof RATING_LEVELS)[number];
 
+/** A title a kids profile may watch in "approved titles only" mode. */
+export type ApprovedTitle = {
+  /** Content ids from any addon (`tt…`, `tmdb:…`, `kitsu:…`). */
+  ids: string[];
+  type: string;
+  name: string;
+  poster: string | null;
+  background: string | null;
+};
+
+/**
+ * A kids profile's rules, which every paired TV applies. The screen time used
+ * today is counted on each TV and isn't part of them.
+ */
+export type KidsRules = {
+  /** Episodes that autoplay in a row; null for no cap. */
+  autoplayEpisodeCap: number | null;
+  approvedTitlesOnly: boolean;
+  /** Minutes per day; null for no limit. */
+  dailyMinutes: number | null;
+  /** Minutes after midnight; both null for no bedtime. */
+  bedtimeStartMinute: number | null;
+  bedtimeEndMinute: number | null;
+  /** At the limit, stop right away instead of letting the title finish. */
+  hardStop: boolean;
+  approvedTitles: ApprovedTitle[];
+  /** When they last changed, on the website or a TV. */
+  updatedAt: string | null;
+};
+
+/** The rule fields the website edits; approved titles are added on a TV. */
+export type KidsRulesUpdate = Partial<Omit<KidsRules, "approvedTitles" | "updatedAt">>;
+
 export type ProfileParental = {
   isKidsProfile: boolean;
   /** Null is unrestricted. */
   maxRating: RatingLevel | null;
   allowUnrated: boolean;
+  /** Null until a TV or the website sets them; absent from an older API. */
+  kidsRules?: KidsRules | null | undefined;
 };
 
 /**
@@ -341,7 +376,7 @@ export type ProfileSettingsUpdate = {
   avatarId?: string | null | undefined;
   webTheme?: string | null | undefined;
   usesPrimaryAddons?: boolean | undefined;
-  parental?: Partial<ProfileParental> | undefined;
+  parental?: (Partial<Omit<ProfileParental, "kidsRules">> & { kidsRules?: KidsRulesUpdate | undefined }) | undefined;
 };
 
 /** What deleting a profile takes with it. */

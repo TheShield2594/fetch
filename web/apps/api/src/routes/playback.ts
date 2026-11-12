@@ -1,10 +1,12 @@
-import { WatchEventType } from "@prisma/client";
+import { MetadataType, WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
 import { MAX_PLAYBACK_SECONDS, resolvePlaybackTarget, savePlaybackProgress } from "../lib/playback.js";
 import { MAX_EPISODE, MAX_SEASON } from "../lib/import-validation.js";
-import { MAX_IMDB_ID_LENGTH, NON_BLANK, nullable } from "../lib/request-schema.js";
+import { MAX_IMDB_ID_LENGTH, MAX_TITLE_LENGTH, MAX_URL_LENGTH, NON_BLANK, nullable } from "../lib/request-schema.js";
+import { CONTENT_ID_ERROR, normalizeContentId } from "../lib/content-id.js";
+import { rememberClientMetadata } from "../lib/metadata.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
 /**
@@ -31,6 +33,9 @@ const savePlaybackBodySchema = {
     progress: nullable({ minimum: 0, maximum: 100 }, "number"),
     positionSeconds: nullable({ minimum: 0, maximum: MAX_PLAYBACK_SECONDS }, "integer"),
     durationSeconds: nullable({ minimum: 1, maximum: MAX_PLAYBACK_SECONDS }, "integer"),
+    // The title's name and poster, kept for one TMDB can't be asked about.
+    name: nullable({ maxLength: MAX_TITLE_LENGTH }, "string"),
+    poster: nullable({ maxLength: MAX_URL_LENGTH }, "string"),
   },
 } as const;
 
@@ -43,6 +48,8 @@ type SavePlaybackBody = {
   progress?: number | null;
   positionSeconds?: number | null;
   durationSeconds?: number | null;
+  name?: string | null;
+  poster?: string | null;
 };
 
 type PlaybackRow = {
@@ -153,8 +160,13 @@ const playbackRoutes: FastifyPluginAsync = async (app) => {
     "/playback",
     { schema: { body: savePlaybackBodySchema } },
     async (request, reply) => {
-      const { type, imdbId, seriesImdbId, season, episode, progress, positionSeconds, durationSeconds } =
-        request.body;
+      const { type, season, episode, progress, positionSeconds, durationSeconds, name, poster } = request.body;
+      const imdbId = normalizeContentId(request.body.imdbId);
+      if (!imdbId) return reply.code(400).send({ error: CONTENT_ID_ERROR });
+      const seriesImdbId = request.body.seriesImdbId?.trim() ? normalizeContentId(request.body.seriesImdbId) : null;
+      if (request.body.seriesImdbId?.trim() && !seriesImdbId) {
+        return reply.code(400).send({ error: CONTENT_ID_ERROR.replace("imdbId", "seriesImdbId") });
+      }
 
       if (type === WatchEventType.episode && (season == null || episode == null)) {
         return reply.code(400).send({ error: "season and episode are required for an episode" });
@@ -166,9 +178,15 @@ const playbackRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: "positionSeconds cannot be past durationSeconds" });
       }
 
+      await rememberClientMetadata(
+        type === WatchEventType.movie ? imdbId : (seriesImdbId ?? imdbId),
+        type === WatchEventType.movie ? MetadataType.movie : MetadataType.series,
+        { name, poster }
+      );
+
       const row = await savePlaybackProgress(
         request.profileId!,
-        { type, imdbId: imdbId.trim(), seriesImdbId: seriesImdbId?.trim() || null, season, episode },
+        { type, imdbId, seriesImdbId, season, episode },
         // A percentage on its own makes any stored position stale, so it is
         // cleared; an unreported duration is kept, since the runtime has not changed.
         { progress, positionSeconds: positionSeconds ?? null, durationSeconds }

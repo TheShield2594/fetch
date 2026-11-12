@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Εισαγωγή από άλλη πηγή</string>
+    <string name="tracking_import_subtitle">Αντιγραφή ιστορικού προβολών και σημείων συνέχισης από άλλη συνδεδεμένη υπηρεσία στο %1$s, την κύρια πηγή σας.</string>
+    <string name="tracking_import_running">Εισαγωγή…</string>
+    <string name="tracking_import_dialog_title">Εισαγωγή στο %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Οι τίτλοι που έχετε δει εκεί σημειώνονται ως προβεβλημένοι στο %1$s. Τα σημεία συνέχισης αντιγράφονται, εκτός αν το %1$s έχει νεότερο. Τίποτα δεν αφαιρείται.</string>
+    <string name="tracking_import_done_title">Η εισαγωγή ολοκληρώθηκε</string>
+    <string name="tracking_import_done_from">Από %1$s σε %2$s</string>
+    <string name="tracking_import_done_watched">Προβεβλημένα: %1$d εισήχθησαν, %2$d παραλείφθηκαν</string>
+    <string name="tracking_import_done_progress">Σημεία συνέχισης: %1$d εισήχθησαν, %2$d παραλείφθηκαν</string>
+    <string name="tracking_import_done_failed">Δεν έγιναν δεκτά από %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Το ιστορικό προβολών δεν μπορεί να εισαχθεί μεταξύ αυτών των υπηρεσιών.</string>
+    <string name="tracking_import_unsupported_progress">Τα σημεία συνέχισης δεν μπορούν να εισαχθούν μεταξύ αυτών των υπηρεσιών.</string>
+    <string name="tracking_import_failed_title">Η εισαγωγή απέτυχε</string>
+    <string name="tracking_import_failed_subtitle">Το Fetch δεν μπόρεσε να διαβάσει το %1$s ή να γράψει στο %2$s. Ελέγξτε ότι είναι και τα δύο συνδεδεμένα και δοκιμάστε ξανά.</string>
+</resources>

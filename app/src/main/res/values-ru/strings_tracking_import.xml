@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Импорт из другого источника</string>
+    <string name="tracking_import_subtitle">Копирует историю просмотров и точки продолжения из другого подключённого сервиса в %1$s — ваш основной источник.</string>
+    <string name="tracking_import_running">Импорт…</string>
+    <string name="tracking_import_dialog_title">Импорт в %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Просмотренное там будет отмечено как просмотренное в %1$s. Точки продолжения копируются, если в %1$s нет более новой. Ничего не удаляется.</string>
+    <string name="tracking_import_done_title">Импорт завершён</string>
+    <string name="tracking_import_done_from">Из %1$s в %2$s</string>
+    <string name="tracking_import_done_watched">Просмотрено: импортировано %1$d, пропущено %2$d</string>
+    <string name="tracking_import_done_progress">Точки продолжения: импортировано %1$d, пропущено %2$d</string>
+    <string name="tracking_import_done_failed">Не принято сервисом %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Историю просмотров нельзя импортировать между этими сервисами.</string>
+    <string name="tracking_import_unsupported_progress">Точки продолжения нельзя импортировать между этими сервисами.</string>
+    <string name="tracking_import_failed_title">Не удалось импортировать</string>
+    <string name="tracking_import_failed_subtitle">Fetch не смог прочитать %1$s или записать в %2$s. Убедитесь, что оба подключены, и повторите попытку.</string>
+</resources>

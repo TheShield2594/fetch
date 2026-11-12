@@ -130,6 +130,42 @@ describe("export routes", () => {
       expect(response.json().summary.watchEvents).toBe(1);
     });
 
+    it("restores titles known by a tmdb: or kitsu: id, and skips ids it doesn't recognise", async () => {
+      prismaMock.watchEvent.findMany.mockResolvedValue([]);
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 1,
+          watchEvents: [
+            { type: "movie", imdbId: "tmdb:603", watchedAt: "2024-01-01T00:00:00Z", plays: 1 },
+            {
+              type: "episode",
+              imdbId: "kitsu:1376",
+              seriesImdbId: "kitsu:1376",
+              season: 1,
+              episode: 5,
+              watchedAt: "2024-01-02T00:00:00Z",
+              plays: 1,
+            },
+            { type: "movie", imdbId: "not-an-id", watchedAt: "2024-01-03T00:00:00Z", plays: 1 },
+          ],
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.watchEvent.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({ imdbId: "tmdb:603", type: "movie" }),
+          expect.objectContaining({ imdbId: "kitsu:1376", seriesImdbId: "kitsu:1376", season: 1, episode: 5 }),
+        ],
+        skipDuplicates: true,
+      });
+      expect(response.json().summary.watchEvents).toBe(2);
+    });
+
     it("increments plays for a duplicate watch event instead of creating a new row", async () => {
       prismaMock.watchEvent.findMany.mockResolvedValue([
         {

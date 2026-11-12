@@ -328,17 +328,9 @@
     <string name="appearance_subtitle">בחירת ערכת הצבעים, הגופן והשפה</string>
     <string name="appearance_color_theme">ערכת צבעים</string>
     <string name="appearance_color_theme_subtitle">בחירת צבע ההדגשה שישמש בכל האפליקציה</string>
-    <string name="theme_color_gold">זהב</string>
-    <string name="theme_color_jade">ירקן</string>
-    <string name="theme_color_rose_gold">רוז גולד</string>
-    <string name="theme_color_arctic_blue">כחול ארקטי</string>
-    <string name="theme_color_graphite">גרפיט</string>
-    <string name="theme_color_crimson">ארגמן</string>
     <string name="theme_color_ocean">אוקיינוס</string>
-    <string name="theme_color_violet">סגול</string>
     <string name="theme_color_emerald">אזמרגד</string>
     <string name="theme_color_amber">ענבר</string>
-    <string name="theme_color_rose">ורוד שושנה</string>
     <string name="theme_color_white">לבן</string>
     <string name="theme_color_custom">מותאם אישית</string>
     <string name="custom_theme_title">מעבר הצבעים המותאם אישית שלך</string>
@@ -2900,4 +2892,5 @@
     <string name="screen_time_rest_of_day">ללא הגבלה עד סוף היום</string>
     <string name="kids_hours">%1$d שע׳</string>
     <string name="kids_hours_minutes">%1$d שע׳ %2$d דק׳</string>
+    <string name="custom_theme_low_contrast">יהיה קשה לקרוא טקסט על הצבעים האלה. כדי לשמור, בחרו צבעים עם בהירות דומה יותר.</string>
 </resources>

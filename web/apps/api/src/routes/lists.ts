@@ -1,7 +1,8 @@
 import { ItemType, ListItemType, ListKind, MetadataType, Prisma } from "@prisma/client";
 import type { FastifyPluginAsync, FastifyReply } from "fastify";
 import { prisma } from "../lib/prisma.js";
-import { backfillMissingMetadata, syncMetadata } from "../lib/metadata.js";
+import { backfillMissingMetadata, rememberClientMetadata, syncMetadata } from "../lib/metadata.js";
+import { CONTENT_ID_ERROR, normalizeContentId } from "../lib/content-id.js";
 import { pushTraktWatchlistChange } from "../lib/trakt-client.js";
 import { pushWatchlistAddToTrackers } from "../lib/trackers.js";
 import { resolveProfile } from "../lib/profile.js";
@@ -471,7 +472,7 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: "type and imdbId are required" });
       }
 
-      const body = request.body as { type?: unknown; imdbId?: unknown; title?: unknown };
+      const body = request.body as { type?: unknown; imdbId?: unknown; title?: unknown; poster?: unknown };
       if (!Object.values(ListItemType).includes(body.type as ListItemType)) {
         return reply.code(400).send({ error: "type must be one of: movie, series" });
       }
@@ -479,9 +480,14 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
       if (typeof body.imdbId !== "string" || !body.imdbId.trim()) {
         return reply.code(400).send({ error: "type and imdbId are required" });
       }
+      const imdbId = normalizeContentId(body.imdbId);
+      if (!imdbId) return reply.code(400).send({ error: CONTENT_ID_ERROR });
 
       if (body.title !== undefined && typeof body.title !== "string") {
         return reply.code(400).send({ error: "title must be a string when provided" });
+      }
+      if (body.poster !== undefined && body.poster !== null && typeof body.poster !== "string") {
+        return reply.code(400).send({ error: "poster must be a string when provided" });
       }
 
       if (!UUID_V4_PATTERN.test(request.params.listId)) {
@@ -493,7 +499,6 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
       });
       if (!list) return reply.code(404).send({ error: "List not found" });
 
-      const imdbId = (body.imdbId as string).trim();
       const type = body.type as ListItemType;
       const itemType = type as ItemType;
 
@@ -512,6 +517,10 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
         });
 
         const metadataTypeForSync = itemType === ItemType.movie ? MetadataType.movie : MetadataType.series;
+        await rememberClientMetadata(imdbId, metadataTypeForSync, {
+          name: body.title,
+          poster: body.poster,
+        });
         void syncMetadata(imdbId, metadataTypeForSync).catch((err) =>
           app.log.warn({ imdbId, type: metadataTypeForSync, err }, "Background metadata sync failed")
         );

@@ -319,17 +319,9 @@
     <string name="appearance_subtitle">Escolha seu tema de cores, fonte e idioma</string>
     <string name="appearance_color_theme">Tema de Cores</string>
     <string name="appearance_color_theme_subtitle">Escolha a cor de destaque usada no aplicativo</string>
-    <string name="theme_color_crimson">Carmesim</string>
-    <string name="theme_color_gold">Dourado</string>
-    <string name="theme_color_jade">Jade</string>
-    <string name="theme_color_rose_gold">Ouro Rosa</string>
-    <string name="theme_color_arctic_blue">Azul Ártico</string>
-    <string name="theme_color_graphite">Grafite</string>
     <string name="theme_color_ocean">Oceano</string>
-    <string name="theme_color_violet">Violeta</string>
     <string name="theme_color_emerald">Esmeralda</string>
     <string name="theme_color_amber">Âmbar</string>
-    <string name="theme_color_rose">Rosa</string>
     <string name="theme_color_white">Branco</string>
     <string name="theme_color_custom">Personalizado</string>
     <string name="custom_theme_title">Seu degradê personalizado</string>
@@ -2731,4 +2723,5 @@
     <string name="screen_time_rest_of_day">Sem limite pelo resto do dia</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">O texto ficaria difícil de ler sobre essas cores. Escolha cores com brilho mais parecido para salvar.</string>
 </resources>

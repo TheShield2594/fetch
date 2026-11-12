@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Import from another source</string>
+    <string name="tracking_import_subtitle">Copy watched history and resume points from another connected service into %1$s, your source of truth.</string>
+    <string name="tracking_import_running">Importing…</string>
+    <string name="tracking_import_dialog_title">Import into %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Titles watched there are marked watched in %1$s. Resume points are copied unless %1$s has a newer one. Nothing is removed.</string>
+    <string name="tracking_import_done_title">Import finished</string>
+    <string name="tracking_import_done_from">From %1$s into %2$s</string>
+    <string name="tracking_import_done_watched">Watched: %1$d imported, %2$d skipped</string>
+    <string name="tracking_import_done_progress">Resume points: %1$d imported, %2$d skipped</string>
+    <string name="tracking_import_done_failed">Not accepted by %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Watched history can’t be imported between these services.</string>
+    <string name="tracking_import_unsupported_progress">Resume points can’t be imported between these services.</string>
+    <string name="tracking_import_failed_title">Import failed</string>
+    <string name="tracking_import_failed_subtitle">Fetch couldn’t read %1$s or write to %2$s. Check that both are connected and try again.</string>
+</resources>

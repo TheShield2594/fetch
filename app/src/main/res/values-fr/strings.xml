@@ -327,17 +327,9 @@
     <string name="appearance_subtitle">Choisissez votre thème de couleurs, votre police et votre langue</string>
     <string name="appearance_color_theme">Thème de couleurs</string>
     <string name="appearance_color_theme_subtitle">Choisissez la couleur d’accentuation utilisée dans toute l’application</string>
-    <string name="theme_color_gold">Or</string>
-    <string name="theme_color_jade">Jade</string>
-    <string name="theme_color_rose_gold">Or rose</string>
-    <string name="theme_color_arctic_blue">Bleu arctique</string>
-    <string name="theme_color_graphite">Graphite</string>
-    <string name="theme_color_crimson">Cramoisi</string>
     <string name="theme_color_ocean">Océan</string>
-    <string name="theme_color_violet">Violet</string>
     <string name="theme_color_emerald">Émeraude</string>
     <string name="theme_color_amber">Ambre</string>
-    <string name="theme_color_rose">Rose</string>
     <string name="theme_color_white">Blanc</string>
     <string name="theme_color_custom">Personnalisé</string>
     <string name="custom_theme_title">Votre dégradé personnalisé</string>
@@ -2902,4 +2894,5 @@
     <string name="screen_time_rest_of_day">Aucune limite pour le reste de la journée</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">Le texte serait difficile à lire sur ces couleurs. Choisissez des couleurs de luminosité plus proche pour enregistrer.</string>
 </resources>

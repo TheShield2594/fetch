@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseProfileAttributes } from "./profile-view.js";
+import { parseProfileAttributes, toProfileView } from "./profile-view.js";
 
 describe("parseProfileAttributes", () => {
   it("leaves out what the body leaves out", () => {
@@ -47,7 +47,38 @@ describe("parseProfileAttributes", () => {
     });
   });
 
+  it("hands kids rules back apart from the columns it can set directly", () => {
+    expect(parseProfileAttributes({ parental: { kidsRules: { dailyMinutes: 45 } } })).toEqual({
+      ok: true,
+      data: {},
+      kidsRules: { patch: { dailyMinutes: 45 }, changedAt: null },
+    });
+  });
+
+  it("answers kids rules as null for a profile that never had any", () => {
+    const view = toProfileView({
+      id: "p1",
+      name: "Kid",
+      pinHash: null,
+      avatarColorHex: null,
+      avatarId: null,
+      profileBackgroundId: null,
+      webTheme: null,
+      usesPrimaryAddons: false,
+      usesPrimaryPlugins: false,
+      isKidsProfile: true,
+      maxRating: "PARENTAL_GUIDANCE",
+      allowUnrated: false,
+      kidsRules: null,
+      kidsRulesUpdatedAt: null,
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+    expect(view.parental.kidsRules).toBeNull();
+  });
+
   it.each([
+    [{ parental: { kidsRules: { dailyMinutes: 0 } } }, /dailyMinutes/],
     [{ avatarColorHex: "blue" }, /avatarColorHex/],
     [{ avatarId: "../../etc" }, /avatarId/],
     [{ usesPrimaryAddons: "yes" }, /usesPrimaryAddons/],

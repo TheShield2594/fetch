@@ -172,7 +172,7 @@ function AccountStep({
 }) {
   // A token already on this device from before accounts existed is the API
   // token, so it fills in the first-run form rather than being asked for again.
-  const [apiToken, setApiToken] = useState(() => (runtimeConfig.hasSession() ? "" : runtimeConfig.getToken()));
+  const [apiToken, setApiToken] = useState(() => (runtimeConfig.hasSession() ? "" : runtimeConfig.getLegacyApiToken()));
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");

@@ -68,21 +68,37 @@ export class OfflineWriteQueuedError extends Error {
   }
 }
 
+/**
+ * What every request carries. Not the credentials: the session and a PIN
+ * profile's access are HttpOnly cookies the API set, which `credentials:
+ * "include"` sends and this code never sees.
+ *
+ * - `X-Fetch-Client: web` is the API's CSRF check for cookie-authenticated
+ *   writes (a cross-site page cannot add it without a CORS preflight the API
+ *   refuses), and on sign-in asks for a cookie rather than a token.
+ * - `X-Fetch-Session` is the session's non-secret id, which the service
+ *   worker partitions its cache by now that it cannot hash the token.
+ * - `Authorization` only while a pre-cookie token is waiting to be moved into
+ *   a cookie (see `migrateLegacySession`).
+ */
+export const WEB_CLIENT_HEADERS = { "X-Fetch-Client": "web" } as const;
+
 const authHeaders = (hasBody: boolean) => {
-  const token = runtimeConfig.getToken();
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`
-  };
+  const headers: Record<string, string> = { ...WEB_CLIENT_HEADERS };
+  const legacyBearer = runtimeConfig.getLegacyBearer();
+  if (legacyBearer) {
+    headers.Authorization = `Bearer ${legacyBearer}`;
+  }
+  const sessionId = runtimeConfig.getSessionId();
+  if (sessionId) {
+    headers["X-Fetch-Session"] = sessionId;
+  }
   if (hasBody) {
     headers["Content-Type"] = "application/json";
   }
   const profileId = runtimeConfig.getProfileId();
   if (profileId) {
     headers["x-profile-id"] = profileId;
-  }
-  const profileToken = runtimeConfig.getProfileToken();
-  if (profileToken) {
-    headers["x-profile-token"] = profileToken;
   }
   return headers;
 };
@@ -224,6 +240,10 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
       preloaded ??
       (await fetch(`${runtimeConfig.getApiBase()}${path}`, {
         ...init,
+        // The session cookie has to travel to an API on another origin (the
+        // LAN layout: web on :7002, API on :7000) as well as to one behind the
+        // same proxy.
+        credentials: "include",
         signal: controller.signal,
         headers: {
           ...authHeaders(init?.body != null),
@@ -330,13 +350,14 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
       runtimeConfig.clearProfileId();
       window.dispatchEvent(new Event("fetch:profile-locked"));
     }
-    // A 401 with a WWW-Authenticate header (RFC 6750) comes from the bearer-token
-    // auth middleware itself, meaning the stored token is missing/invalid/rotated —
-    // as opposed to a route-level 401 like an incorrect profile PIN. Clear it and
-    // tell the app to fall back to the setup wizard instead of leaving every page
-    // stuck on a generic "Unable to connect" error for the rest of the session.
+    // A 401 with a WWW-Authenticate header (RFC 6750) comes from the auth
+    // middleware itself, meaning the session is missing/expired/revoked — as
+    // opposed to a route-level 401 like an incorrect profile PIN. Forget it
+    // (the API already expired the cookie on that same answer) and tell the app
+    // to fall back to the setup wizard instead of leaving every page stuck on a
+    // generic "Unable to connect" error for the rest of the session.
     if (response.status === 401 && response.headers.get("www-authenticate")) {
-      runtimeConfig.setToken("");
+      runtimeConfig.clearSession();
       window.dispatchEvent(new Event("fetch:unauthorized"));
     }
     // The session is real but its password was set by someone else; only

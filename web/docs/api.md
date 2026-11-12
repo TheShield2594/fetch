@@ -41,9 +41,11 @@ something on top of it.
 Every endpoint needs a bearer token, which is one of three things:
 
 - **A session token**, from signing in (`POST /auth/login`, `/auth/register`
-  or `/auth/bootstrap`). This is what the web app uses. A session only ever
-  sees its own account's profiles. Session tokens start with `fs1_` and last
-  30 days, renewed as they are used, and never more than 90 days from sign-in.
+  or `/auth/bootstrap`). A session only ever sees its own account's profiles.
+  Session tokens start with `fs1_` and last 30 days, renewed as they are used,
+  and never more than 90 days from sign-in. The web app gets its session as a
+  cookie rather than a token — see
+  [The website's session cookie](#the-websites-session-cookie).
 - **A paired device's token** (see [Devices](#devices)), which a TV gets by
   pairing instead of being given `API_TOKEN`.
 - **`API_TOKEN`**, the server's own token. This is the operator: the add-on
@@ -79,6 +81,61 @@ These paths are exempt, because they cannot carry a bearer token by construction
 | `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 3 pending per client address and 200 overall |
 | `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
 
+### The website's session cookie
+
+The web app never sees its session token. A sign-in request that carries
+`X-Fetch-Client: web` is answered with the session in an `HttpOnly` cookie and
+`{ account, sessionId }` in the body, with no `token`; any other caller gets
+`{ token, account, sessionId }` as before. `POST /profiles/:id/verify` works the
+same way: with `X-Fetch-Client: web` the profile token arrives as a cookie
+instead of `profileToken` in the body.
+
+| Cookie | Holds | Lifetime |
+| --- | --- | --- |
+| `fetch_session` | The session token | 30 days, re-issued when the session is renewed (at most hourly) |
+| `fetch_profile` | A PIN-protected profile's access token | 12 hours, like the token itself |
+
+Both are `HttpOnly; SameSite=Lax; Path=/` and host-only. When the request came
+in over HTTPS — the socket, `X-Forwarded-Proto: https` from a proxy, or an
+`https://` `Origin` — they are also `Secure` and named with the `__Host-` prefix
+(`__Host-fetch_session`, `__Host-fetch_profile`); over plain HTTP, the LAN
+install, they are not, or the browser would drop them.
+
+How the API picks the credential:
+
+- An `Authorization: Bearer` header always wins, so a TV, the add-on service
+  and scripts are unaffected by any cookie. A cookie only ever carries a
+  session — never `API_TOKEN` or a device token.
+- With no header, the session cookie is used. A cookie whose session is gone
+  gets the usual `401` + `WWW-Authenticate: Bearer`, and the cookies are
+  expired on the same response.
+- The profile token comes from `x-profile-token` when that is sent, otherwise
+  from the `fetch_profile` cookie.
+- A session whose account must choose a new password gets `403
+  { code: "password_change_required" }` on everything but `GET /auth/me`,
+  `POST /auth/password`, `POST /auth/logout` and `POST /auth/session`, whether
+  it arrived as a cookie or a bearer token.
+
+**CSRF.** A cookie-authenticated `POST`, `PUT`, `PATCH` or `DELETE` must carry
+`X-Fetch-Client: web`, and, when the browser sends an `Origin` (every current
+one does on these), that origin must be the website's: one listed in
+`FETCH_ALLOWED_ORIGINS`, `FETCH_WEB_PUBLIC`'s origin, or the API's own host (the
+same-origin proxy layout). Anything else gets `403 { code: "csrf_rejected" }`.
+A cross-site page can make a browser send the cookie, but it cannot add a
+custom header without a CORS preflight, and the preflight only succeeds for an
+allowed origin. Reads (`GET`, `HEAD`) and bearer-authenticated requests are not
+checked.
+
+**CORS.** For an origin in `FETCH_ALLOWED_ORIGINS` the API answers with
+`Access-Control-Allow-Credentials: true` and that exact origin — never `*` —
+and allows the `X-Fetch-Client` and `X-Fetch-Session` headers. `X-Fetch-Session`
+is the session's id (not a secret), which the web app sends so its service
+worker can keep each sign-in's offline cache apart without reading the token.
+
+| Method | Path | Notes |
+| --- | --- | --- |
+| `POST` | `/auth/session` | A signed-in session sent as a bearer token → the same session as a cookie, plus `{ account, sessionId }`. The session is not re-issued. If `x-profile-id` and a still-valid `x-profile-token` come with it, the profile cookie is set too. This is how a browser that kept its token in `localStorage` before the cookie moves over without signing in again. `400` for `API_TOKEN` or a device token. |
+
 ### Accounts
 
 Accounts are invite-only. The first account is created with `API_TOKEN` and is
@@ -111,7 +168,8 @@ value is a `400`, not a silent fallback — a typo'd profile id should not
 quietly write to someone else's history.
 
 Profiles protected by a PIN also need `x-profile-token`, which
-`POST /profiles/:id/verify` returns.
+`POST /profiles/:id/verify` returns (the website gets it as the
+`fetch_profile` cookie instead).
 
 Anything scoped to a profile only ever sees that profile's rows. Asking for
 another profile's list returns `404`, not `403` — the lookup is scoped, so the
@@ -129,7 +187,13 @@ row genuinely is not found. Another account's profile is a `404` the same way.
   limited to 10/minute on top of that.
 - **Types** are `movie` and `series` almost everywhere. Watch events use `movie`
   and `episode`; tags additionally accept `episode`.
-- **IDs** are IMDb ids (`tt0111161`) for films and shows, UUIDs for
+- **IDs** are IMDb ids (`tt0111161`) for films and shows, or for a title
+  with no IMDb id a prefixed one: `tmdb:603`, `kitsu:1376`, `mal:1`,
+  `anilist:1`, `anidb:1`, `tvdb:`, `trakt:` or `simkl:` and digits. The
+  field is still called `imdbId`. `POST /watch`, `POST /scrobble/start`,
+  `PUT /playback` and `POST /lists/:id/items` reject any other id with a
+  `400`, and take an optional `name` and `poster` (`title` for a list item)
+  that are kept for a title TMDB can't look up. UUIDs are used for
   Fetch's own rows (lists, profiles, tags, watch events). Those are
   uuid columns, so a malformed id is a `400` before any query runs rather than
   an empty result.
@@ -370,7 +434,8 @@ Trakt.
 | `PATCH` | `/profiles/:id` | `{ name?, pin?, currentPin?, …settings }`. Changing or clearing an existing PIN also needs `currentPin`; `pin: null` removes it. Any other change to a PIN-protected profile needs its profile token (`x-profile-token`) or `currentPin` — `401 profile_pin_required` without either. A *first* PIN has nothing to prove, so it is instead only accepted for the profile the caller is acting as (`x-profile-id` with that profile's token, or the only profile on a single-profile install) — `403 profile_not_active` otherwise. Loosening parental limits (kids mode off, a higher or no `maxRating`, `allowUnrated` on) takes parental authority — `403 parental_authority_required` otherwise; tightening never does. See below. |
 | `GET` | `/profiles/:id/summary` | Counts of what deleting the profile takes with it: `watchEvents`, `lists`, `listItems`, `playbackProgress`, `ratings`, `collections`. A PIN-protected profile needs its profile token (`401 profile_pin_required` otherwise). |
 | `DELETE` | `/profiles/:id` | Deletes the profile and everything it owns — history, lists, resume points, ratings, collections — and its slot on every paired TV. A PIN-protected profile needs `currentPin` unless the caller's profile token is for it. |
-| `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token`. `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
+| `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token` (with `X-Fetch-Client: web`, the `fetch_profile` cookie instead). `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
+| `POST` | `/profiles/lock` | Expires the website's `fetch_profile` cookie, so the profile in use needs its PIN again; nothing else is signed out. `204`. A TV just forgets its `x-profile-token`. |
 | `POST` | `/profiles/:id/clear-pin` | `{ password }` → `{ profile }`. Removes a forgotten PIN. Only the admin, signed in, on a profile in their own account (`403 admin_required` otherwise, `404` for another account's profile), with the account password asked again (`401 password_incorrect`). |
 
 The settings mirror what the TV keeps per profile, so a profile edited here reads
@@ -508,21 +573,21 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. Called with `API_TOKEN`, it also returns `multipleAccounts`, which the add-on service uses to decide whether keyless add-on URLs are safe. |
-| `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account }`. Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
-| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account }`. `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
-| `POST` | `/auth/logout` | Ends this session. `204`. |
-| `GET` | `/auth/me` | `{ account: { id, username, isAdmin, mustChangePassword } \| null, isAdmin }`. `account` is null for `API_TOKEN`. `mustChangePassword` is true while the account signs in with a password someone else set. |
+| `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
+| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
+| `POST` | `/auth/logout` | Ends this session and expires the website's cookies. `204`. |
+| `GET` | `/auth/me` | `{ account: { id, username, isAdmin, mustChangePassword } \| null, isAdmin, sessionId }`. `account` and `sessionId` are null for `API_TOKEN`. `mustChangePassword` is true while the account signs in with a password someone else set. |
 | `PATCH` | `/auth/me` | `{ username, currentPassword }` → `{ account }`. `401 password_incorrect`, `409` for a taken name. |
-| `DELETE` | `/auth/me` | `{ currentPassword }`. Deletes the signed-in account and everything its profiles own. The admin can't (`400 admin_cannot_delete`): hand admin on first. |
+| `DELETE` | `/auth/me` | `{ currentPassword }`. Deletes the signed-in account and everything its profiles own. The admin can't (`400 admin_cannot_delete`): hand admin on first. Expires the website's cookies. |
 | `POST` | `/auth/password` | `{ currentPassword, newPassword, signOutTvs? }`. Signs out every other session, and with `signOutTvs: true` every paired device. Clears `mustChangePassword`. `204`. |
 | `GET` | `/auth/sessions` | Where the account is signed in: `{ sessions: [...] }`, browsers (`kind: "browser"`, `id`, `current`, `userAgent`, `ipAddress`, `createdAt`, `lastUsedAt`, `expiresAt`) then TVs (`kind: "tv"`, `id`, `name`, `appVersion`, `createdAt`, `lastUsedAt`). Session only. |
-| `DELETE` | `/auth/sessions/:id` | Ends one of the account's browser sessions. A TV is ended with `DELETE /devices/:id`. Session only. |
+| `DELETE` | `/auth/sessions/:id` | Ends one of the account's browser sessions. A TV is ended with `DELETE /devices/:id`. Session only. Ending this browser's own session also expires its cookies. |
 | `POST` | `/auth/sessions/revoke-others` | `{ includeTvs? }` → `{ browsers, tvs }`. Ends every other browser session, and every TV with `includeTvs: true`. The calling session stays. Session only. |
 | `GET` | `/auth/activity` | `{ events: [{ id, kind, detail, ipAddress, userAgent, createdAt }] }`, newest first, at most 50, kept 90 days. `kind` is one of `sign_in`, `sign_in_failed`, `password_changed`, `password_reset`, `pin_changed`, `pin_removed`, `pin_cleared`, `tv_paired`, `tv_signed_out`, `session_revoked`, `signed_out_everywhere`, `username_changed`, `admin_granted`, `admin_transferred`. Session only. |
 | `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `FETCH_WEB_PUBLIC`, or null when that is unset. |
 | `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
 | `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
-| `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account }`. Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
+| `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
 | `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, createdAt, profileCount }] }`. |
 | `DELETE` | `/auth/accounts/:id` | Admin. Deletes the account and everything its profiles own. The admin account can't be deleted. |
 | `POST` | `/auth/accounts/:id/password` | Admin. `{ newPassword, adminPassword }`. Gives a member a temporary password: they are signed out of every browser (not their TVs) and `mustChangePassword` is set until they choose their own. `adminPassword` is the admin's own, asked again (`401 password_incorrect`); `API_TOKEN` needs none. Not for the caller's own account. |

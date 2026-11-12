@@ -1,9 +1,9 @@
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
-import { type Profile, runtimeConfig, notifyServiceWorkerToInvalidateApiCache } from "../api";
+import { api, type Profile, runtimeConfig, notifyServiceWorkerToInvalidateApiCache } from "../api";
 
 /**
- * Locks the profile in use without signing out: its access token and the
- * selection go (with the cached responses fetched as it, see
+ * Locks the profile in use without signing out: its access token (an
+ * HttpOnly cookie, which the API is asked to expire) and the selection go (with the cached responses fetched as it, see
  * `runtimeConfig.clearProfileId`), and the app returns to "Who's watching?"
  * through the same `fetch:profile-locked` path an expired token takes. Opening
  * it again needs its PIN.
@@ -12,6 +12,11 @@ import { type Profile, runtimeConfig, notifyServiceWorkerToInvalidateApiCache } 
  * the token's 12 hours.
  */
 export function lockActiveProfile(): void {
+  // Best effort: offline, the cookie lives out its 12 hours, but the app has
+  // already left the profile and opening it again from here asks for the PIN.
+  void Promise.resolve()
+    .then(() => api.lockProfile())
+    .catch(() => {});
   runtimeConfig.clearProfileId();
   void notifyServiceWorkerToInvalidateApiCache();
   window.dispatchEvent(new Event("fetch:profile-locked"));

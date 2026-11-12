@@ -25,10 +25,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.fetch.tv.R
+import com.fetch.tv.core.tracking.TrackingCapability
+import com.fetch.tv.core.tracking.TrackingImportStatus
 import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.data.local.MoreLikeThisSourcePreference
 import com.fetch.tv.data.local.TraktSettingsDataStore
@@ -53,12 +57,14 @@ fun TrackingSettingsContent(
     val mdbListState by mdbListViewModel.uiState.collectAsStateWithLifecycle()
     val mdbListLibraryLists by mdbListViewModel.libraryLists.collectAsStateWithLifecycle()
     val trackingState by trackingViewModel.uiState.collectAsStateWithLifecycle()
+    val importStatus by trackingViewModel.importStatus.collectAsStateWithLifecycle()
     val ownTraktFocusRequester = remember { FocusRequester() }
     val traktFocusRequester = initialFocusRequester ?: ownTraktFocusRequester
     val simklFocusRequester = remember { FocusRequester() }
     val mdbListFocusRequester = remember { FocusRequester() }
     val libraryFocusRequester = remember { FocusRequester() }
     val watchProgressFocusRequester = remember { FocusRequester() }
+    val importFocusRequester = remember { FocusRequester() }
     val continueWatchingFocusRequester = remember { FocusRequester() }
     val moreLikeThisFocusRequester = remember { FocusRequester() }
 
@@ -68,6 +74,7 @@ fun TrackingSettingsContent(
     var restoreFocusTarget by remember { mutableStateOf<TrackingFocusTarget?>(null) }
     var showLibrarySourceDialog by remember { mutableStateOf(false) }
     var showWatchProgressDialog by remember { mutableStateOf(false) }
+    var showImportDialog by remember { mutableStateOf(false) }
     var showDaysCapDialog by remember { mutableStateOf(false) }
     var showMoreLikeThisSourceDialog by remember { mutableStateOf(false) }
     var showAnimeIdDialog by remember { mutableStateOf(false) }
@@ -77,6 +84,9 @@ fun TrackingSettingsContent(
         disconnectProvider != null ||
         showLibrarySourceDialog ||
         showWatchProgressDialog ||
+        showImportDialog ||
+        importStatus is TrackingImportStatus.Done ||
+        importStatus is TrackingImportStatus.Failed ||
         showDaysCapDialog ||
         showMoreLikeThisSourceDialog ||
         showAnimeIdDialog ||
@@ -112,6 +122,7 @@ fun TrackingSettingsContent(
             TrackingFocusTarget.MDBLIST -> mdbListFocusRequester
             TrackingFocusTarget.LIBRARY -> libraryFocusRequester
             TrackingFocusTarget.WATCH_PROGRESS -> watchProgressFocusRequester
+            TrackingFocusTarget.IMPORT -> importFocusRequester
             TrackingFocusTarget.CONTINUE_WATCHING -> continueWatchingFocusRequester
             TrackingFocusTarget.MORE_LIKE_THIS -> moreLikeThisFocusRequester
         }
@@ -186,6 +197,12 @@ fun TrackingSettingsContent(
         onWatchProgressClick = {
             restoreFocusTarget = TrackingFocusTarget.WATCH_PROGRESS
             showWatchProgressDialog = true
+        },
+        importStatus = importStatus,
+        importFocusRequester = importFocusRequester,
+        onImportClick = {
+            restoreFocusTarget = TrackingFocusTarget.IMPORT
+            showImportDialog = true
         },
         onContinueWatchingWindowClick = {
             restoreFocusTarget = TrackingFocusTarget.CONTINUE_WATCHING
@@ -355,6 +372,49 @@ fun TrackingSettingsContent(
         )
     }
 
+    if (showImportDialog) {
+        val target = watchProgressSourceLabel(trackingState.watchProgressSource)
+        SettingsSingleChoiceDialog<WatchProgressSource?>(
+            title = stringResource(R.string.tracking_import_dialog_title, target),
+            subtitle = stringResource(R.string.tracking_import_dialog_subtitle, target),
+            options = trackingState.importSources.map { source ->
+                SettingsPickerOption(source, watchProgressSourceLabel(source))
+            },
+            selectedValue = null,
+            onOptionSelected = { source ->
+                if (source != null) trackingViewModel.importFrom(source)
+                showImportDialog = false
+            },
+            onDismiss = { showImportDialog = false }
+        )
+    }
+
+    when (val status = importStatus) {
+        is TrackingImportStatus.Done -> TrackingImportResultDialog(
+            title = stringResource(R.string.tracking_import_done_title),
+            lines = trackingImportResultLines(status),
+            onDismiss = {
+                restoreFocusTarget = TrackingFocusTarget.IMPORT
+                trackingViewModel.acknowledgeImport()
+            }
+        )
+        is TrackingImportStatus.Failed -> TrackingImportResultDialog(
+            title = stringResource(R.string.tracking_import_failed_title),
+            lines = listOf(
+                stringResource(
+                    R.string.tracking_import_failed_subtitle,
+                    watchProgressSourceLabel(status.source),
+                    watchProgressSourceLabel(status.target)
+                )
+            ),
+            onDismiss = {
+                restoreFocusTarget = TrackingFocusTarget.IMPORT
+                trackingViewModel.acknowledgeImport()
+            }
+        )
+        else -> Unit
+    }
+
     if (showDaysCapDialog) {
         val options = remember {
             listOf(
@@ -479,6 +539,9 @@ internal fun TrackingSettingsOverview(
     onAnimeIdClick: () -> Unit,
     mdbListLibraryLists: MdbListLibraryListsUiState = MdbListLibraryListsUiState(),
     onMdbListLibraryListsClick: () -> Unit = {},
+    importStatus: TrackingImportStatus = TrackingImportStatus.Idle,
+    importFocusRequester: FocusRequester = remember { FocusRequester() },
+    onImportClick: () -> Unit = {},
     // Essential mode keeps only the account connections; sources and features stay in Advanced.
     essentialMode: Boolean = false
 ) {
@@ -575,6 +638,22 @@ internal fun TrackingSettingsOverview(
                                 .focusRequester(watchProgressFocusRequester)
                                 .testTag(TrackingSettingsTestTags.WATCH_PROGRESS_SOURCE)
                         )
+                        if (trackingState.importSources.isNotEmpty()) {
+                            val importing = importStatus is TrackingImportStatus.Running
+                            SettingsActionRow(
+                                title = stringResource(R.string.tracking_import_title),
+                                subtitle = stringResource(
+                                    R.string.tracking_import_subtitle,
+                                    watchProgressSourceLabel(trackingState.watchProgressSource)
+                                ),
+                                value = if (importing) stringResource(R.string.tracking_import_running) else null,
+                                enabled = trackingState.isReady && !importing,
+                                onClick = onImportClick,
+                                modifier = Modifier
+                                    .focusRequester(importFocusRequester)
+                                    .testTag(TrackingSettingsTestTags.IMPORT_HISTORY)
+                            )
+                        }
                         if (traktConnected || simklState.mode == SimklConnectionMode.CONNECTED) {
                             SettingsActionRow(
                                 title = stringResource(R.string.trakt_more_like_this_source_title),
@@ -794,6 +873,7 @@ private enum class TrackingFocusTarget {
     MDBLIST,
     LIBRARY,
     WATCH_PROGRESS,
+    IMPORT,
     CONTINUE_WATCHING,
     MORE_LIKE_THIS
 }
@@ -806,7 +886,58 @@ internal object TrackingSettingsTestTags {
     const val MDBLIST_LIBRARY_LISTS = "tracking_mdblist_library_lists"
     const val LIBRARY_SOURCE = "tracking_source_library"
     const val WATCH_PROGRESS_SOURCE = "tracking_source_watch_progress"
+    const val IMPORT_HISTORY = "tracking_import_history"
     const val CONTINUE_WATCHING = "tracking_trakt_continue_watching"
     const val COMMENTS = "tracking_trakt_comments"
     const val MORE_LIKE_THIS = "tracking_trakt_more_like_this"
+}
+
+@Composable
+private fun TrackingImportResultDialog(
+    title: String,
+    lines: List<String>,
+    onDismiss: () -> Unit
+) {
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = title,
+        suppressFirstKeyUp = false
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+            lines.forEach { line ->
+                Text(
+                    text = line,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FetchTheme.colors.TextSecondary
+                )
+            }
+        }
+        SettingsDialogActionRow {
+            SettingsDialogActionButton(
+                text = stringResource(R.string.action_close),
+                onClick = onDismiss
+            )
+        }
+    }
+}
+
+@Composable
+private fun trackingImportResultLines(status: TrackingImportStatus.Done): List<String> {
+    val result = status.result
+    val sourceLabel = watchProgressSourceLabel(result.source)
+    val targetLabel = watchProgressSourceLabel(result.target)
+    return buildList {
+        add(stringResource(R.string.tracking_import_done_from, sourceLabel, targetLabel))
+        if (TrackingCapability.WATCHED_READ in result.unsupported || TrackingCapability.WATCHED_WRITE in result.unsupported) {
+            add(stringResource(R.string.tracking_import_unsupported_watched))
+        } else {
+            add(stringResource(R.string.tracking_import_done_watched, result.watchedImported, result.watchedSkipped))
+        }
+        if (TrackingCapability.PROGRESS_READ in result.unsupported || TrackingCapability.PROGRESS_WRITE in result.unsupported) {
+            add(stringResource(R.string.tracking_import_unsupported_progress))
+        } else {
+            add(stringResource(R.string.tracking_import_done_progress, result.progressImported, result.progressSkipped))
+        }
+        if (result.failed > 0) add(stringResource(R.string.tracking_import_done_failed, targetLabel, result.failed))
+    }
 }

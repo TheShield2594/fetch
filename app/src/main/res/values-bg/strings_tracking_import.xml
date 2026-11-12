@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Импорт от друг източник</string>
+    <string name="tracking_import_subtitle">Копира историята на гледане и точките за продължаване от друга свързана услуга в %1$s, вашия основен източник.</string>
+    <string name="tracking_import_running">Импортиране…</string>
+    <string name="tracking_import_dialog_title">Импорт в %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Заглавията, гледани там, се отбелязват като гледани в %1$s. Точките за продължаване се копират, освен ако %1$s няма по-нова. Нищо не се изтрива.</string>
+    <string name="tracking_import_done_title">Импортът завърши</string>
+    <string name="tracking_import_done_from">От %1$s в %2$s</string>
+    <string name="tracking_import_done_watched">Гледани: импортирани %1$d, пропуснати %2$d</string>
+    <string name="tracking_import_done_progress">Точки за продължаване: импортирани %1$d, пропуснати %2$d</string>
+    <string name="tracking_import_done_failed">Неприети от %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Историята на гледане не може да се импортира между тези услуги.</string>
+    <string name="tracking_import_unsupported_progress">Точките за продължаване не могат да се импортират между тези услуги.</string>
+    <string name="tracking_import_failed_title">Импортът не бе успешен</string>
+    <string name="tracking_import_failed_subtitle">Fetch не можа да прочете %1$s или да запише в %2$s. Проверете дали и двете са свързани и опитайте отново.</string>
+</resources>

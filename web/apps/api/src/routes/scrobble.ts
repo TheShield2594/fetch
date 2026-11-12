@@ -5,6 +5,8 @@ import { recordWatchEvent } from "../lib/watch-event.js";
 import { pushTraktScrobble } from "../lib/trakt-client.js";
 import { pushScrobbleToTrackers } from "../lib/trackers.js";
 import { resolveProfile } from "../lib/profile.js";
+import { CONTENT_ID_ERROR, normalizeContentId } from "../lib/content-id.js";
+import { rememberClientMetadata } from "../lib/metadata.js";
 import { resolveProgressPercent, savePlaybackProgress, type PlaybackPosition } from "../lib/playback.js";
 import { MAX_EPISODE, MAX_SEASON } from "../lib/import-validation.js";
 import {
@@ -246,6 +248,8 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
       progress?: unknown;
       positionSeconds?: unknown;
       durationSeconds?: unknown;
+      name?: unknown;
+      poster?: unknown;
     };
 
     if (!Object.values(WatchEventType).includes(body.type as WatchEventType)) {
@@ -255,10 +259,23 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
     if (typeof body.imdbId !== "string" || !body.imdbId.trim()) {
       return reply.code(400).send({ error: "imdbId is required" });
     }
+    const imdbId = normalizeContentId(body.imdbId);
+    if (!imdbId) return reply.code(400).send({ error: CONTENT_ID_ERROR });
 
     const type = body.type as WatchEventType;
-    const imdbId = (body.imdbId as string).trim();
-    const seriesImdbId = typeof body.seriesImdbId === "string" ? body.seriesImdbId.trim() || null : null;
+    const seriesImdbId =
+      typeof body.seriesImdbId === "string" && body.seriesImdbId.trim() ? normalizeContentId(body.seriesImdbId) : null;
+    if (typeof body.seriesImdbId === "string" && body.seriesImdbId.trim() && !seriesImdbId) {
+      return reply.code(400).send({ error: CONTENT_ID_ERROR.replace("imdbId", "seriesImdbId") });
+    }
+    await rememberClientMetadata(
+      type === WatchEventType.movie ? imdbId : (seriesImdbId ?? imdbId),
+      type === WatchEventType.movie ? MetadataType.movie : MetadataType.series,
+      {
+        name: typeof body.name === "string" ? body.name : null,
+        poster: typeof body.poster === "string" ? body.poster : null,
+      }
+    );
     const season = typeof body.season === "number" && Number.isInteger(body.season) ? body.season : null;
     const episode = typeof body.episode === "number" && Number.isInteger(body.episode) ? body.episode : null;
     const progress = readPosition(body).progress ?? 0;
@@ -322,7 +339,7 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "imdbId is required" });
     }
 
-    const imdbId = (body.imdbId as string).trim();
+    const imdbId = normalizeContentId(body.imdbId) ?? (body.imdbId as string).trim();
     const season = typeof body.season === "number" ? body.season : null;
     const episode = typeof body.episode === "number" ? body.episode : null;
     const reported = readPosition(body);
@@ -388,7 +405,7 @@ const scrobbleRoutes: FastifyPluginAsync = async (app) => {
       return reply.code(400).send({ error: "imdbId is required" });
     }
 
-    const imdbId = (body.imdbId as string).trim();
+    const imdbId = normalizeContentId(body.imdbId) ?? (body.imdbId as string).trim();
     const season = typeof body.season === "number" ? body.season : null;
     const episode = typeof body.episode === "number" ? body.episode : null;
     const reported = readPosition(body);

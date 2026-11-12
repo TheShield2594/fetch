@@ -26,12 +26,14 @@ const prismaMock = {
 
 const syncMetadata = vi.fn();
 const backfillMissingMetadata = vi.fn();
+const rememberClientMetadata = vi.fn();
 const pushTraktWatchlistChange = vi.fn();
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 vi.mock("../lib/metadata.js", () => ({
   syncMetadata: (...args: unknown[]) => syncMetadata(...args),
   backfillMissingMetadata: (...args: unknown[]) => backfillMissingMetadata(...args),
+  rememberClientMetadata: (...args: unknown[]) => rememberClientMetadata(...args),
 }));
 vi.mock("../lib/trakt-client.js", () => ({
   pushTraktWatchlistChange: (...args: unknown[]) => pushTraktWatchlistChange(...args),
@@ -617,6 +619,46 @@ describe("lists routes", () => {
 
       expect(res.statusCode).toBe(404);
       expect(prismaMock.list.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("POST /lists/:listId/items — titles without an IMDb id", () => {
+    it("adds a kitsu: series under its canonical id and keeps the name the TV sent", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "watchlist" }));
+      prismaMock.item.upsert.mockResolvedValue({});
+      prismaMock.listItem.create.mockResolvedValue({ listId: LIST_ID, type: "series", imdbId: "kitsu:1376" });
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "POST",
+        url: `/lists/${LIST_ID}/items`,
+        payload: { type: "series", imdbId: "Kitsu:1376", title: "Cowboy Bebop", poster: "https://img/cb.jpg" },
+      });
+
+      expect(res.statusCode).toBe(201);
+      expect(prismaMock.listItem.create).toHaveBeenCalledWith({
+        data: { listId: LIST_ID, type: "series", imdbId: "kitsu:1376" },
+      });
+      expect(rememberClientMetadata).toHaveBeenCalledWith("kitsu:1376", "series", {
+        name: "Cowboy Bebop",
+        poster: "https://img/cb.jpg",
+      });
+      await app.close();
+    });
+
+    it("rejects an id that is neither IMDb's nor a known prefix", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(listRow({ kind: "custom" }));
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "POST",
+        url: `/lists/${LIST_ID}/items`,
+        payload: { type: "movie", imdbId: "something-else" },
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(prismaMock.listItem.create).not.toHaveBeenCalled();
+      await app.close();
     });
   });
 

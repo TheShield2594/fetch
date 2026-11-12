@@ -62,6 +62,25 @@ describe("cors", () => {
       expect(blockedReply.headers["Access-Control-Allow-Origin"]).toBeUndefined();
     });
 
+    it("allows credentials for a listed origin only, and never with a wildcard", async () => {
+      process.env.NODE_ENV = "production";
+      process.env.FETCH_ALLOWED_ORIGINS = "https://app.example.com";
+      vi.resetModules();
+      const { applyCorsHeaders } = await loadCors();
+
+      const allowed = new FakeReply();
+      applyCorsHeaders(makeRequest("https://app.example.com", "OPTIONS"), allowed as unknown as FastifyReply);
+      expect(allowed.headers["Access-Control-Allow-Credentials"]).toBe("true");
+      expect(allowed.headers["Access-Control-Allow-Origin"]).toBe("https://app.example.com");
+      // The website's CSRF and cache-partition headers survive a preflight.
+      const headers = (allowed.headers["Access-Control-Allow-Headers"] ?? "").split(",");
+      expect(headers).toEqual(expect.arrayContaining(["X-Fetch-Client", "X-Fetch-Session"]));
+
+      const blocked = new FakeReply();
+      applyCorsHeaders(makeRequest("https://evil.example.com", "OPTIONS"), blocked as unknown as FastifyReply);
+      expect(blocked.headers["Access-Control-Allow-Credentials"]).toBeUndefined();
+    });
+
     it("does not allow any origin when FETCH_ALLOWED_ORIGINS is unset", async () => {
       process.env.NODE_ENV = "production";
       delete process.env.FETCH_ALLOWED_ORIGINS;
@@ -87,8 +106,9 @@ describe("cors", () => {
     });
 
     // Starting Trakt sign-in sets a cookie the callback checks, and a browser
-    // only keeps a cross-origin cookie from a credentialed request.
-    it("allows credentials on the Trakt authorize route alone", async () => {
+    // only keeps a cross-origin cookie from a credentialed request. The session
+    // cookie means every other route is credentialed too.
+    it("allows credentials on the Trakt authorize route, as on every other", async () => {
       process.env.NODE_ENV = "production";
       process.env.FETCH_ALLOWED_ORIGINS = "https://app.example.com";
       vi.resetModules();
@@ -105,7 +125,7 @@ describe("cors", () => {
 
       const other = new FakeReply();
       applyCorsHeaders(makeRequest("https://app.example.com"), other as unknown as FastifyReply);
-      expect(other.headers["Access-Control-Allow-Credentials"]).toBeUndefined();
+      expect(other.headers["Access-Control-Allow-Credentials"]).toBe("true");
 
       const blocked = new FakeReply();
       applyCorsHeaders(

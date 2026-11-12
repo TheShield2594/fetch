@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Başka bir kaynaktan içe aktar</string>
+    <string name="tracking_import_subtitle">İzleme geçmişini ve devam noktalarını bağlı başka bir hizmetten ana kaynağınız olan %1$s hizmetine kopyalar.</string>
+    <string name="tracking_import_running">İçe aktarılıyor…</string>
+    <string name="tracking_import_dialog_title">%1$s hizmetine içe aktar</string>
+    <string name="tracking_import_dialog_subtitle">Orada izlenen yapımlar %1$s hizmetinde izlendi olarak işaretlenir. %1$s daha yeni bir devam noktasına sahip değilse devam noktaları kopyalanır. Hiçbir şey silinmez.</string>
+    <string name="tracking_import_done_title">İçe aktarma tamamlandı</string>
+    <string name="tracking_import_done_from">%1$s → %2$s</string>
+    <string name="tracking_import_done_watched">İzlenen: %1$d içe aktarıldı, %2$d atlandı</string>
+    <string name="tracking_import_done_progress">Devam noktaları: %1$d içe aktarıldı, %2$d atlandı</string>
+    <string name="tracking_import_done_failed">%1$s tarafından kabul edilmeyen: %2$d</string>
+    <string name="tracking_import_unsupported_watched">İzleme geçmişi bu hizmetler arasında içe aktarılamaz.</string>
+    <string name="tracking_import_unsupported_progress">Devam noktaları bu hizmetler arasında içe aktarılamaz.</string>
+    <string name="tracking_import_failed_title">İçe aktarma başarısız oldu</string>
+    <string name="tracking_import_failed_subtitle">Fetch, %1$s kaynağını okuyamadı veya %2$s hizmetine yazamadı. İkisinin de bağlı olduğunu kontrol edip tekrar deneyin.</string>
+</resources>

@@ -303,12 +303,9 @@
     <string name="appearance_subtitle">Escolhe o tema de cor, o tipo de letra e o idioma</string>
     <string name="appearance_color_theme">Tema de cor</string>
     <string name="appearance_color_theme_subtitle">Escolhe a cor de destaque utilizada na app</string>
-    <string name="theme_color_crimson">Carmesim</string>
     <string name="theme_color_ocean">Oceano</string>
-    <string name="theme_color_violet">Violeta</string>
     <string name="theme_color_emerald">Esmeralda</string>
     <string name="theme_color_amber">Âmbar</string>
-    <string name="theme_color_rose">Rosa</string>
     <string name="theme_color_white">Branco</string>
     <string name="appearance_amoled_mode">Modo AMOLED</string>
     <string name="appearance_amoled_mode_subtitle">Utilizar preto puro nos fundos da app</string>
@@ -2323,4 +2320,5 @@
     <string name="screen_time_rest_of_day">Sem limite durante o resto do dia</string>
     <string name="kids_hours">%1$d h</string>
     <string name="kids_hours_minutes">%1$d h %2$d min</string>
+    <string name="custom_theme_low_contrast">O texto ficaria difícil de ler sobre estas cores. Escolha cores com um brilho mais semelhante para guardar.</string>
 </resources>

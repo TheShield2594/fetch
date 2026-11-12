@@ -114,6 +114,17 @@ def secrets_for(base):
     return sorted({path, *parts}, key=len, reverse=True)
 
 
+UNCONFIGURED = re.compile(r"\bconfigure\b", re.IGNORECASE)
+
+
+def is_unconfigured(streams):
+    """True for the placeholder an addon returns before it is configured."""
+    if len(streams) != 1 or streams[0].get("infoHash"):
+        return False
+    text = " ".join(str(streams[0].get(k) or "") for k in ("name", "title", "description"))
+    return bool(UNCONFIGURED.search(text))
+
+
 def capture(addon, manifest_url):
     base = addon_base(manifest_url)
     secrets = secrets_for(base)
@@ -128,6 +139,10 @@ def capture(addon, manifest_url):
         if not streams:
             print(f"{addon} {video_id}: no streams", file=sys.stderr)
             continue
+        if is_unconfigured(streams):
+            # An unconfigured instance answers with one "please configure" stream, not results.
+            print(f"{addon}: not configured, set its manifest URL to a configured one", file=sys.stderr)
+            return {}
         out[video_id.replace(":", "_")] = {
             "streams": [scrub(s, addon, i, secrets) for i, s in enumerate(streams[:MAX_STREAMS])]
         }

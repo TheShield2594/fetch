@@ -22,7 +22,7 @@ const prismaMock = {
     groupBy: vi.fn(),
     deleteMany: vi.fn(),
   },
-  metadata: { findMany: vi.fn() },
+  metadata: { findMany: vi.fn(), upsert: vi.fn() },
   rating: { findMany: vi.fn() },
   $transaction: vi.fn(async (callback: (tx: typeof txMock) => unknown) => callback(txMock)),
   $queryRaw: vi.fn(),
@@ -186,6 +186,87 @@ describe("watch routes", () => {
       const response = await app.inject({ method: "POST", url: "/watch", payload: { type: "movie", imdbId: "tt1" } });
 
       expect(response.json().watchEvent.traktHistoryId).toBe("123456789012345");
+    });
+  });
+
+  describe("titles without an IMDb id", () => {
+    it.each([["foo:1"], ["kitsu:abc"], ["kitsu:1376:5"], ["1376"]])("rejects %s as an id", async (imdbId) => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "POST", url: "/watch", payload: { type: "movie", imdbId } });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.json().error).toMatch(/prefixed id/);
+      expect(watchEventMock.recordWatchEvent).not.toHaveBeenCalled();
+    });
+
+    it("records a tmdb: film under its canonical id, leaving its metadata to TMDB", async () => {
+      watchEventMock.recordWatchEvent.mockResolvedValue({ watchEvent: { id: EVENT_ID, traktHistoryId: null }, wasCreated: true });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/watch",
+        payload: { type: "movie", imdbId: " TMDB:0603 ", name: "The Matrix" },
+      });
+
+      expect(response.statusCode).toBe(201);
+      expect(watchEventMock.recordWatchEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "movie", imdbId: "tmdb:603" })
+      );
+      expect(prismaMock.metadata.upsert).not.toHaveBeenCalled();
+    });
+
+    it("round-trips a kitsu: episode, named as the TV sent it", async () => {
+      watchEventMock.recordWatchEvent.mockResolvedValue({ watchEvent: { id: EVENT_ID, traktHistoryId: null }, wasCreated: true });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/watch",
+        payload: {
+          type: "episode",
+          imdbId: "kitsu:1376",
+          seriesImdbId: "kitsu:1376",
+          season: 1,
+          episode: 5,
+          name: "Cowboy Bebop",
+          poster: "https://media.kitsu.app/anime/1376/poster.jpg",
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      expect(watchEventMock.recordWatchEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "episode", imdbId: "kitsu:1376", seriesImdbId: "kitsu:1376", season: 1, episode: 5 })
+      );
+      expect(prismaMock.metadata.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { imdbId_type: { imdbId: "kitsu:1376", type: "series" } },
+          create: expect.objectContaining({ name: "Cowboy Bebop" }),
+        })
+      );
+
+      prismaMock.watchEvent.groupBy.mockResolvedValue([
+        { type: "episode", imdbId: "kitsu:1376", seriesImdbId: "kitsu:1376", season: 1, episode: 5, _max: { watchedAt: new Date("2026-01-03T00:00:00Z") } },
+        { type: "movie", imdbId: "tmdb:603", seriesImdbId: null, season: null, episode: null, _max: { watchedAt: new Date("2026-01-01T00:00:00Z") } },
+      ]);
+      prismaMock.metadata.findMany.mockResolvedValue([
+        { imdbId: "kitsu:1376", type: "series", name: "Cowboy Bebop", poster: "https://media.kitsu.app/anime/1376/poster.jpg" },
+        { imdbId: "tmdb:603", type: "movie", name: "The Matrix", poster: null },
+      ]);
+      const state = await app.inject({ method: "GET", url: "/watch/state" });
+
+      expect(state.json()).toMatchObject({
+        movies: [{ imdbId: "tmdb:603", name: "The Matrix" }],
+        episodes: [{ imdbId: "kitsu:1376", season: 1, episode: 5, name: "Cowboy Bebop" }],
+      });
+
+      prismaMock.watchEvent.deleteMany.mockResolvedValue({ count: 1 });
+      const removed = await app.inject({ method: "DELETE", url: `/watch/movie/${encodeURIComponent("tmdb:603")}` });
+      expect(removed.statusCode).toBe(204);
+      expect(prismaMock.watchEvent.deleteMany).toHaveBeenCalledWith({
+        where: { profileId: PROFILE_ID, type: "movie", imdbId: "tmdb:603" },
+      });
+      await app.close();
     });
   });
 

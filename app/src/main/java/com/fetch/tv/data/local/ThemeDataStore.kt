@@ -38,7 +38,7 @@ class ThemeDataStore @Inject constructor(
     val themeSelection: Flow<ThemeSelection> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
             ThemeSelection(
-                theme = prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } },
+                theme = AppTheme.fromStoredName(prefs[themeKey]),
                 customColors = CustomThemeColors.decode(prefs[customThemeColorsKey])
             )
         }
@@ -133,11 +133,11 @@ class ThemeDataStore @Inject constructor(
 
     suspend fun getThemeForProfile(profileId: Int): AppTheme? {
         val prefs = factory.get(profileId, FEATURE).data.first()
-        return prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
+        return AppTheme.fromStoredName(prefs[themeKey])
     }
 
     fun observeThemeForProfile(profileId: Int): Flow<AppTheme?> =
         factory.get(profileId, FEATURE).data.map { prefs ->
-            prefs[themeKey]?.let { name -> AppTheme.entries.firstOrNull { it.name == name } }
+            AppTheme.fromStoredName(prefs[themeKey])
         }
 }

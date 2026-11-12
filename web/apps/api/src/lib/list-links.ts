@@ -2,6 +2,7 @@ import { ItemType, ListItemType, ListKind, Prisma, type ListLink } from "@prisma
 import type { FastifyBaseLogger } from "fastify";
 import type { TraktWatchlistMutationPayload } from "../trakt.js";
 import { prisma } from "./prisma.js";
+import { TRAKT_ID_SOURCES, externalIdsFor } from "./content-id.js";
 import { getTraktClient, isTraktConnected } from "./trakt-client.js";
 import {
   changeMdbListListItems,
@@ -77,8 +78,13 @@ const traktListId = (remoteId: string): number => {
 };
 
 const traktPayload = (items: ListItemRef[]): TraktWatchlistMutationPayload => {
-  const movies = items.filter((item) => item.type === "movie").map((item) => ({ ids: { imdb: item.imdbId } }));
-  const shows = items.filter((item) => item.type === "series").map((item) => ({ ids: { imdb: item.imdbId } }));
+  // A title Trakt has no id for (an anime catalog's) stays off the Trakt list.
+  const entry = (item: ListItemRef) => {
+    const ids = externalIdsFor(item.imdbId, TRAKT_ID_SOURCES);
+    return ids ? [{ ids }] : [];
+  };
+  const movies = items.filter((item) => item.type === "movie").flatMap(entry);
+  const shows = items.filter((item) => item.type === "series").flatMap(entry);
   return { ...(movies.length ? { movies } : {}), ...(shows.length ? { shows } : {}) };
 };
 

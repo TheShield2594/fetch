@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">வேறொரு மூலத்திலிருந்து இறக்குமதி செய்</string>
+    <string name="tracking_import_subtitle">இணைக்கப்பட்ட வேறொரு சேவையிலிருந்து பார்த்த வரலாற்றையும் தொடரும் இடங்களையும் உங்கள் முதன்மை மூலமான %1$s-க்கு நகலெடுக்கவும்.</string>
+    <string name="tracking_import_running">இறக்குமதி செய்கிறது…</string>
+    <string name="tracking_import_dialog_title">%1$s-க்கு இறக்குமதி செய்</string>
+    <string name="tracking_import_dialog_subtitle">அங்கு பார்த்த தலைப்புகள் %1$s-இல் பார்த்தவையாகக் குறிக்கப்படும். %1$s-இல் புதியது இல்லையெனில் தொடரும் இடங்கள் நகலெடுக்கப்படும். எதுவும் நீக்கப்படாது.</string>
+    <string name="tracking_import_done_title">இறக்குமதி முடிந்தது</string>
+    <string name="tracking_import_done_from">%1$s-இலிருந்து %2$s-க்கு</string>
+    <string name="tracking_import_done_watched">பார்த்தவை: %1$d இறக்குமதி, %2$d தவிர்க்கப்பட்டன</string>
+    <string name="tracking_import_done_progress">தொடரும் இடங்கள்: %1$d இறக்குமதி, %2$d தவிர்க்கப்பட்டன</string>
+    <string name="tracking_import_done_failed">%1$s ஏற்கவில்லை: %2$d</string>
+    <string name="tracking_import_unsupported_watched">இந்தச் சேவைகளுக்கிடையே பார்த்த வரலாற்றை இறக்குமதி செய்ய முடியாது.</string>
+    <string name="tracking_import_unsupported_progress">இந்தச் சேவைகளுக்கிடையே தொடரும் இடங்களை இறக்குமதி செய்ய முடியாது.</string>
+    <string name="tracking_import_failed_title">இறக்குமதி தோல்வியடைந்தது</string>
+    <string name="tracking_import_failed_subtitle">Fetch-ஆல் %1$s-ஐப் படிக்கவோ %2$s-இல் எழுதவோ முடியவில்லை. இரண்டும் இணைக்கப்பட்டுள்ளதா எனப் பார்த்து மீண்டும் முயலவும்.</string>
+</resources>

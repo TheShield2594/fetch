@@ -7,14 +7,17 @@ vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 class FakeReply {
   statusCode?: number;
   body?: unknown;
-  headers: Record<string, string> = {};
+  headers: Record<string, string | string[]> = {};
   code(code: number) {
     this.statusCode = code;
     return this;
   }
-  header(name: string, value: string) {
+  header(name: string, value: string | string[]) {
     this.headers[name] = value;
     return this;
+  }
+  getHeader(name: string) {
+    return this.headers[name];
   }
   send(payload: unknown) {
     this.body = payload;
@@ -22,14 +25,19 @@ class FakeReply {
   }
 }
 
-const makeRequest = (authorization?: string): FastifyRequest =>
+const makeRequest = (
+  authorization?: string,
+  { method = "GET", headers = {} }: { method?: string; headers?: Record<string, string> } = {}
+): FastifyRequest =>
   ({
-    headers: { authorization },
+    method,
+    protocol: "http",
+    headers: { authorization, host: "192.168.1.25:7000", ...headers },
     log: { error: vi.fn() },
   }) as unknown as FastifyRequest;
 
 const findSession = vi.fn();
-vi.mock("./sessions.js", () => ({ findSession }));
+vi.mock("./sessions.js", () => ({ findSession, SESSION_COOKIE_MAX_AGE_SEC: 2592000 }));
 
 const loadVerifyToken = async () => (await import("./auth.js")).verifyToken;
 
@@ -140,6 +148,181 @@ describe("verifyToken", () => {
 
     expect(reply.statusCode).toBe(401);
     expect(findSession).not.toHaveBeenCalled();
+  });
+
+  describe("the website's session cookie", () => {
+    const session = { kind: "session", sessionId: "s1", accountId: "a1", isAdmin: false };
+    const cookie = { cookie: "theme=dark; fetch_session=fs1_cookie" };
+    const setCookies = (reply: FakeReply) => [reply.headers["set-cookie"] ?? []].flat();
+
+    const load = async () => {
+      process.env.API_TOKEN = "secret-token";
+      process.env.FETCH_ALLOWED_ORIGINS = "http://192.168.1.25:7002";
+      vi.resetModules();
+      findSession.mockReset();
+      return loadVerifyToken();
+    };
+
+    it("signs a read in from the cookie when there is no Authorization header", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const reply = new FakeReply();
+      const request = makeRequest(undefined, { headers: cookie });
+
+      await verifyToken(request, reply as unknown as FastifyReply);
+
+      expect(findSession).toHaveBeenCalledWith("fs1_cookie");
+      expect(reply.statusCode).toBeUndefined();
+      expect(request.auth).toEqual(session);
+      expect(request.authVia).toBe("cookie");
+      // Nothing to re-issue when the session wasn't renewed.
+      expect(setCookies(reply)).toEqual([]);
+    });
+
+    it("prefers the __Host- cookie set over HTTPS", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const request = makeRequest(undefined, {
+        headers: { cookie: "fetch_session=fs1_plain; __Host-fetch_session=fs1_secure" },
+      });
+
+      await verifyToken(request, new FakeReply() as unknown as FastifyReply);
+
+      expect(findSession).toHaveBeenCalledWith("fs1_secure");
+    });
+
+    it("re-issues the cookie with a fresh lifetime when the session was renewed", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: true, expiresAt: new Date(Date.now() + 2592000_000) });
+      const reply = new FakeReply();
+
+      await verifyToken(makeRequest(undefined, { headers: cookie }), reply as unknown as FastifyReply);
+
+      expect(setCookies(reply)).toEqual([
+        expect.stringMatching(/^fetch_session=fs1_cookie; Path=\/; Max-Age=259(1999|2000); HttpOnly; SameSite=Lax$/),
+      ]);
+    });
+
+    it("never lets the re-issued cookie outlive the session's absolute lifetime", async () => {
+      const verifyToken = await load();
+      // Renewed near the end of its 90 days: only an hour left, whatever the idle window says.
+      findSession.mockResolvedValueOnce({ ...session, renewed: true, expiresAt: new Date(Date.now() + 3600_000) });
+      const reply = new FakeReply();
+
+      await verifyToken(makeRequest(undefined, { headers: cookie }), reply as unknown as FastifyReply);
+
+      expect(setCookies(reply)).toEqual([expect.stringMatching(/; Max-Age=(3599|3600); /)]);
+    });
+
+    it("lets a bearer header win over a cookie, so TVs and scripts are unaffected", async () => {
+      const verifyToken = await load();
+      const request = makeRequest("Bearer secret-token", { method: "POST", headers: cookie });
+
+      await verifyToken(request, new FakeReply() as unknown as FastifyReply);
+
+      expect(request.auth).toEqual({ kind: "token" });
+      expect(request.authVia).toBe("bearer");
+      expect(findSession).not.toHaveBeenCalled();
+    });
+
+    it("exempts bearer-authenticated writes from the CSRF check", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const reply = new FakeReply();
+      const request = makeRequest("Bearer fs1_tv", { method: "POST", headers: { origin: "https://evil.example" } });
+
+      await verifyToken(request, reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBeUndefined();
+      expect(request.auth).toEqual(session);
+    });
+
+    it("never accepts API_TOKEN from a cookie", async () => {
+      const verifyToken = await load();
+      const reply = new FakeReply();
+
+      await verifyToken(
+        makeRequest(undefined, { headers: { cookie: "fetch_session=secret-token" } }),
+        reply as unknown as FastifyReply
+      );
+
+      expect(reply.statusCode).toBe(401);
+      expect(findSession).not.toHaveBeenCalled();
+    });
+
+    it("answers a dead cookie 401 and expires it", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce(null);
+      const reply = new FakeReply();
+
+      await verifyToken(makeRequest(undefined, { headers: cookie }), reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBe(401);
+      expect(reply.headers["WWW-Authenticate"]).toBe("Bearer");
+      expect(setCookies(reply)).toEqual(
+        expect.arrayContaining([expect.stringMatching(/^fetch_session=; Path=\/; Max-Age=0; /)])
+      );
+    });
+
+    it("accepts a cookie write from the website, with its header and origin", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const reply = new FakeReply();
+      const request = makeRequest(undefined, {
+        method: "POST",
+        headers: { ...cookie, "x-fetch-client": "web", origin: "http://192.168.1.25:7002" },
+      });
+
+      await verifyToken(request, reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBeUndefined();
+      expect(request.auth).toEqual(session);
+    });
+
+    it("accepts a cookie write from the API's own origin (the same-origin proxy layout)", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const reply = new FakeReply();
+      const request = makeRequest(undefined, {
+        method: "DELETE",
+        headers: { ...cookie, "x-fetch-client": "web", origin: "http://192.168.1.25:7000" },
+      });
+
+      await verifyToken(request, reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBeUndefined();
+    });
+
+    it("refuses a cookie write without the website's header (a cross-site form post)", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const reply = new FakeReply();
+      const request = makeRequest(undefined, {
+        method: "POST",
+        headers: { ...cookie, origin: "http://192.168.1.25:7002" },
+      });
+
+      await verifyToken(request, reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBe(403);
+      expect(reply.body).toMatchObject({ code: "csrf_rejected" });
+      expect(request.auth).toBeUndefined();
+    });
+
+    it("refuses a cookie write from an origin that isn't the website", async () => {
+      const verifyToken = await load();
+      findSession.mockResolvedValueOnce({ ...session, renewed: false });
+      const reply = new FakeReply();
+      const request = makeRequest(undefined, {
+        method: "PATCH",
+        headers: { ...cookie, "x-fetch-client": "web", origin: "https://evil.example" },
+      });
+
+      await verifyToken(request, reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBe(403);
+      expect(reply.body).toMatchObject({ code: "csrf_rejected" });
+    });
   });
 
   describe("device tokens", () => {

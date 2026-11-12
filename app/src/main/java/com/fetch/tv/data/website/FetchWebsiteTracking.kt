@@ -86,8 +86,9 @@ internal class RemoteProgressWriteDeduplicator(
 // The Fetch website as a tracking provider, next to Trakt, Simkl and MDBList. "Connected"
 // means this TV is paired with a website: plays, scrobbles and watched marks then reach it
 // like any connected provider's, and choosing it as the watch progress or library source
-// makes Continue Watching, watched badges and the Library read from it. The website only
-// knows titles by IMDb id; anything else stays on this TV.
+// makes Continue Watching, watched badges and the Library read from it. The website knows a
+// title by its IMDb id, or by a prefixed id (`tmdb:603`, `kitsu:1376`) when it has none; see
+// FetchWebsiteContentIds.kt. Only a title with neither stays on this TV.
 
 private const val TAG = "FetchWebsiteTracking"
 
@@ -123,7 +124,7 @@ class FetchWebsiteTrackingScrobbler @Inject constructor(
     override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
         val body = fetchWebsiteScrobbleBody(event)
         if (body == null) {
-            Log.d(TRACKING_SCROBBLE_DIAGNOSTIC_TAG, "fetch_website adapter skipped action=${action.wireValue} reason=no_imdb_id ${event.scrobbleDiagnosticSummary()}")
+            Log.d(TRACKING_SCROBBLE_DIAGNOSTIC_TAG, "fetch_website adapter skipped action=${action.wireValue} reason=no_website_id ${event.scrobbleDiagnosticSummary()}")
             return
         }
         repository.asProfile(repository.activeSlot()) { profileId, token -> client.scrobble(profileId, token, action.wireValue, body) }
@@ -158,9 +159,9 @@ class FetchWebsiteTrackingHistoryWriter @Inject constructor(
         repository.asProfile(profileId) { websiteProfileId, token ->
             removable.forEach { target ->
                 if (target.season == null || target.episode == null) {
-                    client.unwatchMovie(websiteProfileId, token, target.imdbId)
+                    client.unwatchMovie(websiteProfileId, token, target.contentId)
                 } else {
-                    client.unwatchEpisode(websiteProfileId, token, target.imdbId, target.season, target.episode)
+                    client.unwatchEpisode(websiteProfileId, token, target.contentId, target.season, target.episode)
                 }
             }
         } ?: return TrackingMutationResult(0)
@@ -202,7 +203,7 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
         return repository.progress.value.watchedShowEpisodes
     }
 
-    // The website knows a show by its IMDb id alone, so there are no other ids to tie together.
+    // The website knows a show by one id (IMDb's when it has one), so there are no others to tie together.
     override suspend fun showIdSiblings(): Map<String, Set<String>> = emptyMap()
 
     override fun isWatchedByVideoId(videoId: String, episode: Int): Boolean? =
@@ -270,8 +271,8 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
 
     override suspend fun prepareNextUpSeed(progress: WatchProgress): WatchProgress = progress
 
-    // Titles the website can't hold (no IMDb id) keep their progress on this TV.
-    override fun retainsLocalProgress(contentId: String): Boolean = !contentId.startsWith("tt")
+    // Titles the website can't key (no IMDb or prefixed id it knows) keep their progress on this TV.
+    override fun retainsLocalProgress(contentId: String): Boolean = fetchWebsiteContentId(contentId) == null
 
     override fun retainsLocalWatchedEpisode(item: WatchedItem): Boolean = retainsLocalProgress(item.contentId)
 }
@@ -303,7 +304,7 @@ class FetchWebsiteTrackingLibraryProvider @Inject constructor(
     override suspend fun getMembershipSnapshot(item: LibraryEntryInput): ListMembershipSnapshot {
         repository.ensureLoaded()
         val library = repository.library.value
-        val current = item.websiteImdbId()?.let { library.membership(it, item.itemType) }.orEmpty()
+        val current = item.websiteContentId()?.let { library.membership(it, item.itemType) }.orEmpty()
         return ListMembershipSnapshot(library.tabs.associate { tab -> tab.key to (tab.key in current) })
     }
 
@@ -312,25 +313,25 @@ class FetchWebsiteTrackingLibraryProvider @Inject constructor(
         changes: ListMembershipChanges,
         destructiveRemovalConfirmed: Boolean
     ) {
-        val imdbId = item.websiteImdbId()
-            ?: throw IllegalStateException("The Fetch website keeps lists of titles with an IMDb id only")
+        val contentId = item.websiteContentId()
+            ?: throw IllegalStateException("The Fetch website can't keep this title in a list: it has no id the website knows")
         val type = fetchWebsiteItemType(item.itemType)
         repository.ensureLoaded()
-        val current = repository.library.value.membership(imdbId, item.itemType)
+        val current = repository.library.value.membership(contentId, item.itemType)
         val wanted = changes.desiredMembership.filterKeys(::recognizesListKey)
         val toAdd = wanted.filter { (key, member) -> member && key !in current }.keys
         val toRemove = wanted.filter { (key, member) -> !member && key in current }.keys
         if (toAdd.isEmpty() && toRemove.isEmpty()) return
         repository.asProfile(repository.activeSlot()) { profileId, token ->
             toAdd.mapNotNull(::fetchWebsiteListId).forEach { listId ->
-                client.addListItem(profileId, token, listId, type, imdbId, item.title)
+                client.addListItem(profileId, token, listId, type, contentId, item.title, item.poster)
             }
             toRemove.mapNotNull(::fetchWebsiteListId).forEach { listId ->
-                client.removeListItem(profileId, token, listId, type, imdbId)
+                client.removeListItem(profileId, token, listId, type, contentId)
             }
         } ?: throw IllegalStateException("Sign in to the Fetch website first")
         repository.mutate { snapshot ->
-            snapshot.withListMembership(toAdd.mapNotNull(::fetchWebsiteListId), toRemove.mapNotNull(::fetchWebsiteListId), type, imdbId, item)
+            snapshot.withListMembership(toAdd.mapNotNull(::fetchWebsiteListId), toRemove.mapNotNull(::fetchWebsiteListId), type, contentId, item)
         }
         repository.refreshAsync()
     }
@@ -381,30 +382,38 @@ internal class FetchWebsiteListManager(
 
 // ─── Request bodies ───
 
-internal data class FetchWebsiteTarget(val imdbId: String, val season: Int?, val episode: Int?)
+/** A title as the website keys it: [contentId] is the film's id, or for an episode its series' id. */
+internal data class FetchWebsiteTarget(val contentId: String, val season: Int?, val episode: Int?)
 
-/** What the website calls this title: films by their IMDb id, episodes by the series'. Null without one. */
+/**
+ * What the website calls this title: its IMDb id when known, so rows already on the website keep
+ * matching; otherwise the id this TV holds it under (the catalog's), so a resume point saved from
+ * the player and the watch recorded at the end land on one key; otherwise any other id it has.
+ * Null when it has none the website can key.
+ */
 internal fun TrackingMediaReference.websiteTarget(): FetchWebsiteTarget? {
-    val imdbId = ids.imdb?.trim()?.takeIf { it.startsWith("tt") }
-        ?: catalog?.contentId?.trim()?.takeIf { it.startsWith("tt") }?.substringBefore(':')
+    val contentId = ids.imdb?.let(::fetchWebsiteContentId)?.takeIf(::isFetchWebsiteImdbId)
+        ?: fetchWebsiteContentId(catalog?.contentId)
+        ?: ids.fetchWebsiteContentId()
         ?: return null
-    if (kind == TrackingMediaKind.MOVIE) return FetchWebsiteTarget(imdbId, null, null)
+    if (kind == TrackingMediaKind.MOVIE) return FetchWebsiteTarget(contentId, null, null)
     val episode = episode ?: return null
     val season = episode.season ?: return null
-    return FetchWebsiteTarget(imdbId, season, episode.number)
+    return FetchWebsiteTarget(contentId, season, episode.number)
 }
 
 internal fun fetchWebsiteScrobbleBody(event: TrackingScrobbleEvent): JsonObject? {
     val target = event.media.websiteTarget() ?: return null
     return buildJsonObject {
         put("type", if (target.season == null) "movie" else "episode")
-        put("imdbId", target.imdbId)
+        put("imdbId", target.contentId)
         if (target.season != null && target.episode != null) {
-            put("seriesImdbId", target.imdbId)
+            put("seriesImdbId", target.contentId)
             put("season", target.season)
             put("episode", target.episode)
         }
         put("progress", event.progressPercent.coerceIn(0.0, 100.0))
+        putFetchWebsiteTitle(event.media.title, event.media.posterUrl)
     }
 }
 
@@ -412,27 +421,31 @@ internal fun fetchWebsiteWatchBody(item: TrackingHistoryItem): JsonObject? {
     val target = item.media.websiteTarget() ?: return null
     return buildJsonObject {
         put("type", if (target.season == null) "movie" else "episode")
-        put("imdbId", target.imdbId)
+        put("imdbId", target.contentId)
         if (target.season != null && target.episode != null) {
-            put("seriesImdbId", target.imdbId)
+            put("seriesImdbId", target.contentId)
             put("season", target.season)
             put("episode", target.episode)
         }
+        putFetchWebsiteTitle(item.media.title, item.media.posterUrl)
         item.watchedAtEpochMs?.let { put("watchedAt", Instant.ofEpochMilli(it).toString()) }
     }
 }
 
-private fun LibraryEntryInput.websiteImdbId(): String? =
-    imdbId?.takeIf { it.startsWith("tt") } ?: itemId.takeIf { it.startsWith("tt") }?.substringBefore(':')
+/** The website's id for a library entry: its IMDb id when known, else the one it's listed under, else TMDB's. */
+internal fun LibraryEntryInput.websiteContentId(): String? =
+    imdbId?.let(::fetchWebsiteContentId)?.takeIf(::isFetchWebsiteImdbId)
+        ?: fetchWebsiteContentId(itemId)
+        ?: tmdbId?.takeIf { it > 0 }?.let { "tmdb:$it" }
 
 private fun WatchProgress.toWebsitePlayback(): WebsitePlayback? {
-    if (!contentId.startsWith("tt")) return null
+    val websiteId = fetchWebsiteContentId(contentId) ?: return null
     val isEpisode = season != null && episode != null
     return WebsitePlayback(
         id = trackingProviderItemId?.takeIf { trackingProviderId == FETCH_WEBSITE_PROVIDER_STORAGE_ID }
-            ?: "$LOCAL_PLAYBACK_ID_PREFIX$contentId:${season ?: -1}:${episode ?: -1}",
+            ?: "$LOCAL_PLAYBACK_ID_PREFIX$websiteId:${season ?: -1}:${episode ?: -1}",
         type = if (isEpisode) "episode" else "movie",
-        imdbId = contentId,
+        imdbId = websiteId,
         season = season,
         episode = episode,
         progress = (progressPercentage * 100f).toDouble(),
@@ -455,16 +468,16 @@ internal fun FetchWebsiteTrackingSnapshot.withWatched(items: Collection<Tracking
         val target = item.media.websiteTarget() ?: return@forEach
         val at = Instant.ofEpochMilli(item.watchedAtEpochMs ?: System.currentTimeMillis()).toString()
         state = if (target.season == null || target.episode == null) {
-            state.copy(movies = state.movies.filterNot { it.imdbId == target.imdbId } +
-                WebsiteWatchedMovie(target.imdbId, at, item.media.title, item.media.posterUrl))
+            state.copy(movies = state.movies.filterNot { it.imdbId == target.contentId } +
+                WebsiteWatchedMovie(target.contentId, at, item.media.title, item.media.posterUrl))
         } else {
-            val previous = state.episodes.firstOrNull { it.imdbId == target.imdbId }
+            val previous = state.episodes.firstOrNull { it.imdbId == target.contentId }
             state.copy(episodes = state.episodes.filterNot {
-                it.imdbId == target.imdbId && it.season == target.season && it.episode == target.episode
-            } + WebsiteWatchedEpisode(target.imdbId, target.season, target.episode, at, previous?.name ?: item.media.title, previous?.poster))
+                it.imdbId == target.contentId && it.season == target.season && it.episode == target.episode
+            } + WebsiteWatchedEpisode(target.contentId, target.season, target.episode, at, previous?.name ?: item.media.title, previous?.poster))
         }
         // Watching a title clears its resume point, as on the website.
-        resume = resume.filterNot { it.imdbId == target.imdbId && it.season == target.season && it.episode == target.episode }
+        resume = resume.filterNot { it.imdbId == target.contentId && it.season == target.season && it.episode == target.episode }
     }
     return copy(watchState = state, playback = resume)
 }
@@ -473,10 +486,10 @@ internal fun FetchWebsiteTrackingSnapshot.withoutWatched(targets: Collection<Fet
     var state = watchState
     targets.forEach { target ->
         state = if (target.season == null || target.episode == null) {
-            state.copy(movies = state.movies.filterNot { it.imdbId == target.imdbId })
+            state.copy(movies = state.movies.filterNot { it.imdbId == target.contentId })
         } else {
             state.copy(episodes = state.episodes.filterNot {
-                it.imdbId == target.imdbId && it.season == target.season && it.episode == target.episode
+                it.imdbId == target.contentId && it.season == target.season && it.episode == target.episode
             })
         }
     }

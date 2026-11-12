@@ -303,17 +303,9 @@
     <string name="appearance_subtitle">আপনার কালার থিম, ফন্ট এবং ভাষা বেছে নিন</string>
     <string name="appearance_color_theme">কালার থিম</string>
     <string name="appearance_color_theme_subtitle">অ্যাপজুড়ে ব্যবহার করার জন্য অ্যাকসেন্ট কালার বেছে নিন</string>
-    <string name="theme_color_gold">গোল্ড</string>
-    <string name="theme_color_jade">জেড</string>
-    <string name="theme_color_rose_gold">রোজ গোল্ড</string>
-    <string name="theme_color_arctic_blue">আর্কটিক ব্লু</string>
-    <string name="theme_color_graphite">গ্রাফাইট</string>
-    <string name="theme_color_crimson">ক্রিমসন</string>
     <string name="theme_color_ocean">ওশান</string>
-    <string name="theme_color_violet">ভায়োলেট</string>
     <string name="theme_color_emerald">এমরাল্ড</string>
     <string name="theme_color_amber">অম্বর</string>
-    <string name="theme_color_rose">রোজ</string>
     <string name="theme_color_white">সাদা</string>
     <string name="theme_color_custom">কাস্টম</string>
     <string name="custom_theme_title">আপনার কাস্টম গ্রেডিয়েন্ট</string>
@@ -2636,4 +2628,5 @@
     <string name="screen_time_rest_of_day">আজকের বাকি সময় কোনো লিমিট নেই</string>
     <string name="kids_hours">%1$d ঘণ্টা</string>
     <string name="kids_hours_minutes">%1$d ঘণ্টা %2$d মিনিট</string>
+    <string name="custom_theme_low_contrast">এই রংগুলোর উপর লেখা পড়া কঠিন হবে। সংরক্ষণ করতে কাছাকাছি উজ্জ্বলতার রং বেছে নিন।</string>
 </resources>

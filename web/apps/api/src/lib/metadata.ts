@@ -5,6 +5,7 @@ import { mapWithConcurrency } from "./concurrency.js";
 import { metadataBackfillCooldownCache } from "./cache.js";
 import type { MetadataPayload } from "../tmdb.js";
 import type { MetadataType } from "@prisma/client";
+import { isImdbId, tmdbIdOf } from "./content-id.js";
 
 export const METADATA_FRESHNESS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -47,6 +48,8 @@ export const upsertMetadata = async (metadata: MetadataPayload) => {
 };
 
 const enrichWithOmdb = async (imdbId: string, type: MetadataType) => {
+  // OMDb looks titles up by IMDb id only.
+  if (!isImdbId(imdbId)) return undefined;
   try {
     const omdbKey = await getOmdbApiKey();
     if (omdbKey) {
@@ -98,6 +101,33 @@ export const syncMetadata = async (imdbId: string, type: MetadataType) => {
   const enriched = await enrichWithOmdb(imdbId, type);
 
   return enriched ?? row;
+};
+
+/**
+ * Keeps the name and poster a client sent for a title TMDB can't be asked
+ * about — one known only by an anime catalog's id, say — so history, lists and
+ * Continue Watching show it by name rather than as a bare id. A title TMDB can
+ * look up (an IMDb or `tmdb:` id) is left to TMDB. Best-effort: never throws.
+ */
+export const rememberClientMetadata = async (
+  imdbId: string,
+  type: MetadataType,
+  sent: { name?: string | null | undefined; poster?: string | null | undefined }
+): Promise<void> => {
+  if (isImdbId(imdbId) || tmdbIdOf(imdbId) != null) return;
+  const name = sent.name?.trim().slice(0, 300);
+  if (!name) return;
+  const poster = sent.poster?.trim() || null;
+  const safePoster = poster && /^https?:\/\//i.test(poster) && poster.length <= 2_048 ? poster : null;
+  try {
+    await prisma.metadata.upsert({
+      where: { imdbId_type: { imdbId, type } },
+      create: { imdbId, type, name, poster: safePoster },
+      update: { name, ...(safePoster ? { poster: safePoster } : {}) },
+    });
+  } catch {
+    /* best-effort: the title still syncs, just without a name */
+  }
 };
 
 // The metadata sync on add is fire-and-forget, and Trakt sync adds in bulk, so a

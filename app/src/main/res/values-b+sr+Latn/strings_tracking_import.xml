@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Uvezi iz drugog izvora</string>
+    <string name="tracking_import_subtitle">Kopiraj istoriju gledanja i tačke nastavka iz drugog povezanog servisa u %1$s, tvoj glavni izvor.</string>
+    <string name="tracking_import_running">Uvoz…</string>
+    <string name="tracking_import_dialog_title">Uvezi u %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Naslovi odgledani tamo biće označeni kao odgledani u %1$s. Tačke nastavka se kopiraju osim ako %1$s ima noviju. Ništa se ne briše.</string>
+    <string name="tracking_import_done_title">Uvoz je završen</string>
+    <string name="tracking_import_done_from">Iz %1$s u %2$s</string>
+    <string name="tracking_import_done_watched">Odgledano: uvezeno %1$d, preskočeno %2$d</string>
+    <string name="tracking_import_done_progress">Tačke nastavka: uvezeno %1$d, preskočeno %2$d</string>
+    <string name="tracking_import_done_failed">%1$s nije prihvatio: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Istorija gledanja ne može da se uveze između ovih servisa.</string>
+    <string name="tracking_import_unsupported_progress">Tačke nastavka ne mogu da se uvezu između ovih servisa.</string>
+    <string name="tracking_import_failed_title">Uvoz nije uspeo</string>
+    <string name="tracking_import_failed_subtitle">Fetch nije mogao da pročita %1$s ili da upiše u %2$s. Proveri da li su oba povezana i pokušaj ponovo.</string>
+</resources>

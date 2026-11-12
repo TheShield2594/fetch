@@ -310,12 +310,9 @@
     <string name="appearance_subtitle">நிறத் தீம், எழுத்துரு மற்றும் மொழியை தேர்ந்தெடுக்கவும்</string>
     <string name="appearance_color_theme">நிறத் தீம்</string>
     <string name="appearance_color_theme_subtitle">செயலி முழுவதும் பயன்படுத்தப்படும் முக்கிய நிறத்தை தேர்ந்தெடுக்கவும்</string>
-    <string name="theme_color_crimson">கருஞ்சிவப்பு</string>
     <string name="theme_color_ocean">கடல் நீலம்</string>
-    <string name="theme_color_violet">ஊதா</string>
     <string name="theme_color_emerald">மரகதம்</string>
     <string name="theme_color_amber">செம்மஞ்சள்</string>
-    <string name="theme_color_rose">ரோஜா</string>
     <string name="theme_color_white">வெள்ளை</string>
     <string name="appearance_amoled_mode">அமோலெட் நிலை</string>
     <string name="appearance_amoled_mode_subtitle">செயலி பின்னணிக்கு முழுக் கருப்பை பயன்படுத்து</string>
@@ -2248,4 +2245,5 @@
     <string name="screen_time_rest_of_day">இன்று முழுவதும் வரம்பு இல்லை</string>
     <string name="kids_hours">%1$d மணி</string>
     <string name="kids_hours_minutes">%1$d மணி %2$d நிமி</string>
+    <string name="custom_theme_low_contrast">இந்த நிறங்களில் உரையைப் படிப்பது கடினமாக இருக்கும். சேமிக்க, ஒத்த பிரகாசம் கொண்ட நிறங்களைத் தேர்ந்தெடுக்கவும்.</string>
 </resources>

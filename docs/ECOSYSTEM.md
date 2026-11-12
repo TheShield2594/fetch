@@ -57,9 +57,14 @@ the library are the exception: the website carries them as a tracking provider
 (`data/website/FetchWebsiteTracking.kt`). Each domain maps onto the website like
 this:
 
+Titles are keyed by IMDb id where they have one, and otherwise by the prefixed id
+the TV uses (`tmdb:603`, `kitsu:1376`, `mal:1`, …; `web/apps/api/src/lib/content-id.ts`
+and `shared/…/data/website/FetchWebsiteContentIds.kt`), so anime and TMDB-only titles
+sync too. The columns are still called `imdbId`.
+
 | TV sync service | Website today | Gap |
 | --- | --- | --- |
-| `ProfileSyncService` | `/profiles` with colour, avatar and parental limits; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96) |
+| `ProfileSyncService` | `/profiles` with colour, avatar, parental limits and kids rules; `/devices/me/profiles` maps them to the TV's slots; PINs checked by `/profiles/:id/verify` | None — the TV uses it when paired (#96). The day's screen time stays counted on each TV |
 | Watch progress (tracking provider) | `/playback`, `/scrobble/*` (resume points) | None — while paired the website is a tracking provider (`data/website/FetchWebsiteTracking.kt`): scrobbles and resume points go to it, and Continue Watching reads from it when chosen as the watch progress source |
 | Watched marks (tracking provider) | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
 | Library (tracking provider) | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
@@ -76,10 +81,12 @@ People sign in to the website with their own account (username and password;
 the install is invite-only, see "Accounts and invites" in `web/README.md`), and
 each sign-in is a session the account can see and revoke in Settings → Account → Where you're signed in
 (`GET /auth/sessions`, `web/apps/api/src/lib/sessions.ts`), alongside its TVs.
-The shared `API_TOKEN` in `.env` only creates the first (admin) account and stays
-as a recovery key against the API. Profiles can still have PIN tokens. A TV never
+The browser holds that session, and a PIN profile's access token, as `HttpOnly`
+cookies the page cannot read (#455). The shared `API_TOKEN` in `.env` only creates
+the first (admin) account and stays as a recovery key against the API. A TV never
 types a password or the API token: it signs in by **device pairing** (#91), and
-each paired TV gets its own token that can be revoked on its own:
+each paired TV gets its own token, sent as `Authorization: Bearer` (which the API
+always prefers over a cookie), that can be revoked on its own:
 
 1. Settings → Account → Sync → Fetch website on the TV (or the first-run Server
    step) opens on a **code from the pairing hub** at `watchfetch.tv`
@@ -113,13 +120,16 @@ each paired TV gets its own token that can be revoked on its own:
    revoked TV gets a bearer 401 on its next request and says it was signed out.
 
 While paired, every domain above goes to the website: profiles (colour, avatar,
-parental limit), and each profile's collections, addons, Home rows and settings.
-Parental limits are written into the TV's own restriction store, so they keep
-applying offline.
+parental limit, kids rules), and each profile's collections, addons, Home rows and
+settings. Parental limits and kids rules are written into the TV's own restriction
+store, so they keep applying offline. Kids rules (autoplay cap, approved titles,
+daily screen time, bedtime) can be changed on any TV or on the website, and the
+change made last wins; the screen time used today is counted on each TV and never
+leaves it.
 The website does not filter titles by a profile's rating limit; the profile
 editor says so. On the website a kids profile is kept out of Settings, its data
 and signing in a TV, and the server refuses it anything that would loosen its
-own limits or add a profile.
+own limits (kids rules included) or add a profile.
 
 The Stremio addon keeps its per-profile secret URL, which already works.
 

@@ -152,6 +152,17 @@ describe("profiles routes", () => {
     });
   });
 
+  describe("POST /profiles/lock", () => {
+    it("expires the website's profile cookie, so the PIN is asked again", async () => {
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "POST", url: "/profiles/lock", headers: { "x-fetch-client": "web" } });
+
+      expect(response.statusCode).toBe(204);
+      expect(String(response.headers["set-cookie"])).toMatch(/^fetch_profile=; Path=\/; Max-Age=0; /);
+    });
+  });
+
   describe("POST /profiles/:id/verify — PIN lockout behavior", () => {
     it("rejects a non-UUID id", async () => {
       const app = await buildApp();
@@ -185,6 +196,49 @@ describe("profiles routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(prismaMock.kV.deleteMany).toHaveBeenCalled();
+    });
+
+    it("hands a TV the profile token in the body, and sets no cookie", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("4321") });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: `/profiles/${PROFILE_ID}/verify`,
+        payload: { pin: "4321" },
+      });
+
+      expect(response.json().profileToken).toMatch(/^v2\./);
+      expect(response.headers["set-cookie"]).toBeUndefined();
+    });
+
+    it("hands the website the profile token as an HttpOnly cookie, not in the body", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, name: "Alice", pinHash: hashPin("4321") });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: `/profiles/${PROFILE_ID}/verify`,
+        headers: { "x-fetch-client": "web" },
+        payload: { pin: "4321" },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ id: PROFILE_ID, name: "Alice" });
+      const cookie = String(response.headers["set-cookie"]);
+      expect(cookie).toMatch(/^fetch_profile=v2\.[^;]+; Path=\/; Max-Age=43200; HttpOnly; SameSite=Lax$/);
+
+      // And that cookie is what opens the locked profile afterwards.
+      const { hasValidProfileToken } = await import("../lib/profile.js");
+      const token = cookie.split(";")[0]?.split("=")[1] ?? "";
+      const cookieOnly = { headers: { cookie: `fetch_profile=${token}` } } as never;
+      // Bound to the PIN as stored after verifying (a legacy hash is upgraded).
+      const updated = prismaMock.profile.update.mock.calls.at(-1)?.[0] as { data: { pinHash: string } } | undefined;
+      const pinHash = updated?.data.pinHash ?? hashPin("4321");
+      expect(hasValidProfileToken(cookieOnly, { id: PROFILE_ID, pinHash })).toBe(true);
+      expect(hasValidProfileToken(cookieOnly, { id: OTHER_PROFILE_ID, pinHash })).toBe(false);
+      // And a PIN change retires it.
+      expect(hasValidProfileToken(cookieOnly, { id: PROFILE_ID, pinHash: "something-else" })).toBe(false);
     });
 
     it("rejects an incorrect PIN and records a failed attempt", async () => {
@@ -649,6 +703,120 @@ describe("profiles routes", () => {
         });
 
         expect(response.statusCode).toBe(200);
+      });
+    });
+
+    describe("kids rules", () => {
+      const KIDS_ID = "33333333-3333-4333-8333-333333333333";
+      const storedAt = new Date("2026-11-12T09:00:00.000Z");
+      const kidsRow = (extra: Record<string, unknown> = {}) => ({
+        ...profileRow({ id: KIDS_ID, name: "Kid", pinHash: null }),
+        isKidsProfile: true,
+        kidsRules: { dailyMinutes: 60 },
+        kidsRulesUpdatedAt: storedAt,
+        ...extra,
+      });
+
+      it("saves rules sent from the website editor, stamped now, and answers with them", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(kidsRow());
+        prismaMock.profile.update.mockImplementation(async ({ data }: { data: Record<string, unknown> }) =>
+          profileRow({ id: KIDS_ID, name: "Kid", pinHash: null, ...data })
+        );
+        const app = await buildApp();
+
+        const response = await app.inject({
+          method: "PATCH",
+          url: `/profiles/${KIDS_ID}`,
+          payload: {
+            parental: {
+              kidsRules: {
+                dailyMinutes: 90,
+                bedtimeStartMinute: 1200,
+                bedtimeEndMinute: 420,
+                approvedTitlesOnly: true,
+                approvedTitles: [{ ids: ["tmdb:603"], type: "movie", name: "A film" }],
+              },
+            },
+          },
+        });
+
+        expect(response.statusCode).toBe(200);
+        const data = prismaMock.profile.update.mock.calls[0]![0].data;
+        expect(data.kidsRules).toMatchObject({
+          autoplayEpisodeCap: 3,
+          dailyMinutes: 90,
+          bedtimeStartMinute: 1200,
+          bedtimeEndMinute: 420,
+          approvedTitlesOnly: true,
+          approvedTitles: [{ ids: ["tmdb:603"], type: "movie", name: "A film", poster: null, background: null }],
+        });
+        expect(data.kidsRulesUpdatedAt.getTime()).toBeGreaterThan(storedAt.getTime());
+        expect(response.json().profile.parental.kidsRules).toMatchObject({ dailyMinutes: 90, approvedTitlesOnly: true });
+      });
+
+      it("keeps the stored rules when the write changed them earlier, and answers with what is kept", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(kidsRow());
+        const app = await buildApp();
+
+        const response = await app.inject({
+          method: "PATCH",
+          url: `/profiles/${KIDS_ID}`,
+          payload: { parental: { kidsRules: { dailyMinutes: null, updatedAt: "2026-11-12T08:00:00.000Z" } } },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
+        expect(response.json().profile.parental.kidsRules).toMatchObject({
+          dailyMinutes: 60,
+          updatedAt: storedAt.toISOString(),
+        });
+      });
+
+      it("rejects invalid rules", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(kidsRow());
+        const app = await buildApp();
+
+        const response = await app.inject({
+          method: "PATCH",
+          url: `/profiles/${KIDS_ID}`,
+          payload: { parental: { kidsRules: { dailyMinutes: -5 } } },
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(response.json().error).toMatch(/dailyMinutes/);
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
+      });
+
+      it("rejects half a bedtime once merged with what is stored", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue(kidsRow());
+        const app = await buildApp();
+
+        const response = await app.inject({
+          method: "PATCH",
+          url: `/profiles/${KIDS_ID}`,
+          payload: { parental: { kidsRules: { bedtimeStartMinute: 1200 } } },
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
+      });
+
+      it("refuses kids rules from a caller acting as a kids profile, tighter or looser", async () => {
+        prismaMock.profile.findUnique.mockResolvedValue({ ...kidsRow(), accountId: ACCOUNT_ID });
+        const app = await buildApp(SESSION);
+
+        const asKid = { "x-profile-id": KIDS_ID, "x-profile-token": mintProfileToken(KIDS_ID, null) };
+        for (const kidsRules of [{ dailyMinutes: null }, { dailyMinutes: 15 }]) {
+          const response = await app.inject({
+            method: "PATCH",
+            url: `/profiles/${KIDS_ID}`,
+            headers: asKid,
+            payload: { parental: { kidsRules } },
+          });
+          expect(response.statusCode).toBe(403);
+          expect(response.json().code).toBe("parental_authority_required");
+        }
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
       });
     });
   });

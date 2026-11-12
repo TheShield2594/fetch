@@ -81,8 +81,9 @@ export function registerHttpCaching(app: FastifyInstance): void {
     // The response depends on who is asking. Without this a browser (or an
     // intermediary) could serve one profile's cached entry for another's
     // request to the same URL. Appended, because the CORS hook has already put
-    // `Origin` here and `reply.header` would replace it.
-    appendVary(reply, "Authorization", "X-Profile-Id");
+    // `Origin` here and `reply.header` would replace it. `Cookie` because the
+    // website's session (and a PIN-protected profile's access) arrive in one.
+    appendVary(reply, "Authorization", "Cookie", "X-Profile-Id");
 
     reply.header(
       "Cache-Control",

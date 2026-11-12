@@ -379,7 +379,11 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.trakt_comments_title,
         R.string.tracking_simkl_features_title,
         R.string.tracking_mdblist_features_title,
-        R.string.mdblist_library_lists
+        R.string.mdblist_library_lists,
+        R.string.tracking_import_title,
+        R.string.tracking_import_dialog_title,
+        R.string.tracking_import_done_title,
+        R.string.tracking_import_failed_title
     ),
     SettingsCategory.PHONE to listOf(
         R.string.phone_hub_title,

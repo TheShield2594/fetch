@@ -329,17 +329,9 @@
     <string name="appearance_subtitle">Renk temanızı ve dilinizi seçin</string>
     <string name="appearance_color_theme">Renk Teması</string>
     <string name="appearance_color_theme_subtitle">Uygulamanın vurgu rengini değiştirin</string>
-    <string name="theme_color_gold">Altın</string>
-    <string name="theme_color_jade">Yeşim</string>
-    <string name="theme_color_rose_gold">Roze Altın</string>
-    <string name="theme_color_arctic_blue">Kutup Mavisi</string>
-    <string name="theme_color_graphite">Grafit</string>
-    <string name="theme_color_crimson">Kızıl</string>
     <string name="theme_color_ocean">Okyanus</string>
-    <string name="theme_color_violet">Menekşe</string>
     <string name="theme_color_emerald">Zümrüt</string>
     <string name="theme_color_amber">Kehribar</string>
-    <string name="theme_color_rose">Gül</string>
     <string name="theme_color_white">Beyaz</string>
     <string name="theme_color_custom">Özel</string>
     <string name="custom_theme_title">Özel gradyanınız</string>
@@ -2907,4 +2899,5 @@
     <string name="screen_time_rest_of_day">Bugünün geri kalanında sınır yok</string>
     <string name="kids_hours">%1$d sa</string>
     <string name="kids_hours_minutes">%1$d sa %2$d dk</string>
+    <string name="custom_theme_low_contrast">Bu renklerin üzerindeki metin zor okunur. Kaydetmek için parlaklığı birbirine daha yakın renkler seçin.</string>
 </resources>

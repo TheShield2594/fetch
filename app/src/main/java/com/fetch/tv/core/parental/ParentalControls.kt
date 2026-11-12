@@ -115,12 +115,26 @@ class ParentalControls @Inject constructor(
         .distinctUntilChanged()
         .stateIn(scope, SharingStarted.Eagerly, ProfileTitleLists.Empty)
 
-    /** Saves a kids profile's rules; callers ask for the parent PIN first. */
+    /**
+     * Saves a kids profile's rules; callers ask for the parent PIN first. A TV paired with a
+     * Fetch website sends them with the profile, where the latest change made on any TV or on
+     * the website wins.
+     */
     suspend fun setKidsRules(profileId: Int, rules: KidsRules): Boolean {
         if (profileId == 1) return false
-        if (rules == kidsRulesFor(profileId)) return true
+        val previous = kidsRulesFor(profileId)
+        if (rules == previous) return true
         restrictionsDataStore.setKidsRules(profileId, rules)
+        // A change to this TV's own list choices alone is nothing the website or another TV sees.
+        if (rules.copy(approvedListIds = emptyList()) != previous.copy(approvedListIds = emptyList())) {
+            markKidsRulesChanged(profileId)
+        }
         return true
+    }
+
+    private suspend fun markKidsRulesChanged(profileId: Int) {
+        restrictionsDataStore.markKidsRulesChanged(profileId, System.currentTimeMillis())
+        websiteSync.get().triggerProfilesPush()
     }
 
     val lockUnrestrictedProfiles: StateFlow<Boolean> = restrictionsDataStore.lockUnrestrictedProfiles
@@ -204,18 +218,22 @@ class ParentalControls @Inject constructor(
 
     /**
      * Hides [title] from the profile, allows it whatever its rating, or leaves it to the rating
-     * limit again. Kept on this TV only and never changed by a sync pull. The
-     * primary profile is the parent's and has no lists.
+     * limit again. The hidden list is kept on this TV only and never changed by a sync pull. The
+     * allowed list (the approved titles) goes with the kids rules to a paired Fetch website, so
+     * every TV on it shares it. The primary profile is the parent's and has no lists.
      */
     suspend fun setTitleState(profileId: Int, title: ParentalTitle, state: ParentalTitleState): Boolean {
         if (profileId == 1) return false
+        val allowedBefore = allTitleLists.value[profileId]?.allowed.orEmpty()
+        var allowedAfter = allowedBefore
         restrictionsDataStore.updateTitleLists(profileId) { lists ->
             when (state) {
                 ParentalTitleState.BY_RATING -> lists.without(title)
                 ParentalTitleState.HIDDEN -> lists.withHidden(title)
                 ParentalTitleState.ALLOWED -> lists.withAllowed(title)
-            }
+            }.also { allowedAfter = it.allowed }
         }
+        if (allowedAfter != allowedBefore) markKidsRulesChanged(profileId)
         return true
     }
 

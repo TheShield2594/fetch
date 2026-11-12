@@ -67,12 +67,12 @@ class ThemeSettingsViewModelTest {
     }
 
     @Test
-    fun unsetThemeResolvesToGold() = runTest {
+    fun unsetThemeResolvesToTheFetchTheme() = runTest {
         selection.value = ThemeSelection(null, solid)
         val viewModel = createViewModel()
         runCurrent()
 
-        assertEquals(AppTheme.GOLD, viewModel.uiState.value.selectedTheme)
+        assertEquals(AppTheme.FETCH, viewModel.uiState.value.selectedTheme)
     }
 
     private fun createViewModel(): ThemeSettingsViewModel {

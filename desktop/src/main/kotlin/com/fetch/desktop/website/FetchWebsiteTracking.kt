@@ -19,10 +19,12 @@ import com.fetch.tv.data.website.FetchWebsiteProgressProjection
 import com.fetch.tv.data.website.FetchWebsiteTrackingSnapshot
 import com.fetch.tv.data.website.WebsiteWatchedEpisode
 import com.fetch.tv.data.website.WebsiteWatchedMovie
+import com.fetch.tv.data.website.fetchWebsiteContentId
 import com.fetch.tv.data.website.fetchWebsiteItemType
 import com.fetch.tv.data.website.fetchWebsiteListId
 import com.fetch.tv.data.website.fetchWebsiteListKey
 import com.fetch.tv.data.website.fetchWebsitePlaybackBody
+import com.fetch.tv.data.website.isFetchWebsiteImdbId
 import com.fetch.tv.data.website.playbackIdsFor
 import com.fetch.tv.data.website.withListMembership
 import com.fetch.tv.domain.model.LibraryEntryInput
@@ -48,18 +50,19 @@ import java.util.concurrent.atomic.AtomicLong
 // The Fetch website as a tracking provider, next to Trakt, Simkl and MDBList, as the TV's
 // FetchWebsiteTracking.kt. While this computer is paired, plays, scrobbles and watched marks
 // reach the profile's website profile; choosing the website as the watch progress or Library
-// source makes Continue Watching and the Library read from it. The website only knows titles by
-// IMDb id; anything else stays on this computer. The projections that turn what the website
+// source makes Continue Watching and the Library read from it. The website knows a title by its
+// IMDb id, or by a prefixed id (`tmdb:603`, `kitsu:1376`) when it has none; only a title with
+// neither stays on this computer. The projections that turn what the website
 // holds into Continue Watching and Library tabs are the TV's own, in :shared.
 
-/** A title as the website names it: a film by its IMDb id, an episode by its series' id and numbers. */
+/** A title as the website names it: a film by its id, an episode by its series' id and numbers. */
 data class WebsiteTitle(val imdbId: String, val season: Int? = null, val episode: Int? = null) {
     val isEpisode: Boolean get() = season != null && episode != null
 
     companion object {
-        /** [target] as the website knows it; null without an IMDb id, or for an episode without numbers. */
+        /** [target] as the website knows it; null without an id it can key, or for an episode without numbers. */
         fun of(target: PlaybackTarget): WebsiteTitle? {
-            val imdb = target.contentId.substringBefore(':').takeIf { it.startsWith("tt") } ?: return null
+            val imdb = fetchWebsiteContentId(target.contentId) ?: return null
             val video = target.video
             if (target.contentType == "movie" || video == null) return WebsiteTitle(imdb)
             val season = video.season ?: return null
@@ -452,7 +455,7 @@ class FetchWebsiteTracker(
 
     /** Drops the website's resume points for [contentId] (every episode's without [season] and [episode]). */
     suspend fun forgetPosition(contentId: String, season: Int?, episode: Int?) {
-        if (!paired || !contentId.startsWith("tt")) return
+        if (!paired || fetchWebsiteContentId(contentId) == null) return
         // A point saved since the last read has no id here yet: read first.
         refresh(force = true)
         val ids = snapshot?.playbackIdsFor(contentId, season, episode).orEmpty()
@@ -466,8 +469,9 @@ class FetchWebsiteTracker(
     /** Puts [preview] on or off the website list [key]. Throws when the website can't take it. */
     suspend fun setMember(key: String, preview: MetaPreview, on: Boolean) {
         val listId = fetchWebsiteListId(key) ?: return
-        val imdb = (preview.imdbId ?: preview.id).substringBefore(':').takeIf { it.startsWith("tt") }
-            ?: throw IllegalStateException("The Fetch website keeps lists of titles with an IMDb id only")
+        val imdb = preview.imdbId?.let(::fetchWebsiteContentId)?.takeIf(::isFetchWebsiteImdbId)
+            ?: fetchWebsiteContentId(preview.id)
+            ?: throw IllegalStateException("The Fetch website can't keep this title in a list: it has no id the website knows")
         val type = fetchWebsiteItemType(preview.apiType)
         if ((key in library.membership(imdb, type)) == on) return
         asProfile { id, token ->

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importovat z jiného zdroje</string>
+    <string name="tracking_import_subtitle">Zkopíruje historii zhlédnutí a místa pro pokračování z jiné připojené služby do %1$s, vašeho hlavního zdroje.</string>
+    <string name="tracking_import_running">Importování…</string>
+    <string name="tracking_import_dialog_title">Importovat do %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Tituly zhlédnuté tam se v %1$s označí jako zhlédnuté. Místa pro pokračování se zkopírují, pokud %1$s nemá novější. Nic se neodstraní.</string>
+    <string name="tracking_import_done_title">Import dokončen</string>
+    <string name="tracking_import_done_from">Z %1$s do %2$s</string>
+    <string name="tracking_import_done_watched">Zhlédnuto: importováno %1$d, přeskočeno %2$d</string>
+    <string name="tracking_import_done_progress">Místa pro pokračování: importováno %1$d, přeskočeno %2$d</string>
+    <string name="tracking_import_done_failed">Nepřijato službou %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Historii zhlédnutí nelze mezi těmito službami importovat.</string>
+    <string name="tracking_import_unsupported_progress">Místa pro pokračování nelze mezi těmito službami importovat.</string>
+    <string name="tracking_import_failed_title">Import se nezdařil</string>
+    <string name="tracking_import_failed_subtitle">Fetch nemohl načíst %1$s nebo zapsat do %2$s. Zkontrolujte, že jsou obě připojené, a zkuste to znovu.</string>
+</resources>

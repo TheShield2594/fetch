@@ -24,13 +24,36 @@ export const watchApi = {
   async getWatchHistory(
     limit = 10,
     offset = 0,
-    opts?: { imdbId?: string | undefined; type?: "movie" | "episode" | undefined; signal?: AbortSignal | undefined }
+    opts?: {
+      imdbId?: string | undefined;
+      type?: "movie" | "episode" | undefined;
+      /** Title text: films by name, episodes by their show's. */
+      q?: string | undefined;
+      /** ISO instant; only watches before it. Offsets then count from there. */
+      before?: string | undefined;
+      signal?: AbortSignal | undefined;
+    }
   ) {
     const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
     if (opts?.imdbId) params.set("imdbId", opts.imdbId);
     if (opts?.type) params.set("type", opts.type);
+    if (opts?.q) params.set("q", opts.q);
+    if (opts?.before) params.set("before", opts.before);
     const res = await request<unknown>(`/watch/history?${params}`, { signal: opts?.signal });
     return validated("/watch/history", parseWatchHistoryResponse, res).history;
+  },
+  /** The months that have history in them, newest first — for jumping to one. */
+  async getWatchHistoryMonths(opts?: { type?: "movie" | "episode" | undefined; signal?: AbortSignal | undefined }) {
+    const params = new URLSearchParams();
+    // The reader's zone, so a month here is the same month the day headings are in.
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz) params.set("tz", tz);
+    if (opts?.type) params.set("type", opts.type);
+    const res = await request<{ months?: { month: string; events: number }[] }>(
+      `/watch/history/months?${params}`,
+      { signal: opts?.signal }
+    );
+    return Array.isArray(res.months) ? res.months : [];
   },
   getWatchStats(signal?: AbortSignal) {
     return request<WatchStats>("/watch/stats", { signal });

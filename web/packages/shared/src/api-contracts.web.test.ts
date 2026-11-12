@@ -189,11 +189,34 @@ const event = () => ({
   watchedAt: "2026-09-10T18:30:00.000Z",
   dateUnknown: false,
   note: null,
+  runtime: 47,
+  rating: 10,
+  seriesRating: 9,
 });
 
 describe("parseWatchHistoryResponse", () => {
   it("returns the events an API of the same build sends", () => {
     expect(parseWatchHistoryResponse({ history: [event()] })).toEqual({ history: [event()] });
+  });
+
+  // The three newest fields. An API from before them is still an API this
+  // client can talk to: the row loses its rating and its day loses its hours.
+  it("reads a row from an API that predates runtime and ratings as not knowing them", () => {
+    const older: Record<string, unknown> = { ...event() };
+    delete older.runtime;
+    delete older.rating;
+    delete older.seriesRating;
+    expect(parseWatchHistoryResponse({ history: [older] }).history[0]).toMatchObject({
+      runtime: null,
+      rating: null,
+      seriesRating: null,
+    });
+  });
+
+  it("rejects a rating that is not a number", () => {
+    expect(() => parseWatchHistoryResponse({ history: [{ ...event(), rating: "ten" }] })).toThrow(
+      /history\[0\]\.rating/
+    );
   });
 
   it("drops the columns the API spreads but the client never reads", () => {

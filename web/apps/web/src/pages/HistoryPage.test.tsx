@@ -14,6 +14,7 @@ vi.mock("../api", async (importOriginal) => {
     ...actual,
     api: {
       getWatchHistory: vi.fn(),
+      getWatchHistoryMonths: vi.fn(),
       deleteWatchEvent: vi.fn(),
       updateWatchEventNote: vi.fn(),
       logWatch: vi.fn(),
@@ -21,24 +22,18 @@ vi.mock("../api", async (importOriginal) => {
   };
 });
 
-// The panel fetches metadata and history of its own the moment a row opens;
-// none of that is what this file is about. The setter is hoisted so a case can
-// assert that a row did *not* open it.
-const setSelectedItem = vi.hoisted(() => vi.fn());
+// The panel belongs to the shell and has suites of its own. What this file
+// needs from it is the opener, hoisted so a case can assert that a row did —
+// or did *not* — open a title.
+const openTitle = vi.hoisted(() => vi.fn());
 
-vi.mock("../components/MediaDetailPanel", () => ({
-  DetailPanel: () => null,
-  useDetailPanel: () => ({
-    selectedItem: null,
-    setSelectedItem,
-    panelHistory: [],
-    setPanelHistory: vi.fn(),
-    panelHistoryLoading: false,
-  }),
+vi.mock("../components/media-detail/titlePanel", () => ({
+  useTitlePanel: () => ({ openTitle, current: null }),
 }));
 
 const { api } = await import("../api");
 const getWatchHistory = vi.mocked(api.getWatchHistory);
+const getWatchHistoryMonths = vi.mocked(api.getWatchHistoryMonths);
 const deleteWatchEvent = vi.mocked(api.deleteWatchEvent);
 const updateWatchEventNote = vi.mocked(api.updateWatchEventNote);
 
@@ -59,9 +54,9 @@ const ALIEN = watched("Alien");
 const SOLARIS = watched("Solaris", { note: "Rewatch — still holds up" });
 const EPISODE = watched("Twin Peaks", { type: "episode", season: 2, episode: 7 });
 
-function renderPage() {
+function renderPage(initialEntry = "/history") {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <ToastProvider>
         <HistoryPage />
       </ToastProvider>
@@ -74,6 +69,8 @@ function renderPage() {
 beforeEach(() => {
   resetDataCacheForTests();
   getWatchHistory.mockResolvedValue([ALIEN, SOLARIS]);
+  getWatchHistoryMonths.mockResolvedValue([]);
+  openTitle.mockClear();
   // jsdom has no viewport, so the infinite-scroll sentinel never intersects on
   // its own — which is what these cases want: one page, loaded once.
   vi.stubGlobal(
@@ -157,7 +154,7 @@ describe("HistoryPage", () => {
     await user.keyboard("{Enter}");
 
     await waitFor(() => expect(deleteWatchEvent).toHaveBeenCalledWith(ALIEN.id));
-    expect(setSelectedItem).not.toHaveBeenCalled();
+    expect(openTitle).not.toHaveBeenCalled();
   });
 
   it("opens the note editor from the keyboard, on Space as well", async () => {
@@ -169,7 +166,7 @@ describe("HistoryPage", () => {
     await user.keyboard(" ");
 
     expect(await screen.findByLabelText(/^note on alien$/i)).toBeInTheDocument();
-    expect(setSelectedItem).not.toHaveBeenCalled();
+    expect(openTitle).not.toHaveBeenCalled();
   });
 
   it("puts a row back when the delete fails", async () => {
@@ -470,5 +467,162 @@ describe("HistoryPage notes", () => {
 
     expect(screen.queryByLabelText(/^note on alien$/i)).not.toBeInTheDocument();
     expect(updateWatchEventNote).not.toHaveBeenCalled();
+  });
+});
+
+describe("HistoryPage binges, days and finding things", () => {
+  const svu = (episode: number, hour: number, over: Partial<WatchEvent> = {}) =>
+    watched("Law & Order: SVU", {
+      id: `ev-svu-${episode}`,
+      imdbId: `tt-svu-2-${episode}`,
+      seriesImdbId: "tt-svu",
+      type: "episode",
+      season: 2,
+      episode,
+      runtime: 42,
+      watchedAt: new Date(2026, 4, 12, hour, 5).toISOString(),
+      ...over,
+    });
+  const BINGE = [18, 17, 16, 15, 14, 13].map((episode, i) => svu(episode, 23 - i));
+
+  // The issue's first "done when".
+  it("puts six consecutive episodes of one show on one row", async () => {
+    getWatchHistory.mockResolvedValue(BINGE);
+    renderPage();
+
+    expect(await screen.findByText("S2 E13–E18 · 6 episodes")).toBeInTheDocument();
+    expect(screen.getAllByText("Law & Order: SVU")).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: /view details for/i })).toHaveLength(1);
+    // The per-watch controls are a click away, not gone.
+    expect(screen.queryByRole("button", { name: /delete watch of/i })).toBeNull();
+  });
+
+  it("opens the run to its episodes, each with its own note and delete", async () => {
+    const user = userEvent.setup();
+    getWatchHistory.mockResolvedValue(BINGE);
+    renderPage();
+
+    const toggle = await screen.findByRole("button", { name: "Show the 6 episodes of Law & Order: SVU" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await user.click(toggle);
+
+    expect(screen.getByRole("button", { name: "Hide the 6 episodes of Law & Order: SVU" })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(screen.getAllByRole("button", { name: /delete watch of law & order: svu s2e\d+/i })).toHaveLength(6);
+    expect(screen.getByRole("button", { name: "Add note to Law & Order: SVU S2E13" })).toBeInTheDocument();
+  });
+
+  it("opens the show from the collapsed row", async () => {
+    const user = userEvent.setup();
+    getWatchHistory.mockResolvedValue(BINGE);
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: "View details for Law & Order: SVU" }));
+
+    expect(openTitle).toHaveBeenCalledWith(expect.objectContaining({ imdbId: "tt-svu", type: "series" }));
+  });
+
+  it("shrinks the run when one of its episodes is deleted", async () => {
+    const user = userEvent.setup();
+    deleteWatchEvent.mockResolvedValue(undefined as never);
+    getWatchHistory.mockResolvedValue(BINGE);
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: /show the 6 episodes/i }));
+    await user.click(screen.getByRole("button", { name: "Delete watch of Law & Order: SVU S2E18" }));
+
+    expect(await screen.findByText("S2 E13–E17 · 5 episodes")).toBeInTheDocument();
+  });
+
+  it("heads each day with what it added up to", async () => {
+    getWatchHistory.mockResolvedValue([
+      ...BINGE.slice(0, 3),
+      watched("Alien", { runtime: 117, watchedAt: new Date(2026, 4, 12, 14, 0).toISOString() }),
+    ]);
+    renderPage();
+
+    // 3 × 42 + 117 minutes.
+    expect(await screen.findByText("3 episodes, 1 film · 4h 3m")).toBeInTheDocument();
+  });
+
+  it("shows the profile's own rating on a row", async () => {
+    getWatchHistory.mockResolvedValue([watched("Alien", { rating: 9 })]);
+    renderPage();
+
+    expect(await screen.findByRole("img", { name: "Your rating: 4.5 out of 5" })).toBeInTheDocument();
+  });
+
+  it("sends a title filter to the server once typing pauses, and keeps it in the URL", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText("Alien");
+
+    await user.type(screen.getByRole("searchbox", { name: "Filter history by title" }), "law");
+
+    await waitFor(() =>
+      expect(getWatchHistory).toHaveBeenLastCalledWith(25, 0, expect.objectContaining({ q: "law" }))
+    );
+    // One request for the finished word, not one per letter.
+    expect(getWatchHistory.mock.calls.filter(([, , opts]) => opts?.q).map(([, , opts]) => opts?.q)).toEqual(["law"]);
+  });
+
+  it("says so when the filter matches nothing, and offers the way back", async () => {
+    const user = userEvent.setup();
+    getWatchHistory.mockImplementation(async (_limit, _offset, opts) => (opts?.q ? [] : [ALIEN]));
+    renderPage("/history?q=zzz");
+
+    expect(await screen.findByText("Nothing in your history matches “zzz”.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Show all history" }));
+
+    expect(await screen.findByText("Alien")).toBeInTheDocument();
+  });
+
+  // The issue's second "done when": a month, without scrolling to it.
+  it("jumps to a month by asking for everything before its end", async () => {
+    const user = userEvent.setup();
+    getWatchHistoryMonths.mockResolvedValue([
+      { month: "2026-05", events: 12 },
+      { month: "2025-03", events: 142 },
+    ]);
+    renderPage();
+    await screen.findByText("Alien");
+
+    await user.selectOptions(await screen.findByRole("combobox", { name: "Jump to a month" }), "2025-03");
+
+    await waitFor(() =>
+      expect(getWatchHistory).toHaveBeenLastCalledWith(
+        25,
+        0,
+        expect.objectContaining({ before: new Date(2025, 3, 1).toISOString() })
+      )
+    );
+    expect(screen.getByText(/From the end of March 2025/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Back to latest" }));
+    await waitFor(() =>
+      expect(getWatchHistory).toHaveBeenLastCalledWith(25, 0, expect.objectContaining({ before: undefined }))
+    );
+  });
+
+  it("opens at the month a link names — which is how Stats gets here", async () => {
+    renderPage("/history?month=2025-03");
+
+    await waitFor(() =>
+      expect(getWatchHistory).toHaveBeenCalledWith(
+        25,
+        0,
+        expect.objectContaining({ before: new Date(2025, 3, 1).toISOString() })
+      )
+    );
+  });
+
+  it("does not file a filtered list in the cache as the history", async () => {
+    getWatchHistory.mockResolvedValue([ALIEN]);
+    renderPage("/history?q=alien");
+    await screen.findByText("Alien");
+
+    expect(readCache("history:events:all")).toBeUndefined();
   });
 });

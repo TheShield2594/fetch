@@ -543,6 +543,15 @@ export type WatchEvent = {
   dateUnknown: boolean;
   /** Free text attached to this watch. Trakt imports carry theirs across. */
   note?: string | null | undefined;
+  /**
+   * Minutes — the film's length, or the show's usual episode length. Null when
+   * the metadata has none, and when the API is older than the field.
+   */
+  runtime?: number | null | undefined;
+  /** The profile's own rating (1–10) of this film or this episode. */
+  rating?: number | null | undefined;
+  /** For an episode: the profile's rating of the show it belongs to. */
+  seriesRating?: number | null | undefined;
 };
 
 export type WatchHistoryResponse = { history: WatchEvent[] };
@@ -569,6 +578,11 @@ export const parseWatchHistoryResponse = (value: unknown): WatchHistoryResponse 
       // row it does send is a dated one.
       dateUnknown: event.dateUnknown === undefined ? false : asBoolean(event.dateUnknown, `${at}.dateUnknown`),
       note: nullableString(event.note, `${at}.note`),
+      // Newer than the rest of the row. An API from before them sends none of
+      // the three, which reads as "not known" rather than as a broken response.
+      runtime: nullableNumber(event.runtime, `${at}.runtime`),
+      rating: nullableNumber(event.rating, `${at}.rating`),
+      seriesRating: nullableNumber(event.seriesRating, `${at}.seriesRating`),
     };
   });
   return { history };

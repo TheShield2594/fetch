@@ -33,6 +33,7 @@ import { DiscoveryCard } from "../components/dashboard/DiscoveryCard";
 import { NowPlayingList } from "../components/dashboard/NowPlayingList";
 import { NowWatchingHero } from "../components/dashboard/NowWatchingHero";
 import { RecentlyWatchedCard } from "../components/dashboard/RecentlyWatchedCard";
+import { recentTitles } from "./history-groups";
 import { UpcomingList } from "../components/dashboard/UpcomingList";
 
 /** What `GET /recommendations/ai` answers with. */
@@ -631,22 +632,27 @@ export function DashboardPage() {
             canScrollRight={recentScroll.canScrollRight}
             className="gap-4"
           >
-            {history.map((event) => (
-              <RecentlyWatchedCard
-                key={event.id}
-                event={event}
-                onSelect={() =>
-                  openTitle(
-                    toSearchResult(
-                      historyItemImdbId(event),
-                      event.type === "movie" ? "movie" : "series",
-                      watchEventTitle(event),
-                      { poster: event.poster }
+            {/* One card per title: a run of one show is one poster with a
+                count, not the same poster six times. */}
+            {recentTitles(history).map((title) => {
+              const event = title.latest;
+              return (
+                <RecentlyWatchedCard
+                  key={event.id}
+                  title={title}
+                  onSelect={() =>
+                    openTitle(
+                      toSearchResult(
+                        historyItemImdbId(event),
+                        event.type === "movie" ? "movie" : "series",
+                        watchEventTitle(event),
+                        { poster: event.poster }
+                      )
                     )
-                  )
-                }
-              />
-            ))}
+                  }
+                />
+              );
+            })}
           </CarouselTrack>
         )}
       </section>

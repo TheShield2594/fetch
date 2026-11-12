@@ -72,3 +72,105 @@ describe("titleTint", () => {
     expect(tint.strength).toBeGreaterThan(0);
   });
 });
+
+/** jsdom has no layout, so scroll metrics have to be faked onto the node. */
+function scrollableDiv({ scrollLeft = 0, scrollWidth = 1000, clientWidth = 400 } = {}) {
+  const el = document.createElement("div");
+  Object.defineProperties(el, {
+    scrollLeft: { value: scrollLeft, writable: true, configurable: true },
+    scrollWidth: { value: scrollWidth, writable: true, configurable: true },
+    clientWidth: { value: clientWidth, writable: true, configurable: true },
+  });
+  document.body.append(el);
+  return el;
+}
+
+describe("useHorizontalScroll", () => {
+  it("reports no scrollability before a node is attached", () => {
+    const { result } = renderHook(() => useHorizontalScroll());
+    expect(result.current.canScrollLeft).toBe(false);
+    expect(result.current.canScrollRight).toBe(false);
+  });
+
+  it("detects room to scroll right once attached to an overflowing row", () => {
+    const el = scrollableDiv();
+    const { result } = renderHook(() => useHorizontalScroll());
+
+    act(() => result.current.ref(el));
+
+    expect(result.current.canScrollLeft).toBe(false);
+    expect(result.current.canScrollRight).toBe(true);
+  });
+
+  it("updates both directions as the row is scrolled", () => {
+    const el = scrollableDiv();
+    const { result } = renderHook(() => useHorizontalScroll());
+    act(() => result.current.ref(el));
+
+    el.scrollLeft = 300;
+    act(() => {
+      el.dispatchEvent(new Event("scroll"));
+    });
+    expect(result.current.canScrollLeft).toBe(true);
+    expect(result.current.canScrollRight).toBe(true);
+
+    el.scrollLeft = 600;
+    act(() => {
+      el.dispatchEvent(new Event("scroll"));
+    });
+    expect(result.current.canScrollLeft).toBe(true);
+    expect(result.current.canScrollRight).toBe(false);
+  });
+
+  it("ignores sub-pixel scroll offsets on either end", () => {
+    const el = scrollableDiv({ scrollLeft: 3 });
+    const { result } = renderHook(() => useHorizontalScroll());
+    act(() => result.current.ref(el));
+
+    expect(result.current.canScrollLeft).toBe(false);
+
+    el.scrollLeft = 597;
+    act(() => {
+      el.dispatchEvent(new Event("scroll"));
+    });
+    expect(result.current.canScrollRight).toBe(false);
+  });
+
+  it("scrolls by three quarters of the visible width in each direction", () => {
+    const el = scrollableDiv();
+    const scrollBy = vi.fn();
+    el.scrollBy = scrollBy;
+    const { result } = renderHook(() => useHorizontalScroll());
+    act(() => result.current.ref(el));
+
+    act(() => result.current.scroll("right"));
+    expect(scrollBy).toHaveBeenCalledWith({ left: 300, behavior: "smooth" });
+
+    act(() => result.current.scroll("left"));
+    expect(scrollBy).toHaveBeenCalledWith({ left: -300, behavior: "smooth" });
+  });
+
+  it("jumps without animation when the user prefers reduced motion", () => {
+    const el = scrollableDiv();
+    const scrollBy = vi.fn();
+    el.scrollBy = scrollBy;
+    vi.spyOn(window, "matchMedia").mockReturnValue({ matches: true } as MediaQueryList);
+
+    const { result } = renderHook(() => useHorizontalScroll());
+    act(() => result.current.ref(el));
+    act(() => result.current.scroll("right"));
+
+    expect(scrollBy).toHaveBeenCalledWith({ left: 300, behavior: "auto" });
+  });
+
+  it("stops listening once the node is detached", () => {
+    const el = scrollableDiv();
+    const remove = vi.spyOn(el, "removeEventListener");
+    const { result } = renderHook(() => useHorizontalScroll());
+    act(() => result.current.ref(el));
+
+    act(() => result.current.ref(null));
+
+    expect(remove).toHaveBeenCalledWith("scroll", expect.any(Function));
+  });
+});

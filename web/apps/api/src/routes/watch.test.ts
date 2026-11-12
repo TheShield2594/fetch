@@ -427,6 +427,125 @@ describe("watch routes", () => {
         expect.objectContaining({ where: expect.not.objectContaining({ type: expect.anything() }) })
       );
     });
+
+    it("starts the page before a given instant, so a month can be reached without paging to it", async () => {
+      prismaMock.watchEvent.findMany.mockResolvedValue([]);
+      const app = await buildApp();
+      await app.inject({ method: "GET", url: "/watch/history?before=2026-04-01T00:00:00.000Z" });
+
+      expect(prismaMock.watchEvent.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ watchedAt: { lt: new Date("2026-04-01T00:00:00.000Z") } }),
+        })
+      );
+    });
+
+    it("rejects a before that is not a date", async () => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: "/watch/history?before=last-tuesday" });
+
+      expect(response.statusCode).toBe(400);
+      expect(prismaMock.watchEvent.findMany).not.toHaveBeenCalled();
+    });
+
+    it("searches by title through the metadata, for films and for the series an episode belongs to", async () => {
+      prismaMock.metadata.findMany.mockResolvedValueOnce([{ imdbId: "tt-svu" }]);
+      prismaMock.watchEvent.findMany.mockResolvedValue([]);
+      const app = await buildApp();
+      await app.inject({ method: "GET", url: "/watch/history?q=law%20%26%20order" });
+
+      expect(prismaMock.metadata.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ name: { contains: "law & order", mode: "insensitive" } }),
+        })
+      );
+      expect(prismaMock.watchEvent.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            AND: [{ OR: [{ imdbId: { in: ["tt-svu"] } }, { seriesImdbId: { in: ["tt-svu"] } }] }],
+          }),
+        })
+      );
+    });
+
+    it("answers a search that matches no title without reading any events", async () => {
+      prismaMock.metadata.findMany.mockResolvedValueOnce([]);
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: "/watch/history?q=zzzz" });
+
+      expect(response.json()).toEqual({ history: [] });
+      expect(prismaMock.watchEvent.findMany).not.toHaveBeenCalled();
+    });
+
+    it("rejects a search longer than a title could be", async () => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: `/watch/history?q=${"a".repeat(101)}` });
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("carries the runtime and the profile's own ratings on each row", async () => {
+      prismaMock.watchEvent.findMany.mockResolvedValue([
+        { id: EVENT_ID, type: "movie", imdbId: "tt1", seriesImdbId: null, season: null, episode: null, traktHistoryId: null },
+        { id: EVENT_ID, type: "episode", imdbId: "tt-ep", seriesImdbId: "tt2", season: 2, episode: 13, traktHistoryId: null },
+        { id: EVENT_ID, type: "episode", imdbId: "tt-ep2", seriesImdbId: "tt2", season: 2, episode: 14, traktHistoryId: null },
+      ]);
+      prismaMock.metadata.findMany.mockResolvedValue([
+        { imdbId: "tt1", type: "movie", name: "Movie A", poster: null, runtime: 117 },
+        { imdbId: "tt2", type: "series", name: "Show B", poster: null, runtime: 42 },
+      ]);
+      prismaMock.rating.findMany.mockResolvedValue([
+        { imdbId: "tt1", type: "movie", season: 0, episode: 0, rating: 9 },
+        { imdbId: "tt2", type: "series", season: 0, episode: 0, rating: 8 },
+        { imdbId: "tt2", type: "episode", season: 2, episode: 13, rating: 10 },
+      ]);
+
+      const app = await buildApp();
+      const { history } = (await app.inject({ method: "GET", url: "/watch/history" })).json();
+
+      expect(history[0]).toEqual(expect.objectContaining({ runtime: 117, rating: 9, seriesRating: null }));
+      // An episode's own rating, and the show's beside it.
+      expect(history[1]).toEqual(expect.objectContaining({ runtime: 42, rating: 10, seriesRating: 8 }));
+      // An unrated episode of a rated show is unrated, not the show's score.
+      expect(history[2]).toEqual(expect.objectContaining({ rating: null, seriesRating: 8 }));
+      expect(prismaMock.rating.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ profileId: PROFILE_ID }) })
+      );
+    });
+  });
+
+  describe("GET /watch/history/months", () => {
+    it("lists the months that have history, newest first, cut in the caller's time zone", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([
+        { month: "2026-11", events: 12 },
+        { month: "2026-03", events: 142 },
+      ]);
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: "/watch/history/months?tz=America/Chicago" });
+
+      expect(response.json()).toEqual({
+        months: [
+          { month: "2026-11", events: 12 },
+          { month: "2026-03", events: 142 },
+        ],
+      });
+      const query = prismaMock.$queryRaw.mock.calls[0]![0] as { values: unknown[] };
+      expect(query.values).toContain("America/Chicago");
+      expect(query.values).toContain(PROFILE_ID);
+    });
+
+    it("rejects a time zone it cannot hand to the database", async () => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: "/watch/history/months?tz=Mars/Olympus" });
+
+      expect(response.statusCode).toBe(400);
+      expect(prismaMock.$queryRaw).not.toHaveBeenCalled();
+    });
+
+    it("rejects an unknown type the way the history route does", async () => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "GET", url: "/watch/history/months?type=banana" });
+      expect(response.statusCode).toBe(400);
+    });
   });
 
   describe("GET /watch/stats", () => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -63,7 +63,12 @@ const inertBackground = (container: HTMLElement): (() => void) => {
 export function useFocusTrap<T extends HTMLElement>(active = true) {
   const containerRef = useRef<T>(null);
 
-  useEffect(() => {
+  // A layout effect, so the background is inerted in the same commit the dialog
+  // appears and handed back in the same commit it is removed. A passive effect's
+  // cleanup can run after the dialog has already left the DOM, leaving the page
+  // inert for a moment (and MobileTabBar's "hands the page back" test failing
+  // when it looked in that gap).
+  useLayoutEffect(() => {
     if (!active) return;
     const container = containerRef.current;
     if (!container) return;

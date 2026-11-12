@@ -39,6 +39,12 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **Notification channel URLs and add-on manifest URLs are encrypted at rest.** A webhook URL, an ntfy topic and an add-on URL with a debrid key in its path are now stored like the other credentials and encrypted in place on the next start. Channel URLs come back masked (`https://ntfy.sh/…`); a profile's own website and TV still get its add-on URLs in full. The README's table now lists exactly what is encrypted, including that web-push subscriptions are not ([#548](https://github.com/TheShield2594/fetch/issues/548)).
 
+- **A paired TV adds and edits profiles under the website's own rules.** `PUT /devices/me/profiles/:slot` no longer adds a profile for a kids profile (`403 parental_authority_required`), and leaves a PIN-protected profile unchanged unless the request carries that profile's token. The TV and desktop apps now send the profile in use (`x-profile-id`) and its token with each push; an app from before this change can't add a profile from the TV to an account that has a kids profile, or rename a PIN-protected one, until it is updated ([#544](https://github.com/TheShield2594/fetch/issues/544)).
+
+- **Sign-in costs the same for every username.** Each attempt now makes exactly one password-hash comparison; an empty or over-long password used to answer faster for a username that exists ([#545](https://github.com/TheShield2594/fetch/issues/545)).
+
+- **Failed sign-in records and expired sessions are removed.** An hourly job deletes sign-in and PIN attempt records untouched for 24 hours and sessions past their expiry, so the usernames and addresses of failed attempts are no longer kept indefinitely. It appears in the job status in Settings as "Sign-in record cleanup" ([#546](https://github.com/TheShield2594/fetch/issues/546)).
+
 ## [0.4.0] - 2026-11-11
 
 ### Added

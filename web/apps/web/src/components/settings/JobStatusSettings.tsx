@@ -14,6 +14,7 @@ const JOB_LABELS: Record<string, string> = {
   "mdblist-list-sync": "MDBList linked lists sync",
   "media-server-sync": "Plex, Jellyfin & Emby sync",
   "scrobble-cleanup": "Scrobble session cleanup",
+  "auth-cleanup": "Sign-in record cleanup",
   "episode-notifications": "Upcoming episode notifications",
   "ai-recommendations": "AI recommendations refresh",
 };

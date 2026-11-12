@@ -140,9 +140,13 @@ const authRoutes: FastifyPluginAsync = async (app) => {
         .send({ error: "Too many incorrect attempts. Try again later.", retryAfterSec: lockout.retryAfterSec });
     }
 
+    // Exactly one hash comparison per attempt, whatever the username or the
+    // password looks like: an empty or over-long password used to skip it for
+    // a name that exists and run it for one that doesn't, which answered
+    // faster for real names. The outcome is decided only afterwards.
     const account = await prisma.account.findUnique({ where: { username } });
-    if (!account) await pinMatches(password || "x", DUMMY_PASSWORD_HASH);
-    if (!account || !password || !(await pinMatches(password, account.passwordHash))) {
+    const matches = await pinMatches(password || "x", account?.passwordHash ?? DUMMY_PASSWORD_HASH);
+    if (!account || !password || !matches) {
       await recordFailure(attemptKey);
       return failed();
     }

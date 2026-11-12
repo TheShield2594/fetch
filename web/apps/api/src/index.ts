@@ -27,6 +27,8 @@ import { getDefaultProfileId } from "./lib/profile.js";
 import { encryptStoredSecrets } from "./lib/secret-migration.js";
 import { checkUpcomingEpisodesAndNotify } from "./lib/notify-episodes.js";
 import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scrobble.js";
+import { sweepStaleAttempts } from "./lib/attempt-lockout.js";
+import { sweepExpiredSessions } from "./lib/sessions.js";
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
 import { isServiceRequest } from "./lib/service-request.js";
@@ -105,6 +107,8 @@ const NOTIFICATION_CHECK_INTERVAL_SEC = parseIntervalSec(
 // The jobs that would otherwise hammer a cold start wait this long before
 // their first run, then settle onto their interval.
 const DEFERRED_FIRST_RUN_MS = 2 * 60 * 1000;
+/** How often stale sign-in attempt records and expired sessions are removed. */
+const AUTH_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 
 const PROXY_PATH_PREFIXES = parseProxyPathPrefixes(process.env.PROXY_PATH_PREFIXES, ["/api"] as const);
 
@@ -423,6 +427,23 @@ const start = async () => {
     label: "scrobble session cleanup",
     intervalMs: SCROBBLE_CLEANUP_INTERVAL_MS,
     tick: ({ runJob }) => runJob("scrobble-cleanup", () => cleanupStaleSessions(app.log)),
+  });
+
+  // Sign-in and PIN attempt records past their decay window, and sessions past
+  // their expiry. Neither is removed by anything a visitor does, so without
+  // this the usernames and addresses of failed sign-ins were kept for good.
+  everyInterval({
+    ...scheduler,
+    label: "sign-in record cleanup",
+    intervalMs: AUTH_CLEANUP_INTERVAL_MS,
+    startAfterMs: DEFERRED_FIRST_RUN_MS,
+    tick: ({ runJob }) =>
+      runJob("auth-cleanup", async () => {
+        const [attempts, sessions] = [await sweepStaleAttempts(), await sweepExpiredSessions()];
+        if (attempts + sessions > 0) {
+          app.log.info(`Removed ${attempts} stale sign-in attempt records and ${sessions} expired sessions`);
+        }
+      }),
   });
 
   if (NOTIFICATION_CHECK_INTERVAL_SEC > 0) {

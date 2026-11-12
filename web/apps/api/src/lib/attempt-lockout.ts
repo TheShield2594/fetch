@@ -95,3 +95,23 @@ export const recordFailure = async (key: string): Promise<void> => {
 export const clearAttempts = async (key: string): Promise<void> => {
   await prisma.kV.deleteMany({ where: { key } });
 };
+
+/** Every key this module writes starts with one of these. */
+const ATTEMPT_KEY_PREFIXES = ["loginattempts:", "pinattempts:"] as const;
+
+/**
+ * Deletes attempt records nobody has added to for the decay window. Such a
+ * record no longer changes anything: `recordFailure` starts it over, and a
+ * lockout lasts an hour at most, so none can still be running. Left alone they
+ * are kept forever, usernames and client addresses included, for names that
+ * never existed as much as for real ones.
+ */
+export const sweepStaleAttempts = async (now: Date = new Date()): Promise<number> => {
+  const { count } = await prisma.kV.deleteMany({
+    where: {
+      OR: ATTEMPT_KEY_PREFIXES.map((prefix) => ({ key: { startsWith: prefix } })),
+      updatedAt: { lt: new Date(now.getTime() - LOCKOUT_DECAY_MS) },
+    },
+  });
+  return count;
+};

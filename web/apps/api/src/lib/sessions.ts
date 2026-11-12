@@ -22,7 +22,8 @@ export const mintInviteCode = (): string => randomSecret();
 
 /**
  * The session a token belongs to, or null if it is unknown or expired. An
- * expired row is deleted on the way out rather than left for a sweep.
+ * expired row is deleted on the way out; `sweepExpiredSessions` removes the
+ * ones whose token is never presented again.
  */
 export const findSession = async (
   token: string
@@ -47,6 +48,12 @@ export const findSession = async (
   }
 
   return { kind: "session", sessionId: session.id, accountId: session.account.id, isAdmin: session.account.isAdmin };
+};
+
+/** Deletes sessions past their expiry, so a sign-in nobody returns to doesn't stay on record. */
+export const sweepExpiredSessions = async (now: Date = new Date()): Promise<number> => {
+  const { count } = await prisma.session.deleteMany({ where: { expiresAt: { lte: now } } });
+  return count;
 };
 
 /** The admin account, if one has been created yet. */

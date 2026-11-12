@@ -27,7 +27,14 @@ class FetchWebsiteException(
     val code: String? = null,
     /** For a lockout (429): how long until the website takes another attempt. */
     val retryAfterSec: Int? = null
-) : Exception(message)
+) : Exception(message) {
+    /** Adding a profile, or lifting a parental limit, from a profile that may not (a kids profile). */
+    val needsParentalAuthority: Boolean get() = code == PARENTAL_AUTHORITY_REQUIRED
+
+    private companion object {
+        const val PARENTAL_AUTHORITY_REQUIRED = "parental_authority_required"
+    }
+}
 
 /** The website no longer accepts this TV's token: it was revoked. */
 class FetchWebsiteSignedOutException : Exception("This TV was signed out from the Fetch website")
@@ -151,8 +158,27 @@ class FetchWebsiteClient internal constructor(
             json.decodeFromString(WebsiteSlottedProfiles.serializer(), response.body?.string().orEmpty()).profiles
         }
 
-    suspend fun putProfile(slot: Int, body: JsonObject): WebsiteSlottedProfile =
-        authed("devices/me/profiles/$slot", method = "PUT", body = body.toString()).use { response ->
+    /**
+     * Creates or updates the website profile in [slot]. [actingProfileId] is the website profile
+     * in use on this TV, with [actingToken] if it has a PIN: the website asks who is adding a
+     * profile or lifting a limit, as it does of its own pages. [targetToken] is the token of the
+     * profile being changed, when that one has a PIN.
+     */
+    suspend fun putProfile(
+        slot: Int,
+        body: JsonObject,
+        actingProfileId: String? = null,
+        actingToken: String? = null,
+        targetToken: String? = null
+    ): WebsiteSlottedProfile =
+        authed(
+            "devices/me/profiles/$slot",
+            method = "PUT",
+            body = body.toString(),
+            profileId = actingProfileId,
+            profileToken = actingToken,
+            targetProfileToken = targetToken
+        ).use { response ->
             val wrapper = json.parseToJsonElement(response.body?.string().orEmpty()) as JsonObject
             json.decodeFromJsonElement(WebsiteSlottedProfile.serializer(), wrapper.getValue("profile"))
         }
@@ -433,7 +459,8 @@ class FetchWebsiteClient internal constructor(
         body: String? = null,
         profileId: String? = null,
         profileToken: String? = null,
-        ifMatch: Int? = null
+        ifMatch: Int? = null,
+        targetProfileToken: String? = null
     ): Response = call {
         val session = store.session.value ?: throw FetchWebsiteSignedOutException()
         val builder = Request.Builder()
@@ -442,6 +469,7 @@ class FetchWebsiteClient internal constructor(
             .method(method, body?.toRequestBody(JSON))
         if (profileId != null) builder.header("x-profile-id", profileId)
         if (!profileToken.isNullOrBlank()) builder.header("x-profile-token", profileToken)
+        if (!targetProfileToken.isNullOrBlank()) builder.header("x-target-profile-token", targetProfileToken)
         if (ifMatch != null) builder.header("If-Match", "\"$ifMatch\"")
         val response = http.newCall(builder.build()).execute()
         try {

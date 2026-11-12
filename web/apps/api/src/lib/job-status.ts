@@ -16,6 +16,7 @@ export type JobName =
   | "mdblist-list-sync"
   | "media-server-sync"
   | "scrobble-cleanup"
+  | "auth-cleanup"
   | "episode-notifications"
   | "ai-recommendations";
 

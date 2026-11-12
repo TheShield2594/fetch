@@ -1,12 +1,13 @@
 import type { CalendarEntry } from "../../api";
 import { Poster } from "../Poster";
-import { localDateFromIsoDate } from "../../utils/calendarDate";
+import { calendarEntryDay, calendarEntryKey, calendarEntryLabel } from "../../utils/calendarEntry";
 
 /** "Today", "Tomorrow", or the weekday and date an episode airs on. */
-function airDateLabel(airDate: string): { label: string; isToday: boolean; isTomorrow: boolean } {
-  // Unreadable stays an Invalid Date, which matches neither today nor tomorrow
-  // and falls through to the dated label.
-  const date = localDateFromIsoDate(airDate) ?? new Date(NaN);
+function airDateLabel(entry: CalendarEntry): { label: string; isToday: boolean; isTomorrow: boolean } {
+  // The local day of the air time where one is known. Unreadable stays an
+  // Invalid Date, which matches neither today nor tomorrow and falls through to
+  // the dated label.
+  const date = calendarEntryDay(entry);
   const isToday = date.toDateString() === new Date().toDateString();
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -23,15 +24,15 @@ function airDateLabel(airDate: string): { label: string; isToday: boolean; isTom
   };
 }
 
-/** The next fortnight of episodes, in Discover's narrow right-hand column. */
+/** The next fortnight of episodes, premieres and film releases, in Discover's narrow right-hand column. */
 export function UpcomingList({ entries }: { entries: CalendarEntry[] }) {
   return (
     <div className="space-y-2">
       {entries.map((entry) => {
-        const { label, isToday, isTomorrow } = airDateLabel(entry.airDate);
+        const { label, isToday, isTomorrow } = airDateLabel(entry);
         return (
           <div
-            key={`${entry.seriesImdbId}-s${entry.season}e${entry.episode}`}
+            key={calendarEntryKey(entry)}
             className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-2.5 transition-colors duration-base hover:border-[var(--border-strong)] hover:bg-[var(--surface-strong)]"
           >
             <div className="h-12 w-8 flex-none overflow-hidden rounded-md" style={{ boxShadow: "0 0 0 1px var(--border)" }}>
@@ -42,7 +43,7 @@ export function UpcomingList({ entries }: { entries: CalendarEntry[] }) {
                 {entry.seriesName}
               </p>
               <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>
-                S{entry.season}:E{entry.episode}
+                {calendarEntryLabel(entry, { withName: false })}
               </p>
             </div>
             <span

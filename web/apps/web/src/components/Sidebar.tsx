@@ -11,47 +11,59 @@ import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { prefetchRoute } from "../utils/routePrefetch";
 
 /*
- * Six destinations, down from eight.
+ * The destinations: six places to look at what you watch.
  *
- * Lists and History were never really places — they were filters over one
- * collection, each given a tab because of the table it happened to be stored
- * in. The Shelf is that collection, and its filter row does what the tabs did.
- * Both pages still exist as the surfaces where you *manage* things (make a
- * list, read the full log); they are linked from the Shelf's header, which is
- * where you are when you want one.
- *
- * What is left is six things that genuinely differ: what you have (Shelf), what
- * you're looking for (Search), what you might want (Discover), what's coming
- * (Calendar), what you've done (Stats), and how it all works (Settings).
+ * What you have (Shelf), what you might want (Discover), what you're looking
+ * for (Search), what's coming (Calendar), what you've watched (History) and
+ * what it adds up to (Stats). History sits here rather than under a "manage"
+ * heading because the watch record is one of the things the app is *for*, not
+ * an admin screen beside Collections and Profiles.
  */
 export const SIDEBAR_NAV_ITEMS = [
   { to: "/", label: "Shelf", icon: Library, end: true },
-  { to: "/search", label: "Search", icon: Search, end: false },
   { to: "/discover", label: "Discover", icon: Compass, end: false },
+  { to: "/search", label: "Search", icon: Search, end: false },
   { to: "/calendar", label: "Calendar", icon: CalendarDays, end: false },
+  { to: "/history", label: "History", icon: History, end: false },
   { to: "/stats", label: "Stats", icon: BarChart3, end: false },
-  { to: "/settings", label: "Settings", icon: Settings, end: false },
 ] as const;
 
 /**
- * The last group: where you go to *change* how the shelf is organised, as
- * opposed to the six above, which are places to look at it.
- *
- * These used to be a row of links in the Shelf's own header, which put them in
- * the middle of the page, level with a subtitle, on one screen out of nine. A
- * source list is where a desktop app keeps this kind of thing, under a heading
- * that says which kind it is — and the mobile bar already files them the same
- * way, behind "More".
- *
- * The Lists page is not here: the rail lists the lists themselves now, and the
- * row that reaches the page to manage them sits at the end of that group, where
- * it belongs. Two rows called "Lists" in one column would be a puzzle.
+ * The last group: the TV's Home rows, who is in the household, and how it all
+ * works — where you go to *change* things, as opposed to the six above, which
+ * are places to look at them. Settings closes the column, where a source list
+ * keeps it.
  */
 export const SIDEBAR_MANAGE_ITEMS = [
   { to: "/collections", label: "Collections", icon: LayoutGrid, end: false },
-  { to: "/history", label: "History", icon: History, end: false },
   { to: "/profiles", label: "Profiles", icon: Users, end: false },
+  { to: "/settings", label: "Settings", icon: Settings, end: false },
 ] as const;
+
+/** The width from which the rail opens pinned unless someone has said otherwise. */
+export const PIN_BY_DEFAULT_QUERY = "(min-width: 1024px)";
+
+/**
+ * Whether the rail starts pinned: what the person last chose, or — if they have
+ * never touched the pin — open from `lg` up, where there is room for labels
+ * beside the page, and collapsed below it, where there isn't.
+ *
+ * Collapsed by default everywhere was the wrong way round on a desktop: a
+ * column of icons that only says what it holds on hover, floating over the
+ * first 240px of the page every time it does.
+ */
+export function initialPinned(): boolean {
+  try {
+    const stored = localStorage.getItem(PIN_KEY);
+    if (stored === "1") return true;
+    if (stored === "0") return false;
+  } catch {
+    // Storage blocked: fall through to the width.
+  }
+  return typeof window !== "undefined" && typeof window.matchMedia === "function"
+    ? window.matchMedia(PIN_BY_DEFAULT_QUERY).matches
+    : false;
+}
 
 /**
  * Every row in the rail is the same box — 30px tall, 7px radius, 13px label,
@@ -81,14 +93,13 @@ function RailSectionLabel({ children, expanded }: { children: string; expanded: 
 
 export const PIN_KEY = "fetch:sidebar-pinned";
 const HINT_KEY = "fetch:sidebar-hint-seen";
-const HOVER_DELAY_MS = 200;
 const HINT_AUTO_DISMISS_MS = 15000;
 
 /**
  * The desktop source-list rail (hidden below `sm`, where the tab bar navigates
  * instead): the primary navigation rows with a sliding selection marker,
- * hover- and focus-to-expand, a pin toggle persisted to localStorage, and a
- * one-time hint that explains the expand gesture.
+ * tooltips on the collapsed icons, keyboard-focus-to-expand, a pin toggle
+ * persisted to localStorage, and a one-time hint that points at the pin.
  */
 export function Sidebar({
   pinned,
@@ -101,23 +112,29 @@ export function Sidebar({
   profile?: Profile | null;
   onSwitchProfile?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  // Keyboard users can't hover, and the collapsed rail hides its labels — so
-  // tabbing into it has to expand it too, or the nav is a column of bare icons
-  // with no way to reveal what they are short of picking up the mouse.
+  /*
+   * Pointer hover no longer opens the rail. It used to, after 200ms, and the
+   * open rail floated over the left 240px of the page — the Shelf's title and
+   * first card — every time the cursor crossed to the edge of the window. Each
+   * icon names itself in a tooltip instead, and the pin is how to keep labels.
+   *
+   * Keyboard focus still opens it: a tooltip needs a pointer, and without the
+   * labels a keyboard user tabbing through would meet a column of bare icons.
+   * Only *visible* focus counts, so a mouse click on a row (which focuses it
+   * too) doesn't throw the rail open over the page it is navigating to.
+   */
   const [focused, setFocused] = useState(false);
-  // One-time discovery hint: the hover-to-expand / pin pattern is invisible until
-  // you happen to hover, so surface it once on the first visit, then never again.
+  // One-time discovery hint: that the rail can be pinned open is invisible
+  // until someone finds the control, so surface it once, then never again.
   const [showHint, setShowHint] = useState(false);
   const hintSeenRef = useRef(true);
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   // Read once: the tip is about the state the rail was found in, and re-reading
   // `pinned` would resurrect it the first time someone unpins.
   const pinnedAtMountRef = useRef(pinned);
   // Matches the `hidden sm:flex` this component styles itself with.
   const railVisible = useMediaQuery("(min-width: 640px)");
-  const expanded = pinned || hovered || focused;
+  const expanded = pinned || focused;
 
   /*
    * The two things the rail shows that aren't routes.
@@ -180,6 +197,10 @@ export function Sidebar({
    */
   const onListsRoute = location.pathname === "/lists";
   const openListId = onListsRoute ? new URLSearchParams(location.search).get("list") : null;
+  // The open list's own row only exists while the rail is open and the list is
+  // in it; otherwise the Lists row is where you are.
+  const openListRowShown = expanded && openListId !== null && railLists.some((list) => list.id === openListId);
+  const listsRowCurrent = onListsRoute && !openListRowShown;
   const [marker, setMarker] = useState<{ top: number; height: number } | null>(null);
   useLayoutEffect(() => {
     // NavLink writes aria-current on whichever link matched, which spares us
@@ -194,7 +215,10 @@ export function Sidebar({
     // every offset measures zero. Widening the window past 640px is not a
     // navigation, so without this the rail would appear with its marker still
     // holding those zeroes until the next route change.
-  }, [location.pathname, location.search, railVisible]);
+    //
+    // `expanded` and the lists too: the list and source rows come and go with
+    // the rail opening, which moves every row below them.
+  }, [location.pathname, location.search, railVisible, expanded, railLists.length, sources.length]);
 
   useEffect(() => {
     hintSeenRef.current = localStorage.getItem(HINT_KEY) === "1";
@@ -220,7 +244,6 @@ export function Sidebar({
   }, [railVisible]);
 
   useEffect(() => () => {
-    clearTimeout(hoverTimerRef.current);
     clearTimeout(hintTimerRef.current);
   }, []);
 
@@ -231,14 +254,16 @@ export function Sidebar({
     localStorage.setItem(HINT_KEY, "1");
   };
 
-  const handleMouseEnter = () => {
-    clearTimeout(hoverTimerRef.current);
-    hoverTimerRef.current = setTimeout(() => setHovered(true), HOVER_DELAY_MS);
-  };
-
-  const handleMouseLeave = () => {
-    clearTimeout(hoverTimerRef.current);
-    setHovered(false);
+  const handleFocus = (event: React.FocusEvent<HTMLElement>) => {
+    // `:focus-visible` is the browser's own answer to "did this come from the
+    // keyboard". jsdom doesn't implement the selector, so a throw counts as yes.
+    let visible: boolean;
+    try {
+      visible = event.target.matches(":focus-visible");
+    } catch {
+      visible = true;
+    }
+    if (visible) setFocused(true);
   };
 
   // React's onFocus/onBlur are focusin/focusout, so they also fire as focus
@@ -262,9 +287,7 @@ export function Sidebar({
       // and two unnamed ones are indistinguishable in a landmark list.
       aria-label="Sidebar"
       className="fixed inset-y-0 left-0 z-40 hidden sm:flex"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={() => setFocused(true)}
+      onFocus={handleFocus}
       onBlur={handleBlur}
     >
       {/*
@@ -274,7 +297,7 @@ export function Sidebar({
        * stay visible while collapsed, so translating the panel would slide them
        * off screen, and the collapsed rail has to physically occupy 4rem or it
        * would sit over the page's content instead of beside it. The reflow is
-       * bounded — one column of rows, `duration-base`, off a hover — and the
+       * bounded — one column of rows, `duration-base`, off a pin or focus — and the
        * page itself doesn't move (App.tsx's `sidebarPad` reserves the footprint
        * and the expanded rail floats over content on its shadow). Named as
        * `transition-[width]`, not `transition-all`, so nothing else eases with it.
@@ -297,7 +320,7 @@ export function Sidebar({
           background: "color-mix(in srgb, var(--bg-1) 86%, transparent)",
           borderRight: "0.5px solid var(--border)",
           boxShadow: expanded && !pinned ? "8px 0 24px rgba(0,0,0,0.18)" : "none",
-          transitionTimingFunction: "var(--ease-ios)",
+          transitionTimingFunction: "var(--ease-settle)",
         }}
       >
         <div className="flex items-center gap-2.5 px-4 pb-5" style={{ color: "var(--text)" }}>
@@ -329,7 +352,7 @@ export function Sidebar({
                 height: marker.height,
                 transform: `translateY(${marker.top}px)`,
                 background: "var(--surface-strong)",
-                transitionTimingFunction: "var(--ease-ios)",
+                transitionTimingFunction: "var(--ease-settle)",
               }}
             />
           )}
@@ -373,57 +396,57 @@ export function Sidebar({
             * out that your watchlist has 27 things in it. The dot is identity
             * (see `listTint`) and the count is the fact the page was hiding.
             *
-            * Absent entirely until there is something to show, so a fresh
-            * install gets a rail of six routes rather than an empty heading.
+            * Only while the rail is open. Collapsed, a list is a coloured dot
+            * with no name or count — five of them in a column said nothing
+            * until hovered — so the collapsed rail has the one Lists row below
+            * instead, which is an icon with a tooltip like every other.
+            *
+            * The heading is absent until there is something under it, so a
+            * fresh install gets no heading over a single row.
             */}
-          <RailSectionLabel expanded={expanded}>Lists</RailSectionLabel>
-          {railLists.map((list) => {
-            const isCurrent = openListId === list.id;
-            return (
-              <Link
-                key={list.id}
-                to={`/lists?list=${encodeURIComponent(list.id)}`}
-                aria-current={isCurrent ? "page" : undefined}
-                className={`${RAIL_ROW} ${isCurrent ? "font-medium" : "hover:bg-[var(--surface)]"}`}
-                style={{ color: isCurrent ? "var(--text)" : "var(--text-dim)" }}
-                title={expanded ? undefined : `${list.name} — ${list.itemCount}`}
-                onPointerEnter={() => prefetchRoute("/lists")}
-                onFocus={() => prefetchRoute("/lists")}
-              >
-                {/* Sized and placed like the routes' glyphs so the two kinds
-                    of row share one text column, which is what stops the
-                    lists reading as a differently-indented list. */}
-                <span className="flex h-[1.0625rem] w-[1.0625rem] flex-none items-center justify-center">
-                  <span
-                    aria-hidden="true"
-                    className="h-2 w-2 rounded-full"
-                    style={{ background: listTint(list) }}
-                  />
-                </span>
-                <span className="min-w-0 flex-1 truncate" style={{ opacity: expanded ? 1 : 0 }}>
-                  {list.name}
-                </span>
-                <span
-                  className="flex-none tabular-nums transition-opacity"
-                  style={{ color: "var(--text-mute)", opacity: expanded ? 1 : 0 }}
-                >
-                  {list.itemCount}
-                </span>
-              </Link>
-            );
-          })}
-          {/* The page where lists are made, renamed and deleted, at the foot of
-              the group it manages rather than as a second row called "Lists"
-              further down. Current only on the bare /lists: with a `?list=` in
-              the URL, the row above it is the page you are on. */}
+          {expanded && railLists.length > 0 && (
+            <>
+              <RailSectionLabel expanded={expanded}>Lists</RailSectionLabel>
+              {railLists.map((list) => {
+                const isCurrent = openListId === list.id;
+                return (
+                  <Link
+                    key={list.id}
+                    to={`/lists?list=${encodeURIComponent(list.id)}`}
+                    aria-current={isCurrent ? "page" : undefined}
+                    className={`${RAIL_ROW} ${isCurrent ? "font-medium" : "hover:bg-[var(--surface)]"}`}
+                    style={{ color: isCurrent ? "var(--text)" : "var(--text-dim)" }}
+                    onPointerEnter={() => prefetchRoute("/lists")}
+                    onFocus={() => prefetchRoute("/lists")}
+                  >
+                    {/* Sized and placed like the routes' glyphs so the two kinds
+                        of row share one text column. */}
+                    <span className="flex h-[1.0625rem] w-[1.0625rem] flex-none items-center justify-center">
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: listTint(list) }}
+                      />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{list.name}</span>
+                    <span className="flex-none tabular-nums" style={{ color: "var(--text-mute)" }}>
+                      {list.itemCount}
+                    </span>
+                  </Link>
+                );
+              })}
+            </>
+          )}
+          {/* The page where lists are made, renamed and deleted — and, while
+              the rail is collapsed, the only list row there is. Current on the
+              bare /lists, and on any /lists while collapsed, when the row for
+              the open list isn't drawn to carry it. */}
           <Link
             to="/lists"
-            aria-current={onListsRoute && !openListId ? "page" : undefined}
-            className={`${RAIL_ROW} ${
-              onListsRoute && !openListId ? "font-medium" : "hover:bg-[var(--surface)]"
-            }`}
-            style={{ color: onListsRoute && !openListId ? "var(--text)" : "var(--text-mute)" }}
-            title={expanded ? undefined : "All Lists"}
+            aria-current={listsRowCurrent ? "page" : undefined}
+            className={`${RAIL_ROW} ${listsRowCurrent ? "font-medium" : "hover:bg-[var(--surface)]"}`}
+            style={{ color: listsRowCurrent ? "var(--text)" : expanded && railLists.length > 0 ? "var(--text-mute)" : "var(--text-dim)" }}
+            title={expanded ? undefined : "Lists"}
             onPointerEnter={() => prefetchRoute("/lists")}
             onFocus={() => prefetchRoute("/lists")}
           >
@@ -433,33 +456,33 @@ export function Sidebar({
               style={{ color: "var(--nav-glyph)" }}
             />
             <span className="whitespace-nowrap" style={{ opacity: expanded ? 1 : 0 }}>
-              All Lists
+              {expanded && railLists.length > 0 ? "All lists" : "Lists"}
             </span>
           </Link>
 
           {/*
-            * Sources, with whether they are working.
+            * Sources, with whether they are working — open rail only, for the
+            * same reason as the lists: collapsed, each was a bare health dot.
             *
-            * Only the ones that are actually set up — see `railSources`. All
-            * of them lead to the same place, which is the point: the rail
-            * answers "is anything wrong?" and Settings answers "what, and how
-            * do I fix it?".
+            * Only the ones that are actually set up — see `railSources`. Each
+            * opens its own section of Settings, so "Token expired" is one click
+            * from the field that fixes it rather than a tab away.
             *
             * Plain links, and never `aria-current`: they are shortcuts into
-            * one page, and the Settings row above is the one that *is* that
-            * page. As NavLinks they all lit up alongside it on arrival.
+            * one page, and the Settings row below is the one that *is* that
+            * page.
             *
             * The dot is never the whole message (SC 1.4.1): the words beside
             * it are what separate "Synced 4m ago" from "Token expired", and
             * the row's `title` carries the unabbreviated version.
             */}
-          {sources.length > 0 && (
+          {expanded && sources.length > 0 && (
             <>
               <RailSectionLabel expanded={expanded}>Sources</RailSectionLabel>
               {sources.map((source) => (
                 <Link
                   key={source.id}
-                  to="/settings?tab=integrations"
+                  to={source.href}
                   className={`${RAIL_ROW} hover:bg-[var(--surface)]`}
                   style={{ color: "var(--text-dim)" }}
                   title={`${source.label} — ${source.health.label}`}
@@ -469,13 +492,8 @@ export function Sidebar({
                   <span className="flex h-[1.0625rem] w-[1.0625rem] flex-none items-center justify-center">
                     <span aria-hidden="true" className={healthDotClass(source.health.tone)} />
                   </span>
-                  <span className="min-w-0 flex-1 truncate" style={{ opacity: expanded ? 1 : 0 }}>
-                    {source.label}
-                  </span>
-                  <span
-                    className="max-w-[6.5rem] flex-none truncate transition-opacity"
-                    style={{ color: "var(--text-mute)", opacity: expanded ? 1 : 0 }}
-                  >
+                  <span className="min-w-0 flex-1 truncate">{source.label}</span>
+                  <span className="max-w-[6.5rem] flex-none truncate" style={{ color: "var(--text-mute)" }}>
                     {source.status}
                   </span>
                 </Link>
@@ -483,7 +501,7 @@ export function Sidebar({
             </>
           )}
 
-          <RailSectionLabel expanded={expanded}>Manage</RailSectionLabel>
+          <RailSectionLabel expanded={expanded}>TV &amp; settings</RailSectionLabel>
           {SIDEBAR_MANAGE_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -580,7 +598,7 @@ export function Sidebar({
           <div role="status">
             <p className="font-semibold" style={{ color: "var(--text)" }}>Quick tip</p>
             <p className="mt-1 leading-snug" style={{ color: "var(--text-dim)" }}>
-              Hover this rail to peek, or pin it open to keep the labels.
+              Point at an icon for its name, or pin the sidebar open to keep the labels.
             </p>
           </div>
           <button

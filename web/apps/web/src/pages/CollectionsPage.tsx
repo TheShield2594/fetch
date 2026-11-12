@@ -25,7 +25,9 @@ import {
   type TmdbSourceType,
 } from "../api";
 import { Poster } from "../components/Poster";
-import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
+import { SECTION_TITLE } from "../components/typography";
+import { PageFrame, PageHeader } from "../components/PageFrame";
+import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { useToast } from "../hooks/useToast";
 import {
   type AddonManifest,
@@ -168,6 +170,11 @@ const PROVIDER_LABELS: Record<Provider, string> = {
   addon: "Addon catalog",
 };
 
+const PROVIDER_OPTIONS: SegmentedOption<Provider>[] = (Object.keys(PROVIDER_LABELS) as Provider[]).map((value) => ({
+  value,
+  label: PROVIDER_LABELS[value],
+}));
+
 function SourceBuilder({
   lists,
   onAdd,
@@ -289,21 +296,13 @@ function SourceBuilder({
 
   return (
     <div className="mt-3 space-y-3 rounded-xl border p-3" style={{ borderColor: "var(--border)" }}>
-      <div role="tablist" aria-label="Source type" className="flex flex-wrap gap-1">
-        {(Object.keys(PROVIDER_LABELS) as Provider[]).map((p) => (
-          <button
-            key={p}
-            type="button"
-            role="tab"
-            aria-selected={provider === p}
-            onClick={() => setProvider(p)}
-            className={`rounded-lg px-2.5 py-1 text-xs font-medium ${provider === p ? "bg-accent-500/15 text-accent-text" : "hover:bg-[var(--surface-strong)]"}`}
-            style={provider === p ? undefined : { color: "var(--text-dim)" }}
-          >
-            {PROVIDER_LABELS[p]}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        label="Source type"
+        options={PROVIDER_OPTIONS}
+        value={provider}
+        onChange={setProvider}
+        className="w-full max-w-md"
+      />
 
       {provider === "fetch" && (
         lists.length === 0 ? (
@@ -726,25 +725,28 @@ export function CollectionsPage() {
   };
 
   return (
-    <div className="space-y-6 py-2">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Collections</h1>
-          <p className="mt-1 max-w-2xl text-sm" style={{ color: "var(--text-dim)" }}>
+    <PageFrame className="space-y-6">
+      <PageHeader
+        title="Collections"
+        className=""
+        summary={
+          <p className="max-w-2xl text-sm">
             Custom rows for the TV&apos;s Home screen. Group sources into folders, preview what each one brings, and
             save — paired TVs pick the change up on their next sync.
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {dirty && <span className="text-xs" style={{ color: "var(--text-mute)" }}>Unsaved changes</span>}
-          <button type="button" onClick={discard} disabled={!dirty || saving} className="btn-secondary btn-sm">
-            <RotateCcw size={14} /> Discard
-          </button>
-          <button type="button" onClick={save} disabled={!dirty || saving} className="btn-primary btn-sm">
-            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save
-          </button>
-        </div>
-      </header>
+        }
+        actions={
+          <>
+            {dirty && <span className="text-xs" style={{ color: "var(--text-mute)" }}>Unsaved changes</span>}
+            <button type="button" onClick={discard} disabled={!dirty || saving} className="btn-secondary btn-sm">
+              <RotateCcw size={14} /> Discard
+            </button>
+            <button type="button" onClick={save} disabled={!dirty || saving} className="btn-primary btn-sm">
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} Save
+            </button>
+          </>
+        }
+      />
 
       {conflict && (
         <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2 text-sm" style={{ borderColor: "var(--border-strong)", color: "var(--text)" }}>
@@ -812,6 +814,6 @@ export function CollectionsPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }

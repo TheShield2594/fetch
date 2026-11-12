@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import type { CatalogList } from "../api";
-import { SIDEBAR_MANAGE_ITEMS, Sidebar } from "./Sidebar";
+import { PIN_KEY, SIDEBAR_MANAGE_ITEMS, SIDEBAR_NAV_ITEMS, Sidebar, initialPinned } from "./Sidebar";
 
 // The rail reads two things besides its routes: the profile's lists, which it
 // fetches itself (they are on screen long before anyone visits /lists), and the
@@ -109,7 +109,7 @@ describe("Sidebar", () => {
     await within(nav).findByRole("link", { name: /Watchlist/ });
 
     expect(currentRows()).toHaveLength(1);
-    expect(within(nav).getByRole("link", { name: "All Lists" })).toHaveAttribute("aria-current", "page");
+    expect(within(nav).getByRole("link", { name: "All lists" })).toHaveAttribute("aria-current", "page");
   });
 
   /*
@@ -151,18 +151,64 @@ describe("Sidebar", () => {
 
   /*
    * The page that makes and renames lists sits at the foot of the group it
-   * manages, rather than as a second row called "Lists" further down — two rows
-   * of that name in one column would be a puzzle. It is also why the group
-   * renders on a profile with no lists yet: without it, /lists would be
-   * unreachable from the rail on a fresh install.
+   * manages. With no lists yet there is no group to head — just the one row,
+   * so /lists stays reachable on a fresh install without an empty heading.
    */
   it("keeps the page that manages lists at the foot of the list group", async () => {
+    lists.value = [list({ id: "w", name: "Watchlist", kind: "watchlist", itemCount: 3 })];
     renderSidebar(true);
 
     const nav = screen.getByRole("navigation", { name: "Primary" });
-    const all = await within(nav).findByRole("link", { name: "All Lists" });
+    const all = await within(nav).findByRole("link", { name: "All lists" });
     expect(all).toHaveAttribute("href", "/lists");
-    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "History", "Profiles"]);
+  });
+
+  it("draws no Lists heading over a profile with no lists, only the Lists row", async () => {
+    const { api } = await import("../api");
+    renderSidebar(true);
+
+    const nav = screen.getByRole("navigation", { name: "Primary" });
+    await waitFor(() => expect(vi.mocked(api.getLists)).toHaveBeenCalled());
+    expect(within(nav).getByRole("link", { name: "Lists" })).toHaveAttribute("href", "/lists");
+    expect(within(nav).queryByText("All lists")).toBeNull();
+    expect(nav.querySelectorAll("p")).toHaveLength(1); // the "TV & settings" heading alone
+  });
+
+  it("groups the destinations, then lists, then the TV and settings", () => {
+    expect(SIDEBAR_NAV_ITEMS.map((i) => i.label)).toEqual(["Shelf", "Discover", "Search", "Calendar", "History", "Stats"]);
+    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "Profiles", "Settings"]);
+  });
+
+  /*
+   * Collapsed, a list was a coloured dot and a source a health dot, with no
+   * name until hovered: five unlabeled dots in a column. Now the collapsed rail
+   * is icons only, every one of them named.
+   */
+  it("draws nothing in the collapsed rail that is an unlabeled dot", async () => {
+    lists.value = [
+      list({ id: "w", name: "Watchlist", kind: "watchlist", itemCount: 3 }),
+      list({ id: "m", name: "Movie Night", kind: "custom", itemCount: 2 }),
+    ];
+    health.value = { trakt: { tone: "ok", label: "Synced 4m ago" } };
+    const { api } = await import("../api");
+    renderSidebar(false);
+
+    const nav = screen.getByRole("navigation", { name: "Primary" });
+    await waitFor(() => expect(vi.mocked(api.getLists)).toHaveBeenCalled());
+    expect(within(nav).queryByRole("link", { name: /Watchlist|Movie Night|Trakt/ })).toBeNull();
+    for (const link of within(nav).getAllByRole("link")) {
+      expect(link).toHaveAttribute("title");
+      expect(link.querySelector("svg")).not.toBeNull();
+    }
+  });
+
+  it("marks the Lists row current on a list route while collapsed", async () => {
+    lists.value = [list({ id: "m", name: "Movie Night", kind: "custom", itemCount: 2 })];
+    renderSidebar(false, "/lists?list=m");
+
+    const nav = screen.getByRole("navigation", { name: "Primary" });
+    await waitFor(() => expect(currentRows()).toHaveLength(1));
+    expect(within(nav).getByRole("link", { name: "Lists" })).toHaveAttribute("aria-current", "page");
   });
 
   /*
@@ -176,7 +222,8 @@ describe("Sidebar", () => {
     const nav = screen.getByRole("navigation", { name: "Primary" });
     const row = await within(nav).findByRole("link", { name: /Trakt/ });
     expect(row).toHaveTextContent("Synced 4m ago");
-    expect(row).toHaveAttribute("href", "/settings?tab=integrations");
+    // Its own section, not the tab it is on: one click from the field that fixes it.
+    expect(row).toHaveAttribute("href", "/settings?section=trakt");
     expect(within(nav).getByText("Sources")).toBeInTheDocument();
   });
 
@@ -187,7 +234,7 @@ describe("Sidebar", () => {
     renderSidebar(true);
 
     const nav = screen.getByRole("navigation", { name: "Primary" });
-    await waitFor(() => expect(within(nav).getByText("Manage")).toBeInTheDocument());
+    await waitFor(() => expect(within(nav).getByText("TV & settings")).toBeInTheDocument());
     expect(within(nav).queryByText("Sources")).toBeNull();
     expect(within(nav).queryByRole("link", { name: /OMDb/ })).toBeNull();
   });
@@ -222,13 +269,28 @@ describe("Sidebar", () => {
     renderSidebar(true);
 
     const nav = screen.getByRole("navigation", { name: "Primary" });
-    expect(within(nav).getByText("Manage")).toBeInTheDocument();
+    expect(within(nav).getByText("TV & settings")).toBeInTheDocument();
     for (const item of SIDEBAR_MANAGE_ITEMS) {
       expect(within(nav).getByRole("link", { name: item.label })).toHaveAttribute("href", item.to);
     }
   });
 
-  it("expands when focus reaches the rail, not only on hover", async () => {
+  /*
+   * Hovering used to open the rail over the left 240px of the page every time
+   * the cursor reached the window's edge. The icons carry tooltips instead.
+   */
+  it("does not open over the page when the pointer rests on it", async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.hover(screen.getByRole("link", { name: "Shelf" }));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    expect(rail().style.width).toBe(COLLAPSED_WIDTH);
+    expect(screen.getByRole("link", { name: "Shelf" })).toHaveAttribute("title", "Shelf");
+  });
+
+  it("expands when focus reaches the rail from the keyboard", async () => {
     const user = userEvent.setup();
     renderSidebar();
 
@@ -246,7 +308,7 @@ describe("Sidebar", () => {
     await user.tab();
     await user.tab();
 
-    expect(screen.getByRole("link", { name: "Search" })).toHaveFocus();
+    expect(screen.getByRole("link", { name: "Discover" })).toHaveFocus();
     expect(rail().style.width).toBe(EXPANDED_WIDTH);
   });
 
@@ -331,5 +393,37 @@ describe("Sidebar", () => {
     renderSidebar(true);
 
     expect(screen.queryByText("Quick tip")).not.toBeInTheDocument();
+  });
+});
+
+describe("initialPinned", () => {
+  const widthIs = (wide: boolean) =>
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: wide && query === "(min-width: 1024px)",
+      media: query,
+      onchange: null,
+      addListener() {},
+      removeListener() {},
+      addEventListener() {},
+      removeEventListener() {},
+      dispatchEvent: () => false,
+    }));
+
+  beforeEach(() => localStorage.removeItem(PIN_KEY));
+
+  it("opens pinned from lg up when nobody has chosen", () => {
+    widthIs(true);
+    expect(initialPinned()).toBe(true);
+    widthIs(false);
+    expect(initialPinned()).toBe(false);
+  });
+
+  it("keeps what the person chose, either way, at any width", () => {
+    widthIs(true);
+    localStorage.setItem(PIN_KEY, "0");
+    expect(initialPinned()).toBe(false);
+    widthIs(false);
+    localStorage.setItem(PIN_KEY, "1");
+    expect(initialPinned()).toBe(true);
   });
 });

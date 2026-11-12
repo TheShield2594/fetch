@@ -4,7 +4,9 @@ import { Award, BarChart3, Film, Flame, Minus, TrendingDown, TrendingUp } from "
 import { api, type DetailedWatchStats, type SearchResult, type WatchStats, type YearInReviewStats } from "../api";
 import { useCachedState } from "../hooks/useCachedState";
 import { seriesBar, seriesMax } from "../utils/monthlyBars";
-import { PAGE_TITLE, SECTION_TITLE, KICKER } from "../components/typography";
+import { SECTION_TITLE, KICKER } from "../components/typography";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
+import { PageFrame, PageHeader } from "../components/PageFrame";
 import { SelectField } from "../components/SelectField";
 import { SectionError } from "../components/SectionError";
 import { PosterGrid } from "../components/PosterGrid";
@@ -146,16 +148,12 @@ export function StatsPage() {
   const review = yearReview?.year === year ? yearReview : null;
   const reviewError = yearError?.year === year ? yearError.message : null;
 
-  const header = (
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      {/* "Stats", as the navigation calls it. */}
-      <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Stats</h1>
-    </div>
-  );
+  // "Stats", as the navigation calls it.
+  const header = <PageHeader title="Stats" className="" />;
 
   if (error) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6">
+      <PageFrame width="reading" className="space-y-6">
         {header}
         <SectionError
           variant="page"
@@ -166,13 +164,13 @@ export function StatsPage() {
             void load();
           }}
         />
-      </div>
+      </PageFrame>
     );
   }
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6">
+      <PageFrame width="reading" className="space-y-6">
         {header}
         <div className="skeleton h-10 w-2/3 rounded-xl" />
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
@@ -181,7 +179,7 @@ export function StatsPage() {
           ))}
         </div>
         <div className="skeleton h-64 rounded-2xl" />
-      </div>
+      </PageFrame>
     );
   }
 
@@ -199,23 +197,17 @@ export function StatsPage() {
    */
   if (stats && stats.totalMovies === 0 && stats.totalEpisodes === 0) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6">
+      <PageFrame width="reading" className="space-y-6">
         {header}
-        <div className={`${PANEL} p-8 text-center`} style={PANEL_STYLE}>
-          <BarChart3 className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-          <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-            Nothing watched yet, so there is nothing to count.
-          </p>
+        <EmptyState
+          title="Nothing watched yet"
+          action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to watch &rarr;</Link>}
+        >
           {/* The expected state for a new profile, not a fault — and the reason
-              the streaks and badges below are missing rather than broken. */}
-          <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
-            Every figure here — streaks, genres, badges, your year in review — is built from your watch history.
-          </p>
-          <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-            Find something to watch &rarr;
-          </Link>
-        </div>
-      </div>
+              the streaks and badges are missing rather than broken. */}
+          Every figure here — streaks, genres, badges, your year in review — is built from your watch history.
+        </EmptyState>
+      </PageFrame>
     );
   }
 
@@ -241,14 +233,16 @@ export function StatsPage() {
       : null;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10">
+    <PageFrame width="reading" className="space-y-10">
       {/* ── The year, first ─────────────────────────────────────────────
           The page is a record of a year of watching, so it opens on the year
           and on the picker that changes it. That picker used to sit beside the
           last block on the page, below everything it didn't affect. */}
       <section aria-labelledby="stats-year" className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Stats</h1>
+        <PageHeader
+          title="Stats"
+          className=""
+          actions={
           <SelectField
             aria-label="Year in review: year"
             value={year}
@@ -259,7 +253,8 @@ export function StatsPage() {
               <option key={y} value={y}>{y}</option>
             ))}
           </SelectField>
-        </div>
+          }
+        />
 
         <div>
           <h2 id="stats-year" className={KICKER} style={{ color: "var(--text-mute)" }}>{year} in review</h2>
@@ -479,7 +474,7 @@ export function StatsPage() {
           />
         </section>
       )}
-    </div>
+    </PageFrame>
   );
 }
 

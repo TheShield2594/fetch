@@ -5,15 +5,15 @@ import { first } from "../lib/test-fixtures/present.js";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 
-const getUpcomingEpisodes = vi.fn();
+const getCalendar = vi.fn();
 const getSpoilerProtection = vi.fn();
 
 // Every caller is the account "owner-1" (lib/test-fixtures/integration-owner-mock.ts).
 vi.mock("../lib/integration-owner.js", async () =>
   (await import("../lib/test-fixtures/integration-owner-mock.js")).integrationOwnerMock
 );
-vi.mock("../lib/upcoming-episodes.js", () => ({
-  getUpcomingEpisodes: (...a: unknown[]) => getUpcomingEpisodes(...a),
+vi.mock("../lib/calendar.js", () => ({
+  getCalendar: (...a: unknown[]) => getCalendar(...a),
 }));
 vi.mock("../lib/settings.js", () => ({ getSpoilerProtection: () => getSpoilerProtection() }));
 vi.mock("../lib/profile.js", () => ({
@@ -26,12 +26,13 @@ const buildApp = (): Promise<FastifyInstance> =>
   buildRouteApp(() => import("./calendar.js"));
 
 /** The `days` argument the route passed through to the lookup. */
-const daysArg = () => first(getUpcomingEpisodes.mock.calls, "getUpcomingEpisodes call")[1];
+const windowArg = () => first(getCalendar.mock.calls, "getCalendar call")[1] as { start: Date; days: number };
+const daysArg = () => windowArg().days;
 
 describe("calendar routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getUpcomingEpisodes.mockResolvedValue([]);
+    getCalendar.mockResolvedValue([]);
     getSpoilerProtection.mockResolvedValue(false);
   });
 
@@ -41,7 +42,7 @@ describe("calendar routes", () => {
     const res = await app.inject({ method: "GET", url: "/calendar" });
 
     expect(res.statusCode).toBe(200);
-    expect(getUpcomingEpisodes).toHaveBeenCalledWith(PROFILE_ID, 30, 30, false);
+    expect(getCalendar).toHaveBeenCalledWith(PROFILE_ID, { start: expect.any(Date), days: 30 }, false, expect.anything());
   });
 
   it("honours an explicit window", async () => {
@@ -83,15 +84,42 @@ describe("calendar routes", () => {
 
     await app.inject({ method: "GET", url: "/calendar" });
 
-    expect(getUpcomingEpisodes).toHaveBeenCalledWith(PROFILE_ID, 30, 30, true);
+    expect(getCalendar).toHaveBeenCalledWith(PROFILE_ID, { start: expect.any(Date), days: 30 }, true, expect.anything());
   });
 
   it("returns the calendar under a `calendar` key", async () => {
-    getUpcomingEpisodes.mockResolvedValue([{ date: "2026-02-01", episodes: [] }]);
+    getCalendar.mockResolvedValue([{ date: "2026-02-01", episodes: [] }]);
     const app = await buildApp();
 
     const res = await app.inject({ method: "GET", url: "/calendar" });
 
     expect(res.json().calendar).toHaveLength(1);
+  });
+
+  it("starts at today by default, and at the day asked for", async () => {
+    const app = await buildApp();
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    await app.inject({ method: "GET", url: "/calendar" });
+    expect(windowArg().start.getTime()).toBe(today.getTime());
+
+    getCalendar.mockClear();
+    // As far back as the month grid's earliest month asks: a year and a month.
+    const past = new Date(today);
+    past.setUTCDate(past.getUTCDate() - 397);
+    const iso = past.toISOString().slice(0, 10);
+    await app.inject({ method: "GET", url: `/calendar?start=${iso}&days=31` });
+    expect(windowArg()).toEqual({ start: past, days: 31 });
+  });
+
+  it("refuses a start that is not a real day, or more than a year away", async () => {
+    const app = await buildApp();
+
+    for (const start of ["2026-02-30", "soon", "2001-01-01", "2999-01-01"]) {
+      const res = await app.inject({ method: "GET", url: `/calendar?start=${start}` });
+      expect(res.statusCode).toBe(400);
+    }
+    expect(getCalendar).not.toHaveBeenCalled();
   });
 });

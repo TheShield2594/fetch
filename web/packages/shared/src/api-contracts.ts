@@ -406,15 +406,49 @@ const absentAsUndefined = <T>(value: unknown, read: () => T): T | undefined =>
 
 // ─── Calendar ───
 
-/** One upcoming episode, as `GET /calendar` returns it. */
+/**
+ * What a calendar entry is.
+ *
+ *   episode   the next episode of a series you are part-way through
+ *   premiere  an episode 1 — a new season of a series you follow, or the first
+ *             episode of one on your watchlist
+ *   movie     a film on your watchlist, on its release date
+ */
+export type CalendarEntryKind = "episode" | "premiere" | "movie";
+
+/**
+ * One dated thing on `GET /calendar`.
+ *
+ * Named for the episode it started as: `seriesImdbId` and `seriesName` are the
+ * title's id and name, the film's own for a `movie`, and `season`, `episode`
+ * and `episodeName` are null there because a film has none. `airDate` is the
+ * day it airs or is released.
+ *
+ * `kind`, `still`, `backdrop`, `airsAt` and `watched` arrived later and are
+ * optional on the wire; a response without them reads as an unwatched episode
+ * with no artwork beyond the poster and no time of day.
+ */
 export type CalendarEntry = {
+  kind: CalendarEntryKind;
   seriesImdbId: string;
   seriesName: string;
   poster: string | null;
-  season: number;
-  episode: number;
-  episodeName: string;
+  /** The episode's own 16:9 still, where TMDB has one and spoiler protection allows it. */
+  still: string | null;
+  /** The title's 16:9 backdrop, the fallback for an entry with no still. */
+  backdrop: string | null;
+  season: number | null;
+  episode: number | null;
+  episodeName: string | null;
   airDate: string;
+  /**
+   * The instant it airs (ISO 8601), where a source knows it — Trakt, for a
+   * profile that has connected it. TMDB knows only `airDate`, so null is the
+   * usual case. Where set, it is what places the entry on a local day.
+   */
+  airsAt: string | null;
+  /** Whether this profile has already watched it — the past half of a month. */
+  watched: boolean;
   overview: string | null;
 };
 
@@ -444,19 +478,53 @@ const asAirDate = (value: unknown, what: string): string => {
   return real ? date : fail(`${what} must be a day that exists, got "${date}"`);
 };
 
+/**
+ * An ISO 8601 instant — a date, a time and an explicit offset — or null for an
+ * absent one. `Date.parse` alone would take a bare "2026-09-15", which has no
+ * time zone and lands on the 14th west of Greenwich; the date part must also
+ * be a day that exists, for the reason `asAirDate` gives.
+ */
+const ISO_INSTANT = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/;
+const asInstantOrNull = (value: unknown, what: string): string | null => {
+  if (value === undefined || value === null) return null;
+  const text = asString(value, what);
+  const match = ISO_INSTANT.exec(text);
+  if (!match || Number.isNaN(Date.parse(text))) return fail(`${what} must be an ISO 8601 instant with an offset, got "${text}"`);
+  asAirDate(match[1], what);
+  return text;
+};
+
+const CALENDAR_KINDS: readonly CalendarEntryKind[] = ["episode", "premiere", "movie"];
+
+/** Absent means an API from before kinds existed, which only ever sent episodes. */
+const asCalendarKind = (value: unknown, what: string): CalendarEntryKind => {
+  if (value === undefined || value === null) return "episode";
+  return CALENDAR_KINDS.includes(value as CalendarEntryKind)
+    ? (value as CalendarEntryKind)
+    : fail(`${what} must be one of ${CALENDAR_KINDS.join(", ")}`);
+};
+
 export const parseCalendarResponse = (value: unknown): CalendarResponse => {
   const body = asObject(value, "response");
   const calendar = asArray(collection(body, "calendar"), "calendar").map((entry, index) => {
     const at = `calendar[${index}]`;
     const episode = asObject(entry, at);
+    const kind = asCalendarKind(episode.kind, `${at}.kind`);
+    // A film has no season or episode; anything else must say which one it is.
+    const film = kind === "movie";
     return {
+      kind,
       seriesImdbId: asString(episode.seriesImdbId, `${at}.seriesImdbId`),
       seriesName: asString(episode.seriesName, `${at}.seriesName`),
       poster: nullableString(episode.poster, `${at}.poster`),
-      season: asNumber(episode.season, `${at}.season`),
-      episode: asNumber(episode.episode, `${at}.episode`),
-      episodeName: asString(episode.episodeName, `${at}.episodeName`),
+      still: nullableString(episode.still ?? null, `${at}.still`),
+      backdrop: nullableString(episode.backdrop ?? null, `${at}.backdrop`),
+      season: film ? null : asNumber(episode.season, `${at}.season`),
+      episode: film ? null : asNumber(episode.episode, `${at}.episode`),
+      episodeName: film ? null : asString(episode.episodeName, `${at}.episodeName`),
       airDate: asAirDate(episode.airDate, `${at}.airDate`),
+      airsAt: asInstantOrNull(episode.airsAt, `${at}.airsAt`),
+      watched: episode.watched === undefined || episode.watched === null ? false : asBoolean(episode.watched, `${at}.watched`),
       overview: nullableString(episode.overview, `${at}.overview`),
     };
   });

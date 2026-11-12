@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router";
-import { Calendar, ChevronDown, Film, NotebookPen, Search, Trash2, Tv, X } from "lucide-react";
+import { ChevronDown, Film, NotebookPen, Search, Trash2, Tv, X } from "lucide-react";
 import { api, type SearchResult, type WatchEvent } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
 import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
 import { relogWatchEvent, watchEventLabel, watchEventTitle } from "../utils/watchEvents";
-import { PAGE_TITLE, KICKER } from "../components/typography";
+import { KICKER } from "../components/typography";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
+import { PageFrame, PageHeader } from "../components/PageFrame";
+import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { PAGE_SIZE } from "./history-paging";
 import { SectionError } from "../components/SectionError";
 import { Poster } from "../components/Poster";
@@ -69,6 +72,12 @@ function toSearchResult(event: WatchEvent): SearchResult {
  * Only the first page is cached; later pages are held separately and merged for
  * rendering so appending never rewrites the cache.
  */
+const TYPE_OPTIONS: SegmentedOption<TypeFilter>[] = [
+  { value: "all", label: "All" },
+  { value: "movie", label: "Films" },
+  { value: "episode", label: "Episodes" },
+];
+
 export function HistoryPage() {
   // Only the first page goes through the cache. Appended pages are held
   // separately and merged for rendering: writing them through would grow the
@@ -655,32 +664,21 @@ export function HistoryPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <PageFrame width="reading" className="space-y-6">
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>History</h1>
-
-          <div className="relative inline-flex rounded-full p-0.5" style={{ background: "var(--surface-strong)", border: "1px solid var(--border)" }}>
-            {(["all", "movie", "episode"] as const).map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => setTypeFilter(opt)}
-                // Without this the active filter is a background colour and nothing
-                // else — SC 1.4.1 and 4.1.2.
-                aria-pressed={typeFilter === opt}
-                className="relative rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-                style={
-                  typeFilter === opt
-                    ? { background: "var(--accent)", color: "var(--on-accent)" }
-                    : { color: "var(--text-dim)" }
-                }
-              >
-                {opt === "all" ? "All" : opt === "movie" ? "Movies" : "Episodes"}
-              </button>
-            ))}
-          </div>
-        </div>
+        <PageHeader
+          title="History"
+          className="mb-0"
+          actions={
+            <SegmentedControl
+              label="Show films, episodes or both"
+              options={TYPE_OPTIONS}
+              value={typeFilter}
+              onChange={setTypeFilter}
+              className="w-60"
+            />
+          }
+        />
 
         {/* Finding something: by what it was called, or by when. Both go to the
             server — the list is paged, so neither can be answered from the rows
@@ -768,15 +766,10 @@ export function HistoryPage() {
       ) : error && events.length === 0 ? (
         <SectionError variant="page" message={error} onRetry={() => setReloadToken((n) => n + 1)} />
       ) : events.length === 0 ? (
-        <div className="glass-panel rounded-2xl p-8 text-center" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
-          <Calendar className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-          {narrowed ? (
-            <>
-              <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                {query
-                  ? `Nothing in your history matches “${query}”${month ? ` in or before ${monthLabel(month)}` : ""}.`
-                  : `Nothing watched in or before ${monthLabel(month ?? "")}.`}
-              </p>
+        narrowed ? (
+          <EmptyState
+            title="Nothing matches"
+            action={
               <button
                 type="button"
                 onClick={() => {
@@ -788,29 +781,32 @@ export function HistoryPage() {
                     return params;
                   });
                 }}
-                className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline"
+                className={EMPTY_STATE_ACTION}
               >
                 Show all history
               </button>
-            </>
-          ) : (
-            <>
-              <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                {typeFilter === "movie"
-                  ? "No movies in your watch history yet."
-                  : typeFilter === "episode"
-                    ? "No episodes in your watch history yet."
-                    : "No watch history yet."}
-                {" "}Anything you mark watched is logged here.
-              </p>
-              {/* The search page is the way out of this one: a brand-new install
-                  lands here with nothing to filter and no other route onward. */}
-              <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-                Find something to watch &rarr;
-              </Link>
-            </>
-          )}
-        </div>
+            }
+          >
+            {query
+              ? `Nothing in your history matches “${query}”${month ? ` in or before ${monthLabel(month)}` : ""}.`
+              : `Nothing watched in or before ${monthLabel(month ?? "")}.`}
+          </EmptyState>
+        ) : (
+          <EmptyState
+            title={
+              typeFilter === "movie"
+                ? "No films watched yet"
+                : typeFilter === "episode"
+                  ? "No episodes watched yet"
+                  : "No watch history yet"
+            }
+            // The search page is the way out of this one: a brand-new install
+            // lands here with nothing to filter and no other route onward.
+            action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to watch &rarr;</Link>}
+          >
+            Anything you mark watched is logged here.
+          </EmptyState>
+        )
       ) : (
         <div className="space-y-6">
           {days.map((day) => (
@@ -846,6 +842,6 @@ export function HistoryPage() {
           )}
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }

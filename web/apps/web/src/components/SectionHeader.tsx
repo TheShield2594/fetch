@@ -19,7 +19,7 @@ export function SectionHeader({
   children?: ReactNode | undefined;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between">
+    <div className="mb-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <h2 className={SECTION_TITLE} style={{ color: "var(--text)" }}>
           {title}

@@ -347,7 +347,7 @@ describe("ListsPage add-item modal", () => {
     await waitFor(() => expect(search).toHaveBeenCalledWith("series", "sol", expect.any(AbortSignal)));
 
     search.mockClear();
-    await user.click(dialog.getByRole("button", { name: "Series" }));
+    await user.click(dialog.getByRole("button", { name: "Shows" }));
 
     await waitFor(() => expect(search).toHaveBeenCalledWith("series", "sol", expect.any(AbortSignal)));
     expect(search).not.toHaveBeenCalledWith("movie", "sol");

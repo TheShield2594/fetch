@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router";
+import { Link, MemoryRouter } from "react-router";
 import { INITIALLY_OPEN_SECTION_IDS, SETTINGS_SECTIONS, SETTINGS_TABS, SettingsPage, matchesSearch, type SettingsTab } from "./SettingsPage";
 import { at, present } from "../test/present";
 import { setExtrasEnabled } from "../hooks/useExtras";
@@ -155,6 +155,40 @@ describe("SettingsPage", () => {
       expect(screen.getByRole("tab", { name: "Integrations & Data" })).toHaveAttribute("aria-selected", "true");
       expect(screen.getByRole("button", { name: /stremio addon/i })).toHaveAttribute("aria-expanded", "true");
       expect(scrolled).toHaveBeenCalledTimes(1);
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
+  /*
+   * The rail's source rows link to `?section=<id>` while Settings may already
+   * be open — so the section is already mounted (and maybe shut), and a search
+   * may be filtering it out of view.
+   */
+  it("opens a section linked to while Settings is open, clearing a search that would hide it", async () => {
+    const user = userEvent.setup();
+    const scrolled = vi.fn();
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrolled;
+    try {
+      render(
+        <MemoryRouter initialEntries={["/settings?tab=integrations"]}>
+          <Link to="/settings?section=addon">Go to the addon</Link>
+          <SettingsPage />
+        </MemoryRouter>
+      );
+      const addon = screen.getByRole("button", { name: /stremio addon/i });
+      if (addon.getAttribute("aria-expanded") === "true") await user.click(addon);
+      expect(screen.getByRole("button", { name: /stremio addon/i })).toHaveAttribute("aria-expanded", "false");
+
+      await user.type(searchBox(), "notifications");
+      expect(screen.queryByRole("button", { name: /stremio addon/i })).toBeNull();
+
+      await user.click(screen.getByRole("link", { name: "Go to the addon" }));
+
+      expect(searchBox()).toHaveValue("");
+      expect(screen.getByRole("button", { name: /stremio addon/i })).toHaveAttribute("aria-expanded", "true");
+      expect(scrolled).toHaveBeenCalled();
     } finally {
       Element.prototype.scrollIntoView = original;
     }

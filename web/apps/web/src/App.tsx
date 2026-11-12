@@ -4,11 +4,11 @@ import { Search, User } from "lucide-react";
 import { api, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
 import { useCommandPalette } from "./hooks/useCommandPalette";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { GhostLoader } from "./components/GhostLoader";
+import { FetchLoader } from "./components/FetchLoader";
 import { InstallButton } from "./components/InstallButton";
 import { MobileTabBar } from "./components/MobileTabBar";
 import { OfflineBanner } from "./components/OfflineBanner";
-import { Sidebar, PIN_KEY } from "./components/Sidebar";
+import { Sidebar, initialPinned } from "./components/Sidebar";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { useOfflineWriteQueue } from "./hooks/useOfflineWriteQueue";
 import { useScrolled } from "./hooks/useScrolled";
@@ -73,7 +73,7 @@ const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })
 const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
 
 const LoadingFallback = ({ label = "Loading…" }: { label?: string }) => (
-  <GhostLoader label={label} className="items-center py-24" />
+  <FetchLoader label={label} className="items-center py-24" />
 );
 
 /**
@@ -133,7 +133,8 @@ export function App() {
   const [needsProfile, setNeedsProfile] = useState(() => !runtimeConfig.getProfileId());
   const { theme, setTheme } = useTheme();
   const { open: paletteOpen, setOpen: setPaletteOpen } = useCommandPalette();
-  const [sidebarPinned, setSidebarPinned] = useState(() => localStorage.getItem(PIN_KEY) === "1");
+  // Open from `lg` up until someone unpins it; see `initialPinned`.
+  const [sidebarPinned, setSidebarPinned] = useState(initialPinned);
   // The rail bleeds under the left notch and insets its own contents (see
   // Sidebar.tsx), so the space the shell reserves for it has to grow by the
   // same inset or the header and the page slide back under the housing.
@@ -189,7 +190,7 @@ export function App() {
   if (needsProfile && location.pathname === "/pair") {
     return (
       <Suspense fallback={<LoadingFallback />}>
-        <main className="px-6">
+        <main className="mx-auto max-w-4xl px-6 py-6">
           <PairPage />
         </main>
       </Suspense>

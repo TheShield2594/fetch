@@ -1,6 +1,6 @@
 import { type FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
-import { Check, ChevronDown, ChevronUp, Clock, Film, Filter, Plus, Search, SlidersHorizontal, Tv, X } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Clock, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { api, type CatalogList, type SearchResult, type TrendingMeta } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
@@ -15,6 +15,9 @@ import {
   SORT_LABELS,
 } from "../hooks/useSearchFilters";
 import { SECTION_TITLE, MICRO_LABEL, KICKER } from "../components/typography";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
+import { PageFrame, PageHeader } from "../components/PageFrame";
+import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { SelectField } from "../components/SelectField";
 import { PosterGrid } from "../components/PosterGrid";
 import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../components/PosterCard";
@@ -357,10 +360,10 @@ export function SearchPage() {
     setOpenDropdown(null);
   };
 
-  const filterOptions: { value: FilterType; label: string; icon?: typeof Film }[] = [
+  const filterOptions: SegmentedOption<FilterType>[] = [
     { value: "all", label: "All" },
-    { value: "movie", label: "Films", icon: Film },
-    { value: "series", label: "Shows", icon: Tv },
+    { value: "movie", label: "Films" },
+    { value: "series", label: "Shows" },
   ];
 
   const shown = useMemo(() => (results ? sortResults(results, filters.sort) : null), [results, filters.sort]);
@@ -403,7 +406,9 @@ export function SearchPage() {
   );
 
   return (
-    <div className="relative space-y-6">
+    <PageFrame className="relative">
+      <PageHeader title="Search" />
+      <div className="space-y-6">
       {/* Search bar.
 
           Two radii in this panel, and only two: surfaces are rounded-2xl (this
@@ -414,9 +419,6 @@ export function SearchPage() {
         className="glass-surface sticky top-[76px] z-40 rounded-2xl p-4 backdrop-blur-xl shadow-e1"
         style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border)", background: "color-mix(in srgb, var(--bg-1) 90%, transparent)" }}
       >
-        {/* The search field is the page's title bar, so the h1 is hidden rather
-            than duplicated above it — the outline still needs one. */}
-        <h1 className="sr-only">Search</h1>
         <div className="relative">
           <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2" style={{ color: "var(--text-mute)" }} />
           <input
@@ -443,28 +445,13 @@ export function SearchPage() {
 
         {/* Type toggle + filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="flex rounded-full bg-[var(--surface)] p-1" style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}>
-            {filterOptions.map((opt) => {
-              const Icon = opt.icon;
-              const on = filters.filter === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  onClick={() => setFilters({ filter: opt.value })}
-                  // Which filter is on is otherwise carried by a background
-                  // colour and nothing else — SC 1.4.1 and 4.1.2.
-                  aria-pressed={on}
-                  className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-[color,background-color,box-shadow] duration-base ${
-                    on ? "bg-accent-500 text-accent-on shadow-e1" : "text-[var(--text-mute)] hover:text-[var(--text)]"
-                  }`}
-                >
-                  {Icon && <Icon className="h-3.5 w-3.5" />}
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
+          <SegmentedControl
+            label="Search films, shows or both"
+            options={filterOptions}
+            value={filters.filter}
+            onChange={(next) => setFilters({ filter: next })}
+            className="w-56"
+          />
 
           {/* The word "Filters" is hidden below `sm`, where the button is an
               icon only — so the name comes from `aria-label`, which also carries
@@ -605,42 +592,30 @@ export function SearchPage() {
           className={`space-y-5 transition-opacity duration-slow ${isSearching && hasSearched ? "opacity-40" : ""}`}
         >
           {noResults && (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <Filter className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
-              <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>
-                {needsTmdb ? "Search needs a TMDB API key" : searchError ? "Search failed" : "No results found"}
-              </p>
-              <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-                {needsTmdb
-                  ? "Film and show search is powered by TMDB — set up a free API key to start searching."
-                  : searchError
-                    ? searchError
-                    : hasActiveFilters
-                      ? "Nothing matches every filter. Try loosening one."
-                      : "Try a different search term."}
-              </p>
-              {needsTmdb && (
-                <Link
-                  to="/settings?tab=integrations"
-                  className="mt-3 rounded-full px-4 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-[var(--surface)]"
-                  style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
-                >
-                  Set up TMDB in Settings &rarr;
-                </Link>
-              )}
-              {/* Not offered when the search itself failed: there is nothing a
-                  looser filter would find in a request that never ran. */}
-              {hasActiveFilters && !needsTmdb && !searchError && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="mt-3 rounded-full px-4 py-2 text-sm font-medium hover:bg-[var(--surface)] transition-colors"
-                  style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", color: "var(--text-dim)" }}
-                >
-                  Clear all filters
-                </button>
-              )}
-            </div>
+            <EmptyState
+              title={needsTmdb ? "Search needs a TMDB API key" : searchError ? "Search failed" : "No results found"}
+              action={
+                needsTmdb ? (
+                  <Link to="/settings?section=tmdb" className={EMPTY_STATE_ACTION}>
+                    Set up TMDB in Settings &rarr;
+                  </Link>
+                ) : hasActiveFilters && !searchError ? (
+                  // Not offered when the search itself failed: there is nothing a
+                  // looser filter would find in a request that never ran.
+                  <button type="button" onClick={clearFilters} className={EMPTY_STATE_ACTION}>
+                    Clear all filters
+                  </button>
+                ) : undefined
+              }
+            >
+              {needsTmdb
+                ? "Film and show search is powered by TMDB — set up a free API key to start searching."
+                : searchError
+                  ? searchError
+                  : hasActiveFilters
+                    ? "Nothing matches every filter. Try loosening one."
+                    : "Try a different search term."}
+            </EmptyState>
           )}
 
           {shown !== null && shown.length > 0 && (
@@ -688,7 +663,8 @@ export function SearchPage() {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </PageFrame>
   );
 }
 

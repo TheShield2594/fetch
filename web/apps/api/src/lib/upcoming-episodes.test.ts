@@ -80,6 +80,25 @@ describe("getUpcomingEpisodes", () => {
     });
   });
 
+  it("carries the episode's still and the series' backdrop, and calls an episode 1 a premiere", async () => {
+    prismaMock.metadata.findMany.mockResolvedValue([
+      { imdbId: SOPRANOS, tmdbId: 1398, name: "The Sopranos", poster: "/poster.jpg", background: "/backdrop.jpg" },
+    ]);
+    getShowDetails.mockResolvedValue({ nextEpisodeToAir: nextEpisode({ episode_number: 1, still: "https://img/still.jpg" }) });
+
+    const [episode] = await getUpcomingEpisodes(PROFILE, 7);
+
+    expect(episode).toMatchObject({ kind: "premiere", still: "https://img/still.jpg", backdrop: "/backdrop.jpg" });
+  });
+
+  it("keeps the still off the screen under spoiler protection", async () => {
+    getShowDetails.mockResolvedValue({ nextEpisodeToAir: nextEpisode({ still: "https://img/still.jpg" }) });
+
+    const [episode] = await getUpcomingEpisodes(PROFILE, 7, 30, true);
+
+    expect(episode).toMatchObject({ kind: "episode", still: null, overview: null });
+  });
+
   it("asks for nothing when the profile is tracking nothing", async () => {
     prismaMock.seriesProgress.findMany.mockResolvedValue([]);
 

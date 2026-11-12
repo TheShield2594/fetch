@@ -21,19 +21,77 @@ const without = <T extends object>(row: T, field: keyof T): Omit<T, typeof field
 };
 
 const entry = () => ({
+  kind: "episode" as const,
   seriesImdbId: "tt0903747",
   seriesName: "Breaking Bad",
   poster: "/poster.jpg",
+  still: "/still.jpg",
+  backdrop: "/backdrop.jpg",
   season: 5,
   episode: 14,
   episodeName: "Ozymandias",
   airDate: "2026-09-14",
+  airsAt: "2026-09-15T01:00:00.000Z",
+  watched: false,
   overview: null,
 });
 
 describe("parseCalendarResponse", () => {
   it("returns the entries an API of the same build sends", () => {
     expect(parseCalendarResponse({ calendar: [entry()] })).toEqual({ calendar: [entry()] });
+  });
+
+  it("reads an entry from an API before kinds and artwork as an episode with neither", () => {
+    const old: Partial<ReturnType<typeof entry>> = entry();
+    delete old.kind;
+    delete old.still;
+    delete old.backdrop;
+    delete old.airsAt;
+    delete old.watched;
+    expect(parseCalendarResponse({ calendar: [old] }).calendar[0]).toEqual({
+      ...entry(),
+      still: null,
+      backdrop: null,
+      airsAt: null,
+      watched: false,
+    });
+  });
+
+  it("reads a watchlisted film's release as a dated entry with no season or episode", () => {
+    const film = {
+      kind: "movie",
+      seriesImdbId: "tt1160419",
+      seriesName: "Dune",
+      poster: null,
+      backdrop: "/dune.jpg",
+      airDate: "2026-10-22",
+      overview: "Spice.",
+    };
+    expect(parseCalendarResponse({ calendar: [film] }).calendar[0]).toEqual({
+      ...film,
+      still: null,
+      airsAt: null,
+      watched: false,
+      season: null,
+      episode: null,
+      episodeName: null,
+    });
+  });
+
+  it("rejects an airsAt that is not an instant, and a watched that is not a boolean", () => {
+    for (const airsAt of ["tonight", "2026-09-15", "2026-09-15T01:00:00", "2026-02-30T01:00:00Z"]) {
+      expect(() => parseCalendarResponse({ calendar: [{ ...entry(), airsAt }] })).toThrow(/airsAt/);
+    }
+    expect(parseCalendarResponse({ calendar: [{ ...entry(), airsAt: "2026-09-14T21:00:00-04:00" }] }).calendar[0]?.airsAt).toBe(
+      "2026-09-14T21:00:00-04:00"
+    );
+    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), watched: "yes" }] })).toThrow(/watched/);
+  });
+
+  it("rejects a kind it does not know", () => {
+    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), kind: "concert" }] })).toThrow(
+      /calendar\[0\]\.kind must be one of/
+    );
   });
 
   it("treats a missing calendar key as an empty calendar", () => {

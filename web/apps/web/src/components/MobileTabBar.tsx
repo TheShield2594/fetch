@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { prefetchRoute } from "../utils/routePrefetch";
+import { useIsKidsProfile } from "../hooks/useProfile";
 import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useFocusTrap } from "../hooks/useFocusTrap";
@@ -174,6 +175,8 @@ export function MobileTabBar({ pathname }: { pathname: string }) {
 }
 
 function MoreSheet({ pathname, onClose }: { pathname: string; onClose: () => void }) {
+  // No Settings row for a kids profile: see KidsGate.
+  const isKids = useIsKidsProfile();
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const { exiting, requestClose, onExitAnimationEnd } = useExitAnimation(onClose);
 
@@ -223,7 +226,7 @@ function MoreSheet({ pathname, onClose }: { pathname: string; onClose: () => voi
           style={{ background: "var(--border-strong)" }}
         />
         <ul>
-          {MORE_NAV_ITEMS.map((item, index) => {
+          {(isKids ? MORE_NAV_ITEMS.filter((item) => item.to !== "/settings") : MORE_NAV_ITEMS).map((item, index) => {
             const Icon = item.icon;
             const isActive = isItemActive(item, pathname);
             return (

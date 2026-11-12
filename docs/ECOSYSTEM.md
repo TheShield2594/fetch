@@ -116,6 +116,10 @@ While paired, every domain above goes to the website: profiles (colour, avatar,
 parental limit), and each profile's collections, addons, Home rows and settings.
 Parental limits are written into the TV's own restriction store, so they keep
 applying offline.
+The website does not filter titles by a profile's rating limit; the profile
+editor says so. On the website a kids profile is kept out of Settings, its data
+and signing in a TV, and the server refuses it anything that would loosen its
+own limits or add a profile.
 
 The Stremio addon keeps its per-profile secret URL, which already works.
 

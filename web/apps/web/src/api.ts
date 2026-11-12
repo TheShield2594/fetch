@@ -24,7 +24,7 @@ export {
   type SignIn,
 } from "./api/auth";
 export { ApiContractError } from "@fetch/shared/contracts";
-export { ApiError, OfflineWriteQueuedError } from "./api/client";
+export { ApiError, OfflineWriteQueuedError, PARENTAL_AUTHORITY_MESSAGE } from "./api/client";
 export {
   invalidatedCachePrefixes,
   notifyServiceWorkerToInvalidateApiCache,

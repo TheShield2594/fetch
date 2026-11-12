@@ -195,9 +195,25 @@ describe("SettingsPage", () => {
   it("groups the sections by what they are for", () => {
     renderAt();
 
-    for (const group of ["Sources", "Metadata", "TV", "You", "Server", "About"]) {
+    for (const group of ["Sources", "Metadata", "TV", "This profile", "Your account", "This server (admin)", "About"]) {
       expect(within(nav()).getAllByText(group).length).toBeGreaterThan(0);
     }
+  });
+
+  // #538: every section says whose it is.
+  it.each([
+    ["trakt", "This profile"],
+    ["preferences", "Your account: every profile"],
+    ["tmdb", "This server: every account. Only the admin can change it."],
+    ["extras", "This browser only"],
+  ])("says whose the %s section is", (id, scope) => {
+    renderAt(`/settings?section=${id}`);
+
+    expect(screen.getByText(/Applies to/).closest("p")).toHaveTextContent(scope);
+  });
+
+  it("gives every section but About a scope", () => {
+    expect(SETTINGS_SECTIONS.filter((s) => !s.scope).map((s) => s.id)).toEqual(["about"]);
   });
 
   it("puts a section's state beside its name in the list, in words as well as in colour", () => {
@@ -287,7 +303,7 @@ describe("SettingsPage for an account that isn't the admin", () => {
     signedIn.isAdmin = false;
     renderAt();
 
-    for (const title of ["Account", "Language & region", "Profile", "Notifications", "About", "Data", "Trakt", "Webhooks", "Media servers", "Simkl", "MDBList", "MDBList ratings"]) {
+    for (const title of ["Account", "Language & region", "Profiles", "Notifications", "About", "Data", "Trakt", "Webhooks", "Media servers", "Simkl", "MDBList", "MDBList ratings"]) {
       expect(within(nav()).getByRole("link", { name: new RegExp(`^${title}($|\\W*,)`) })).toBeInTheDocument();
     }
     for (const title of ["Sync status", "TMDB", "Invites & accounts", "Stremio addon"]) {

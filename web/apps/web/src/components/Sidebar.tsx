@@ -8,6 +8,7 @@ import { listTint, orderListsForRail, railSources } from "./sidebar-data";
 import { useCachedState } from "../hooks/useCachedState";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
+import { useIsKidsProfile } from "../hooks/useProfile";
 import { prefetchRoute } from "../utils/routePrefetch";
 
 /*
@@ -150,7 +151,10 @@ export function Sidebar({
   const [lists, setLists] = useCachedState<CatalogList[]>("lists:all", []);
   const { sections: health } = useSettingsHealth();
   const railLists = useMemo(() => orderListsForRail(lists), [lists]);
-  const sources = useMemo(() => railSources(health), [health]);
+  // A kids profile is kept out of Settings (see KidsGate), so the rail drops
+  // every way into it: the Sources shortcuts and the Settings row.
+  const isKids = useIsKidsProfile();
+  const sources = useMemo(() => (isKids ? [] : railSources(health)), [health, isKids]);
 
 
   useEffect(() => {
@@ -213,7 +217,11 @@ export function Sidebar({
     //
     // `expanded` and the lists too: the list and source rows come and go with
     // the rail opening, which moves every row below them.
-  }, [location.pathname, location.search, railVisible, expanded, railLists.length, sources.length]);
+    //
+    // `isKids` as well: a kids profile's rail has no Settings row, and the
+    // profile lands after the rail has measured, so the marker would otherwise
+    // stay where that row was.
+  }, [location.pathname, location.search, railVisible, expanded, railLists.length, sources.length, isKids]);
 
   useEffect(() => {
     hintSeenRef.current = localStorage.getItem(HINT_KEY) === "1";
@@ -496,8 +504,8 @@ export function Sidebar({
             </>
           )}
 
-          <RailSectionLabel expanded={expanded}>TV &amp; settings</RailSectionLabel>
-          {SIDEBAR_MANAGE_ITEMS.map((item) => (
+          {!isKids && <RailSectionLabel expanded={expanded}>TV &amp; settings</RailSectionLabel>}
+          {(isKids ? [] : SIDEBAR_MANAGE_ITEMS).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

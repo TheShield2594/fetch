@@ -11,6 +11,7 @@ import { OfflineBanner } from "./components/OfflineBanner";
 import { PhoneSettingsButton } from "./components/PhoneSettingsButton";
 import { Sidebar, initialPinned } from "./components/Sidebar";
 import { ProfileMenu } from "./components/ProfileMenu";
+import { KidsGate } from "./components/KidsGate";
 import { useOfflineWriteQueue } from "./hooks/useOfflineWriteQueue";
 import { useScrolled } from "./hooks/useScrolled";
 import { SettingsHealthProvider } from "./hooks/useSettingsHealth";
@@ -30,6 +31,7 @@ import {
   loadProfileSwitcher,
   loadSearchPage,
   loadSettingsPage,
+  loadProfilePage,
   loadSetupWizard,
   loadStatsPage,
   loadCommandPalette,
@@ -67,6 +69,7 @@ const NotFoundPage = lazy(() => loadNotFoundPage().then((m) => ({ default: m.Not
 const SearchPage = lazy(() => loadSearchPage().then((m) => ({ default: m.SearchPage })));
 const SettingsPage = lazy(() => loadSettingsPage().then((m) => ({ default: m.SettingsPage })));
 const StatsPage = lazy(() => loadStatsPage().then((m) => ({ default: m.StatsPage })));
+const ProfilePage = lazy(() => loadProfilePage().then((m) => ({ default: m.ProfilePage })));
 const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
 const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
 
@@ -95,6 +98,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/history": "History",
   "/stats": "Stats",
   "/settings": "Settings",
+  "/profile": "Profile",
   "/pair": "Sign in a TV",
   "/link": "Sign in a TV",
 };
@@ -279,7 +283,7 @@ function AppShell({
   setTheme: ReturnType<typeof useTheme>["setTheme"];
   location: ReturnType<typeof useLocation>;
 }) {
-  const { profile, setProfile, patchProfile, switcherOpen, closeSwitcher } = useProfile();
+  const { profile, setProfile, patchProfile, switcherOpen, closeSwitcher, setProfileLoadFailed, profileLoadAttempt } = useProfile();
   const mainRef = useRef<HTMLElement>(null);
   const onSearchRoute = location.pathname === "/search";
   // Drives the nav bar's material — see the header below, and useScrolled.
@@ -351,12 +355,15 @@ function AppShell({
         if (cancelled) return;
         const current = profiles.find((p) => p.id === currentId);
         if (current) setProfile(current);
+        else setProfileLoadFailed?.(true);
       } catch {
-        // best-effort; profile indicator just won't show a name
+        // The indicator goes without a name, but the kids gate stays shut:
+        // a profile that couldn't be read isn't known not to be a kids one.
+        if (!cancelled) setProfileLoadFailed?.(true);
       }
     })();
     return () => { cancelled = true; };
-  }, [setProfile]);
+  }, [setProfile, setProfileLoadFailed, profileLoadAttempt]);
 
   const handleProfileSelected = (next: Profile) => {
     setProfile(next);
@@ -545,13 +552,16 @@ function AppShell({
                 <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/stats" element={<StatsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
+                {/* A kids profile is kept out of the account's settings, its
+                    data and device pairing; see KidsGate. */}
+                <Route path="/settings" element={<KidsGate title="Settings" reason="Settings are"><SettingsPage /></KidsGate>} />
+                <Route path="/profile" element={<ProfilePage />} />
                 {/* Collections became Home folders, a section of Settings beside
                     Home rows. Old links and bookmarks land there. */}
                 <Route path="/collections" element={<Navigate to="/settings?section=home-folders" replace />} />
                 {/* One place to manage profiles: Settings → Profile. */}
                 <Route path="/profiles" element={<Navigate to="/settings?section=profile" replace />} />
-                <Route path="/pair" element={<PairPage />} />
+                <Route path="/pair" element={<KidsGate title="Sign in a TV" reason="Signing in a TV is"><PairPage /></KidsGate>} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>

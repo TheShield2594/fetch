@@ -26,11 +26,27 @@ export class ApiError extends Error {
    * any other 503 is a thing to retry. Branch on `code` before `message`, which
    * is prose meant for a human and free to change.
    */
-  constructor(message: string, public readonly status: number, public readonly code?: string) {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+    /**
+     * Seconds until a locked-out PIN can be tried again, from a 429 that says
+     * so (`retryAfterSec` in the body). Undefined on every other error.
+     */
+    public readonly retryAfterSec?: number
+  ) {
     super(message);
     this.name = "ApiError";
   }
 }
+
+/**
+ * What a kids profile is told when the server refuses it something only a
+ * grown-up's profile may do. The server's own sentence names the rule; this
+ * one says what to do about it, in the app's words.
+ */
+export const PARENTAL_AUTHORITY_MESSAGE = "Only a grown-up's profile can do that. Switch to one to carry on.";
 
 /**
  * A write the service worker is holding until the connection is back.
@@ -272,12 +288,14 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
     // an empty body — has no sentence in it for a person at all.
     let serverMessage: string | undefined;
     let errorCode: string | undefined;
+    let retryAfterSec: number | undefined;
     if (body) {
       try {
         const parsed = JSON.parse(body) as {
           error?: unknown | undefined;
           message?: unknown | undefined;
           code?: unknown | undefined;
+          retryAfterSec?: unknown | undefined;
         };
         if (typeof parsed.error === "string" && parsed.error.trim() && !isReasonPhrase(parsed.error, response)) {
           serverMessage = parsed.error;
@@ -287,12 +305,24 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
         if (typeof parsed.code === "string") {
           errorCode = parsed.code;
         }
+        if (typeof parsed.retryAfterSec === "number" && Number.isFinite(parsed.retryAfterSec) && parsed.retryAfterSec > 0) {
+          retryAfterSec = Math.ceil(parsed.retryAfterSec);
+        }
       } catch {
         // Not JSON — a proxy's error page, most likely. Not shown: its markup
         // is not a message, and the status says what happened.
       }
     }
-    const message = statusMessage(response.status, serverMessage);
+    // A route's own lockout puts the wait in the body; the rate limiter in
+    // front of every route sends the standard header instead.
+    if (retryAfterSec === undefined && response.status === 429) {
+      const header = Number(response.headers.get("retry-after"));
+      if (Number.isFinite(header) && header > 0) retryAfterSec = Math.ceil(header);
+    }
+    const message =
+      errorCode === "parental_authority_required"
+        ? PARENTAL_AUTHORITY_MESSAGE
+        : statusMessage(response.status, serverMessage);
     // A PIN-protected profile's access token is missing or expired. Drop the
     // stale profile selection and prompt the user to re-verify, rather than
     // leaving every page stuck on a 401.
@@ -314,7 +344,7 @@ async function performRequest<T>(path: string, init?: RequestOptions): Promise<T
     if (response.status === 403 && errorCode === "password_change_required") {
       window.dispatchEvent(new Event("fetch:password-change-required"));
     }
-    throw new ApiError(message, response.status, errorCode);
+    throw new ApiError(message, response.status, errorCode, retryAfterSec);
   }
 
   if (response.status === 204) {

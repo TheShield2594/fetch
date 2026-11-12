@@ -8,6 +8,9 @@ const SIZES = {
   sm: "h-8 w-8 text-xs",
   md: "h-10 w-10 text-sm",
   lg: "h-16 w-16 text-lg",
+  // "Who's watching?": the illustrated avatars are the picker's hero, 96px on a
+  // phone and 128px from `sm`.
+  xl: "h-24 w-24 text-3xl sm:h-32 sm:w-32 sm:text-4xl",
 } as const;
 
 /**

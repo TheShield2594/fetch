@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RouterLink, useSearchParams } from "react-router";
 import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, ChevronLeft, ChevronRight, FolderTree, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette } from "lucide-react";
 import { healthDotClass, healthSummary, type SectionHealth } from "../components/settings/health";
@@ -33,6 +33,7 @@ import { HomeFoldersSettings } from "../components/tv/HomeFoldersSettings";
 import { TvSettingsForm } from "../components/tv/TvSettingsForm";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { PageFrame } from "../components/PageFrame";
+import { ProfileContext } from "../hooks/useProfile";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown";
@@ -43,16 +44,40 @@ const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "
  * password, the TV pairing list and the AI switch side by side under
  * "Preferences".
  */
-export type SettingsGroup = "you" | "sources" | "metadata" | "tv" | "server" | "about";
+export type SettingsGroup = "sources" | "metadata" | "tv" | "profile" | "account" | "server" | "about";
 
 export const SETTINGS_GROUPS: { id: SettingsGroup; label: string }[] = [
   { id: "sources", label: "Sources" },
   { id: "metadata", label: "Metadata" },
   { id: "tv", label: "TV" },
-  { id: "you", label: "You" },
-  { id: "server", label: "Server" },
+  // The last three are named by whose they are: the reader's profile, the
+  // account its profiles share, and the server every account shares.
+  { id: "profile", label: "This profile" },
+  { id: "account", label: "Your account" },
+  { id: "server", label: "This server (admin)" },
   { id: "about", label: "About" },
 ];
+
+/**
+ * Whose a setting is. Settings used to mix all four without saying so: Trakt is
+ * signed in per profile, the region is the account's, the metadata language
+ * the server's, and AI recommendations' switch this browser's.
+ */
+export type SettingsScope = "profile" | "account" | "server" | "browser";
+
+/** The scope in words, as the section's header says it. */
+export function scopeLabel(scope: SettingsScope, profileName?: string | undefined): string {
+  switch (scope) {
+    case "profile":
+      return profileName ? `This profile (${profileName})` : "This profile";
+    case "account":
+      return "Your account: every profile";
+    case "server":
+      return "This server: every account";
+    case "browser":
+      return "This browser only";
+  }
+}
 
 export type SettingsSection = {
   /** Also the section's address: `/settings?section=<id>`. */
@@ -63,6 +88,10 @@ export type SettingsSection = {
   icon: ReactNode;
   /** Extra terms the section should be findable by; the title is always searched. */
   keywords: string;
+  /** Whose it is; absent for About, which is nobody's. */
+  scope?: SettingsScope;
+  /** A line under the scope, where one section holds settings of more than one. */
+  scopeNote?: string;
   content: ReactNode;
   /**
    * A tile on the status board: something history, artwork or ratings come
@@ -97,6 +126,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "trakt",
     group: "sources",
+    scope: "profile",
     source: true,
     title: "Trakt",
     icon: <Link size={20} />,
@@ -106,6 +136,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "simkl",
     group: "sources",
+    scope: "profile",
     source: true,
     title: "Simkl",
     icon: <ListChecks size={20} />,
@@ -115,6 +146,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "mdblist",
     group: "sources",
+    scope: "profile",
     source: true,
     title: "MDBList",
     icon: <ListChecks size={20} />,
@@ -124,6 +156,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "media-servers",
     group: "sources",
+    scope: "profile",
     source: true,
     title: "Media servers",
     icon: <Server size={20} />,
@@ -133,6 +166,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "media-server-webhooks",
     group: "sources",
+    scope: "account",
     source: true,
     title: "Webhooks",
     icon: <Webhook size={20} />,
@@ -143,6 +177,8 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "preferences",
     group: "metadata",
+    scope: "account",
+    scopeNote: "Region and spoiler protection are your account's. The metadata language is the server's, and only the admin changes it.",
     title: "Language & region",
     icon: <Globe size={20} />,
     keywords: "language locale translation streaming region country spoiler protection tmdb metadata",
@@ -152,6 +188,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "tmdb",
     adminOnly: true,
     group: "metadata",
+    scope: "server",
     source: true,
     title: "TMDB",
     icon: <Film size={20} />,
@@ -162,6 +199,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "omdb",
     adminOnly: true,
     group: "metadata",
+    scope: "server",
     source: true,
     title: "OMDb",
     icon: <Star size={20} />,
@@ -171,6 +209,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "mdblist-ratings",
     group: "metadata",
+    scope: "profile",
     source: true,
     title: "MDBList ratings",
     icon: <Star size={20} />,
@@ -181,6 +220,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "rpdb",
     adminOnly: true,
     group: "metadata",
+    scope: "server",
     source: true,
     title: "RPDB",
     icon: <Image size={20} />,
@@ -194,6 +234,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "devices",
     group: "tv",
+    scope: "account",
     title: "TVs & devices",
     icon: <Tv size={20} />,
     keywords: "tv android pair pairing code qr sign in sign out revoke device token",
@@ -202,6 +243,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "tv-home",
     group: "tv",
+    scope: "profile",
     title: "Home rows",
     icon: <LayoutList size={20} />,
     keywords: "tv home screen rows order reorder hide catalogs lists continue watching layout television",
@@ -210,6 +252,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "home-folders",
     group: "tv",
+    scope: "profile",
     title: "Home folders",
     icon: <FolderTree size={20} />,
     keywords: "tv home folders folder rows collections custom rows tmdb trakt addon catalog sources television",
@@ -218,6 +261,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "tv-addons",
     group: "tv",
+    scope: "profile",
     title: "TV addons",
     icon: <Puzzle size={20} />,
     keywords: "addons manifest install configure order sources streams catalogs television",
@@ -226,6 +270,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "tv-settings",
     group: "tv",
+    scope: "profile",
     title: "TV playback",
     icon: <SlidersHorizontal size={20} />,
     keywords: "auto-play autoplay best match ranking resolution codec hdr audio subtitles language style essential advanced television",
@@ -234,23 +279,27 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "tv-overview",
     group: "tv",
+    scope: "account",
+    scopeNote: "Every profile on your account, and the server's own health.",
     title: "Synced data",
     icon: <Activity size={20} />,
     keywords: "tv dashboard overview counts health database jobs sync devices television",
     content: <TvOverview />,
   },
-  // The reader's own account and profile.
+  // The reader's own profile, then the account its profiles share.
   {
     id: "profile",
-    group: "you",
-    title: "Profile",
+    group: "account",
+    scope: "account",
+    title: "Profiles",
     icon: <Users size={20} />,
     keywords: "profiles users household switch rename pin lock delete avatar",
     content: <ProfileSettings />,
   },
   {
     id: "appearance",
-    group: "you",
+    group: "profile",
+    scope: "profile",
     title: "Appearance",
     icon: <Palette size={20} />,
     keywords: "theme themes dark light colour color glass midnight matinee install app pwa home screen",
@@ -258,7 +307,8 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "notifications",
-    group: "you",
+    group: "profile",
+    scope: "profile",
     title: "Notifications",
     icon: <Bell size={20} />,
     keywords: "push alerts episode reminders subscribe browser ntfy gotify discord webhook channels",
@@ -273,7 +323,8 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "extras",
-    group: "you",
+    group: "account",
+    scope: "browser",
     title: "Extras",
     icon: <Sparkles size={20} />,
     keywords: "ai recommendations llm extras show",
@@ -281,7 +332,8 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "account",
-    group: "you",
+    group: "account",
+    scope: "account",
     title: "Account",
     icon: <UserCircle size={20} />,
     keywords:
@@ -293,6 +345,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "job-status",
     adminOnly: true,
     group: "server",
+    scope: "server",
     title: "Sync status",
     icon: <Activity size={20} />,
     keywords: "background jobs scheduled sync failures errors trakt scrobble",
@@ -302,6 +355,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "addon",
     adminOnly: true,
     group: "server",
+    scope: "server",
     title: "Stremio addon",
     icon: <Clapperboard size={20} />,
     keywords: "stremio catalogs manifest install url",
@@ -311,6 +365,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "invites",
     adminOnly: true,
     group: "server",
+    scope: "server",
     title: "Invites & accounts",
     icon: <UserPlus size={20} />,
     keywords: "invite friend share sign up users accounts members remove reset password temporary admin transfer",
@@ -318,7 +373,9 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "data",
-    group: "server",
+    group: "profile",
+    scope: "profile",
+    scopeNote: "Export and import are this profile's. Refreshing every title's metadata is the server's, and only the admin can.",
     title: "Data",
     icon: <Database size={20} />,
     keywords: "export import backup restore refresh metadata wipe",
@@ -327,7 +384,8 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "ai",
     extra: true,
-    group: "server",
+    group: "account",
+    scope: "account",
     title: "AI recommendations",
     icon: <Sparkles size={20} />,
     keywords: "llm openai ollama model provider suggestions",
@@ -513,6 +571,27 @@ function SectionNav({
   );
 }
 
+/**
+ * Whose the open section is, under its heading: "This profile (Alex)", "Your
+ * account: every profile", "This server: every account", "This browser only".
+ */
+function ScopeLine({ section }: { section: SettingsSection }) {
+  // Read without `useProfile`, which throws outside a provider: the scope
+  // still has words to say without a name.
+  const profileName = useContext(ProfileContext)?.profile?.name;
+  if (!section.scope) return null;
+  return (
+    <div className="w-full basis-full text-xs leading-relaxed" style={{ color: "var(--text-mute)" }}>
+      <p>
+        <span className="font-semibold" style={{ color: "var(--text-dim)" }}>Applies to: </span>
+        {scopeLabel(section.scope, profileName)}
+        {section.adminOnly ? ". Only the admin can change it." : ""}
+      </p>
+      {section.scopeNote && <p className="mt-0.5">{section.scopeNote}</p>}
+    </div>
+  );
+}
+
 /** One section, open: its heading, its state and its form. */
 function SectionPanel({ section, health, headingRef }: { section: SettingsSection; health: SectionHealth | undefined; headingRef: React.Ref<HTMLHeadingElement> }) {
   const headingId = `settings-section-${section.id}`;
@@ -530,6 +609,7 @@ function SectionPanel({ section, health, headingRef }: { section: SettingsSectio
           {section.title}
         </h2>
         {health && <HealthMark health={health} />}
+        {section.scope && <ScopeLine section={section} />}
       </header>
       {section.content}
     </section>

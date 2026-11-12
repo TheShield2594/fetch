@@ -1,5 +1,6 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Profile } from "../../api";
 import { ToastProvider } from "../../hooks/useToast";
@@ -15,6 +16,7 @@ vi.mock("../../api", async (importOriginal) => {
       deleteProfile: vi.fn(),
       getProfileSummary: vi.fn(),
       createProfile: vi.fn(),
+      verifyProfile: vi.fn(),
       clearProfilePin: vi.fn(),
     },
   };
@@ -42,36 +44,46 @@ const updateProfile = vi.mocked(api.updateProfile);
 const deleteProfile = vi.mocked(api.deleteProfile);
 const getProfileSummary = vi.mocked(api.getProfileSummary);
 const createProfile = vi.mocked(api.createProfile);
+const verifyProfile = vi.mocked(api.verifyProfile);
 const clearProfilePin = vi.mocked(api.clearProfilePin);
 
 const KID_SUMMARY = { watchEvents: 312, lists: 2, listItems: 41, playbackProgress: 6, ratings: 0, collections: 1 };
-
-/** Opens the confirmation for `name` and waits for it to say what goes. */
-const startDelete = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
-  await user.click(screen.getByRole("button", { name: `Delete ${name}` }));
-  return screen.findByRole("alertdialog", { name: `Delete ${name}?` });
-};
 
 const ALEX: Profile = { id: "p-alex", name: "Alex", hasPin: false };
 const KID: Profile = { id: "p-kid", name: "Kid", hasPin: true };
 
 const renderSettings = async () => {
   render(
-    <ToastProvider>
-      <ProfileSettings />
-    </ToastProvider>
+    <MemoryRouter>
+      <ToastProvider>
+        <ProfileSettings />
+      </ToastProvider>
+    </MemoryRouter>
   );
   await waitFor(() => expect(screen.queryByText("Loading profiles…")).not.toBeInTheDocument());
 };
 
-/** The row for a profile — the name also appears in the "watching as" line. */
-const rowFor = (name: string) => {
-  const row = screen
-    .getAllByText(name)
-    .map((el) => el.closest("div.rounded-xl"))
-    .find(Boolean);
-  if (!row) throw new Error(`No profile row found for "${name}"`);
-  return within(row as HTMLElement);
+/** The card for a profile, in the list of them. */
+const cardFor = (name: string) => {
+  const list = screen.getByRole("list", { name: "Profiles" });
+  const card = within(list)
+    .getAllByRole("listitem")
+    .find((item) => within(item).queryByText(name, { selector: "p" }));
+  if (!card) throw new Error(`No profile card found for "${name}"`);
+  return within(card);
+};
+
+/** Opens a profile's sheet and returns it. */
+const openSheet = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+  await user.click(screen.getByRole("button", { name: `Edit ${name}` }));
+  return within(await screen.findByRole("dialog", { name: `Edit ${name}` }));
+};
+
+/** Opens the confirmation for `name` and waits for it to say what goes. */
+const startDelete = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+  const sheet = await openSheet(user, name);
+  await user.click(sheet.getByRole("button", { name: `Delete ${name}…` }));
+  return screen.findByRole("alertdialog", { name: `Delete ${name}?` });
 };
 
 beforeEach(() => {
@@ -85,13 +97,28 @@ beforeEach(() => {
 });
 
 describe("ProfileSettings", () => {
-  it("marks which profile is in use and which is locked", async () => {
+  it("shows each profile as a card that says what it is, with one labelled action", async () => {
     await renderSettings();
 
-    expect(rowFor("Alex").getByText("Active")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Remove PIN for Kid" })).toBeInTheDocument();
-    // No PIN to remove on the unprotected one.
-    expect(screen.queryByRole("button", { name: "Remove PIN for Alex" })).not.toBeInTheDocument();
+    expect(cardFor("Alex").getByText("In use")).toBeInTheDocument();
+    expect(cardFor("Alex").getByText("Primary")).toBeInTheDocument();
+    expect(cardFor("Kid").getByText("PIN")).toBeInTheDocument();
+    expect(cardFor("Kid").queryByText("Primary")).not.toBeInTheDocument();
+    // #537: no profile action is an unlabeled icon.
+    for (const name of ["Alex", "Kid"]) {
+      const buttons = cardFor(name).getAllByRole("button");
+      expect(buttons).toHaveLength(1);
+      expect(buttons[0]).toHaveTextContent("Edit");
+    }
+  });
+
+  it("marks a kids profile", async () => {
+    getProfiles.mockResolvedValue({
+      profiles: [ALEX, { ...KID, parental: { isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false } }],
+    });
+    await renderSettings();
+
+    expect(cardFor("Kid").getByText("Kids")).toBeInTheDocument();
   });
 
   it("says so when the profiles can't be loaded", async () => {
@@ -102,132 +129,211 @@ describe("ProfileSettings", () => {
   });
 
   it("won't offer to delete the only profile there is", async () => {
+    const user = userEvent.setup();
     getProfiles.mockResolvedValue({ profiles: [ALEX] });
     await renderSettings();
 
-    expect(screen.getByRole("button", { name: "Delete Alex" })).toBeDisabled();
+    const sheet = await openSheet(user, "Alex");
+    expect(sheet.queryByRole("button", { name: /^Delete Alex/ })).not.toBeInTheDocument();
+    expect(sheet.getByText(/only profile/)).toBeInTheDocument();
   });
 });
 
-describe("ProfileSettings renaming", () => {
-  it("renames the profile and updates the one in use", async () => {
+describe("ProfileSettings editing", () => {
+  it("renames the profile, updates the one in use and says so", async () => {
     const user = userEvent.setup();
     updateProfile.mockResolvedValue({ profile: { ...ALEX, name: "Alexandra" } });
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Rename Alex" }));
-    await user.type(screen.getByLabelText("Rename Alex"), "andra");
-    await user.click(screen.getByRole("button", { name: "Save name" }));
+    const sheet = await openSheet(user, "Alex");
+    await user.type(sheet.getByLabelText("Name"), "andra");
+    await user.click(sheet.getByRole("button", { name: "Save changes" }));
 
-    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(ALEX.id, { name: "Alexandra" }));
+    await waitFor(() =>
+      expect(updateProfile).toHaveBeenCalledWith(ALEX.id, expect.objectContaining({ name: "Alexandra" }))
+    );
     // The switcher's copy of the active profile has to move with it, or the
     // header goes on greeting a name that no longer exists.
     expect(setActiveProfile).toHaveBeenCalledWith({ ...ALEX, name: "Alexandra" });
-    expect(await screen.findByText("Alexandra")).toBeInTheDocument();
+    expect(await screen.findByText("Saved Alexandra")).toBeInTheDocument();
   });
 
-  it("doesn't call the server for a name that didn't change", async () => {
+  it("has nothing to save until something changes", async () => {
     const user = userEvent.setup();
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Rename Alex" }));
-    await user.click(screen.getByRole("button", { name: "Save name" }));
-
-    expect(updateProfile).not.toHaveBeenCalled();
-    expect(screen.getByRole("button", { name: "Rename Alex" })).toBeInTheDocument();
+    const sheet = await openSheet(user, "Alex");
+    expect(sheet.getByRole("button", { name: "Save changes" })).toBeDisabled();
   });
 
-  it("keeps the form up when the rename is refused", async () => {
+  it("keeps the sheet up when the save is refused", async () => {
     const user = userEvent.setup();
     updateProfile.mockRejectedValue(new Error("Name already taken"));
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Rename Alex" }));
-    await user.type(screen.getByLabelText("Rename Alex"), "!");
-    await user.click(screen.getByRole("button", { name: "Save name" }));
+    const sheet = await openSheet(user, "Alex");
+    await user.type(sheet.getByLabelText("Name"), "!");
+    await user.click(sheet.getByRole("button", { name: "Save changes" }));
 
-    expect(await screen.findByText("Name already taken")).toBeInTheDocument();
-    expect(screen.getByLabelText("Rename Alex")).toHaveValue("Alex!");
+    expect(await sheet.findByText("Name already taken")).toBeInTheDocument();
+    expect(sheet.getByLabelText("Name")).toHaveValue("Alex!");
+  });
+
+  it("saves name, colour, picture and a rating limit together, with the PIN of a locked profile", async () => {
+    const user = userEvent.setup();
+    updateProfile.mockResolvedValue({ profile: { ...KID, avatarColorHex: "#43A047", avatarId: "fetch:fox" } });
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Emerald" }));
+    await user.click(sheet.getByRole("button", { name: "Fox" }));
+    await user.selectOptions(sheet.getByLabelText("Highest rating allowed on the TV"), "TEENS");
+    // Kid has a PIN and isn't the profile in use, so the change carries it.
+    await user.click(sheet.getByRole("button", { name: "Save changes" }));
+    expect(await sheet.findByRole("alert")).toHaveTextContent("Enter Kid's PIN at the top");
+    expect(updateProfile).not.toHaveBeenCalled();
+
+    await user.type(sheet.getByLabelText("Kid's PIN"), "1234");
+    await user.click(sheet.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() =>
+      expect(updateProfile).toHaveBeenCalledWith(KID.id, {
+        avatarColorHex: "#43A047",
+        avatarId: "fetch:fox",
+        usesPrimaryAddons: false,
+        parental: { isKidsProfile: false, maxRating: "TEENS", allowUnrated: true },
+        currentPin: "1234",
+      })
+    );
+  });
+
+  it("applies the TV's kids preset when kids mode is switched on", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("switch", { name: /Kids profile/ }));
+
+    expect(sheet.getByLabelText("Highest rating allowed on the TV")).toHaveValue("PARENTAL_GUIDANCE");
+    expect(sheet.getByRole("switch", { name: /Show titles with no rating/ })).not.toBeChecked();
+  });
+
+  // #539: a parent setting a limit knows where it applies.
+  it("says the rating limit applies on TVs and not on the website", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Kid");
+    expect(sheet.getByText(/apply on paired TVs only/)).toBeInTheDocument();
+    expect(sheet.getByText(/website doesn't filter titles by rating/)).toBeInTheDocument();
+  });
+
+  it("names the primary profile and doesn't offer it addon sharing", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Alex");
+    expect(sheet.getByText(/Alex is the primary profile/)).toBeInTheDocument();
+    expect(sheet.queryByRole("switch", { name: /primary profile's addons/ })).not.toBeInTheDocument();
   });
 });
 
 describe("ProfileSettings PINs", () => {
-  it("sets a first PIN without asking for one that doesn't exist", async () => {
+  it("sets a first PIN, typed twice, without asking for one that doesn't exist", async () => {
     const user = userEvent.setup();
     updateProfile.mockResolvedValue({ profile: { ...ALEX, hasPin: true } });
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
-    expect(screen.queryByLabelText("Current PIN for Alex")).not.toBeInTheDocument();
-    await user.type(screen.getByLabelText("PIN for Alex"), "1234");
-    await user.type(screen.getByLabelText("Confirm the new PIN for Alex"), "1234");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+    const sheet = await openSheet(user, "Alex");
+    await user.click(sheet.getByRole("button", { name: "Set a PIN" }));
+    expect(sheet.queryByLabelText("Current PIN")).not.toBeInTheDocument();
+    await user.type(sheet.getByLabelText("PIN", { selector: "input" }), "1234");
+    expect(sheet.getByRole("button", { name: "Save PIN" })).toBeDisabled();
+    await user.type(sheet.getByLabelText("Type it again"), "1234");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
 
     await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(ALEX.id, { pin: "1234" }));
     expect(await screen.findByText("PIN set for Alex")).toBeInTheDocument();
   });
 
+  // #537: one typo in a single masked field used to lock the profile.
+  it("won't set a PIN whose second typing differs", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Alex");
+    await user.click(sheet.getByRole("button", { name: "Set a PIN" }));
+    await user.type(sheet.getByLabelText("PIN", { selector: "input" }), "1234");
+    await user.type(sheet.getByLabelText("Type it again"), "1243");
+
+    expect(sheet.getByText("The two PINs don't match.")).toBeInTheDocument();
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
+    expect(await sheet.findByRole("alert")).toHaveTextContent(/don't match/);
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
   // Setting a first PIN proves nothing — there is nothing yet to prove — so the
-  // server takes one only for the profile you are in. Offering the button on
-  // someone else's row would be offering a 403, and the household member whose
+  // server takes one only for the profile you are in. Offering it on someone
+  // else's profile would be offering a 403, and the household member whose
   // profile it is would be locked out with a PIN they never chose.
-  it("won't offer a first PIN on a profile you aren't using", async () => {
+  it("explains, in words, why a first PIN needs the profile itself", async () => {
+    const user = userEvent.setup();
     activeProfile = KID;
     await renderSettings();
 
-    expect(screen.getByRole("button", { name: "Set PIN for Alex" })).toBeDisabled();
-    // Changing one, which does take proof, stays available from any profile.
-    expect(screen.getByRole("button", { name: "Change PIN for Kid" })).toBeEnabled();
+    const sheet = await openSheet(user, "Alex");
+    expect(sheet.queryByRole("button", { name: "Set a PIN" })).not.toBeInTheDocument();
+    expect(sheet.getByText(/first PIN can only be set from inside Alex/)).toBeInTheDocument();
+    await user.click(sheet.getByRole("button", { name: "Switch to Alex" }));
+    expect(openSwitcher).toHaveBeenCalled();
   });
 
   // Otherwise anyone with the app open could replace another profile's PIN
   // without knowing it, which is the whole point of having one.
   it("requires the current PIN to change an existing one", async () => {
     const user = userEvent.setup();
+    activeProfile = KID;
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
-    await user.type(screen.getByLabelText("New PIN for Kid"), "9999");
-    await user.type(screen.getByLabelText("Confirm the new PIN for Kid"), "9999");
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.type(sheet.getByLabelText("New PIN"), "9999");
+    await user.type(sheet.getByLabelText("Type it again"), "9999");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
+    expect(await sheet.findByRole("alert")).toHaveTextContent("Enter the current PIN.");
 
-    expect(screen.getByRole("button", { name: "Save PIN" })).toBeDisabled();
+    await user.type(sheet.getByLabelText("Current PIN"), "1111");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
 
-    await user.type(screen.getByLabelText("Current PIN for Kid"), "1111");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "9999", currentPin: "1111" }));
+  });
 
-    await waitFor(() =>
-      expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "9999", currentPin: "1111" })
-    );
+  it("uses the PIN typed at the top for a locked profile that isn't in use", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Kid");
+    await user.type(sheet.getByLabelText("Kid's PIN"), "1111");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    expect(sheet.queryByLabelText("Current PIN")).not.toBeInTheDocument();
+    await user.type(sheet.getByLabelText("New PIN"), "9999");
+    await user.type(sheet.getByLabelText("Type it again"), "9999");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
+
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "9999", currentPin: "1111" }));
   });
 
   it("explains the 4–8 digit rule instead of sending a PIN that breaks it", async () => {
     const user = userEvent.setup();
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
-    const field = screen.getByLabelText("PIN for Alex");
-    // No maxLength: a pasted 9-digit PIN must be rejected, not silently truncated.
-    expect(field).not.toHaveAttribute("maxLength");
-    await user.type(field, "12ab");
-    await user.type(screen.getByLabelText("Confirm the new PIN for Alex"), "12ab");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
-
-    expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");
-    expect(updateProfile).not.toHaveBeenCalled();
-  });
-
-  it("rejects a PIN longer than 8 digits instead of truncating it", async () => {
-    const user = userEvent.setup();
-    await renderSettings();
-
-    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
-    await user.click(screen.getByLabelText("PIN for Alex"));
+    const sheet = await openSheet(user, "Alex");
+    await user.click(sheet.getByRole("button", { name: "Set a PIN" }));
+    await user.click(sheet.getByLabelText("PIN", { selector: "input" }));
     await user.paste("123456789");
-    await user.click(screen.getByLabelText("Confirm the new PIN for Alex"));
-    await user.paste("123456789");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
 
-    expect(await screen.findByText("PIN must be 4 to 8 digits.")).toHaveAttribute("role", "alert");
+    expect(sheet.getByLabelText("PIN", { selector: "input" })).toHaveValue("");
+    expect(await sheet.findByRole("alert")).toHaveTextContent("PIN must be 4 to 8 digits.");
     expect(updateProfile).not.toHaveBeenCalled();
   });
 
@@ -235,15 +341,15 @@ describe("ProfileSettings PINs", () => {
   // that asks for the current one is not held to it.
   it("takes any existing PIN as the current one", async () => {
     const user = userEvent.setup();
+    activeProfile = KID;
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
-    const current = screen.getByLabelText("Current PIN for Kid");
-    expect(current).not.toHaveAttribute("maxLength");
-    await user.type(current, "an old passphrase");
-    await user.type(screen.getByLabelText("New PIN for Kid"), "246810");
-    await user.type(screen.getByLabelText("Confirm the new PIN for Kid"), "246810");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.type(sheet.getByLabelText("Current PIN"), "an old passphrase");
+    await user.type(sheet.getByLabelText("New PIN"), "246810");
+    await user.type(sheet.getByLabelText("Type it again"), "246810");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
 
     await waitFor(() =>
       expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "246810", currentPin: "an old passphrase" })
@@ -252,30 +358,32 @@ describe("ProfileSettings PINs", () => {
 
   it("names a wrong current PIN as such, not as a generic failure", async () => {
     const user = userEvent.setup();
+    activeProfile = KID;
     updateProfile.mockRejectedValue(new ApiError("Unauthorized", 401));
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
-    await user.type(screen.getByLabelText("Current PIN for Kid"), "0000");
-    await user.type(screen.getByLabelText("New PIN for Kid"), "9999");
-    await user.type(screen.getByLabelText("Confirm the new PIN for Kid"), "9999");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.type(sheet.getByLabelText("Current PIN"), "0000");
+    await user.type(sheet.getByLabelText("New PIN"), "9999");
+    await user.type(sheet.getByLabelText("Type it again"), "9999");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
 
-    expect(await screen.findByText("Incorrect current PIN.")).toBeInTheDocument();
+    expect(await sheet.findByText("Incorrect current PIN.")).toBeInTheDocument();
   });
 
   it("removes a PIN once the current one is given", async () => {
     const user = userEvent.setup();
+    activeProfile = KID;
     updateProfile.mockResolvedValue({ profile: { ...KID, hasPin: false } });
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Remove PIN for Kid" }));
-    await user.type(screen.getByLabelText("Current PIN for Kid, to confirm removal"), "1111");
-    await user.click(screen.getByRole("button", { name: "Confirm PIN removal" }));
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Remove PIN" }));
+    await user.type(sheet.getByLabelText("Current PIN"), "1111");
+    await user.click(sheet.getByRole("button", { name: "Remove PIN" }));
 
-    await waitFor(() =>
-      expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: null, currentPin: "1111" })
-    );
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: null, currentPin: "1111" }));
     expect(await screen.findByText("PIN removed for Kid")).toBeInTheDocument();
   });
 });
@@ -297,8 +405,8 @@ describe("ProfileSettings deletion", () => {
 
     await user.click(within(dialog).getByRole("button", { name: "Delete permanently" }));
 
-    await waitFor(() => expect(deleteProfile).toHaveBeenCalledWith(KID.id));
-    await waitFor(() => expect(screen.queryByText("Kid")).not.toBeInTheDocument());
+    await waitFor(() => expect(deleteProfile).toHaveBeenCalledWith(KID.id, undefined));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Edit Kid" })).not.toBeInTheDocument());
   });
 
   it("does nothing at all if the confirmation is cancelled", async () => {
@@ -310,7 +418,6 @@ describe("ProfileSettings deletion", () => {
 
     expect(deleteProfile).not.toHaveBeenCalled();
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(screen.getByText("Kid")).toBeInTheDocument();
   });
 
   // A 401 here means the server wants proof of the PIN — a solvable problem,
@@ -323,12 +430,11 @@ describe("ProfileSettings deletion", () => {
     const dialog = await startDelete(user, "Kid");
     await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
 
-    const pinField = await screen.findByLabelText("PIN for Kid, to confirm deletion");
-    await user.type(pinField, "1111");
-    await user.click(screen.getByRole("button", { name: "Confirm deletion of Kid" }));
+    await user.type(await within(dialog).findByLabelText("PIN for Kid, to confirm"), "1111");
+    await user.click(within(dialog).getByRole("button", { name: "Delete permanently" }));
 
     await waitFor(() => expect(deleteProfile).toHaveBeenLastCalledWith(KID.id, "1111"));
-    await waitFor(() => expect(screen.queryByText("Kid")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Edit Kid" })).not.toBeInTheDocument());
   });
 
   it("reopens the switcher when the profile you were using is deleted", async () => {
@@ -352,85 +458,48 @@ describe("ProfileSettings deletion", () => {
     const dialog = await startDelete(user, "Kid");
     await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
 
-    expect(await screen.findByText("Profile is in use")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Delete Kid" })).toBeInTheDocument();
+    expect(await within(dialog).findByText("Profile is in use")).toBeInTheDocument();
+  });
+});
+
+describe("ProfileSettings adding", () => {
+  it("adds a profile with the same flow as the switcher, then asks whether to switch", async () => {
+    const user = userEvent.setup();
+    const sam: Profile = { id: "p-sam", name: "Sam", hasPin: false };
+    createProfile.mockResolvedValue({ profile: sam });
+    verifyProfile.mockResolvedValue({ id: sam.id, name: sam.name, profileToken: "" });
+    await renderSettings();
+
+    await user.click(screen.getByRole("button", { name: "Add profile" }));
+    await user.type(screen.getByLabelText("Profile name"), "Sam");
+    await user.click(screen.getByRole("button", { name: "Fox" }));
+    await user.click(screen.getByRole("button", { name: /^create/i }));
+
+    await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam", pin: undefined, avatarId: "fetch:fox" }));
+    expect(await screen.findByText("Sam is ready")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit Sam" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Switch to Sam" }));
+    await waitFor(() => expect(setActiveProfile).toHaveBeenCalledWith(sam));
   });
 
-  describe("appearance and parental controls", () => {
-    it("saves colour, picture and a rating limit together", async () => {
-      const user = userEvent.setup();
-      updateProfile.mockResolvedValue({ profile: { ...KID, avatarColorHex: "#43A047", avatarId: "fetch:fox" } });
-      await renderSettings();
-
-      await user.click(screen.getByRole("button", { name: "Appearance and parental controls for Kid" }));
-      await user.click(screen.getByRole("button", { name: "Emerald" }));
-      await user.click(screen.getByRole("button", { name: "Fox" }));
-      await user.selectOptions(screen.getByLabelText("Highest rating allowed"), "TEENS");
-      // Kid has a PIN and isn't the profile in use, so the change carries it.
-      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
-      await user.type(screen.getByLabelText("PIN for Kid"), "1234");
-      await user.click(screen.getByRole("button", { name: "Save" }));
-
-      await waitFor(() =>
-        expect(updateProfile).toHaveBeenCalledWith(KID.id, {
-          avatarColorHex: "#43A047",
-          avatarId: "fetch:fox",
-          usesPrimaryAddons: false,
-          parental: { isKidsProfile: false, maxRating: "TEENS", allowUnrated: true },
-          currentPin: "1234",
-        })
-      );
-    });
-
-    it("applies the TV's kids preset when kids mode is switched on", async () => {
-      const user = userEvent.setup();
-      await renderSettings();
-
-      await user.click(screen.getByRole("button", { name: "Appearance and parental controls for Kid" }));
-      await user.click(screen.getByRole("checkbox", { name: /Kids profile/ }));
-
-      expect(screen.getByLabelText("Highest rating allowed")).toHaveValue("PARENTAL_GUIDANCE");
-      expect(screen.getByRole("checkbox", { name: "Show titles with no rating" })).not.toBeChecked();
-    });
-
-    it("doesn't offer addon sharing on the primary profile", async () => {
-      const user = userEvent.setup();
-      await renderSettings();
-
-      await user.click(screen.getByRole("button", { name: "Appearance and parental controls for Alex" }));
-
-      expect(screen.queryByRole("checkbox", { name: /primary profile's addons/ })).not.toBeInTheDocument();
-    });
-  });
-
-  it("adds a profile", async () => {
+  it("stays as the current profile when asked to", async () => {
     const user = userEvent.setup();
     createProfile.mockResolvedValue({ profile: { id: "p-sam", name: "Sam", hasPin: false } });
     await renderSettings();
 
     await user.click(screen.getByRole("button", { name: "Add profile" }));
-    await user.type(screen.getByLabelText("New profile name"), "Sam");
-    await user.click(screen.getByRole("button", { name: "Add" }));
+    await user.type(screen.getByLabelText("Profile name"), "Sam");
+    await user.click(screen.getByRole("button", { name: /^create/i }));
+    await user.click(await screen.findByRole("button", { name: "Stay as Alex" }));
 
-    await waitFor(() => expect(createProfile).toHaveBeenCalledWith({ name: "Sam" }));
-    expect(await screen.findByText("Sam")).toBeInTheDocument();
+    expect(setActiveProfile).not.toHaveBeenCalled();
+    expect(verifyProfile).not.toHaveBeenCalled();
+    expect(screen.queryByText("Sam is ready")).not.toBeInTheDocument();
   });
 });
 
 describe("ProfileSettings recovery and locking", () => {
-  it("refuses a new PIN typed differently the second time", async () => {
-    const user = userEvent.setup();
-    await renderSettings();
-
-    await user.click(screen.getByRole("button", { name: "Set PIN for Alex" }));
-    await user.type(screen.getByLabelText("PIN for Alex"), "1234");
-    await user.type(screen.getByLabelText("Confirm the new PIN for Alex"), "1243");
-    await user.click(screen.getByRole("button", { name: "Save PIN" }));
-
-    expect(await screen.findByText("The PINs don't match.")).toHaveAttribute("role", "alert");
-    expect(updateProfile).not.toHaveBeenCalled();
-  });
-
   it("lets the admin clear a forgotten PIN with their password", async () => {
     accountState = { account: { id: "a1", username: "owner", isAdmin: true }, isAdmin: true };
     clearProfilePin
@@ -439,12 +508,15 @@ describe("ProfileSettings recovery and locking", () => {
     const user = userEvent.setup();
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
-    await user.click(screen.getByRole("button", { name: "Forgot the PIN?" }));
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.click(sheet.getByRole("button", { name: "Forgot the PIN?" }));
     const review = screen.getByRole("alertdialog", { name: "Clear the PIN on Kid?" });
     await user.type(within(review).getByLabelText("Your account password"), "wrong-one");
     await user.click(within(review).getByRole("button", { name: "Clear PIN" }));
     expect(await within(review).findByText("Incorrect password.")).toBeInTheDocument();
+    expect(within(review).getByLabelText("Your account password")).toHaveAttribute("aria-invalid", "true");
+    expect(within(review).getByLabelText("Your account password")).toHaveAccessibleDescription(/Incorrect password/);
 
     await user.clear(within(review).getByLabelText("Your account password"));
     await user.type(within(review).getByLabelText("Your account password"), "owner-password");
@@ -452,7 +524,7 @@ describe("ProfileSettings recovery and locking", () => {
 
     await waitFor(() => expect(clearProfilePin).toHaveBeenLastCalledWith(KID.id, "owner-password"));
     expect(await screen.findByText("PIN cleared for Kid")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Remove PIN for Kid" })).not.toBeInTheDocument();
+    expect(cardFor("Kid").queryByText("PIN")).not.toBeInTheDocument();
   });
 
   it("goes back to the PIN form with focus on 'Forgot the PIN?' when the clear is cancelled", async () => {
@@ -460,13 +532,14 @@ describe("ProfileSettings recovery and locking", () => {
     const user = userEvent.setup();
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
-    await user.click(screen.getByRole("button", { name: "Forgot the PIN?" }));
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.click(sheet.getByRole("button", { name: "Forgot the PIN?" }));
     const review = screen.getByRole("alertdialog", { name: "Clear the PIN on Kid?" });
     await user.click(within(review).getByRole("button", { name: "Cancel" }));
 
     expect(screen.queryByRole("alertdialog", { name: "Clear the PIN on Kid?" })).not.toBeInTheDocument();
-    await waitFor(() => expect(screen.getByRole("button", { name: "Forgot the PIN?" })).toHaveFocus());
+    await waitFor(() => expect(sheet.getByRole("button", { name: "Forgot the PIN?" })).toHaveFocus());
     expect(clearProfilePin).not.toHaveBeenCalled();
   });
 
@@ -475,9 +548,10 @@ describe("ProfileSettings recovery and locking", () => {
     const user = userEvent.setup();
     await renderSettings();
 
-    await user.click(screen.getByRole("button", { name: "Change PIN for Kid" }));
-    expect(screen.queryByRole("button", { name: "Forgot the PIN?" })).not.toBeInTheDocument();
-    expect(screen.getByText("Forgot the PIN? Ask the admin to clear it.")).toBeInTheDocument();
+    const sheet = await openSheet(user, "Kid");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    expect(sheet.queryByRole("button", { name: "Forgot the PIN?" })).not.toBeInTheDocument();
+    expect(sheet.getByText("Forgot the PIN? Ask the admin to clear it.")).toBeInTheDocument();
   });
 
   it("keeps this browser's inactivity limit for PIN profiles", async () => {
@@ -494,3 +568,77 @@ describe("ProfileSettings recovery and locking", () => {
     expect(screen.queryByLabelText("Lock PIN profiles on this browser after")).not.toBeInTheDocument();
   });
 });
+
+describe("ProfileSettings review follow-ups", () => {
+  it("doesn't offer Add profile until the list is in", async () => {
+    let finish!: (value: { profiles: Profile[] }) => void;
+    getProfiles.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    render(
+      <MemoryRouter>
+        <ToastProvider>
+          <ProfileSettings />
+        </ToastProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByRole("button", { name: "Add profile" })).not.toBeInTheDocument();
+    finish({ profiles: [ALEX, KID] });
+    expect(await screen.findByRole("button", { name: "Add profile" })).toBeInTheDocument();
+  });
+
+  it("doesn't offer Add profile when the list failed to load", async () => {
+    getProfiles.mockRejectedValue(new Error("Profiles unavailable"));
+    await renderSettings();
+    expect(screen.queryByRole("button", { name: "Add profile" })).not.toBeInTheDocument();
+  });
+
+  it("goes on with the new PIN after changing a locked profile's PIN", async () => {
+    const user = userEvent.setup();
+    updateProfile.mockResolvedValueOnce({ profile: KID });
+    await renderSettings();
+
+    const sheet = await openSheet(user, "Kid");
+    await user.type(sheet.getByLabelText("Kid's PIN"), "1111");
+    await user.click(sheet.getByRole("button", { name: "Change PIN" }));
+    await user.type(sheet.getByLabelText("New PIN"), "9999");
+    await user.type(sheet.getByLabelText("Type it again"), "9999");
+    await user.click(sheet.getByRole("button", { name: "Save PIN" }));
+    await waitFor(() => expect(updateProfile).toHaveBeenCalledWith(KID.id, { pin: "9999", currentPin: "1111" }));
+
+    expect(sheet.getByLabelText("Kid's PIN")).toHaveValue("9999");
+    await user.type(sheet.getByLabelText("Name"), "do");
+    await user.click(sheet.getByRole("button", { name: "Save changes" }));
+    await waitFor(() =>
+      expect(updateProfile).toHaveBeenLastCalledWith(KID.id, expect.objectContaining({ name: "Kiddo", currentPin: "9999" }))
+    );
+  });
+
+  it("asks afresh each time the delete review opens, and moves focus into it and back", async () => {
+    const user = userEvent.setup();
+    await renderSettings();
+
+    let dialog = await startDelete(user, "Kid");
+    expect(within(dialog).getByRole("button", { name: "Cancel" })).toHaveFocus();
+    await waitFor(() => expect(dialog).toHaveTextContent("312 watched entries"));
+    await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("button", { name: "Delete Kid…" })).toHaveFocus();
+
+    getProfileSummary.mockRejectedValueOnce(new Error("offline"));
+    await user.click(screen.getByRole("button", { name: "Delete Kid…" }));
+    dialog = await screen.findByRole("alertdialog", { name: "Delete Kid?" });
+    await waitFor(() => expect(dialog).toHaveTextContent("Its watch history, lists, resume points, ratings and collections"));
+    expect(dialog).not.toHaveTextContent("312");
+  });
+
+  it("can't be cancelled while the delete is out", async () => {
+    const user = userEvent.setup();
+    deleteProfile.mockReturnValue(new Promise(() => {}));
+    await renderSettings();
+
+    const dialog = await startDelete(user, "Kid");
+    await user.click(await within(dialog).findByRole("button", { name: "Delete permanently" }));
+
+    expect(within(dialog).getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+});
+

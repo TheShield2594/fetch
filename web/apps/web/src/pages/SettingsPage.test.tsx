@@ -1,9 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
-import { INITIALLY_OPEN_SECTION_IDS, SETTINGS_SECTIONS, SETTINGS_TABS, SettingsPage, matchesSearch, type SettingsTab } from "./SettingsPage";
-import { at, present } from "../test/present";
+import { SETTINGS_SECTIONS, SettingsPage, boardTiles, matchesSearch, visibleSections } from "./SettingsPage";
 import { setExtrasEnabled } from "../hooks/useExtras";
 
 // Each section's body is its own component's business, and most of them fetch
@@ -27,6 +26,7 @@ vi.mock("../components/tv/TvOverview", () => ({ TvOverview: () => <p>tv overview
 vi.mock("../components/tv/TvAddonsSettings", () => ({ TvAddonsSettings: () => <p>tv addons body</p> }));
 vi.mock("../components/tv/HomeLayoutSettings", () => ({ HomeLayoutSettings: () => <p>home rows body</p> }));
 vi.mock("../components/tv/TvSettingsForm", () => ({ TvSettingsForm: () => <p>tv settings body</p> }));
+vi.mock("../components/tv/HomeFoldersSettings", () => ({ HomeFoldersSettings: () => <p>home folders body</p> }));
 
 // Health is six status requests and its own mapping rules, both tested
 // elsewhere (hooks/useSettingsHealth, components/settings/health.test.ts). Held
@@ -57,27 +57,22 @@ beforeEach(() => {
   signedIn.isAdmin = true;
 });
 
-// What a tab shows by default: AI recommendations are opt-in (hooks/useExtras.ts).
-const byTab = (tab: SettingsTab) => SETTINGS_SECTIONS.filter((s) => s.tab === tab && !s.extra);
 const find = (query: string) => SETTINGS_SECTIONS.filter((s) => matchesSearch(s, query)).map((s) => s.id);
 
 describe("settings sections", () => {
-  it("gives every section a unique storage key", () => {
-    expect(new Set(SETTINGS_SECTIONS.map((s) => s.id)).size).toBe(SETTINGS_SECTIONS.length);
+  it("gives every section a unique address", () => {
+    const ids = SETTINGS_SECTIONS.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("opens exactly one section per tab by default — the first one", () => {
-    for (const tab of SETTINGS_TABS) {
-      const open = byTab(tab.id).filter((s) => INITIALLY_OPEN_SECTION_IDS.has(s.id));
-      expect(open).toHaveLength(1);
-      expect(at(open, 0, "open section").id).toBe(at(byTab(tab.id), 0, "section").id);
-    }
+  it("names a service by its name and nothing else", () => {
+    const titles = SETTINGS_SECTIONS.filter((s) => s.source).map((s) => s.title);
+    for (const title of titles) expect(title).not.toMatch(/integration| metadata$| posters$|plex, jellyfin/i);
   });
 
-  it("never labels a section the same as the tab holding it", () => {
-    for (const tab of SETTINGS_TABS) {
-      expect(byTab(tab.id).map((s) => s.title)).not.toContain(tab.label);
-    }
+  it("keeps everything about the TV's Home screen in one group", () => {
+    const tv = SETTINGS_SECTIONS.filter((s) => s.group === "tv").map((s) => s.id);
+    expect(tv).toEqual(expect.arrayContaining(["tv-home", "home-folders", "devices"]));
   });
 
   it("matches everything when the query is empty or blank", () => {
@@ -86,216 +81,141 @@ describe("settings sections", () => {
   });
 
   it("finds a section by a word in its title, ignoring case", () => {
-    expect(find("region")).toEqual(["preferences"]);
-    expect(find("STREMIO")).toEqual(["addon"]);
+    expect(find("TRAKT")).toContain("trakt");
   });
 
   it("finds a section by what it does, not only by what it is called", () => {
-    expect(find("backup")).toEqual(["data"]);
-    expect(find("pin")).toEqual(["profile"]);
-    expect(find("ollama")).toEqual(["ai"]);
-  });
-
-  it("reaches sections on either tab", () => {
-    expect(find("trakt")).toEqual(expect.arrayContaining(["job-status", "trakt"]));
-    expect(new Set(SETTINGS_SECTIONS.filter((s) => matchesSearch(s, "trakt")).map((s) => s.tab)).size).toBe(2);
+    expect(find("password")).toEqual(["account"]);
+    expect(find("collections")).toEqual(["home-folders"]);
   });
 
   it("narrows on each extra term rather than widening", () => {
-    expect(find("rating")).toEqual(expect.arrayContaining(["omdb", "rpdb"]));
-    expect(find("rating poster")).toEqual(["rpdb"]);
+    expect(find("api key").length).toBeGreaterThan(find("api key imdb").length);
   });
 
   it("matches nothing when a term is absent", () => {
-    expect(find("bluray")).toEqual([]);
+    expect(find("zzzz")).toEqual([]);
+  });
+
+  it("leaves out admin-only sections, opt-in ones, and what the server's environment answers", () => {
+    const ids = (h: Parameters<typeof visibleSections>[0], o: Parameters<typeof visibleSections>[1]) => visibleSections(h, o).map((s) => s.id);
+    expect(ids({}, { isAdmin: false, showExtras: false })).not.toContain("addon");
+    expect(ids({}, { isAdmin: true, showExtras: false })).not.toContain("ai");
+    expect(ids({ tmdb: { tone: "ok", label: "Key set (env)", setByServer: true } }, { isAdmin: true, showExtras: false })).not.toContain("tmdb");
+  });
+
+  it("splits the board into sources in use and sources available, keeping unread ones with the first", () => {
+    const sections = visibleSections({}, { isAdmin: true, showExtras: false });
+    const tiles = boardTiles(sections, {
+      trakt: { tone: "bad", label: "Token expired" },
+      simkl: { tone: "idle", label: "Not connected" },
+    });
+    expect(tiles.live.map((s) => s.id)).toEqual(["trakt"]);
+    expect(tiles.available.map((s) => s.id)).toEqual(["simkl"]);
+    expect(tiles.unknown.map((s) => s.id)).toContain("tmdb");
   });
 });
 
-const renderPage = (tab?: SettingsTab) =>
+const renderAt = (url = "/settings") =>
   render(
-    <MemoryRouter initialEntries={[tab ? `/settings?tab=${tab}` : "/settings"]}>
+    <MemoryRouter initialEntries={[url]}>
       <SettingsPage />
     </MemoryRouter>
   );
 
-// Each section renders a panel labelled by its own header, open or shut, so the
-// panels are what "is this section on screen?" comes down to.
-const onScreen = () => SETTINGS_SECTIONS.filter((s) => screen.queryByRole("region", { name: s.title })).map((s) => s.title);
-const searchBox = () => screen.getByLabelText("Search settings");
-// role="tab", not "button": the tab strip is a real tablist, so a query that
-// still found a plain button would mean the roles had been dropped again.
-const tabBar = () => screen.queryByRole("tab", { name: at(SETTINGS_TABS, 1, "settings tab").label });
+const nav = () => screen.getAllByRole("navigation", { name: "Settings sections" })[0]!;
+const searchBox = () => screen.getAllByLabelText("Search settings")[0]!;
 
 describe("SettingsPage", () => {
   /*
    * The page's half of the contract, and only its half: it asks the shared
    * provider for a fresh read when it opens. Whether that ask reaches the
-   * network is the provider's business — it folds one asked for before its own
-   * first load has landed — and useSettingsHealth.test.tsx is where that is
-   * asserted.
+   * network is the provider's business.
    */
   it("asks for a fresh health read when Settings opens", () => {
-    renderPage();
+    renderAt();
 
     expect(refresh).toHaveBeenCalledTimes(1);
   });
 
-  // Where Stremio's "Configure" button lands (see the addon's /configure).
-  it("opens the section a link names, on the tab that holds it", () => {
-    const scrolled = vi.fn();
-    const original = Element.prototype.scrollIntoView;
-    Element.prototype.scrollIntoView = scrolled;
-    try {
-      render(
-        <MemoryRouter initialEntries={["/settings?section=addon"]}>
-          <SettingsPage />
-        </MemoryRouter>
-      );
+  it("titles the page with an h1, so the heading outline starts at the top", () => {
+    renderAt();
 
-      expect(screen.getByRole("tab", { name: "Integrations & Data" })).toHaveAttribute("aria-selected", "true");
-      expect(screen.getByRole("button", { name: /stremio addon/i })).toHaveAttribute("aria-expanded", "true");
-      expect(scrolled).toHaveBeenCalledTimes(1);
-    } finally {
-      Element.prototype.scrollIntoView = original;
+    expect(screen.getByRole("heading", { level: 1, name: "Settings" })).toBeInTheDocument();
+  });
+
+  it("leads with the status board rather than with a form", () => {
+    renderAt();
+
+    expect(screen.getByRole("heading", { name: "Status" })).toBeInTheDocument();
+    expect(screen.queryByText("account body")).not.toBeInTheDocument();
+  });
+
+  it("reads every source's state on the board without opening anything", () => {
+    health.value = {
+      trakt: { tone: "bad", label: "Token expired" },
+      simkl: { tone: "idle", label: "Not connected" },
+    };
+    renderAt();
+
+    const inUse = screen.getByRole("list", { name: "Sources in use" });
+    const trakt = within(inUse).getByRole("link", { name: /Trakt/ });
+    expect(trakt).toHaveTextContent("Token expired");
+    expect(trakt).toHaveAttribute("href", "/settings?section=trakt");
+    expect(trakt.querySelector(".status-dot--bad")).not.toBeNull();
+    expect(within(screen.getByRole("list", { name: "Available sources" })).getByRole("link", { name: /Simkl/ })).toHaveTextContent("Not connected");
+  });
+
+  // Where Stremio's "Configure" button lands (see the addon's /configure), and
+  // where the rail's source rows go.
+  it("opens the section a link names, at its own address", () => {
+    renderAt("/settings?section=addon");
+
+    expect(screen.getByRole("region", { name: "Stremio addon" })).toHaveTextContent("addon body");
+    expect(within(nav()).getByRole("link", { name: "Stremio addon" })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("shows one section at a time", () => {
+    renderAt("/settings?section=trakt");
+
+    expect(screen.getByText("trakt body")).toBeInTheDocument();
+    expect(screen.queryByText("simkl body")).not.toBeInTheDocument();
+  });
+
+  it("falls back to the board for a section the account can't see", () => {
+    signedIn.isAdmin = false;
+    renderAt("/settings?section=addon");
+
+    expect(screen.queryByText("addon body")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Status" })).toBeInTheDocument();
+  });
+
+  it("groups the sections by what they are for", () => {
+    renderAt();
+
+    for (const group of ["Sources", "Metadata", "TV", "You", "Server", "About"]) {
+      expect(within(nav()).getAllByText(group).length).toBeGreaterThan(0);
     }
   });
 
-  // The tab strip is a real tablist, which is a promise of arrow-key navigation
-  // and a roving tabindex — announcing the role without implementing them is the
-  // mistake the list panel's `role="menu"` made.
-  describe("the tab strip's keyboard contract", () => {
-    it("moves between tabs with the arrow keys, selecting as it goes", async () => {
-      renderPage();
-      const tabs = SETTINGS_TABS.map((t) => screen.getByRole("tab", { name: t.label }));
-      const firstTab = at(tabs, 0, "tab");
-      const secondTab = at(tabs, 1, "tab");
-      expect(firstTab).toHaveAttribute("aria-selected", "true");
+  it("puts a section's state beside its name in the list, in words as well as in colour", () => {
+    health.value = { trakt: { tone: "bad", label: "Token expired" } };
+    renderAt();
 
-      firstTab.focus();
-      await userEvent.keyboard("{ArrowRight}");
-
-      expect(secondTab).toHaveFocus();
-      expect(secondTab).toHaveAttribute("aria-selected", "true");
-      expect(onScreen()).toEqual(byTab("integrations").map((s) => s.title));
-    });
-
-    it("wraps around, and Home/End go straight to the ends", async () => {
-      renderPage();
-      const tabs = SETTINGS_TABS.map((t) => screen.getByRole("tab", { name: t.label }));
-      const firstTab = at(tabs, 0, "tab");
-      const lastTab = present(tabs.at(-1), "last tab");
-
-      firstTab.focus();
-      await userEvent.keyboard("{ArrowLeft}");
-      expect(lastTab).toHaveFocus();
-
-      await userEvent.keyboard("{Home}");
-      expect(firstTab).toHaveFocus();
-
-      await userEvent.keyboard("{End}");
-      expect(lastTab).toHaveFocus();
-    });
-
-    it("is one Tab stop, not one per tab", () => {
-      renderPage();
-      const tabs = SETTINGS_TABS.map((t) => screen.getByRole("tab", { name: t.label }));
-
-      expect(at(tabs, 0, "tab")).toHaveAttribute("tabindex", "0");
-      expect(at(tabs, 1, "tab")).toHaveAttribute("tabindex", "-1");
-    });
-
-    it("names the panel after the tab that selected it", () => {
-      renderPage();
-
-      const panel = screen.getByRole("tabpanel");
-      expect(panel).toHaveAccessibleName(at(SETTINGS_TABS, 0, "settings tab").label);
-    });
-
-    // A search spans both tabs and hides the strip, so labelling the results as
-    // one tab's panel would name them after a control that isn't on screen.
-    it("stops being a tabpanel while a search is spanning both tabs", async () => {
-      renderPage();
-      await userEvent.type(searchBox(), "trakt");
-
-      expect(screen.queryByRole("tabpanel")).not.toBeInTheDocument();
-    });
+    const row = within(nav()).getByRole("link", { name: /^Trakt/ });
+    expect(row).toHaveAccessibleName(/^Trakt\W+Token expired$/);
+    expect(row.querySelector(".status-dot--bad")).not.toBeNull();
   });
 
-  it("shows one tab's sections at a time, and the other tab's on request", async () => {
-    renderPage();
-    expect(onScreen()).toEqual(byTab("preferences").map((s) => s.title));
-
-    await userEvent.click(screen.getByRole("tab", { name: at(SETTINGS_TABS, 1, "settings tab").label }));
-    expect(onScreen()).toEqual(byTab("integrations").map((s) => s.title));
-  });
-
-  it("opens only the first section of a tab, leaving the rest to be asked for", () => {
-    renderPage();
-    const expanded = screen.getAllByRole("button", { expanded: true });
-
-    expect(expanded).toHaveLength(1);
-    expect(at(expanded, 0, "expanded section")).toHaveAccessibleName(at(byTab("preferences"), 0, "section").title);
-  });
-
-  it("titles the page with an h1, so the heading outline starts at the top", () => {
-    renderPage();
-
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Settings");
-  });
-
-  it("filters to matching sections, reaching the tab that isn't open", async () => {
-    renderPage();
-    await userEvent.type(searchBox(), "trakt");
-
-    expect(onScreen()).toEqual(["Sync status", "Trakt", "Ratings from MDBList"]);
-    expect(tabBar()).not.toBeInTheDocument();
-  });
-
-  it("shows a match's body straight away, rather than one more thing to click", async () => {
-    setExtrasEnabled(true);
-    renderPage();
-    await userEvent.type(searchBox(), "ollama");
-
-    expect(screen.getByText("ai body")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /AI Recommendations/i })).not.toBeInTheDocument();
-  });
-
-  it("says so when nothing matches", async () => {
-    renderPage();
-    await userEvent.type(searchBox(), "bluray");
-
-    expect(screen.getByRole("status")).toHaveTextContent('No settings match "bluray".');
-    expect(onScreen()).toEqual([]);
-  });
-
-  it("restores the tab on Escape", async () => {
-    renderPage();
-    await userEvent.type(searchBox(), "trakt");
-    await userEvent.keyboard("{Escape}");
-
-    expect(searchBox()).toHaveValue("");
-    expect(tabBar()).toBeInTheDocument();
-    expect(onScreen()).toEqual(byTab("preferences").map((s) => s.title));
-  });
-
-  it("leaves out TMDB Metadata when the key comes from the server's environment", async () => {
+  it("leaves out TMDB when the key comes from the server's environment", async () => {
     health.value = { tmdb: { tone: "ok", label: "Key set (env)", setByServer: true } };
-    renderPage("integrations");
+    renderAt();
 
-    expect(screen.queryByRole("button", { name: /^TMDB metadata/ })).not.toBeInTheDocument();
-    // The other keys are still the admin's to set here.
-    expect(onScreen()).toEqual(expect.arrayContaining(["OMDB ratings", "Ratings from MDBList", "RPDB posters"]));
+    expect(within(nav()).queryByRole("link", { name: /^TMDB/ })).not.toBeInTheDocument();
+    expect(within(nav()).getByRole("link", { name: /^OMDb/ })).toBeInTheDocument();
 
-    await userEvent.type(searchBox(), "tmdb metadata");
-    expect(screen.queryByRole("button", { name: /^TMDB metadata/ })).not.toBeInTheDocument();
-  });
-
-  it("keeps TMDB Metadata when the key was saved here, or is missing", () => {
-    health.value = { tmdb: { tone: "ok", label: "Key set" } };
-    renderPage("integrations");
-
-    // By its header, whose name carries the health label beside the title.
-    expect(screen.getByRole("button", { name: /^TMDB metadata/ })).toBeInTheDocument();
+    await userEvent.type(searchBox(), "tmdb");
+    expect(within(nav()).queryByRole("link", { name: /^TMDB/ })).not.toBeInTheDocument();
   });
 
   it("leads with a count of what is healthy, so the page answers before it is read", async () => {
@@ -304,107 +224,81 @@ describe("SettingsPage", () => {
       tmdb: { tone: "warn", label: "No key — artwork is off" },
       omdb: { tone: "idle", label: "Not set" },
     };
-    renderPage();
+    renderAt();
 
     expect(await screen.findByText("1 of 2 sources healthy · 1 not set up")).toBeInTheDocument();
   });
 
   it("says nothing at all until the statuses land, rather than reporting a health it cannot read", () => {
-    renderPage();
+    renderAt();
 
     expect(screen.queryByText(/sources healthy/)).not.toBeInTheDocument();
   });
 
-  it("puts each integration's state on its own row, in words as well as in colour", async () => {
-    health.value = { trakt: { tone: "bad", label: "Token expired" } };
-    renderPage();
+  it("filters the list to matching sections, across every group", async () => {
+    renderAt();
+    await userEvent.type(searchBox(), "stremio");
 
-    await userEvent.click(screen.getByRole("tab", { name: at(SETTINGS_TABS, 1, "settings tab").label }));
-    const header = screen.getByRole("button", { name: /^Trakt/ });
-
-    expect(header).toHaveAccessibleName("Trakt Token expired");
-    expect(header.querySelector(".status-dot--bad")).not.toBeNull();
+    expect(within(nav()).getAllByRole("link").map((link) => link.textContent)).toEqual(["Stremio addon"]);
+    // No group headings while a result set spans all of them.
+    expect(within(nav()).queryByText("Server")).not.toBeInTheDocument();
   });
 
-  it("groups the integrations by what a source does rather than by who supplies it", async () => {
-    renderPage();
-    await userEvent.click(screen.getByRole("tab", { name: at(SETTINGS_TABS, 1, "settings tab").label }));
+  it("says so when nothing matches", async () => {
+    renderAt();
+    await userEvent.type(searchBox(), "zzzz");
 
-    expect(screen.getByText("Where history comes from")).toBeInTheDocument();
-    expect(screen.getByText("Metadata & artwork")).toBeInTheDocument();
-    expect(screen.getByText("This server")).toBeInTheDocument();
-    // AI recommendations are opt-in, and their group with them.
-    expect(screen.queryByText("Recommendations")).not.toBeInTheDocument();
+    expect(screen.getAllByText('No settings match "zzzz".')[0]).toBeInTheDocument();
+  });
+
+  it("clears the search on Escape and from the clear button", async () => {
+    renderAt();
+    await userEvent.type(searchBox(), "trakt");
+    await userEvent.keyboard("{Escape}");
+    expect(searchBox()).toHaveValue("");
+
+    await userEvent.type(searchBox(), "trakt");
+    await userEvent.click(screen.getAllByRole("button", { name: "Clear search" })[0]!);
+    expect(searchBox()).toHaveValue("");
   });
 
   it("keeps AI recommendations out of Settings until they are turned on", async () => {
-    renderPage();
+    renderAt();
     await userEvent.type(searchBox(), "ollama");
-    expect(onScreen()).toEqual([]);
+    expect(within(nav()).queryAllByRole("link")).toHaveLength(0);
 
     await userEvent.clear(searchBox());
     setExtrasEnabled(true);
     await userEvent.type(searchBox(), "ollama");
-    expect(onScreen()).toEqual(["AI recommendations"]);
+    expect(within(nav()).getByRole("link", { name: "AI recommendations" })).toBeInTheDocument();
   });
 
-  it("drops the group headings while searching, where a result set spans all of them", async () => {
-    renderPage();
-    await userEvent.type(searchBox(), "stremio");
+  it("reaches Home folders beside Home rows", () => {
+    renderAt("/settings?section=home-folders");
 
-    expect(screen.queryByText("Where history comes from")).not.toBeInTheDocument();
-  });
-
-  it("restores the tab from the clear button", async () => {
-    renderPage();
-    await userEvent.type(searchBox(), "trakt");
-    await userEvent.click(screen.getByRole("button", { name: "Clear search" }));
-
-    expect(searchBox()).toHaveValue("");
-    expect(tabBar()).toBeInTheDocument();
-    expect(onScreen()).toEqual(byTab("preferences").map((s) => s.title));
+    expect(screen.getByRole("region", { name: "Home folders" })).toHaveTextContent("home folders body");
   });
 });
 
 describe("SettingsPage for an account that isn't the admin", () => {
-  const renderPage = (tab: SettingsTab) =>
-    render(
-      <MemoryRouter initialEntries={[`/settings?tab=${tab}`]}>
-        <SettingsPage />
-      </MemoryRouter>
-    );
-
   it("keeps their own sections and hides the install-wide ones", () => {
     signedIn.isAdmin = false;
-    renderPage("preferences");
+    renderAt();
 
-    // Metadata & Region is theirs too: region and spoiler protection are per account.
-    for (const title of ["Account", "Metadata & region", "Profile", "Notifications", "About"]) {
-      expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
+    for (const title of ["Account", "Language & region", "Profile", "Notifications", "About", "Data", "Trakt", "Webhooks", "Media servers", "Simkl", "MDBList", "MDBList ratings"]) {
+      expect(within(nav()).getByRole("link", { name: new RegExp(`^${title}($|\\W*,)`) })).toBeInTheDocument();
     }
-    expect(screen.queryByRole("button", { name: /^Sync status/ })).not.toBeInTheDocument();
-  });
-
-  it("leaves only their own data and connections on the integrations tab", () => {
-    signedIn.isAdmin = false;
-    renderPage("integrations");
-
-    // Each account connects its own Trakt, and has its own webhook link.
-    for (const title of ["Data", "Trakt", "Plex, Jellyfin & Emby webhooks", "Media servers", "Simkl", "MDBList", "Ratings from MDBList"]) {
-      expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
-    }
-    for (const title of ["TMDB metadata", "Invites & accounts", "Stremio addon"]) {
-      expect(screen.queryByRole("button", { name: new RegExp(`^${title}`) })).not.toBeInTheDocument();
+    for (const title of ["Sync status", "TMDB", "Invites & accounts", "Stremio addon"]) {
+      expect(within(nav()).queryByRole("link", { name: new RegExp(`^${title}($|\\W*,)`) })).not.toBeInTheDocument();
     }
   });
 
   it("can't find a hidden section by searching for it", async () => {
     signedIn.isAdmin = false;
-    const user = userEvent.setup();
-    renderPage("preferences");
+    renderAt();
 
-    await user.type(screen.getByLabelText("Search settings"), "trakt");
+    await userEvent.type(searchBox(), "stremio");
 
-    expect(screen.queryByRole("button", { name: /^Trakt/ })).not.toBeInTheDocument();
+    expect(within(nav()).queryByRole("link", { name: /Stremio/ })).not.toBeInTheDocument();
   });
 });

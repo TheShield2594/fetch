@@ -428,14 +428,16 @@ its own token that can be revoked on its own.
 
 ### Collections
 
-A profile's collections — custom Home rows and the folders inside them — stored
-as the TV writes them, so one made on the TV comes back unchanged. Profile-scoped
-like every other per-profile route.
+A profile's collections — what the TV and the website call Home folders: custom
+Home rows ("folder rows") and the folders inside them — stored as the TV writes
+them, so one made on the TV comes back unchanged. Profile-scoped like every other
+per-profile route.
 
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/collections` | `{ collections, updatedAt }`. An empty list and `null` when there are none yet. |
 | `PUT` | `/collections` | `{ collections, baseUpdatedAt? }` replaces the whole list. With `baseUpdatedAt` (the value last read), a list changed elsewhere in the meantime is `409 collections_conflict` carrying the current one. |
+| `GET` | `/collections/tmdb-search?kind=&q=` | `{ results: [{ id, name, image, detail }] }`, up to 12 TMDB people (`kind=person`), companies (`company`) or film collections (`collection`) by name, for picking a TMDB source without its numeric id. Needs a TMDB key (`409 tmdb_not_configured`). |
 | `POST` | `/collections/preview` | `{ source }` → `{ metas }`, the first 20 titles a source yields. TMDB needs a key (`409 tmdb_not_configured`), Trakt a connection (`409 trakt_not_connected`). Addon catalogs are `422 preview_in_browser`: the website fetches those from the addon directly, at the source's `addonUrl`. |
 
 Each collection is `{ id, title, backdropImageUrl?, pinToTop?, viewMode?, showAllTab?, folders }`,

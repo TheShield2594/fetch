@@ -1,10 +1,13 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api";
 import { useAccount } from "./useAccount";
+import { ProfileContext } from "./useProfile";
 import { timeAgo } from "../utils/timeAgo";
 import {
   jobsHealth,
+  mediaServersHealth,
   optionalKeyHealth,
+  trackerHealth,
   tmdbHealth,
   traktHealth,
   type JobStatus,
@@ -79,24 +82,32 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
     setEpoch((n) => n + 1);
   }, []);
 
-  // Every row here is an install-wide integration that only the admin can set
-  // up, and the admin-only status requests would fail for anyone else. So for
-  // other accounts there is nothing to report and nothing is asked.
+  // The install-wide integrations only the admin can set up, whose status
+  // requests would fail for anyone else, are asked only for the admin. The
+  // profile's own sign-ins (Simkl, MDBList, media servers) are everyone's, and
+  // are asked again when the profile changes: they are that profile's answer.
   const { isAdmin } = useAccount();
+  const profileId = useContext(ProfileContext)?.profile?.id ?? null;
 
   useEffect(() => {
     let cancelled = false;
-    if (!isAdmin) return;
+
+    // A request that throws — or a client method that isn't there — is the
+    // same "could not ask", and becomes `null` rather than failing the rest.
+    const ask = <T,>(read: () => Promise<T>): Promise<T | null> => Promise.resolve().then(read).catch(() => null);
 
     void (async () => {
       // `null` here means "the request failed", which is why every mapper below
       // is guarded rather than being handed the null. `undefined` never occurs.
-      const [jobs, trakt, tmdb, omdb, rpdb] = await Promise.all([
-        api.getJobStatus().catch(() => null as JobStatus | null),
-        api.getTraktStatus().catch(() => null),
-        api.getTmdbStatus().catch(() => null),
-        api.getOmdbStatus().catch(() => null),
-        api.getRpdbStatus().catch(() => null),
+      const [jobs, trakt, tmdb, omdb, rpdb, simkl, mdblist, mediaServers] = await Promise.all([
+        isAdmin ? ask(() => api.getJobStatus() as Promise<JobStatus>) : null,
+        isAdmin ? ask(() => api.getTraktStatus()) : null,
+        isAdmin ? ask(() => api.getTmdbStatus()) : null,
+        isAdmin ? ask(() => api.getOmdbStatus()) : null,
+        isAdmin ? ask(() => api.getRpdbStatus()) : null,
+        ask(() => api.getSimklStatus()),
+        ask(() => api.getMdbListStatus()),
+        ask(() => api.getMediaServers()),
       ]);
       if (cancelled) return;
 
@@ -109,15 +120,18 @@ export function SettingsHealthProvider({ children }: { children: ReactNode }) {
       // with it being null — a missing "synced 4m ago" is a smaller loss
       // than a wrong one. Only the row that is *about* the jobs needs them.
       if (jobs) next["job-status"] = jobsHealth(jobs);
+      if (simkl) next.simkl = trackerHealth(simkl, timeAgo);
+      if (mdblist) next.mdblist = trackerHealth(mdblist, timeAgo);
+      if (mediaServers) next["media-servers"] = mediaServersHealth(mediaServers.servers, timeAgo);
 
       settledRef.current = true;
       setSections(next);
     })();
 
     return () => { cancelled = true; };
-  }, [epoch, isAdmin]);
+  }, [epoch, isAdmin, profileId]);
 
-  const value = useMemo(() => ({ sections: isAdmin ? sections : NO_SECTIONS, refresh }), [isAdmin, sections, refresh]);
+  const value = useMemo(() => ({ sections, refresh }), [sections, refresh]);
   return <SettingsHealthContext.Provider value={value}>{children}</SettingsHealthContext.Provider>;
 }
 

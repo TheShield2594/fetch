@@ -121,6 +121,43 @@ export function traktHealth(
 }
 
 /**
+ * Simkl and MDBList: a profile's own tracker sign-in.
+ *
+ * Unlike Trakt these are per profile and optional, so not being signed in is
+ * a choice rather than a fault — `idle`, not `warn`. A server without the
+ * service's client id can't offer the sign-in at all, which is the same idle
+ * state with a different reason.
+ */
+export function trackerHealth(
+  status: { configured: boolean; connected: boolean; lastSyncedAt: string | null },
+  timeAgo: (iso: string) => string
+): SectionHealth {
+  if (!status.configured) return { tone: "idle", label: "Not available here", short: "Unavailable" };
+  if (!status.connected) return { tone: "idle", label: "Not connected" };
+  return { tone: "ok", label: status.lastSyncedAt ? `Synced ${timeAgo(status.lastSyncedAt)}` : "Connected" };
+}
+
+/**
+ * Plex, Jellyfin and Emby: how many servers are linked and when the most
+ * recent of them last synced.
+ */
+export function mediaServersHealth(
+  servers: readonly { lastSyncedAt: string | null }[],
+  timeAgo: (iso: string) => string
+): SectionHealth {
+  if (servers.length === 0) return { tone: "idle", label: "None linked" };
+  const latest = servers
+    .map((server) => server.lastSyncedAt)
+    .filter((at): at is string => !!at)
+    .sort()
+    .at(-1);
+  const count = `${servers.length} ${servers.length === 1 ? "server" : "servers"}`;
+  return latest
+    ? { tone: "ok", label: `${count} · synced ${timeAgo(latest)}`, short: `Synced ${timeAgo(latest)}` }
+    : { tone: "ok", label: `${count} linked`, short: "Linked" };
+}
+
+/**
  * TMDB is the one key whose absence is a fault rather than a preference —
  * without it there is no artwork, no runtime and no episode list, so the whole
  * app is visibly degraded. The optional keys below get `idle` for the same

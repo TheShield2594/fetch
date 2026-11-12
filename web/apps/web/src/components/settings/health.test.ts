@@ -9,6 +9,8 @@ import {
   tmdbHealth,
   traktHealth,
   type JobStatus,
+  mediaServersHealth,
+  trackerHealth,
 } from "./health";
 
 const timeAgo = () => "4m ago";
@@ -192,5 +194,32 @@ describe("healthSummary", () => {
 
   it("says nothing at all before the statuses land", () => {
     expect(healthSummary({})).toBe("");
+  });
+});
+
+describe("trackerHealth", () => {
+  const ago = (iso: string) => `at ${iso}`;
+
+  it("treats a sign-in nobody made as a choice, not a fault", () => {
+    expect(trackerHealth({ configured: true, connected: false, lastSyncedAt: null }, ago)).toEqual({ tone: "idle", label: "Not connected" });
+    expect(trackerHealth({ configured: false, connected: false, lastSyncedAt: null }, ago).tone).toBe("idle");
+  });
+
+  it("says when a connected tracker last synced", () => {
+    expect(trackerHealth({ configured: true, connected: true, lastSyncedAt: "T" }, ago)).toEqual({ tone: "ok", label: "Synced at T" });
+    expect(trackerHealth({ configured: true, connected: true, lastSyncedAt: null }, ago).label).toBe("Connected");
+  });
+});
+
+describe("mediaServersHealth", () => {
+  const ago = (iso: string) => `at ${iso}`;
+
+  it("is idle with no servers linked", () => {
+    expect(mediaServersHealth([], ago)).toEqual({ tone: "idle", label: "None linked" });
+  });
+
+  it("counts the servers and reports the most recent sync", () => {
+    const health = mediaServersHealth([{ lastSyncedAt: "2026-01-01" }, { lastSyncedAt: "2026-03-01" }, { lastSyncedAt: null }], ago);
+    expect(health).toEqual({ tone: "ok", label: "3 servers · synced at 2026-03-01", short: "Synced at 2026-03-01" });
   });
 });

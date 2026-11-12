@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { BookmarkCheck } from "lucide-react";
 import { Poster } from "./Poster";
 import { MyRating } from "./MyRating";
 import { formatRating, ratingLabel } from "../utils/rating";
+import { openWithTransition } from "../utils/viewTransition";
 
 /**
  * The poster card: the one way a title is drawn as a poster anywhere in the app.
@@ -35,6 +36,10 @@ import { formatRating, ratingLabel } from "../utils/rating";
  *   cornerAction top-right of the art: the one thing that takes it away
  *                (remove from this list). Replaces the membership mark, which
  *                would only say the obvious on a list's own page.
+ *   selection    a select mode's control (the Lists page's checkbox), laid
+ *                over the whole card in place of the open button, with
+ *                `selected` ringing the frame. While it is there a tap
+ *                selects rather than opens.
  *
  * There is no type badge. A coloured MOVIE/SERIES pill over the picture says
  * what the meta run already says quietly; pages that need the kind put it
@@ -75,6 +80,8 @@ export function PosterCard({
   progress,
   quickAction,
   cornerAction,
+  selection,
+  selected = false,
   note,
   className = "",
   children,
@@ -107,6 +114,14 @@ export function PosterCard({
    */
   quickAction?: ReactNode | undefined;
   cornerAction?: ReactNode | undefined;
+  /**
+   * A select mode's control, given the whole card to cover. It replaces the
+   * open button — pass no `onOpen` alongside it — and has to fill and place
+   * itself, as the overlay slots do.
+   */
+  selection?: ReactNode | undefined;
+  /** Rings the frame: the card is part of the current selection. */
+  selected?: boolean | undefined;
   /** A third caption line, clamped to two — the reason a recommendation is here. */
   note?: string | undefined;
   /** Extra classes for the outer wrapper — a fixed width, a flex rule. */
@@ -116,9 +131,13 @@ export function PosterCard({
 }) {
   const listed = !cornerAction && inLists && inLists.length > 0;
   const captionTitle = title === undefined ? name : title;
+  const frameRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className={`group relative rounded-2xl ${className}`.trimEnd()}>
+    // Four states for a card that opens something: rest, hover (the frame
+    // lifts), pressed (`card-pressable` — the frame sinks while the hit button
+    // is held) and focus (the ring on the hit button).
+    <div className={`group relative rounded-2xl${onOpen ? " card-pressable" : ""} ${className}`.trimEnd()}>
       {/* A real button stretched over the whole card: Enter and Space, and the
           announcement assistive tech expects, for free. `overflow-hidden`
           belongs to the frame below rather than here, so the poster's hover
@@ -126,13 +145,15 @@ export function PosterCard({
       {onOpen && (
         <button
           type="button"
-          onClick={onOpen}
+          // Every caller opens a title, so the tapped art becomes the panel's.
+          onClick={() => openWithTransition(frameRef.current, onOpen)}
           aria-label={openLabel ?? `View details for ${name}`}
-          className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+          className="card-hit absolute inset-0 z-10 cursor-pointer rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
         />
       )}
       <div
-        className={`poster-frame relative aspect-poster overflow-hidden rounded-2xl${hover ? " group-hover:scale-[1.03]" : ""}`}
+        ref={frameRef}
+        className={`poster-frame relative aspect-poster overflow-hidden rounded-2xl${hover ? " group-hover:scale-[1.03]" : ""}${selected ? " ring-2 ring-accent-500 ring-offset-2 ring-offset-[var(--bg-0)]" : ""}`}
       >
         <Poster src={poster ?? undefined} alt={name} className="h-full w-full" eager={eager} sizes={sizes} />
         {marker && <div className="absolute left-2 top-2">{marker}</div>}
@@ -150,6 +171,7 @@ export function PosterCard({
         )}
         {progress && <div className="absolute inset-x-2 bottom-2">{progress}</div>}
       </div>
+      {selection && <div className="absolute inset-0 z-10">{selection}</div>}
       {(quickAction || cornerAction) && (
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 aspect-poster">
           {cornerAction && <div className="absolute right-2 top-2">{cornerAction}</div>}

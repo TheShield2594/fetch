@@ -530,7 +530,7 @@ export function DiscoverPage() {
                 <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
                   Trending needs a TMDB API key to fetch content.
                 </p>
-                <Link to="/settings?tab=integrations" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
+                <Link to="/settings?section=tmdb" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
                   Set it up in Settings &rarr;
                 </Link>
               </div>

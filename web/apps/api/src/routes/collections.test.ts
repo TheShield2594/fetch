@@ -19,7 +19,8 @@ vi.mock("../lib/stremio-helpers.js", () => ({
   getCustomListMetas: listMetas,
   buildMetasFromIds: vi.fn(),
 }));
-vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: async () => ({ collectionSourcePage: tmdbPage }) }));
+const tmdbEntities = vi.fn();
+vi.mock("../lib/tmdb-client.js", () => ({ getTmdb: async () => ({ collectionSourcePage: tmdbPage, searchEntities: tmdbEntities }) }));
 vi.mock("../lib/trakt-client.js", () => ({ isTraktConnected: async () => false, getTraktClient: vi.fn() }));
 vi.mock("../lib/integration-owner.js", () => ({ outboundScopeForProfile: async () => ({ allowPrivateNetwork: false }) }));
 
@@ -283,5 +284,27 @@ describe("collections routes", () => {
       expect(response.statusCode).toBe(400);
       expect(response.json().code).toBe("manifest_invalid");
     });
+  });
+
+  it("searches TMDB people, studios and collections by name for the builder", async () => {
+    tmdbEntities.mockResolvedValue([{ id: 525, name: "Christopher Nolan", image: null, detail: "Directing" }]);
+    const app = await buildApp();
+
+    const response = await app.inject({ method: "GET", url: "/collections/tmdb-search?kind=person&q=nolan", headers });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ results: [{ id: 525, name: "Christopher Nolan", image: null, detail: "Directing" }] });
+    expect(tmdbEntities).toHaveBeenCalledWith("person", "nolan");
+  });
+
+  it("refuses an entity search with an unknown kind or no query", async () => {
+    const app = await buildApp();
+
+    const badKind = await app.inject({ method: "GET", url: "/collections/tmdb-search?kind=network&q=hbo", headers });
+    const noQuery = await app.inject({ method: "GET", url: "/collections/tmdb-search?kind=company&q=%20", headers });
+
+    expect(badKind.statusCode).toBe(400);
+    expect(noQuery.statusCode).toBe(400);
+    expect(tmdbEntities).not.toHaveBeenCalled();
   });
 });

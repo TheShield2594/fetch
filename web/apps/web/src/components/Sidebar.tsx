@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { BarChart3, CalendarDays, Compass, History, LayoutGrid, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, History, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
 import { api, type CatalogList, type Profile } from "../api";
 import { BrandMark, BrandWordmark } from "./BrandMark";
 import { healthDotClass } from "./settings/health";
@@ -48,7 +48,6 @@ export const SIDEBAR_NAV_ITEMS = [
  * it belongs. Two rows called "Lists" in one column would be a puzzle.
  */
 export const SIDEBAR_MANAGE_ITEMS = [
-  { to: "/collections", label: "Collections", icon: LayoutGrid, end: false },
   { to: "/history", label: "History", icon: History, end: false },
   { to: "/profiles", label: "Profiles", icon: Users, end: false },
 ] as const;
@@ -440,10 +439,10 @@ export function Sidebar({
           {/*
             * Sources, with whether they are working.
             *
-            * Only the ones that are actually set up — see `railSources`. All
-            * of them lead to the same place, which is the point: the rail
-            * answers "is anything wrong?" and Settings answers "what, and how
-            * do I fix it?".
+            * Only the ones that are actually set up — see `railSources`. Each
+            * leads to its own section of Settings (`?section=<id>`): the rail
+            * answers "is anything wrong?" and the section answers "what, and
+            * how do I fix it?" without a second hunt for the right row.
             *
             * Plain links, and never `aria-current`: they are shortcuts into
             * one page, and the Settings row above is the one that *is* that
@@ -459,7 +458,7 @@ export function Sidebar({
               {sources.map((source) => (
                 <Link
                   key={source.id}
-                  to="/settings?tab=integrations"
+                  to={`/settings?section=${source.id}`}
                   className={`${RAIL_ROW} hover:bg-[var(--surface)]`}
                   style={{ color: "var(--text-dim)" }}
                   title={`${source.label} — ${source.health.label}`}

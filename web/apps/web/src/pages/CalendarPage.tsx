@@ -85,7 +85,7 @@ function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry:
     <button
       type="button"
       onClick={() => onSelect(entry)}
-      className="glass-row flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+      className="glass-row flex w-full items-center gap-3 rounded-xl p-3 text-left transition-[background-color,transform] duration-base active:scale-[0.99] active:duration-fast hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
       style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}
     >
       <div className="h-16 w-11 flex-none overflow-hidden rounded-lg" style={{ boxShadow: "0 0 0 1px var(--border)" }}>

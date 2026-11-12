@@ -172,7 +172,7 @@ function UpNextCard({
       dismiss={item.dismiss}
       size={lead ? "lead" : "rail"}
       eager={eager}
-      className={lead ? "w-full lg:w-[min(30rem,50%)] lg:flex-none" : "w-[15rem] flex-none snap-start"}
+      className={lead ? "w-full" : "w-[15rem] flex-none snap-start"}
     />
   );
 }
@@ -674,7 +674,12 @@ export function ShelfPage() {
                * margin) so its last card doesn't stop a gutter short.
                */}
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
-                <UpNextCard item={leadItem} lead eager onOpen={() => openEntry(leadItem.entry)} />
+                {/* Keyed on the item, so when the lead is finished and the next
+                    thing moves up, it slides into the place rather than the
+                    row being redrawn under you. */}
+                <div key={leadItem.key} className="card-advance w-full lg:w-[min(30rem,50%)] lg:flex-none">
+                  <UpNextCard item={leadItem} lead eager onOpen={() => openEntry(leadItem.entry)} />
+                </div>
                 {railItems.length > 0 && (
                   <div
                     role="list"

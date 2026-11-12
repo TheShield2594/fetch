@@ -15,7 +15,7 @@ function describeRow(row: HomeRow): string {
     case "list":
       return "Your list on this website";
     case "collection":
-      return "Collection";
+      return "Home folders";
     case "builtin":
       return "Built into the TV";
     default:

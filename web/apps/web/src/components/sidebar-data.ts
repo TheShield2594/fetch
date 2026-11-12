@@ -92,6 +92,9 @@ export function orderListsForRail(lists: CatalogList[]): CatalogList[] {
  */
 export const RAIL_SOURCES: readonly { id: string; label: string }[] = [
   { id: "trakt", label: "Trakt" },
+  { id: "simkl", label: "Simkl" },
+  { id: "mdblist", label: "MDBList" },
+  { id: "media-servers", label: "Media servers" },
   { id: "tmdb", label: "TMDB" },
   { id: "omdb", label: "OMDb" },
   { id: "rpdb", label: "RPDB" },

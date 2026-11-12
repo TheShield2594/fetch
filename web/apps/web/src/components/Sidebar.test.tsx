@@ -119,7 +119,7 @@ describe("Sidebar", () => {
    */
   it("leaves the source rows uncurrent on the settings route", async () => {
     health.value = { trakt: { tone: "ok", label: "Synced 4m ago" } };
-    renderSidebar(true, "/settings?tab=integrations");
+    renderSidebar(true, "/settings?section=trakt");
 
     const nav = screen.getByRole("navigation", { name: "Primary" });
     await within(nav).findByRole("link", { name: /Trakt/ });
@@ -162,7 +162,7 @@ describe("Sidebar", () => {
     const nav = screen.getByRole("navigation", { name: "Primary" });
     const all = await within(nav).findByRole("link", { name: "All Lists" });
     expect(all).toHaveAttribute("href", "/lists");
-    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "History", "Profiles"]);
+    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["History", "Profiles"]);
   });
 
   /*
@@ -176,7 +176,8 @@ describe("Sidebar", () => {
     const nav = screen.getByRole("navigation", { name: "Primary" });
     const row = await within(nav).findByRole("link", { name: /Trakt/ });
     expect(row).toHaveTextContent("Synced 4m ago");
-    expect(row).toHaveAttribute("href", "/settings?tab=integrations");
+    // Straight to its own section, not to a tab to hunt through.
+    expect(row).toHaveAttribute("href", "/settings?section=trakt");
     expect(within(nav).getByText("Sources")).toBeInTheDocument();
   });
 

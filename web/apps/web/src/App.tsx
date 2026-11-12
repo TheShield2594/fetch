@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Route, Routes, useLocation } from "react-router";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import { Search, User } from "lucide-react";
 import { api, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
 import { useCommandPalette } from "./hooks/useCommandPalette";
@@ -31,7 +31,6 @@ import {
   loadSetupWizard,
   loadStatsPage,
   loadCommandPalette,
-  loadCollectionsPage,
   loadPairPage,
   loadLinkPage,
   loadProfilesPage,
@@ -67,7 +66,6 @@ const NotFoundPage = lazy(() => loadNotFoundPage().then((m) => ({ default: m.Not
 const SearchPage = lazy(() => loadSearchPage().then((m) => ({ default: m.SearchPage })));
 const SettingsPage = lazy(() => loadSettingsPage().then((m) => ({ default: m.SettingsPage })));
 const StatsPage = lazy(() => loadStatsPage().then((m) => ({ default: m.StatsPage })));
-const CollectionsPage = lazy(() => loadCollectionsPage().then((m) => ({ default: m.CollectionsPage })));
 const ProfilesPage = lazy(() => loadProfilesPage().then((m) => ({ default: m.ProfilesPage })));
 const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
 const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
@@ -97,7 +95,6 @@ const ROUTE_TITLES: Record<string, string> = {
   "/history": "History",
   "/stats": "Stats",
   "/settings": "Settings",
-  "/collections": "Collections",
   "/profiles": "Profiles",
   "/pair": "Sign in a TV",
   "/link": "Sign in a TV",
@@ -501,7 +498,9 @@ function AppShell({
                 <Route path="/history" element={<HistoryPage />} />
                 <Route path="/stats" element={<StatsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/collections" element={<CollectionsPage />} />
+                {/* Collections became Home folders, a section of Settings beside
+                    Home rows. Old links and bookmarks land there. */}
+                <Route path="/collections" element={<Navigate to="/settings?section=home-folders" replace />} />
                 <Route path="/profiles" element={<ProfilesPage />} />
                 <Route path="/pair" element={<PairPage />} />
                 <Route path="*" element={<NotFoundPage />} />

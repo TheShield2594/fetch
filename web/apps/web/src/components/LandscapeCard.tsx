@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { Check, Play, RotateCw, X } from "lucide-react";
 import { Poster } from "./Poster";
+import { openWithTransition } from "../utils/viewTransition";
 
 /**
  * The landscape card: the other half of the card system, beside `PosterCard`.
@@ -65,12 +66,17 @@ export function LandscapeCard({
 }) {
   const lead = size === "lead";
   const busy = action?.busy ?? false;
+  const artRef = useRef<HTMLDivElement>(null);
 
   return (
+    // Rest, hover (the still eases in and the card lifts), pressed (the card
+    // sinks while its body is held) and focus (the inset ring) — the same four
+    // states as a poster card. See `.landscape-card` in index.css.
     <div
-      className={`relative isolate overflow-hidden rounded-2xl ${className}`.trimEnd()}
+      className={`landscape-card card-pressable relative isolate overflow-hidden rounded-2xl ${className}`.trimEnd()}
       style={{ aspectRatio: "16 / 9", background: "var(--surface)" }}
     >
+      <div ref={artRef} className="card-art absolute inset-0">
       <Poster
         src={art ?? undefined}
         alt=""
@@ -79,6 +85,7 @@ export function LandscapeCard({
         sizes={lead ? "(min-width: 1024px) 480px, 100vw" : "240px"}
         variant={artIsBackdrop ? "backdrop" : "poster"}
       />
+      </div>
       {/* The scrim starts part-way down rather than at the top: a caption needs
           a floor under it, and darkening the whole frame to get one takes the
           picture down with it. The lead's caption is taller, so its scrim
@@ -92,9 +99,9 @@ export function LandscapeCard({
       />
       <button
         type="button"
-        onClick={onOpen}
+        onClick={() => openWithTransition(artRef.current, onOpen)}
         aria-label={openLabel}
-        className="absolute inset-0 h-full w-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
+        className="card-hit absolute inset-0 h-full w-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
       />
       <div
         className={`pointer-events-none absolute flex items-end ${lead ? "inset-x-5 bottom-5 gap-4" : "inset-x-3 bottom-3 gap-2.5"}`}

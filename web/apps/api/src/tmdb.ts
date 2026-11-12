@@ -459,6 +459,11 @@ const titleMatchScore = (title: string | undefined, normalisedQuery: string): nu
   return 0;
 };
 
+/** What the Home folders builder can search TMDB for by name. */
+export type TmdbEntityKind = "person" | "company" | "collection";
+export const TMDB_ENTITY_KINDS: readonly TmdbEntityKind[] = ["person", "company", "collection"];
+export type TmdbEntity = { id: number; name: string; image: string | null; detail: string | null };
+
 export class TmdbClient {
   private static readonly baseUrl = "https://api.themoviedb.org/3";
   private static readonly imageBaseUrl = "https://image.tmdb.org/t/p/w500";
@@ -821,6 +826,31 @@ export class TmdbClient {
    * collection builder to preview. Mirrors how the TV reads the same source
    * (`TmdbCollectionSource`), so the preview shows the titles the row will.
    */
+  /**
+   * People, studios and film collections by name, for the Home folders
+   * builder's pickers. TMDB ids were typed by hand there, which meant leaving
+   * the page to look one up. One page of TMDB's own ranking is plenty: the
+   * picker shows the top handful and a refined query does better than paging.
+   * TMDB has no network search, so networks are a fixed list on the client.
+   */
+  async searchEntities(kind: TmdbEntityKind, query: string): Promise<TmdbEntity[]> {
+    const response = await this.request<{
+      results?: { id?: number; name?: string; title?: string; profile_path?: string | null; logo_path?: string | null; poster_path?: string | null; known_for_department?: string; origin_country?: string }[];
+    }>(`/search/${kind}`, { query, include_adult: "false", page: "1" });
+    return (response.results ?? []).flatMap((result) => {
+      const name = (result.name ?? result.title)?.trim();
+      if (!result.id || !name) return [];
+      const image = result.profile_path ?? result.logo_path ?? result.poster_path ?? null;
+      const detail = kind === "person" ? result.known_for_department : kind === "company" ? result.origin_country : undefined;
+      return [{
+        id: result.id,
+        name,
+        image: image ? `${kind === "person" ? TmdbClient.profileBaseUrl : kind === "company" ? TmdbClient.logoBaseUrl : TmdbClient.imageBaseUrl}${image}` : null,
+        detail: detail || null,
+      }];
+    }).slice(0, 12);
+  }
+
   async collectionSourcePage(source: TmdbCollectionSourceQuery): Promise<MetadataPayload[]> {
     const mediaType: TmdbMediaType = source.mediaType === "TV" ? "tv" : "movie";
     const type = mediaType === "movie" ? MetadataType.movie : MetadataType.series;

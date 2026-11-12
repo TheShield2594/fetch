@@ -5,7 +5,6 @@ import {
   CalendarDays,
   Compass,
   History,
-  LayoutGrid,
   Library,
   List,
   MoreHorizontal,
@@ -53,7 +52,6 @@ export const SEARCH_ITEM: NavItem = { to: "/search", label: "Search", icon: Sear
 
 export const MORE_NAV_ITEMS: NavItem[] = [
   { to: "/lists", label: "Lists", icon: List },
-  { to: "/collections", label: "Collections", icon: LayoutGrid },
   { to: "/history", label: "History", icon: History },
   { to: "/profiles", label: "Profiles", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },

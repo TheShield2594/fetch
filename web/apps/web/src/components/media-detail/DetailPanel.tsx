@@ -473,7 +473,13 @@ export function DetailPanel({
             * panel, and the title becomes a cell of the grid above.
             */}
           <div className="relative z-0 -mx-5 flex h-[42vh] max-h-[26rem] min-h-[15rem] flex-col justify-end overflow-hidden sm:-mx-8 sm:h-[22rem] lg:contents">
-            <div aria-hidden="true" className="absolute inset-0 overflow-hidden lg:inset-x-0 lg:bottom-auto lg:-z-10 lg:h-[36rem]">
+            {/* `vt-title-hero`: below `lg` this is where the tapped poster
+                lands when the title opens — see utils/viewTransition.ts. */}
+            <div
+              aria-hidden="true"
+              data-title-art=""
+              className="vt-title-hero absolute inset-0 overflow-hidden lg:inset-x-0 lg:bottom-auto lg:-z-10 lg:h-[36rem]"
+            >
               {/*
                 * Key art if the record has it, the poster if not. A poster in a
                 * 16:9 crop is its middle third, so it is contained at its own
@@ -585,7 +591,7 @@ export function DetailPanel({
           {/* The poster, on a desktop only: the phone's hero is the picture,
               and a poster beside the title there is the layout this panel was
               redesigned away from. */}
-          <div className="hidden overflow-hidden rounded-xl shadow-e3 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:block lg:self-end">
+          <div className="vt-title-poster hidden overflow-hidden rounded-xl shadow-e3 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:block lg:self-end">
             <Poster src={item.poster ?? undefined} alt={item.name} className="aspect-[2/3] w-full" sizes="208px" />
           </div>
 

@@ -61,42 +61,55 @@ const seriesOf = (event: WatchEvent): string | null =>
  * are two sittings, and merging them would move the film out of the order it
  * was watched in.
  */
-export function groupHistory(all: readonly WatchEvent[]): HistoryDay[] {
+export function groupHistory(events: readonly WatchEvent[]): HistoryDay[] {
+  const newDay = (key: string, date: Date | null): HistoryDay => ({
+    key,
+    date,
+    rows: [],
+    episodes: 0,
+    films: 0,
+    minutes: 0,
+    minutesPartial: false,
+  });
+
+  const days: HistoryDay[] = [];
   // Undated watches still carry a `watchedAt` — the row needs an order — so
   // they arrive scattered among the dated ones. They are one group, not one
   // per place they happen to fall, and it goes last: it is the part of the
   // list that has no place in time.
-  const events = [...all.filter((e) => !e.dateUnknown), ...all.filter((e) => e.dateUnknown)];
-  const days: HistoryDay[] = [];
-  // The run being built, alongside the row list it will land in.
+  let undated: HistoryDay | null = null;
+
+  // The run being built, and the day it will land in. A run is consecutive in
+  // the list as it arrived: anything between two episodes ends it, including
+  // a row that belongs to a different group.
   let pending: WatchEvent[] = [];
   let pendingSeries: string | null = null;
+  let pendingDay: HistoryDay | null = null;
 
-  const flush = (day: HistoryDay | undefined) => {
-    if (!day || pending.length === 0) return;
+  const flush = () => {
     const [first, second, ...rest] = pending;
-    if (first && second) day.rows.push({ kind: "run", events: [first, second, ...rest] });
-    else if (first) day.rows.push({ kind: "single", event: first });
+    if (pendingDay && first && second) pendingDay.rows.push({ kind: "run", events: [first, second, ...rest] });
+    else if (pendingDay && first) pendingDay.rows.push({ kind: "single", event: first });
     pending = [];
     pendingSeries = null;
+    pendingDay = null;
   };
 
   for (const event of events) {
-    const key = dayKey(event);
-    let day = days[days.length - 1];
-    if (!day || day.key !== key) {
-      flush(day);
-      const at = new Date(event.watchedAt);
-      day = {
-        key,
-        date: event.dateUnknown ? null : new Date(at.getFullYear(), at.getMonth(), at.getDate()),
-        rows: [],
-        episodes: 0,
-        films: 0,
-        minutes: 0,
-        minutesPartial: false,
-      };
-      days.push(day);
+    let day: HistoryDay;
+    if (event.dateUnknown) {
+      undated ??= newDay("unknown", null);
+      day = undated;
+    } else {
+      const key = dayKey(event);
+      const last = days[days.length - 1];
+      if (last && last.key === key) {
+        day = last;
+      } else {
+        const at = new Date(event.watchedAt);
+        day = newDay(key, new Date(at.getFullYear(), at.getMonth(), at.getDate()));
+        days.push(day);
+      }
     }
 
     if (event.type === "movie") day.films++;
@@ -105,20 +118,21 @@ export function groupHistory(all: readonly WatchEvent[]): HistoryDay[] {
     else day.minutesPartial = true;
 
     const series = seriesOf(event);
-    if (series !== null && series === pendingSeries) {
+    if (series !== null && series === pendingSeries && day === pendingDay) {
       pending.push(event);
       continue;
     }
-    flush(day);
+    flush();
     if (series !== null) {
       pending = [event];
       pendingSeries = series;
+      pendingDay = day;
     } else {
       day.rows.push({ kind: "single", event });
     }
   }
-  flush(days[days.length - 1]);
-  return days;
+  flush();
+  return undated ? [...days, undated] : days;
 }
 
 type Numbered = { season: number; episode: number };

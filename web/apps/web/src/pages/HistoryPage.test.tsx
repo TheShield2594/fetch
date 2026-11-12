@@ -56,7 +56,12 @@ const EPISODE = watched("Twin Peaks", { type: "episode", season: 2, episode: 7 }
 
 function BackButton() {
   const navigate = useNavigate();
-  return <button type="button" onClick={() => void navigate(-1)}>browser back</button>;
+  return (
+    <>
+      <button type="button" onClick={() => void navigate(-1)}>browser back</button>
+      <button type="button" onClick={() => void navigate(1)}>browser forward</button>
+    </>
+  );
 }
 
 function renderPage(initialEntry = "/history", ...earlier: string[]) {
@@ -606,6 +611,21 @@ describe("HistoryPage binges, days and finding things", () => {
     await new Promise((resolve) => setTimeout(resolve, 450));
     expect(field).toHaveValue("alien");
     expect(getWatchHistory).toHaveBeenLastCalledWith(25, 0, expect.objectContaining({ q: "alien" }));
+  });
+
+  it("follows Back and then Forward between two searches", async () => {
+    const user = userEvent.setup();
+    renderPage("/history?q=law", "/history?q=alien");
+    const field = screen.getByRole("searchbox", { name: "Filter history by title" });
+
+    await user.click(screen.getByRole("button", { name: "browser back" }));
+    await waitFor(() => expect(field).toHaveValue("alien"));
+    await user.click(screen.getByRole("button", { name: "browser forward" }));
+    await waitFor(() => expect(field).toHaveValue("law"));
+
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    expect(field).toHaveValue("law");
+    expect(getWatchHistory).toHaveBeenLastCalledWith(25, 0, expect.objectContaining({ q: "law" }));
   });
 
   it("says so when the filter matches nothing, and offers the way back", async () => {

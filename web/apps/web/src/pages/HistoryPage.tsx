@@ -138,17 +138,21 @@ export function HistoryPage() {
   const [expandedRuns, setExpandedRuns] = useState<ReadonlySet<string>>(() => new Set());
   const [queryDraft, setQueryDraft] = useState(query);
   // The field follows the URL when something other than the field moved it —
-  // Back to an earlier search, a link. Without this the stale draft would wait
-  // out its debounce and write itself back over the search just restored.
-  // `pushedQuery` is what the field itself last sent, which is the one change
-  // of `q` that must not be read back into it mid-typing.
-  const pushedQuery = useRef(query);
-  const [seenQuery, setSeenQuery] = useState(query);
-  if (seenQuery !== query) {
-    setSeenQuery(query);
-    // eslint-disable-next-line react-hooks/refs -- compared, not rendered
-    if (query !== pushedQuery.current) setQueryDraft(query);
-  }
+  // Back to an earlier search, Forward again, a link. Without this the stale
+  // draft would wait out its debounce and write itself back over the search
+  // just restored. `pushedQuery` is what the field itself last sent: that one
+  // change of `q` is not read back into the field (it may have been typed past
+  // already), and is forgotten once seen, so a later navigation to the same
+  // value is still followed.
+  const pushedQuery = useRef<string | null>(query);
+  useEffect(() => {
+    if (pushedQuery.current === query) {
+      pushedQuery.current = null;
+      return;
+    }
+    pushedQuery.current = null;
+    setQueryDraft(query);
+  }, [query]);
 
   // Typing filters as you go, but not on every keystroke: each change is a
   // request and a replaced list.

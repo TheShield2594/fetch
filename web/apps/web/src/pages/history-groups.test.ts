@@ -128,6 +128,28 @@ describe("groupHistory — undated watches among dated ones", () => {
   });
 });
 
+describe("groupHistory — runs stay consecutive across the undated split", () => {
+  it("does not join two undated episodes that had a dated watch between them", () => {
+    const days = groupHistory([
+      episode("svu", 2, 15, at(10, 22), { dateUnknown: true }),
+      film("Heat", at(10, 20)),
+      episode("svu", 2, 14, at(10, 18), { dateUnknown: true }),
+    ]);
+    expect(days.map((d) => d.key)).toEqual(["2026-11-10", "unknown"]);
+    expect(days[1]!.rows.map((r) => r.kind)).toEqual(["single", "single"]);
+  });
+
+  it("does not join two dated episodes that had an undated watch between them", () => {
+    const days = groupHistory([
+      episode("svu", 2, 15, at(10, 22)),
+      film("Alien", at(10, 20), { dateUnknown: true }),
+      episode("svu", 2, 14, at(10, 18)),
+    ]);
+    expect(days[0]!.rows.map((r) => r.kind)).toEqual(["single", "single"]);
+    expect(days[1]).toMatchObject({ key: "unknown", films: 1 });
+  });
+});
+
 describe("episodeRangeLabel", () => {
   it("names both ends in full across a season boundary", () => {
     expect(episodeRangeLabel([episode("svu", 3, 2, at(10, 23)), episode("svu", 2, 21, at(10, 21))])).toBe(

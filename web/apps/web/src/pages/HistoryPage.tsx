@@ -137,6 +137,18 @@ export function HistoryPage() {
   // Which collapsed runs are open, by day and show.
   const [expandedRuns, setExpandedRuns] = useState<ReadonlySet<string>>(() => new Set());
   const [queryDraft, setQueryDraft] = useState(query);
+  // The field follows the URL when something other than the field moved it —
+  // Back to an earlier search, a link. Without this the stale draft would wait
+  // out its debounce and write itself back over the search just restored.
+  // `pushedQuery` is what the field itself last sent, which is the one change
+  // of `q` that must not be read back into it mid-typing.
+  const pushedQuery = useRef(query);
+  const [seenQuery, setSeenQuery] = useState(query);
+  if (seenQuery !== query) {
+    setSeenQuery(query);
+    // eslint-disable-next-line react-hooks/refs -- compared, not rendered
+    if (query !== pushedQuery.current) setQueryDraft(query);
+  }
 
   // Typing filters as you go, but not on every keystroke: each change is a
   // request and a replaced list.
@@ -144,6 +156,7 @@ export function HistoryPage() {
     const next = queryDraft.trim();
     if (next === query) return;
     const timer = setTimeout(() => {
+      pushedQuery.current = next;
       setSearchParams(
         (prev) => {
           const params = new URLSearchParams(prev);

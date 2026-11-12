@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, useNavigate } from "react-router";
 import type { WatchEvent } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { readCache, resetDataCacheForTests } from "../utils/dataCache";
@@ -54,10 +54,16 @@ const ALIEN = watched("Alien");
 const SOLARIS = watched("Solaris", { note: "Rewatch — still holds up" });
 const EPISODE = watched("Twin Peaks", { type: "episode", season: 2, episode: 7 });
 
-function renderPage(initialEntry = "/history") {
+function BackButton() {
+  const navigate = useNavigate();
+  return <button type="button" onClick={() => void navigate(-1)}>browser back</button>;
+}
+
+function renderPage(initialEntry = "/history", ...earlier: string[]) {
   return render(
-    <MemoryRouter initialEntries={[initialEntry]}>
+    <MemoryRouter initialEntries={[...earlier, initialEntry]} initialIndex={earlier.length}>
       <ToastProvider>
+        <BackButton />
         <HistoryPage />
       </ToastProvider>
     </MemoryRouter>
@@ -585,6 +591,21 @@ describe("HistoryPage binges, days and finding things", () => {
     );
     // One request for the finished word, not one per letter.
     expect(getWatchHistory.mock.calls.filter(([, , opts]) => opts?.q).map(([, , opts]) => opts?.q)).toEqual(["law"]);
+  });
+
+  it("follows Back to an earlier search instead of writing the newer one over it", async () => {
+    const user = userEvent.setup();
+    renderPage("/history?q=law", "/history?q=alien");
+    const field = screen.getByRole("searchbox", { name: "Filter history by title" });
+    expect(field).toHaveValue("law");
+
+    await user.click(screen.getByRole("button", { name: "browser back" }));
+
+    await waitFor(() => expect(field).toHaveValue("alien"));
+    // Past the debounce: the restored search is still the one being asked for.
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    expect(field).toHaveValue("alien");
+    expect(getWatchHistory).toHaveBeenLastCalledWith(25, 0, expect.objectContaining({ q: "alien" }));
   });
 
   it("says so when the filter matches nothing, and offers the way back", async () => {

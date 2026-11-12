@@ -11,6 +11,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-12
+
+**Action needed for one setup:** the website's sign-in is now a cookie, so a page that calls its API on a different site (for example the page at a LAN address with `VITE_API_BASE` on a public domain) no longer stays signed in. Serve both from one host or use the same-origin proxy described in the README. PIN profiles enter their PIN once after updating. A migration adds the kids-rules fields; `migrate` applies it as usual.
+
 ### Added
 
 - **Forgotten passwords and PINs can be recovered without touching the database.** The admin can give a member a temporary password, hand the admin role to another account, and clear a forgotten PIN on a profile in their own account, each after entering their own password again. A forgotten admin password or any PIN is reset on the server with `docker compose exec api fetch reset-password <username>` or `fetch clear-pin <profile>` (`fetch accounts` lists both), as described in the troubleshooting guide, and the sign-in screen says where to go. Someone signing in with a password they didn't choose is asked for a new one first. New `POST /auth/accounts/:id/password`, `POST /auth/accounts/:id/make-admin` and `POST /profiles/:id/clear-pin`; `account.mustChangePassword` ([#540](https://github.com/TheShield2594/fetch/issues/540)).
@@ -554,7 +558,8 @@ name.
 - The addon's mutation-token check no longer assumes the incoming token is a string — a repeated query param (`?token=a&token=b`) would have thrown instead of being rejected cleanly.
 - `dockerpublish.yml` reads the git ref type/name from the runner's `GITHUB_REF_TYPE`/`GITHUB_REF_NAME` environment variables instead of interpolating `github.ref_type`/`github.ref_name` into a shell script.
 
-[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.4.0...HEAD
+[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.5.0...HEAD
+[0.5.0]: https://github.com/TheShield2594/fetch/compare/web-v0.4.0...web-v0.5.0
 [0.4.0]: https://github.com/TheShield2594/fetch/compare/web-v0.3.0...web-v0.4.0
 [0.3.0]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...web-v0.3.0
 [0.2.0]: https://github.com/TheShield2594/fetch/releases/tag/web-v0.2.0

@@ -100,8 +100,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1801
-        versionName = "1.8.0"
+        versionCode = 1901
+        versionName = "1.9.0"
 
         buildConfigField("String", "PARENTAL_GUIDE_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "PARENTAL_GUIDE_API_URL")))
         buildConfigField("String", "INTRODB_API_URL", buildConfigString(resolveProperty(devProperties, localProperties, "INTRODB_API_URL")))

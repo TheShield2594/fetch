@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { CheckCircle2, Tv } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { PairingCodeForm } from "../components/settings/DevicesSettings";
-import { PAGE_TITLE } from "../components/typography";
+import { PageFrame, PageHeader } from "../components/PageFrame";
 
 /**
  * Where a TV's QR code lands: `/pair?code=ABCD-EFGH`, the code already filled
@@ -13,11 +13,8 @@ export function PairPage() {
   const [pairedName, setPairedName] = useState<string | null>(null);
 
   return (
-    <div className="mx-auto max-w-xl space-y-6 py-6">
-      <div className="flex items-center gap-3">
-        <Tv size={28} style={{ color: "var(--text-mute)" }} />
-        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Sign in a TV</h1>
-      </div>
+    <PageFrame width="reading" className="space-y-6">
+      <PageHeader title="Sign in a TV" className="" />
       {pairedName ? (
         <div className="space-y-3">
           <p className="flex items-center gap-2 text-base" style={{ color: "var(--text)" }}>
@@ -37,6 +34,6 @@ export function PairPage() {
           <PairingCodeForm initialCode={searchParams.get("code") ?? ""} onPaired={setPairedName} />
         </>
       )}
-    </div>
+    </PageFrame>
   );
 }

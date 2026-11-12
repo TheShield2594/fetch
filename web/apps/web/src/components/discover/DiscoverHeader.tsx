@@ -1,16 +1,18 @@
 import type { ElementType } from "react";
 import { Link } from "react-router";
 import { Clock, Film, Flame, Trophy, Tv } from "lucide-react";
+import { PageHeader } from "../PageFrame";
 import { useClockBoundary } from "../../hooks/useClockBoundary";
 import { GREETING_CUTOFF_HOURS, showsSameHeader, timeOfDayGreeting } from "./greeting";
 
 /**
- * Discover shows a greeting, not a title, so its h1 is hidden — every
- * render path still needs one to head the outline, including the API-error
- * card, which is why this is exported rather than drawn by the header alone.
+ * Discover's title, in the same place and the same frame as every other
+ * route's. It used to be hidden behind the greeting strip, which left the one
+ * page without a visible title as the one where the title position jumped.
+ * Exported because every render path needs it, the API-error card included.
  */
 export function PageHeading() {
-  return <h1 className="sr-only">Discover</h1>;
+  return <PageHeader title="Discover" />;
 }
 
 // The stat row's stand-in while getWatchStats and getDetailedStats are in
@@ -98,7 +100,6 @@ export function DiscoverHeader({
       className="glass-panel relative flex flex-col gap-2.5 rounded-xl px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
       style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
     >
-      <PageHeading />
       <TicketNotches />
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
         <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>{timeOfDayGreeting(now)}</span>

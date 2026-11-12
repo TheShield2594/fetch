@@ -31,6 +31,7 @@ import { TvAddonsSettings } from "../components/tv/TvAddonsSettings";
 import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
 import { TvSettingsForm } from "../components/tv/TvSettingsForm";
 import { PAGE_TITLE } from "../components/typography";
+import { PageFrame } from "../components/PageFrame";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown";
@@ -418,9 +419,9 @@ export function SettingsPage() {
   const summary = healthSummary(health);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <PageFrame width="reading" className="space-y-4">
       <div>
-        <h1 className={PAGE_TITLE}>Settings</h1>
+        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Settings</h1>
         {/*
          * Health first. Every number here was already in the app — one level
          * inside the Sync Status section and inside each integration's own
@@ -553,6 +554,6 @@ export function SettingsPage() {
           </div>
         ))}
       </div>
-    </div>
+    </PageFrame>
   );
 }

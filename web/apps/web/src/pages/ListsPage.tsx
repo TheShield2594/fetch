@@ -1,6 +1,6 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
-import { AlertTriangle, Check, Film, FolderOpen, Pencil, Plus, Search, Trash2, Tv } from "lucide-react";
+import { AlertTriangle, Check, Film, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { api, type CatalogList, type ListItemWithMeta, type MediaType, type SearchResult } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
@@ -9,7 +9,10 @@ import { useDebouncedSearch } from "../hooks/useDebouncedSearch";
 import { mergeByRelevance } from "../utils/mergeSearchResults";
 import { SearchAddDialog, SearchAddResultRow } from "../components/SearchAddDialog";
 import { Poster } from "../components/Poster";
-import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
+import { SECTION_TITLE } from "../components/typography";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
+import { PageFrame, PageHeader } from "../components/PageFrame";
+import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { PosterGrid } from "../components/PosterGrid";
 import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 import { ListLinkPanel } from "../components/ListLinkPanel";
@@ -22,12 +25,12 @@ type SortOption = "added" | "name" | "year" | "rating";
 // instead of paginating the already-sorted/filtered in-memory list.
 const RENDER_PAGE_SIZE = 60;
 
-const SORT_LABELS: Record<SortOption, string> = {
-  added: "Date Added",
-  name: "Name",
-  year: "Year",
-  rating: "Rating",
-};
+const SORT_OPTIONS: SegmentedOption<SortOption>[] = [
+  { value: "added", label: "Added" },
+  { value: "name", label: "Name" },
+  { value: "year", label: "Year" },
+  { value: "rating", label: "Rating" },
+];
 
 // Metadata rows are backfilled in the background, so an item can arrive without
 // one. Fall back to the title captured when it was added before showing the bare
@@ -56,10 +59,10 @@ function toSearchResult(item: ListItemWithMeta, list?: CatalogList): SearchResul
 // toggle this modal used to force — one task should not have two models.
 type AddFilter = "all" | MediaType;
 
-const ADD_FILTERS: { value: AddFilter; label: string; icon?: typeof Film }[] = [
+const ADD_FILTERS: SegmentedOption<AddFilter>[] = [
   { value: "all", label: "All" },
-  { value: "movie", label: "Movies", icon: Film },
-  { value: "series", label: "Series", icon: Tv },
+  { value: "movie", label: "Films" },
+  { value: "series", label: "Shows" },
 ];
 
 const resultKey = (type: string, imdbId: string) => `${type}:${imdbId}`;
@@ -135,31 +138,13 @@ function AddItemModal({
       inputLabel="Search movies and series"
       onClose={onClose}
       filters={
-        <div
-          role="group"
-          aria-label="Filter by type"
-          className="mt-2.5 inline-flex rounded-full bg-[var(--surface)] p-1"
-          style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
-        >
-          {ADD_FILTERS.map((opt) => {
-            const Icon = opt.icon;
-            const active = filter === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setFilter(opt.value)}
-                aria-pressed={active}
-                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-medium transition-[color,background-color,box-shadow] duration-base ${
-                  active ? "bg-accent-500 text-accent-on shadow-e1" : "text-[var(--text-mute)] hover:text-[var(--text)]"
-                }`}
-              >
-                {Icon && <Icon className="h-3 w-3" />}
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
+        <SegmentedControl
+          label="Filter by type"
+          options={ADD_FILTERS}
+          value={filter}
+          onChange={setFilter}
+          className="mt-2.5 w-56"
+        />
       }
     >
       {error && <p role="alert" className="mb-2 rounded-lg bg-rose-500/10 border border-rose-500/20 px-3 py-2 text-xs text-danger">{error}</p>}
@@ -538,10 +523,12 @@ export function ListsPage() {
   };
 
   return (
+    <PageFrame>
+    <PageHeader
+      title="Lists"
+      summary={lists.length > 0 ? `${lists.length} ${lists.length === 1 ? "list" : "lists"}` : undefined}
+    />
     <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-      {/* The visible headline is the selected list's name, which changes as you
-          click around, so the page keeps a stable hidden h1 above it. */}
-      <h1 className="sr-only">Lists</h1>
       {/* Sidebar */}
       <aside aria-label="Your lists" className="w-full shrink-0 md:w-56 lg:w-64">
         {/* Mobile: horizontal scrollable tabs */}
@@ -657,19 +644,11 @@ export function ListsPage() {
         )}
 
         {!selectedList ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border)" } as React.CSSProperties}>
-              <FolderOpen className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
-            </div>
-            <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>
-              {listNotFound ? "That list no longer exists" : "No list selected"}
-            </p>
-            <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-              {listNotFound
-                ? "It may have been deleted since you saved the link. Pick another from the sidebar."
-                : "Select a list from the sidebar or create a new one."}
-            </p>
-          </div>
+          <EmptyState title={listNotFound ? "That list no longer exists" : "No list selected"}>
+            {listNotFound
+              ? "It may have been deleted since you saved the link. Pick another from the sidebar."
+              : "Select a list from the sidebar or create a new one."}
+          </EmptyState>
         ) : (
           <>
             {/* List header */}
@@ -690,7 +669,7 @@ export function ListsPage() {
                       onBlur={cancelRename}
                       onKeyDown={(e) => { if (e.key === "Escape") cancelRename(); }}
                       aria-label={`Rename list ${selectedList.name}`}
-                      className={`min-w-0 flex-1 rounded-lg border px-3 py-1.5 ${PAGE_TITLE} field-control`}
+                      className={`min-w-0 flex-1 rounded-lg border px-3 py-1.5 ${SECTION_TITLE} field-control`}
                       style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
                     />
                     <button
@@ -706,7 +685,7 @@ export function ListsPage() {
                   </form>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <h2 className={`truncate ${PAGE_TITLE}`} style={{ color: "var(--text)" }}>{selectedList.name}</h2>
+                    <h2 className={`truncate ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>{selectedList.name}</h2>
                     <button
                       type="button"
                       onClick={() => { setRenamingListId(selectedList.id); setRenameValue(selectedList.name); }}
@@ -758,27 +737,13 @@ export function ListsPage() {
                     style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
                   />
                 </div>
-                <div
-                  role="group"
-                  aria-label="Sort items"
-                  className="flex flex-none items-center gap-1 rounded-full border p-1"
-                  style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}
-                >
-                  {(Object.entries(SORT_LABELS) as [SortOption, string][]).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setSortBy(value)}
-                      aria-pressed={sortBy === value}
-                      className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-base ${
-                        sortBy === value ? "bg-accent-500 text-accent-on" : "hover:text-[var(--text)]"
-                      }`}
-                      style={sortBy === value ? undefined : { color: "var(--text-mute)" }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                <SegmentedControl
+                  label="Sort items"
+                  options={SORT_OPTIONS}
+                  value={sortBy}
+                  onChange={setSortBy}
+                  className="w-full flex-none sm:w-80"
+                />
               </div>
             )}
 
@@ -790,23 +755,18 @@ export function ListsPage() {
                 ))}
               </PosterGrid>
             ) : items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border)" } as React.CSSProperties}>
-                  <FolderOpen className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
-                </div>
-                <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>This list is empty</p>
-                <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-                  Click <span className="font-semibold text-accent-text">+ Add</span> to search and add titles.
-                </p>
-              </div>
+              <EmptyState
+                title="This list is empty"
+                action={
+                  <button type="button" onClick={() => setShowAddModal(true)} className={EMPTY_STATE_ACTION}>
+                    Add a title
+                  </button>
+                }
+              >
+                Search for films and shows to put on it.
+              </EmptyState>
             ) : displayedItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border)" } as React.CSSProperties}>
-                  <Search className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
-                </div>
-                <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>No matches</p>
-                <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>Try a different search term.</p>
-              </div>
+              <EmptyState title="No matches">Try a different search term.</EmptyState>
             ) : (
               <PosterGrid>
                 {visibleItems.map((item, index) => {
@@ -857,5 +817,6 @@ export function ListsPage() {
 
       {/* Detail panel */}
     </div>
+    </PageFrame>
   );
 }

@@ -181,7 +181,8 @@ export type WatchProviders = {
 };
 
 export type ShowDetails = {
-  nextEpisodeToAir: { season_number: number; episode_number: number; name: string; air_date: string; overview?: string } | null;
+  /** `still` is the full image URL, resolved here like every other image this client returns. */
+  nextEpisodeToAir: { season_number: number; episode_number: number; name: string; air_date: string; overview?: string; still?: string | null } | null;
   lastEpisodeToAir: { season_number: number; episode_number: number; name: string; air_date: string } | null;
   status: string | null;
 };
@@ -972,12 +973,17 @@ export class TmdbClient {
   async getShowDetails(tmdbId: number): Promise<ShowDetails | null> {
     try {
       const data = await this.request<{
-        next_episode_to_air?: { season_number: number; episode_number: number; name: string; air_date: string; overview?: string } | null;
+        next_episode_to_air?: { season_number: number; episode_number: number; name: string; air_date: string; overview?: string; still_path?: string | null } | null;
         last_episode_to_air?: { season_number: number; episode_number: number; name: string; air_date: string } | null;
         status?: string;
       }>(`/tv/${tmdbId}`);
       return {
-        nextEpisodeToAir: data.next_episode_to_air ?? null,
+        nextEpisodeToAir: data.next_episode_to_air
+          ? (({ still_path, ...episode }) => ({
+              ...episode,
+              still: still_path ? `${TmdbClient.imageBaseUrl}${still_path}` : null,
+            }))(data.next_episode_to_air)
+          : null,
         lastEpisodeToAir: data.last_episode_to_air ?? null,
         status: data.status ?? null,
       };

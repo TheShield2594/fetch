@@ -1,7 +1,7 @@
 import { Check, ChevronRight } from "lucide-react";
 import type { SeriesProgress } from "../../api";
 import { Poster } from "../Poster";
-import { MICRO_LABEL, PAGE_TITLE } from "../typography";
+import { MICRO_LABEL, SECTION_TITLE } from "../typography";
 import { computeProgressSummary, seasonCountSuffix } from "./series-progress";
 
 /**
@@ -149,7 +149,7 @@ export function ContinueWatchingHero({
         {/* A heading, not a styled paragraph — like NowWatchingHero, so a
             screen-reader user navigating by heading lands on the hero's title
             rather than skipping past the largest thing on the card. */}
-        <h2 className={`mt-1 truncate ${PAGE_TITLE}`} style={{ color: "var(--text)" }}>{s.name}</h2>
+        <h2 className={`mt-1 truncate ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>{s.name}</h2>
         {meta}
         {meter}
       </div>

@@ -196,7 +196,7 @@ describe("SearchPage query handling", () => {
     expect(await screen.findByText(/search needs a tmdb api key/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /set up tmdb in settings/i })).toHaveAttribute(
       "href",
-      "/settings?tab=integrations"
+      "/settings?section=tmdb"
     );
   });
 

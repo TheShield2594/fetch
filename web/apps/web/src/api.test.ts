@@ -244,9 +244,12 @@ describe("validated responses", () => {
 
   it("passes a well-formed response straight through", async () => {
     const entry = {
+      kind: "episode",
       seriesImdbId: "tt0903747",
       seriesName: "Breaking Bad",
       poster: null,
+      still: null,
+      backdrop: null,
       season: 5,
       episode: 14,
       episodeName: "Ozymandias",

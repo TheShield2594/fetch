@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Film, Tv, TrendingUp, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import {
   api,
   ApiError,
@@ -30,6 +30,8 @@ import { useDiscoverSection } from "../hooks/useDiscoverSection";
 import { CarouselSkeleton } from "../components/discover/CarouselSkeleton";
 import { ContinueWatchingCard } from "../components/discover/ContinueWatchingCard";
 import { ContinueWatchingHero } from "../components/discover/ContinueWatchingHero";
+import { PageFrame } from "../components/PageFrame";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
 import { DiscoverHeader, PageHeading } from "../components/discover/DiscoverHeader";
 import { DiscoverSubRow } from "../components/discover/DiscoverSubRow";
 import { DiscoveryCard } from "../components/discover/DiscoveryCard";
@@ -387,7 +389,7 @@ export function DiscoverPage() {
 
   if (error && !hasContent) {
     return (
-      <>
+      <PageFrame>
         <PageHeading />
         <SectionError variant="page" message={error} onRetry={retryLoad}>
           <p className="mt-2 text-sm" style={{ color: "var(--text-dim)" }}>
@@ -400,7 +402,7 @@ export function DiscoverPage() {
             Check the connection in Settings &rarr;
           </Link>
         </SectionError>
-      </>
+      </PageFrame>
     );
   }
 
@@ -423,7 +425,8 @@ export function DiscoverPage() {
   const continueRowItems = checkinMatchesTopProgress ? progress : progress.slice(1);
 
   return (
-    <div className="space-y-8">
+    <PageFrame className="space-y-7">
+      <PageHeading />
       {/* ── Header stat row ── */}
       <DiscoverHeader
         playsThisWeek={stats?.playsThisWeek ?? 0}
@@ -462,15 +465,13 @@ export function DiscoverPage() {
         {loading ? (
           <CarouselSkeleton />
         ) : progress.length === 0 ? (
-          <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
-            <Tv className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-            <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-              No series in progress. Series you start watching pick up here.
-            </p>
-            <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-              Find something to watch &rarr;
-            </Link>
-          </div>
+          <EmptyState
+            size="section"
+            title="No series in progress"
+            action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to watch &rarr;</Link>}
+          >
+            Series you start watching pick up here.
+          </EmptyState>
         ) : (
           <>
             {continueHeroItem && (
@@ -525,24 +526,17 @@ export function DiscoverPage() {
                card: a key to go and set, a request to retry, and a week that
                simply had nothing in it. */
             trendingNeedsTmdb ? (
-              <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
-                <TrendingUp className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-                <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                  Trending needs a TMDB API key to fetch content.
-                </p>
-                <Link to="/settings?tab=integrations" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-                  Set it up in Settings &rarr;
-                </Link>
-              </div>
+              <EmptyState
+                size="section"
+                title="Trending needs a TMDB key"
+                action={<Link to="/settings?section=tmdb" className={EMPTY_STATE_ACTION}>Set it up in Settings &rarr;</Link>}
+              >
+                Trending needs a TMDB API key to fetch content.
+              </EmptyState>
             ) : trending.failed ? (
               <SectionError message="Couldn't load trending titles." onRetry={() => void loadTrending()} />
             ) : (
-              <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
-                <TrendingUp className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-                <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                  Nothing trending this week.
-                </p>
-              </div>
+              <EmptyState size="section" title="Nothing trending this week" />
             )
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:[grid-template-columns:repeat(auto-fit,var(--poster-card-w))]">
@@ -637,15 +631,13 @@ export function DiscoverPage() {
         {loading ? (
           <CarouselSkeleton count={6} />
         ) : history.length === 0 ? (
-          <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
-            <Film className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-            <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-              No watch history yet. Anything you mark watched shows up here.
-            </p>
-            <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-              Find something to watch &rarr;
-            </Link>
-          </div>
+          <EmptyState
+            size="section"
+            title="No watch history yet"
+            action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to watch &rarr;</Link>}
+          >
+            Anything you mark watched shows up here.
+          </EmptyState>
         ) : (
           <CarouselTrack
             scrollRef={recentScroll.ref}
@@ -678,6 +670,6 @@ export function DiscoverPage() {
         )}
       </section>
 
-    </div>
+    </PageFrame>
   );
 }

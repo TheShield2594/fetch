@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router";
-import { CalendarDays, ChevronLeft, ChevronRight, List, LayoutGrid, X } from "lucide-react";
+import { Link, useSearchParams } from "react-router";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { api, type CalendarEntry, type SearchResult } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { Poster } from "../components/Poster";
+import { LandscapeCard } from "../components/LandscapeCard";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
+import { PageFrame, PageHeader } from "../components/PageFrame";
+import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { useEscapeKey } from "../hooks/useEscapeKey";
 import { useExitAnimation } from "../hooks/useExitAnimation";
 import { useVisualViewport } from "../hooks/useVisualViewport";
@@ -12,22 +16,53 @@ import { useMediaQuery } from "../hooks/useMediaQuery";
 import { useScrollLock } from "../hooks/useScrollLock";
 import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
-import { PAGE_TITLE, SECTION_TITLE, KICKER, MICRO_LABEL } from "../components/typography";
+import { SECTION_TITLE, KICKER, MICRO_LABEL } from "../components/typography";
 import { localDateFromIsoDate } from "../utils/calendarDate";
+import { calendarEntryKey as entryKey, calendarEntryLabel as entryLabel } from "../utils/calendarEntry";
+
+/*
+ * The calendar.
+ *
+ * Art-led, like the rest of the app: the agenda is a run of landscape cards —
+ * the episode's still where TMDB has one, the title's backdrop where it
+ * doesn't — under Today, Tomorrow, This week and Later, and the month grid puts
+ * a poster in each day rather than a 12px text chip. It covers what you'd want
+ * to know is coming: the next episode of anything you are watching, the
+ * premiere of a series on your watchlist, and the release of a film on it.
+ *
+ * Synopses stay off it. Everything here is unaired, so every synopsis is of an
+ * episode you have not seen, and the title panel is one click away for anyone
+ * who wants to read ahead.
+ *
+ * The view, the agenda's range and the month on screen are all in the URL, so
+ * a reload, a shared link and Back all land where you were.
+ */
 
 type ViewMode = "agenda" | "month";
 const AGENDA_RANGES = [14, 30, 60, 90] as const;
+type AgendaRange = (typeof AGENDA_RANGES)[number];
+const DEFAULT_RANGE: AgendaRange = 30;
 const MAX_CALENDAR_DAYS = 90;
-// Tailwind's `sm`. Below it a seven-column grid gives each day ~50px, which
-// holds nothing legible, so the month view isn't offered at all.
+// Tailwind's `sm`. Below it a day cell is ~50px wide: room for one poster.
 const COMPACT_QUERY = "(max-width: 639px)";
-// Entries a month cell shows before collapsing the rest into "+N more".
-const MONTH_CELL_ENTRIES = 2;
+// Posters a month cell shows before the rest are counted.
+const MONTH_CELL_THUMBS = 3;
+const MONTH_CELL_THUMBS_COMPACT = 1;
+
+const VIEW_OPTIONS: SegmentedOption<ViewMode>[] = [
+  { value: "agenda", label: "Agenda" },
+  { value: "month", label: "Month" },
+];
+
+const RANGE_OPTIONS: SegmentedOption<`${AgendaRange}`>[] = AGENDA_RANGES.map((d) => ({
+  value: `${d}`,
+  label: `${d} days`,
+}));
 
 function toSearchResult(entry: CalendarEntry): SearchResult {
   return {
     imdbId: entry.seriesImdbId,
-    type: "series",
+    type: entry.kind === "movie" ? "movie" : "series",
     name: entry.seriesName,
     year: null,
     poster: entry.poster,
@@ -63,12 +98,29 @@ function dateKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function dateLabelFor(airDate: Date, today: Date): string {
-  const diffDays = Math.round((startOfDay(airDate).getTime() - startOfDay(today).getTime()) / 86_400_000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Tomorrow";
-  return airDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+function monthParam(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
+
+/** `YYYY-MM` from the URL, or null for anything else. */
+function parseMonthParam(value: string | null): Date | null {
+  const match = value ? /^(\d{4})-(\d{2})$/.exec(value) : null;
+  if (!match) return null;
+  const month = Number(match[2]);
+  if (month < 1 || month > 12) return null;
+  return new Date(Number(match[1]), month - 1, 1);
+}
+
+function parseRange(value: string | null): AgendaRange {
+  const n = Number(value);
+  return (AGENDA_RANGES as readonly number[]).includes(n) ? (n as AgendaRange) : DEFAULT_RANGE;
+}
+
+function dayDiff(date: Date, today: Date): number {
+  return Math.round((startOfDay(date).getTime() - today.getTime()) / 86_400_000);
+}
+
+const longDate = (d: Date) => d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 // The visible headers are abbreviated to fit seven columns on a phone. The
@@ -76,39 +128,67 @@ const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 // aloud is a different word.
 const WEEKDAY_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-function entryKey(entry: CalendarEntry): string {
-  return `${entry.seriesImdbId}-s${entry.season}e${entry.episode}`;
+/** "4 episodes", or "4 releases" once a film is among them. */
+function countLabel(entries: CalendarEntry[]): string {
+  const n = entries.length;
+  const episodic = entries.every((e) => e.kind !== "movie");
+  if (episodic) return `${n} ${n === 1 ? "episode" : "episodes"}`;
+  return `${n} ${n === 1 ? "release" : "releases"}`;
 }
 
+/** The art an entry leads with: its own still, else the title's backdrop, else the poster. */
+function entryArt(entry: CalendarEntry): { art: string | null; isBackdrop: boolean } {
+  const wide = entry.still ?? entry.backdrop;
+  return wide ? { art: wide, isBackdrop: true } : { art: entry.poster, isBackdrop: false };
+}
+
+function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void; eager: boolean }) {
+  const { art, isBackdrop } = entryArt(entry);
+  const label = entryLabel(entry);
+  return (
+    <LandscapeCard
+      art={art}
+      artIsBackdrop={isBackdrop}
+      title={entry.seriesName}
+      eyebrow={label}
+      onOpen={() => onSelect(entry)}
+      openLabel={`${entry.seriesName}, ${label}`}
+      eager={eager}
+      className="w-full"
+    />
+  );
+}
+
+/** A row in the day list: the same art, small, beside the words. */
 function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void }) {
+  const { art, isBackdrop } = entryArt(entry);
   return (
     <button
       type="button"
       onClick={() => onSelect(entry)}
-      className="glass-row flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-      style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}
+      className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
     >
-      <div className="h-16 w-11 flex-none overflow-hidden rounded-lg" style={{ boxShadow: "0 0 0 1px var(--border)" }}>
-        <Poster src={entry.poster ?? undefined} alt={entry.seriesName} className="h-full w-full" sizes="44px" />
+      <div
+        className="w-24 flex-none overflow-hidden rounded-lg"
+        style={{ aspectRatio: "16 / 9", background: "var(--surface)" }}
+      >
+        <Poster
+          src={art ?? undefined}
+          alt=""
+          className="h-full w-full"
+          sizes="96px"
+          variant={isBackdrop ? "backdrop" : "poster"}
+        />
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{entry.seriesName}</p>
-        <p className="mt-0.5 truncate text-xs" style={{ color: "var(--text-dim)" }}>
-          S{entry.season}:E{entry.episode}{entry.episodeName ? ` — ${entry.episodeName}` : ""}
-        </p>
-        {entry.overview && (
-          <p className="mt-1 line-clamp-2 text-xs" style={{ color: "var(--text-mute)" }}>{entry.overview}</p>
-        )}
+        <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>{entryLabel(entry)}</p>
       </div>
     </button>
   );
 }
 
-/**
- * The month grid can only show a couple of episodes per cell. This is where the
- * rest of them live — without it "+N more" names episodes with no way to reach
- * them.
- */
+/** Every entry on one day of the month grid. */
 function DayEntriesModal({
   date,
   entries,
@@ -125,8 +205,6 @@ function DayEntriesModal({
   useScrollLock();
   useEscapeKey(requestClose);
   const viewportStyle = useVisualViewport();
-
-  const heading = date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
   return (
     <div
@@ -148,10 +226,8 @@ function DayEntriesModal({
       >
         <div className="flex flex-none items-center justify-between border-b px-5 py-4" style={{ borderColor: "var(--border)" }}>
           <div className="min-w-0">
-            <h2 id="calendar-day-modal-title" className={`truncate ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>{heading}</h2>
-            <p className="meta-row" style={{ color: "var(--text-mute)" }}>
-              {entries.length} {entries.length === 1 ? "episode" : "episodes"}
-            </p>
+            <h2 id="calendar-day-modal-title" className={`truncate ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>{longDate(date)}</h2>
+            <p className="meta-row" style={{ color: "var(--text-mute)" }}>{countLabel(entries)}</p>
           </div>
           <button
             type="button"
@@ -163,7 +239,7 @@ function DayEntriesModal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="min-h-0 flex-auto space-y-2 overflow-y-auto px-5 py-4 sm:max-h-[60vh]">
+        <div className="min-h-0 flex-auto space-y-1 overflow-y-auto px-3 py-3 sm:max-h-[60vh]">
           {entries.map((entry) => (
             <EntryRow key={entryKey(entry)} entry={entry} onSelect={onSelect} />
           ))}
@@ -173,36 +249,75 @@ function DayEntriesModal({
   );
 }
 
+type Bucket = { label: string; days: { date: Date; label: string; entries: CalendarEntry[] }[] };
+
 /**
- * The calendar page: upcoming releases shown either as an agenda list over a
- * chosen day range or as a month grid, opening a detail panel on selection.
+ * The agenda's grouping: Today, Tomorrow, the rest of the coming week, and
+ * Later. Today and Tomorrow are one day each and need no day label under them;
+ * the other two hold several days and label each.
+ */
+function bucketFor(diff: number): string {
+  if (diff <= 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  if (diff < 7) return "This week";
+  return "Later";
+}
+
+/**
+ * The calendar page: what is coming up, as an agenda of artwork over a chosen
+ * range or as a month of posters, opening the title panel on selection.
  */
 export function CalendarPage() {
-  const [view, setView] = useState<ViewMode>("agenda");
-  const [agendaDays, setAgendaDays] = useState<(typeof AGENDA_RANGES)[number]>(30);
-  const [monthCursor, setMonthCursor] = useState(() => startOfMonth(new Date()));
-  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view: ViewMode = searchParams.get("view") === "month" ? "month" : "agenda";
+  const agendaDays = parseRange(searchParams.get("days"));
   const [openDay, setOpenDay] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { openTitle } = useTitlePanel();
 
   // Re-read at midnight rather than frozen at mount: a tab left open overnight
   // labelled tomorrow's episodes "Today" and highlighted the wrong grid cell.
   const now = useClockBoundary();
   const today = useMemo(() => startOfDay(now), [now]);
-  // The month grid needs width the phone doesn't have, so on narrow screens
-  // agenda is the only view — the toggle isn't offered either.
   const compact = useMediaQuery(COMPACT_QUERY);
-  const activeView: ViewMode = compact ? "agenda" : view;
+
+  // A month before this one can only ever be empty — the calendar is forward-
+  // looking — so a URL naming one opens on the current month instead.
+  const requestedMonth = parseMonthParam(searchParams.get("month"));
+  const monthCursor =
+    requestedMonth && requestedMonth.getTime() >= startOfMonth(today).getTime() ? requestedMonth : startOfMonth(today);
+
+  const setParams = useCallback(
+    (changes: Record<string, string | null>) =>
+      setSearchParams(
+        (prev) => {
+          const params = new URLSearchParams(prev);
+          for (const [key, value] of Object.entries(changes)) {
+            if (value === null) params.delete(key);
+            else params.set(key, value);
+          }
+          return params;
+        },
+        // Flicking between views and ranges is one act of looking; Back should
+        // leave the calendar, not walk back through every toggle.
+        { replace: true }
+      ),
+    [setSearchParams]
+  );
+
+  const setView = (next: ViewMode) => setParams({ view: next === "agenda" ? null : next });
+  const setRange = (next: AgendaRange) => setParams({ days: next === DEFAULT_RANGE ? null : `${next}` });
+  const setMonth = (next: Date) =>
+    setParams({ month: next.getTime() === startOfMonth(today).getTime() ? null : monthParam(next) });
 
   // How many days ahead to request from the API depends on the active view:
   // agenda uses the selected range directly, month view needs enough days to
   // cover the last day of the displayed month (capped at what the API allows).
   const daysNeeded = useMemo(() => {
-    if (activeView === "agenda") return agendaDays;
+    if (view === "agenda") return agendaDays;
     const monthEnd = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0);
-    const diff = Math.round((startOfDay(monthEnd).getTime() - today.getTime()) / 86_400_000);
-    return Math.min(Math.max(diff, 1), MAX_CALENDAR_DAYS);
-  }, [activeView, agendaDays, monthCursor, today]);
+    return Math.min(Math.max(dayDiff(monthEnd, today), 1), MAX_CALENDAR_DAYS);
+  }, [view, agendaDays, monthCursor, today]);
 
   // Keyed by the range, because the range is part of the question: the agenda's
   // selector and the month grid ask for different spans, and seeding a 7-day
@@ -214,15 +329,7 @@ export function CalendarPage() {
   const [loading, setLoading] = useState(!entriesMeta.hadCachedValue);
 
   // The displayed month is entirely beyond what the API can return.
-  const monthOutOfRange = useMemo(() => {
-    if (activeView !== "month") return false;
-    const monthStart = startOfMonth(monthCursor);
-    const diff = Math.round((monthStart.getTime() - today.getTime()) / 86_400_000);
-    return diff > MAX_CALENDAR_DAYS;
-  }, [activeView, monthCursor, today]);
-
-  // The API only ever returns upcoming episodes, so stepping back past the
-  // current month can only ever produce an empty grid.
+  const monthOutOfRange = view === "month" && dayDiff(startOfMonth(monthCursor), today) > MAX_CALENDAR_DAYS;
   const atEarliestMonth = startOfMonth(monthCursor).getTime() <= startOfMonth(today).getTime();
 
   const load = useCallback(async (days: number) => {
@@ -243,8 +350,7 @@ export function CalendarPage() {
 
   // `today` is a dependency for the agenda, where `daysNeeded` is the selected
   // range and so does not change at midnight. The API answers "the next N days
-  // from now", so without it a tab left open overnight kept yesterday's window:
-  // still holding yesterday's episodes, and a day short at the far end.
+  // from now", so without it a tab left open overnight kept yesterday's window.
   useEffect(() => {
     if (monthOutOfRange) {
       setEntries([]);
@@ -253,6 +359,13 @@ export function CalendarPage() {
     }
     void load(daysNeeded);
   }, [daysNeeded, today, monthOutOfRange, load, setEntries]);
+
+  // The day list belongs to one month cell; leaving that grid — by paging
+  // months or switching view — leaves it behind too.
+  const monthKey = monthParam(monthCursor);
+  useEffect(() => {
+    setOpenDay(null);
+  }, [view, monthKey]);
 
   const entriesByDate = useMemo(() => {
     const map = new Map<string, CalendarEntry[]>();
@@ -265,17 +378,23 @@ export function CalendarPage() {
     return map;
   }, [entries]);
 
-  const agendaGroups = useMemo(() => {
+  const buckets = useMemo(() => {
     const sorted = [...entries].sort((a, b) => a.airDate.localeCompare(b.airDate));
-    const groups: { label: string; date: Date; entries: CalendarEntry[] }[] = [];
+    const result: Bucket[] = [];
     for (const entry of sorted) {
-      const airDate = parseAirDate(entry.airDate);
-      const label = dateLabelFor(airDate, today);
-      const last = groups[groups.length - 1];
-      if (last && last.label === label) last.entries.push(entry);
-      else groups.push({ label, date: airDate, entries: [entry] });
+      const date = parseAirDate(entry.airDate);
+      const label = bucketFor(dayDiff(date, today));
+      let bucket = result[result.length - 1];
+      if (!bucket || bucket.label !== label) {
+        bucket = { label, days: [] };
+        result.push(bucket);
+      }
+      const key = dateKey(date);
+      const day = bucket.days[bucket.days.length - 1];
+      if (day && dateKey(day.date) === key) day.entries.push(entry);
+      else bucket.days.push({ date, label: longDate(date), entries: [entry] });
     }
-    return groups;
+    return result;
   }, [entries, today]);
 
   const monthWeeks = useMemo(() => {
@@ -297,119 +416,97 @@ export function CalendarPage() {
       weeks.push(week);
     }
     return weeks;
-  }, [monthCursor]);
-
-  // The day list belongs to one month cell; leaving that grid — by paging
-  // months, switching view, or narrowing to a phone — leaves it behind too.
-  useEffect(() => {
-    setOpenDay(null);
-  }, [activeView, monthCursor]);
+    // Keyed on the month's string so a fresh Date for the same month (one per
+    // render, from the URL) doesn't rebuild the grid.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthKey]);
 
   const handleSelect = (entry: CalendarEntry) => openTitle(toSearchResult(entry));
+  const monthTitle = monthCursor.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+  const thumbsPerCell = compact ? MONTH_CELL_THUMBS_COMPACT : MONTH_CELL_THUMBS;
+  let cardIndex = 0;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <CalendarDays className="h-6 w-6" style={{ color: "var(--text-dim)" }} />
-          <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Calendar</h1>
-        </div>
-
-        {!compact && (
-          <div className="relative inline-flex rounded-full p-0.5" style={{ background: "var(--surface-strong)", border: "1px solid var(--border)" }}>
-            {([
-              { key: "agenda" as const, label: "Agenda", icon: List },
-              { key: "month" as const, label: "Month", icon: LayoutGrid },
-            ]).map((opt) => (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => setView(opt.key)}
-                aria-pressed={activeView === opt.key}
-                className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-                style={activeView === opt.key ? { background: "var(--accent)", color: "var(--on-accent)" } : { color: "var(--text-dim)" }}
-              >
-                <opt.icon className="h-3.5 w-3.5" />
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+    <PageFrame className="space-y-6">
+      <PageHeader
+        title="Calendar"
+        actions={<SegmentedControl label="Calendar view" options={VIEW_OPTIONS} value={view} onChange={setView} className="w-44" />}
+      />
 
       {error && (
         <p role="alert" className="rounded-xl bg-rose-500/5 border border-rose-500/20 px-4 py-3 text-danger text-sm">{error}</p>
       )}
 
-      {activeView === "agenda" ? (
+      {view === "agenda" ? (
         <>
-          <div className="flex items-center gap-1.5">
-            {AGENDA_RANGES.map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => setAgendaDays(d)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-base ${
-                  agendaDays === d ? "bg-accent-500 text-accent-on" : "hover:text-[var(--text)]"
-                }`}
-                // Both states carry a 1px border so selecting one doesn't shift
-                // the row by a pixel; the active state's is transparent and only
-                // its colour changes, easing with `transition-colors`.
-                style={agendaDays === d ? { border: "1px solid transparent" } : { color: "var(--text-mute)", border: "1px solid var(--border)" }}
-              >
-                {d} Days
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            label="How far ahead"
+            options={RANGE_OPTIONS}
+            value={`${agendaDays}`}
+            onChange={(next) => setRange(parseRange(next))}
+            className="w-full max-w-sm"
+          />
 
           {loading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="skeleton h-20 rounded-xl" />
-              ))}
+            <div aria-busy="true" className="space-y-3">
+              <div className="skeleton h-6 w-24 rounded" aria-hidden="true" />
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-hidden="true">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="skeleton aspect-video rounded-2xl" />
+                ))}
+              </div>
             </div>
-          ) : agendaGroups.length === 0 ? (
-            <div className="glass-panel rounded-2xl p-8 text-center" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
-              <CalendarDays className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-              <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                No upcoming episodes in the next {agendaDays} days.
-              </p>
-              {/* Which is the expected state for a new install, not a fault —
-                  but nothing on screen said so, leaving no way to tell an empty
-                  calendar from a broken one. */}
-              <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
-                The calendar only tracks series you have already started watching.
-              </p>
-              <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
-                Find a series to follow &rarr;
-              </Link>
-            </div>
+          ) : buckets.length === 0 ? (
+            <EmptyState
+              title="Nothing coming up"
+              action={<Link to="/search" className={EMPTY_STATE_ACTION}>Find something to follow &rarr;</Link>}
+            >
+              Nothing in the next {agendaDays} days. The calendar follows the series you are watching, and the
+              films and shows on your watchlist.
+            </EmptyState>
           ) : (
-            <div className="space-y-6">
-              {agendaGroups.map((group) => (
-                <div key={group.label} className="space-y-2">
-                  <h2 className={KICKER} style={{ color: "var(--text-mute)" }}>
-                    {group.label}
-                  </h2>
-                  {group.entries.map((entry) => (
-                    <EntryRow key={entryKey(entry)} entry={entry} onSelect={handleSelect} />
-                  ))}
-                </div>
-              ))}
+            <div className="space-y-8">
+              {buckets.map((bucket) => {
+                const singleDay = bucket.label === "Today" || bucket.label === "Tomorrow";
+                return (
+                  <section key={bucket.label} aria-label={bucket.label} className="space-y-3">
+                    <h2 className={SECTION_TITLE} style={{ color: "var(--text)" }}>
+                      {bucket.label}
+                      {singleDay && bucket.days[0] && (
+                        <span className="meta ml-2 font-normal" style={{ color: "var(--text-mute)" }}>
+                          {bucket.days[0].date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                        </span>
+                      )}
+                    </h2>
+                    {bucket.days.map((day) => (
+                      <div key={dateKey(day.date)} className="space-y-2">
+                        {!singleDay && (
+                          <h3 className={KICKER} style={{ color: "var(--text-mute)" }}>{day.label}</h3>
+                        )}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                          {day.entries.map((entry) => (
+                            <EntryCard key={entryKey(entry)} entry={entry} onSelect={handleSelect} eager={cardIndex++ < 4} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </section>
+                );
+              })}
             </div>
           )}
         </>
       ) : (
         <>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 disabled={atEarliestMonth}
-                onClick={() => setMonthCursor((prev) => addMonths(prev, -1))}
+                onClick={() => setMonth(addMonths(monthCursor, -1))}
                 aria-label="Previous month"
                 aria-describedby={atEarliestMonth ? "calendar-forward-only" : undefined}
-                title={atEarliestMonth ? "The calendar only shows upcoming episodes" : undefined}
+                title={atEarliestMonth ? "The calendar only shows what is still to come" : undefined}
                 className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface-strong)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
                 style={{ border: "1px solid var(--border)", color: "var(--text-dim)" }}
               >
@@ -417,7 +514,7 @@ export function CalendarPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setMonthCursor((prev) => addMonths(prev, 1))}
+                onClick={() => setMonth(addMonths(monthCursor, 1))}
                 aria-label="Next month"
                 className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface-strong)]"
                 style={{ border: "1px solid var(--border)", color: "var(--text-dim)" }}
@@ -426,46 +523,37 @@ export function CalendarPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setMonthCursor(startOfMonth(new Date()))}
+                onClick={() => setMonth(startOfMonth(today))}
                 className="ml-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--surface-strong)]"
                 style={{ border: "1px solid var(--border)", color: "var(--text-dim)" }}
               >
                 Today
               </button>
             </div>
-            <p className={SECTION_TITLE} style={{ color: "var(--text)" }}>
-              {monthCursor.toLocaleDateString(undefined, { month: "long", year: "numeric" })}
-            </p>
+            <h2 className={SECTION_TITLE} style={{ color: "var(--text)" }}>{monthTitle}</h2>
           </div>
 
           {atEarliestMonth && (
             <p id="calendar-forward-only" className="-mt-3 text-xs" style={{ color: "var(--text-mute)" }}>
-              The calendar is forward-looking — it only lists episodes that haven't aired yet, so earlier months aren't
-              available.
+              The calendar is forward-looking — it lists what hasn't aired or been released yet, so earlier months
+              aren't available.
             </p>
           )}
 
-          {/* The month grid below carries table roles rather than being a
-              <table>: it is a real grid of rows and columns, and without them a
-              screen reader met a stack of unrelated divs — the weekday strip
-              was seven labels for nothing, and a cell said "12" with no way to
-              find out which 12. Roles leave the CSS grid exactly as it is.
-              `role="table"` rather than `role="grid"` because a grid is a
-              composite widget that owes the user arrow-key cell navigation, and
-              this is a layout of links, not a spreadsheet. */}
+          {/* Table roles rather than a <table>: a real grid of rows and
+              columns, so a screen reader can tell which 12 a cell is, while the
+              CSS grid stays as it is. `table` rather than `grid`, which would
+              owe arrow-key cell navigation. */}
           {monthOutOfRange ? (
-            <div className="glass-panel rounded-2xl p-8 text-center" style={{ border: "1px solid var(--border)", background: "var(--bg-1)" }}>
-              <CalendarDays className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-              <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                This month is too far out — the calendar only looks {MAX_CALENDAR_DAYS} days ahead.
-              </p>
-            </div>
+            <EmptyState title="Too far ahead">
+              The calendar looks {MAX_CALENDAR_DAYS} days ahead, and this month starts after that.
+            </EmptyState>
           ) : (
             <div
               className="overflow-hidden rounded-2xl"
               style={{ border: "1px solid var(--border)" }}
               role={loading ? undefined : "table"}
-              aria-label={loading ? undefined : `Episodes airing in ${monthCursor.toLocaleDateString(undefined, { month: "long", year: "numeric" })}`}
+              aria-label={loading ? undefined : `What's coming in ${monthTitle}`}
             >
               <div role={loading ? undefined : "rowgroup"} style={{ borderBottom: "1px solid var(--border)" }}>
                 <div className="grid grid-cols-7" role={loading ? undefined : "row"}>
@@ -474,17 +562,17 @@ export function CalendarPage() {
                       key={label}
                       role={loading ? undefined : "columnheader"}
                       aria-label={WEEKDAY_FULL[i]}
-                      className={`px-2 py-2 text-center ${MICRO_LABEL}`}
+                      className={`px-1 py-2 text-center ${MICRO_LABEL}`}
                       style={{ color: "var(--text-mute)" }}
                     >
-                      {label}
+                      {compact ? label.charAt(0) : label}
                     </div>
                   ))}
                 </div>
               </div>
               {loading ? (
-                <div className="p-4">
-                  <div className="skeleton h-64 rounded-lg" />
+                <div className="p-4" aria-busy="true">
+                  <div className="skeleton h-80 rounded-lg" aria-hidden="true" />
                 </div>
               ) : (
                 <div role="rowgroup">
@@ -493,65 +581,68 @@ export function CalendarPage() {
                       {week.map((day) => {
                         const inMonth = day.getMonth() === monthCursor.getMonth();
                         const isToday = startOfDay(day).getTime() === today.getTime();
-                        const dayEntries = entriesByDate.get(dateKey(day)) ?? [];
+                        const dayEntries = inMonth ? entriesByDate.get(dateKey(day)) ?? [] : [];
+                        const shown = dayEntries.slice(0, thumbsPerCell);
+                        const more = dayEntries.length - shown.length;
+                        const dateLabel = day.toLocaleDateString(undefined, {
+                          weekday: "long",
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        });
+                        const number = (
+                          <span
+                            aria-hidden="true"
+                            className={`meta inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 font-semibold ${isToday ? "bg-accent-500 text-accent-on" : ""}`}
+                            style={isToday ? undefined : { color: "var(--text-mute)" }}
+                          >
+                            {day.getDate()}
+                          </span>
+                        );
                         return (
                           <div
                             key={day.toISOString()}
                             role="cell"
-                            className="min-h-[6.5rem] p-1.5"
+                            className="min-h-[5.5rem] sm:min-h-[8rem]"
                             style={{
                               borderLeft: "1px solid var(--border)",
                               background: inMonth ? undefined : "var(--surface)",
                               opacity: inMonth ? 1 : 0.5,
                             }}
                           >
-                            {/* The visible number is the date within a grid
-                                that supplies the rest. Read on its own it is
-                                just "12", and "today" is carried by a fill
-                                colour — neither survives without this. */}
-                            <span className="sr-only">
-                              {day.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-                              {isToday ? " (today)" : ""}
-                            </span>
-                            <span
-                              aria-hidden="true"
-                              className={`meta inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 font-semibold ${isToday ? "bg-accent-500 text-accent-on" : ""}`}
-                              style={isToday ? undefined : { color: "var(--text-mute)" }}
-                            >
-                              {day.getDate()}
-                            </span>
-                            <div className="mt-1 space-y-1">
-                              {dayEntries.slice(0, MONTH_CELL_ENTRIES).map((entry) => (
-                                <button
-                                  key={entryKey(entry)}
-                                  type="button"
-                                  onClick={() => handleSelect(entry)}
-                                  title={`${entry.seriesName} S${entry.season}:E${entry.episode}`}
-                                  // --accent-text, not --accent. index.css documents
-                                  // the first as the token for accent-coloured text on
-                                  // a page background and the second as a fill; painted
-                                  // as body text --accent measures 2.68:1 on light and
-                                  // 4.21:1 on midnight, against 5.53 and 5.43 for the
-                                  // token that exists for this. The focus ring matches
-                                  // the "+N more" button below, which already had one.
-                                  className="block w-full truncate rounded px-1 py-0.5 text-left text-2xs font-medium transition-colors hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                                  style={{ background: "color-mix(in srgb, var(--accent) 15%, transparent)", color: "var(--accent-text)" }}
-                                >
-                                  {entry.seriesName}
-                                </button>
-                              ))}
-                              {dayEntries.length > MONTH_CELL_ENTRIES && (
-                                <button
-                                  type="button"
-                                  onClick={() => setOpenDay(day)}
-                                  aria-label={`Show all ${dayEntries.length} episodes on ${day.toLocaleDateString(undefined, { month: "long", day: "numeric" })}`}
-                                  className="block w-full rounded px-1 py-0.5 text-left text-2xs font-medium underline-offset-2 transition-colors hover:bg-[var(--surface-strong)] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                                  style={{ color: "var(--text-mute)" }}
-                                >
-                                  +{dayEntries.length - MONTH_CELL_ENTRIES} more
-                                </button>
-                              )}
-                            </div>
+                            {dayEntries.length === 0 ? (
+                              <div className="flex flex-col items-start p-1.5">
+                                <span className="sr-only">{dateLabel}{isToday ? " (today)" : ""}</span>
+                                {number}
+                              </div>
+                            ) : (
+                              /* The whole day is the target: a tap opens its
+                                 list, where each entry is a row big enough to
+                                 hit. Posters at 40px are a picture of the day,
+                                 not a row of buttons. */
+                              <button
+                                type="button"
+                                onClick={() => setOpenDay(day)}
+                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}`}
+                                className="flex h-full w-full flex-col items-start p-1.5 text-left transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
+                              >
+                                {number}
+                                <span className="mt-1.5 flex flex-wrap items-end gap-1" aria-hidden="true">
+                                  {shown.map((entry) => (
+                                    <span
+                                      key={entryKey(entry)}
+                                      className="block w-8 flex-none overflow-hidden rounded sm:w-10"
+                                      style={{ aspectRatio: "2 / 3", background: "var(--surface-strong)", boxShadow: "0 0 0 1px var(--border)" }}
+                                    >
+                                      <Poster src={entry.poster ?? undefined} alt="" className="h-full w-full" sizes="40px" />
+                                    </span>
+                                  ))}
+                                  {more > 0 && (
+                                    <span className="meta font-semibold" style={{ color: "var(--text-mute)" }}>+{more}</span>
+                                  )}
+                                </span>
+                              </button>
+                            )}
                           </div>
                         );
                       })}
@@ -574,8 +665,6 @@ export function CalendarPage() {
           onClose={() => setOpenDay(null)}
         />
       )}
-
-
-    </div>
+    </PageFrame>
   );
 }

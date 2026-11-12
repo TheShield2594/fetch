@@ -21,9 +21,12 @@ const without = <T extends object>(row: T, field: keyof T): Omit<T, typeof field
 };
 
 const entry = () => ({
+  kind: "episode" as const,
   seriesImdbId: "tt0903747",
   seriesName: "Breaking Bad",
   poster: "/poster.jpg",
+  still: "/still.jpg",
+  backdrop: "/backdrop.jpg",
   season: 5,
   episode: 14,
   episodeName: "Ozymandias",
@@ -34,6 +37,43 @@ const entry = () => ({
 describe("parseCalendarResponse", () => {
   it("returns the entries an API of the same build sends", () => {
     expect(parseCalendarResponse({ calendar: [entry()] })).toEqual({ calendar: [entry()] });
+  });
+
+  it("reads an entry from an API before kinds and artwork as an episode with neither", () => {
+    const old: Partial<ReturnType<typeof entry>> = entry();
+    delete old.kind;
+    delete old.still;
+    delete old.backdrop;
+    expect(parseCalendarResponse({ calendar: [old] }).calendar[0]).toEqual({
+      ...entry(),
+      still: null,
+      backdrop: null,
+    });
+  });
+
+  it("reads a watchlisted film's release as a dated entry with no season or episode", () => {
+    const film = {
+      kind: "movie",
+      seriesImdbId: "tt1160419",
+      seriesName: "Dune",
+      poster: null,
+      backdrop: "/dune.jpg",
+      airDate: "2026-10-22",
+      overview: "Spice.",
+    };
+    expect(parseCalendarResponse({ calendar: [film] }).calendar[0]).toEqual({
+      ...film,
+      still: null,
+      season: null,
+      episode: null,
+      episodeName: null,
+    });
+  });
+
+  it("rejects a kind it does not know", () => {
+    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), kind: "concert" }] })).toThrow(
+      /calendar\[0\]\.kind must be one of/
+    );
   });
 
   it("treats a missing calendar key as an empty calendar", () => {

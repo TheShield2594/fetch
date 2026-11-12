@@ -14,6 +14,7 @@ import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
 import com.fetch.tv.data.local.ProfileRestrictions
+import com.fetch.tv.domain.model.UserProfile
 import com.fetch.tv.data.repository.AddonRepositoryImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -199,16 +200,46 @@ class FetchWebsiteSyncService @Inject constructor(
      * website later isn't brought back.
      */
     private suspend fun pushProfilesMissingFromWebsite() {
-        val remoteSlots = client.profiles().mapTo(HashSet()) { it.slot }
-        val restrictions = restrictionsDataStore.restrictions.first()
+        val remote = client.profiles()
+        val remoteSlots = remote.mapTo(HashSet()) { it.slot }
         val missing = profileManager.profiles.value.filter { it.id !in remoteSlots }
-        missing.forEach { profile ->
-            client.putProfile(
-                profile.id,
-                FetchWebsiteMappings.toWebsiteBody(profile, restrictions[profile.id] ?: ProfileRestrictions.None)
-            )
+        val added = putProfiles(missing, remote)
+        if (added.isNotEmpty()) Log.d(TAG, "Added ${added.size} profiles from this TV to the website")
+    }
+
+    /**
+     * Sends [profiles] to the website and answers with what it saved, given the profiles it is
+     * [known] to have.
+     *
+     * The website judges a new profile, and a lifted limit, by who is asking, as its own pages
+     * do, so each request names the profile in use on this TV; that one goes first so the ones
+     * after it can name it even when it is new itself. A profile the website won't add from here
+     * (a kids profile adding one) is left out rather than failing the rest.
+     */
+    private suspend fun putProfiles(
+        profiles: List<UserProfile>,
+        known: List<WebsiteSlottedProfile>
+    ): List<WebsiteSlottedProfile> {
+        val restrictions = restrictionsDataStore.restrictions.first()
+        val activeSlot = profileManager.activeProfileId.value
+        var onWebsite = known
+        val saved = mutableListOf<WebsiteSlottedProfile>()
+        profiles.sortedByDescending { it.id == activeSlot }.forEach { profile ->
+            val target = onWebsite.firstOrNull { it.slot == profile.id }
+            val acting = onWebsite.firstOrNull { it.slot == activeSlot }
+            // One token per request: a PIN-protected profile changes only with its own.
+            val token = (target?.takeIf { it.hasPin } ?: acting)?.let { profileToken(it.id) }
+            val body = FetchWebsiteMappings.toWebsiteBody(profile, restrictions[profile.id] ?: ProfileRestrictions.None)
+            try {
+                val put = client.putProfile(profile.id, body, acting?.id, token)
+                saved += put
+                onWebsite = onWebsite.filter { it.slot != put.slot } + put
+            } catch (error: FetchWebsiteException) {
+                if (!error.needsParentalAuthority) throw error
+                Log.w(TAG, "The website won't add profile ${profile.id} from the profile in use here")
+            }
         }
-        if (missing.isNotEmpty()) Log.d(TAG, "Added ${missing.size} profiles from this TV to the website")
+        return saved
     }
 
     /**
@@ -223,13 +254,9 @@ class FetchWebsiteSyncService @Inject constructor(
 
     /** Sends every profile on this TV to the website, creating the ones it doesn't have yet. */
     suspend fun pushProfiles(): Result<Unit> = runSuspendCatching {
-        val restrictions = restrictionsDataStore.restrictions.first()
-        val updated = profileManager.profiles.value.map { profile ->
-            client.putProfile(
-                profile.id,
-                FetchWebsiteMappings.toWebsiteBody(profile, restrictions[profile.id] ?: ProfileRestrictions.None)
-            )
-        }
+        // The website's profiles say which one is in use here and which have a PIN.
+        val known = remoteProfiles.ifEmpty { runSuspendCatching { client.profiles() }.getOrDefault(emptyList()) }
+        val updated = putProfiles(profileManager.profiles.value, known)
         remoteProfiles = (remoteProfiles.filter { r -> updated.none { it.slot == r.slot } } + updated).sortedBy { it.slot }
     }.onFailure { Log.w(TAG, "Failed to push profiles to the website", it) }
 

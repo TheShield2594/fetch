@@ -9,6 +9,7 @@ import {
   hasValidProfileToken,
   invalidateProfileCache,
   isActingAsProfile,
+  mayEditProfile,
   loosensParentalLimits,
   ownsProfile,
   PARENTAL_AUTHORITY_RESPONSE,
@@ -267,7 +268,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // Any other change to a PIN-protected profile — its name, picture or
     // parental fields — needs the same proof that opening it does: its profile
     // token, or its PIN. (A PIN change has just checked `currentPin` above.)
-    if (profile.pinHash && body.pin === undefined && !hasValidProfileToken(request, profile)) {
+    if (profile.pinHash && body.pin === undefined && !mayEditProfile(request, profile)) {
       const proof = await verifyCurrentPin(profile.id, profile.pinHash, body.currentPin);
       if (proof === "locked_out") return reply.code(429).send(await lockedOutBody(profile.id));
       if (proof === "missing") return reply.code(401).send(TARGET_PROFILE_LOCKED_RESPONSE);

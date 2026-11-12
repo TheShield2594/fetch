@@ -607,14 +607,14 @@ class AppState(
             val remoteSlots = remote.mapTo(HashSet()) { it.slot }
             val missing = profiles.profiles.filter { it.id !in remoteSlots }
             if (missing.isNotEmpty() && remote.isNotEmpty()) {
-                web.pushProfiles(missing)
+                web.pushProfiles(missing, profile.id)
                 remote = web.profiles()
             }
             if (remote.isNotEmpty()) web.markInitialProfilePushDone()
         }
         if (remote.isEmpty()) {
             if (profile.isPrimary) {
-                web.pushProfiles(profiles.profiles)
+                web.pushProfiles(profiles.profiles, profile.id)
                 web.markInitialProfilePushDone()
             }
             return
@@ -965,7 +965,7 @@ class AppState(
                 scope.launch {
                     runCatching {
                         deleted?.let { web.deleteProfile(it.id) }
-                        web.pushProfiles(profiles.profiles)
+                        web.pushProfiles(profiles.profiles, this@AppState.profile.id)
                     }
                 }
             }
@@ -986,7 +986,7 @@ class AppState(
         override fun onLimitsChanged(profile: DesktopProfile) {
             // The website keeps a profile's limits on the profile itself.
             websiteSync?.let { web ->
-                scope.launch { runCatching { web.pushProfiles(listOf(profile)) } }
+                scope.launch { runCatching { web.pushProfiles(listOf(profile), this@AppState.profile.id) } }
             }
         }
 

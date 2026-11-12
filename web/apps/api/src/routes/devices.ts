@@ -25,6 +25,8 @@ import { parseProfileAttributes, PROFILE_VIEW_SELECT, toProfileView } from "../l
 import {
   hasParentalAuthority,
   invalidateProfileCache,
+  mayEditProfile,
+  PARENTAL_AUTHORITY_RESPONSE,
   loosensParentalLimits,
   withoutLoosenedLimits,
 } from "../lib/profile.js";
@@ -389,23 +391,30 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
         slotted && (await prisma.profile.count({ where: { id: slotted, ...(accountId ? { accountId } : {}) } }))
           ? slotted
           : null;
-      if (profileId) {
-        // A TV pushes its whole profile list, so one limit it may not lift
-        // shouldn't stop the name or picture from syncing: a loosening this
-        // request has no authority for is left out, and the stricter stored
-        // limits come back in the answer. (The TV only ever tightens on a
-        // pull, so it keeps its own setting; the website is where a grown-up
-        // lifts a limit.)
-        let data = { ...attributes.data };
-        const current = await prisma.profile.findUnique({
-          where: { id: profileId },
-          select: { isKidsProfile: true, maxRating: true, allowUnrated: true },
-        });
-        if (current && loosensParentalLimits(current, data) && !(await hasParentalAuthority(request))) {
-          data = withoutLoosenedLimits(current, data).data;
+      const current = profileId
+        ? await prisma.profile.findUnique({ where: { id: profileId }, select: PROFILE_VIEW_SELECT })
+        : null;
+      if (current) {
+        // A TV pushes its whole profile list, so a change it may not make
+        // shouldn't fail the push: the change is left out and what is stored
+        // comes back in the answer. The checks are the ones `PATCH
+        // /profiles/:id` makes, through the same helpers.
+        //
+        // A PIN-protected profile changes only for whoever unlocked it, so the
+        // TV sends that profile's token (`x-profile-token`) once the PIN has
+        // been entered there.
+        if (!mayEditProfile(request, current)) {
+          return { profile: toSlottedView({ slot, profile: current }) };
         }
+        // A loosening this request has no authority for is left out the same
+        // way. (The TV only ever tightens on a pull, so it keeps its own
+        // setting; the website is where a grown-up lifts a limit.)
+        const data =
+          loosensParentalLimits(current, attributes.data) && !(await hasParentalAuthority(request))
+            ? withoutLoosenedLimits(current, attributes.data).data
+            : attributes.data;
         const profile = await prisma.profile.update({
-          where: { id: profileId },
+          where: { id: current.id },
           data: { ...data, ...(name ? { name } : {}) },
           select: PROFILE_VIEW_SELECT,
         });
@@ -414,6 +423,12 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
       }
 
       if (!name) return reply.code(400).send({ error: "name is required to create a profile" });
+      // As `POST /profiles`: a kids profile adding an unrestricted one would
+      // step around its own limits. The TV names the profile in use on it
+      // (`x-profile-id`, with its token if it has a PIN).
+      if (!(await hasParentalAuthority(request))) {
+        return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+      }
       const profile = await prisma.$transaction(async (tx) => {
         const created = await tx.profile.create({
           data: { name, accountId, ...attributes.data },

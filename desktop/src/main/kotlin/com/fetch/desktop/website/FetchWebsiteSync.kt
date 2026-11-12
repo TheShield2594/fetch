@@ -43,13 +43,35 @@ class FetchWebsiteSync(private val website: FetchWebsiteState) {
     /** The website's profiles in this computer's slots, read afresh. */
     suspend fun profiles(): List<WebsiteProfile> = client.profiles().also { website.profiles = it }
 
-    /** Sends [local] to the website, creating the slots it doesn't have yet. Never a PIN. */
-    suspend fun pushProfiles(local: List<DesktopProfile>) {
+    /**
+     * Sends [local] to the website, creating the slots it doesn't have yet. Never a PIN.
+     *
+     * [actingSlot] is the profile in use on this computer. The website judges a new profile, and a
+     * lifted limit, by who is asking, as its own pages do, so each request names that profile; it
+     * goes first so the ones after it can name it even when it is new itself. A profile the website
+     * won't add from here (a kids profile adding one) is left out rather than failing the rest.
+     */
+    suspend fun pushProfiles(local: List<DesktopProfile>, actingSlot: Int? = null) {
         val remote = website.profiles.ifEmpty { profiles() }
         val limits = local.associate { it.id to it.limits }
-        val saved = SyncMerge.profilesToPush(local, remote.map { FetchWebsiteMappings.toRemoteProfile(it, null) }).map { profile ->
-            client.putProfile(profile.profileIndex, FetchWebsiteMappings.toWebsiteBody(profile, limits[profile.profileIndex] ?: ProfileLimits()))
-        }
+        var known = remote
+        val saved = mutableListOf<WebsiteProfile>()
+        SyncMerge.profilesToPush(local, remote.map { FetchWebsiteMappings.toRemoteProfile(it, null) })
+            .sortedByDescending { it.profileIndex == actingSlot }
+            .forEach { profile ->
+                val target = known.firstOrNull { it.slot == profile.profileIndex }
+                val acting = known.firstOrNull { it.slot == actingSlot }
+                // One token per request: a PIN-protected profile changes only with its own.
+                val token = (target?.takeIf { it.hasPin } ?: acting)?.let { website.profileToken(it.id) }
+                val body = FetchWebsiteMappings.toWebsiteBody(profile, limits[profile.profileIndex] ?: ProfileLimits())
+                try {
+                    val put = client.putProfile(profile.profileIndex, body, acting?.id, token)
+                    saved += put
+                    known = known.filter { it.slot != put.slot } + put
+                } catch (e: FetchWebsiteException) {
+                    if (!e.needsParentalAuthority) throw e
+                }
+            }
         website.profiles = (remote.filter { r -> saved.none { it.slot == r.slot } } + saved).sortedBy { it.slot }
     }
 

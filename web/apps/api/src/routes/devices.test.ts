@@ -505,6 +505,7 @@ describe("device routes", () => {
   describe("PUT /devices/me/profiles/:slot", () => {
     it("updates the profile already in the slot", async () => {
       prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      prismaMock.profile.findUnique.mockResolvedValue(profileRow(PROFILE_ID, "Alice", "2026-01-01T00:00:00Z"));
       prismaMock.profile.update.mockResolvedValue(profileRow(PROFILE_ID, "Alicia", "2026-01-01T00:00:00Z"));
       const app = await buildApp();
 
@@ -525,7 +526,12 @@ describe("device routes", () => {
     // the rest of the update still lands.
     it("keeps a stored parental limit the TV has no authority to lift, and applies the rest", async () => {
       prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
-      prismaMock.profile.findUnique.mockResolvedValue({ isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false });
+      prismaMock.profile.findUnique.mockResolvedValue({
+        ...profileRow(PROFILE_ID, "Alice", "2026-01-01T00:00:00Z"),
+        isKidsProfile: true,
+        maxRating: "PARENTAL_GUIDANCE",
+        allowUnrated: false,
+      });
       prismaMock.profile.findMany.mockResolvedValue([{ id: PROFILE_ID }, { id: SECOND_PROFILE_ID }]);
       prismaMock.profile.update.mockResolvedValue(profileRow(PROFILE_ID, "Alicia", "2026-01-01T00:00:00Z"));
       const app = await buildApp({ kind: "device", deviceId: DEVICE_ID, accountId: "acc-1" });
@@ -542,6 +548,102 @@ describe("device routes", () => {
       expect(prismaMock.profile.update).toHaveBeenCalledWith(
         expect.objectContaining({ where: { id: PROFILE_ID }, data: { allowUnrated: false, name: "Alicia" } })
       );
+    });
+
+    // The checks `PATCH /profiles/:id` and `POST /profiles` make (#544).
+    describe("as the profile routes would", () => {
+      const ACCOUNT_ID = "acc-1";
+      const device: AuthPrincipal = { kind: "device", deviceId: DEVICE_ID, accountId: ACCOUNT_ID };
+      const stored = (overrides: object = {}) => ({
+        ...profileRow(PROFILE_ID, "Alice", "2026-01-01T00:00:00Z"),
+        accountId: ACCOUNT_ID,
+        ...overrides,
+      });
+
+      it("leaves a PIN-protected profile the TV hasn't unlocked as it is, and answers with what is stored", async () => {
+        prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+        prismaMock.profile.findUnique.mockResolvedValue(stored({ pinHash: "scrypt$stored" }));
+        const app = await buildApp(device);
+
+        const response = await app.inject({
+          method: "PUT",
+          url: "/devices/me/profiles/2",
+          headers: asDevice,
+          payload: { name: "Mallory", avatarId: "fetch:owl" },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(response.json().profile).toMatchObject({ slot: 2, name: "Alice", avatarId: "fetch:fox", hasPin: true });
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
+      });
+
+      it("changes a PIN-protected profile for a TV holding its profile token", async () => {
+        vi.stubEnv("API_TOKEN", "test-api-token-0123456789abcdef0123456789abcdef");
+        prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+        prismaMock.profile.findUnique.mockResolvedValue(stored({ pinHash: "scrypt$stored" }));
+        prismaMock.profile.update.mockResolvedValue(stored({ name: "Alicia", pinHash: "scrypt$stored" }));
+        const app = await buildApp(device);
+        const { mintProfileToken } = await import("../lib/profile-token.js");
+
+        const response = await app.inject({
+          method: "PUT",
+          url: "/devices/me/profiles/2",
+          headers: { ...asDevice, "x-profile-token": mintProfileToken(PROFILE_ID, "scrypt$stored") },
+          payload: { name: "Alicia" },
+        });
+
+        expect(response.statusCode).toBe(200);
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({ where: { id: PROFILE_ID }, data: { name: "Alicia" } })
+        );
+      });
+
+      const createInSlot = (app: FastifyInstance, headers: Record<string, string> = {}) =>
+        app.inject({
+          method: "PUT",
+          url: "/devices/me/profiles/4",
+          headers: { ...asDevice, ...headers },
+          payload: { name: "Unrestricted" },
+        });
+
+      it("refuses to add a profile for a TV being used as a kids profile", async () => {
+        prismaMock.deviceProfileSlot.findUnique.mockResolvedValue(null);
+        prismaMock.profile.findUnique.mockResolvedValue(stored({ isKidsProfile: true }));
+        const app = await buildApp(device);
+
+        const response = await createInSlot(app, { "x-profile-id": PROFILE_ID });
+
+        expect(response.statusCode).toBe(403);
+        expect(response.json()).toMatchObject({ code: "parental_authority_required" });
+        expect(prismaMock.profile.create).not.toHaveBeenCalled();
+      });
+
+      it("refuses to add a profile when the TV names none and the account has a kids profile", async () => {
+        prismaMock.deviceProfileSlot.findUnique.mockResolvedValue(null);
+        prismaMock.profile.findMany.mockResolvedValue([{ id: PROFILE_ID }, { id: SECOND_PROFILE_ID }]);
+        prismaMock.profile.count.mockResolvedValue(1);
+        const app = await buildApp(device);
+
+        const response = await createInSlot(app);
+
+        expect(response.statusCode).toBe(403);
+        expect(prismaMock.profile.create).not.toHaveBeenCalled();
+      });
+
+      it("adds a profile for a TV being used as a grown-up's profile", async () => {
+        prismaMock.deviceProfileSlot.findUnique.mockResolvedValue(null);
+        prismaMock.profile.findUnique.mockResolvedValue(stored());
+        prismaMock.profile.create.mockResolvedValue(profileRow(SECOND_PROFILE_ID, "Unrestricted", "2026-03-01T00:00:00Z"));
+        prismaMock.deviceProfileSlot.create.mockResolvedValue({});
+        const app = await buildApp(device);
+
+        const response = await createInSlot(app, { "x-profile-id": PROFILE_ID });
+
+        expect(response.statusCode).toBe(201);
+        expect(prismaMock.profile.create).toHaveBeenCalledWith(
+          expect.objectContaining({ data: expect.objectContaining({ name: "Unrestricted", accountId: ACCOUNT_ID }) })
+        );
+      });
     });
 
     it("creates a profile for an empty slot and maps it", async () => {

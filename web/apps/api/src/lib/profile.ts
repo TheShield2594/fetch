@@ -271,6 +271,14 @@ export const withoutLoosenedLimits = <T extends Partial<ParentalLimits>>(
   return { data, dropped };
 };
 
+/**
+ * Whether this request may change a profile's name, picture or parental
+ * fields: anyone in the account for an open profile, and only a holder of its
+ * profile token (so, someone who entered its PIN) for a PIN-protected one.
+ */
+export const mayEditProfile = (request: FastifyRequest, profile: { id: string; pinHash: string | null }): boolean =>
+  !profile.pinHash || hasValidProfileToken(request, profile);
+
 export const PARENTAL_AUTHORITY_RESPONSE = {
   error: "Switch to a grown-up's profile to loosen parental controls or add a profile",
   code: "parental_authority_required",

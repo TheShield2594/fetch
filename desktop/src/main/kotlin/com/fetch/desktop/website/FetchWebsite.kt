@@ -186,8 +186,12 @@ class FetchWebsiteException(
     /** A PIN-protected profile this computer hasn't unlocked, or whose profile token ran out. */
     val isProfileLocked: Boolean get() = code == PROFILE_LOCKED
 
+    /** Adding a profile, or lifting a parental limit, from a profile that may not (a kids profile). */
+    val needsParentalAuthority: Boolean get() = code == PARENTAL_AUTHORITY_REQUIRED
+
     companion object {
         const val PROFILE_LOCKED = "profile_verification_required"
+        const val PARENTAL_AUTHORITY_REQUIRED = "parental_authority_required"
     }
 }
 
@@ -262,9 +266,18 @@ class FetchWebsiteClient(
     suspend fun profiles(): List<WebsiteProfile> =
         json.decodeFromString(WebsiteProfiles.serializer(), authedText("devices/me/profiles")).profiles
 
-    /** Creates or updates the website profile in [slot] (`PUT devices/me/profiles/:slot`). Never a PIN. */
-    suspend fun putProfile(slot: Int, body: JsonObject): WebsiteProfile =
-        json.decodeFromString(WebsiteSavedProfile.serializer(), authedText("devices/me/profiles/$slot", "PUT", body.toString())).profile
+    /**
+     * Creates or updates the website profile in [slot] (`PUT devices/me/profiles/:slot`). Never a PIN.
+     *
+     * [actingProfileId] is the website profile in use on this computer: the website asks who is
+     * adding a profile or lifting a limit, as it does of its own pages. [profileToken] is the token
+     * of the profile being changed when that one has a PIN, and the acting profile's otherwise.
+     */
+    suspend fun putProfile(slot: Int, body: JsonObject, actingProfileId: String? = null, profileToken: String? = null): WebsiteProfile =
+        json.decodeFromString(
+            WebsiteSavedProfile.serializer(),
+            authedText("devices/me/profiles/$slot", "PUT", body.toString(), profileId = actingProfileId, profileToken = profileToken)
+        ).profile
 
     suspend fun deleteProfile(profileId: String, profileToken: String?) {
         authedText("profiles/$profileId", "DELETE", profileId = profileId, profileToken = profileToken)

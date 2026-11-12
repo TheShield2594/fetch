@@ -26,7 +26,8 @@ const buildApp = (): Promise<FastifyInstance> =>
   buildRouteApp(() => import("./calendar.js"));
 
 /** The `days` argument the route passed through to the lookup. */
-const daysArg = () => first(getCalendar.mock.calls, "getCalendar call")[1];
+const windowArg = () => first(getCalendar.mock.calls, "getCalendar call")[1] as { start: Date; days: number };
+const daysArg = () => windowArg().days;
 
 describe("calendar routes", () => {
   beforeEach(() => {
@@ -41,7 +42,7 @@ describe("calendar routes", () => {
     const res = await app.inject({ method: "GET", url: "/calendar" });
 
     expect(res.statusCode).toBe(200);
-    expect(getCalendar).toHaveBeenCalledWith(PROFILE_ID, 30, false);
+    expect(getCalendar).toHaveBeenCalledWith(PROFILE_ID, { start: expect.any(Date), days: 30 }, false, expect.anything());
   });
 
   it("honours an explicit window", async () => {
@@ -83,7 +84,7 @@ describe("calendar routes", () => {
 
     await app.inject({ method: "GET", url: "/calendar" });
 
-    expect(getCalendar).toHaveBeenCalledWith(PROFILE_ID, 30, true);
+    expect(getCalendar).toHaveBeenCalledWith(PROFILE_ID, { start: expect.any(Date), days: 30 }, true, expect.anything());
   });
 
   it("returns the calendar under a `calendar` key", async () => {
@@ -93,5 +94,31 @@ describe("calendar routes", () => {
     const res = await app.inject({ method: "GET", url: "/calendar" });
 
     expect(res.json().calendar).toHaveLength(1);
+  });
+
+  it("starts at today by default, and at the day asked for", async () => {
+    const app = await buildApp();
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    await app.inject({ method: "GET", url: "/calendar" });
+    expect(windowArg().start.getTime()).toBe(today.getTime());
+
+    getCalendar.mockClear();
+    const past = new Date(today);
+    past.setUTCDate(past.getUTCDate() - 40);
+    const iso = past.toISOString().slice(0, 10);
+    await app.inject({ method: "GET", url: `/calendar?start=${iso}&days=31` });
+    expect(windowArg()).toEqual({ start: past, days: 31 });
+  });
+
+  it("refuses a start that is not a real day, or more than a year away", async () => {
+    const app = await buildApp();
+
+    for (const start of ["2026-02-30", "soon", "2001-01-01"]) {
+      const res = await app.inject({ method: "GET", url: `/calendar?start=${start}` });
+      expect(res.statusCode).toBe(400);
+    }
+    expect(getCalendar).not.toHaveBeenCalled();
   });
 });

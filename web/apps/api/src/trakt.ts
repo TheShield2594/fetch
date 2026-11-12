@@ -222,6 +222,16 @@ export type TraktWatchlistMutationPayload = {
   shows?: { ids: { imdb: string } }[];
 };
 
+/** One entry of `/calendars/my/shows`. Only what the calendar reads is typed. */
+export type TraktCalendarShowPayload = {
+  first_aired?: string | null;
+  episode?: { season?: number | null; number?: number | null } | null;
+  show?: { ids?: { imdb?: string | null } | null } | null;
+};
+
+/** The longest window `/calendars/my/shows` answers in one request. */
+const TRAKT_CALENDAR_MAX_DAYS = 31;
+
 export class TraktClient {
   private readonly clientId: string;
   private readonly prisma: PrismaClient;
@@ -319,6 +329,42 @@ export class TraktClient {
 
   async fetchCollectionShows(logger: FastifyBaseLogger): Promise<TraktCollectedShowPayload[]> {
     return this.fetchAllPages<TraktCollectedShowPayload>("/sync/collection/shows", logger, undefined, BACKFILL_MAX_PAGES);
+  }
+
+  /**
+   * Episodes of the user's shows airing from `startDate` (YYYY-MM-DD) for
+   * `days` days, with the instant each one airs. TMDB knows only the day; this
+   * is where the calendar's air times come from. Trakt caps `days` at 33, so
+   * longer windows are walked in steps.
+   */
+  async fetchMyShowsCalendar(
+    startDate: string,
+    days: number,
+    logger: FastifyBaseLogger
+  ): Promise<TraktCalendarShowPayload[]> {
+    const out: TraktCalendarShowPayload[] = [];
+    const start = new Date(`${startDate}T00:00:00Z`);
+    for (let offset = 0; offset < days; offset += TRAKT_CALENDAR_MAX_DAYS) {
+      const from = new Date(start);
+      from.setUTCDate(from.getUTCDate() + offset);
+      const span = Math.min(TRAKT_CALENDAR_MAX_DAYS, days - offset);
+      const path = `/calendars/my/shows/${from.toISOString().slice(0, 10)}/${span}`;
+      const response = await this.request(path, {
+        method: "GET",
+        headers: {
+          "trakt-api-version": "2",
+          "trakt-api-key": this.clientId,
+          Authorization: `Bearer ${this.accessToken}`
+        },
+        logger
+      });
+      try {
+        out.push(...((await response.json()) as TraktCalendarShowPayload[]));
+      } catch {
+        throw new Error(`Trakt API returned non-JSON response for ${path} (status ${response.status})`);
+      }
+    }
+    return out;
   }
 
   /**

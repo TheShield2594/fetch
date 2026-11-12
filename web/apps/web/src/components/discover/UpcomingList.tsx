@@ -1,13 +1,13 @@
 import type { CalendarEntry } from "../../api";
 import { Poster } from "../Poster";
-import { localDateFromIsoDate } from "../../utils/calendarDate";
-import { calendarEntryKey, calendarEntryLabel } from "../../utils/calendarEntry";
+import { calendarEntryDay, calendarEntryKey, calendarEntryLabel } from "../../utils/calendarEntry";
 
 /** "Today", "Tomorrow", or the weekday and date an episode airs on. */
-function airDateLabel(airDate: string): { label: string; isToday: boolean; isTomorrow: boolean } {
-  // Unreadable stays an Invalid Date, which matches neither today nor tomorrow
-  // and falls through to the dated label.
-  const date = localDateFromIsoDate(airDate) ?? new Date(NaN);
+function airDateLabel(entry: CalendarEntry): { label: string; isToday: boolean; isTomorrow: boolean } {
+  // The local day of the air time where one is known. Unreadable stays an
+  // Invalid Date, which matches neither today nor tomorrow and falls through to
+  // the dated label.
+  const date = calendarEntryDay(entry);
   const isToday = date.toDateString() === new Date().toDateString();
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -29,7 +29,7 @@ export function UpcomingList({ entries }: { entries: CalendarEntry[] }) {
   return (
     <div className="space-y-2">
       {entries.map((entry) => {
-        const { label, isToday, isTomorrow } = airDateLabel(entry.airDate);
+        const { label, isToday, isTomorrow } = airDateLabel(entry);
         return (
           <div
             key={calendarEntryKey(entry)}

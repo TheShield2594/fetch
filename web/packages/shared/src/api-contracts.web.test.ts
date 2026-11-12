@@ -31,6 +31,8 @@ const entry = () => ({
   episode: 14,
   episodeName: "Ozymandias",
   airDate: "2026-09-14",
+  airsAt: "2026-09-15T01:00:00.000Z",
+  watched: false,
   overview: null,
 });
 
@@ -44,10 +46,14 @@ describe("parseCalendarResponse", () => {
     delete old.kind;
     delete old.still;
     delete old.backdrop;
+    delete old.airsAt;
+    delete old.watched;
     expect(parseCalendarResponse({ calendar: [old] }).calendar[0]).toEqual({
       ...entry(),
       still: null,
       backdrop: null,
+      airsAt: null,
+      watched: false,
     });
   });
 
@@ -64,10 +70,17 @@ describe("parseCalendarResponse", () => {
     expect(parseCalendarResponse({ calendar: [film] }).calendar[0]).toEqual({
       ...film,
       still: null,
+      airsAt: null,
+      watched: false,
       season: null,
       episode: null,
       episodeName: null,
     });
+  });
+
+  it("rejects an airsAt that is not an instant, and a watched that is not a boolean", () => {
+    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), airsAt: "tonight" }] })).toThrow(/airsAt/);
+    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), watched: "yes" }] })).toThrow(/watched/);
   });
 
   it("rejects a kind it does not know", () => {

@@ -254,6 +254,8 @@ describe("validated responses", () => {
       episode: 14,
       episodeName: "Ozymandias",
       airDate: "2026-09-14",
+      airsAt: null,
+      watched: false,
       overview: null,
     };
     fetchMock.mockResolvedValue(json({ calendar: [entry] }));

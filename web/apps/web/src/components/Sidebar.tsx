@@ -93,14 +93,13 @@ function RailSectionLabel({ children, expanded }: { children: string; expanded: 
 
 export const PIN_KEY = "fetch:sidebar-pinned";
 const HINT_KEY = "fetch:sidebar-hint-seen";
-const HOVER_DELAY_MS = 200;
 const HINT_AUTO_DISMISS_MS = 15000;
 
 /**
  * The desktop source-list rail (hidden below `sm`, where the tab bar navigates
  * instead): the primary navigation rows with a sliding selection marker,
- * hover- and focus-to-expand, a pin toggle persisted to localStorage, and a
- * one-time hint that explains the expand gesture.
+ * tooltips on the collapsed icons, keyboard-focus-to-expand, a pin toggle
+ * persisted to localStorage, and a one-time hint that points at the pin.
  */
 export function Sidebar({
   pinned,
@@ -113,23 +112,29 @@ export function Sidebar({
   profile?: Profile | null;
   onSwitchProfile?: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  // Keyboard users can't hover, and the collapsed rail hides its labels — so
-  // tabbing into it has to expand it too, or the nav is a column of bare icons
-  // with no way to reveal what they are short of picking up the mouse.
+  /*
+   * Pointer hover no longer opens the rail. It used to, after 200ms, and the
+   * open rail floated over the left 240px of the page — the Shelf's title and
+   * first card — every time the cursor crossed to the edge of the window. Each
+   * icon names itself in a tooltip instead, and the pin is how to keep labels.
+   *
+   * Keyboard focus still opens it: a tooltip needs a pointer, and without the
+   * labels a keyboard user tabbing through would meet a column of bare icons.
+   * Only *visible* focus counts, so a mouse click on a row (which focuses it
+   * too) doesn't throw the rail open over the page it is navigating to.
+   */
   const [focused, setFocused] = useState(false);
-  // One-time discovery hint: the hover-to-expand / pin pattern is invisible until
-  // you happen to hover, so surface it once on the first visit, then never again.
+  // One-time discovery hint: that the rail can be pinned open is invisible
+  // until someone finds the control, so surface it once, then never again.
   const [showHint, setShowHint] = useState(false);
   const hintSeenRef = useRef(true);
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   // Read once: the tip is about the state the rail was found in, and re-reading
   // `pinned` would resurrect it the first time someone unpins.
   const pinnedAtMountRef = useRef(pinned);
   // Matches the `hidden sm:flex` this component styles itself with.
   const railVisible = useMediaQuery("(min-width: 640px)");
-  const expanded = pinned || hovered || focused;
+  const expanded = pinned || focused;
 
   /*
    * The two things the rail shows that aren't routes.
@@ -239,7 +244,6 @@ export function Sidebar({
   }, [railVisible]);
 
   useEffect(() => () => {
-    clearTimeout(hoverTimerRef.current);
     clearTimeout(hintTimerRef.current);
   }, []);
 
@@ -250,14 +254,16 @@ export function Sidebar({
     localStorage.setItem(HINT_KEY, "1");
   };
 
-  const handleMouseEnter = () => {
-    clearTimeout(hoverTimerRef.current);
-    hoverTimerRef.current = setTimeout(() => setHovered(true), HOVER_DELAY_MS);
-  };
-
-  const handleMouseLeave = () => {
-    clearTimeout(hoverTimerRef.current);
-    setHovered(false);
+  const handleFocus = (event: React.FocusEvent<HTMLElement>) => {
+    // `:focus-visible` is the browser's own answer to "did this come from the
+    // keyboard". jsdom doesn't implement the selector, so a throw counts as yes.
+    let visible: boolean;
+    try {
+      visible = event.target.matches(":focus-visible");
+    } catch {
+      visible = true;
+    }
+    if (visible) setFocused(true);
   };
 
   // React's onFocus/onBlur are focusin/focusout, so they also fire as focus
@@ -281,9 +287,7 @@ export function Sidebar({
       // and two unnamed ones are indistinguishable in a landmark list.
       aria-label="Sidebar"
       className="fixed inset-y-0 left-0 z-40 hidden sm:flex"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={() => setFocused(true)}
+      onFocus={handleFocus}
       onBlur={handleBlur}
     >
       {/*
@@ -293,7 +297,7 @@ export function Sidebar({
        * stay visible while collapsed, so translating the panel would slide them
        * off screen, and the collapsed rail has to physically occupy 4rem or it
        * would sit over the page's content instead of beside it. The reflow is
-       * bounded — one column of rows, `duration-base`, off a hover — and the
+       * bounded — one column of rows, `duration-base`, off a pin or focus — and the
        * page itself doesn't move (App.tsx's `sidebarPad` reserves the footprint
        * and the expanded rail floats over content on its shadow). Named as
        * `transition-[width]`, not `transition-all`, so nothing else eases with it.
@@ -594,7 +598,7 @@ export function Sidebar({
           <div role="status">
             <p className="font-semibold" style={{ color: "var(--text)" }}>Quick tip</p>
             <p className="mt-1 leading-snug" style={{ color: "var(--text-dim)" }}>
-              Hover this rail to peek, or pin it open to keep the labels.
+              Point at an icon for its name, or pin the sidebar open to keep the labels.
             </p>
           </div>
           <button

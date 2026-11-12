@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { api, type CalendarEntry, type SearchResult } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { Poster } from "../components/Poster";
@@ -17,8 +17,12 @@ import { useScrollLock } from "../hooks/useScrollLock";
 import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
 import { SECTION_TITLE, KICKER, MICRO_LABEL } from "../components/typography";
-import { localDateFromIsoDate } from "../utils/calendarDate";
-import { calendarEntryKey as entryKey, calendarEntryLabel as entryLabel } from "../utils/calendarEntry";
+import {
+  calendarEntryDay,
+  calendarEntryKey as entryKey,
+  calendarEntryLabel as entryLabel,
+  calendarEntryTime,
+} from "../utils/calendarEntry";
 
 /*
  * The calendar.
@@ -42,7 +46,8 @@ type ViewMode = "agenda" | "month";
 const AGENDA_RANGES = [14, 30, 60, 90] as const;
 type AgendaRange = (typeof AGENDA_RANGES)[number];
 const DEFAULT_RANGE: AgendaRange = 30;
-const MAX_CALENDAR_DAYS = 90;
+// How far the month grid pages either way: the API answers a year each side.
+const MONTHS_EACH_WAY = 12;
 // Tailwind's `sm`. Below it a day cell is ~50px wide: room for one poster.
 const COMPACT_QUERY = "(max-width: 639px)";
 // Posters a month cell shows before the rest are counted.
@@ -73,13 +78,6 @@ function toSearchResult(entry: CalendarEntry): SearchResult {
     inCollection: false,
     lists: [],
   };
-}
-
-// An air date the API sent in a shape this cannot read keeps the Invalid Date
-// it has always produced: it groups under its own key and labels as "Invalid
-// Date" rather than dropping the entry out of the calendar without a trace.
-function parseAirDate(airDate: string): Date {
-  return localDateFromIsoDate(airDate) ?? new Date(NaN);
 }
 
 function startOfDay(d: Date): Date {
@@ -136,15 +134,31 @@ function countLabel(entries: CalendarEntry[]): string {
   return `${n} ${n === 1 ? "release" : "releases"}`;
 }
 
+/** ", 2 watched" for a day where some are, so the count says which part is done. */
+function watchedNote(entries: CalendarEntry[]): string {
+  const watched = entries.filter((e) => e.watched).length;
+  if (watched === 0) return "";
+  return watched === entries.length ? ", all watched" : `, ${watched} watched`;
+}
+
 /** The art an entry leads with: its own still, else the title's backdrop, else the poster. */
 function entryArt(entry: CalendarEntry): { art: string | null; isBackdrop: boolean } {
   const wide = entry.still ?? entry.backdrop;
   return wide ? { art: wide, isBackdrop: true } : { art: entry.poster, isBackdrop: false };
 }
 
+/**
+ * What leads an entry's caption: its time where one is known, whether it has
+ * been watched, and what it is. "9:00 PM · S2 E5 · The Name".
+ */
+function entryCaption(entry: CalendarEntry): string {
+  const time = calendarEntryTime(entry);
+  return [time, entry.watched ? "Watched" : null, entryLabel(entry)].filter(Boolean).join(" · ");
+}
+
 function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void; eager: boolean }) {
   const { art, isBackdrop } = entryArt(entry);
-  const label = entryLabel(entry);
+  const label = entryCaption(entry);
   return (
     <LandscapeCard
       art={art}
@@ -182,7 +196,7 @@ function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry:
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{entry.seriesName}</p>
-        <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>{entryLabel(entry)}</p>
+        <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>{entryCaption(entry)}</p>
       </div>
     </button>
   );
@@ -281,11 +295,17 @@ export function CalendarPage() {
   const today = useMemo(() => startOfDay(now), [now]);
   const compact = useMediaQuery(COMPACT_QUERY);
 
-  // A month before this one can only ever be empty — the calendar is forward-
-  // looking — so a URL naming one opens on the current month instead.
-  const requestedMonth = parseMonthParam(searchParams.get("month"));
+  // The month grid pages a year either way — as far as the API will answer —
+  // and a URL naming a month outside that opens on the nearest one inside it.
+  const earliestMonth = addMonths(startOfMonth(today), -MONTHS_EACH_WAY);
+  const latestMonth = addMonths(startOfMonth(today), MONTHS_EACH_WAY);
+  const requestedMonth = parseMonthParam(searchParams.get("month")) ?? startOfMonth(today);
   const monthCursor =
-    requestedMonth && requestedMonth.getTime() >= startOfMonth(today).getTime() ? requestedMonth : startOfMonth(today);
+    requestedMonth.getTime() < earliestMonth.getTime()
+      ? earliestMonth
+      : requestedMonth.getTime() > latestMonth.getTime()
+        ? latestMonth
+        : requestedMonth;
 
   const setParams = useCallback(
     (changes: Record<string, string | null>) =>
@@ -310,33 +330,30 @@ export function CalendarPage() {
   const setMonth = (next: Date) =>
     setParams({ month: next.getTime() === startOfMonth(today).getTime() ? null : monthParam(next) });
 
-  // How many days ahead to request from the API depends on the active view:
-  // agenda uses the selected range directly, month view needs enough days to
-  // cover the last day of the displayed month (capped at what the API allows).
-  const daysNeeded = useMemo(() => {
-    if (view === "agenda") return agendaDays;
-    const monthEnd = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0);
-    return Math.min(Math.max(dayDiff(monthEnd, today), 1), MAX_CALENDAR_DAYS);
-  }, [view, agendaDays, monthCursor, today]);
+  // The question asked of the API. The agenda is the selected range from
+  // today; a month is that month, from its first day, past or future.
+  const monthKey = monthParam(monthCursor);
+  const queryStart = view === "month" ? `${monthKey}-01` : undefined;
+  const queryDays =
+    view === "month" ? new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0).getDate() : agendaDays;
 
-  // Keyed by the range, because the range is part of the question: the agenda's
-  // selector and the month grid ask for different spans, and seeding a 7-day
-  // answer into a 30-day view would paint the wrong thing for a frame.
+  // Keyed by the question, because seeding one window's answer into another's
+  // view would paint the wrong thing for a frame.
   const [entries, setEntries, entriesMeta] = useCachedState<CalendarEntry[]>(
-    `calendar:entries:${daysNeeded}`,
+    queryStart ? `calendar:entries:month:${queryStart}` : `calendar:entries:${queryDays}`,
     []
   );
   const [loading, setLoading] = useState(!entriesMeta.hadCachedValue);
 
-  // The displayed month is entirely beyond what the API can return.
-  const monthOutOfRange = view === "month" && dayDiff(startOfMonth(monthCursor), today) > MAX_CALENDAR_DAYS;
-  const atEarliestMonth = startOfMonth(monthCursor).getTime() <= startOfMonth(today).getTime();
+  const atEarliestMonth = monthCursor.getTime() <= earliestMonth.getTime();
+  const atLatestMonth = monthCursor.getTime() >= latestMonth.getTime();
+  const pastMonth = monthCursor.getTime() < startOfMonth(today).getTime();
 
-  const load = useCallback(async (days: number) => {
+  const load = useCallback(async (days: number, start: string | undefined) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.getCalendar(days);
+      const res = await api.getCalendar(days, start);
       setEntries(res.calendar);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load calendar");
@@ -348,21 +365,14 @@ export function CalendarPage() {
     // later range's results under the wrong key.
   }, [setEntries]);
 
-  // `today` is a dependency for the agenda, where `daysNeeded` is the selected
-  // range and so does not change at midnight. The API answers "the next N days
-  // from now", so without it a tab left open overnight kept yesterday's window.
+  // `today` is a dependency for the agenda, whose window starts today and so
+  // moves at midnight without the range changing.
   useEffect(() => {
-    if (monthOutOfRange) {
-      setEntries([]);
-      setLoading(false);
-      return;
-    }
-    void load(daysNeeded);
-  }, [daysNeeded, today, monthOutOfRange, load, setEntries]);
+    void load(queryDays, queryStart);
+  }, [queryDays, queryStart, today, load]);
 
   // The day list belongs to one month cell; leaving that grid — by paging
   // months or switching view — leaves it behind too.
-  const monthKey = monthParam(monthCursor);
   useEffect(() => {
     setOpenDay(null);
   }, [view, monthKey]);
@@ -370,7 +380,7 @@ export function CalendarPage() {
   const entriesByDate = useMemo(() => {
     const map = new Map<string, CalendarEntry[]>();
     for (const entry of entries) {
-      const key = dateKey(parseAirDate(entry.airDate));
+      const key = dateKey(calendarEntryDay(entry));
       const list = map.get(key);
       if (list) list.push(entry);
       else map.set(key, [entry]);
@@ -379,10 +389,13 @@ export function CalendarPage() {
   }, [entries]);
 
   const buckets = useMemo(() => {
-    const sorted = [...entries].sort((a, b) => a.airDate.localeCompare(b.airDate));
+    // By local day, then by time within it: the order the API sent is by
+    // dated day, and an instant can move an entry across midnight.
+    const sorted = [...entries]
+      .map((entry) => ({ entry, date: calendarEntryDay(entry) }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime() || (a.entry.airsAt ?? "").localeCompare(b.entry.airsAt ?? ""));
     const result: Bucket[] = [];
-    for (const entry of sorted) {
-      const date = parseAirDate(entry.airDate);
+    for (const { entry, date } of sorted) {
       const label = bucketFor(dayDiff(date, today));
       let bucket = result[result.length - 1];
       if (!bucket || bucket.label !== label) {
@@ -505,8 +518,7 @@ export function CalendarPage() {
                 disabled={atEarliestMonth}
                 onClick={() => setMonth(addMonths(monthCursor, -1))}
                 aria-label="Previous month"
-                aria-describedby={atEarliestMonth ? "calendar-forward-only" : undefined}
-                title={atEarliestMonth ? "The calendar only shows what is still to come" : undefined}
+                aria-describedby={atEarliestMonth ? "calendar-range-note" : undefined}
                 className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface-strong)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
                 style={{ border: "1px solid var(--border)", color: "var(--text-dim)" }}
               >
@@ -514,9 +526,11 @@ export function CalendarPage() {
               </button>
               <button
                 type="button"
+                disabled={atLatestMonth}
                 onClick={() => setMonth(addMonths(monthCursor, 1))}
                 aria-label="Next month"
-                className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface-strong)]"
+                aria-describedby={atLatestMonth ? "calendar-range-note" : undefined}
+                className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface-strong)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
                 style={{ border: "1px solid var(--border)", color: "var(--text-dim)" }}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -533,10 +547,9 @@ export function CalendarPage() {
             <h2 className={SECTION_TITLE} style={{ color: "var(--text)" }}>{monthTitle}</h2>
           </div>
 
-          {atEarliestMonth && (
-            <p id="calendar-forward-only" className="-mt-3 text-xs" style={{ color: "var(--text-mute)" }}>
-              The calendar is forward-looking — it lists what hasn't aired or been released yet, so earlier months
-              aren't available.
+          {(atEarliestMonth || atLatestMonth) && (
+            <p id="calendar-range-note" className="-mt-3 text-xs" style={{ color: "var(--text-mute)" }}>
+              The calendar reaches a year either way from this month.
             </p>
           )}
 
@@ -544,9 +557,9 @@ export function CalendarPage() {
               columns, so a screen reader can tell which 12 a cell is, while the
               CSS grid stays as it is. `table` rather than `grid`, which would
               owe arrow-key cell navigation. */}
-          {monthOutOfRange ? (
-            <EmptyState title="Too far ahead">
-              The calendar looks {MAX_CALENDAR_DAYS} days ahead, and this month starts after that.
+          {pastMonth && !loading && entries.length === 0 ? (
+            <EmptyState title={`Nothing aired in ${monthTitle}`}>
+              Nothing from the series you are watching, or the films and shows on your watchlist, came out this month.
             </EmptyState>
           ) : (
             <div
@@ -623,7 +636,7 @@ export function CalendarPage() {
                               <button
                                 type="button"
                                 onClick={() => setOpenDay(day)}
-                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}`}
+                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}${watchedNote(dayEntries)}`}
                                 className="flex h-full w-full flex-col items-start p-1.5 text-left transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
                               >
                                 {number}
@@ -631,10 +644,24 @@ export function CalendarPage() {
                                   {shown.map((entry) => (
                                     <span
                                       key={entryKey(entry)}
-                                      className="block w-8 flex-none overflow-hidden rounded sm:w-10"
+                                      className="relative block w-8 flex-none overflow-hidden rounded sm:w-10"
                                       style={{ aspectRatio: "2 / 3", background: "var(--surface-strong)", boxShadow: "0 0 0 1px var(--border)" }}
+                                      data-watched={entry.watched ? "" : undefined}
                                     >
-                                      <Poster src={entry.poster ?? undefined} alt="" className="h-full w-full" sizes="40px" />
+                                      <Poster
+                                        src={entry.poster ?? undefined}
+                                        alt=""
+                                        className={`h-full w-full ${entry.watched ? "opacity-45" : ""}`}
+                                        sizes="40px"
+                                      />
+                                      {/* Seen already: the poster steps back and
+                                          carries a tick, so a past month reads
+                                          as what you caught and what you missed. */}
+                                      {entry.watched && (
+                                        <span className="absolute inset-0 flex items-center justify-center">
+                                          <Check className="h-4 w-4 text-white drop-shadow" strokeWidth={3} />
+                                        </span>
+                                      )}
                                     </span>
                                   ))}
                                   {more > 0 && (

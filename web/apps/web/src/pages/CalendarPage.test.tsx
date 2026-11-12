@@ -43,6 +43,8 @@ function episode(name: string, episodeNumber: number, airDate = MID_MONTH): Cale
     episode: episodeNumber,
     episodeName: `${name} episode`,
     airDate,
+    airsAt: null,
+    watched: false,
     overview: `What happens in ${name}.`,
   };
 }
@@ -59,6 +61,8 @@ function film(name: string, airDate: string): CalendarEntry {
     episode: null,
     episodeName: null,
     airDate,
+    airsAt: null,
+    watched: false,
     overview: "A film.",
   };
 }
@@ -141,6 +145,22 @@ describe("CalendarPage agenda", () => {
     expect(screen.getByRole("heading", { name: /^later/i })).toBeInTheDocument();
   });
 
+  it("shows the time an episode airs, and files it under the local day of that time", async () => {
+    // 01:30 local, tomorrow — the dated day is today, as TMDB would have it.
+    const at = new Date();
+    at.setDate(at.getDate() + 1);
+    at.setHours(1, 30, 0, 0);
+    getCalendar.mockResolvedValue({
+      calendar: [{ ...episode("Severance", 3, daysFromToday(0)), airsAt: at.toISOString() }],
+    });
+    renderPage();
+
+    const time = at.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    expect(await screen.findByText(`${time} · S2 E3 · Severance episode`)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /^tomorrow/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /^today/i })).not.toBeInTheDocument();
+  });
+
   it("calls an episode 1 a premiere", async () => {
     getCalendar.mockResolvedValue({ calendar: [episode("Severance", 1, daysFromToday(2))] });
     renderPage();
@@ -161,7 +181,7 @@ describe("CalendarPage agenda", () => {
     renderPage("/calendar?days=60");
 
     expect(await screen.findByRole("button", { name: "60 days" })).toHaveAttribute("aria-pressed", "true");
-    expect(getCalendar).toHaveBeenCalledWith(60);
+    expect(getCalendar).toHaveBeenCalledWith(60, undefined);
 
     await user.click(screen.getByRole("button", { name: "14 days" }));
     expect(currentSearch()).toBe("?days=14");
@@ -214,18 +234,54 @@ describe("CalendarPage month view", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("explains why there is no going back past the current month", async () => {
+  it("pages back into months that have aired, asking for that month from its first day", async () => {
     const user = userEvent.setup();
     await renderMonthView(user);
 
-    expect(screen.getByRole("button", { name: /previous month/i })).toBeDisabled();
-    expect(screen.getByText(/forward-looking/i)).toBeInTheDocument();
+    getCalendar.mockClear();
+    await user.click(screen.getByRole("button", { name: /previous month/i }));
 
-    // A month ahead, stepping back is how you return.
-    await user.click(screen.getByRole("button", { name: /next month/i }));
-    expect(currentSearch()).toMatch(/month=\d{4}-\d{2}/);
-    expect(screen.getByRole("button", { name: /previous month/i })).toBeEnabled();
-    expect(screen.queryByText(/forward-looking/i)).not.toBeInTheDocument();
+    const prev = new Date();
+    prev.setDate(1);
+    prev.setMonth(prev.getMonth() - 1);
+    const key = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
+    const length = new Date(prev.getFullYear(), prev.getMonth() + 1, 0).getDate();
+    expect(currentSearch()).toBe(`?view=month&month=${key}`);
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledWith(length, `${key}-01`));
+  });
+
+  it("stops a year back, and says why", async () => {
+    const yearAgo = new Date();
+    yearAgo.setDate(1);
+    yearAgo.setMonth(yearAgo.getMonth() - 12);
+    const key = `${yearAgo.getFullYear()}-${String(yearAgo.getMonth() + 1).padStart(2, "0")}`;
+    renderPage(`/calendar?view=month&month=${key}`);
+
+    expect(await screen.findByRole("button", { name: /previous month/i })).toBeDisabled();
+    expect(screen.getByText(/a year either way/i)).toBeInTheDocument();
+  });
+
+  it("marks what has been watched in a past day", async () => {
+    const user = userEvent.setup();
+    getCalendar.mockResolvedValue({
+      calendar: [{ ...episode("Severance", 2), watched: true }, episode("Andor", 3)],
+    });
+    await renderMonthView(user);
+
+    const day = await screen.findByRole("button", { name: /2 episodes, 1 watched/i });
+    await user.click(day);
+    expect(await within(await screen.findByRole("dialog")).findByText(/^Watched · S2 E2/)).toBeInTheDocument();
+  });
+
+  it("says when a past month had nothing in it", async () => {
+    getCalendar.mockResolvedValue({ calendar: [] });
+    const prev = new Date();
+    prev.setDate(1);
+    prev.setMonth(prev.getMonth() - 2);
+    const key = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, "0")}`;
+    renderPage(`/calendar?view=month&month=${key}`);
+
+    expect(await screen.findByText(/^Nothing aired in/)).toBeInTheDocument();
   });
 });
 

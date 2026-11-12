@@ -1,66 +1,200 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = {
+  seriesProgress: { findMany: vi.fn() },
   listItem: { findMany: vi.fn() },
   metadata: { findMany: vi.fn() },
+  watchEvent: { findMany: vi.fn() },
 };
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 
-const getUpcomingEpisodes = vi.fn();
-const getNextEpisodes = vi.fn();
+const getTmdb = vi.fn();
+vi.mock("./tmdb-client.js", () => ({ getTmdb: () => getTmdb() }));
+
+const getCachedShowDetails = vi.fn();
 vi.mock("./upcoming-episodes.js", () => ({
-  getUpcomingEpisodes: (...a: unknown[]) => getUpcomingEpisodes(...a),
-  getNextEpisodes: (...a: unknown[]) => getNextEpisodes(...a),
+  getCachedShowDetails: (...a: unknown[]) => getCachedShowDetails(...a),
+}));
+
+const loadEpisodes = vi.fn();
+vi.mock("./detail.js", () => ({ loadEpisodes: (...a: unknown[]) => loadEpisodes(...a) }));
+
+const isTraktConnected = vi.fn();
+const fetchMyShowsCalendar = vi.fn();
+vi.mock("./trakt-client.js", () => ({
+  isTraktConnected: (...a: unknown[]) => isTraktConnected(...a),
+  getTraktClient: async () => ({ fetchMyShowsCalendar: (...a: unknown[]) => fetchMyShowsCalendar(...a) }),
 }));
 
 const { getCalendar } = await import("./calendar.js");
 
-const PROFILE = "11111111-1111-4111-8111-111111111111";
+// A fresh profile per test: the Trakt times are cached per profile and window.
+let profile = 0;
+const nextProfile = () => `profile-${++profile}`;
 
-const daysFromToday = (days: number): string => {
+const utcDay = (days: number): Date => {
   const date = new Date();
   date.setUTCHours(0, 0, 0, 0);
   date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
+  return date;
 };
+const day = (days: number): string => utcDay(days).toISOString().slice(0, 10);
+const window30 = () => ({ start: utcDay(0), days: 30 });
 
-const episode = (imdbId: string, name: string, number: number, airDate: string) => ({
-  kind: number === 1 ? "premiere" : "episode",
-  seriesImdbId: imdbId,
-  seriesName: name,
-  poster: null,
-  still: "https://image.tmdb.org/t/p/w500/still.jpg",
-  backdrop: null,
-  season: 2,
-  episode: number,
-  episodeName: `Episode ${number}`,
+const series = (imdbId: string, name: string, status: string | null = "Returning Series") => ({
+  imdbId,
+  tmdbId: imdbId.length,
+  name,
+  poster: `/${imdbId}.jpg`,
+  background: `/${imdbId}-bg.jpg`,
+  status,
+});
+
+const tmdbEpisode = (episodeNumber: number, airDate: string | null) => ({
+  episodeNumber,
+  name: `Episode name ${episodeNumber}`,
   airDate,
-  overview: null,
+  still: `https://img/${episodeNumber}.jpg`,
+  runtime: 45,
+  overview: `Synopsis ${episodeNumber}`,
 });
 
 beforeEach(() => {
   vi.clearAllMocks();
-  getUpcomingEpisodes.mockResolvedValue([]);
-  getNextEpisodes.mockResolvedValue([]);
+  getTmdb.mockResolvedValue({});
+  prismaMock.seriesProgress.findMany.mockResolvedValue([]);
   prismaMock.listItem.findMany.mockResolvedValue([]);
   prismaMock.metadata.findMany.mockResolvedValue([]);
+  prismaMock.watchEvent.findMany.mockResolvedValue([]);
+  getCachedShowDetails.mockResolvedValue({
+    nextEpisodeToAir: { season_number: 2, episode_number: 3 },
+    lastEpisodeToAir: { season_number: 2, episode_number: 2 },
+  });
+  loadEpisodes.mockResolvedValue([]);
+  isTraktConnected.mockResolvedValue(false);
+  fetchMyShowsCalendar.mockResolvedValue([]);
 });
 
+/** One series in progress, with season 2 as given. */
+function followed(episodes: ReturnType<typeof tmdbEpisode>[], status: string | null = "Returning Series") {
+  prismaMock.seriesProgress.findMany.mockResolvedValue([{ seriesImdbId: "ttA" }]);
+  prismaMock.metadata.findMany.mockImplementation(async ({ where }: { where: { type: string } }) =>
+    where.type === "series" ? [series("ttA", "Andor", status)] : []
+  );
+  loadEpisodes.mockImplementation(async (_id: string, season: number) => (season === 2 ? episodes : []));
+}
+
 describe("getCalendar", () => {
-  it("puts a watchlisted film on its release date", async () => {
-    prismaMock.listItem.findMany.mockResolvedValue([{ type: "movie", imdbId: "tt1" }]);
-    prismaMock.metadata.findMany.mockResolvedValue([
-      {
-        imdbId: "tt1",
-        name: "Arrival",
-        poster: "/p.jpg",
-        background: "/b.jpg",
-        description: "Shapes.",
-        releaseDate: daysFromToday(5),
-      },
+  it("lists every episode of a series in progress inside the window, not only the next one", async () => {
+    followed([tmdbEpisode(2, day(-6)), tmdbEpisode(3, day(1)), tmdbEpisode(4, day(8)), tmdbEpisode(5, day(40))]);
+
+    const entries = await getCalendar(nextProfile(), window30());
+
+    expect(entries.map((e) => [e.episode, e.airDate])).toEqual([
+      [3, day(1)],
+      [4, day(8)],
+    ]);
+    expect(entries[0]).toMatchObject({
+      kind: "episode",
+      seriesName: "Andor",
+      still: "https://img/3.jpg",
+      backdrop: "/ttA-bg.jpg",
+      episodeName: "Episode name 3",
+      airsAt: null,
+      watched: false,
+    });
+  });
+
+  it("reaches back into a past window, across into the season before when it has to", async () => {
+    prismaMock.seriesProgress.findMany.mockResolvedValue([{ seriesImdbId: "ttA" }]);
+    prismaMock.metadata.findMany.mockImplementation(async ({ where }: { where: { type: string } }) =>
+      where.type === "series" ? [series("ttA", "Andor")] : []
+    );
+    loadEpisodes.mockImplementation(async (_id: string, season: number) =>
+      season === 2 ? [tmdbEpisode(1, day(-20)), tmdbEpisode(2, day(-13))] : [tmdbEpisode(12, day(-50))]
+    );
+
+    const entries = await getCalendar(nextProfile(), { start: utcDay(-60), days: 45 });
+
+    expect(entries.map((e) => [e.season, e.episode])).toEqual([
+      [1, 12],
+      [2, 1],
+    ]);
+    expect(loadEpisodes.mock.calls.map((c) => c[1])).toEqual([2, 1]);
+  });
+
+  it("says which have been watched, and spares only those from spoiler protection", async () => {
+    followed([tmdbEpisode(2, day(-6)), tmdbEpisode(3, day(-1))]);
+    prismaMock.watchEvent.findMany.mockResolvedValue([
+      { type: "episode", imdbId: "ttA-2", seriesImdbId: "ttA", season: 2, episode: 2 },
     ]);
 
-    const [film] = await getCalendar(PROFILE, 30);
+    const entries = await getCalendar(nextProfile(), { start: utcDay(-10), days: 20 }, true);
+
+    expect(entries[0]).toMatchObject({ episode: 2, watched: true, episodeName: "Episode name 2", still: "https://img/2.jpg" });
+    expect(entries[1]).toMatchObject({ episode: 3, watched: false, episodeName: "Episode 3", still: null, overview: null });
+  });
+
+  it("puts each episode's air time on it when the profile has Trakt", async () => {
+    followed([tmdbEpisode(3, day(1))]);
+    isTraktConnected.mockResolvedValue(true);
+    const airsAt = `${day(2)}T01:00:00.000Z`;
+    fetchMyShowsCalendar.mockResolvedValue([
+      { first_aired: airsAt, episode: { season: 2, number: 3 }, show: { ids: { imdb: "ttA" } } },
+    ]);
+
+    const [entry] = await getCalendar(nextProfile(), window30());
+
+    expect(entry?.airsAt).toBe(airsAt);
+    // A day early, to catch the first night's late shows already in the next UTC day.
+    expect(fetchMyShowsCalendar).toHaveBeenCalledWith(day(-1), 32, expect.anything());
+  });
+
+  it("still answers when Trakt fails, just without times", async () => {
+    followed([tmdbEpisode(3, day(1))]);
+    isTraktConnected.mockResolvedValue(true);
+    fetchMyShowsCalendar.mockRejectedValue(new Error("Trakt down"));
+
+    const entries = await getCalendar(nextProfile(), window30());
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.airsAt).toBeNull();
+  });
+
+  it("skips a series that has ended when the window is all future, and asks about it for one in the past", async () => {
+    followed([tmdbEpisode(9, day(-5))], "Ended");
+
+    expect(await getCalendar(nextProfile(), window30())).toEqual([]);
+    expect(getCachedShowDetails).not.toHaveBeenCalled();
+
+    const past = await getCalendar(nextProfile(), { start: utcDay(-10), days: 20 });
+    expect(past.map((e) => e.episode)).toEqual([9]);
+  });
+
+  it("adds only the premiere of a watchlisted series nobody has started", async () => {
+    prismaMock.listItem.findMany.mockResolvedValue([{ type: "series", imdbId: "ttN" }]);
+    prismaMock.metadata.findMany.mockImplementation(async ({ where }: { where: { type: string } }) =>
+      where.type === "series" ? [series("ttN", "New Show")] : []
+    );
+    loadEpisodes.mockImplementation(async (_id: string, season: number) =>
+      season === 2 ? [tmdbEpisode(1, day(3)), tmdbEpisode(2, day(10))] : []
+    );
+
+    const entries = await getCalendar(nextProfile(), window30());
+
+    expect(entries.map((e) => [e.seriesName, e.kind, e.episode])).toEqual([["New Show", "premiere", 1]]);
+  });
+
+  it("puts a watchlisted film on its release date, watched or not", async () => {
+    prismaMock.listItem.findMany.mockResolvedValue([{ type: "movie", imdbId: "tt1" }]);
+    prismaMock.metadata.findMany.mockImplementation(async ({ where }: { where: { type: string } }) =>
+      where.type === "movie"
+        ? [{ imdbId: "tt1", name: "Arrival", poster: "/p.jpg", background: "/b.jpg", description: "Shapes.", releaseDate: day(5) }]
+        : []
+    );
+    prismaMock.watchEvent.findMany.mockResolvedValue([{ type: "movie", imdbId: "tt1", seriesImdbId: null, season: null, episode: null }]);
+
+    const [film] = await getCalendar(nextProfile(), window30());
 
     expect(film).toEqual({
       kind: "movie",
@@ -72,65 +206,29 @@ describe("getCalendar", () => {
       season: null,
       episode: null,
       episodeName: null,
-      airDate: daysFromToday(5),
+      airDate: day(5),
+      airsAt: null,
+      watched: true,
       overview: "Shapes.",
     });
-    // The window is asked of the database, not filtered afterwards.
-    expect(prismaMock.metadata.findMany.mock.calls[0]?.[0]).toMatchObject({
-      where: { releaseDate: { gte: daysFromToday(0), lte: daysFromToday(30) } },
-    });
+    const movieQuery = prismaMock.metadata.findMany.mock.calls.find((c) => c[0].where.type === "movie")?.[0];
+    expect(movieQuery).toMatchObject({ where: { releaseDate: { gte: day(0), lte: day(30) } } });
   });
 
-  it("drops a release date that is not a plain YYYY-MM-DD day", async () => {
-    prismaMock.listItem.findMany.mockResolvedValue([{ type: "movie", imdbId: "tt1" }]);
-    prismaMock.metadata.findMany.mockResolvedValue([
-      { imdbId: "tt1", name: "Odd", poster: null, background: null, description: null, releaseDate: `${daysFromToday(2)}T00:00` },
-    ]);
-
-    expect(await getCalendar(PROFILE, 30)).toEqual([]);
-  });
-
-  it("adds the premiere of a watchlisted series nobody has started, and nothing mid-season", async () => {
-    prismaMock.listItem.findMany.mockResolvedValue([
-      { type: "series", imdbId: "ttNew" },
-      { type: "series", imdbId: "ttMid" },
-    ]);
-    getNextEpisodes.mockResolvedValue([
-      episode("ttNew", "New Show", 1, daysFromToday(3)),
-      episode("ttMid", "Mid Show", 6, daysFromToday(4)),
-    ]);
-
-    const entries = await getCalendar(PROFILE, 30);
-
-    expect(entries.map((e) => [e.seriesName, e.kind])).toEqual([["New Show", "premiere"]]);
-  });
-
-  it("does not ask twice about a watchlisted series that is already in progress", async () => {
-    getUpcomingEpisodes.mockResolvedValue([episode("ttA", "Andor", 4, daysFromToday(1))]);
-    prismaMock.listItem.findMany.mockResolvedValue([
-      { type: "series", imdbId: "ttA" },
-      { type: "series", imdbId: "ttB" },
-    ]);
-
-    await getCalendar(PROFILE, 30, true);
-
-    expect(getNextEpisodes).toHaveBeenCalledWith(["ttB"], 30, true);
-  });
-
-  it("orders by day, then premieres, episodes and films within a day", async () => {
-    const day = daysFromToday(2);
-    getUpcomingEpisodes.mockResolvedValue([
-      episode("ttE", "Episode Show", 3, day),
-      episode("ttP", "Premiere Show", 1, day),
-      episode("ttL", "Later Show", 2, daysFromToday(9)),
-    ]);
+  it("orders by day, then time, then premieres, episodes and films", async () => {
+    prismaMock.seriesProgress.findMany.mockResolvedValue([{ seriesImdbId: "ttA" }, { seriesImdbId: "ttB" }]);
     prismaMock.listItem.findMany.mockResolvedValue([{ type: "movie", imdbId: "ttM" }]);
-    prismaMock.metadata.findMany.mockResolvedValue([
-      { imdbId: "ttM", name: "A Film", poster: null, background: null, description: null, releaseDate: day },
-    ]);
+    prismaMock.metadata.findMany.mockImplementation(async ({ where }: { where: { type: string } }) =>
+      where.type === "series"
+        ? [series("ttA", "Andor"), series("ttB", "Bluey")]
+        : [{ imdbId: "ttM", name: "A Film", poster: null, background: null, description: null, releaseDate: day(2) }]
+    );
+    loadEpisodes.mockImplementation(async (id: string, season: number) =>
+      season !== 2 ? [] : id === "ttA" ? [tmdbEpisode(4, day(2))] : [tmdbEpisode(1, day(2))]
+    );
 
-    const entries = await getCalendar(PROFILE, 30);
+    const entries = await getCalendar(nextProfile(), window30());
 
-    expect(entries.map((e) => e.seriesName)).toEqual(["Premiere Show", "Episode Show", "A Film", "Later Show"]);
+    expect(entries.map((e) => e.seriesName)).toEqual(["Bluey", "Andor", "A Film"]);
   });
 });

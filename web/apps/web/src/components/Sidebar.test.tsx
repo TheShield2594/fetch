@@ -275,7 +275,22 @@ describe("Sidebar", () => {
     }
   });
 
-  it("expands when focus reaches the rail, not only on hover", async () => {
+  /*
+   * Hovering used to open the rail over the left 240px of the page every time
+   * the cursor reached the window's edge. The icons carry tooltips instead.
+   */
+  it("does not open over the page when the pointer rests on it", async () => {
+    const user = userEvent.setup();
+    renderSidebar();
+
+    await user.hover(screen.getByRole("link", { name: "Shelf" }));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    expect(rail().style.width).toBe(COLLAPSED_WIDTH);
+    expect(screen.getByRole("link", { name: "Shelf" })).toHaveAttribute("title", "Shelf");
+  });
+
+  it("expands when focus reaches the rail from the keyboard", async () => {
     const user = userEvent.setup();
     renderSidebar();
 

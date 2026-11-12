@@ -4,7 +4,7 @@ import { getTmdb } from "./tmdb-client.js";
 import { showDetailsCache } from "./cache.js";
 import type { ShowDetails } from "../tmdb.js";
 
-async function getCachedShowDetails(
+export async function getCachedShowDetails(
   tmdb: Awaited<ReturnType<typeof getTmdb>>,
   tmdbId: number
 ): Promise<ShowDetails | null> {
@@ -21,10 +21,9 @@ async function getCachedShowDetails(
 }
 
 /**
- * One upcoming episode: a calendar entry that is always an episode, so its
- * season and number are always there. The calendar shape itself lives in
- * `@fetch/shared`, because `apps/web` validates the response at its own
- * boundary; the notification job reads this narrower one.
+ * The next episode of a series in progress: a calendar entry that is always an
+ * episode, so its season and number are always there. Read by the episode
+ * notification job; the calendar itself is built in calendar.ts.
  */
 export type UpcomingEpisode = CalendarEntry & {
   kind: "episode" | "premiere";
@@ -58,26 +57,7 @@ export const getUpcomingEpisodes = async (
   });
 
   if (progressRows.length === 0) return [];
-  return getNextEpisodes(
-    progressRows.map((p) => p.seriesImdbId),
-    daysAhead,
-    spoilerProtection
-  );
-};
-
-/**
- * The next episode, inside the window, of each series named — in the order
- * they are named, which is the order their TMDB requests go out in.
- *
- * Exported for the calendar, which asks the same question of the series on a
- * watchlist that nobody has started yet.
- */
-export const getNextEpisodes = async (
-  imdbIds: string[],
-  daysAhead: number,
-  spoilerProtection = false
-): Promise<UpcomingEpisode[]> => {
-  if (imdbIds.length === 0) return [];
+  const imdbIds = progressRows.map((p) => p.seriesImdbId);
 
   // Every show that survives this query costs a TMDB round trip below, so the
   // filtering has to happen here rather than on the results. The notification
@@ -147,6 +127,9 @@ export const getNextEpisodes = async (
           episode: ep.episode_number,
           episodeName: spoilerProtection ? `Episode ${ep.episode_number}` : ep.name,
           airDate: ep.air_date,
+          // TMDB knows the day only, and these are by definition unwatched.
+          airsAt: null,
+          watched: false,
           overview: spoilerProtection ? null : (ep.overview ?? null),
         };
         return [episode];

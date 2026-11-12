@@ -424,8 +424,9 @@ export type CalendarEntryKind = "episode" | "premiere" | "movie";
  * and `episodeName` are null there because a film has none. `airDate` is the
  * day it airs or is released.
  *
- * `kind`, `still` and `backdrop` arrived later and are optional on the wire; a
- * response without them reads as an episode with no artwork beyond the poster.
+ * `kind`, `still`, `backdrop`, `airsAt` and `watched` arrived later and are
+ * optional on the wire; a response without them reads as an unwatched episode
+ * with no artwork beyond the poster and no time of day.
  */
 export type CalendarEntry = {
   kind: CalendarEntryKind;
@@ -440,6 +441,14 @@ export type CalendarEntry = {
   episode: number | null;
   episodeName: string | null;
   airDate: string;
+  /**
+   * The instant it airs (ISO 8601), where a source knows it — Trakt, for a
+   * profile that has connected it. TMDB knows only `airDate`, so null is the
+   * usual case. Where set, it is what places the entry on a local day.
+   */
+  airsAt: string | null;
+  /** Whether this profile has already watched it — the past half of a month. */
+  watched: boolean;
   overview: string | null;
 };
 
@@ -467,6 +476,13 @@ const asAirDate = (value: unknown, what: string): string => {
   const real =
     utc.getUTCFullYear() === year && utc.getUTCMonth() === month - 1 && utc.getUTCDate() === day;
   return real ? date : fail(`${what} must be a day that exists, got "${date}"`);
+};
+
+/** An ISO instant that parses, or null for an absent one. */
+const asInstantOrNull = (value: unknown, what: string): string | null => {
+  if (value === undefined || value === null) return null;
+  const text = asString(value, what);
+  return Number.isNaN(Date.parse(text)) ? fail(`${what} must be an ISO 8601 instant, got "${text}"`) : text;
 };
 
 const CALENDAR_KINDS: readonly CalendarEntryKind[] = ["episode", "premiere", "movie"];
@@ -498,6 +514,8 @@ export const parseCalendarResponse = (value: unknown): CalendarResponse => {
       episode: film ? null : asNumber(episode.episode, `${at}.episode`),
       episodeName: film ? null : asString(episode.episodeName, `${at}.episodeName`),
       airDate: asAirDate(episode.airDate, `${at}.airDate`),
+      airsAt: asInstantOrNull(episode.airsAt, `${at}.airsAt`),
+      watched: episode.watched === undefined || episode.watched === null ? false : asBoolean(episode.watched, `${at}.watched`),
       overview: nullableString(episode.overview, `${at}.overview`),
     };
   });

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router";
@@ -16,6 +16,9 @@ vi.mock("../api", async (importOriginal) => {
       createList: vi.fn(),
       deleteList: vi.fn(),
       renameList: vi.fn(),
+      updateList: vi.fn(),
+      reorderList: vi.fn(),
+      removeFromListBulk: vi.fn(),
       addToList: vi.fn(),
       removeFromList: vi.fn(),
       search: vi.fn(),
@@ -95,14 +98,17 @@ beforeEach(() => {
 });
 
 describe("ListsPage selection in the URL", () => {
-  it("names the defaulted first list in the URL", async () => {
+  // No list named is the index, not the first list: every list as a cover.
+  it("shows every list on the index when the URL names none", async () => {
     renderPage();
 
-    await waitFor(() => expect(currentSearch()).toBe(`?list=${WATCHLIST.id}`));
-    expect(await screen.findByText("Alien")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /^sci-fi night/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^watchlist/i })).toBeInTheDocument();
+    expect(currentSearch()).toBe("");
+    expect(getListItems).not.toHaveBeenCalled();
   });
 
-  it("opens the list named in the URL rather than the first one", async () => {
+  it("opens the list named in the URL", async () => {
     renderPage(`/lists?list=${SCIFI.id}`);
 
     expect(await screen.findByText("Solaris")).toBeInTheDocument();
@@ -110,55 +116,39 @@ describe("ListsPage selection in the URL", () => {
     expect(currentSearch()).toBe(`?list=${SCIFI.id}`);
   });
 
-  it("puts a list switch in history, so Back undoes it", async () => {
+  it("puts opening a list in history, so Back returns to the index", async () => {
     const user = userEvent.setup();
     renderPage();
-    await waitFor(() => expect(currentSearch()).toBe(`?list=${WATCHLIST.id}`));
 
-    // Anchored: the row's delete button is also named after the list.
-    await user.click(screen.getByRole("button", { name: /^sci-fi night/i }));
+    await user.click(await screen.findByRole("button", { name: /^sci-fi night/i }));
     await waitFor(() => expect(currentSearch()).toBe(`?list=${SCIFI.id}`));
     expect(await screen.findByText("Solaris")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /history back/i }));
 
-    // Back lands on the previous list, not off the page — the default that put
-    // the first list in the URL replaced its entry instead of pushing one.
-    await waitFor(() => expect(currentSearch()).toBe(`?list=${WATCHLIST.id}`));
-    expect(await screen.findByText("Alien")).toBeInTheDocument();
+    await waitFor(() => expect(currentSearch()).toBe(""));
+    expect(await screen.findByRole("button", { name: /^watchlist/i })).toBeInTheDocument();
   });
 
-  it("moves to a list that still exists after deleting the selected one", async () => {
+  it("goes back to the index after deleting the open list, without fetching it again", async () => {
     const user = userEvent.setup();
     vi.mocked(api.deleteList).mockResolvedValue(undefined as never);
-    // The custom list is the one with a delete button, so it goes first here:
-    // deleting the *selected* list is the case that has to land somewhere real.
-    getLists.mockResolvedValueOnce({ lists: [SCIFI, WATCHLIST] });
-    renderPage();
-    await waitFor(() => expect(currentSearch()).toBe(`?list=${SCIFI.id}`));
-    // Wait for the items too, not just the URL: the fetch the selection triggers
-    // is one effect behind the address bar, so clearing the mock on the URL alone
-    // can clear it before that fetch was even made — and then attribute it to the
-    // delete below.
+    renderPage(`/lists?list=${SCIFI.id}`);
     expect(await screen.findByText("Solaris")).toBeInTheDocument();
 
-    // Deferred, as a real reload is: an instantly-resolved one lets the
-    // selection and the refreshed sidebar land in the same render and hides
-    // the window where the page holds a list set that no longer exists.
     getLists.mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve({ lists: [WATCHLIST] }), 20))
     );
-    // Only fetches made from here on say where the selection landed; the ones
-    // before belong to the list that was open.
     getListItems.mockClear();
-    await user.click(screen.getByRole("button", { name: /delete list sci-fi night/i }));
+    await user.click(screen.getByRole("button", { name: "More list actions" }));
+    await user.click(screen.getByRole("button", { name: /delete list/i }));
     await user.click(screen.getByRole("button", { name: /^delete$/i }));
 
-    // Never back onto the list just deleted, whose ID the pre-delete sidebar
-    // still held.
-    await waitFor(() => expect(currentSearch()).toBe(`?list=${WATCHLIST.id}`));
+    await waitFor(() => expect(currentSearch()).toBe(""));
+    expect(vi.mocked(api.deleteList)).toHaveBeenCalledWith(SCIFI.id);
+    await waitFor(() => expect(screen.queryByRole("button", { name: /^sci-fi night/i })).not.toBeInTheDocument());
     expect(screen.queryByText(/no longer exists/i)).not.toBeInTheDocument();
-    expect(getListItems).not.toHaveBeenCalledWith(SCIFI.id, expect.anything());
+    expect(getListItems).not.toHaveBeenCalled();
   });
 
   it("doesn't call a list missing when it was the request that failed", async () => {
@@ -330,7 +320,8 @@ describe("ListsPage add-item modal", () => {
     // The dialog plays its exit before unmounting, so its search results are
     // still in the document for a beat after the click.
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument(), { timeout: 1000 });
-    await user.click(screen.getByRole("button", { name: /^watchlist/i }));
+    await user.click(screen.getByRole("button", { name: "All lists" }));
+    await user.click(await screen.findByRole("button", { name: /^watchlist/i }));
     expect(await screen.findByText("Alien")).toBeInTheDocument();
 
     releaseRefetch();
@@ -351,5 +342,204 @@ describe("ListsPage add-item modal", () => {
 
     await waitFor(() => expect(search).toHaveBeenCalledWith("series", "sol", expect.any(AbortSignal)));
     expect(search).not.toHaveBeenCalledWith("movie", "sol");
+  });
+});
+
+describe("ListsPage index", () => {
+  it("gives each list a cover and its description, and leaves out an empty collection", async () => {
+    getLists.mockResolvedValue({
+      lists: [
+        WATCHLIST,
+        { ...SCIFI, description: "Slow, strange, Russian", covers: ["https://image.tmdb.org/t/p/w342/a.jpg"] },
+        { id: "l-coll", name: "Collection", kind: "collection", itemCount: 0 },
+      ],
+    });
+    renderPage();
+
+    const card = await screen.findByRole("button", { name: /^sci-fi night/i });
+    expect(card).toHaveTextContent("Slow, strange, Russian");
+    expect(card).toHaveTextContent("1 title");
+    expect(screen.queryByRole("button", { name: /^collection/i })).not.toBeInTheDocument();
+  });
+
+  it("makes a new list from a dialog, with a description, and opens it", async () => {
+    const user = userEvent.setup();
+    const created: CatalogList = { id: "l-new", name: "Tarkovsky", kind: "custom", itemCount: 0 };
+    vi.mocked(api.createList).mockResolvedValue({ list: created });
+    renderPage();
+
+    await user.click(await screen.findByRole("button", { name: "New list" }));
+    const dialog = within(screen.getByRole("dialog", { name: "New list" }));
+    getLists.mockResolvedValue({ lists: [WATCHLIST, SCIFI, created] });
+    getListItems.mockResolvedValue({ items: [] });
+    await user.type(dialog.getByLabelText("Name"), "Tarkovsky");
+    await user.type(dialog.getByLabelText(/description/i), "All seven");
+    await user.click(dialog.getByRole("button", { name: "Create" }));
+
+    expect(api.createList).toHaveBeenCalledWith("Tarkovsky", "All seven");
+    await waitFor(() => expect(currentSearch()).toBe("?list=l-new"));
+  });
+});
+
+describe("ListsPage inside a list", () => {
+  const removeFromListBulk = vi.mocked(api.removeFromListBulk);
+  const addToList = vi.mocked(api.addToList);
+  const reorderList = vi.mocked(api.reorderList);
+
+  const three = () => ({
+    items: [
+      { ...itemIn(SCIFI, "Solaris"), addedAt: "2026-01-03T00:00:00.000Z" },
+      { ...itemIn(SCIFI, "Stalker"), addedAt: "2026-01-02T00:00:00.000Z" },
+      { ...itemIn(SCIFI, "Mirror"), addedAt: "2026-01-01T00:00:00.000Z" },
+    ],
+  });
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    getListItems.mockImplementation(async () => three());
+    removeFromListBulk.mockImplementation(async (_listId, items) => ({ removed: items }));
+    addToList.mockResolvedValue(undefined as never);
+    reorderList.mockResolvedValue(undefined as never);
+  });
+
+  const titlesInOrder = () =>
+    screen.getAllByRole("button", { name: /^Open details for/ }).map((el) => el.getAttribute("aria-label"));
+
+  it("removes several titles in one call, and puts them back on Undo", async () => {
+    const user = userEvent.setup();
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.click(screen.getByRole("button", { name: "Select" }));
+    await user.click(screen.getByRole("checkbox", { name: "Select Solaris" }));
+    await user.click(screen.getByRole("checkbox", { name: "Select Mirror" }));
+    await user.click(screen.getByRole("button", { name: "Remove" }));
+
+    expect(removeFromListBulk).toHaveBeenCalledWith(SCIFI.id, [
+      expect.objectContaining({ imdbId: "tt-solaris" }),
+      expect.objectContaining({ imdbId: "tt-mirror" }),
+    ]);
+    expect(await screen.findByText("Removed 2 titles")).toBeInTheDocument();
+    expect(screen.queryByText("Solaris")).not.toBeInTheDocument();
+    expect(screen.getByText("Stalker")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+    await waitFor(() => expect(addToList).toHaveBeenCalledTimes(2));
+    expect(addToList).toHaveBeenCalledWith(SCIFI.id, { type: "movie", imdbId: "tt-solaris", title: "Solaris" });
+    expect(await screen.findByText("Solaris")).toBeInTheDocument();
+  });
+
+  it("puts every shown title in the selection with Select all", async () => {
+    const user = userEvent.setup();
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.click(screen.getByRole("button", { name: "Select" }));
+    await user.click(screen.getByRole("button", { name: "Select all" }));
+
+    expect(screen.getByText("3 selected")).toBeInTheDocument();
+    for (const box of screen.getAllByRole("checkbox")) expect(box).toBeChecked();
+  });
+
+  it("moves the selection to another list: into it first, then out of this one", async () => {
+    const user = userEvent.setup();
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.click(screen.getByRole("button", { name: "Select" }));
+    await user.click(screen.getByRole("checkbox", { name: "Select Stalker" }));
+    await user.click(screen.getByRole("button", { name: "Move to…" }));
+    await user.click(screen.getByRole("button", { name: "Watchlist" }));
+
+    await waitFor(() =>
+      expect(removeFromListBulk).toHaveBeenCalledWith(SCIFI.id, [expect.objectContaining({ imdbId: "tt-stalker" })])
+    );
+    expect(addToList).toHaveBeenCalledWith(WATCHLIST.id, { type: "movie", imdbId: "tt-stalker", title: "Stalker" });
+    expect(addToList.mock.invocationCallOrder[0]!).toBeLessThan(removeFromListBulk.mock.invocationCallOrder[0]!);
+    expect(await screen.findByText("Moved 1 title to Watchlist")).toBeInTheDocument();
+    expect(screen.queryByText("Stalker")).not.toBeInTheDocument();
+  });
+
+  it("arranges the list with the move buttons and saves the order", async () => {
+    const user = userEvent.setup();
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+    // Never arranged: "My order" is newest first.
+    expect(titlesInOrder()).toEqual(["Open details for Solaris", "Open details for Stalker", "Open details for Mirror"]);
+
+    await user.click(screen.getByRole("button", { name: "Reorder" }));
+    await user.click(screen.getByRole("button", { name: "Move Mirror up" }));
+    await user.click(screen.getByRole("button", { name: "Save order" }));
+
+    expect(reorderList).toHaveBeenCalledWith(SCIFI.id, [
+      expect.objectContaining({ imdbId: "tt-solaris" }),
+      expect.objectContaining({ imdbId: "tt-mirror" }),
+      expect.objectContaining({ imdbId: "tt-stalker" }),
+    ]);
+    await waitFor(() =>
+      expect(titlesInOrder()).toEqual(["Open details for Solaris", "Open details for Mirror", "Open details for Stalker"])
+    );
+  });
+
+  it("arranges the list by dragging a card onto another", async () => {
+    const user = userEvent.setup();
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.click(screen.getByRole("button", { name: "Reorder" }));
+    const card = (label: string) => screen.getByRole("button", { name: `Move ${label} up` }).closest<HTMLElement>('[draggable="true"]')!;
+    const dataTransfer = { setData: vi.fn(), effectAllowed: "" };
+    const mirror = card("Mirror");
+    const solaris = card("Solaris");
+    fireEvent.dragStart(mirror, { dataTransfer });
+    fireEvent.dragOver(solaris, { dataTransfer });
+    fireEvent.drop(solaris, { dataTransfer });
+    await user.click(screen.getByRole("button", { name: "Save order" }));
+
+    expect(reorderList).toHaveBeenCalledWith(SCIFI.id, [
+      expect.objectContaining({ imdbId: "tt-mirror" }),
+      expect.objectContaining({ imdbId: "tt-solaris" }),
+      expect.objectContaining({ imdbId: "tt-stalker" }),
+    ]);
+  });
+
+  it("follows the saved positions in My order", async () => {
+    getListItems.mockImplementation(async () => {
+      const { items } = three();
+      return { items: [{ ...items[0]!, position: 2 }, { ...items[1]!, position: 0 }, { ...items[2]!, position: 1 }] };
+    });
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    expect(titlesInOrder()).toEqual(["Open details for Stalker", "Open details for Mirror", "Open details for Solaris"]);
+  });
+
+  it("remembers the sort per list", async () => {
+    const user = userEvent.setup();
+    const first = renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.selectOptions(screen.getByLabelText("Sort by"), "name");
+    expect(titlesInOrder()).toEqual(["Open details for Mirror", "Open details for Solaris", "Open details for Stalker"]);
+    first.unmount();
+
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+    expect(screen.getByLabelText("Sort by")).toHaveValue("name");
+    expect(titlesInOrder()).toEqual(["Open details for Mirror", "Open details for Solaris", "Open details for Stalker"]);
+  });
+
+  it("saves a description from the edit dialog", async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.updateList).mockResolvedValue({ list: SCIFI });
+    renderPage(`/lists?list=${SCIFI.id}`);
+    await screen.findByText("Solaris");
+
+    await user.click(screen.getByRole("button", { name: "Edit list details" }));
+    const dialog = within(screen.getByRole("dialog", { name: "Edit list" }));
+    await user.type(dialog.getByLabelText(/description/i), "Three films");
+    await user.click(dialog.getByRole("button", { name: "Save" }));
+
+    expect(api.updateList).toHaveBeenCalledWith(SCIFI.id, { name: "Sci-Fi Night", description: "Three films" });
   });
 });

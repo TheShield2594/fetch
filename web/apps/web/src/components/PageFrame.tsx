@@ -14,8 +14,8 @@ import { PAGE_TITLE } from "./typography";
  * Two widths, one left edge:
  *
  *   wide     grids and rails of artwork — the Shelf, Discover, Search, Lists,
- *            Calendar, Collections. The full content column.
- *   reading  lists of rows and forms — History, Stats, Settings, Profiles. Capped
+ *            Calendar, and Settings with its two panes. The full content column.
+ *   reading  lists of rows and forms — History, Stats, Profiles. Capped
  *            for line length, but left-aligned to the same edge as `wide`
  *            rather than centred, so the title does not move.
  *

@@ -117,6 +117,6 @@ describe("railSources", () => {
     });
     // Settings doesn't list a section the server's environment answers, so a
     // link to it would open on nothing.
-    expect(rows.map((r) => r.href)).toEqual(["/settings?section=trakt", "/settings?tab=integrations"]);
+    expect(rows.map((r) => r.href)).toEqual(["/settings?section=trakt", "/settings"]);
   });
 });

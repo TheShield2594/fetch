@@ -808,7 +808,7 @@ export function HistoryPage() {
           </EmptyState>
         )
       ) : (
-        <div className="space-y-6">
+        <div className="content-in space-y-6">
           {days.map((day) => (
             <section key={day.key} aria-label={dayLabel(day.date, now)}>
               {/* The day, and what it added up to. */}

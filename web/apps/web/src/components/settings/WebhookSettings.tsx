@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AlertCircle, Check, Copy, KeyRound, Loader2, Trash2 } from "lucide-react";
 import { api, runtimeConfig } from "../../api";
+import { timeAgo } from "../../utils/timeAgo";
 import { useTransientFlag } from "../../hooks/useTransientFlag";
 
 const SERVERS = [
@@ -57,7 +58,7 @@ function WebhookUrl({ label, url }: { label: string; url: string }) {
  * is made: making another replaces it.
  */
 export function WebhookSettings() {
-  const [status, setStatus] = useState<{ configured: boolean; createdAt: string | null } | null>(null);
+  const [status, setStatus] = useState<{ configured: boolean; createdAt: string | null; lastUsedAt?: string | null } | null>(null);
   const [newKey, setNewKey] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +75,7 @@ export function WebhookSettings() {
     try {
       const made = await api.createWebhookKey();
       setNewKey(made.key);
-      setStatus({ configured: true, createdAt: made.createdAt });
+      setStatus({ configured: true, createdAt: made.createdAt, lastUsedAt: null });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't make a webhook link.");
     } finally {
@@ -122,6 +123,10 @@ export function WebhookSettings() {
         <p role="status" className="flex items-center gap-2">
           <Check size={16} className="text-success" /> You have a webhook link
           {status.createdAt ? `, made ${formatDate(status.createdAt)}` : ""}.
+          {/* Whether anything has used it — the difference between a link
+              that exists and one that works. */}
+          {" "}
+          {status.lastUsedAt ? `Last delivery ${timeAgo(status.lastUsedAt)}.` : "Nothing has arrived through it yet."}
         </p>
       ) : null}
 

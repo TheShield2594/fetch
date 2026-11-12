@@ -67,6 +67,10 @@ model Account {
   // The key itself is shown once when it is made; a new one replaces it.
   webhookKeyHash      String?   @unique
   webhookKeyCreatedAt DateTime? @db.Timestamptz(6)
+  // When a media server last reached a webhook with this key, to the minute
+  // (see `findWebhookKeyAccount`): what lets Settings say a link is working,
+  // rather than only that one exists.
+  webhookKeyLastUsedAt DateTime? @db.Timestamptz(6)
 
   profiles        Profile[]
   sessions        Session[]
@@ -173,12 +177,14 @@ model Item {
 // indexes, so they aren't declared here — don't let `prisma migrate dev` generate a
 // migration that drops them.
 model List {
-  id        String     @id @default(uuid()) @db.Uuid
-  name      String
-  kind      ListKind
-  createdAt DateTime   @default(now()) @db.Timestamptz(6)
-  items     ListItem[]
-  link      ListLink?
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String
+  // Optional free text shown on the list's card; capped at 280 by the route.
+  description String?
+  kind        ListKind
+  createdAt   DateTime   @default(now()) @db.Timestamptz(6)
+  items       ListItem[]
+  link        ListLink?
 
   profileId String  @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -221,6 +227,9 @@ model ListItem {
   type    ListItemType
   imdbId  String
   addedAt DateTime     @default(now()) @db.Timestamptz(6)
+  // The list's manual order ("My order" in the web app), 0-based. NULL means
+  // never arranged; those rows sort after the arranged ones, newest first.
+  position Int?
 
   list List @relation(fields: [listId], references: [id], onDelete: Cascade)
 

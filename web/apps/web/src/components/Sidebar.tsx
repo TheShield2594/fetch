@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { BarChart3, CalendarDays, Compass, History, LayoutGrid, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, History, Library, List, Pin, PinOff, Search, Settings, User, Users } from "lucide-react";
 import { api, type CatalogList, type Profile } from "../api";
 import { BrandMark, BrandWordmark } from "./BrandMark";
 import { healthDotClass } from "./settings/health";
@@ -35,7 +35,6 @@ export const SIDEBAR_NAV_ITEMS = [
  * keeps it.
  */
 export const SIDEBAR_MANAGE_ITEMS = [
-  { to: "/collections", label: "Collections", icon: LayoutGrid, end: false },
   { to: "/profiles", label: "Profiles", icon: Users, end: false },
   { to: "/settings", label: "Settings", icon: Settings, end: false },
 ] as const;

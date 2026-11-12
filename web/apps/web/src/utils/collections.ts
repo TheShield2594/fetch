@@ -11,7 +11,7 @@ const newId = (): string =>
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 
-export const newCollection = (title = "New collection"): Collection => ({
+export const newCollection = (title = "New folder row"): Collection => ({
   id: newId(),
   title,
   pinToTop: false,
@@ -45,6 +45,43 @@ export const TMDB_GENRES: Record<"MOVIE" | "TV", { id: number; name: string }[]>
     { id: 10764, name: "Reality" }, { id: 10765, name: "Sci-Fi & Fantasy" }, { id: 37, name: "Western" },
   ],
 };
+
+/**
+ * TV networks by TMDB id. TMDB has no search for networks, so the builder
+ * offers the ones people actually build rows from and keeps a typed id for the
+ * rest.
+ */
+export const TMDB_NETWORKS: { id: number; name: string }[] = [
+  { id: 213, name: "Netflix" },
+  { id: 49, name: "HBO" },
+  { id: 3186, name: "HBO Max" },
+  { id: 2739, name: "Disney+" },
+  { id: 2552, name: "Apple TV" },
+  { id: 1024, name: "Prime Video" },
+  { id: 453, name: "Hulu" },
+  { id: 4330, name: "Paramount+" },
+  { id: 3353, name: "Peacock" },
+  { id: 174, name: "AMC" },
+  { id: 88, name: "FX" },
+  { id: 67, name: "Showtime" },
+  { id: 2, name: "ABC" },
+  { id: 6, name: "NBC" },
+  { id: 16, name: "CBS" },
+  { id: 19, name: "FOX" },
+  { id: 71, name: "The CW" },
+  { id: 4, name: "BBC One" },
+];
+
+/**
+ * A TMDB or Trakt id from what was pasted: a bare number, or a URL with the
+ * id in it (`themoviedb.org/list/8136-…`, `…/collection/10-star-wars`).
+ */
+export function idFromPaste(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (/^\d+$/.test(trimmed)) return Number(trimmed);
+  const match = /\/(?:list|collection|company|network|person|lists)\/(\d+)/.exec(trimmed);
+  return match ? Number(match[1]) : null;
+}
 
 export const TMDB_SOURCE_LABELS: Record<TmdbSourceType, string> = {
   DISCOVER: "Discover (filters)",

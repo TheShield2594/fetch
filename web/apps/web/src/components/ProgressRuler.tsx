@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 /*
  * One ruler, two shapes.
  *
@@ -85,6 +87,18 @@ export function ProgressRuler({
   className = "",
 }: ProgressRulerProps) {
   const track = onArt ? "rgba(255,255,255,0.28)" : "var(--border-strong)";
+  // What the ruler showed last time, so the ticks filled since then can grow
+  // in rather than appearing: marking an episode should visibly advance the
+  // ruler. Only within one total — a new season is a new ruler, not progress.
+  // Adjusted during render (React's "storing information from previous
+  // renders" pattern) so the fill grows on the same commit the count changes.
+  const settledWhole = Number.isFinite(total) ? Math.min(Math.max(Math.floor(value), 0), Math.max(total, 0)) : 0;
+  const [seen, setSeen] = useState({ whole: settledWhole, total });
+  const [grownFrom, setGrownFrom] = useState<{ whole: number; total: number } | null>(null);
+  if (seen.whole !== settledWhole || seen.total !== total) {
+    setGrownFrom(seen.total === total && settledWhole > seen.whole ? seen : null);
+    setSeen({ whole: settledWhole, total });
+  }
   // Nothing to measure against. A ruler with no total is a full-width empty
   // track, which reads as "0% done" rather than as "unknown" — so draw nothing
   // and let the row's mono metadata carry whatever is actually known.
@@ -123,15 +137,25 @@ export function ProgressRuler({
           // episode, so it is filled once one episode is watched.
           const filled = i < whole;
           const current = i === whole && part > 0;
+          const justFilled = filled && grownFrom !== null && grownFrom.total === total && i >= grownFrom.whole;
           return (
             <span
               key={i}
-              className="flex-1 overflow-hidden rounded-[2px]"
+              className="relative flex-1 overflow-hidden rounded-[2px]"
               style={{
                 height: thickness,
-                background: filled ? "rgb(var(--accent-rgb))" : track,
+                // A tick filled by the latest change starts as track and has
+                // its fill grow across it; every other filled tick is simply
+                // the accent.
+                background: filled && !justFilled ? "rgb(var(--accent-rgb))" : track,
               }}
             >
+              {justFilled && (
+                <span
+                  className="tick-fill absolute inset-0 rounded-[2px]"
+                  style={{ background: "rgb(var(--accent-rgb))" }}
+                />
+              )}
               {/* The tick in flight. Drawn as a child fill rather than as a
                   third background colour so it uses the same accent as the
                   finished ticks — a half-watched episode is the same state as a

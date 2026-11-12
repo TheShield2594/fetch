@@ -9,6 +9,9 @@ import {
   tmdbHealth,
   traktHealth,
   type JobStatus,
+  mediaServersHealth,
+  trackerHealth,
+  webhookHealth,
 } from "./health";
 
 const timeAgo = () => "4m ago";
@@ -192,5 +195,59 @@ describe("healthSummary", () => {
 
   it("says nothing at all before the statuses land", () => {
     expect(healthSummary({})).toBe("");
+  });
+});
+
+describe("trackerHealth", () => {
+  const ago = (iso: string) => `at ${iso}`;
+
+  it("treats a sign-in nobody made as a choice, not a fault", () => {
+    expect(trackerHealth({ configured: true, connected: false, lastSyncedAt: null }, ago)).toEqual({ tone: "idle", label: "Not connected" });
+    expect(trackerHealth({ configured: false, connected: false, lastSyncedAt: null }, ago).tone).toBe("idle");
+  });
+
+  it("says when a connected tracker last synced", () => {
+    expect(trackerHealth({ configured: true, connected: true, lastSyncedAt: "T" }, ago)).toEqual({ tone: "ok", label: "Synced at T" });
+    expect(trackerHealth({ configured: true, connected: true, lastSyncedAt: null }, ago).label).toBe("Connected");
+  });
+});
+
+describe("mediaServersHealth", () => {
+  const ago = (iso: string) => `at ${iso}`;
+
+  it("is idle with no servers linked", () => {
+    expect(mediaServersHealth([], ago)).toEqual({ tone: "idle", label: "None linked" });
+  });
+
+  it("counts the servers and reports the most recent sync", () => {
+    const health = mediaServersHealth([{ lastSyncedAt: "2026-01-01" }, { lastSyncedAt: "2026-03-01" }, { lastSyncedAt: null }], ago);
+    expect(health).toEqual({ tone: "ok", label: "3 servers · synced at 2026-03-01", short: "Synced at 2026-03-01" });
+  });
+});
+
+describe("webhookHealth", () => {
+  const ago = (iso: string) => `at ${iso}`;
+  const now = Date.parse("2026-11-12T12:00:00Z");
+
+  it("is idle with no link", () => {
+    expect(webhookHealth({ configured: false, createdAt: null }, ago, now).tone).toBe("idle");
+  });
+
+  it("says when a media server last got through", () => {
+    expect(webhookHealth({ configured: true, createdAt: "2026-11-01T00:00:00Z", lastUsedAt: "T" }, ago, now)).toMatchObject({
+      tone: "ok",
+      label: "Last delivery at T",
+    });
+  });
+
+  it("waits a day before calling a silent link a problem", () => {
+    expect(webhookHealth({ configured: true, createdAt: "2026-11-12T10:00:00Z", lastUsedAt: null }, ago, now)).toMatchObject({
+      tone: "ok",
+      label: "Waiting for the first delivery",
+    });
+    expect(webhookHealth({ configured: true, createdAt: "2026-11-10T10:00:00Z", lastUsedAt: null }, ago, now)).toMatchObject({
+      tone: "warn",
+      label: "Nothing received yet",
+    });
   });
 });

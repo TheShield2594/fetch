@@ -1,8 +1,7 @@
-import { type ReactNode, useEffect, useId, useMemo, useState } from "react";
-import { useSearchParams } from "react-router";
-import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server } from "lucide-react";
-import { Section } from "../components/settings/Section";
-import { healthSummary } from "../components/settings/health";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { Link as RouterLink, useSearchParams } from "react-router";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, Tv, X, Puzzle, ChevronLeft, ChevronRight, FolderTree, LayoutList, SlidersHorizontal, UserCircle, UserPlus, Webhook, ListChecks, Server } from "lucide-react";
+import { healthDotClass, healthSummary, type SectionHealth } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { AccountSettings } from "../components/settings/AccountSettings";
 import { InvitesSettings } from "../components/settings/InvitesSettings";
@@ -29,33 +28,46 @@ import { JobStatusSettings } from "../components/settings/JobStatusSettings";
 import { TvOverview } from "../components/tv/TvOverview";
 import { TvAddonsSettings } from "../components/tv/TvAddonsSettings";
 import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
+import { HomeFoldersSettings } from "../components/tv/HomeFoldersSettings";
 import { TvSettingsForm } from "../components/tv/TvSettingsForm";
-import { PAGE_TITLE } from "../components/typography";
+import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { PageFrame } from "../components/PageFrame";
-import { SegmentedControl, segmentedTabId } from "../components/SegmentedControl";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown";
 
-export type SettingsTab = "preferences" | "integrations" | "tv";
+/**
+ * Where a section sits. Grouped by what a reader is there to do rather than by
+ * the old Preferences / Integrations & Data / TV tabs, which put an account's
+ * password, the TV pairing list and the AI switch side by side under
+ * "Preferences".
+ */
+export type SettingsGroup = "you" | "sources" | "metadata" | "tv" | "server" | "about";
+
+export const SETTINGS_GROUPS: { id: SettingsGroup; label: string }[] = [
+  { id: "sources", label: "Sources" },
+  { id: "metadata", label: "Metadata" },
+  { id: "tv", label: "TV" },
+  { id: "you", label: "You" },
+  { id: "server", label: "Server" },
+  { id: "about", label: "About" },
+];
 
 export type SettingsSection = {
-  /** Also the key `Section` persists its open/closed state under. */
+  /** Also the section's address: `/settings?section=<id>`. */
   id: string;
-  tab: SettingsTab;
-  /**
-   * The eyebrow this section sits under, grouping the tab by what a thing does
-   * rather than by which vendor supplies it — "where history comes from" is a
-   * question someone actually has; "Trakt, Stremio, TMDB, OMDB" in a flat list
-   * is not an answer to it. Sections in the same group have to be adjacent in
-   * this array; the renderer prints a heading when the group changes.
-   */
-  group?: string;
+  group: SettingsGroup;
+  /** The service's name and nothing else, where the section is a service. */
   title: string;
   icon: ReactNode;
   /** Extra terms the section should be findable by; the title is always searched. */
   keywords: string;
   content: ReactNode;
+  /**
+   * A tile on the status board: something history, artwork or ratings come
+   * from, whose state is worth reading without opening it.
+   */
+  source?: true;
   /**
    * Install-wide settings every account shares, which only the admin may
    * change (the server refuses anyone else). Hidden from other accounts.
@@ -78,41 +90,166 @@ function AboutSection() {
 }
 
 export const SETTINGS_SECTIONS: SettingsSection[] = [
+  // Where history comes from. They lead because they are what the page is
+  // usually opened to check: everything after is configuration, and these are
+  // the ones that can quietly stop working.
   {
-    id: "account",
-    tab: "preferences",
-    title: "Account",
-    icon: <UserCircle size={20} />,
-    keywords: "sign in sign out log out password username login",
-    content: <AccountSettings />,
+    id: "trakt",
+    group: "sources",
+    source: true,
+    title: "Trakt",
+    icon: <Link size={20} />,
+    keywords: "scrobble import watchlist history oauth sync",
+    content: <TraktSettings />,
   },
   {
+    id: "simkl",
+    group: "sources",
+    source: true,
+    title: "Simkl",
+    icon: <ListChecks size={20} />,
+    keywords: "simkl tracker scrobble watched history plan to watch watchlist anime sign in code",
+    content: <SimklSettings />,
+  },
+  {
+    id: "mdblist",
+    group: "sources",
+    source: true,
+    title: "MDBList",
+    icon: <ListChecks size={20} />,
+    keywords: "mdblist tracker scrobble watched history watchlist sign in code",
+    content: <MdbListSettings />,
+  },
+  {
+    id: "media-servers",
+    group: "sources",
+    source: true,
+    title: "Media servers",
+    icon: <Server size={20} />,
+    keywords: "plex jellyfin emby media server sign in link code watched progress resume library",
+    content: <MediaServersSettings />,
+  },
+  {
+    id: "media-server-webhooks",
+    group: "sources",
+    source: true,
+    title: "Webhooks",
+    icon: <Webhook size={20} />,
+    keywords: "plex jellyfin emby webhook media server scrobble watched link key",
+    content: <WebhookSettings />,
+  },
+  // What titles look like once they arrive.
+  {
     id: "preferences",
-    tab: "preferences",
-    title: "Metadata & region",
+    group: "metadata",
+    title: "Language & region",
     icon: <Globe size={20} />,
     keywords: "language locale translation streaming region country spoiler protection tmdb metadata",
     content: <PreferencesSettings />,
   },
   {
-    id: "profile",
-    tab: "preferences",
-    title: "Profile",
-    icon: <Users size={20} />,
-    keywords: "profiles users household switch rename pin lock delete",
-    content: <ProfileSettings />,
+    id: "tmdb",
+    adminOnly: true,
+    group: "metadata",
+    source: true,
+    title: "TMDB",
+    icon: <Film size={20} />,
+    keywords: "the movie database api key posters metadata artwork cast",
+    content: <TmdbSettings />,
   },
   {
+    id: "omdb",
+    adminOnly: true,
+    group: "metadata",
+    source: true,
+    title: "OMDb",
+    icon: <Star size={20} />,
+    keywords: "omdb imdb rotten tomatoes metacritic scores ratings api key",
+    content: <OmdbSettings />,
+  },
+  {
+    id: "mdblist-ratings",
+    group: "metadata",
+    source: true,
+    title: "MDBList ratings",
+    icon: <Star size={20} />,
+    keywords: "mdblist ratings api key imdb trakt tmdb rotten tomatoes audience letterboxd metacritic myanimelist mal order detail",
+    content: <MdbListRatingsSettings />,
+  },
+  {
+    id: "rpdb",
+    adminOnly: true,
+    group: "metadata",
+    source: true,
+    title: "RPDB",
+    icon: <Image size={20} />,
+    keywords: "rating poster database posters artwork images api key",
+    content: <RpdbSettings />,
+  },
+  // Everything about the TV: which ones are paired, and what this profile
+  // looks like on them. Home rows and Home folders sit together here — they
+  // are both the TV's Home screen, and used to be a Settings section and a
+  // page of its own in the rail.
+  {
     id: "devices",
-    tab: "preferences",
+    group: "tv",
     title: "TVs & devices",
     icon: <Tv size={20} />,
     keywords: "tv android pair pairing code qr sign in sign out revoke device token",
     content: <DevicesSettings />,
   },
   {
+    id: "tv-home",
+    group: "tv",
+    title: "Home rows",
+    icon: <LayoutList size={20} />,
+    keywords: "tv home screen rows order reorder hide catalogs lists continue watching layout television",
+    content: <HomeLayoutSettings />,
+  },
+  {
+    id: "home-folders",
+    group: "tv",
+    title: "Home folders",
+    icon: <FolderTree size={20} />,
+    keywords: "tv home folders folder rows collections custom rows tmdb trakt addon catalog sources television",
+    content: <HomeFoldersSettings />,
+  },
+  {
+    id: "tv-addons",
+    group: "tv",
+    title: "TV addons",
+    icon: <Puzzle size={20} />,
+    keywords: "addons manifest install configure order sources streams catalogs television",
+    content: <TvAddonsSettings />,
+  },
+  {
+    id: "tv-settings",
+    group: "tv",
+    title: "TV playback",
+    icon: <SlidersHorizontal size={20} />,
+    keywords: "auto-play autoplay best match ranking resolution codec hdr audio subtitles language style essential advanced television",
+    content: <TvSettingsForm />,
+  },
+  {
+    id: "tv-overview",
+    group: "tv",
+    title: "Synced data",
+    icon: <Activity size={20} />,
+    keywords: "tv dashboard overview counts health database jobs sync devices television",
+    content: <TvOverview />,
+  },
+  // The reader's own account and profile.
+  {
+    id: "profile",
+    group: "you",
+    title: "Profile",
+    icon: <Users size={20} />,
+    keywords: "profiles users household switch rename pin lock delete avatar",
+    content: <ProfileSettings />,
+  },
+  {
     id: "notifications",
-    tab: "preferences",
+    group: "you",
     title: "Notifications",
     icon: <Bell size={20} />,
     keywords: "push alerts episode reminders subscribe browser ntfy gotify discord webhook channels",
@@ -127,123 +264,34 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "extras",
-    tab: "preferences",
+    group: "you",
     title: "Extras",
     icon: <Sparkles size={20} />,
     keywords: "ai recommendations llm extras show",
     content: <ExtrasSettings />,
   },
   {
+    id: "account",
+    group: "you",
+    title: "Account",
+    icon: <UserCircle size={20} />,
+    keywords: "sign in sign out log out password username login",
+    content: <AccountSettings />,
+  },
+  // This server: what it offers and to whom, and how its own work is going.
+  {
     id: "job-status",
     adminOnly: true,
-    tab: "preferences",
+    group: "server",
     title: "Sync status",
     icon: <Activity size={20} />,
     keywords: "background jobs scheduled sync failures errors trakt scrobble",
     content: <JobStatusSettings />,
   },
   {
-    id: "about",
-    tab: "preferences",
-    title: "About",
-    icon: <Info size={20} />,
-    keywords: "version build release fetch",
-    content: <AboutSection />,
-  },
-  // Where history comes from. These lead the tab because they are what the
-  // page is usually opened to check: everything below is configuration, and
-  // these are the ones that can quietly stop working.
-  {
-    id: "trakt",
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "Trakt",
-    icon: <Link size={20} />,
-    keywords: "scrobble import watchlist history oauth sync",
-    content: <TraktSettings />,
-  },
-  {
-    id: "simkl",
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "Simkl",
-    icon: <ListChecks size={20} />,
-    keywords: "simkl tracker scrobble watched history plan to watch watchlist anime sign in code",
-    content: <SimklSettings />,
-  },
-  {
-    id: "mdblist",
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "MDBList",
-    icon: <ListChecks size={20} />,
-    keywords: "mdblist tracker scrobble watched history watchlist sign in code",
-    content: <MdbListSettings />,
-  },
-  {
-    id: "media-servers",
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "Media servers",
-    icon: <Server size={20} />,
-    keywords: "plex jellyfin emby media server sign in link code watched progress resume library",
-    content: <MediaServersSettings />,
-  },
-  {
-    id: "media-server-webhooks",
-    tab: "integrations",
-    group: "Where history comes from",
-    title: "Plex, Jellyfin & Emby webhooks",
-    icon: <Webhook size={20} />,
-    keywords: "plex jellyfin emby webhook media server scrobble watched link key",
-    content: <WebhookSettings />,
-  },
-  // What titles look like once they arrive.
-  {
-    id: "tmdb",
-    adminOnly: true,
-    tab: "integrations",
-    group: "Metadata & artwork",
-    title: "TMDB metadata",
-    icon: <Film size={20} />,
-    keywords: "the movie database api key posters metadata artwork cast",
-    content: <TmdbSettings />,
-  },
-  {
-    id: "omdb",
-    adminOnly: true,
-    tab: "integrations",
-    group: "Metadata & artwork",
-    title: "OMDB ratings",
-    icon: <Star size={20} />,
-    keywords: "imdb rotten tomatoes metacritic scores api key",
-    content: <OmdbSettings />,
-  },
-  {
-    id: "mdblist-ratings",
-    tab: "integrations",
-    group: "Metadata & artwork",
-    title: "Ratings from MDBList",
-    icon: <Star size={20} />,
-    keywords: "mdblist ratings api key imdb trakt tmdb rotten tomatoes audience letterboxd metacritic myanimelist mal order detail",
-    content: <MdbListRatingsSettings />,
-  },
-  {
-    id: "rpdb",
-    adminOnly: true,
-    tab: "integrations",
-    group: "Metadata & artwork",
-    title: "RPDB posters",
-    icon: <Image size={20} />,
-    keywords: "rating poster database artwork images api key",
-    content: <RpdbSettings />,
-  },
-  // The app's own surfaces and the keys that reach them.
-  {
     id: "addon",
     adminOnly: true,
-    tab: "integrations",
-    group: "This server",
+    group: "server",
     title: "Stremio addon",
     icon: <Clapperboard size={20} />,
     keywords: "stremio catalogs manifest install url",
@@ -252,8 +300,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "invites",
     adminOnly: true,
-    tab: "integrations",
-    group: "This server",
+    group: "server",
     title: "Invites & accounts",
     icon: <UserPlus size={20} />,
     keywords: "invite friend share sign up users accounts members remove",
@@ -261,8 +308,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   },
   {
     id: "data",
-    tab: "integrations",
-    group: "This server",
+    group: "server",
     title: "Data",
     icon: <Database size={20} />,
     keywords: "export import backup restore refresh metadata wipe",
@@ -271,59 +317,21 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "ai",
     extra: true,
-    tab: "integrations",
-    group: "Recommendations",
+    group: "server",
     title: "AI recommendations",
     icon: <Sparkles size={20} />,
     keywords: "llm openai ollama model provider suggestions",
     content: <AiSettings />,
   },
-  // What a TV pointed at this server runs, per profile. The overview is
-  // all profiles; the three below edit the active one.
   {
-    id: "tv-overview",
-    tab: "tv",
-    title: "Synced data",
-    icon: <Tv size={20} />,
-    keywords: "dashboard overview counts health database jobs sync devices television",
-    content: <TvOverview />,
-  },
-  {
-    id: "tv-addons",
-    tab: "tv",
-    group: "This profile on the TV",
-    title: "TV addons",
-    icon: <Puzzle size={20} />,
-    keywords: "addons manifest install configure order sources streams catalogs television",
-    content: <TvAddonsSettings />,
-  },
-  {
-    id: "tv-home",
-    tab: "tv",
-    group: "This profile on the TV",
-    title: "Home rows",
-    icon: <LayoutList size={20} />,
-    keywords: "home screen rows order reorder hide catalogs lists continue watching layout television",
-    content: <HomeLayoutSettings />,
-  },
-  {
-    id: "tv-settings",
-    tab: "tv",
-    group: "This profile on the TV",
-    title: "TV playback",
-    icon: <SlidersHorizontal size={20} />,
-    keywords: "auto-play autoplay best match ranking resolution codec hdr audio subtitles language style essential advanced television",
-    content: <TvSettingsForm />,
+    id: "about",
+    group: "about",
+    title: "About",
+    icon: <Info size={20} />,
+    keywords: "version build release fetch",
+    content: <AboutSection />,
   },
 ];
-
-/**
- * The one section per tab that starts expanded. Everything else opens on demand,
- * so a first visit is a scannable list rather than twelve stacked forms.
- */
-export const INITIALLY_OPEN_SECTION_IDS = new Set(
-  SETTINGS_SECTIONS.filter((section, index) => SETTINGS_SECTIONS.findIndex((s) => s.tab === section.tab) === index).map((s) => s.id)
-);
 
 /** Every whitespace-separated term has to appear in the title or keywords. */
 export function matchesSearch(section: SettingsSection, query: string): boolean {
@@ -333,170 +341,318 @@ export function matchesSearch(section: SettingsSection, query: string): boolean 
   return terms.every((term) => haystack.includes(term));
 }
 
-export const SETTINGS_TABS: { id: SettingsTab; label: string }[] = [
-  { id: "preferences", label: "Preferences" },
-  { id: "integrations", label: "Integrations & Data" },
-  { id: "tv", label: "TV" },
-];
-
-function isSettingsTab(value: string | null): value is SettingsTab {
-  return value === "preferences" || value === "integrations" || value === "tv";
+/** The sections an account can see: admin-only and opt-in ones filtered, and any the server's environment already answers. */
+export function visibleSections(
+  health: Record<string, SectionHealth>,
+  options: { isAdmin: boolean; showExtras: boolean }
+): SettingsSection[] {
+  return SETTINGS_SECTIONS.filter(
+    (s) => (options.isAdmin || !s.adminOnly) && (options.showExtras || !s.extra) && !health[s.id]?.setByServer
+  );
 }
 
 /**
- * The settings page: Preferences and Integrations tabs built from collapsible
- * `Section`s, with a search box and the integration health dots that are shared
- * with the sidebar's Sources rows.
+ * The status board's two halves: sources that are set up, with their state,
+ * and the ones that aren't, grouped below as "Available". A source whose status
+ * could not be read has no entry and sits with the set-up ones without a dot —
+ * "we could not ask" is not "not set up".
+ */
+export function boardTiles(sections: SettingsSection[], health: Record<string, SectionHealth>) {
+  const sources = sections.filter((s) => s.source);
+  return {
+    live: sources.filter((s) => health[s.id] && health[s.id]!.tone !== "idle"),
+    unknown: sources.filter((s) => !health[s.id]),
+    available: sources.filter((s) => health[s.id]?.tone === "idle"),
+  };
+}
+
+const sectionHref = (id: string) => `/settings?section=${encodeURIComponent(id)}`;
+
+function HealthMark({ health, className = "" }: { health: SectionHealth; className?: string }) {
+  return (
+    <span className={`flex min-w-0 items-center gap-1.5 ${className}`}>
+      <span aria-hidden="true" className={`${healthDotClass(health.tone)} flex-none`} />
+      <span className="meta-row truncate" style={{ color: "var(--text-mute)" }}>{health.label}</span>
+    </span>
+  );
+}
+
+/** One source on the board: its name and state, and the way into its settings. */
+function SourceTile({ section, health }: { section: SettingsSection; health: SectionHealth | undefined }) {
+  return (
+    <li>
+      <RouterLink
+        to={sectionHref(section.id)}
+        className="glass-row flex h-full items-center gap-3 rounded-2xl border p-3.5 transition-[background-color,border-color,transform] duration-base hover:border-[var(--border-strong)] active:scale-[0.98] active:duration-fast focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+        style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+      >
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg" style={{ background: "var(--surface-strong)", color: "var(--text-mute)" }}>
+          {section.icon}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{section.title}</span>
+          {/* Words as well as a colour, on every width: the label is the
+              answer, the dot is how you spot it in a grid (SC 1.4.1). */}
+          {health ? <HealthMark health={health} className="mt-0.5" /> : (
+            <span className="meta-row mt-0.5 block truncate" style={{ color: "var(--text-mute)" }}>Open</span>
+          )}
+        </span>
+        <ChevronRight size={16} className="flex-none" style={{ color: "var(--text-mute)" }} />
+      </RouterLink>
+    </li>
+  );
+}
+
+/**
+ * The page's lead: every source's state, readable without opening anything.
+ *
+ * It was one line under the title and a dot on each collapsed row, with the
+ * dot's words hidden below `sm` — which made the page's best idea its
+ * smallest thing. Now it is the first thing on the page on a phone, and the
+ * right-hand pane on a desktop until a section is picked.
+ */
+function StatusBoard({ sections, health, summary }: { sections: SettingsSection[]; health: Record<string, SectionHealth>; summary: string }) {
+  const { live, unknown, available } = boardTiles(sections, health);
+  const setUp = [...live, ...unknown];
+  return (
+    <section aria-labelledby="settings-board" className="space-y-5">
+      <div>
+        <h2 id="settings-board" className={SECTION_TITLE} style={{ color: "var(--text)" }}>Status</h2>
+        {/*
+         * A polite live region because it arrives a moment after the page: the
+         * status requests resolve together, and a screen reader that has
+         * already moved on should hear the answer rather than have it appear
+         * silently behind it.
+         */}
+        {summary && (
+          <p role="status" className="meta-row mt-1" style={{ color: "var(--text-mute)" }}>{summary}</p>
+        )}
+      </div>
+      {setUp.length > 0 && (
+        <ul aria-label="Sources in use" className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+          {setUp.map((section) => <SourceTile key={section.id} section={section} health={health[section.id]} />)}
+        </ul>
+      )}
+      {available.length > 0 && (
+        <div>
+          <p className="eyebrow mb-2">Available</p>
+          <ul aria-label="Available sources" className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+            {available.map((section) => <SourceTile key={section.id} section={section} health={health[section.id]} />)}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** The section list, grouped. The rail on a desktop, the index under the board on a phone. */
+function SectionNav({
+  sections,
+  health,
+  current,
+  searching,
+}: {
+  sections: SettingsSection[];
+  health: Record<string, SectionHealth>;
+  current: string | null;
+  searching: boolean;
+}) {
+  // While searching the results span every group, so a run of one-row
+  // headings would be noise rather than structure.
+  const groups = searching
+    ? [{ id: "results", label: "", items: sections }]
+    : SETTINGS_GROUPS.map((g) => ({ ...g, items: sections.filter((s) => s.group === g.id) })).filter((g) => g.items.length > 0);
+  return (
+    <nav aria-label="Settings sections" className="space-y-4">
+      {groups.map((group) => (
+        <div key={group.id}>
+          {group.label && <p className="eyebrow mb-1.5 px-3">{group.label}</p>}
+          <ul className="space-y-0.5">
+            {group.items.map((section) => {
+              const active = section.id === current;
+              const sectionHealth = health[section.id];
+              return (
+                <li key={section.id}>
+                  <RouterLink
+                    to={sectionHref(section.id)}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm transition-colors duration-fast focus:outline-none focus-visible:ring-2 focus-visible:ring-focus ${
+                      active ? "bg-accent-500/10 font-medium text-accent-text" : "hover:bg-[var(--surface)]"
+                    }`}
+                    style={active ? undefined : { color: "var(--text-dim)" }}
+                  >
+                    <span className="flex h-5 w-5 flex-none items-center justify-center [&>svg]:h-4 [&>svg]:w-4" style={{ color: active ? undefined : "var(--text-mute)" }}>
+                      {section.icon}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{section.title}</span>
+                    {sectionHealth && (
+                      <>
+                        {/* The state in words for the accessible name; the dot is the glance. */}
+                        <span className="sr-only">, {sectionHealth.label}</span>
+                        <span aria-hidden="true" title={sectionHealth.label} className={`${healthDotClass(sectionHealth.tone)} flex-none`} />
+                      </>
+                    )}
+                  </RouterLink>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+/** One section, open: its heading, its state and its form. */
+function SectionPanel({ section, health, headingRef }: { section: SettingsSection; health: SectionHealth | undefined; headingRef: React.Ref<HTMLHeadingElement> }) {
+  const headingId = `settings-section-${section.id}`;
+  return (
+    <section
+      aria-labelledby={headingId}
+      className="glass-panel content-in rounded-2xl border p-5 shadow-e1 sm:p-6"
+      style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+    >
+      <header className="mb-5 flex flex-wrap items-center gap-3">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg" style={{ background: "var(--surface-strong)", color: "var(--text-mute)" }}>
+          {section.icon}
+        </span>
+        <h2 id={headingId} ref={headingRef} tabIndex={-1} className={`min-w-0 flex-1 focus:outline-none ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>
+          {section.title}
+        </h2>
+        {health && <HealthMark health={health} />}
+      </header>
+      {section.content}
+    </section>
+  );
+}
+
+/**
+ * The settings page: a status board of every source, and every section with
+ * its own address.
+ *
+ * It was a narrow column of collapsed accordions across three tabs, opening on
+ * a change-password form. Now the board leads, the sections are grouped by
+ * what they are for, and from `lg` the page is two panes: the section list on
+ * the left and the section on the right. `?section=<id>` names what is open —
+ * the rail's source rows and Stremio's Configure button both link straight to
+ * one.
  */
 export function SettingsPage() {
   // `sections` is shared with the rail, which shows the same dots against its
-  // Sources rows — see the provider note in useSettingsHealth. It is read once
-  // for the tab and re-asked here, because this page is the status board: a
-  // reader who navigated to it deliberately is owed what is true now, not what
-  // was true when the app started.
+  // Sources rows — see the provider note in useSettingsHealth. It is re-asked
+  // here, because this page is the status board: a reader who navigated to it
+  // deliberately is owed what is true now.
   const { sections: health, refresh: refreshHealth } = useSettingsHealth();
   useEffect(() => { refreshHealth(); }, [refreshHealth]);
-  const [searchParams, setSearchParams] = useSearchParams();
-  // `?section=<id>` (Stremio's Configure button sends `section=addon`) picks the
-  // tab that section is on, unless `tab` says otherwise, and opens it.
-  const requestedSectionId = searchParams.get("section");
-  const requestedSection = SETTINGS_SECTIONS.find((s) => s.id === requestedSectionId);
-  const tabParam = searchParams.get("tab");
-  const tab: SettingsTab = isSettingsTab(tabParam) ? tabParam : requestedSection?.tab ?? "preferences";
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
-  // A link to one section (a rail source row) asks to see that section. A
-  // search left in the box would filter it out of view, so a new request
-  // clears it — derived during render rather than in an effect.
-  const [lastRequestedSection, setLastRequestedSection] = useState(requestedSectionId);
-  if (requestedSectionId !== lastRequestedSection) {
-    setLastRequestedSection(requestedSectionId);
-    if (requestedSectionId) setQuery("");
-  }
   const searching = query.trim().length > 0;
 
-  const setTab = (next: SettingsTab) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("tab", next);
-      return params;
-    });
-  };
-
-  const tabsId = useId();
   const { isAdmin } = useAccount();
   const showExtras = useExtrasEnabled();
-  const visible = useMemo(() => {
-    // A section whose answer the server's environment already holds (a TMDB
-    // key in TMDB_API_KEY) has nothing to ask, so it isn't listed.
-    const allowed = SETTINGS_SECTIONS.filter(
-      (s) => (isAdmin || !s.adminOnly) && (showExtras || !s.extra) && !health[s.id]?.setByServer,
-    );
-    return searching ? allowed.filter((s) => matchesSearch(s, query)) : allowed.filter((s) => s.tab === tab);
-  }, [health, isAdmin, showExtras, query, searching, tab]);
+  const allowed = useMemo(() => visibleSections(health, { isAdmin, showExtras }), [health, isAdmin, showExtras]);
+  const listed = searching ? allowed.filter((s) => matchesSearch(s, query)) : allowed;
+
+  // A section the account can't see (an admin-only link, a key the server's
+  // environment holds) falls back to the board rather than to an empty pane.
+  const sectionId = searchParams.get("section");
+  const current = allowed.find((s) => s.id === sectionId) ?? null;
+
+  // Focus follows a pick to the section's heading, so a keyboard or screen
+  // reader user lands on what they chose rather than back at the top of the
+  // list. Not on the first render: arriving by link is not a pick.
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    if (current) headingRef.current?.focus({ preventScroll: false });
+  }, [current]);
 
   // Empty until the status requests land, and empty again if every one of them
   // failed — in which case saying nothing is right, because the alternative is
   // reporting a health the page could not actually read.
   const summary = healthSummary(health);
 
-  return (
-    <PageFrame width="reading" className="space-y-4">
-      <div>
-        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Settings</h1>
-        {/*
-         * Health first. Every number here was already in the app — one level
-         * inside the Sync Status section and inside each integration's own
-         * panel — which is to say it was everywhere except where someone
-         * wondering "is this working?" would look.
-         *
-         * A polite live region because it arrives a moment after the page: six
-         * status requests resolve together, and a screen reader that has
-         * already moved on should hear the answer rather than have it appear
-         * silently behind it.
-         */}
-        {summary && (
-          <p role="status" className="meta-row mt-1.5" style={{ color: "var(--text-mute)" }}>
-            {summary}
-          </p>
-        )}
-      </div>
-
-      <div className="relative">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--text-mute)" }} />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setQuery("");
-          }}
-          placeholder="Search settings…"
-          aria-label="Search settings"
-          className="w-full rounded-full py-2.5 pl-11 pr-11 text-sm placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
-          style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-0)", color: "var(--text)" }}
-        />
-        {searching && (
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 transition-colors hover:bg-[var(--surface-strong)]"
-            style={{ color: "var(--text-mute)" }}
-          >
-            <X size={16} />
-          </button>
-        )}
-      </div>
-
-      {searching ? (
-        <p role="status" className="text-sm tabular-nums" style={{ color: "var(--text-dim)" }}>
-          {visible.length === 0
-            ? `No settings match "${query.trim()}".`
-            : `${visible.length} ${visible.length === 1 ? "section" : "sections"} across every tab.`}
-        </p>
-      ) : (
-        // A real tablist — the shared segmented control in its `tabs` mode,
-        // which carries the roving tabindex and arrow keys the role promises.
-        <SegmentedControl
-          label="Settings sections"
-          options={SETTINGS_TABS.map((t) => ({ value: t.id, label: t.label }))}
-          value={tab}
-          onChange={setTab}
-          semantics={{ kind: "tabs", idPrefix: tabsId, panelId: `${tabsId}-panel` }}
-          className="max-w-md"
-        />
+  const search = (
+    <div className="relative">
+      <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "var(--text-mute)" }} />
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setQuery("");
+        }}
+        placeholder="Search settings…"
+        aria-label="Search settings"
+        className="w-full rounded-full py-2.5 pl-11 pr-11 text-sm placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
+        style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-0)", color: "var(--text)" }}
+      />
+      {searching && (
+        <button
+          type="button"
+          onClick={() => setQuery("")}
+          aria-label="Clear search"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 transition-colors hover:bg-[var(--surface-strong)]"
+          style={{ color: "var(--text-mute)" }}
+        >
+          <X size={16} />
+        </button>
       )}
+    </div>
+  );
 
-      {/* Only a tabpanel while the tablist above is the thing selecting it. A
-          search spans both tabs, so labelling the results as one tab's panel
-          would name them after a control that isn't on screen. */}
-      <div
-        className="space-y-4"
-        {...(searching
-          ? {}
-          : { role: "tabpanel", id: `${tabsId}-panel`, "aria-labelledby": segmentedTabId(tabsId, tab) })}
-      >
-        {visible.map((section, index) => (
-          <div key={section.id} className="space-y-4">
-            {/* A heading only where the group changes, and never while
-                searching — results span both tabs and every group, so a run of
-                one-section headings would be noise rather than structure. */}
-            {!searching && section.group && section.group !== visible[index - 1]?.group && (
-              <p className={index === 0 ? "eyebrow" : "eyebrow pt-3"}>{section.group}</p>
-            )}
-            <Section
-              title={section.title}
-              icon={section.icon}
-              storageKey={section.id}
-              defaultOpen={INITIALLY_OPEN_SECTION_IDS.has(section.id)}
-              alwaysOpen={searching}
-              requested={section.id === requestedSection?.id}
-              health={health[section.id]}
-            >
-              {section.content}
-            </Section>
-          </div>
-        ))}
+  const searchStatus = searching && (
+    <p role="status" className="px-3 text-sm tabular-nums" style={{ color: "var(--text-dim)" }}>
+      {listed.length === 0
+        ? `No settings match "${query.trim()}".`
+        : `${listed.length} ${listed.length === 1 ? "section" : "sections"} match.`}
+    </p>
+  );
+
+  return (
+    // The wide frame, not the reading one: from `lg` this is two panes, and the
+    // section pane is what the reading width is for. Left-aligned like every
+    // other page, so the title doesn't move between routes.
+    <PageFrame className="max-w-6xl">
+      <h1 className={`${PAGE_TITLE} ${current ? "sr-only lg:not-sr-only" : ""}`} style={{ color: "var(--text)" }}>Settings</h1>
+      <div className="mt-4 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
+        {/* The list. From `lg` always beside the content; below it, only on
+            the index — a phone shows one thing at a time. */}
+        <aside className={`space-y-4 lg:sticky lg:top-[84px] lg:max-h-[calc(100dvh-104px)] lg:overflow-y-auto lg:pb-4 hidden lg:block`}>
+          {search}
+          {searchStatus}
+          <SectionNav sections={listed} health={health} current={current?.id ?? null} searching={searching} />
+        </aside>
+
+        <div className="min-w-0 space-y-6">
+          {current ? (
+            <>
+              <RouterLink
+                to="/settings"
+                className="inline-flex items-center gap-1 rounded-lg py-1 text-sm font-medium text-accent-text focus:outline-none focus-visible:ring-2 focus-visible:ring-focus lg:hidden"
+              >
+                <ChevronLeft size={16} /> Settings
+              </RouterLink>
+              <SectionPanel key={current.id} section={current} health={health[current.id]} headingRef={headingRef} />
+            </>
+          ) : (
+            <>
+              {/* The phone's index: search, then the board, then every section. */}
+              <div className="space-y-4 lg:hidden">
+                {search}
+                {searchStatus}
+              </div>
+              {!searching && <StatusBoard sections={allowed} health={health} summary={summary} />}
+              <div className="lg:hidden">
+                <SectionNav sections={listed} health={health} current={null} searching={searching} />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </PageFrame>
   );

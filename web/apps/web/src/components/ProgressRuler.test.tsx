@@ -85,4 +85,20 @@ describe("ProgressRuler", () => {
 
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
+
+  it("grows the ticks filled since the last render, so marking an episode visibly advances the ruler", () => {
+    const { container, rerender } = render(<ProgressRuler value={2} total={6} discrete label="2 of 6 episodes" />);
+    expect(container.querySelectorAll(".tick-fill")).toHaveLength(0);
+
+    rerender(<ProgressRuler value={3} total={6} discrete label="3 of 6 episodes" />);
+    const grown = ticks(container).map((tick) => tick.querySelector(".tick-fill") !== null);
+    expect(grown).toEqual([false, false, true, false, false, false]);
+  });
+
+  it("does not animate a new season's ruler as progress", () => {
+    const { container, rerender } = render(<ProgressRuler value={8} total={8} discrete label="8 of 8 episodes" />);
+    rerender(<ProgressRuler value={1} total={10} discrete label="1 of 10 episodes" />);
+
+    expect(container.querySelectorAll(".tick-fill")).toHaveLength(0);
+  });
 });

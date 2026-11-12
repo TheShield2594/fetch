@@ -119,7 +119,7 @@ describe("Sidebar", () => {
    */
   it("leaves the source rows uncurrent on the settings route", async () => {
     health.value = { trakt: { tone: "ok", label: "Synced 4m ago" } };
-    renderSidebar(true, "/settings?tab=integrations");
+    renderSidebar(true, "/settings?section=trakt");
 
     const nav = screen.getByRole("navigation", { name: "Primary" });
     await within(nav).findByRole("link", { name: /Trakt/ });
@@ -176,7 +176,7 @@ describe("Sidebar", () => {
 
   it("groups the destinations, then lists, then the TV and settings", () => {
     expect(SIDEBAR_NAV_ITEMS.map((i) => i.label)).toEqual(["Shelf", "Discover", "Search", "Calendar", "History", "Stats"]);
-    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Collections", "Profiles", "Settings"]);
+    expect(SIDEBAR_MANAGE_ITEMS.map((i) => i.label)).toEqual(["Profiles", "Settings"]);
   });
 
   /*

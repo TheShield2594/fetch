@@ -184,7 +184,7 @@ function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry:
     <button
       type="button"
       onClick={() => onSelect(entry)}
-      className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+      className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-[background-color,transform] duration-base active:scale-[0.99] active:duration-fast hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
     >
       <div
         className="w-24 flex-none overflow-hidden rounded-lg"

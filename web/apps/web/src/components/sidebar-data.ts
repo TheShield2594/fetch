@@ -92,6 +92,10 @@ export function orderListsForRail(lists: CatalogList[]): CatalogList[] {
  */
 export const RAIL_SOURCES: readonly { id: string; label: string }[] = [
   { id: "trakt", label: "Trakt" },
+  { id: "simkl", label: "Simkl" },
+  { id: "mdblist", label: "MDBList" },
+  { id: "media-servers", label: "Media servers" },
+  { id: "media-server-webhooks", label: "Webhooks" },
   { id: "tmdb", label: "TMDB" },
   { id: "omdb", label: "OMDb" },
   { id: "rpdb", label: "RPDB" },
@@ -105,8 +109,8 @@ export type RailSource = {
   status: string;
   /**
    * Where the row goes: its own Settings section, or — for one the server's
-   * environment configures, which Settings doesn't list — the tab it would
-   * have been on, so the link never names a section that isn't rendered.
+   * environment configures, which Settings doesn't list — the status board,
+   * so the link never names a section that isn't rendered.
    */
   href: string;
 };
@@ -127,9 +131,9 @@ export function railSources(health: Record<string, SectionHealth>): RailSource[]
   return RAIL_SOURCES.flatMap((source) => {
     const entry = health[source.id];
     if (!entry || entry.tone === "idle") return [];
-    const href = entry.setByServer
-      ? "/settings?tab=integrations"
-      : `/settings?section=${encodeURIComponent(source.id)}`;
+    // A source the server's environment configures has no section of its
+    // own in Settings, so it goes to the status board instead.
+    const href = entry.setByServer ? "/settings" : `/settings?section=${encodeURIComponent(source.id)}`;
     return [{ ...source, health: entry, status: entry.short ?? entry.label, href }];
   });
 }

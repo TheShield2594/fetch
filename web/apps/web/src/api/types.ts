@@ -59,7 +59,12 @@ export type ListItem = {
   type: MediaType;
   imdbId: string;
   addedAt: string;
+  /** Place in the list's manual order, 0-based; null until the list is arranged. */
+  position?: number | null;
 };
+
+/** One title in a list, as the bulk and reorder endpoints name it. */
+export type ListItemRef = { type: MediaType; imdbId: string };
 
 export type ListItemWithMeta = ListItem & {
   // Title captured when the item was added — stands in until the metadata row lands.
@@ -72,6 +77,10 @@ export type CatalogList = {
   name: string;
   kind: "watchlist" | "custom" | "collection";
   itemCount: number;
+  /** A line or two the user wrote about the list; null or absent when there is none. */
+  description?: string | null;
+  /** Up to four poster URLs from the top of the list's manual order, for its cover. */
+  covers?: string[];
   /** The Trakt or MDBList list a custom list is kept in step with, if any. */
   link?: ListLink | null;
 };

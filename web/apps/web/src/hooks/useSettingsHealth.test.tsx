@@ -16,6 +16,9 @@ vi.mock("../api", () => ({
     getTmdbStatus: vi.fn(async () => ({ configured: true, source: "db" })),
     getOmdbStatus: vi.fn(async () => ({ configured: false })),
     getRpdbStatus: vi.fn(async () => ({ configured: false, hasKey: false })),
+    getSimklStatus: vi.fn(async () => ({ configured: true, connected: true, lastSyncedAt: null, username: null, pending: null })),
+    getMdbListStatus: vi.fn(async () => ({ configured: true, connected: false, lastSyncedAt: null, username: null, pending: null })),
+    getMediaServers: vi.fn(async () => ({ providers: [], servers: [], plexLink: null })),
   },
 }));
 
@@ -60,9 +63,10 @@ function RefreshesOnMount() {
 }
 
 describe("SettingsHealthProvider", () => {
-  // Every row is an integration only the admin can set up, and most of the
-  // status reads are admin-only on the server.
-  it("asks nothing for an account that isn't the admin", async () => {
+  // The install-wide integrations are the admin's to set up, and their status
+  // reads are admin-only on the server. A profile's own sign-ins are asked for
+  // everyone (see below).
+  it("asks none of the admin's reads for an account that isn't the admin", async () => {
     signedIn.isAdmin = false;
     render(
       <SettingsHealthProvider>
@@ -73,6 +77,21 @@ describe("SettingsHealthProvider", () => {
     expect(await screen.findByText("trakt: —")).toBeInTheDocument();
     expect(loadCount()).toBe(0);
     expect(api.getTmdbStatus).not.toHaveBeenCalled();
+  });
+
+  it("reads a profile's own sign-ins for every account, admin or not", async () => {
+    signedIn.isAdmin = false;
+    function Own() {
+      const { sections } = useSettingsHealth();
+      return <p>simkl: {sections.simkl?.label ?? "—"} · mdblist: {sections.mdblist?.label ?? "—"} · servers: {sections["media-servers"]?.label ?? "—"}</p>;
+    }
+    render(
+      <SettingsHealthProvider>
+        <Own />
+      </SettingsHealthProvider>
+    );
+
+    expect(await screen.findByText("simkl: Connected · mdblist: Not connected · servers: None linked")).toBeInTheDocument();
   });
 
   it("reads every source once and hands the mapped report to its consumers", async () => {

@@ -6,7 +6,7 @@ import { validateCollections, validateSource } from "../lib/collections.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getTraktClient, isTraktConnected } from "../lib/trakt-client.js";
 import { buildMetasFromIds, getCustomListMetas } from "../lib/stremio-helpers.js";
-import type { TmdbCollectionSourceQuery } from "../tmdb.js";
+import { TMDB_ENTITY_KINDS, type TmdbCollectionSourceQuery, type TmdbEntityKind } from "../tmdb.js";
 import type { StremioMetaPreview } from "../lib/types.js";
 import { outboundScopeForProfile } from "../lib/integration-owner.js";
 import { fetchManifest, manifestUrlForLog, normalizeManifestUrl } from "../lib/addon-manifest.js";
@@ -61,6 +61,33 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
     });
     return { collections: result.value, updatedAt: updatedAt.toISOString() };
   });
+
+  // People, studios and film collections by name, so the builder can pick a
+  // TMDB source instead of asking for its numeric id.
+  app.get<{ Querystring: { kind?: string; q?: string } }>(
+    "/collections/tmdb-search",
+    { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      const kind = request.query.kind as TmdbEntityKind | undefined;
+      if (!kind || !TMDB_ENTITY_KINDS.includes(kind)) {
+        return reply.code(400).send({ error: "kind must be one of: person, company, collection" });
+      }
+      const q = request.query.q?.trim() ?? "";
+      if (!q || q.length > 100) return reply.code(400).send({ error: "q is required (at most 100 characters)" });
+      let tmdb;
+      try {
+        tmdb = await getTmdb();
+      } catch {
+        return reply.code(409).send({ error: "Add a TMDB API key in Settings to search TMDB.", code: "tmdb_not_configured" });
+      }
+      try {
+        return { results: await tmdb.searchEntities(kind, q) };
+      } catch (error) {
+        request.log.warn({ err: error, kind }, "TMDB entity search failed");
+        return reply.code(502).send({ error: "TMDB didn't answer. Try again in a moment." });
+      }
+    }
+  );
 
   // An addon's manifest, for the builder's "Addon catalog" picker. Read here
   // rather than by the browser, whose Content-Security-Policy can't name every

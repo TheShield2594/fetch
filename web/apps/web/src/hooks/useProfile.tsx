@@ -9,7 +9,8 @@ type ProfileContextValue = {
   closeSwitcher: () => void;
 };
 
-const ProfileContext = createContext<ProfileContextValue | null>(null);
+/** Exported for the few readers that must work outside a provider; everything else uses `useProfile`. */
+export const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function ProfileProvider({
   initialProfile,

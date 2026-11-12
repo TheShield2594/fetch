@@ -1685,10 +1685,10 @@ body {
  * than opening a dialog.
  */
 @keyframes route-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
+  /* Opacity only. A 6px rise made every page look as if it had moved, and
+     most of them share the frame the last one had — the shell, the header,
+     the gutter. Only the content is new, so only the content fades. */
+  from { opacity: 0; }
 }
 
 .route-enter {
@@ -1948,6 +1948,12 @@ body {
   .card-lift:hover {
     transform: none;
   }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
 
 /* Card hover lift — a card at rest sits at e1, and lifting it moves it to e2,
@@ -1995,6 +2001,117 @@ body {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
     inset 0 0 0 1px var(--border-strong),
     var(--elevation-3);
+}
+
+/*
+ * Pressed. A card that only answers a hover gives a tap nothing at all
+ * between the finger landing and the panel opening, so every card that opens
+ * something sinks slightly while it is held. Keyed on the card's own hit
+ * button being :active, not the whole card — pressing a quick action laid
+ * over the art should press that control, not the card under it. Fast in,
+ * because a press is acknowledged at once; the release uses the slower rest
+ * transition so it settles rather than snaps.
+ */
+.card-pressable:has(> .card-hit:active) .poster-frame,
+.card-pressable:has(> .card-hit:active) .card-art {
+  transform: scale(0.98);
+  transition-duration: var(--duration-fast);
+}
+.landscape-card {
+  transition: transform var(--duration-slow) ease-out, box-shadow var(--duration-slow) ease-out;
+  box-shadow: var(--elevation-1);
+}
+.landscape-card .card-art {
+  transition: transform var(--duration-slow) ease-out;
+}
+@media (hover: hover) {
+  .landscape-card:hover {
+    box-shadow: var(--elevation-3);
+  }
+  .landscape-card:hover .card-art {
+    transform: scale(1.03);
+  }
+}
+.landscape-card.card-pressable:has(> .card-hit:active) {
+  transform: scale(0.98);
+  transition-duration: var(--duration-fast);
+}
+.landscape-card.card-pressable:has(> .card-hit:active) .card-art {
+  transform: none;
+}
+
+/*
+ * A tick that has just been filled grows in from its left edge, so marking an
+ * episode visibly advances the ruler rather than swapping one row of ticks for
+ * another in a single frame.
+ */
+@keyframes tick-fill {
+  from { transform: scaleX(0); }
+}
+.tick-fill {
+  transform-origin: left center;
+  animation: tick-fill var(--duration-slow) var(--ease-ios);
+}
+
+/*
+ * The next thing to pick up taking the lead's place: a short slide from the
+ * side the rail sits on, so the card reads as having moved up rather than as
+ * the row being redrawn.
+ */
+@keyframes card-advance {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+.card-advance {
+  animation: card-advance var(--duration-slow) var(--ease-ios);
+}
+
+/*
+ * Content replacing its skeleton inside a frame that stays put: a fade only,
+ * no rise — the frame did not move, so the content shouldn't either.
+ */
+@keyframes content-in {
+  from { opacity: 0; }
+}
+.content-in {
+  animation: content-in var(--duration-base) ease-out;
+}
+
+/*
+ * Opening a title: the poster that was tapped becomes the panel's poster.
+ *
+ * `utils/viewTransition.ts` names the tapped card's art `title-art` for the
+ * old snapshot and the panel names its own art the same, so the browser
+ * morphs one into the other. Below `lg` the panel's art is the hero, from
+ * `lg` it is the poster beside the title, so the name moves with the layout.
+ * Browsers without the View Transitions API get the overlay's own pop.
+ */
+@media (max-width: 1023.98px) {
+  .vt-title-hero {
+    view-transition-name: title-art;
+  }
+}
+@media (min-width: 1024px) {
+  .vt-title-poster {
+    view-transition-name: title-art;
+  }
+}
+::view-transition-group(title-art) {
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-ios);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-base);
+}
+/* The panel is already arriving through the view transition; its own pop
+   would play a second entrance on top of the morph. */
+html.vt-title-open .overlay-fade,
+html.vt-title-open .overlay-dialog,
+html.vt-title-open .overlay-sheet {
+  animation: none;
 }
 
 /*

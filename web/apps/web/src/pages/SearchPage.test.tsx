@@ -15,6 +15,7 @@ vi.mock("../api", async (importOriginal) => {
       browseSearch: vi.fn(),
       getTrending: vi.fn(),
       addToList: vi.fn(),
+      removeFromList: vi.fn(),
       createList: vi.fn(),
     },
   };
@@ -498,23 +499,28 @@ describe("SearchPage list membership", () => {
 
     await user.click(menu.getByRole("button", { name: "Sci-Fi Night" }));
 
-    expect(await screen.findByText("Unable to add item")).toBeInTheDocument();
+    expect(await screen.findByText(/Couldn't add "Solaris" \(Unable to add item\)/)).toBeInTheDocument();
     expect(screen.queryByText("In Sci-Fi Night")).not.toBeInTheDocument();
   });
 
-  it("won't offer a list the title is already in twice", async () => {
+  // The same control the title panel uses: a list the title is in is ticked,
+  // and choosing it again takes the title back out — with an Undo.
+  it("takes a title back out of a list it is already in", async () => {
     const user = userEvent.setup();
     search.mockImplementation(async (type) =>
       type === "movie" ? [result("Solaris", { lists: [SCIFI.id] })] : []
     );
+    vi.mocked(api.removeFromList).mockResolvedValue(undefined as never);
     const menu = await openAddMenu(user);
 
-    const already = menu.getByRole("button", { name: /Sci-Fi Night/ });
-    expect(already).toBeDisabled();
-    expect(already).toHaveTextContent("Added");
+    const already = menu.getByRole("button", { name: "Sci-Fi Night" });
+    expect(already).toHaveAttribute("aria-pressed", "true");
 
     await user.click(already);
+    expect(api.removeFromList).toHaveBeenCalledWith(SCIFI.id, { type: "movie", imdbId: "tt-solaris" });
     expect(addToList).not.toHaveBeenCalled();
+    expect(await screen.findByText(/Removed "Solaris" from Sci-Fi Night/)).toBeInTheDocument();
+    expect(screen.queryByText("In Sci-Fi Night")).not.toBeInTheDocument();
   });
 
   it("creates a list and adds the title to it in one go", async () => {
@@ -524,7 +530,7 @@ describe("SearchPage list membership", () => {
     });
     const menu = await openAddMenu(user);
 
-    await user.click(menu.getByRole("button", { name: /create new list/i }));
+    await user.click(menu.getByRole("button", { name: /new list/i }));
     await user.type(menu.getByLabelText("New list name"), "Tarkovsky");
     await user.click(menu.getByRole("button", { name: "Add" }));
 
@@ -547,7 +553,7 @@ describe("SearchPage list membership", () => {
     addToList.mockRejectedValue(new Error("list is full"));
     const menu = await openAddMenu(user);
 
-    await user.click(menu.getByRole("button", { name: /create new list/i }));
+    await user.click(menu.getByRole("button", { name: /new list/i }));
     await user.type(menu.getByLabelText("New list name"), "Tarkovsky");
     await user.click(menu.getByRole("button", { name: "Add" }));
 
@@ -569,7 +575,7 @@ describe("SearchPage list membership", () => {
     createList.mockRejectedValue(new Error("Name already taken"));
     const menu = await openAddMenu(user);
 
-    await user.click(menu.getByRole("button", { name: /create new list/i }));
+    await user.click(menu.getByRole("button", { name: /new list/i }));
     await user.type(menu.getByLabelText("New list name"), "Watchlist");
     await user.click(menu.getByRole("button", { name: "Add" }));
 

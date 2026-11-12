@@ -1,6 +1,8 @@
 /**
- * A profile's collections: custom Home rows on the TV, each a set of folders
- * filled from addon catalogs, TMDB, Trakt or this website's own lists.
+ * A profile's Home folders: custom rows on the TV's Home screen ("folder
+ * rows"), each a set of folders filled from addon catalogs, TMDB, Trakt or this
+ * website's own lists. The API and the stored document still call them
+ * collections, as the TV's storage does; only the words on screen changed.
  */
 
 import { request } from "./client";
@@ -15,7 +17,18 @@ export type AddonManifestSummary = {
   catalogs: { type: string; id: string; name: string }[];
 };
 
+/** A person, studio or film collection on TMDB, as the builder's search picker lists it. */
+export type TmdbEntityKind = "person" | "company" | "collection";
+export type TmdbEntity = { id: number; name: string; image: string | null; detail: string | null };
+
 export const collectionsApi = {
+  /** Find a TMDB person, studio or film collection by name, for a folder's source. */
+  searchTmdbEntities(kind: TmdbEntityKind, q: string, signal?: AbortSignal) {
+    return request<{ results: TmdbEntity[] }>(
+      `/collections/tmdb-search?${new URLSearchParams({ kind, q })}`,
+      { signal }
+    );
+  },
   getCollections() {
     return request<CollectionsDocument>("/collections");
   },

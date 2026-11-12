@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { clampEpisode } from "./EpisodePicker";
+import { CheckInModal } from "./CheckInModal";
 import { WatchDateModal } from "./WatchDateModal";
 
 const SEASONS = [
@@ -73,5 +74,29 @@ describe("the watch dialog's episode pickers", () => {
 
     expect(screen.getByLabelText("Season")).toHaveValue(2);
     expect(screen.getByLabelText("Episode")).toHaveValue(3);
+  });
+});
+
+describe("the check-in dialog's episode pickers", () => {
+  it("pulls a selection made before the seasons arrived back inside them", async () => {
+    const user = userEvent.setup();
+    const onCheckIn = vi.fn().mockResolvedValue(undefined);
+    const props = {
+      seriesName: "Severance",
+      defaultSeason: 1,
+      defaultEpisode: 10,
+      onCheckIn,
+      onClose: vi.fn(),
+    };
+    // Opened with no season data: typed numbers, and S1 E10 is taken as given.
+    const { rerender } = render(<CheckInModal {...props} />);
+    expect(screen.getByLabelText("Episode")).toHaveValue(10);
+
+    // The seasons land while it is open. Season 1 has nine episodes.
+    rerender(<CheckInModal {...props} seasons={SEASONS} />);
+    expect((screen.getByLabelText("Episode") as HTMLSelectElement).value).toBe("9");
+
+    await user.click(screen.getByRole("button", { name: "Check In" }));
+    expect(onCheckIn).toHaveBeenCalledWith(1, 9);
   });
 });

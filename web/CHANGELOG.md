@@ -17,7 +17,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **A series opens on its episodes, and each action appears once.** The season list now follows the primary action, ahead of the overview, ratings and cast. "Log a watch" and check-in are each one button, lists, your rating and tags are one tracking block, dropping a show moved into a "More actions" menu beside the primary action, and the TMDB link is the last entry of the ratings row ([#501](https://github.com/TheShield2594/fetch/issues/501)).
 
-- **Episodes have stills and a synopsis, and the watch dialog only offers episodes that exist.** An expanded season shows each episode's still and synopsis; the synopsis of an episode you haven't watched stays hidden until you ask for it. The watch and check-in dialogs pick the season and episode from the show's real seasons instead of two typed numbers. `GET /meta/series/:imdbId/season/:seasonNumber/episodes` now returns `overview` for each episode ([#504](https://github.com/TheShield2594/fetch/issues/504)).
+- **Episodes have stills and a synopsis, and the watch dialog picks from the show's real seasons.** An expanded season shows each episode's still and synopsis; the synopsis of an episode you haven't watched stays hidden until you ask for it. The watch and check-in dialogs pick the season and episode from the show's real seasons instead of two typed numbers; a show with no season data keeps the typed numbers, which can't be checked. `GET /meta/series/:imdbId/season/:seasonNumber/episodes` now returns `overview` for each episode ([#504](https://github.com/TheShield2594/fetch/issues/504)).
 
 ## [0.4.0] - 2026-11-11
 

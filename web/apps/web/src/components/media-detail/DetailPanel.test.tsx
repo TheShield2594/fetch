@@ -150,6 +150,12 @@ describe("DetailPanel section degradation", () => {
     expect(screen.queryByRole("button", { name: /drop/i })).not.toBeInTheDocument();
     await user.click(more);
     expect(screen.getByRole("button", { name: /Drop this show/ })).toBeInTheDocument();
+
+    // Choosing it closes the overflow, and focus goes back to its trigger
+    // rather than to nowhere.
+    vi.mocked(api.dropShow).mockResolvedValue(undefined as never);
+    await user.click(screen.getByRole("button", { name: /Drop this show/ }));
+    expect(more).toHaveFocus();
   });
 
   it("survives the sections that fetch for themselves failing", async () => {

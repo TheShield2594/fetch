@@ -38,9 +38,12 @@ export function WatchDateModal({
   // The episode being logged. It opens on the target — the next one up — pulled
   // inside the real season data, since that target is worked out from history
   // and can name an episode past the end of a season nobody told it the length of.
-  const [picked, setPicked] = useState(() =>
-    clampEpisode(seasons, target.kind === "episode" ? target : { season: 1, episode: 1 })
+  // Clamped on every render, not once in the initial state, so the selection
+  // stays inside the season data even if that data changes while this is open.
+  const [chosen, setPicked] = useState(
+    target.kind === "episode" ? { season: target.season, episode: target.episode } : { season: 1, episode: 1 }
   );
+  const picked = clampEpisode(seasons, chosen);
 
   const submit = async (dateIso: string, dateUnknown?: boolean) => {
     setSaving(true);

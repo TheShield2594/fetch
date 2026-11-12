@@ -612,7 +612,10 @@ export function DetailPanel({
               <button
                 type="button"
                 onClick={() => (item.type === "series" ? setShowCheckinModal(true) : checkInAndReport())}
-                disabled={checkinLoading || !!activeCheckin}
+                // A series waits for its history and seasons as the primary
+                // action does: the dialog this opens defaults to the next
+                // episode, which is not known until both have arrived.
+                disabled={checkinLoading || !!activeCheckin || !progressionReady}
                 // Named for what it does rather than for its glyph, and titled as
                 // well — it is a 50px square with no label under it.
                 aria-label={activeCheckin ? "Already checked in" : `Check in to ${item.name}`}

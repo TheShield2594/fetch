@@ -26,9 +26,12 @@ export function CheckInModal({
   onCheckIn: (season: number, episode: number) => Promise<void>;
   onClose: () => void;
 }) {
-  const [picked, setPicked] = useState(() =>
-    clampEpisode(seasons, { season: defaultSeason, episode: defaultEpisode })
-  );
+  const [chosen, setPicked] = useState({ season: defaultSeason, episode: defaultEpisode });
+  // Clamped on every render rather than once in the initial state: the season
+  // list can arrive after this dialog has opened, and a number typed (or
+  // defaulted) before it did must not be submitted once the selects that
+  // replace the number fields have no option for it.
+  const picked = clampEpisode(seasons, chosen);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const dialogRef = useFocusTrap<HTMLDivElement>();

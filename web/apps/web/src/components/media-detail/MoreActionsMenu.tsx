@@ -69,6 +69,9 @@ export function MoreActionsMenu({
             type="button"
             onClick={() => {
               setOpen(false);
+              // This item is about to unmount with focus on it; hand focus
+              // back to the trigger, as Escape does, rather than lose it.
+              triggerRef.current?.focus();
               onToggleDrop();
             }}
             className="flex w-full items-start gap-3 px-3.5 py-3 text-left transition-colors hover:bg-[var(--surface)]"

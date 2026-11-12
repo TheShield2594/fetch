@@ -328,20 +328,23 @@ class FetchWebsiteSyncTest {
         }
         val website = paired(fake)
         website.rememberProfileToken("p-kid", "kid-token")
+        website.rememberProfileToken("p-main", "main-token")
         website.sync.pushProfiles(
             listOf(DesktopProfile(1, "Me", "#1E88E5"), DesktopProfile(2, "Kiddo", "#43A047"), DesktopProfile(3, "New", "#E53935")),
             actingSlot = 1
         )
         fun put(slot: Int) = fake.sent.single { it.request.url.encodedPath == "/devices/me/profiles/$slot" }.request
         assertEquals("p-main", put(2).header("x-profile-id"))
-        assertEquals("kid-token", put(2).header("x-profile-token"))
+        assertEquals("main-token", put(2).header("x-profile-token"))
+        assertEquals("kid-token", put(2).header("x-target-profile-token"))
         assertEquals("p-main", put(3).header("x-profile-id"))
-        assertNull(put(3).header("x-profile-token"))
+        assertEquals("main-token", put(3).header("x-profile-token"))
+        assertNull(put(3).header("x-target-profile-token"))
         assertEquals("New", website.profileFor(3)!!.name)
     }
 
     @Test
-    fun `a profile the website won't add from a kids profile is left out, and the rest still go`() = runBlocking {
+    fun `a profile the website won't add from a kids profile fails the push, after the rest have gone`() = runBlocking {
         val refused = """{"error":"Switch to a grown-up's profile","code":"parental_authority_required"}"""
         val fake = FakeHttp { request ->
             when (request.url.encodedPath) {
@@ -353,10 +356,13 @@ class FetchWebsiteSyncTest {
             }
         }
         val website = paired(fake)
-        website.sync.pushProfiles(
-            listOf(DesktopProfile(3, "New", "#E53935"), DesktopProfile(1, "Mine", "#1E88E5")),
-            actingSlot = 2
-        )
+        val failure = runCatching {
+            website.sync.pushProfiles(
+                listOf(DesktopProfile(3, "New", "#E53935"), DesktopProfile(1, "Mine", "#1E88E5")),
+                actingSlot = 2
+            )
+        }.exceptionOrNull()
+        assertTrue((failure as FetchWebsiteException).needsParentalAuthority)
         assertEquals("Mine", website.profileFor(1)!!.name)
         assertNull(website.profiles.firstOrNull { it.slot == 3 })
     }

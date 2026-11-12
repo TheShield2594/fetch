@@ -269,14 +269,23 @@ class FetchWebsiteClient(
     /**
      * Creates or updates the website profile in [slot] (`PUT devices/me/profiles/:slot`). Never a PIN.
      *
-     * [actingProfileId] is the website profile in use on this computer: the website asks who is
-     * adding a profile or lifting a limit, as it does of its own pages. [profileToken] is the token
-     * of the profile being changed when that one has a PIN, and the acting profile's otherwise.
+     * [actingProfileId] is the website profile in use on this computer, with [actingToken] if it
+     * has a PIN: the website asks who is adding a profile or lifting a limit, as it does of its own
+     * pages. [targetToken] is the token of the profile being changed, when that one has a PIN.
      */
-    suspend fun putProfile(slot: Int, body: JsonObject, actingProfileId: String? = null, profileToken: String? = null): WebsiteProfile =
+    suspend fun putProfile(
+        slot: Int,
+        body: JsonObject,
+        actingProfileId: String? = null,
+        actingToken: String? = null,
+        targetToken: String? = null
+    ): WebsiteProfile =
         json.decodeFromString(
             WebsiteSavedProfile.serializer(),
-            authedText("devices/me/profiles/$slot", "PUT", body.toString(), profileId = actingProfileId, profileToken = profileToken)
+            authedText(
+                "devices/me/profiles/$slot", "PUT", body.toString(),
+                profileId = actingProfileId, profileToken = actingToken, targetProfileToken = targetToken
+            )
         ).profile
 
     suspend fun deleteProfile(profileId: String, profileToken: String?) {
@@ -482,7 +491,8 @@ class FetchWebsiteClient(
         body: String? = null,
         profileId: String? = null,
         profileToken: String? = null,
-        ifMatch: Int? = null
+        ifMatch: Int? = null,
+        targetProfileToken: String? = null
     ): String = io {
         val current = session() ?: throw FetchWebsiteSignedOutException()
         val builder = Request.Builder()
@@ -491,6 +501,7 @@ class FetchWebsiteClient(
             .method(method, body?.toRequestBody(JSON))
         if (profileId != null) builder.header("x-profile-id", profileId)
         if (!profileToken.isNullOrBlank()) builder.header("x-profile-token", profileToken)
+        if (!targetProfileToken.isNullOrBlank()) builder.header("x-target-profile-token", targetProfileToken)
         if (ifMatch != null) builder.header("If-Match", "\"$ifMatch\"")
         http.newCall(builder.build()).execute().use { response ->
             ensureOk(response, session = true)

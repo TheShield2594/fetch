@@ -214,31 +214,39 @@ class FetchWebsiteSyncService @Inject constructor(
      * The website judges a new profile, and a lifted limit, by who is asking, as its own pages
      * do, so each request names the profile in use on this TV; that one goes first so the ones
      * after it can name it even when it is new itself. A profile the website won't add from here
-     * (a kids profile adding one) is left out rather than failing the rest.
+     * (a kids profile adding one) doesn't stop the rest going, but the push then fails with that
+     * refusal: [onSaved] has been given what did go, and the caller doesn't take the refused
+     * profile for saved (the first sync stays pending, so the pull doesn't drop it from this TV).
      */
     private suspend fun putProfiles(
         profiles: List<UserProfile>,
-        known: List<WebsiteSlottedProfile>
+        known: List<WebsiteSlottedProfile>,
+        onSaved: (List<WebsiteSlottedProfile>) -> Unit = {}
     ): List<WebsiteSlottedProfile> {
         val restrictions = restrictionsDataStore.restrictions.first()
         val activeSlot = profileManager.activeProfileId.value
         var onWebsite = known
         val saved = mutableListOf<WebsiteSlottedProfile>()
+        var refused: FetchWebsiteException? = null
         profiles.sortedByDescending { it.id == activeSlot }.forEach { profile ->
             val target = onWebsite.firstOrNull { it.slot == profile.id }
             val acting = onWebsite.firstOrNull { it.slot == activeSlot }
-            // One token per request: a PIN-protected profile changes only with its own.
-            val token = (target?.takeIf { it.hasPin } ?: acting)?.let { profileToken(it.id) }
+            // Who is asking, and separately the token that unlocks a PIN-protected profile.
+            val actingToken = acting?.let { profileToken(it.id) }
+            val targetToken = target?.takeIf { it.hasPin }?.let { profileToken(it.id) }
             val body = FetchWebsiteMappings.toWebsiteBody(profile, restrictions[profile.id] ?: ProfileRestrictions.None)
             try {
-                val put = client.putProfile(profile.id, body, acting?.id, token)
+                val put = client.putProfile(profile.id, body, acting?.id, actingToken, targetToken)
                 saved += put
                 onWebsite = onWebsite.filter { it.slot != put.slot } + put
             } catch (error: FetchWebsiteException) {
                 if (!error.needsParentalAuthority) throw error
                 Log.w(TAG, "The website won't add profile ${profile.id} from the profile in use here")
+                refused = refused ?: error
             }
         }
+        onSaved(saved)
+        refused?.let { throw it }
         return saved
     }
 
@@ -255,9 +263,13 @@ class FetchWebsiteSyncService @Inject constructor(
     /** Sends every profile on this TV to the website, creating the ones it doesn't have yet. */
     suspend fun pushProfiles(): Result<Unit> = runSuspendCatching {
         // The website's profiles say which one is in use here and which have a PIN.
-        val known = remoteProfiles.ifEmpty { runSuspendCatching { client.profiles() }.getOrDefault(emptyList()) }
-        val updated = putProfiles(profileManager.profiles.value, known)
-        remoteProfiles = (remoteProfiles.filter { r -> updated.none { it.slot == r.slot } } + updated).sortedBy { it.slot }
+        // Without them the push would go unnamed and a locked profile's change be left out
+        // unnoticed, so not being able to read them fails the push.
+        val known = remoteProfiles.ifEmpty { client.profiles() }
+        putProfiles(profileManager.profiles.value, known) { updated ->
+            remoteProfiles = (remoteProfiles.filter { r -> updated.none { it.slot == r.slot } } + updated).sortedBy { it.slot }
+        }
+        Unit
     }.onFailure { Log.w(TAG, "Failed to push profiles to the website", it) }
 
     /**

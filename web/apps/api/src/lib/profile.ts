@@ -272,12 +272,27 @@ export const withoutLoosenedLimits = <T extends Partial<ParentalLimits>>(
 };
 
 /**
+ * A second profile token, for a request that acts as one profile and changes
+ * another: `x-profile-token` goes with `x-profile-id` (the profile acting, the
+ * one parental authority is judged on), so the token of the profile being
+ * changed travels here. A TV's profile push is the one caller: a grown-up
+ * with a PIN changing another PIN-protected profile needs both.
+ */
+const TARGET_PROFILE_TOKEN_HEADER = "x-target-profile-token";
+
+/**
  * Whether this request may change a profile's name, picture or parental
  * fields: anyone in the account for an open profile, and only a holder of its
  * profile token (so, someone who entered its PIN) for a PIN-protected one.
+ * The token is taken from `x-profile-token`, or from `x-target-profile-token`
+ * when the request is acting as a different profile.
  */
-export const mayEditProfile = (request: FastifyRequest, profile: { id: string; pinHash: string | null }): boolean =>
-  !profile.pinHash || hasValidProfileToken(request, profile);
+export const mayEditProfile = (request: FastifyRequest, profile: { id: string; pinHash: string | null }): boolean => {
+  if (!profile.pinHash || hasValidProfileToken(request, profile)) return true;
+  const headerValue = request.headers[TARGET_PROFILE_TOKEN_HEADER];
+  const token = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+  return verifyProfileToken(token, profile.id, profile.pinHash);
+};
 
 export const PARENTAL_AUTHORITY_RESPONSE = {
   error: "Switch to a grown-up's profile to loosen parental controls or add a profile",

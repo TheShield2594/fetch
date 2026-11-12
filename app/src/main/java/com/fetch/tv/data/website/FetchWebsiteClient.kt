@@ -160,22 +160,24 @@ class FetchWebsiteClient internal constructor(
 
     /**
      * Creates or updates the website profile in [slot]. [actingProfileId] is the website profile
-     * in use on this TV: the website asks who is adding a profile or lifting a limit, as it does
-     * of its own pages. [profileToken] is the token of the profile being changed when that one
-     * has a PIN, and the acting profile's otherwise.
+     * in use on this TV, with [actingToken] if it has a PIN: the website asks who is adding a
+     * profile or lifting a limit, as it does of its own pages. [targetToken] is the token of the
+     * profile being changed, when that one has a PIN.
      */
     suspend fun putProfile(
         slot: Int,
         body: JsonObject,
         actingProfileId: String? = null,
-        profileToken: String? = null
+        actingToken: String? = null,
+        targetToken: String? = null
     ): WebsiteSlottedProfile =
         authed(
             "devices/me/profiles/$slot",
             method = "PUT",
             body = body.toString(),
             profileId = actingProfileId,
-            profileToken = profileToken
+            profileToken = actingToken,
+            targetProfileToken = targetToken
         ).use { response ->
             val wrapper = json.parseToJsonElement(response.body?.string().orEmpty()) as JsonObject
             json.decodeFromJsonElement(WebsiteSlottedProfile.serializer(), wrapper.getValue("profile"))
@@ -457,7 +459,8 @@ class FetchWebsiteClient internal constructor(
         body: String? = null,
         profileId: String? = null,
         profileToken: String? = null,
-        ifMatch: Int? = null
+        ifMatch: Int? = null,
+        targetProfileToken: String? = null
     ): Response = call {
         val session = store.session.value ?: throw FetchWebsiteSignedOutException()
         val builder = Request.Builder()
@@ -466,6 +469,7 @@ class FetchWebsiteClient internal constructor(
             .method(method, body?.toRequestBody(JSON))
         if (profileId != null) builder.header("x-profile-id", profileId)
         if (!profileToken.isNullOrBlank()) builder.header("x-profile-token", profileToken)
+        if (!targetProfileToken.isNullOrBlank()) builder.header("x-target-profile-token", targetProfileToken)
         if (ifMatch != null) builder.header("If-Match", "\"$ifMatch\"")
         val response = http.newCall(builder.build()).execute()
         try {

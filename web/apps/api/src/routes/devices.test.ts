@@ -598,6 +598,38 @@ describe("device routes", () => {
         );
       });
 
+      // A grown-up with a PIN lifting a limit on another PIN-protected profile:
+      // one token says who is acting, the other unlocks the profile changed.
+      it("takes the acting profile's token and the changed profile's token together", async () => {
+        vi.stubEnv("API_TOKEN", "test-api-token-0123456789abcdef0123456789abcdef");
+        const kid = stored({ pinHash: "scrypt$kid", isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false });
+        const parent = { ...stored({ pinHash: "scrypt$parent" }), id: SECOND_PROFILE_ID };
+        prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+        prismaMock.profile.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
+          where.id === PROFILE_ID ? kid : where.id === SECOND_PROFILE_ID ? parent : null
+        );
+        prismaMock.profile.update.mockResolvedValue({ ...kid, maxRating: "TEENS" });
+        const app = await buildApp(device);
+        const { mintProfileToken } = await import("../lib/profile-token.js");
+        const put = (headers: Record<string, string>) =>
+          app.inject({
+            method: "PUT",
+            url: "/devices/me/profiles/2",
+            headers: { ...asDevice, "x-profile-id": SECOND_PROFILE_ID, ...headers },
+            payload: { parental: { maxRating: "TEENS" } },
+          });
+
+        // The changed profile's token alone unlocks it but lifts nothing.
+        await put({ "x-target-profile-token": mintProfileToken(PROFILE_ID, "scrypt$kid") });
+        expect(prismaMock.profile.update).toHaveBeenLastCalledWith(expect.objectContaining({ data: {} }));
+
+        await put({
+          "x-profile-token": mintProfileToken(SECOND_PROFILE_ID, "scrypt$parent"),
+          "x-target-profile-token": mintProfileToken(PROFILE_ID, "scrypt$kid"),
+        });
+        expect(prismaMock.profile.update).toHaveBeenLastCalledWith(expect.objectContaining({ data: { maxRating: "TEENS" } }));
+      });
+
       const createInSlot = (app: FastifyInstance, headers: Record<string, string> = {}) =>
         app.inject({
           method: "PUT",

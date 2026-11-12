@@ -401,8 +401,9 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
         // /profiles/:id` makes, through the same helpers.
         //
         // A PIN-protected profile changes only for whoever unlocked it, so the
-        // TV sends that profile's token (`x-profile-token`) once the PIN has
-        // been entered there.
+        // TV sends that profile's token once the PIN has been entered there:
+        // as `x-target-profile-token`, since `x-profile-token` belongs to the
+        // profile in use on the TV (`x-profile-id`), which may be another.
         if (!mayEditProfile(request, current)) {
           return { profile: toSlottedView({ slot, profile: current }) };
         }

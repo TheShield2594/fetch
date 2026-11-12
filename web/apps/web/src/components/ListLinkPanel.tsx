@@ -106,7 +106,7 @@ export function ListLinkPanel({
         className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border px-4 py-3 text-sm"
         style={{ borderColor: "var(--border)", background: "var(--bg-1)" }}
       >
-        <Link2 className="h-4 w-4 flex-none text-claw-text" aria-hidden="true" />
+        <Link2 className="h-4 w-4 flex-none text-accent-text" aria-hidden="true" />
         <p className="min-w-0 flex-1" style={{ color: "var(--text-dim)" }}>
           Kept in step with <span className="font-semibold" style={{ color: "var(--text)" }}>{link.remoteName}</span> on{" "}
           {SERVICE_NAMES[link.provider]}

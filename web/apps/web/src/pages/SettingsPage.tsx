@@ -66,9 +66,11 @@ export type SettingsSection = {
 function AboutSection() {
   return (
     <div className="space-y-2 text-sm" style={{ color: "var(--text-dim)" }}>
-      <p className="text-base font-semibold" style={{ color: "var(--text)" }}>Fetch <span className="font-mono text-claw-text">v{APP_VERSION}</span></p>
-      <p className="text-sm">A personal media catalog and watchlist manager.</p>
-      <p className="text-2xs" style={{ color: "var(--text-mute)" }}>Fetch &middot; Personal Media Tracker</p>
+      <p className="text-base font-semibold" style={{ color: "var(--text)" }}>Fetch <span className="font-mono text-accent-text">v{APP_VERSION}</span></p>
+      <p className="text-sm">
+        The web side of Fetch: what you watch, your lists and your history, kept in step with the
+        Fetch app on your TV and with Stremio.
+      </p>
     </div>
   );
 }
@@ -85,7 +87,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "preferences",
     tab: "preferences",
-    title: "Metadata & Region",
+    title: "Metadata & region",
     icon: <Globe size={20} />,
     keywords: "language locale translation streaming region country spoiler protection tmdb metadata",
     content: <PreferencesSettings />,
@@ -101,7 +103,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "devices",
     tab: "preferences",
-    title: "TVs & Devices",
+    title: "TVs & devices",
     icon: <Tv size={20} />,
     keywords: "tv android pair pairing code qr sign in sign out revoke device token",
     content: <DevicesSettings />,
@@ -124,7 +126,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "extras",
     tab: "preferences",
-    title: "Show AI Recommendations",
+    title: "Extras",
     icon: <Sparkles size={20} />,
     keywords: "ai recommendations llm extras show",
     content: <ExtrasSettings />,
@@ -133,7 +135,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "job-status",
     adminOnly: true,
     tab: "preferences",
-    title: "Sync Status",
+    title: "Sync status",
     icon: <Activity size={20} />,
     keywords: "background jobs scheduled sync failures errors trakt scrobble",
     content: <JobStatusSettings />,
@@ -153,7 +155,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "trakt",
     tab: "integrations",
     group: "Where history comes from",
-    title: "Trakt Integration",
+    title: "Trakt",
     icon: <Link size={20} />,
     keywords: "scrobble import watchlist history oauth sync",
     content: <TraktSettings />,
@@ -180,7 +182,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "media-servers",
     tab: "integrations",
     group: "Where history comes from",
-    title: "Media Servers",
+    title: "Media servers",
     icon: <Server size={20} />,
     keywords: "plex jellyfin emby media server sign in link code watched progress resume library",
     content: <MediaServersSettings />,
@@ -189,7 +191,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "media-server-webhooks",
     tab: "integrations",
     group: "Where history comes from",
-    title: "Plex, Jellyfin & Emby Webhooks",
+    title: "Plex, Jellyfin & Emby webhooks",
     icon: <Webhook size={20} />,
     keywords: "plex jellyfin emby webhook media server scrobble watched link key",
     content: <WebhookSettings />,
@@ -200,7 +202,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     adminOnly: true,
     tab: "integrations",
     group: "Metadata & artwork",
-    title: "TMDB Metadata",
+    title: "TMDB metadata",
     icon: <Film size={20} />,
     keywords: "the movie database api key posters metadata artwork cast",
     content: <TmdbSettings />,
@@ -210,7 +212,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     adminOnly: true,
     tab: "integrations",
     group: "Metadata & artwork",
-    title: "OMDB Ratings",
+    title: "OMDB ratings",
     icon: <Star size={20} />,
     keywords: "imdb rotten tomatoes metacritic scores api key",
     content: <OmdbSettings />,
@@ -229,7 +231,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     adminOnly: true,
     tab: "integrations",
     group: "Metadata & artwork",
-    title: "RPDB Posters",
+    title: "RPDB posters",
     icon: <Image size={20} />,
     keywords: "rating poster database artwork images api key",
     content: <RpdbSettings />,
@@ -240,7 +242,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     adminOnly: true,
     tab: "integrations",
     group: "This server",
-    title: "Stremio Addon",
+    title: "Stremio addon",
     icon: <Clapperboard size={20} />,
     keywords: "stremio catalogs manifest install url",
     content: <AddonSettings />,
@@ -250,7 +252,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     adminOnly: true,
     tab: "integrations",
     group: "This server",
-    title: "Invites & Accounts",
+    title: "Invites & accounts",
     icon: <UserPlus size={20} />,
     keywords: "invite friend share sign up users accounts members remove",
     content: <InvitesSettings />,
@@ -269,7 +271,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     extra: true,
     tab: "integrations",
     group: "Recommendations",
-    title: "AI Recommendations",
+    title: "AI recommendations",
     icon: <Sparkles size={20} />,
     keywords: "llm openai ollama model provider suggestions",
     content: <AiSettings />,
@@ -279,7 +281,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
   {
     id: "tv-overview",
     tab: "tv",
-    title: "Synced Data",
+    title: "Synced data",
     icon: <Tv size={20} />,
     keywords: "dashboard overview counts health database jobs sync devices television",
     content: <TvOverview />,
@@ -288,7 +290,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "tv-addons",
     tab: "tv",
     group: "This profile on the TV",
-    title: "TV Addons",
+    title: "TV addons",
     icon: <Puzzle size={20} />,
     keywords: "addons manifest install configure order sources streams catalogs television",
     content: <TvAddonsSettings />,
@@ -297,7 +299,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "tv-home",
     tab: "tv",
     group: "This profile on the TV",
-    title: "Home Rows",
+    title: "Home rows",
     icon: <LayoutList size={20} />,
     keywords: "home screen rows order reorder hide catalogs lists continue watching layout television",
     content: <HomeLayoutSettings />,
@@ -306,7 +308,7 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     id: "tv-settings",
     tab: "tv",
     group: "This profile on the TV",
-    title: "TV Playback Settings",
+    title: "TV playback",
     icon: <SlidersHorizontal size={20} />,
     keywords: "auto-play autoplay best match ranking resolution codec hdr audio subtitles language style essential advanced television",
     content: <TvSettingsForm />,
@@ -446,7 +448,7 @@ export function SettingsPage() {
           onKeyDown={(e) => {
             if (e.key === "Escape") setQuery("");
           }}
-          placeholder="Search settings..."
+          placeholder="Search settings…"
           aria-label="Search settings"
           className="w-full rounded-full py-2.5 pl-11 pr-11 text-sm placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
           style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-0)", color: "var(--text)" }}
@@ -468,7 +470,7 @@ export function SettingsPage() {
         <p role="status" className="text-sm tabular-nums" style={{ color: "var(--text-dim)" }}>
           {visible.length === 0
             ? `No settings match "${query.trim()}".`
-            : `${visible.length} ${visible.length === 1 ? "section" : "sections"} across both tabs.`}
+            : `${visible.length} ${visible.length === 1 ? "section" : "sections"} across every tab.`}
         </p>
       ) : (
         // A real tablist rather than two buttons whose selected state is a

@@ -63,7 +63,7 @@ export function TmdbSettings() {
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
         TMDB provides the posters, ratings, cast and episode data for every movie and show in your
         catalog — without a key, searching and metadata refreshes stop working. Get a free API key at{" "}
-        <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-claw-text underline underline-offset-2 hover:decoration-2">
+        <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-accent-text underline underline-offset-2 hover:decoration-2">
           themoviedb.org
         </a>.
       </p>

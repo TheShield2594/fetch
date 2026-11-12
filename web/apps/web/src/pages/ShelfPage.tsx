@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { Check, Play, RotateCw, X } from "lucide-react";
 import {
   api,
+  type CatalogList,
   type CheckIn,
   type ListItemWithMeta,
   OfflineWriteQueuedError,
@@ -14,9 +14,10 @@ import { useOnTitleClose, useTitlePanel } from "../components/media-detail/title
 import { GhostLoader } from "../components/GhostLoader";
 import { LoadErrorBanner } from "../components/LoadErrorBanner";
 import { SectionError } from "../components/SectionError";
-import { Poster } from "../components/Poster";
+import { LandscapeCard, type LandscapeAction } from "../components/LandscapeCard";
 import { ProgressRuler } from "../components/ProgressRuler";
 import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
+import { SelectField } from "../components/SelectField";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { useCachedState } from "../hooks/useCachedState";
 import { useToast } from "../hooks/useToast";
@@ -27,12 +28,16 @@ import {
   buildShelf,
   countByKind,
   isResumedNextEpisode,
+  ratingKey,
   shelfEntryFromPlayback,
   shelfEntryFromSeriesProgress,
   shelfSummary,
+  sortShelf,
   SHELF_FILTERS,
+  SHELF_SORTS,
   type ShelfEntry,
   type ShelfFilter,
+  type ShelfSort,
 } from "./shelf";
 import { PosterGrid } from "../components/PosterGrid";
 import { PosterCard } from "../components/PosterCard";
@@ -63,13 +68,14 @@ import { PosterCard } from "../components/PosterCard";
 const RENDER_PAGE_SIZE = 60;
 
 /**
- * Shared with the dashboard's `dash:progress`. Two surfaces asking the same question should not each pay
+ * Shared with Discover's `dash:progress`. Two surfaces asking the same question should not each pay
  * for it, and arriving on either from the other then paints in the first frame.
  */
 const PROGRESS_CACHE_KEY = "dash:progress";
 /** The Shelf's own union. The per-list rows behind it stay under the Lists page's key. */
 const SHELF_ITEMS_CACHE_KEY = "shelf:items";
 const PLAYBACK_CACHE_KEY = "shelf:playback";
+const LISTS_CACHE_KEY = "shelf:lists";
 
 /* ─── The filter row ───────────────────────────────────────── */
 
@@ -109,179 +115,87 @@ function kindOptions(counts: Record<ShelfFilter, number>): SegmentedOption<Shelf
 /* ─── Up Next ──────────────────────────────────────────────── */
 
 /**
- * A card for something you are part-way through: the art, what comes next, the
- * unit it is measured in, and one action.
+ * One card in Up Next: what it is, and the one thing its action does.
  *
- * This was a list of rows in a bordered panel, on the argument that what you
- * are half-way through is a small set you want to *read* rather than browse.
- * The argument still holds and this is still a small set — but a 46px thumbnail
- * is not the artwork, it is a stamp of it, and the row spent its width on a
- * caption while the thing that identifies a show sat in a strip beside it.
- *
- * A 16:9 card is what the platform gives the same content: the still is the
- * subject, the caption is over it, and the episode ruler runs along the bottom
- * where a scrubber would. The unit the row was protecting is all still here —
- * ticks for a season, nothing for a film.
- *
- * Two buttons rather than one: the card body opens the title, and the trailing
- * circle marks the next unit. They cannot be nested, so the body's hit area is
- * an absolutely positioned button under the caption and the caption is
- * `pointer-events-none` above it, with the action button opting back in. Both
- * are named, and the caption's text is not a control.
+ * Continue Watching and Up Next were two rows of the same card a heading
+ * apart, and the difference between them — a resume point versus the next
+ * episode — is the action, not the section. So they are one ordered row: what
+ * you paused comes first, newest pause first, then the shows whose next
+ * episode is waiting, in the order the API ranks them.
  */
+type UpNextItem = {
+  key: string;
+  entry: ShelfEntry;
+  action?: LandscapeAction | undefined;
+  dismiss?: { label: string; onClick: () => void } | undefined;
+};
+
 function UpNextCard({
-  entry,
+  item,
+  lead,
   eager,
   onOpen,
-  onResume,
-  resumeLabel,
-  resumeBusy,
-  resumeIcon = "play",
-  onDismiss,
-  dismissLabel,
 }: {
-  entry: ShelfEntry;
-  /**
-   * Whether this card's still is above the fold. Only the first few are: past
-   * that they are off the end of the rail or below the grid, and `eager` asks
-   * the browser for `fetchPriority: high` on artwork nobody is looking at,
-   * against the artwork they are.
-   */
+  item: UpNextItem;
+  lead: boolean;
   eager: boolean;
   onOpen: () => void;
-  onResume?: (() => void) | undefined;
-  resumeLabel?: string | undefined;
-  resumeBusy?: boolean | undefined;
-  /**
-   * What the action does, drawn. Up Next's starts the next episode, so it is a
-   * play glyph; Continue Watching's finishes the title it is on, which is a
-   * check — a play button there would promise playback the web app can't give.
-   */
-  resumeIcon?: "play" | "check" | undefined;
-  /** A small corner control that takes the card off the row. */
-  onDismiss?: (() => void) | undefined;
-  dismissLabel?: string | undefined;
 }) {
-  // The landscape still if the record carries one, the poster if not. A poster
-  // in a 16:9 frame is cropped to its middle, which is a worse picture than the
-  // still and a much better one than a grey box.
-  const art = entry.item?.background ?? entry.art ?? undefined;
-
+  const { entry } = item;
   return (
-    <div
-      className="relative isolate w-[19rem] flex-none snap-start overflow-hidden rounded-2xl sm:w-auto"
-      style={{ aspectRatio: "16 / 9", background: "var(--surface)" }}
-    >
-      <Poster
-        src={art}
-        alt=""
-        className="absolute inset-0 h-full w-full"
-        eager={eager}
-        sizes="(min-width: 640px) 420px, 304px"
-        // A landscape still takes the backdrop ladder: at 2x a 420px card
-        // wants more than the poster ladder's top rung. A poster standing in
-        // for one keeps the poster ladder.
-        variant={entry.item?.background ? "backdrop" : "poster"}
-      />
-      {/* The scrim starts at 35% rather than at the top: a caption needs a
-          floor under it, and darkening the whole frame to get one takes the
-          picture down with it. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.78) 100%)" }}
-      />
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={`Open details for ${entry.title}`}
-        className="absolute inset-0 h-full w-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
-      />
-      <div className="pointer-events-none absolute inset-x-3.5 bottom-3.5 flex items-end gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="eyebrow truncate" style={{ color: "rgba(255,255,255,0.72)" }}>
-            {entry.meta}
-          </p>
-          <p className="mt-0.5 truncate text-[1.125rem] font-bold text-white">{entry.title}</p>
-          {entry.ruler ? (
-            <ProgressRuler
-              value={entry.ruler.value}
-              total={entry.ruler.total}
-              partial={entry.ruler.partial}
-              discrete={entry.ruler.discrete}
-              // Nothing on the card writes the count out in words — the ticks
-              // are the count — so this is the only thing that can say "4 of 10
-              // episodes watched" to someone who can't see them.
-              label={entry.ruler.label}
-              // Short of the full card width: a ruler that runs edge to edge
-              // reads as a scrubber for the card rather than as a count of
-              // episodes, and it would run under the action button.
-              className="mt-2.5 max-w-[12.5rem]"
-            />
-          ) : (
-            entry.trailing && (
-              <p className="meta mt-1 truncate" style={{ color: "rgba(255,255,255,0.72)" }}>
-                {entry.trailing}
-              </p>
-            )
-          )}
-        </div>
-        {onResume && (
-          <button
-            type="button"
-            onClick={onResume}
-            disabled={resumeBusy}
-            aria-label={resumeLabel}
-            title={resumeLabel}
-            className="pointer-events-auto flex h-11 w-11 flex-none items-center justify-center rounded-full transition-transform duration-fast active:scale-95 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-            // White rather than the accent: it sits on artwork of unknown
-            // colour, where the accent is one hue among however many the still
-            // happens to contain, and white is the only fill that is legible
-            // over all of them.
-            style={{ background: "rgba(255,255,255,0.92)", color: "#000" }}
-          >
-            {resumeBusy ? (
-              <RotateCw className="h-4 w-4 animate-spin" />
-            ) : resumeIcon === "check" ? (
-              <Check className="h-4 w-4" strokeWidth={2.5} />
-            ) : (
-              // Nudged right by a pixel: a triangle's optical centre sits left
-              // of its bounding box, so a centred play glyph reads as
-              // off-centre.
-              <Play className="h-4 w-4 translate-x-[1px] fill-current" />
-            )}
-          </button>
-        )}
-      </div>
-      {onDismiss && (
-        <button
-          type="button"
-          onClick={onDismiss}
-          disabled={resumeBusy}
-          aria-label={dismissLabel}
-          title={dismissLabel}
-          // Top-right and quiet: it is the action nobody should hit by accident,
-          // so it sits away from the one they came for, on a dark disc that
-          // stays legible over a bright still.
-          className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors duration-fast hover:bg-black/70 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-          style={{ background: "rgba(0,0,0,0.55)" }}
-        >
-          <X className="h-4 w-4" />
-        </button>
-      )}
-    </div>
+    <LandscapeCard
+      // The landscape still if the record carries one, the poster if not. A
+      // poster in a 16:9 frame is cropped to its middle, which is a worse
+      // picture than the still and a much better one than a grey box.
+      art={entry.item?.background ?? entry.art}
+      artIsBackdrop={!!entry.item?.background}
+      title={entry.title}
+      eyebrow={entry.meta}
+      progress={
+        entry.ruler ? (
+          <ProgressRuler
+            value={entry.ruler.value}
+            total={entry.ruler.total}
+            partial={entry.ruler.partial}
+            discrete={entry.ruler.discrete}
+            // Nothing on the card writes the count out in words — the ticks
+            // are the count — so this is the only thing that can say "4 of 10
+            // episodes watched" to someone who can't see them.
+            label={entry.ruler.label}
+            onArt
+          />
+        ) : undefined
+      }
+      onOpen={onOpen}
+      openLabel={`Open details for ${entry.title}`}
+      action={item.action}
+      dismiss={item.dismiss}
+      size={lead ? "lead" : "rail"}
+      eager={eager}
+      className={lead ? "w-full lg:w-[min(30rem,50%)] lg:flex-none" : "w-[15rem] flex-none snap-start"}
+    />
   );
 }
 
 /* ─── A cell in the grid ───────────────────────────────────── */
 
 /**
- * One cell of the grid: artwork, title, and the run that says what it is.
- *
- * Deliberately the same cell for all three kinds — the run underneath is where
- * they differ, and it is doing the work the type badges used to do badly.
+ * One cell of the library: the shared poster card, with the kind as the first
+ * token of its meta run rather than a badge over the art — the same cell for
+ * shows and films, so the run underneath is where they differ.
  */
-function ShelfCell({ entry, eager, onOpen }: { entry: ShelfEntry; eager: boolean; onOpen: () => void }) {
+function ShelfCell({
+  entry,
+  eager,
+  myRating,
+  onOpen,
+}: {
+  entry: ShelfEntry;
+  eager: boolean;
+  /** Shown while the library is sorted by it, so the order has its reason beside it. */
+  myRating: number | null;
+  onOpen: () => void;
+}) {
   return (
     <PosterCard
       poster={entry.art}
@@ -289,21 +203,9 @@ function ShelfCell({ entry, eager, onOpen }: { entry: ShelfEntry; eager: boolean
       onOpen={onOpen}
       openLabel={`Open details for ${entry.title}`}
       eager={eager}
-    >
-      {/*
-       * No type badge on the artwork. The coloured "MOVIE"/"SERIES" pills the
-       * grids used to carry were the tell the redesign is aimed at: a label
-       * shouted over the picture, in a colour that means nothing, saying what
-       * the line below already says quietly. The kind is the first token of the
-       * caption instead, where the year and the runtime already live.
-       */}
-      <p className="mt-2 truncate text-[0.8125rem] font-semibold" style={{ color: "var(--text)" }}>
-        {entry.title}
-      </p>
-      <p className="meta truncate" style={{ color: "var(--text-mute)" }}>
-        {entry.meta}
-      </p>
-    </PosterCard>
+      meta={entry.meta}
+      rating={myRating != null ? { source: "mine", value: myRating } : null}
+    />
   );
 }
 
@@ -319,8 +221,16 @@ export function ShelfPage() {
   // its own on this page: it arrives by link and is cleared from the chip it
   // shows up as.
   const genre = searchParams.get("genre")?.trim() || null;
+  const sortParam = searchParams.get("sort");
+  const sort: ShelfSort = SHELF_SORTS.some((s) => s.value === sortParam) ? (sortParam as ShelfSort) : "added";
+  // `/?list=<id>` — the Library narrowed to one list. Like a genre, a question
+  // about the whole library, so it is answered from all of it.
+  const listParam = searchParams.get("list") || null;
 
   const [items, setItems, itemsMeta] = useCachedState<ListItemWithMeta[]>(SHELF_ITEMS_CACHE_KEY, []);
+  const [lists, setLists] = useCachedState<CatalogList[]>(LISTS_CACHE_KEY, []);
+  // Asked for only once the Library is sorted by it: most visits never are.
+  const [ratings, setRatings] = useState<ReadonlyMap<string, number> | null>(null);
   const [progress, setProgress] = useCachedState<SeriesProgress[]>(PROGRESS_CACHE_KEY, []);
   const [playback, setPlayback] = useCachedState<PlaybackProgress[]>(PLAYBACK_CACHE_KEY, []);
   const [checkin, setCheckin] = useState<CheckIn | null>(null);
@@ -372,6 +282,7 @@ export function ShelfPage() {
       );
 
       if (loadAbortRef.current !== controller) return;
+      setLists(lists.lists);
       setItems(itemPages.flat());
       setProgress(progressRes ?? []);
       setCheckin(checkinRes.checkin);
@@ -385,7 +296,7 @@ export function ShelfPage() {
     } finally {
       if (loadAbortRef.current === controller) setLoading(false);
     }
-  }, [setItems, setProgress, setPlayback]);
+  }, [setItems, setLists, setProgress, setPlayback]);
 
   useEffect(() => {
     void load();
@@ -393,8 +304,28 @@ export function ShelfPage() {
   }, [load]);
 
   // The panel can mark episodes watched and change lists, which moves the rows
-  // on this page.
-  useOnTitleClose(() => { void load(); });
+  // on this page — and rate things, which moves the Library under "My rating".
+  useOnTitleClose(() => {
+    void load();
+    setRatings(null);
+  });
+
+  useEffect(() => {
+    if (sort !== "rating" || ratings !== null) return;
+    let cancelled = false;
+    // The two kinds a list row can be. Season and episode ratings don't place
+    // a title in the Library, so they are not asked for.
+    void Promise.all([
+      api.getAllRatings("movie", 200).catch(() => ({ ratings: [] })),
+      api.getAllRatings("series", 200).catch(() => ({ ratings: [] })),
+    ]).then(([movies, series]) => {
+      if (cancelled) return;
+      setRatings(new Map([...movies.ratings, ...series.ratings].map((r) => [ratingKey(r.type, r.imdbId), r.rating])));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [sort, ratings]);
 
   /* ── Continue Watching ── */
 
@@ -412,6 +343,10 @@ export function ShelfPage() {
   }, [progress, checkin, playback]);
 
   const visibleInProgress = useMemo(() => applyShelfFilter(inProgress, filter), [inProgress, filter]);
+
+  // A narrowed Library (a genre, a list) is a question about the whole
+  // library, so Up Next steps aside while it is on — see `rest` below.
+  const narrowed = genre !== null || listParam !== null;
 
   /* ── Everything else ── */
 
@@ -446,19 +381,21 @@ export function ShelfPage() {
     [continueWatching, inProgress]
   );
   const rest = useMemo(() => {
-    const ofKind = applyShelfFilter(shelf, filter);
-    // A genre is a question about the whole library, so it is answered from
-    // the whole library: the rows pinned above are hidden while it is on (they
-    // come from feeds that carry no genres), and a title that would have been
-    // up there is counted here instead of nowhere.
+    let ofKind = applyShelfFilter(shelf, filter);
+    // A genre or a list is a question about the whole library, so it is
+    // answered from the whole library: the row pinned above is hidden while it
+    // is on (it comes from feeds that carry neither), and a title that would
+    // have been up there is counted here instead of nowhere.
+    if (listParam) ofKind = ofKind.filter((entry) => entry.lists.includes(listParam));
     if (genre) {
       const wanted = genre.toLowerCase();
-      return ofKind.filter((entry) => entry.item?.genres.some((g) => g.toLowerCase() === wanted));
+      ofKind = ofKind.filter((entry) => entry.item?.genres.some((g) => g.toLowerCase() === wanted));
     }
-    return ofKind.filter((entry) => !inProgressKeys.has(entry.key));
-  }, [shelf, filter, genre, inProgressKeys]);
+    const unpinned = narrowed ? ofKind : ofKind.filter((entry) => !inProgressKeys.has(entry.key));
+    return sortShelf(unpinned, sort, ratings ?? undefined);
+  }, [shelf, filter, genre, listParam, narrowed, inProgressKeys, sort, ratings]);
 
-  useEffect(() => setRenderLimit(RENDER_PAGE_SIZE), [filter, genre]);
+  useEffect(() => setRenderLimit(RENDER_PAGE_SIZE), [filter, genre, listParam, sort]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -551,7 +488,7 @@ export function ShelfPage() {
     try {
       await api.deletePlayback(p.id);
       setPlayback((prev) => prev.filter((row) => row.id !== p.id));
-      showToast(`Removed ${title} from Continue Watching`, "info", {
+      showToast(`Removed ${title} from Up next`, "info", {
         action: {
           label: "Undo",
           onAction: () => {
@@ -580,6 +517,57 @@ export function ShelfPage() {
       setPlaybackBusyId(null);
     }
   };
+
+  const upNext: UpNextItem[] = narrowed
+    ? []
+    : [
+        ...visibleContinue.map((entry): UpNextItem => {
+          const p = entry.playback!;
+          const what =
+            p.season != null && p.episode != null ? `S${p.season}:E${p.episode} of ${entry.title}` : entry.title;
+          return {
+            // By the resume point, not the entry key: one show can be paused
+            // on two episodes, which share `series:<id>`.
+            key: p.id,
+            entry,
+            action: {
+              icon: "check",
+              label: `Mark ${what} watched`,
+              onClick: () => void finishPlayback(p, entry.title),
+              busy: playbackBusyId === p.id,
+            },
+            dismiss: { label: `Remove ${what} from Up next`, onClick: () => void dismissPlayback(p, entry.title) },
+          };
+        }),
+        ...visibleInProgress.map((entry): UpNextItem => {
+          const series =
+            entry.kind === "show" ? progress.find((s) => `series:${s.imdbId}` === entry.key) : undefined;
+          return {
+            key: entry.key,
+            entry,
+            action: series
+              ? {
+                  icon: "play",
+                  label: `Mark S${series.nextSeason}:E${series.nextEpisode} of ${entry.title} watched`,
+                  onClick: () => void markNext(series),
+                  busy: markingId !== null && `series:${markingId}` === entry.key,
+                }
+              : undefined,
+          };
+        }),
+      ];
+  const [leadItem, ...railItems] = upNext;
+
+  const setParam = (name: string, value: string | null) =>
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (value) params.set(name, value);
+        else params.delete(name);
+        return params;
+      },
+      { replace: true }
+    );
 
   const summary = shelfSummary(
     everything,
@@ -666,94 +654,82 @@ export function ShelfPage() {
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-7">
-          {!genre && visibleContinue.length > 0 && (
-            <section aria-labelledby="shelf-continue">
-              <h2 id="shelf-continue" className={`${SECTION_TITLE} mb-3`} style={{ color: "var(--text)" }}>
-                Continue Watching
-              </h2>
-              {/* The same rail-then-grid as Up Next below, for the same reasons. */}
-              <div className="scrollbar-hide -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-3">
-                {visibleContinue.map((entry, index) => {
-                  const p = entry.playback!;
-                  const what =
-                    p.season != null && p.episode != null ? `S${p.season}:E${p.episode} of ${entry.title}` : entry.title;
-                  return (
-                    <UpNextCard
-                      // By the resume point, not the entry key: one show can be
-                      // paused on two episodes, which share `series:<id>`.
-                      key={p.id}
-                      entry={entry}
-                      eager={index < 3}
-                      onOpen={() => openEntry(entry)}
-                      onResume={() => void finishPlayback(p, entry.title)}
-                      resumeIcon="check"
-                      resumeLabel={`Mark ${what} watched`}
-                      resumeBusy={playbackBusyId === p.id}
-                      onDismiss={() => void dismissPlayback(p, entry.title)}
-                      dismissLabel={`Remove ${what} from Continue Watching`}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {!genre && visibleInProgress.length > 0 && (
+          {leadItem && (
             <section aria-labelledby="shelf-up-next">
               <h2 id="shelf-up-next" className={`${SECTION_TITLE} mb-3`} style={{ color: "var(--text)" }}>
-                Up Next
+                Up next
               </h2>
               {/*
-               * A snapping rail below `sm`, a grid above it.
+               * One lead, then a rail.
                *
-               * The same cards either way — what changes is whether they are
-               * laid out or scrolled. A phone has room for one and a bit, which
-               * is what makes a rail readable (the half-card is the affordance);
-               * a desktop has room for three across, where a rail would be a
-               * horizontal scrollbar in the middle of a page that scrolls
-               * vertically.
+               * The lead is the most recent thing you were in the middle of,
+               * drawn large — the page's entry point, which nine equal cards
+               * didn't have. The rest are compact cards in one horizontal row
+               * at every width: a wrapping grid of them pushed the library a
+               * screen and a half down. From `lg` the rail sits beside the
+               * lead rather than under it, which is what keeps the library's
+               * first row on a 1440×900 screen.
                *
-               * The negative margin lets the rail bleed to the edges of the
-               * screen while its first card still lines up with the column, so
-               * the last card doesn't stop short of the edge with a gutter's
-               * worth of black beside it.
+               * The rail bleeds to the screen edge on a phone (the negative
+               * margin) so its last card doesn't stop a gutter short.
                */}
-              <div className="scrollbar-hide -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-3">
-                {visibleInProgress.map((entry, index) => {
-                  const series =
-                    entry.kind === "show" ? progress.find((s) => `series:${s.imdbId}` === entry.key) : undefined;
-                  return (
-                    <UpNextCard
-                      key={entry.key}
-                      entry={entry}
-                      // Three: what a desktop shows across, and one and a bit
-                      // more than a phone's rail has room for. The rest load
-                      // lazily as they are scrolled to, the same way the grid
-                      // below does.
-                      eager={index < 3}
-                      onOpen={() => openEntry(entry)}
-                      onResume={series ? () => void markNext(series) : undefined}
-                      resumeLabel={
-                        series
-                          ? `Mark S${series.nextSeason}:E${series.nextEpisode} of ${entry.title} watched`
-                          : undefined
-                      }
-                      resumeBusy={markingId !== null && `series:${markingId}` === entry.key}
-                    />
-                  );
-                })}
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
+                <UpNextCard item={leadItem} lead eager onOpen={() => openEntry(leadItem.entry)} />
+                {railItems.length > 0 && (
+                  <div
+                    role="list"
+                    aria-label="More to pick up"
+                    className="scrollbar-hide -mx-5 flex min-w-0 snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 sm:mx-0 sm:px-0 lg:flex-1"
+                  >
+                    {railItems.map((item, index) => (
+                      <div role="listitem" key={item.key} className="flex-none">
+                        <UpNextCard item={item} lead={false} eager={index < 3} onOpen={() => openEntry(item.entry)} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           )}
 
           <section aria-labelledby="shelf-rest">
-            <div className="mb-3 flex items-baseline justify-between gap-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
               <h2 id="shelf-rest" className={SECTION_TITLE} style={{ color: "var(--text)" }}>
-                Library
+                Library <span className="meta font-normal" style={{ color: "var(--text-mute)" }}>{rest.length}</span>
               </h2>
-              <span className="meta flex-none" style={{ color: "var(--text-dim)" }}>
-                {rest.length} · Recently added
-              </span>
+              {/* Real controls where a label used to look like one: "31 ·
+                  Recently added" read as a sort and wasn't. */}
+              <div className="flex items-center gap-2">
+                {lists.length > 1 && (
+                  <SelectField
+                    aria-label="Show one list"
+                    value={listParam ?? ""}
+                    onChange={(e) => setParam("list", e.target.value || null)}
+                    className="max-w-[11rem] rounded-full py-1.5 pl-3 pr-8 text-sm"
+                    style={{ color: "var(--text-dim)" }}
+                  >
+                    <option value="">All lists</option>
+                    {lists.map((list) => (
+                      <option key={list.id} value={list.id}>
+                        {list.name}
+                      </option>
+                    ))}
+                  </SelectField>
+                )}
+                <SelectField
+                  aria-label="Sort the library"
+                  value={sort}
+                  onChange={(e) => setParam("sort", e.target.value === "added" ? null : e.target.value)}
+                  className="rounded-full py-1.5 pl-3 pr-8 text-sm"
+                  style={{ color: "var(--text-dim)" }}
+                >
+                  {SHELF_SORTS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </SelectField>
+              </div>
             </div>
 
             {genre && (
@@ -776,7 +752,7 @@ export function ShelfPage() {
                       { replace: true }
                     )
                   }
-                  className="font-medium text-claw-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  className="font-medium text-accent-text underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
                   Show every genre
                 </button>
@@ -789,14 +765,14 @@ export function ShelfPage() {
                   Nothing on the shelf in {genre}.{" "}
                   <Link
                     to={`/search?genre=${encodeURIComponent(genre)}`}
-                    className="font-medium text-claw-text underline-offset-2 hover:underline"
+                    className="font-medium text-accent-text underline-offset-2 hover:underline"
                   >
                     Browse {genre} in Search
                   </Link>
                 </p>
               ) : (
                 <p className="py-10 text-center text-sm" style={{ color: "var(--text-mute)" }}>
-                  Nothing else under this filter.
+                  {listParam ? "Nothing in this list under this filter." : "Nothing else under this filter."}
                 </p>
               )
             ) : (
@@ -807,7 +783,13 @@ export function ShelfPage() {
                  time. */
               <PosterGrid density="library">
                 {visibleRest.map((entry, index) => (
-                  <ShelfCell key={entry.key} entry={entry} eager={index < 6} onOpen={() => openEntry(entry)} />
+                  <ShelfCell
+                    key={entry.key}
+                    entry={entry}
+                    eager={index < 7}
+                    myRating={sort === "rating" ? (ratings?.get(entry.key) ?? null) : null}
+                    onOpen={() => openEntry(entry)}
+                  />
                 ))}
               </PosterGrid>
             )}
@@ -815,8 +797,6 @@ export function ShelfPage() {
           </section>
         </div>
       )}
-
-
     </div>
   );
 }

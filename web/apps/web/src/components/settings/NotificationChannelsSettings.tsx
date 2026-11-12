@@ -39,7 +39,7 @@ const KINDS: [KindSpec, ...KindSpec[]] = [
     id: "discord",
     label: "Discord",
     urlLabel: "Webhook URL",
-    urlPlaceholder: "https://discord.com/api/webhooks/...",
+    urlPlaceholder: "https://discord.com/api/webhooks/…",
     tokenLabel: null,
     tokenRequired: false,
     help: "Channel settings → Integrations → Webhooks → Copy Webhook URL.",
@@ -158,7 +158,7 @@ export function NotificationChannelsSettings() {
   // from the URL alone, and would otherwise surface hours later as silence.
   const test = async (channel: NotificationChannel) => {
     setBusyId(channel.id);
-    setResults((current) => ({ ...current, [channel.id]: { ok: true, message: "Sending..." } }));
+    setResults((current) => ({ ...current, [channel.id]: { ok: true, message: "Sending…" } }));
     try {
       const result = await api.testNotificationChannel(channel.id);
       setResults((current) => ({
@@ -186,7 +186,7 @@ export function NotificationChannelsSettings() {
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
-          <Loader2 size={16} className="animate-spin" /> Loading channels...
+          <Loader2 size={16} className="animate-spin" /> Loading channels…
         </div>
       ) : loadError ? (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger">

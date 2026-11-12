@@ -231,7 +231,7 @@ describe("CommandPalette", () => {
     // The visible line spells it with three dots; the live region uses an
     // ellipsis, so an exact string picks out the one on screen.
     await waitFor(() => {
-      expect(screen.getByText("Searching...")).toBeInTheDocument();
+      expect(screen.getByText("Searching…", { selector: "p:not([role=status])" })).toBeInTheDocument();
       expect(screen.queryByRole("option", { name: /Solaris/ })).not.toBeInTheDocument();
     });
     activeDescendantIsRendered(input);
@@ -240,7 +240,7 @@ describe("CommandPalette", () => {
     activeDescendantIsRendered(input);
 
     release();
-    await waitFor(() => expect(screen.queryByText("Searching...")).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText("Searching…", { selector: "p:not([role=status])" })).not.toBeInTheDocument());
     activeDescendantIsRendered(input);
   });
 
@@ -327,7 +327,7 @@ describe("CommandPalette", () => {
       releaseStale();
     });
 
-    expect(screen.getByText("Searching...")).toBeInTheDocument();
+    expect(screen.getByText("Searching…", { selector: "p:not([role=status])" })).toBeInTheDocument();
   });
 
   // Emptying the box takes the effect's early return, which schedules no timer

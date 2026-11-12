@@ -285,7 +285,7 @@ export function DevicesSettings() {
 
       {loading ? (
         <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
-          <Loader2 size={16} className="animate-spin" /> Loading devices...
+          <Loader2 size={16} className="animate-spin" /> Loading devices…
         </div>
       ) : error ? (
         <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {error}</p>

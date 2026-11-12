@@ -5,7 +5,7 @@ import { SECTION_TITLE } from "./typography";
  * A section's title, how many things are in it, and whatever control belongs on
  * the same line — scroll arrows, a "see all" link.
  *
- * Lived inside `DashboardPage.tsx` and was exported from it so the test file
+ * Lived inside `DiscoverPage.tsx` and was exported from it so the test file
  * could reach it, which is the tell that it was never a page's own component.
  */
 export function SectionHeader({

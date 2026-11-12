@@ -109,7 +109,7 @@ export function UpdatePrompt() {
       style={{ borderLeftWidth: "4px", borderColor: "var(--border)", background: "var(--bg-1)" }}
       onAnimationEnd={onExitAnimationEnd}
     >
-      <RefreshCw aria-hidden="true" className="h-5 w-5 flex-none text-claw-text" />
+      <RefreshCw aria-hidden="true" className="h-5 w-5 flex-none text-accent-text" />
       <span className="text-sm font-medium" style={{ color: "var(--text)" }}>
         A new version of Fetch is available.
       </span>

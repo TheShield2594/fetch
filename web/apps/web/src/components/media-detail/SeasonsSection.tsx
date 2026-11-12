@@ -663,7 +663,7 @@ export function SeasonsSection({
                               aria-pressed={isWatched}
                               aria-label={`${isWatched ? "Unmark" : "Mark"} ${ep.name} watched`}
                             >
-                              {isWatched && <Check className="h-3 w-3 text-claw-on" strokeWidth={3} />}
+                              {isWatched && <Check className="h-3 w-3 text-accent-on" strokeWidth={3} />}
                             </button>
                           </div>
 

@@ -75,7 +75,7 @@ function ApiKeyForm() {
   if (!status && !error) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
-        <Loader2 size={16} className="animate-spin" /> Checking the MDBList key...
+        <Loader2 size={16} className="animate-spin" /> Checking the MDBList key…
       </div>
     );
   }
@@ -141,7 +141,7 @@ function ApiKeyForm() {
               </>
             ) : saving ? (
               <>
-                <Loader2 size={16} className="animate-spin" /> Checking...
+                <Loader2 size={16} className="animate-spin" /> Checking…
               </>
             ) : (
               "Save API key"
@@ -236,7 +236,7 @@ function DisplayForm({ profileId }: { profileId: string }) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}>
-        <Loader2 size={16} className="animate-spin" /> Loading rating settings...
+        <Loader2 size={16} className="animate-spin" /> Loading rating settings…
       </div>
     );
   }
@@ -275,7 +275,7 @@ function DisplayForm({ profileId }: { profileId: string }) {
               <li
                 key={source}
                 {...rowProps(index)}
-                className={`${rowClass} flex items-center gap-3 ${dragOverIndex === index ? "ring-2 ring-claw-500/40" : ""}`}
+                className={`${rowClass} flex items-center gap-3 ${dragOverIndex === index ? "ring-2 ring-accent-500/40" : ""}`}
                 style={{ ...rowStyle, opacity: settings.enabled ? 1 : 0.6 }}
               >
                 <ReorderControls
@@ -356,7 +356,7 @@ export function MdbListRatingsSettings() {
           href="https://mdblist.com/preferences/"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-claw-text underline underline-offset-2 hover:decoration-2"
+          className="text-accent-text underline underline-offset-2 hover:decoration-2"
         >
           mdblist.com
         </a>{" "}

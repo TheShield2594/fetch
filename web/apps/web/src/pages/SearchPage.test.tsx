@@ -12,10 +12,10 @@ vi.mock("../api", async (importOriginal) => {
     ...actual,
     api: {
       getLists: vi.fn(),
-      search: vi.fn(),
+      browseSearch: vi.fn(),
+      getTrending: vi.fn(),
       addToList: vi.fn(),
       createList: vi.fn(),
-      getWatchProviders: vi.fn(),
     },
   };
 });
@@ -35,7 +35,13 @@ vi.mock("../components/MediaDetailPanel", () => ({
 
 const { api } = await import("../api");
 const getLists = vi.mocked(api.getLists);
-const search = vi.mocked(api.search);
+const browseSearch = vi.mocked(api.browseSearch);
+const getTrending = vi.mocked(api.getTrending);
+/**
+ * Most cases only care what a query returns per media type, so they script
+ * this, and `browseSearch` answers one page of it with nothing after.
+ */
+const search = vi.fn<(type: "movie" | "series", query: string, signal?: AbortSignal) => Promise<SearchResult[]>>();
 const addToList = vi.mocked(api.addToList);
 const createList = vi.mocked(api.createList);
 
@@ -85,23 +91,20 @@ function renderPage(initialEntry = "/search") {
   );
 }
 
-const queryField = () => screen.getByLabelText("Search movies and TV shows");
+const queryField = () => screen.getByLabelText("Search films and shows");
 
 beforeEach(() => {
+  window.localStorage.clear();
   getLists.mockResolvedValue({ lists: [WATCHLIST, SCIFI] });
+  search.mockReset();
   search.mockResolvedValue([]);
+  browseSearch.mockImplementation(async (type, params, signal) => ({
+    results: await search(type, params.query ?? "", signal),
+    page: params.page ?? 1,
+    nextPage: null,
+  }));
+  getTrending.mockResolvedValue({ metas: [] });
   addToList.mockResolvedValue(undefined as never);
-  // The "where to watch" badges fetch when their card scrolls into view. jsdom
-  // has no viewport, and a stub that never reports an intersection keeps that
-  // network call out of every case here.
-  vi.stubGlobal(
-    "IntersectionObserver",
-    class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    }
-  );
 });
 
 describe("SearchPage query handling", () => {
@@ -124,7 +127,7 @@ describe("SearchPage query handling", () => {
     await waitFor(() => expect(search).toHaveBeenCalledTimes(2));
     search.mockClear();
 
-    await user.click(screen.getByRole("button", { name: "Movies" }));
+    await user.click(screen.getByRole("button", { name: "Films" }));
 
     await waitFor(() => expect(search).toHaveBeenCalledWith("movie", "alien", expect.any(AbortSignal)));
     expect(search).not.toHaveBeenCalledWith("series", "alien", expect.any(AbortSignal));
@@ -139,14 +142,15 @@ describe("SearchPage query handling", () => {
     await waitFor(() => expect(screen.getByTestId("search-params").textContent).toBe("?q=solaris"));
   });
 
-  it("shows the invitation before anything has been searched", () => {
+  it("offers somewhere to start before anything has been searched", () => {
     renderPage();
 
-    expect(screen.getByText(/discover your next favorite/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Browse by genre" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Browse by decade" })).toBeInTheDocument();
     expect(screen.queryByText(/no results found/i)).not.toBeInTheDocument();
   });
 
-  it("returns to that invitation when the query is cleared", async () => {
+  it("returns to browsing when the query is cleared", async () => {
     const user = userEvent.setup();
     search.mockImplementation(async (type) => (type === "movie" ? [result("Solaris")] : []));
     renderPage("/search?q=solaris");
@@ -155,7 +159,7 @@ describe("SearchPage query handling", () => {
     await user.clear(queryField());
 
     await waitFor(() => expect(screen.queryByText("Solaris")).not.toBeInTheDocument());
-    expect(screen.getByText(/discover your next favorite/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Browse by genre" })).toBeInTheDocument();
   });
 
   it("says no results rather than leaving the grid empty", async () => {
@@ -175,7 +179,7 @@ describe("SearchPage query handling", () => {
 
     const live = screen.getByRole("status", { name: /search status/i });
     expect(live).toHaveAttribute("aria-live", "polite");
-    await waitFor(() => expect(live).toHaveTextContent(/showing 1 match/i));
+    await waitFor(() => expect(live).toHaveTextContent(/showing 1 result/i));
 
     // Still the same region afterwards — one that unmounts announces nothing.
     search.mockResolvedValue([]);
@@ -268,7 +272,7 @@ describe("SearchPage loading state", () => {
     // moment a query is typed, the grid can't render until the response lands,
     // and the only thing left was a 16px spinner up in the filter row.
     expect(await screen.findByTestId("search-skeleton")).toBeInTheDocument();
-    expect(screen.queryByText(/discover your next favorite/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Browse by genre" })).not.toBeInTheDocument();
 
     release([result("Solaris")], []);
 
@@ -285,7 +289,7 @@ describe("SearchPage loading state", () => {
     await screen.findByText("Solaris");
 
     deferSearch();
-    await user.click(screen.getByRole("button", { name: "Movies" }));
+    await user.click(screen.getByRole("button", { name: "Films" }));
 
     const region = await screen.findByTestId("search-results");
     await waitFor(() => expect(region).toHaveAttribute("aria-busy", "true"));
@@ -309,43 +313,74 @@ describe("SearchPage filters", () => {
     search.mockImplementation(async (type) => (type === "movie" ? HITS : []));
   });
 
-  it("filters the loaded results by genre and says what was filtered out", async () => {
+  /** The params of the most recent `browseSearch` for one media type. */
+  const lastAsk = (type: "movie" | "series") =>
+    browseSearch.mock.calls.filter(([t]) => t === type).at(-1)?.[1];
+
+  // #515: the filters used to narrow the one page already fetched, so
+  // "Horror, 1980–1989" filtered twenty results instead of searching.
+  it("asks the server again with the genre, rather than filtering what it has", async () => {
+    const user = userEvent.setup();
+    renderPage("/search?q=night");
+    expect(await screen.findByText("Alien")).toBeInTheDocument();
+    browseSearch.mockClear();
+
+    await user.click(screen.getByRole("button", { name: /filters/i }));
+    await user.selectOptions(screen.getByLabelText("Genre"), "Horror");
+
+    await waitFor(() => expect(lastAsk("movie")).toMatchObject({ query: "night", genre: "Horror", page: 1 }));
+    expect(lastAsk("series")).toMatchObject({ query: "night", genre: "Horror" });
+  });
+
+  it("sends the year range and minimum rating as part of the question", async () => {
+    const user = userEvent.setup();
+    renderPage("/search?q=night");
+    await screen.findByText("Alien");
+
+    await user.click(screen.getByRole("button", { name: /filters/i }));
+    await user.type(screen.getByLabelText("Earliest year"), "1980");
+    await user.type(screen.getByLabelText("Latest year"), "1989");
+    await user.selectOptions(screen.getByLabelText("TMDB rating"), "7");
+
+    await waitFor(() =>
+      expect(lastAsk("movie")).toMatchObject({ yearMin: "1980", yearMax: "1989", ratingMin: "7" })
+    );
+  });
+
+  it("browses on filters alone, with nothing typed", async () => {
+    renderPage("/search?genre=Horror&yearMin=1980&yearMax=1989");
+
+    expect(await screen.findByText("Alien")).toBeInTheDocument();
+    expect(lastAsk("movie")).toMatchObject({ query: "", genre: "Horror", yearMin: "1980", yearMax: "1989" });
+  });
+
+  it("starts a real browse from a genre on the empty page", async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole("button", { name: "Horror" }));
+
+    expect(await screen.findByText("Alien")).toBeInTheDocument();
+    expect(lastAsk("movie")).toMatchObject({ genre: "Horror" });
+    expect(screen.getByTestId("search-params").textContent).toBe("?genre=Horror");
+  });
+
+  it("starts a decade browse the same way", async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(screen.getByRole("button", { name: "1980s" }));
+
+    await waitFor(() => expect(lastAsk("movie")).toMatchObject({ yearMin: "1980", yearMax: "1989" }));
+  });
+
+  it("has one sort control, and sorting drops nothing", async () => {
     const user = userEvent.setup();
     renderPage("/search?q=sci");
     expect(await screen.findByText("Alien")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /filters/i }));
-    await user.selectOptions(screen.getByLabelText("Genre"), "Sci-Fi");
-
-    await waitFor(() => expect(screen.queryByText("Alien")).not.toBeInTheDocument());
-    expect(screen.getByText(/2 results/)).toBeInTheDocument();
-    expect(screen.getByText(/filtered from 3/)).toBeInTheDocument();
-    // Narrowing the result set doesn't re-ask the server: it is the same search.
-    expect(search).toHaveBeenCalledTimes(2);
-  });
-
-  it("filters by year range and minimum rating", async () => {
-    const user = userEvent.setup();
-    renderPage("/search?q=sci");
-    expect(await screen.findByText("Sunshine")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /filters/i }));
-    await user.type(screen.getByLabelText("Minimum year"), "1975");
-
-    await waitFor(() => expect(screen.queryByText("Solaris")).not.toBeInTheDocument());
-
-    await user.selectOptions(screen.getByLabelText("Min Rating"), "8");
-
-    await waitFor(() => expect(screen.queryByText("Sunshine")).not.toBeInTheDocument());
-    expect(screen.getByText("Alien")).toBeInTheDocument();
-  });
-
-  it("sorts without dropping anything", async () => {
-    const user = userEvent.setup();
-    renderPage("/search?q=sci");
-    expect(await screen.findByText("Alien")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Title A–Z" }));
+    expect(screen.getAllByRole("combobox", { name: /sort/i })).toHaveLength(1);
+    await user.selectOptions(screen.getByRole("combobox", { name: /sort/i }), "title");
 
     await waitFor(() => {
       const titles = screen.getAllByRole("button", { name: /^View details for/ }).map((el) =>
@@ -358,23 +393,74 @@ describe("SearchPage filters", () => {
   it("clears the filters without clearing the search", async () => {
     const user = userEvent.setup();
     renderPage("/search?q=sci&genre=Horror");
-    expect(await screen.findByText("Alien")).toBeInTheDocument();
-    expect(screen.queryByText("Solaris")).not.toBeInTheDocument();
+    await screen.findByText("Alien");
 
-    await user.click(screen.getByRole("button", { name: /^clear$/i }));
+    await user.click(screen.getByRole("button", { name: /^clear filters$/i }));
 
-    expect(await screen.findByText("Solaris")).toBeInTheDocument();
-    expect(screen.getByTestId("search-params").textContent).toBe("?q=sci");
+    await waitFor(() => expect(screen.getByTestId("search-params").textContent).toBe("?q=sci"));
+    await waitFor(() => expect(lastAsk("movie")).toMatchObject({ query: "sci", genre: "" }));
   });
 
   it("offers a way out when the filters, not the query, emptied the page", async () => {
     const user = userEvent.setup();
+    search.mockImplementation(async () => []);
     renderPage("/search?q=sci&genre=Western");
 
     expect(await screen.findByText(/no results found/i)).toBeInTheDocument();
+    search.mockImplementation(async (type) => (type === "movie" ? HITS : []));
     await user.click(screen.getByRole("button", { name: /clear all filters/i }));
 
     expect(await screen.findByText("Alien")).toBeInTheDocument();
+  });
+});
+
+describe("SearchPage paging", () => {
+  it("loads the next page from where each media type left off, and appends it", async () => {
+    const user = userEvent.setup();
+    browseSearch.mockImplementation(async (type, params) => {
+      const page = params.page ?? 1;
+      if (type === "series") return { results: [], page, nextPage: null };
+      return page === 1
+        ? { results: [result("Alien")], page: 1, nextPage: 4 }
+        : { results: [result("Aliens")], page, nextPage: null };
+    });
+    renderPage("/search?q=alien&filter=movie");
+    expect(await screen.findByText("Alien")).toBeInTheDocument();
+    expect(screen.getByText(/1 result so far/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Show more" }));
+
+    expect(await screen.findByText("Aliens")).toBeInTheDocument();
+    expect(screen.getByText("Alien")).toBeInTheDocument();
+    expect(browseSearch).toHaveBeenLastCalledWith("movie", expect.objectContaining({ page: 4 }), expect.any(AbortSignal));
+    // TMDB said there is nothing after that.
+    expect(screen.queryByRole("button", { name: "Show more" })).not.toBeInTheDocument();
+  });
+});
+
+describe("SearchPage browse state", () => {
+  it("remembers a search that found something, and offers it again", async () => {
+    const user = userEvent.setup();
+    search.mockImplementation(async (type) => (type === "movie" ? [result("Solaris")] : []));
+    renderPage("/search?q=solaris");
+    await screen.findByText("Solaris");
+
+    await user.clear(queryField());
+    const recent = await screen.findByRole("button", { name: "solaris" });
+    await user.click(recent);
+
+    await waitFor(() => expect(screen.getByTestId("search-params").textContent).toBe("?q=solaris"));
+  });
+
+  it("shows what is trending, as the same cards a search draws", async () => {
+    getTrending.mockImplementation(async (type) => ({
+      metas: type === "movie" ? [{ id: "tt1", type: "movie", name: "Dune", year: 2021, rating: 8 }] : [],
+    }));
+    renderPage();
+
+    expect(await screen.findByRole("heading", { name: "Trending this week" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "View details for Dune" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add Dune to a list" })).toBeInTheDocument();
   });
 });
 

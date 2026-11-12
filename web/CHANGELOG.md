@@ -15,9 +15,17 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **A title has its own URL.** Opening a title puts `?title=<type>:<imdbId>` on the page underneath, so it can be reloaded, bookmarked and linked. Back closes it or returns to the previous title after a "More Like This" hop, Close leaves all the hops at once, and the tab is named for the open title. One panel is mounted at the shell instead of one per page, and episode notifications link straight to the show ([#499](https://github.com/TheShield2594/fetch/issues/499)).
 
+- **Search is useful before anything is typed, and its filters search.** The empty page offers recent searches, genres, decades and what is trending; a genre or decade runs a real TMDB browse. Genre, year and rating filters are now part of the question asked of TMDB instead of a sieve over one page of results, results page with "Show more", and sort is one control. New `GET /search/browse?type=&q=&genre=&yearMin=&yearMax=&ratingMin=&sort=&page=` returns `{ results, page, nextPage }` ([#515](https://github.com/TheShield2594/fetch/issues/515)).
+
 - **History can be searched and jumped through.** A title filter and a jump-to-month menu, both answered by the server and kept in the URL (`/history?month=2026-03&q=…`). `GET /watch/history` takes `q` and `before` and returns `runtime`, `rating` and `seriesRating` on each row; `GET /watch/history/months` lists the months that have history ([#520](https://github.com/TheShield2594/fetch/issues/520)).
 
 ### Changed
+
+- **The Shelf opens on one thing to pick up.** Continue Watching and Up Next are one "Up next" row: the most recent resume point or next episode drawn large, the rest a rail of compact cards beside it, so the library's first row is on screen at 1440×900. The library has a real sort (recently added, title, year, my rating) and a list filter, both kept in the URL ([#508](https://github.com/TheShield2594/fetch/issues/508)).
+
+- **A title is drawn the same way everywhere.** Search, Lists, Stats, Discover, Recently Watched and More like this all use one poster card with named slots, and the Shelf's Up next uses one landscape card. The type badges are gone (the kind leads the caption), a TMDB score is a labelled number and your own rating is stars, list membership is a small bookmark, and Discover's AI mark only appears when AI made the pick ([#507](https://github.com/TheShield2594/fetch/issues/507)).
+
+- **Names and copy left from Cataloggy and the dashboard are gone.** The 404 page goes back to the Shelf, Settings titles and buttons are in sentence case, the manifest no longer mentions games, and the command palette reaches Collections and Profiles ([#529](https://github.com/TheShield2594/fetch/issues/529)).
 
 - **History groups by day and folds a binge into one row.** Each day is headed with what it added up to ("3 episodes, 1 film · 3h 40m"), and consecutive episodes of one show are a single row ("S2 E13–E18 · 6 episodes") that opens to its episodes. Rows show your own rating and larger artwork, and their actions no longer need a hover. Discover's Recently Watched shows one card per title with a count ([#520](https://github.com/TheShield2594/fetch/issues/520)).
 

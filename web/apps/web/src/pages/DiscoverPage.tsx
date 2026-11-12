@@ -26,26 +26,26 @@ import { ScrollArrows } from "../components/ScrollArrows";
 import { SectionHeader } from "../components/SectionHeader";
 import { SectionError } from "../components/SectionError";
 import { LoadErrorBanner } from "../components/LoadErrorBanner";
-import { useDashboardSection } from "../hooks/useDashboardSection";
-import { CarouselSkeleton } from "../components/dashboard/CarouselSkeleton";
-import { ContinueWatchingCard } from "../components/dashboard/ContinueWatchingCard";
-import { ContinueWatchingHero } from "../components/dashboard/ContinueWatchingHero";
-import { DashboardHeader, PageHeading } from "../components/dashboard/DashboardHeader";
-import { DiscoverSubRow } from "../components/dashboard/DiscoverSubRow";
-import { DiscoveryCard } from "../components/dashboard/DiscoveryCard";
-import { NowPlayingList } from "../components/dashboard/NowPlayingList";
-import { NowWatchingHero } from "../components/dashboard/NowWatchingHero";
-import { RecentlyWatchedCard } from "../components/dashboard/RecentlyWatchedCard";
+import { useDiscoverSection } from "../hooks/useDiscoverSection";
+import { CarouselSkeleton } from "../components/discover/CarouselSkeleton";
+import { ContinueWatchingCard } from "../components/discover/ContinueWatchingCard";
+import { ContinueWatchingHero } from "../components/discover/ContinueWatchingHero";
+import { DiscoverHeader, PageHeading } from "../components/discover/DiscoverHeader";
+import { DiscoverSubRow } from "../components/discover/DiscoverSubRow";
+import { DiscoveryCard } from "../components/discover/DiscoveryCard";
+import { NowPlayingList } from "../components/discover/NowPlayingList";
+import { NowWatchingHero } from "../components/discover/NowWatchingHero";
+import { RecentlyWatchedCard } from "../components/discover/RecentlyWatchedCard";
 import { recentTitles } from "./history-groups";
-import { UpcomingList } from "../components/dashboard/UpcomingList";
+import { UpcomingList } from "../components/discover/UpcomingList";
 
 /** What `GET /recommendations/ai` answers with. */
 type AiRecommendationsResponse = { metas: TrendingMeta[]; reasons?: Record<string, string> | undefined };
 
 /* ─── Main component ─── */
 
-export function DashboardPage() {
-  // Each section keeps its data in the shared cache, so leaving the dashboard
+export function DiscoverPage() {
+  // Each section keeps its data in the shared cache, so leaving Discover
   // and coming back paints the same content in the first frame rather than
   // spinning while the requests it already made are made again. The loads below
   // are unchanged and still run on mount — they now refresh what is on screen
@@ -65,14 +65,14 @@ export function DashboardPage() {
 
   // Each rail loads, fails and retries on its own, so each gets its own
   // section — which is what keeps a Retry on one from invalidating a request
-  // still in flight beside it. See `useDashboardSection` for the guard.
-  const detailed = useDashboardSection<DetailedWatchStats | null>(
+  // still in flight beside it. See `useDiscoverSection` for the guard.
+  const detailed = useDiscoverSection<DetailedWatchStats | null>(
     "dash:detailed-stats",
     null,
     useCallback(() => api.getDetailedStats(), []),
   );
 
-  const trending = useDashboardSection<TrendingMeta[], { metas: TrendingMeta[] }>(
+  const trending = useDiscoverSection<TrendingMeta[], { metas: TrendingMeta[] }>(
     "dash:trending",
     [],
     useCallback(() => api.getTrending("movie", "week"), []),
@@ -94,7 +94,7 @@ export function DashboardPage() {
     },
   );
 
-  const movieRecs = useDashboardSection<TrendingMeta[], AiRecommendationsResponse>(
+  const movieRecs = useDiscoverSection<TrendingMeta[], AiRecommendationsResponse>(
     "dash:recs:movie",
     [],
     useCallback(() => api.getAiRecommendations("movie", 20), []),
@@ -106,7 +106,7 @@ export function DashboardPage() {
     },
   );
 
-  const seriesRecsSection = useDashboardSection<TrendingMeta[], AiRecommendationsResponse>(
+  const seriesRecsSection = useDiscoverSection<TrendingMeta[], AiRecommendationsResponse>(
     "dash:recs:series",
     [],
     useCallback(() => api.getAiRecommendations("series", 20), []),
@@ -118,7 +118,7 @@ export function DashboardPage() {
     },
   );
 
-  const calendar = useDashboardSection<CalendarEntry[], { calendar: CalendarEntry[] }>(
+  const calendar = useDiscoverSection<CalendarEntry[], { calendar: CalendarEntry[] }>(
     "dash:calendar",
     [],
     useCallback(() => api.getCalendar(14), []),
@@ -293,7 +293,7 @@ export function DashboardPage() {
   }, [load, profileId]);
 
   // The "marked!" confirmation on a Continue Watching card holds for 1.2s and
-  // then reloads the dashboard, so the timer that does it can outlive the page:
+  // then reloads Discover, so the timer that does it can outlive the page:
   // mark an episode, tap through to Settings inside that window, and five
   // requests fire for a page that no longer exists — and their answers are then
   // written into the shared cache, under whichever profile is active by the
@@ -395,7 +395,7 @@ export function DashboardPage() {
           </p>
           <Link
             to="/settings"
-            className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline"
+            className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline"
           >
             Check the connection in Settings &rarr;
           </Link>
@@ -425,7 +425,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* ── Header stat row ── */}
-      <DashboardHeader
+      <DiscoverHeader
         playsThisWeek={stats?.playsThisWeek ?? 0}
         streak={detailedStats?.currentStreak ?? 0}
         longestStreak={detailedStats?.longestStreak ?? 0}
@@ -467,7 +467,7 @@ export function DashboardPage() {
             <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
               No series in progress. Series you start watching pick up here.
             </p>
-            <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+            <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
               Find something to watch &rarr;
             </Link>
           </div>
@@ -510,14 +510,14 @@ export function DashboardPage() {
       <div className={`grid gap-5 ${hasUpcoming ? "lg:grid-cols-[1fr_268px]" : ""}`}>
         <section>
           <SectionHeader title="Trending Now">
-            <Link to="/search" className="text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+            <Link to="/search" className="text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
               Search &rarr;
             </Link>
           </SectionHeader>
           {trending.loading ? (
             <div className="grid grid-cols-2 gap-3 sm:[grid-template-columns:repeat(auto-fit,var(--poster-card-w))]">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="skeleton aspect-poster rounded-xl" />
+                <div key={i} className="skeleton aspect-poster rounded-2xl" />
               ))}
             </div>
           ) : trendingMovies.length === 0 ? (
@@ -530,7 +530,7 @@ export function DashboardPage() {
                 <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
                   Trending needs a TMDB API key to fetch content.
                 </p>
-                <Link to="/settings?tab=integrations" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+                <Link to="/settings?tab=integrations" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
                   Set it up in Settings &rarr;
                 </Link>
               </div>
@@ -562,7 +562,7 @@ export function DashboardPage() {
         {hasUpcoming && (
           <section>
             <SectionHeader title="Upcoming" count={calendarEntries.length}>
-              <Link to="/calendar" className="text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+              <Link to="/calendar" className="text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
                 Full calendar &rarr;
               </Link>
             </SectionHeader>
@@ -642,7 +642,7 @@ export function DashboardPage() {
             <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
               No watch history yet. Anything you mark watched shows up here.
             </p>
-            <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+            <Link to="/search" className="mt-1 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
               Find something to watch &rarr;
             </Link>
           </div>

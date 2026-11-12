@@ -5,7 +5,7 @@ import { SECTION_TITLE } from "./typography";
 /**
  * What a failed fetch looks like, with the way out of it.
  *
- * There were three of these. The dashboard's had a Retry button; the ones on
+ * There were three of these. Discover's had a Retry button; the ones on
  * Stats and History were hand-rolled red cards with no way back at all, so the
  * only recovery from a dropped request was reloading the browser. Sharing one
  * component is how the retry reaches them.
@@ -35,7 +35,7 @@ export function SectionError({
     <button
       type="button"
       onClick={onRetry}
-      className="text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset rounded"
+      className="text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset rounded"
     >
       Retry
     </button>

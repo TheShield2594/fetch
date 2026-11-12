@@ -109,11 +109,11 @@ describe("DetailPanel section degradation", () => {
     expect(dialog).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Solaris" })).toBeInTheDocument();
     expect(screen.getByText(/psychologist is sent to a station/i)).toBeInTheDocument();
-    expect(screen.getByText("Watch History")).toBeInTheDocument();
+    expect(screen.getByText("Watch history")).toBeInTheDocument();
     // The bundle's own sections are simply absent — not stuck on skeletons.
     expect(screen.queryByText("Cast")).not.toBeInTheDocument();
     expect(screen.queryByText("Where to Watch")).not.toBeInTheDocument();
-    expect(screen.queryByText("More Like This")).not.toBeInTheDocument();
+    expect(screen.queryByText("More like this")).not.toBeInTheDocument();
   });
 
   // #502: a failed request is said out loud, with a way back, rather than
@@ -179,7 +179,7 @@ describe("DetailPanel section degradation", () => {
     renderPanel({ detail: FULL_DETAIL });
 
     expect(await screen.findByRole("heading", { name: "Solaris" })).toBeInTheDocument();
-    expect(screen.getByText("Watch History")).toBeInTheDocument();
+    expect(screen.getByText("Watch history")).toBeInTheDocument();
     expect(screen.getByText("Donatas Banionis")).toBeInTheDocument();
   });
 });

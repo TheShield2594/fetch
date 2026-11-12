@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { BarChart3, CalendarDays, Compass, Film, History, Library, List, Search, Settings, Tv } from "lucide-react";
+import { BarChart3, CalendarDays, Compass, Film, History, LayoutGrid, Library, List, Search, Settings, Tv, Users } from "lucide-react";
 import { api, type SearchResult } from "../api";
 import { Poster } from "./Poster";
 import { useOnTitleClose, useTitlePanel } from "./media-detail/titlePanel";
@@ -165,12 +165,13 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     { id: "nav-calendar", label: "Go to Calendar", icon: CalendarDays, run: () => { requestClose(); navigate("/calendar"); } },
     { id: "nav-stats", label: "Go to Stats", icon: BarChart3, run: () => { requestClose(); navigate("/stats"); } },
     { id: "nav-settings", label: "Go to Settings", icon: Settings, run: () => { requestClose(); navigate("/settings"); } },
-    // The three surfaces the Shelf browses on behalf of. They are no longer in
-    // the rail, so the palette is the fastest way to reach one from anywhere —
-    // and typing "list" or "history" is how someone who used to have a tab for
-    // them will look.
+    // The places you manage things rather than browse them. They sit in the
+    // rail's lower group, a scroll away on a short window and behind "More" on
+    // a phone, so the palette is the fastest way to reach one from anywhere.
     { id: "nav-lists", label: "Go to Lists", icon: List, run: () => { requestClose(); navigate("/lists"); } },
     { id: "nav-history", label: "Go to History", icon: History, run: () => { requestClose(); navigate("/history"); } },
+    { id: "nav-collections", label: "Go to Collections", icon: LayoutGrid, run: () => { requestClose(); navigate("/collections"); } },
+    { id: "nav-profiles", label: "Go to Profiles", icon: Users, run: () => { requestClose(); navigate("/profiles"); } },
   ];
 
   const visibleActions = query.trim()
@@ -299,7 +300,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
         <div className="min-h-0 flex-auto overflow-y-auto py-2 sm:max-h-[60vh]">
           {searching && (
-            <p className="px-4 py-3 text-xs" style={{ color: "var(--text-dim)" }}>Searching...</p>
+            <p className="px-4 py-3 text-xs" style={{ color: "var(--text-dim)" }}>Searching…</p>
           )}
 
           {!searching && searchError && (

@@ -11,7 +11,7 @@ import { PosterSizesContext } from "./Poster";
  * named for what each is actually for.
  */
 
-export type PosterGridDensity = "page" | "library" | "compact";
+export type PosterGridDensity = "page" | "library" | "results" | "compact";
 
 const DENSITIES: Record<PosterGridDensity, string> = {
   /** A results or list page: big enough to read a title under the poster. */
@@ -24,6 +24,13 @@ const DENSITIES: Record<PosterGridDensity, string> = {
    */
   library:
     "grid-cols-3 gap-x-3 gap-y-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 sm:gap-x-4 sm:gap-y-5",
+  /**
+   * Search results: the library's density from a tablet up, so a page of
+   * results is a shelf to scan rather than five large posters a row, but two
+   * across on a phone, where each card carries an add menu that needs the room.
+   */
+  results:
+    "grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 sm:gap-x-4",
   /** Inside a panel, where the grid is an illustration rather than the subject. */
   compact: "grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5",
 };
@@ -54,6 +61,14 @@ const SIZES: Record<PosterGridDensity, string> = {
     "(min-width: 768px) calc((100vw - 176px) / 5)",
     "(min-width: 640px) calc((100vw - 160px) / 4)",
     "calc((100vw - 64px) / 3)",
+  ].join(", "),
+  results: [
+    "(min-width: 1400px) 170px",
+    "(min-width: 1280px) calc((100vw - 208px) / 7)",
+    "(min-width: 1024px) calc((100vw - 192px) / 6)",
+    "(min-width: 768px) calc((100vw - 176px) / 5)",
+    "(min-width: 640px) calc((100vw - 160px) / 4)",
+    "calc((100vw - 52px) / 2)",
   ].join(", "),
   // Inside a panel with 20px of padding, in a column capped at 896px.
   compact: [

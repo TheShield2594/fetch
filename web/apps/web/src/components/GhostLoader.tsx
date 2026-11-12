@@ -1,8 +1,8 @@
 /**
  * Pac-Man ghost loading indicator. The shape is 27 coloured blocks placed on
- * the 14x14 grid defined by `.cg-ghost__body` in index.css, plus two eyes that
+ * the 14x14 grid defined by `.fetch-ghost__body` in index.css, plus two eyes that
  * track side to side. All of the paint comes from the active theme's accent —
- * see the block comment beside `.cg-ghost` for the colour reasoning.
+ * see the block comment beside `.fetch-ghost` for the colour reasoning.
  *
  * Cells carry their `grid-area` inline rather than through a class each: the
  * name is the only thing that varies between them, so a rule per cell would be
@@ -37,34 +37,34 @@ export function GhostLoader({ label = "Loading…", scale, className = "" }: Gho
   return (
     <div role="status" aria-live="polite" className={`flex justify-center ${className}`}>
       <div
-        className="cg-ghost"
+        className="fetch-ghost"
         aria-hidden="true"
-        style={scale === undefined ? undefined : { "--cg-ghost-scale": scale } as React.CSSProperties}
+        style={scale === undefined ? undefined : { "--fetch-ghost-scale": scale } as React.CSSProperties}
       >
-        <div className="cg-ghost__body">
+        <div className="fetch-ghost__body">
           {SOLID_AREAS.map((area) => (
-            <div key={area} className="cg-ghost__cell" style={{ gridArea: area }} />
+            <div key={area} className="fetch-ghost__cell" style={{ gridArea: area }} />
           ))}
           {FLICKER_A_AREAS.map((area) => (
             <div
               key={area}
-              className="cg-ghost__cell cg-ghost__cell--flicker-a"
+              className="fetch-ghost__cell fetch-ghost__cell--flicker-a"
               style={{ gridArea: area }}
             />
           ))}
           {FLICKER_B_AREAS.map((area) => (
             <div
               key={area}
-              className="cg-ghost__cell cg-ghost__cell--flicker-b"
+              className="fetch-ghost__cell fetch-ghost__cell--flicker-b"
               style={{ gridArea: area }}
             />
           ))}
-          <div className="cg-ghost__eye" />
-          <div className="cg-ghost__eye cg-ghost__eye--right" />
-          <div className="cg-ghost__pupil" />
-          <div className="cg-ghost__pupil cg-ghost__pupil--right" />
+          <div className="fetch-ghost__eye" />
+          <div className="fetch-ghost__eye fetch-ghost__eye--right" />
+          <div className="fetch-ghost__pupil" />
+          <div className="fetch-ghost__pupil fetch-ghost__pupil--right" />
         </div>
-        <div className="cg-ghost__shadow" />
+        <div className="fetch-ghost__shadow" />
       </div>
       <span className="sr-only">{label}</span>
     </div>

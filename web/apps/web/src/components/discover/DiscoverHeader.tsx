@@ -5,17 +5,17 @@ import { useClockBoundary } from "../../hooks/useClockBoundary";
 import { GREETING_CUTOFF_HOURS, showsSameHeader, timeOfDayGreeting } from "./greeting";
 
 /**
- * The dashboard shows a greeting, not a title, so its h1 is hidden — every
+ * Discover shows a greeting, not a title, so its h1 is hidden — every
  * render path still needs one to head the outline, including the API-error
  * card, which is why this is exported rather than drawn by the header alone.
  */
 export function PageHeading() {
-  return <h1 className="sr-only">Dashboard</h1>;
+  return <h1 className="sr-only">Discover</h1>;
 }
 
 // The stat row's stand-in while getWatchStats and getDetailedStats are in
 // flight. Without it the header renders as greeting + date only and then grows
-// a whole row taller when the two calls land — on every dashboard load, warm
+// a whole row taller when the two calls land — on every Discover load, warm
 // ones included, because the calls are issued from their own effects. The
 // widths are the chips' rough measure, enough to hold the line's height and
 // keep the page below from being shoved down.
@@ -57,9 +57,9 @@ function TicketNotches() {
 function StatChip({ icon: Icon, label, value, accent }: { icon: ElementType; label: string; value: string | number; accent?: boolean }) {
   return (
     <span className="flex items-center gap-1.5 text-sm" style={{ color: accent ? undefined : "var(--text-dim)" }}>
-      <Icon className={`h-3.5 w-3.5 ${accent ? "text-claw-text" : ""}`} style={accent ? undefined : { color: "var(--text-mute)" }} />
+      <Icon className={`h-3.5 w-3.5 ${accent ? "text-accent-text" : ""}`} style={accent ? undefined : { color: "var(--text-mute)" }} />
       {/* Tabular figures so a ticking count doesn't shuffle the label beside it. */}
-      <span className={`tabular-nums ${accent ? "font-semibold text-claw-text" : ""}`}>
+      <span className={`tabular-nums ${accent ? "font-semibold text-accent-text" : ""}`}>
         {typeof value === "number" ? value.toLocaleString() : value}
       </span>
       <span className="hidden sm:inline" style={{ color: "var(--text-mute)" }}>{label}</span>
@@ -68,7 +68,7 @@ function StatChip({ icon: Icon, label, value, accent }: { icon: ElementType; lab
 }
 
 /** Greeting, date, and the collectible stats, folded into one persistent strip. */
-export function DashboardHeader({
+export function DiscoverHeader({
   playsThisWeek,
   streak,
   longestStreak,
@@ -127,7 +127,7 @@ export function DashboardHeader({
               Streak unavailable &middot; Retry
             </button>
           )}
-          <Link to="/stats" className="tap-target inline-flex min-h-6 items-center text-xs font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+          <Link to="/stats" className="tap-target inline-flex min-h-6 items-center text-xs font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
             Full stats &rarr;
           </Link>
         </div>

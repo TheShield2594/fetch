@@ -29,7 +29,7 @@ const STORED = {
 
 async function renderForm() {
   render(<TvSettingsForm />);
-  await waitFor(() => expect(screen.queryByText("Loading TV settings...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading TV settings…")).not.toBeInTheDocument());
 }
 
 describe("TvSettingsForm", () => {

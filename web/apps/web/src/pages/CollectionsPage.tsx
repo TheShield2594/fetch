@@ -297,7 +297,7 @@ function SourceBuilder({
             role="tab"
             aria-selected={provider === p}
             onClick={() => setProvider(p)}
-            className={`rounded-lg px-2.5 py-1 text-xs font-medium ${provider === p ? "bg-claw-500/15 text-claw-text" : "hover:bg-[var(--surface-strong)]"}`}
+            className={`rounded-lg px-2.5 py-1 text-xs font-medium ${provider === p ? "bg-accent-500/15 text-accent-text" : "hover:bg-[var(--surface-strong)]"}`}
             style={provider === p ? undefined : { color: "var(--text-dim)" }}
           >
             {PROVIDER_LABELS[p]}
@@ -355,7 +355,7 @@ function SourceBuilder({
                         type="button"
                         aria-pressed={on}
                         onClick={() => setGenres((g) => (on ? g.filter((id) => id !== genre.id) : [...g, genre.id]))}
-                        className={`rounded-full border px-2.5 py-0.5 text-xs ${on ? "bg-claw-500/15 text-claw-text" : ""}`}
+                        className={`rounded-full border px-2.5 py-0.5 text-xs ${on ? "bg-accent-500/15 text-accent-text" : ""}`}
                         style={{ borderColor: "var(--border)", ...(on ? {} : { color: "var(--text-dim)" }) }}
                       >
                         {genre.name}
@@ -771,7 +771,7 @@ export function CollectionsPage() {
                 type="button"
                 onClick={() => setSelectedId(collection.id)}
                 aria-current={collection.id === selectedId ? "true" : undefined}
-                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm ${collection.id === selectedId ? "bg-claw-500/10 text-claw-text" : "hover:bg-[var(--surface-strong)]"}`}
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm ${collection.id === selectedId ? "bg-accent-500/10 text-accent-text" : "hover:bg-[var(--surface-strong)]"}`}
                 style={collection.id === selectedId ? undefined : { color: "var(--text)" }}
               >
                 <LayoutGrid size={14} className="flex-none" />

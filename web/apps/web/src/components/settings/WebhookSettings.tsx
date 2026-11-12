@@ -99,7 +99,7 @@ export function WebhookSettings() {
   if (!status && !error) {
     return (
       <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
-        <Loader2 size={16} className="animate-spin" /> Loading...
+        <Loader2 size={16} className="animate-spin" /> Loading…
       </div>
     );
   }

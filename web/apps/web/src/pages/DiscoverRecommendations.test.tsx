@@ -6,12 +6,12 @@ import { MemoryRouter } from "react-router";
 import type { TrendingMeta } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { resetDataCacheForTests } from "../utils/dataCache";
-import { DashboardPage } from "./DashboardPage";
+import { DiscoverPage } from "./DiscoverPage";
 
 /*
  * The two AI rails, and specifically their staleness guards.
  *
- * `DashboardPage.test.ts` covers this file's exported pure helpers, which left
+ * `DiscoverPage.test.ts` covers this file's exported pure helpers, which left
  * the component itself — the token guards, the Retry buttons — with no render
  * test at all, and that is where the guards were wrong: `loadRecs` read its
  * token without advancing it, so a request never invalidated the one it
@@ -95,15 +95,15 @@ async function clickRetryOnMovies() {
 // A fresh element each call: React bails out of re-rendering a subtree handed
 // back the identical element, so a rerender that reuses one would never reach
 // the component whose render reads the profile.
-const dashboard = () => (
+const discover = () => (
   <MemoryRouter>
     <ToastProvider>
-      <DashboardPage />
+      <DiscoverPage />
     </ToastProvider>
   </MemoryRouter>
 );
 
-const renderDashboard = () => render(dashboard());
+const renderDiscover = () => render(discover());
 
 beforeEach(() => {
   resetDataCacheForTests();
@@ -136,12 +136,12 @@ beforeEach(() => {
   getAiRecommendations.mockResolvedValue(recs("Arrival"));
 });
 
-describe("Dashboard AI rails", () => {
+describe("Discover AI rails", () => {
   it("loads both rails from one AI config check", async () => {
     getAiRecommendations.mockImplementation(async (kind) =>
       kind === "movie" ? recs("Arrival") : recs("Severance")
     );
-    renderDashboard();
+    renderDiscover();
 
     // The shared token used to make the second call invalidate the first, so
     // whichever rail was started first never got to paint.
@@ -157,7 +157,7 @@ describe("Dashboard AI rails", () => {
       kind === "movie" ? recs("Arrival") : recs("Severance")
     );
 
-    render(<StrictMode>{dashboard()}</StrictMode>);
+    render(<StrictMode>{discover()}</StrictMode>);
 
     expect(await card("Arrival")).toBeInTheDocument();
     expect(getAiRecommendations.mock.calls.map(([kind]) => kind)).toEqual(["movie", "series"]);
@@ -168,7 +168,7 @@ describe("Dashboard AI rails", () => {
     getAiRecommendations.mockImplementation(async (kind) =>
       kind === "movie" ? first.promise : recs("Severance")
     );
-    renderDashboard();
+    renderDiscover();
 
     // The movie rail is still waiting on `first`; fail it so a Retry appears.
     await card("Severance");
@@ -190,7 +190,7 @@ describe("Dashboard AI rails", () => {
     getAiRecommendations.mockImplementation(async (kind) =>
       kind === "movie" ? movies.promise : recs("Severance")
     );
-    renderDashboard();
+    renderDiscover();
     await card("Severance");
 
     await act(async () => {
@@ -215,14 +215,14 @@ describe("Dashboard AI rails", () => {
     getAiRecommendations.mockImplementation(async (kind) =>
       kind === "movie" ? stale.promise : recs("Severance")
     );
-    const { rerender } = renderDashboard();
+    const { rerender } = renderDiscover();
     await card("Severance");
 
     getAiRecommendations.mockImplementation(async (kind) =>
       kind === "movie" ? recs("Solaris") : recs("Severance")
     );
     act(() => runtimeConfig.setProfileId("second-profile"));
-    rerender(dashboard());
+    rerender(discover());
     await card("Solaris");
 
     await act(async () => {

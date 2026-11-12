@@ -52,7 +52,7 @@ export function OmdbSettings() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking OMDB status...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking OMDB status…</div>;
   }
 
   return (
@@ -60,7 +60,7 @@ export function OmdbSettings() {
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
         OMDB provides ratings from <strong style={{ color: "var(--text)" }}>IMDb</strong>, <strong style={{ color: "var(--text)" }}>Rotten Tomatoes</strong>, and <strong style={{ color: "var(--text)" }}>Metacritic</strong> for every movie and show in your detail panels.
         Get a free API key at{" "}
-        <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer" className="text-claw-text underline underline-offset-2 hover:decoration-2">
+        <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener noreferrer" className="text-accent-text underline underline-offset-2 hover:decoration-2">
           omdbapi.com
         </a>.
       </p>
@@ -106,7 +106,7 @@ export function OmdbSettings() {
             disabled={saving || !apiKey.trim()}
             className={`btn-primary ${saved ? "btn-saved" : ""}`}
           >
-            {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save OMDB Key"}
+            {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : "Save OMDB key"}
           </button>
         </form>
       )}

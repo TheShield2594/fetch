@@ -1,113 +1,150 @@
-import { type FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
-import { Check, ChevronDown, ChevronUp, Film, Filter, Heart, MonitorPlay, Plus, Search, SlidersHorizontal, Star, Tv, X } from "lucide-react";
-import { api, type CatalogList, type SearchResult, type WatchProvider } from "../api";
+import { Check, ChevronDown, ChevronUp, Clock, Film, Filter, Plus, Search, SlidersHorizontal, Tv, X } from "lucide-react";
+import { api, type CatalogList, type SearchResult, type TrendingMeta } from "../api";
 import { useTitlePanel } from "../components/media-detail/titlePanel";
 import { useToast } from "../hooks/useToast";
 import { mergeByRelevance } from "../utils/mergeSearchResults";
-import { formatRating, ratingLabel, RATING_MAX } from "../utils/rating";
-import { getCacheScope } from "../utils/dataCache";
-import { createScopedMemoCache } from "../utils/scopedMemoCache";
+import { clearRecentSearches, loadRecentSearches, rememberSearch } from "../utils/recentSearches";
 import {
   useSearchFilters,
   type FilterType,
   type SortOption,
+  BROWSE_RELEVANCE_LABEL,
   GENRE_OPTIONS,
   SORT_LABELS,
 } from "../hooks/useSearchFilters";
-import { PAGE_TITLE, SECTION_TITLE, MICRO_LABEL } from "../components/typography";
+import { SECTION_TITLE, MICRO_LABEL, KICKER } from "../components/typography";
 import { SelectField } from "../components/SelectField";
 import { PosterGrid } from "../components/PosterGrid";
-import { PosterCard } from "../components/PosterCard";
+import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 
-/* ─── Helpers ─── */
+/*
+ * Search.
+ *
+ * Every filter is a question for TMDB, not a sieve over what one page
+ * returned: the page asks `/search/browse` once per media type, and the API
+ * either scans TMDB search pages for matches (when something is typed) or
+ * runs a `/discover` query (when only filters are set). "Horror, 1980–1989"
+ * therefore finds eighties horror rather than narrowing twenty results to two.
+ *
+ * With nothing typed and no filter set, the page is a place to start: recent
+ * searches, genres and decades that run a real browse, and what is trending.
+ */
 
-function applyFiltersAndSort(
-  results: SearchResult[],
-  genre: string,
-  yearMin: string,
-  yearMax: string,
-  ratingMin: string,
-  sort: SortOption,
-): SearchResult[] {
-  let filtered = results;
+type MediaKey = "movie" | "series";
 
-  if (genre) {
-    const g = genre.toLowerCase();
-    filtered = filtered.filter((r) =>
-      r.genres.some((rg) => rg.toLowerCase() === g)
-    );
+const typesFor = (filter: FilterType): MediaKey[] => (filter === "all" ? ["movie", "series"] : [filter]);
+
+const resultKey = (r: SearchResult) => `${r.type}:${r.imdbId}`;
+
+const dedupe = (results: SearchResult[]): SearchResult[] => {
+  const seen = new Set<string>();
+  return results.filter((r) => {
+    const key = resultKey(r);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+/** Films and shows one for one — the order each arrived in is already TMDB's. */
+const interleave = (a: SearchResult[], b: SearchResult[]): SearchResult[] => {
+  const out: SearchResult[] = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (a[i]) out.push(a[i]!);
+    if (b[i]) out.push(b[i]!);
   }
+  return out;
+};
 
-  if (yearMin) {
-    const min = parseInt(yearMin, 10);
-    if (!isNaN(min)) filtered = filtered.filter((r) => r.year != null && r.year >= min);
-  }
-
-  if (yearMax) {
-    const max = parseInt(yearMax, 10);
-    if (!isNaN(max)) filtered = filtered.filter((r) => r.year != null && r.year <= max);
-  }
-
-  if (ratingMin) {
-    const min = parseFloat(ratingMin);
-    if (!isNaN(min)) filtered = filtered.filter((r) => r.rating != null && r.rating >= min);
-  }
-
-  // Sort
+/**
+ * The order the loaded results are shown in. Relevance is the order they
+ * arrived in; anything else is applied over everything loaded so far, so a
+ * page appended by "Show more" lands in place rather than in a second sorted
+ * run under the first.
+ */
+function sortResults(results: SearchResult[], sort: SortOption): SearchResult[] {
   switch (sort) {
     case "rating":
-      filtered = [...filtered].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-      break;
+      return [...results].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     case "year_desc":
-      filtered = [...filtered].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
-      break;
+      return [...results].sort((a, b) => (b.year ?? 0) - (a.year ?? 0));
     case "year_asc":
-      filtered = [...filtered].sort((a, b) => (a.year ?? 0) - (b.year ?? 0));
-      break;
+      return [...results].sort((a, b) => (a.year ?? 9999) - (b.year ?? 9999));
     case "title":
-      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
-      break;
+      return [...results].sort((a, b) => a.name.localeCompare(b.name));
     case "relevance":
     default:
-      break;
+      return results;
   }
-
-  return filtered;
 }
+
+const trendingToResult = (meta: TrendingMeta): SearchResult => ({
+  imdbId: meta.id,
+  type: meta.type,
+  name: meta.name,
+  year: meta.year ?? null,
+  poster: meta.poster ?? null,
+  description: meta.description ?? null,
+  genres: meta.genres ?? [],
+  rating: meta.rating ?? null,
+  inWatchlist: false,
+  inCollection: false,
+  // Trending rows don't carry membership; an add made here still marks the card.
+  lists: [],
+});
+
+const DECADES = [2020, 2010, 2000, 1990, 1980, 1970, 1960, 1950];
 
 /* ─── Main Component ─── */
 
-/**
- * The search page: a query box with filter and sort chips over the combined
- * catalog, rendering matches as poster cards and adding titles to the shelf.
- */
 export function SearchPage() {
   const { filters, setFilters, clearFilters, hasActiveFilters, activeFilterCount } = useSearchFilters();
-  const [rawResults, setRawResults] = useState<SearchResult[] | null>(null);
+  const query = filters.query.trim();
+  const active = query !== "" || hasActiveFilters;
+
+  const [results, setResults] = useState<SearchResult[] | null>(null);
+  const [nextPages, setNextPages] = useState<Partial<Record<MediaKey, number | null>>>({});
   const [needsTmdb, setNeedsTmdb] = useState(false);
   // Held as state rather than left to the toast: the toast fades, and the page
   // it fades off said "No results found" — a search that failed reported for
   // the rest of the session as a search that came back empty.
   const [searchError, setSearchError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lists, setLists] = useState<CatalogList[]>([]);
+  const [trending, setTrending] = useState<SearchResult[] | null>(null);
+  const [recent, setRecent] = useState<string[]>(() => loadRecentSearches());
   // Keys are deleted when an add settles, not set to `false`: a `false` entry
   // reads the same as an absent one but keeps the `listId:imdbId` string alive
   // for the life of the tab, so the map only ever grew.
   const [pendingAdds, setPendingAdds] = useState<Record<string, true>>({});
   const { showToast } = useToast();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(hasActiveFilters);
   const advancedFiltersId = useId();
+  const sortId = useId();
   const { openTitle } = useTitlePanel();
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const lastSearchRef = useRef<{ filter: FilterType; query: string }>({ filter: "all", query: "" });
   const requestIdRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Load lists + providers on mount
+  // What a first page is a page *of*. With something typed the sort is applied
+  // here over what has loaded; with nothing typed it is part of the TMDB query.
+  const runKey = JSON.stringify({
+    filter: filters.filter,
+    query,
+    genre: filters.genre,
+    yearMin: filters.yearMin,
+    yearMax: filters.yearMax,
+    ratingMin: filters.ratingMin,
+    sort: query ? null : filters.sort,
+  });
+  // What the loaded results answer — compared against `runKey` to know when
+  // "Show more" would append a page of the wrong question.
+  const loadedKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
     void (async () => {
       try {
@@ -120,21 +157,31 @@ export function SearchPage() {
     })();
   }, [showToast]);
 
-  // Abort any in-flight search when the page unmounts
-  useEffect(() => {
-    return () => abortRef.current?.abort();
-  }, []);
+  useEffect(() => () => abortRef.current?.abort(), []);
 
-  // Close dropdown on outside click
+  // Close the add menu on an outside click.
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpenDropdown(null);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpenDropdown(null);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // Trending, for the browse state. Asked once, the first time the page has
+  // nothing else to show, and best-effort: a failure leaves the genres and
+  // decades, which are useful on their own.
+  const trendingAsked = useRef(false);
+  useEffect(() => {
+    if (active || trendingAsked.current) return;
+    trendingAsked.current = true;
+    void Promise.all([
+      api.getTrending("movie").catch(() => ({ metas: [] as TrendingMeta[] })),
+      api.getTrending("series").catch(() => ({ metas: [] as TrendingMeta[] })),
+    ]).then(([movies, series]) => {
+      setTrending(interleave(movies.metas.map(trendingToResult), series.metas.map(trendingToResult)).slice(0, 21));
+    });
+  }, [active]);
 
   const listMap = useMemo(() => {
     const map = new Map<string, CatalogList>();
@@ -142,94 +189,119 @@ export function SearchPage() {
     return map;
   }, [lists]);
 
-  const doSearch = useCallback(
-    async (searchFilter: FilterType, searchQuery: string) => {
-      if (!searchQuery.trim()) return;
+  /**
+   * Fetches a page per media type. `more` appends the next page of what is
+   * already loaded; otherwise this is a fresh question and replaces it.
+   */
+  const run = async (more: boolean) => {
+      const key = runKey;
+      const types = typesFor(filters.filter);
+      const pages = types
+        .map((type) => [type, more ? nextPages[type] : 1] as const)
+        .filter((entry): entry is readonly [MediaKey, number] => typeof entry[1] === "number");
+      if (pages.length === 0) return;
 
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
-
       const requestId = ++requestIdRef.current;
-      setIsSearching(true);
+      if (more) setIsLoadingMore(true);
+      else setIsSearching(true);
       setNeedsTmdb(false);
       setSearchError(null);
-      lastSearchRef.current = { filter: searchFilter, query: searchQuery };
 
       try {
-        if (searchFilter === "all") {
-          const [movies, series] = await Promise.all([
-            api.search("movie", searchQuery, controller.signal),
-            api.search("series", searchQuery, controller.signal),
-          ]);
-          if (requestIdRef.current !== requestId) return;
-          setRawResults(mergeByRelevance(movies, series, searchQuery));
-        } else {
-          const response = await api.search(searchFilter, searchQuery, controller.signal);
-          if (requestIdRef.current !== requestId) return;
-          setRawResults(response);
-        }
+        const answered = await Promise.all(
+          pages.map(([type, page]) =>
+            api
+              .browseSearch(
+                type,
+                {
+                  query,
+                  genre: filters.genre,
+                  yearMin: filters.yearMin,
+                  yearMax: filters.yearMax,
+                  ratingMin: filters.ratingMin,
+                  sort: query ? undefined : filters.sort,
+                  page,
+                },
+                controller.signal
+              )
+              .then((res) => [type, res] as const)
+          )
+        );
+        if (requestIdRef.current !== requestId) return;
+
+        const byType = Object.fromEntries(answered.map(([type, res]) => [type, res.results])) as Partial<
+          Record<MediaKey, SearchResult[]>
+        >;
+        const movies = byType.movie ?? [];
+        const series = byType.series ?? [];
+        const merged = query ? mergeByRelevance(movies, series, query) : interleave(movies, series);
+
+        setResults((prev) => dedupe(more && prev ? [...prev, ...merged] : merged));
+        setNextPages((prev) => {
+          const next = more ? { ...prev } : {};
+          for (const [type, res] of answered) next[type] = res.nextPage;
+          return next;
+        });
+        loadedKeyRef.current = key;
+        if (!more && query && merged.length > 0) setRecent(rememberSearch(query));
       } catch (err) {
         if (requestIdRef.current !== requestId) return;
         if (err instanceof DOMException && err.name === "AbortError") return;
-        setRawResults([]);
         const message = err instanceof Error ? err.message : "Search failed";
+        if (more) {
+          showToast(message, "error");
+          return;
+        }
+        setResults([]);
+        setNextPages({});
         setNeedsTmdb(/tmdb/i.test(message));
         setSearchError(message);
         showToast(message, "error");
       } finally {
         if (requestIdRef.current === requestId) {
           setIsSearching(false);
+          setIsLoadingMore(false);
         }
       }
-    },
-    [showToast]
-  );
+  };
 
-  // Filtered + sorted results
-  const results = useMemo(() => {
-    if (!rawResults) return null;
-    return applyFiltersAndSort(
-      rawResults,
-      filters.genre,
-      filters.yearMin,
-      filters.yearMax,
-      filters.ratingMin,
-      filters.sort,
-    );
-  }, [rawResults, filters.genre, filters.yearMin, filters.yearMax, filters.ratingMin, filters.sort]);
-
-  // Debounced auto-search on query/filter change
+  // A fresh question whenever what is being asked changes, debounced so typing
+  // asks once. `run` is deliberately not a dependency: it changes with
+  // `nextPages`, and a page landing must not ask the same question again.
+  const runRef = useRef(run);
   useEffect(() => {
-    if (!filters.query.trim()) {
-      // Invalidate any in-flight request so its response is discarded
+    runRef.current = run;
+  });
+  useEffect(() => {
+    if (!active) {
       ++requestIdRef.current;
       abortRef.current?.abort();
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      lastSearchRef.current = { filter: filters.filter, query: "" };
-      setRawResults(null);
+      loadedKeyRef.current = null;
+      setResults(null);
+      setNextPages({});
       setSearchError(null);
       setNeedsTmdb(false);
       setIsSearching(false);
+      setIsLoadingMore(false);
       return;
     }
-    // Only re-search if query or media type filter actually changed
-    const last = lastSearchRef.current;
-    if (last.query === filters.query && last.filter === filters.filter) return;
+    if (loadedKeyRef.current === runKey) return;
+    const timer = setTimeout(() => void runRef.current(false), 300);
+    return () => clearTimeout(timer);
+  }, [runKey, active]);
 
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      void doSearch(filters.filter, filters.query);
-    }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [filters.query, filters.filter, doSearch]);
-
-  const submitSearch = async (event: FormEvent<HTMLFormElement>) => {
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    await doSearch(filters.filter, filters.query);
+    if (active) void run(false);
+  };
+
+  const markAdded = (imdbId: string, listId: string) => {
+    const add = (r: SearchResult) => (r.imdbId === imdbId && !r.lists.includes(listId) ? { ...r, lists: [...r.lists, listId] } : r);
+    setResults((prev) => prev?.map(add) ?? null);
+    setTrending((prev) => prev?.map(add) ?? null);
   };
 
   const handleAdd = async (listId: string, result: SearchResult) => {
@@ -242,16 +314,8 @@ export function SearchPage() {
       await api.addToList(listId, { type: result.type, imdbId: result.imdbId, title: result.name });
       const listName = listMap.get(listId)?.name ?? "list";
       showToast(`Added "${result.name}" to ${listName}`, "success");
-      setLists((prev) =>
-        prev.map((l) =>
-          l.id === listId ? { ...l, itemCount: l.itemCount + 1 } : l
-        )
-      );
-      setRawResults((prev) =>
-        prev?.map((r) =>
-          r.imdbId === result.imdbId ? { ...r, lists: [...r.lists, listId] } : r
-        ) ?? null
-      );
+      setLists((prev) => prev.map((l) => (l.id === listId ? { ...l, itemCount: l.itemCount + 1 } : l)));
+      markAdded(result.imdbId, listId);
       setOpenDropdown(null);
     } catch (err) {
       showToast(err instanceof Error ? err.message : "Unable to add item", "error");
@@ -288,37 +352,22 @@ export function SearchPage() {
       return;
     }
     showToast(`Created "${list.name}" and added "${result.name}"`, "success");
-    setLists((prev) =>
-      prev.map((l) => (l.id === list.id ? { ...l, itemCount: l.itemCount + 1 } : l))
-    );
-    setRawResults((prev) =>
-      prev?.map((r) =>
-        r.imdbId === result.imdbId ? { ...r, lists: [...r.lists, list.id] } : r
-      ) ?? null
-    );
+    setLists((prev) => prev.map((l) => (l.id === list.id ? { ...l, itemCount: l.itemCount + 1 } : l)));
+    markAdded(result.imdbId, list.id);
     setOpenDropdown(null);
   };
 
   const filterOptions: { value: FilterType; label: string; icon?: typeof Film }[] = [
     { value: "all", label: "All" },
-    { value: "movie", label: "Movies", icon: Film },
-    { value: "series", label: "Series", icon: Tv },
+    { value: "movie", label: "Films", icon: Film },
+    { value: "series", label: "Shows", icon: Tv },
   ];
 
-  // Collect genres from current results for smart suggestions
-  const availableGenres = useMemo(() => {
-    if (!rawResults) return GENRE_OPTIONS;
-    const found = new Set<string>();
-    for (const r of rawResults) {
-      for (const g of r.genres) found.add(g);
-    }
-    // Merge with common genres, prioritizing found ones
-    const all = [...found, ...GENRE_OPTIONS.filter((g) => !found.has(g))];
-    return all;
-  }, [rawResults]);
-
-  const hasSearched = rawResults !== null;
-  const noResults = hasSearched && (results?.length ?? 0) === 0;
+  const shown = useMemo(() => (results ? sortResults(results, filters.sort) : null), [results, filters.sort]);
+  const hasMore = Object.values(nextPages).some((page) => typeof page === "number");
+  const hasSearched = active && results !== null;
+  const noResults = hasSearched && (shown?.length ?? 0) === 0;
+  const relevanceLabel = query ? SORT_LABELS.relevance : BROWSE_RELEVANCE_LABEL;
 
   // Empty until something has actually happened, so the region doesn't announce
   // on mount. Written as whole sentences rather than echoing the labels on
@@ -326,15 +375,32 @@ export function SearchPage() {
   // context, and an announcement arrives with none of that around it.
   const searchStatus = (() => {
     if (isSearching) return "Searching…";
+    if (isLoadingMore) return "Loading more results…";
     if (!hasSearched) return "";
     if (needsTmdb) return "A TMDB API key is needed before titles can be searched.";
     if (searchError) return `Search could not run. ${searchError}`;
-    const count = results?.length ?? 0;
+    const count = shown?.length ?? 0;
     if (count === 0) return "Nothing matched that search.";
-    return rawResults && count !== rawResults.length
-      ? `Showing ${count} of ${rawResults.length} matches.`
-      : `Showing ${count} match${count === 1 ? "" : "es"}.`;
+    return `Showing ${count} ${count === 1 ? "result" : "results"}${hasMore ? ", with more to load" : ""}.`;
   })();
+
+  const renderCard = (result: SearchResult, index: number) => (
+    <ResultCard
+      key={resultKey(result)}
+      result={result}
+      eager={index < 7}
+      lists={lists}
+      listMap={listMap}
+      pendingAdds={pendingAdds}
+      openDropdown={openDropdown}
+      dropdownRef={dropdownRef}
+      onToggleDropdown={(id) => setOpenDropdown(openDropdown === id ? null : id)}
+      onCloseDropdown={() => setOpenDropdown(null)}
+      onAdd={handleAdd}
+      onCreateAndAdd={handleCreateAndAdd}
+      onSelect={openTitle}
+    />
+  );
 
   return (
     <div className="relative space-y-6">
@@ -342,9 +408,7 @@ export function SearchPage() {
 
           Two radii in this panel, and only two: surfaces are rounded-2xl (this
           form, the advanced-filters grid inside it), controls are pills
-          (the query field, the type toggle, the year inputs, the selects). It
-          previously ran to four — 2xl, xl, full and lg stacked inside one
-          another — which read as four unrelated widgets rather than one panel. */}
+          (the query field, the type toggle, the year inputs, the selects). */}
       <form
         onSubmit={submitSearch}
         className="glass-surface sticky top-[76px] z-40 rounded-2xl p-4 backdrop-blur-xl shadow-e1"
@@ -358,8 +422,8 @@ export function SearchPage() {
           <input
             value={filters.query}
             onChange={(e) => setFilters({ query: e.target.value })}
-            placeholder="Search movies & TV shows..."
-            aria-label="Search movies and TV shows"
+            placeholder="Search films & shows…"
+            aria-label="Search films and shows"
             className="w-full rounded-full py-3.5 pl-14 pr-12 text-base placeholder:text-[var(--text-mute)] field-control transition-[border-color,box-shadow] duration-base"
             style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-0)", color: "var(--text)" }}
             autoFocus={typeof window !== "undefined" && !window.matchMedia("(pointer: coarse)").matches}
@@ -367,7 +431,7 @@ export function SearchPage() {
           {filters.query && (
             <button
               type="button"
-              onClick={() => { setFilters({ query: "" }); setRawResults(null); }}
+              onClick={() => setFilters({ query: "" })}
               aria-label="Clear search"
               className="absolute right-4 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold hover:bg-[var(--border-strong)] transition-colors"
               style={{ backgroundColor: "var(--border)", color: "var(--text)" }}
@@ -377,12 +441,12 @@ export function SearchPage() {
           )}
         </div>
 
-        {/* Filter pills + advanced toggle */}
-        <div className="mt-3 flex items-center gap-2 flex-wrap">
+        {/* Type toggle + filters */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <div className="flex rounded-full bg-[var(--surface)] p-1" style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}>
             {filterOptions.map((opt) => {
               const Icon = opt.icon;
-              const active = filters.filter === opt.value;
+              const on = filters.filter === opt.value;
               return (
                 <button
                   key={opt.value}
@@ -390,11 +454,9 @@ export function SearchPage() {
                   onClick={() => setFilters({ filter: opt.value })}
                   // Which filter is on is otherwise carried by a background
                   // colour and nothing else — SC 1.4.1 and 4.1.2.
-                  aria-pressed={active}
+                  aria-pressed={on}
                   className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-[color,background-color,box-shadow] duration-base ${
-                    active
-                      ? "bg-claw-500 text-claw-on shadow-e1"
-                      : "text-[var(--text-mute)] hover:text-[var(--text)]"
+                    on ? "bg-accent-500 text-accent-on shadow-e1" : "text-[var(--text-mute)] hover:text-[var(--text)]"
                   }`}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -404,13 +466,9 @@ export function SearchPage() {
             })}
           </div>
 
-          {/* Advanced filters toggle.
-
-              The word "Filters" is hidden below `sm`, where the button is icons
-              only — so the name has to come from `aria-label` rather than the
-              text, or the control is anonymous on exactly the viewport where it
-              is hardest to guess at. The label carries the badge's count too,
-              which is otherwise a bare number beside an icon. */}
+          {/* The word "Filters" is hidden below `sm`, where the button is an
+              icon only — so the name comes from `aria-label`, which also carries
+              the badge's count. */}
           <button
             type="button"
             onClick={() => setFiltersOpen((v) => !v)}
@@ -419,20 +477,18 @@ export function SearchPage() {
             aria-label={activeFilterCount > 0 ? `Filters (${activeFilterCount} active)` : "Filters"}
             className={`flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[color,background-color,border-color] duration-base ${
               hasActiveFilters
-                ? "border-claw-500/50 bg-claw-500/10 text-claw-text"
+                ? "border-accent-500/50 bg-accent-500/10 text-accent-text"
                 : "border-[var(--border-strong)] bg-[var(--surface)] text-[var(--text-mute)] hover:text-[var(--text)]"
             }`}
           >
             <SlidersHorizontal aria-hidden="true" className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Filters</span>
             {activeFilterCount > 0 && (
-              <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-claw-500 text-2xs font-bold text-claw-on">
+              <span aria-hidden="true" className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-500 text-2xs font-bold text-accent-on">
                 {activeFilterCount}
               </span>
             )}
-            {filtersOpen
-              ? <ChevronUp aria-hidden="true" className="h-3.5 w-3.5" />
-              : <ChevronDown aria-hidden="true" className="h-3.5 w-3.5" />}
+            {filtersOpen ? <ChevronUp aria-hidden="true" className="h-3.5 w-3.5" /> : <ChevronDown aria-hidden="true" className="h-3.5 w-3.5" />}
           </button>
 
           {hasActiveFilters && (
@@ -442,39 +498,37 @@ export function SearchPage() {
               className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm text-[var(--text-mute)] hover:text-[var(--text)] transition-colors"
             >
               <X className="h-3 w-3" />
-              Clear
+              Clear filters
             </button>
           )}
 
           {isSearching && (
             <span className="ml-auto flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
-              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-claw-500 border-t-transparent" />
-              Searching...
+              <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-accent-500 border-t-transparent" />
+              Searching…
             </span>
           )}
         </div>
 
-        {/* Advanced filters panel */}
+        {/* Filters. Each one is part of the question asked of TMDB. */}
         {filtersOpen && (
-          <div id={advancedFiltersId} className="mt-3 grid grid-cols-2 gap-3 rounded-2xl p-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6" style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border)", background: "var(--surface)" }}>
-            {/* Genre */}
+          <div id={advancedFiltersId} className="mt-3 grid grid-cols-2 gap-3 rounded-2xl p-3 sm:grid-cols-3" style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border)", background: "var(--surface)" }}>
             <FilterSelect
               label="Genre"
               value={filters.genre}
               onChange={(v) => setFilters({ genre: v })}
-              options={[{ value: "", label: "Any genre" }, ...availableGenres.map((g) => ({ value: g, label: g }))]}
+              options={[{ value: "", label: "Any genre" }, ...GENRE_OPTIONS.map((g) => ({ value: g, label: g }))]}
             />
 
-            {/* Year range */}
             <div className="flex flex-col gap-1">
               <label className={MICRO_LABEL} style={{ color: "var(--text-mute)" }}>Year</label>
               <div className="flex gap-1.5">
                 <input
                   type="number"
                   placeholder="From"
-                  aria-label="Minimum year"
+                  aria-label="Earliest year"
                   min="1900"
-                  max="2030"
+                  max="2100"
                   value={filters.yearMin}
                   onChange={(e) => setFilters({ yearMin: e.target.value })}
                   className="w-full min-w-0 rounded-full px-1.5 py-2 text-center text-sm placeholder:text-[var(--text-mute)] field-control"
@@ -483,9 +537,9 @@ export function SearchPage() {
                 <input
                   type="number"
                   placeholder="To"
-                  aria-label="Maximum year"
+                  aria-label="Latest year"
                   min="1900"
-                  max="2030"
+                  max="2100"
                   value={filters.yearMax}
                   onChange={(e) => setFilters({ yearMax: e.target.value })}
                   className="w-full min-w-0 rounded-full px-1.5 py-2 text-center text-sm placeholder:text-[var(--text-mute)] field-control"
@@ -494,209 +548,256 @@ export function SearchPage() {
               </div>
             </div>
 
-            {/* Min rating */}
             <FilterSelect
-              label="Min Rating"
+              label="TMDB rating"
               value={filters.ratingMin}
               onChange={(v) => setFilters({ ratingMin: v })}
               options={[
                 { value: "", label: "Any rating" },
-                { value: "9", label: "9+ Exceptional" },
-                { value: "8", label: "8+ Great" },
-                { value: "7", label: "7+ Good" },
-                { value: "6", label: "6+ Decent" },
-                { value: "5", label: "5+ Average" },
+                { value: "8", label: "8 and up" },
+                { value: "7", label: "7 and up" },
+                { value: "6", label: "6 and up" },
+                { value: "5", label: "5 and up" },
               ]}
-            />
-
-            {/* Sort */}
-            <FilterSelect
-              label="Sort by"
-              value={filters.sort}
-              onChange={(v) => setFilters({ sort: v as SortOption })}
-              options={Object.entries(SORT_LABELS).map(([value, label]) => ({ value, label }))}
             />
           </div>
         )}
       </form>
 
-      {/* The search runs as you type and swaps the page under you: results
-          appear, a count changes, a filter empties the grid. None of that moves
-          focus, so without a live region the only way to find out anything
-          happened is to go looking — which is what SC 4.1.3 is about.
-
-          One region for every outcome rather than `aria-live` on each of the
-          visible pieces: those come and go as whole subtrees, and a region that
-          unmounts doesn't announce. This one stays mounted and only its text
-          changes. `sr-only` because the same information is already on screen
-          in the count line and the empty states. */}
+      {/* One region for every outcome, kept mounted so its text changes rather
+          than its subtree — a region that unmounts doesn't announce (SC 4.1.3). */}
       <p className="sr-only" role="status" aria-live="polite" aria-label="Search status">
         {searchStatus}
       </p>
 
-      {/* First search of the session: there is no previous answer to hold on to,
-          so the region below the form would otherwise be blank until the
-          response lands — the intro state has gone, the grid hasn't arrived,
-          and a 16px spinner up in the filter row is the only sign anything is
-          happening. On a slow TMDB call that reads as a page that did nothing.
-          Every other async surface in the app answers with a skeleton; this is
-          the same one the lists page uses. */}
-      {isSearching && !hasSearched && <ResultsSkeleton />}
+      {/* First question of the session: there is no previous answer to hold on
+          to, so the region gets the grid's own skeleton rather than nothing. */}
+      {isSearching && results === null && <ResultsSkeleton />}
 
-      {/* Empty state – no search yet */}
-      {!hasSearched && !isSearching && (
-        <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="flex h-28 w-28 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border-strong)" } as React.CSSProperties}>
-            <Search className="h-14 w-14" style={{ color: "var(--text-mute)" }} />
-          </div>
-          <p className={`mt-6 ${PAGE_TITLE}`} style={{ color: "var(--text)" }}>Discover your next favorite</p>
-          <p className="mt-2 max-w-sm" style={{ color: "var(--text-mute)" }}>
-            Search for movies and series to add them to your lists and track what you watch.
-          </p>
-        </div>
+      {!active && (
+        <SearchBrowse
+          recent={recent}
+          onPickRecent={(q) => setFilters({ query: q })}
+          onClearRecent={() => {
+            clearRecentSearches();
+            setRecent([]);
+          }}
+          onPickGenre={(genre) => {
+            setFilters({ genre });
+            setFiltersOpen(true);
+          }}
+          onPickDecade={(start) => {
+            setFilters({ yearMin: String(start), yearMax: String(start + 9) });
+            setFiltersOpen(true);
+          }}
+          trending={trending}
+          renderCard={renderCard}
+        />
       )}
 
       {/* Everything a completed search produced — the grid, or the reason there
-          isn't one. A re-search leaves it in place rather than blanking the page,
-          but it describes the *previous* query until the new response lands, so
-          it is dimmed and marked busy for as long as that takes. Undimmed, a
-          grid that hasn't changed yet reads as the answer to what was just
-          typed. */}
-      <div
-        data-testid="search-results"
-        aria-busy={isSearching && hasSearched}
-        className={`space-y-6 transition-opacity duration-slow ${isSearching && hasSearched ? "opacity-40" : ""}`}
-      >
-        {/* No results */}
-        {noResults && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border-strong)" } as React.CSSProperties}>
-              <Filter className="h-12 w-12" style={{ color: "var(--text-mute)" }} />
-            </div>
-            <p className={`mt-5 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>
-              {needsTmdb ? "Search needs a TMDB API key" : searchError ? "Search failed" : "No results found"}
-            </p>
-            <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-              {needsTmdb
-                ? "Movie and series search is powered by TMDB — set up a free API key to start searching."
-                : searchError
-                  ? searchError
-                  : hasActiveFilters
-                    ? "Try adjusting your filters or search term."
-                    : "Try a different search term or filter."}
-            </p>
-            {needsTmdb && (
-              <Link
-                to="/settings?tab=integrations"
-                className="mt-3 rounded-full px-4 py-2 text-sm font-medium text-claw-text transition-colors hover:bg-[var(--surface)]"
-                style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
-              >
-                Set up TMDB in Settings &rarr;
-              </Link>
-            )}
-            {/* Not offered when the search itself failed: clearing filters
-                re-filters nothing, since no results were ever returned. */}
-            {hasActiveFilters && !needsTmdb && !searchError && (
-              <button
-                onClick={clearFilters}
-                className="mt-3 rounded-full px-4 py-2 text-sm font-medium hover:bg-[var(--surface)] transition-colors"
-                style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", color: "var(--text-dim)" }}
-              >
-                Clear all filters
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Results grid */}
-        {hasSearched && results !== null && results.length > 0 && (
-          <>
-            <div className="flex items-center justify-between">
-              <p className="meta-row" style={{ color: "var(--text-mute)" }}>
-                {results.length} result{results.length !== 1 ? "s" : ""}
-                {rawResults && results.length !== rawResults.length && (
-                  <span style={{ color: "var(--text-mute)" }}> (filtered from {rawResults.length})</span>
-                )}
+          isn't one. A re-search leaves it in place but dimmed and marked busy:
+          until the new answer lands it describes the previous question. */}
+      {active && (
+        <div
+          data-testid="search-results"
+          aria-busy={isSearching && hasSearched}
+          className={`space-y-5 transition-opacity duration-slow ${isSearching && hasSearched ? "opacity-40" : ""}`}
+        >
+          {noResults && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <Filter className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
+              <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>
+                {needsTmdb ? "Search needs a TMDB API key" : searchError ? "Search failed" : "No results found"}
               </p>
-              {/* Inline sort shortcut on desktop */}
-              <div className="hidden sm:flex items-center gap-2">
-                <span className="text-2xs" style={{ color: "var(--text-mute)" }}>Sort:</span>
-                {(["relevance", "rating", "year_desc", "title"] as const).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setFilters({ sort: s })}
-                    // The active pairing is --accent / --on-accent, the one every
-                    // other active pill in the app uses. It was `text-white` over
-                    // --text-dim, which is a *light* grey on the four dark themes:
-                    // 1.91:1 on glass, 2.27 on dark, 2.38 on letterboxd, 2.41 on
-                    // midnight. The one control saying which sort is in force was
-                    // the least legible thing on the page on the default theme.
-                    aria-pressed={filters.sort === s}
-                    className={`rounded-full px-2.5 py-1 text-2xs font-medium transition-colors duration-base focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset ${
-                      filters.sort === s ? "" : "hover:text-[var(--text)]"
-                    }`}
-                    style={
-                      filters.sort === s
-                        ? { background: "var(--accent)", color: "var(--on-accent)" }
-                        : { color: "var(--text-mute)" }
-                    }
-                  >
-                    {SORT_LABELS[s]}
-                  </button>
-                ))}
-              </div>
+              <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
+                {needsTmdb
+                  ? "Film and show search is powered by TMDB — set up a free API key to start searching."
+                  : searchError
+                    ? searchError
+                    : hasActiveFilters
+                      ? "Nothing matches every filter. Try loosening one."
+                      : "Try a different search term."}
+              </p>
+              {needsTmdb && (
+                <Link
+                  to="/settings?tab=integrations"
+                  className="mt-3 rounded-full px-4 py-2 text-sm font-medium text-accent-text transition-colors hover:bg-[var(--surface)]"
+                  style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
+                >
+                  Set up TMDB in Settings &rarr;
+                </Link>
+              )}
+              {/* Not offered when the search itself failed: there is nothing a
+                  looser filter would find in a request that never ran. */}
+              {hasActiveFilters && !needsTmdb && !searchError && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-3 rounded-full px-4 py-2 text-sm font-medium hover:bg-[var(--surface)] transition-colors"
+                  style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)", color: "var(--text-dim)" }}
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
-            <PosterGrid>
-              {results.map((result, index) => (
-                <ResultCard
-                  key={`${result.type}:${result.imdbId}`}
-                  result={result}
-                  eager={index < 5}
-                  lists={lists}
-                  listMap={listMap}
-                  pendingAdds={pendingAdds}
-                  openDropdown={openDropdown}
-                  dropdownRef={dropdownRef}
-                  onToggleDropdown={(id) => setOpenDropdown(openDropdown === id ? null : id)}
-                  onCloseDropdown={() => setOpenDropdown(null)}
-                  onAdd={handleAdd}
-                  onCreateAndAdd={handleCreateAndAdd}
-                  onSelect={openTitle}
-                />
-              ))}
-            </PosterGrid>
-          </>
-        )}
-      </div>
+          )}
 
-      {/* Detail side panel */}
+          {shown !== null && shown.length > 0 && (
+            <>
+              {/* The one sort control. It used to be in the filter panel and
+                  again as a row of pills here, two controls for one setting. */}
+              <div className="flex items-center justify-between gap-3">
+                <p className="meta-row" style={{ color: "var(--text-mute)" }}>
+                  {shown.length} {shown.length === 1 ? "result" : "results"}
+                  {hasMore ? " so far" : ""}
+                </p>
+                <div className="flex items-center gap-2">
+                  <label htmlFor={sortId} className="text-xs" style={{ color: "var(--text-mute)" }}>
+                    Sort
+                  </label>
+                  <SelectField
+                    id={sortId}
+                    value={filters.sort}
+                    onChange={(e) => setFilters({ sort: e.target.value as SortOption })}
+                    className="rounded-full py-1.5 pl-3 pr-8 text-sm"
+                    style={{ color: "var(--text-dim)" }}
+                  >
+                    {(Object.entries(SORT_LABELS) as [SortOption, string][]).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {value === "relevance" ? relevanceLabel : label}
+                      </option>
+                    ))}
+                  </SelectField>
+                </div>
+              </div>
+              <PosterGrid density="results">{shown.map(renderCard)}</PosterGrid>
+              {hasMore && (
+                <div className="flex justify-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => void run(true)}
+                    disabled={isLoadingMore || isSearching || loadedKeyRef.current !== runKey}
+                    className="btn-secondary btn-sm"
+                  >
+                    {isLoadingMore ? "Loading…" : "Show more"}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
+/* ─── Browse state ─── */
+
+/**
+ * The page before anything is typed: somewhere to start rather than a large
+ * icon and an invitation. Genres and decades set a real filter, which runs a
+ * TMDB browse, so they lead to the same results page a typed search does.
+ */
+function SearchBrowse({
+  recent,
+  onPickRecent,
+  onClearRecent,
+  onPickGenre,
+  onPickDecade,
+  trending,
+  renderCard,
+}: {
+  recent: string[];
+  onPickRecent: (query: string) => void;
+  onClearRecent: () => void;
+  onPickGenre: (genre: string) => void;
+  onPickDecade: (start: number) => void;
+  trending: SearchResult[] | null;
+  renderCard: (result: SearchResult, index: number) => React.ReactNode;
+}) {
+  const chip =
+    "rounded-full px-3 py-1.5 text-sm transition-colors duration-base hover:bg-[var(--surface-strong)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus";
+  const chipStyle = { border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text-dim)" } as const;
+
+  return (
+    <div className="space-y-7">
+      {recent.length > 0 && (
+        <section aria-labelledby="search-recent">
+          <div className="mb-2.5 flex items-center justify-between">
+            <h2 id="search-recent" className={KICKER} style={{ color: "var(--text-mute)" }}>
+              Recent searches
+            </h2>
+            <button type="button" onClick={onClearRecent} className="text-xs hover:underline" style={{ color: "var(--text-mute)" }}>
+              Clear
+            </button>
+          </div>
+          <ul className="flex flex-wrap gap-2">
+            {recent.map((q) => (
+              <li key={q}>
+                <button type="button" onClick={() => onPickRecent(q)} className={`${chip} inline-flex items-center gap-1.5`} style={chipStyle}>
+                  <Clock aria-hidden="true" className="h-3.5 w-3.5" />
+                  {q}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section aria-labelledby="search-genres">
+        <h2 id="search-genres" className={`mb-2.5 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
+          Browse by genre
+        </h2>
+        <ul className="flex flex-wrap gap-2">
+          {GENRE_OPTIONS.map((genre) => (
+            <li key={genre}>
+              <button type="button" onClick={() => onPickGenre(genre)} className={chip} style={chipStyle}>
+                {genre}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="search-decades">
+        <h2 id="search-decades" className={`mb-2.5 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
+          Browse by decade
+        </h2>
+        <ul className="flex flex-wrap gap-2">
+          {DECADES.map((start) => (
+            <li key={start}>
+              <button type="button" onClick={() => onPickDecade(start)} className={chip} style={chipStyle}>
+                {start}s
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {trending !== null && trending.length > 0 && (
+        <section aria-labelledby="search-trending">
+          <h2 id="search-trending" className={`mb-3 ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>
+            Trending this week
+          </h2>
+          <PosterGrid density="results">{trending.map(renderCard)}</PosterGrid>
+        </section>
+      )}
     </div>
   );
 }
 
 /* ─── Results Skeleton ─── */
 
-// Deliberately the same shape as the real grid — two columns on a phone up to
-// five on a wide screen, poster above title above year — so the results replace
-// it in place instead of shoving the page around when they arrive. Ten cards
-// fills two rows at the widest breakpoint, which is enough to read as "results
-// are coming" without pretending to know how many there will be.
-//
-// Hidden from assistive tech: the live region above already says "Searching…",
-// and a screen reader has nothing to gain from ten empty cards.
+// The same grid the results land in, so they replace it in place. Hidden from
+// assistive tech: the live region already says "Searching…".
 function ResultsSkeleton() {
   return (
     <div aria-hidden="true" data-testid="search-skeleton">
       <div className="skeleton h-4 w-24 rounded" />
-      <PosterGrid className="mt-6">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i}>
-            <div className="skeleton rounded-xl" style={{ aspectRatio: "2/3" }} />
-            <div className="skeleton mt-2 h-4 w-3/4 rounded" />
-            <div className="skeleton mt-1 h-3 w-1/2 rounded" />
-          </div>
+      <PosterGrid density="results" className="mt-5">
+        {Array.from({ length: 14 }).map((_, i) => (
+          <PosterCardSkeleton key={i} />
         ))}
       </PosterGrid>
     </div>
@@ -847,61 +948,31 @@ function ResultCard({
       name={result.name}
       onOpen={() => onSelect(result)}
       eager={eager}
-      className="flex flex-col"
-      actions={
-        <>
-          {/* Quick-add button: same low-resting-opacity treatment so trackpad/keyboard users see it exists before hovering/focusing */}
-          <button
-            ref={triggerRef}
-            type="button"
-            // The outside-click handler is a document mousedown listener and the
-            // trigger sits outside the panel, so without this it closed the
-            // dropdown on mousedown and the click that followed reopened it —
-            // making the button unable to dismiss its own panel.
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleDropdown(result.imdbId);
-            }}
-            className="pointer-events-auto absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-claw-500 text-claw-on opacity-100 sm:opacity-60 sm:group-hover:opacity-100 focus:opacity-100 focus-visible:opacity-100 shadow-e2 transition-[transform,opacity,background-color] duration-slow hover:bg-claw-600 hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-claw-300 focus-ring-offset"
-            aria-label={`Add ${result.name} to a list`}
-            aria-expanded={isOpen}
-            aria-controls={isOpen ? panelId : undefined}
-          >
-            <Plus className="h-4 w-4" strokeWidth={3} />
-          </button>
-
-          {/* Decorative, so it takes no clicks — the `actions` box it sits in
-              passes them through to the full-card button underneath. */}
-          {listNames.length > 0 && (
-            <div className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-claw-500 shadow-e1">
-              <Heart className="h-4 w-4 fill-claw-on text-claw-on" />
-            </div>
-          )}
-        </>
-      }
-      overlay={
-        <>
-          {/* Type badge */}
-          <span
-            className={`absolute left-2.5 top-2.5 flex items-center gap-1 rounded-md px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide shadow-e1 ring-1 ring-black/15 ${
-              result.type === "movie"
-                ? "bg-claw-500 text-claw-on"
-                : "bg-plum-500/90 text-white"
-            }`}
-            // The movie badge takes its foreground from --on-accent, which is already
-            // contrast-checked against the accent in every theme — a dark halo behind it
-            // would fight the near-black label. The plum series badge is white-on-fixed-
-            // colour, so it keeps the halo that holds it up over bright posters.
-            style={result.type === "movie" ? undefined : { textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
-          >
-            {result.type === "movie" ? <Film className="h-3 w-3" /> : <Tv className="h-3 w-3" />}
-            {result.type === "movie" ? "Movie" : "Series"}
-          </span>
-
-          {/* Gradient overlay: low resting opacity on desktop so it stays discoverable without a hover, full on hover/focus */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 transition-opacity duration-slow sm:opacity-30 sm:group-hover:opacity-100" />
-        </>
+      meta={metaRun(kindWord(result.type), result.year)}
+      rating={result.rating != null && result.rating > 0 ? { source: "tmdb", value: result.rating } : null}
+      inLists={listNames}
+      quickAction={
+        <button
+          ref={triggerRef}
+          type="button"
+          // The outside-click handler is a document mousedown listener and the
+          // trigger sits outside the panel, so without this it closed the
+          // dropdown on mousedown and the click that followed reopened it —
+          // making the button unable to dismiss its own panel.
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleDropdown(result.imdbId);
+          }}
+          // Visible at rest on every pointer, not only on hover: the one thing
+          // Search does that the title panel doesn't is add without opening.
+          className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full bg-accent-500 text-accent-on shadow-e2 transition-[transform,background-color] duration-base hover:bg-accent-600 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
+          aria-label={`Add ${result.name} to a list`}
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? panelId : undefined}
+        >
+          <Plus className="h-4 w-4" strokeWidth={3} />
+        </button>
       }
     >
       {/* Quick-add dropdown */}
@@ -923,7 +994,7 @@ function ResultCard({
             aria-label={`Add ${result.name} to a list`}
             onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeAndFocusTrigger(); } }}
             onBlur={handlePanelBlur}
-            className="absolute left-0 right-0 overflow-hidden rounded-xl shadow-e2"
+            className="absolute left-0 right-0 overflow-hidden rounded-2xl shadow-e2"
             style={{ background: "var(--bg-0)", borderWidth: 1, borderStyle: "solid", borderColor: "var(--border)" }}
           >
             <p className={`px-3 py-2.5 ${MICRO_LABEL}`} style={{ borderBottomWidth: 1, borderBottomStyle: "solid", borderBottomColor: "var(--border)", color: "var(--text-mute)" }}>
@@ -957,7 +1028,7 @@ function ResultCard({
                   <span style={{ color: already ? "var(--text-mute)" : "var(--text-dim)" }}>{list.name}</span>
                   {already && <span className="ml-auto text-2xs" style={{ color: "var(--text-mute)" }}>Added</span>}
                   {pending && (
-                    <span className="ml-auto inline-block h-3 w-3 animate-spin rounded-full border border-claw-500 border-t-transparent" />
+                    <span className="ml-auto inline-block h-3 w-3 animate-spin rounded-full border border-accent-500 border-t-transparent" />
                   )}
                 </button>
               );
@@ -979,7 +1050,7 @@ function ResultCard({
                     // whole dropdown in the same keystroke.
                     if (e.key === "Escape") { e.stopPropagation(); exitCreate(); }
                   }}
-                  placeholder="List name..."
+                  placeholder="List name…"
                   aria-label="New list name"
                   className="min-w-0 flex-1 rounded-md px-2 py-1 text-sm field-control"
                   style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-field)", background: "var(--bg-1)", color: "var(--text)" }}
@@ -998,7 +1069,7 @@ function ResultCard({
                 ref={createButtonRef}
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setCreating(true); }}
-                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-claw-text transition-colors hover:bg-[var(--surface)]"
+                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm text-accent-text transition-colors hover:bg-[var(--surface)]"
                 style={{ borderTopWidth: lists.length > 0 ? 1 : 0, borderTopStyle: "solid", borderTopColor: "var(--border)" }}
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -1009,140 +1080,6 @@ function ResultCard({
         </div>
       )}
 
-      {/* Title & metadata */}
-      <div className="mt-3">
-        <p className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{result.name}</p>
-        <div className="mt-0.5 flex items-center gap-2">
-          <span className="meta-row" style={{ color: "var(--text-mute)" }}>{result.year ?? "Unknown year"}</span>
-          {result.rating != null && result.rating > 0 && (
-            <span className="meta flex items-center gap-0.5 text-warning" title={ratingLabel(result.rating)}>
-              <Star className="h-3 w-3 fill-warning text-warning" />
-              {formatRating(result.rating)}
-              <span style={{ color: "var(--text-mute)" }}>/{RATING_MAX}</span>
-            </span>
-          )}
-          {listNames.length > 0 && (
-            <span className="rounded px-1.5 py-0.5 text-2xs font-medium" style={{ backgroundColor: "var(--surface)", color: "var(--text-dim)" }} title={listNames.join(", ")}>
-              In {listNames.join(", ")}
-            </span>
-          )}
-        </div>
-        {result.genres.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            {result.genres.slice(0, 3).map((g) => (
-              <span key={g} className="rounded px-1.5 py-0.5 text-2xs" style={{ backgroundColor: "var(--surface)", color: "var(--text-dim)" }}>{g}</span>
-            ))}
-          </div>
-        )}
-        <WhereToWatchBadge type={result.type} imdbId={result.imdbId} />
-      </div>
     </PosterCard>
-  );
-}
-
-/* ─── Where to Watch Badge ────────────────────────────────── */
-
-// Module-level cache so repeated searches (and re-mounted cards) skip the network call entirely.
-// Bounded rather than a bare Map: a search returns 10-20 cards, and an
-// afternoon of searching would otherwise hold every provider row it ever
-// fetched until the tab closed. No TTL — streaming availability moves in days,
-// so an entry is good for as long as it survives eviction.
-const PROVIDER_CACHE_LIMIT = 200;
-const providerCache = createScopedMemoCache<WatchProvider[]>({ limit: PROVIDER_CACHE_LIMIT });
-
-// A single shared IntersectionObserver is far cheaper than one per card when a search
-// returns 10-20 results.
-type IntersectionCallback = (entry: IntersectionObserverEntry) => void;
-let sharedObserver: IntersectionObserver | null = null;
-const observerCallbacks = new WeakMap<Element, IntersectionCallback>();
-
-function getSharedObserver(): IntersectionObserver {
-  if (!sharedObserver) {
-    sharedObserver = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          observerCallbacks.get(entry.target)?.(entry);
-        }
-      },
-      { rootMargin: "200px" }
-    );
-  }
-  return sharedObserver;
-}
-
-function observeOnce(node: Element, callback: IntersectionCallback) {
-  const observer = getSharedObserver();
-  observerCallbacks.set(node, (entry) => {
-    observer.unobserve(node);
-    observerCallbacks.delete(node);
-    callback(entry);
-  });
-  observer.observe(node);
-  return () => {
-    observer.unobserve(node);
-    observerCallbacks.delete(node);
-  };
-}
-
-function WhereToWatchBadge({ type, imdbId }: { type: SearchResult["type"]; imdbId: string }) {
-  const cacheKey = `${type}:${imdbId}`;
-  const [providers, setProviders] = useState<WatchProvider[] | null>(() => providerCache.get(cacheKey) ?? null);
-  const [failed, setFailed] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setFailed(false);
-    const cached = providerCache.get(cacheKey);
-    if (cached) {
-      setProviders(cached);
-      return;
-    }
-
-    const node = ref.current;
-    if (!node) return;
-
-    let cancelled = false;
-    const controller = new AbortController();
-    const scope = getCacheScope();
-    const fetchProviders = () => {
-      api
-        .getWatchProviders(type, imdbId, controller.signal)
-        .then((r) => {
-          const merged = [...r.providers.flatrate, ...r.providers.free];
-          const deduped = merged.filter((p, i) => merged.findIndex((q) => q.id === p.id) === i);
-          providerCache.setForScope(scope, cacheKey, deduped);
-          if (!cancelled) setProviders(deduped);
-        })
-        .catch((err) => {
-          if (err instanceof DOMException && err.name === "AbortError") return;
-          if (!cancelled) setFailed(true);
-        });
-    };
-
-    const unobserve = observeOnce(node, fetchProviders);
-    return () => { cancelled = true; unobserve(); controller.abort(); };
-  }, [type, imdbId, cacheKey]);
-
-  if (failed) {
-    return (
-      <div ref={ref} className="mt-1.5 text-2xs" style={{ color: "var(--text-mute)" }} title="Failed to load streaming providers">
-        Providers unavailable
-      </div>
-    );
-  }
-
-  if (!providers || providers.length === 0) return <div ref={ref} />;
-
-  return (
-    <div ref={ref} className="mt-1.5 flex items-center gap-1" title={`Streaming on ${providers.map((p) => p.name).join(", ")}`}>
-      {providers.slice(0, 4).map((p) => (
-        p.logo ? (
-          <img key={p.id} src={p.logo} alt={p.name} className="h-4 w-4 rounded" />
-        ) : (
-          <MonitorPlay key={p.id} className="h-3.5 w-3.5" style={{ color: "var(--text-mute)" }} />
-        )
-      ))}
-    </div>
   );
 }

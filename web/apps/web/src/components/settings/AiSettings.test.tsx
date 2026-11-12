@@ -40,7 +40,7 @@ const save = () => screen.getByRole("button", { name: /save config/i });
 /** Waits out the load, which every case has to do before touching a field. */
 async function renderSettings() {
   render(<AiSettings />);
-  await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading…")).not.toBeInTheDocument());
 }
 
 beforeEach(() => {

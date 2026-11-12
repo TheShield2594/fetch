@@ -4,7 +4,7 @@ import { KICKER, PAGE_TITLE } from "../typography";
 import { Poster } from "../Poster";
 import { HERO_BACKDROP_SIZES, HERO_SCRIM } from "./ContinueWatchingHero";
 
-/** The active check-in, featured at the top of the dashboard. */
+/** The active check-in, featured at the top of Discover. */
 export function NowWatchingHero({
   checkin,
   onCheckout,
@@ -18,15 +18,15 @@ export function NowWatchingHero({
   const label = (
     <div className="flex items-center gap-2">
       <span className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-claw-400 opacity-75" />
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-claw-500" />
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-500" />
       </span>
-      <span className={`${KICKER} text-claw-text`}>Now Watching</span>
+      <span className={`${KICKER} text-accent-text`}>Now Watching</span>
     </div>
   );
   const title = (
     // A heading, not a styled paragraph. This is visually the largest thing on
-    // the dashboard and it was invisible to heading navigation — the one
+    // Discover and it was invisible to heading navigation — the one
     // element a screen-reader user jumping by heading would most expect to land
     // on was the one they couldn't reach.
     <h2 className={`mt-1 truncate ${PAGE_TITLE}`} style={{ color: "var(--text)" }}>{checkin.name}</h2>

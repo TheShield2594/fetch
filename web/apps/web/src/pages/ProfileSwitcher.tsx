@@ -345,7 +345,7 @@ function ProfilePicker({
             key={profile.id}
             type="button"
             onClick={() => onSelect(profile)}
-            className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-claw-500/60 hover:bg-[var(--surface)]"
+            className="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-accent-500/60 hover:bg-[var(--surface)]"
             style={{ borderColor: "var(--border)", color: "var(--text)", background: "var(--bg-1)" }}
           >
             <ProfileAvatar profile={profile} />
@@ -359,7 +359,7 @@ function ProfilePicker({
         onClick={onCreateNew}
         className="btn-secondary btn-lg w-full"
       >
-        <Plus size={16} /> New Profile
+        <Plus size={16} /> New profile
       </button>
     </div>
   );
@@ -450,7 +450,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
       <Shell onClose={onClose} onExiting={cancelFlows}>
         <Heading className="sr-only">Profiles</Heading>
         <div className="flex items-center justify-center gap-2 py-6 text-sm" style={{ color: "var(--text-mute)" }}>
-          <Loader2 size={16} className="animate-spin" /> Loading profiles...
+          <Loader2 size={16} className="animate-spin" /> Loading profiles…
         </div>
       </Shell>
     );
@@ -485,7 +485,7 @@ export function ProfileSwitcher({ onSelected, onClose }: { onSelected: (profile:
       )}
       {mode === "create" && (
         <CreateProfileForm
-          title={profiles.length === 0 ? "Create your first profile" : "New Profile"}
+          title={profiles.length === 0 ? "Create your first profile" : "New profile"}
           subtitle="Each profile gets its own watch history, lists, and stats."
           headingTag={headingTag}
           startFlow={startFlow}

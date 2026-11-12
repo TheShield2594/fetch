@@ -149,20 +149,20 @@ describe("useCachedState", () => {
   });
 
   it("drops a response that lands after the profile it was fetched for", () => {
-    // The dashboard issues five requests with no idea a profile switch is
+    // Discover issues five requests with no idea a profile switch is
     // coming. When one lands late, `setValue` on the unmounted page is a no-op —
     // but the write-through is not, and an unguarded one files the adult
     // profile's Continue Watching under the kid profile's scope, where the
-    // freshly mounted dashboard is already subscribed and paints it.
+    // freshly mounted Discover page is already subscribed and paints it.
     let save: ((next: string[]) => void) | undefined;
-    function Dashboard() {
+    function DiscoverStub() {
       const [progress, setProgress] = useCachedState<string[]>("dash:progress", []);
       save = setProgress;
       return <span data-testid="items">{progress.join(",") || "empty"}</span>;
     }
 
     setCacheScope("adult#0");
-    const adult = render(<Dashboard />);
+    const adult = render(<DiscoverStub />);
     const lateResponse = save!;
 
     // The switch clears the cache first and unmounts the page a render later,

@@ -1,7 +1,7 @@
 import { getCacheScope, isFresh, writeCacheForScope } from "./dataCache";
 import { PAGE_SIZE as HISTORY_PAGE_SIZE } from "../pages/history-paging";
 
-// Every route but the dashboard is code-split, so the first visit to one spends
+// Every route but Discover is code-split, so the first visit to one spends
 // a network round trip fetching its chunk *before* the page mounts and can even
 // start requesting data. That round trip is what the spinner after a nav click
 // mostly is, and it is entirely avoidable: the chunk can be in memory before the
@@ -24,7 +24,7 @@ type Loader = () => Promise<unknown>;
 export const EAGER_ROUTES = new Set(["/"]);
 
 export const loadSearchPage = () => import("../pages/SearchPage");
-export const loadDashboardPage = () => import("../pages/DashboardPage");
+export const loadDiscoverPage = () => import("../pages/DiscoverPage");
 export const loadListsPage = () => import("../pages/ListsPage");
 export const loadCalendarPage = () => import("../pages/CalendarPage");
 export const loadHistoryPage = () => import("../pages/HistoryPage");
@@ -104,7 +104,7 @@ const ROUTE_DATA_WARMERS: Record<string, (scope: string) => Promise<void>> = {
 /** Keyed by the `to` of every nav link that points at a code-split route. */
 const ROUTE_LOADERS: Record<string, Loader> = {
   "/search": loadSearchPage,
-  "/discover": loadDashboardPage,
+  "/discover": loadDiscoverPage,
   "/lists": loadListsPage,
   "/calendar": loadCalendarPage,
   "/history": loadHistoryPage,
@@ -194,7 +194,7 @@ function onIdle(run: () => void): void {
 
 // Touch devices have no hover to prefetch on, and a tab-bar tap gives no warning
 // at all — so the routes reachable in one tap get warmed on idle instead, once
-// the dashboard has finished its own work. Settings is deliberately absent: it
+// Discover has finished its own work. Settings is deliberately absent: it
 // is the largest chunk by a wide margin and the least-visited page, so it earns
 // its download on hover/touch rather than on every session.
 const IDLE_PREFETCH: Loader[] = [
@@ -204,7 +204,7 @@ const IDLE_PREFETCH: Loader[] = [
   loadSearchPage,
   // Discover is one tab away from the Shelf and is the largest of the routes
   // reachable in a tap, so it is the one whose chunk most wants a head start.
-  loadDashboardPage,
+  loadDiscoverPage,
   loadListsPage,
   loadCalendarPage,
   loadHistoryPage

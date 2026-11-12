@@ -8,6 +8,7 @@ const prismaMock = { listItem: { findMany: vi.fn() } };
 
 const search = vi.fn();
 const searchMulti = vi.fn();
+const browse = vi.fn();
 const getTmdb = vi.fn();
 const upsertMetadata = vi.fn();
 const getRpdbApiKey = vi.fn();
@@ -44,7 +45,8 @@ const result = (over: Record<string, unknown> = {}) => ({
 describe("search routes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getTmdb.mockResolvedValue({ search, searchMulti });
+    getTmdb.mockResolvedValue({ search, searchMulti, browse });
+    browse.mockResolvedValue({ results: [result()], page: 1, nextPage: 2 });
     search.mockResolvedValue([result()]);
     searchMulti.mockResolvedValue([result()]);
     upsertMetadata.mockResolvedValue(undefined);
@@ -184,5 +186,65 @@ describe("search routes", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(1);
+  });
+
+  describe("/search/browse", () => {
+    it("passes the filters through to TMDB as numbers, and the page with them", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({
+        method: "GET",
+        url: "/search/browse?type=movie&q=night&genre=Horror&yearMin=1980&yearMax=1989&ratingMin=6&sort=rating&page=3",
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(browse).toHaveBeenCalledWith("movie", {
+        query: "night",
+        genre: "Horror",
+        yearMin: 1980,
+        yearMax: 1989,
+        ratingMin: 6,
+        sort: "rating",
+        page: 3,
+      });
+      expect(res.json()).toMatchObject({ page: 1, nextPage: 2, results: [{ imdbId: "tt0111161", lists: [] }] });
+    });
+
+    it("browses with no query at all — the filters are the query", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/search/browse?type=series&genre=Drama" });
+
+      expect(res.statusCode).toBe(200);
+      expect(browse).toHaveBeenCalledWith("series", expect.objectContaining({ query: null, genre: "Drama", page: 1 }));
+    });
+
+    it("refuses a genre it has no TMDB id for, rather than ignoring it", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/search/browse?type=movie&genre=Polka" });
+
+      expect(res.statusCode).toBe(400);
+      expect(browse).not.toHaveBeenCalled();
+    });
+
+    it("needs one media type", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/search/browse?type=all&q=dune" });
+
+      expect(res.statusCode).toBe(400);
+    });
+
+    it("marks the titles already in the profile's lists", async () => {
+      prismaMock.listItem.findMany.mockResolvedValue([
+        { imdbId: "tt0111161", type: "movie", list: { id: "list-1", name: "Watchlist", kind: "watchlist" } },
+      ]);
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/search/browse?type=movie&q=shawshank" });
+
+      expect(res.json().results[0]).toMatchObject({ inWatchlist: true, lists: ["list-1"] });
+    });
   });
 });

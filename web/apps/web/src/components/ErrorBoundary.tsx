@@ -34,7 +34,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   // included. That is the whole of what a retry can do here: an error that is a
   // deterministic function of the route will throw again, which is why the page
   // boundary keeps the shell's navigation on screen behind this button rather
-  // than making Try Again the only way out.
+  // than making Try again the only way out.
   resetErrorBoundary = () => {
     this.setState({ hasError: false, error: null });
   };
@@ -58,7 +58,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         >
           {/* .status-chip--bad rather than a raw red ramp: text, fill and
               hairline all mix out of --status-bad, so this reads the same on
-              all five themes. See the note above those tokens in index.css. */}
+              all six themes. See the note above those tokens in index.css. */}
           <div
             className="status-chip status-chip--bad flex h-14 w-14 items-center justify-center rounded-full"
             aria-hidden="true"
@@ -81,7 +81,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               onClick={this.resetErrorBoundary}
               className="btn-secondary"
             >
-              Try Again
+              Try again
             </button>
             <button
               type="button"

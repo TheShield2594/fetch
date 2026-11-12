@@ -83,7 +83,7 @@ export function orderListsForRail(lists: CatalogList[]): CatalogList[] {
  * Keyed by the id of the Settings section each one belongs to, because that is
  * what `useSettingsHealth` reports under and where the row navigates to. The
  * names are shortened from the section titles — a rail row is 220px wide and
- * "Trakt Integration" is a heading, not a label.
+ * "Plex, Jellyfin & Emby webhooks" is a heading, not a label.
  *
  * `job-status` is deliberately absent. It is health, and it is the one entry
  * that is about this server's own scheduled work rather than about a source;

@@ -22,6 +22,7 @@ vi.mock("../api", async (importOriginal) => {
       deletePlayback: vi.fn(),
       savePlayback: vi.fn(),
       logWatch: vi.fn(),
+      getAllRatings: vi.fn(),
     },
   };
 });
@@ -44,6 +45,7 @@ const getPlayback = vi.mocked(api.getPlayback);
 const deletePlayback = vi.mocked(api.deletePlayback);
 const savePlayback = vi.mocked(api.savePlayback);
 const logWatch = vi.mocked(api.logWatch);
+const getAllRatings = vi.mocked(api.getAllRatings);
 
 const paused = (over: Partial<PlaybackProgress> = {}): PlaybackProgress => ({
   id: "p1",
@@ -104,6 +106,7 @@ beforeEach(() => {
   getPlayback.mockResolvedValue({ playback: [] });
   deletePlayback.mockResolvedValue(undefined);
   logWatch.mockResolvedValue({ watchEvent: { id: "we-1" } });
+  getAllRatings.mockResolvedValue({ ratings: [] });
 });
 
 describe("ShelfPage", () => {
@@ -249,7 +252,7 @@ describe("ShelfPage", () => {
     getSeriesProgress.mockResolvedValue([series()]);
     renderShelf();
 
-    await screen.findByText("Up Next");
+    await screen.findByRole("region", { name: "Up next" });
     expect(screen.getAllByText("The Long Shore")).toHaveLength(1);
   });
 
@@ -361,51 +364,84 @@ describe("ShelfPage", () => {
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
-  describe("Continue Watching", () => {
+  describe("Up next", () => {
+    const upNext = () => screen.findByRole("region", { name: "Up next" });
+
     it("shows what was paused part-way through, with the time left", async () => {
       getPlayback.mockResolvedValue({ playback: [paused()] });
       renderShelf();
 
-      const section = await screen.findByRole("region", { name: "Continue Watching" });
+      const section = await upNext();
       expect(within(section).getByText("Understudy")).toBeInTheDocument();
       expect(within(section).getByText("Film · 72 min left")).toBeInTheDocument();
     });
 
-    it("draws no row at all when nothing is paused", async () => {
+    // #508: Continue Watching and Up Next were two rows; a resume point is
+    // simply first in one.
+    it("is one row, led by the resume point, with the next episodes after it", async () => {
+      getPlayback.mockResolvedValue({ playback: [paused()] });
+      getSeriesProgress.mockResolvedValue([series(), series({ imdbId: "tt8", name: "Tidewater" })]);
+      renderShelf();
+
+      const section = await upNext();
+      expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).not.toContain("Continue Watching");
+      const opens = within(section)
+        .getAllByRole("button", { name: /^Open details for/ })
+        .map((b) => b.getAttribute("aria-label"));
+      expect(opens).toEqual([
+        "Open details for Understudy",
+        "Open details for The Long Shore",
+        "Open details for Tidewater",
+      ]);
+      // The lead is drawn on its own; the rest are a rail.
+      const rail = within(section).getByRole("list", { name: "More to pick up" });
+      expect(within(rail).getAllByRole("listitem")).toHaveLength(2);
+    });
+
+    it("draws a single item as the lead alone, not as one card in a grid", async () => {
+      getSeriesProgress.mockResolvedValue([series()]);
+      renderShelf();
+
+      const section = await upNext();
+      expect(within(section).getByText("The Long Shore")).toBeInTheDocument();
+      expect(within(section).queryByRole("list")).toBeNull();
+    });
+
+    it("draws no row at all when nothing is in progress", async () => {
       getListItems.mockResolvedValue({ items: [item("tt2", "Nightjar")] });
       renderShelf();
 
       await screen.findByText("Nightjar");
-      expect(screen.queryByText("Continue Watching")).not.toBeInTheDocument();
+      expect(screen.queryByRole("region", { name: "Up next" })).not.toBeInTheDocument();
     });
 
-    it("keeps a paused film out of the Library grid below, as Up Next does", async () => {
+    it("keeps a paused film out of the Library grid below", async () => {
       getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
       getPlayback.mockResolvedValue({ playback: [paused()] });
       renderShelf();
 
-      await screen.findByText("Continue Watching");
+      await upNext();
       expect(screen.getAllByText("Understudy")).toHaveLength(1);
     });
 
-    it("drops a show from Up Next when its next episode is the one paused", async () => {
+    it("shows a paused episode once, rather than also as the show's next episode", async () => {
       getSeriesProgress.mockResolvedValue([series()]);
       getPlayback.mockResolvedValue({
         playback: [paused({ type: "episode", imdbId: "tt9", season: 3, episode: 4, name: "The Long Shore" })],
       });
       renderShelf();
 
-      await screen.findByText("Continue Watching");
-      expect(screen.queryByText("Up Next")).not.toBeInTheDocument();
+      await upNext();
       expect(screen.getAllByText("The Long Shore")).toHaveLength(1);
+      expect(screen.getByRole("button", { name: "Mark S3:E4 of The Long Shore watched" })).toBeInTheDocument();
     });
 
-    it("follows the kind filter like the rows around it", async () => {
+    it("follows the kind filter like the library", async () => {
       getPlayback.mockResolvedValue({ playback: [paused()] });
       renderShelf("/?kind=show");
 
       await waitFor(() => expect(getPlayback).toHaveBeenCalled());
-      expect(screen.queryByText("Continue Watching")).not.toBeInTheDocument();
+      expect(screen.queryByRole("region", { name: "Up next" })).not.toBeInTheDocument();
     });
 
     it("marks the paused episode watched, clears the point, then refetches", async () => {
@@ -434,7 +470,7 @@ describe("ShelfPage", () => {
 
       await user.click(await screen.findByRole("button", { name: "Mark Understudy watched" }));
 
-      await waitFor(() => expect(screen.queryByText("Continue Watching")).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByRole("region", { name: "Up next" })).not.toBeInTheDocument());
       expect(await screen.findByText(/Saved offline/)).toBeInTheDocument();
       expect(deletePlayback).not.toHaveBeenCalled();
     });
@@ -451,11 +487,11 @@ describe("ShelfPage", () => {
       savePlayback.mockResolvedValue({ playback: saved as PlaybackProgress });
       renderShelf();
 
-      await user.click(await screen.findByRole("button", { name: "Remove Understudy from Continue Watching" }));
+      await user.click(await screen.findByRole("button", { name: "Remove Understudy from Up next" }));
 
       await waitFor(() => expect(deletePlayback).toHaveBeenCalledWith("p1"));
       expect(logWatch).not.toHaveBeenCalled();
-      await waitFor(() => expect(screen.queryByText("Continue Watching")).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByRole("region", { name: "Up next" })).not.toBeInTheDocument());
 
       await user.click(await screen.findByRole("button", { name: "Undo" }));
 
@@ -464,7 +500,7 @@ describe("ShelfPage", () => {
           expect.objectContaining({ type: "movie", imdbId: "tt1", progress: 40, positionSeconds: 2_880 })
         )
       );
-      const section = await screen.findByRole("region", { name: "Continue Watching" });
+      const section = await upNext();
       expect(within(section).getByText("Understudy")).toBeInTheDocument();
     });
 
@@ -475,6 +511,65 @@ describe("ShelfPage", () => {
 
       expect(await screen.findByText("Nightjar")).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Library controls", () => {
+    const libraryOrder = () =>
+      within(screen.getByRole("region", { name: /^Library/ }))
+        .getAllByRole("button", { name: /^Open details for/ })
+        .map((b) => b.getAttribute("aria-label")!.replace("Open details for ", ""));
+
+    beforeEach(() => {
+      getListItems.mockResolvedValue({
+        items: [
+          item("tt1", "Bravo", { addedAt: "2026-03-01T00:00:00.000Z", metadata: { name: "Bravo", poster: null, year: 1999, genres: [], rating: null } }),
+          item("tt2", "Alpha", { addedAt: "2026-05-01T00:00:00.000Z", metadata: { name: "Alpha", poster: null, year: 2010, genres: [], rating: null } }),
+          item("tt3", "Charlie", { addedAt: "2026-01-01T00:00:00.000Z", metadata: { name: "Charlie", poster: null, year: 2021, genres: [], rating: null } }),
+        ],
+      });
+    });
+
+    it("sorts for real, and keeps the sort in the URL", async () => {
+      const user = userEvent.setup();
+      renderShelf();
+      await screen.findByText("Alpha");
+      expect(libraryOrder()).toEqual(["Alpha", "Bravo", "Charlie"]);
+
+      await user.selectOptions(screen.getByRole("combobox", { name: "Sort the library" }), "year");
+
+      await waitFor(() => expect(libraryOrder()).toEqual(["Charlie", "Alpha", "Bravo"]));
+    });
+
+    it("sorts by the profile's own ratings, fetched only when asked for, and shows them", async () => {
+      getAllRatings.mockImplementation(async (type) => ({
+        ratings: type === "movie" ? [{ imdbId: "tt1", type: "movie", rating: 9, ratedAt: "2026-01-01T00:00:00.000Z" }] : [],
+      }));
+      renderShelf("/?sort=rating");
+
+      await waitFor(() => expect(libraryOrder()[0]).toBe("Bravo"));
+      expect(getAllRatings).toHaveBeenCalledWith("movie", 200);
+      expect(screen.getByRole("img", { name: /your rating: 4\.5/i })).toBeInTheDocument();
+    });
+
+    it("doesn't fetch ratings for the default order", async () => {
+      renderShelf();
+      await screen.findByText("Alpha");
+      expect(getAllRatings).not.toHaveBeenCalled();
+    });
+
+    it("narrows the library to one list", async () => {
+      const user = userEvent.setup();
+      getLists.mockResolvedValue({ lists: [list("l1", "Watchlist"), list("l2", "Noir")] });
+      getListItems.mockImplementation(async (id) => ({
+        items: id === "l2" ? [item("tt4", "Detour", { listId: "l2" })] : [item("tt2", "Alpha")],
+      }));
+      renderShelf();
+      await screen.findByText("Detour");
+
+      await user.selectOptions(screen.getByRole("combobox", { name: "Show one list" }), "l2");
+
+      await waitFor(() => expect(libraryOrder()).toEqual(["Detour"]));
     });
   });
 });

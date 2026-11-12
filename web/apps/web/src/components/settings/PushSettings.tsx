@@ -114,7 +114,7 @@ export function PushSettings() {
   }
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking notification status...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking notification status…</div>;
   }
 
   // Blocked at the browser level. Enabling cannot work and pressing the button
@@ -154,7 +154,7 @@ export function PushSettings() {
           className={subscribed ? "btn-secondary hover:bg-rose-600 hover:text-white" : "btn-primary"}
         >
           {busy ? (
-            <><Loader2 size={16} className="animate-spin" /> {subscribed ? "Disabling..." : "Enabling..."}</>
+            <><Loader2 size={16} className="animate-spin" /> {subscribed ? "Disabling…" : "Enabling…"}</>
           ) : subscribed ? (
             <><Unplug size={16} /> Disable Notifications</>
           ) : (

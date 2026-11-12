@@ -48,7 +48,7 @@ describe("showsSameHeader", () => {
   });
 });
 
-describe("msUntilNextBoundary, on the dashboard's greeting cutoffs", () => {
+describe("msUntilNextBoundary, on Discover's greeting cutoffs", () => {
   const MINUTE = 60_000;
   const HOUR = 60 * MINUTE;
 

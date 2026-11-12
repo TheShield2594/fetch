@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
  */
 
 // Midnight only: enough for anything that asks what day it is, which is what
-// every caller but the dashboard header needs.
+// every caller but Discover header needs.
 const MIDNIGHT_ONLY: readonly number[] = [0];
 
 const onSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();

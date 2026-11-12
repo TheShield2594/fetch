@@ -53,7 +53,7 @@ export function RpdbSettings() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking RPDB status...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Checking RPDB status…</div>;
   }
 
   return (
@@ -62,7 +62,7 @@ export function RpdbSettings() {
         RPDB (Rating Poster Database) overlays rating badges directly onto poster images.
         When enabled, all posters across the web UI and Stremio will show rating badges on the artwork.
         Get an API key at{" "}
-        <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer" className="text-claw-text underline underline-offset-2 hover:decoration-2">
+        <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer" className="text-accent-text underline underline-offset-2 hover:decoration-2">
           ratingposterdb.com
         </a>.
       </p>
@@ -108,7 +108,7 @@ export function RpdbSettings() {
             disabled={saving || !apiKey.trim()}
             className={`btn-primary ${saved ? "btn-saved" : ""}`}
           >
-            {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving...</> : "Save RPDB Key"}
+            {saved ? <><Check size={16} /> Saved</> : saving ? <><Loader2 size={16} className="animate-spin" /> Saving…</> : "Save RPDB key"}
           </button>
         </form>
       )}

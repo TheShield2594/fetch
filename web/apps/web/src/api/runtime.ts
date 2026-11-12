@@ -400,7 +400,7 @@ export function invalidatedCachePrefixes(path: string): string[] | null {
   if (under("/lists")) return ["lists:", "shelf:"];
 
   // A rating shows up in the "top rated" section of the detailed stats, which
-  // the stats page and the dashboard each cache under their own key. It is not
+  // the stats page and Discover each cache under their own key. It is not
   // part of a watch event, a list or the calendar.
   if (under("/ratings")) return ["stats:", "dash:"];
 

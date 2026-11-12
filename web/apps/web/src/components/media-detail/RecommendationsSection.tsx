@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
-import { Poster } from "../Poster";
+import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../PosterCard";
 import { CarouselTrack } from "../CarouselTrack";
 import { useHorizontalScroll } from "../carousel-utils";
 import type { TrendingMeta } from "../../api";
@@ -24,13 +24,12 @@ export function RecommendationsSection({
     return (
       <div>
         <h3 className={`mb-3 flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
-          <Sparkles className="h-3.5 w-3.5" /> More Like This
+          <Sparkles className="h-3.5 w-3.5" /> More like this
         </h3>
         <div className="flex gap-3 overflow-hidden">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="flex-none space-y-1.5" style={{ width: "7rem" }}>
-              <div className="skeleton aspect-poster rounded-xl" />
-              <div className="skeleton h-2.5 w-full rounded" />
+            <div key={i} className="w-28 flex-none">
+              <PosterCardSkeleton />
             </div>
           ))}
         </div>
@@ -44,7 +43,7 @@ export function RecommendationsSection({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <h3 className={`flex items-center gap-2 ${KICKER}`} style={{ color: "var(--text-mute)" }}>
-          <Sparkles className="h-3.5 w-3.5" /> More Like This
+          <Sparkles className="h-3.5 w-3.5" /> More like this
         </h3>
         {/* Mounted even when the row fits, so the cluster fades with layout
             changes instead of blinking; disabled buttons keep it untabbable. */}
@@ -81,23 +80,17 @@ export function RecommendationsSection({
         className="gap-3"
       >
         {items.map((item) => (
-          <button
+          // The shared card at 7rem: the same frame, radius, focus ring and
+          // caption as every other poster, only smaller.
+          <PosterCard
             key={`${item.type}:${item.id}`}
-            type="button"
-            onClick={() => onSelect(item)}
-            className="group flex-none text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-            style={{ width: "7rem" }}
-            aria-label={`View details for ${item.name}`}
-          >
-            <div
-              className="poster-frame relative aspect-poster overflow-hidden rounded-xl group-hover:scale-[1.03]"
-            >
-              <Poster src={item.poster} alt={item.name} className="h-full w-full" sizes="112px" />
-            </div>
-            <p className="mt-1.5 truncate text-2xs font-medium leading-tight text-[var(--text-dim)] transition-colors group-hover:text-claw-text">
-              {item.name}
-            </p>
-          </button>
+            poster={item.poster}
+            name={item.name}
+            onOpen={() => onSelect(item)}
+            sizes="112px"
+            className="w-28 flex-none"
+            meta={metaRun(kindWord(item.type), item.year)}
+          />
         ))}
       </CarouselTrack>
     </div>

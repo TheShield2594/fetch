@@ -104,7 +104,7 @@ export function AccountSettings() {
           {account ? (
             <>
               Signed in as <strong style={{ color: "var(--text)" }}>{account.username}</strong>
-              {account.isAdmin && <span className="ml-2 text-xs text-claw-text">Admin</span>}
+              {account.isAdmin && <span className="ml-2 text-xs text-accent-text">Admin</span>}
             </>
           ) : (
             "Signed in"

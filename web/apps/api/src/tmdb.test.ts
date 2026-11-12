@@ -398,3 +398,111 @@ describe("discoverParams", () => {
     });
   });
 });
+
+describe("TmdbClient.browse", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  /** Every list request the client made, as URLs, skipping the IMDb-id lookups. */
+  const listCalls = (fetchMock: ReturnType<typeof vi.fn>): URL[] =>
+    fetchMock.mock.calls.map(([input]) => input as URL).filter((url) => !url.pathname.endsWith("/external_ids"));
+
+  const imdbFor = (input: URL) => json({ imdb_id: `tt${input.pathname.split("/")[3]!.padStart(7, "0")}` });
+
+  it("asks TMDB's discover for a filter set with no query, sorted and paged there", async () => {
+    const fetchMock = vi.fn(async (input: URL) => {
+      if (input.pathname.endsWith("/external_ids")) return imdbFor(input);
+      return json({ page: 2, total_pages: 7, results: [{ id: 5, title: "Halloween", release_date: "1978-10-25" }] });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { TmdbClient } = await import("./tmdb.js");
+    const page = await TmdbClient.fromKey("key").browse(MetadataType.movie, {
+      genre: "Horror",
+      yearMin: 1980,
+      yearMax: 1989,
+      sort: "rating",
+      page: 2,
+    });
+
+    const [call] = listCalls(fetchMock);
+    expect(call?.pathname).toBe("/3/discover/movie");
+    expect(Object.fromEntries(call!.searchParams)).toMatchObject({
+      with_genres: "27",
+      "primary_release_date.gte": "1980-01-01",
+      "primary_release_date.lte": "1989-12-31",
+      sort_by: "vote_average.desc",
+      "vote_count.gte": "100",
+      page: "2",
+    });
+    expect(page.results.map((r) => r.imdbId)).toEqual(["tt0000005"]);
+    expect(page.nextPage).toBe(3);
+  });
+
+  it("matches nothing for a genre the media type doesn't have, without asking TMDB", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { TmdbClient } = await import("./tmdb.js");
+    const page = await TmdbClient.fromKey("key").browse(MetadataType.series, { genre: "Horror" });
+
+    expect(page).toEqual({ results: [], page: 1, nextPage: null });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("scans search pages for filter matches instead of filtering one page", async () => {
+    // Page 1 has no eighties horror at all; page 2 has one. Filtering page one
+    // in the browser answered "nothing".
+    const pages: Record<string, unknown> = {
+      "1": { total_pages: 3, results: [{ id: 1, title: "Night Shift", release_date: "2019-01-01", genre_ids: [27] }] },
+      "2": { total_pages: 3, results: [{ id: 2, title: "Night of the Creeps", release_date: "1986-08-22", genre_ids: [27, 35] }] },
+      "3": { total_pages: 3, results: [{ id: 3, title: "Night Moves", release_date: "1985-01-01", genre_ids: [18] }] },
+    };
+    const fetchMock = vi.fn(async (input: URL) => {
+      if (input.pathname.endsWith("/external_ids")) return imdbFor(input);
+      return json(pages[input.searchParams.get("page") ?? "1"]);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { TmdbClient } = await import("./tmdb.js");
+    const page = await TmdbClient.fromKey("key").browse(MetadataType.movie, {
+      query: "night",
+      genre: "Horror",
+      yearMin: 1980,
+      yearMax: 1989,
+    });
+
+    expect(page.results.map((r) => r.name)).toEqual(["Night of the Creeps"]);
+    expect(listCalls(fetchMock).map((url) => url.searchParams.get("page"))).toEqual(["1", "2", "3"]);
+    expect(page.nextPage).toBeNull();
+  });
+
+  it("starts an unfiltered query on the ranked search and offers TMDB's page two next", async () => {
+    const fetchMock = vi.fn(async (input: URL) => {
+      if (input.pathname.endsWith("/external_ids")) return imdbFor(input);
+      return json({ total_pages: 1, results: [{ id: 9, title: "Dune", release_date: "2021-09-15" }] });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { TmdbClient } = await import("./tmdb.js");
+    const page = await TmdbClient.fromKey("key").browse(MetadataType.movie, { query: "dune" });
+
+    expect(page.results.map((r) => r.name)).toEqual(["Dune"]);
+    expect(page.nextPage).toBe(2);
+  });
+});
+
+describe("discoverSort", () => {
+  it("names the date and title fields per media type", async () => {
+    const { discoverSort } = await import("./tmdb.js");
+    expect(discoverSort("movie", "year_desc")).toBe("primary_release_date.desc");
+    expect(discoverSort("tv", "year_asc")).toBe("first_air_date.asc");
+    expect(discoverSort("tv", "title")).toBe("name.asc");
+    expect(discoverSort("movie", "relevance")).toBe("popularity.desc");
+  });
+});

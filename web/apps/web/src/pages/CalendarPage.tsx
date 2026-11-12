@@ -350,7 +350,7 @@ export function CalendarPage() {
                 type="button"
                 onClick={() => setAgendaDays(d)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors duration-base ${
-                  agendaDays === d ? "bg-claw-500 text-claw-on" : "hover:text-[var(--text)]"
+                  agendaDays === d ? "bg-accent-500 text-accent-on" : "hover:text-[var(--text)]"
                 }`}
                 // Both states carry a 1px border so selecting one doesn't shift
                 // the row by a pixel; the active state's is transparent and only
@@ -380,7 +380,7 @@ export function CalendarPage() {
               <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
                 The calendar only tracks series you have already started watching.
               </p>
-              <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+              <Link to="/search" className="mt-2 inline-block py-1 text-sm font-medium text-accent-text underline-offset-2 transition-colors hover:underline">
                 Find a series to follow &rarr;
               </Link>
             </div>
@@ -515,7 +515,7 @@ export function CalendarPage() {
                             </span>
                             <span
                               aria-hidden="true"
-                              className={`meta inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 font-semibold ${isToday ? "bg-claw-500 text-claw-on" : ""}`}
+                              className={`meta inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 font-semibold ${isToday ? "bg-accent-500 text-accent-on" : ""}`}
                               style={isToday ? undefined : { color: "var(--text-mute)" }}
                             >
                               {day.getDate()}

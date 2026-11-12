@@ -296,7 +296,7 @@ describe("ToastProvider", () => {
     });
   });
 
-  // The consumers here are the dashboard, the search grid, lists, history, the
+  // The consumers here are Discover, the search grid, lists, history, the
   // calendar, the command palette and the detail panel. A fresh `{ showToast }`
   // on every provider render re-rendered all of them three or four times per
   // toast — re-laying out a 20-card search grid because an unrelated "Saved"

@@ -15,7 +15,7 @@ import "./index.css";
 watchDisplayMode();
 
 // Ahead of the first render, so the handshake with a remote API host overlaps
-// React's startup instead of delaying the dashboard's opening requests.
+// React's startup instead of delaying Discover's opening requests.
 preconnectToApi(runtimeConfig.getApiBase());
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

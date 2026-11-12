@@ -4,7 +4,7 @@ import { useOnline } from "../hooks/useOnline";
 /**
  * The service worker serves API reads stale-while-revalidate so the installed
  * PWA keeps working off the LAN it talks to. That is the point, but it means a
- * dashboard rendered entirely from cache is indistinguishable from a live one —
+ * page rendered entirely from cache is indistinguishable from a live one —
  * a title marked watched on another device simply isn't there, with nothing to
  * explain why. This is that explanation.
  *

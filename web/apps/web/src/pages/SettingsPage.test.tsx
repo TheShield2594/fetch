@@ -247,7 +247,7 @@ describe("SettingsPage", () => {
     renderPage();
     await userEvent.type(searchBox(), "trakt");
 
-    expect(onScreen()).toEqual(["Sync Status", "Trakt Integration", "Ratings from MDBList"]);
+    expect(onScreen()).toEqual(["Sync status", "Trakt", "Ratings from MDBList"]);
     expect(tabBar()).not.toBeInTheDocument();
   });
 
@@ -282,12 +282,12 @@ describe("SettingsPage", () => {
     health.value = { tmdb: { tone: "ok", label: "Key set (env)", setByServer: true } };
     renderPage("integrations");
 
-    expect(screen.queryByRole("button", { name: /^TMDB Metadata/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^TMDB metadata/ })).not.toBeInTheDocument();
     // The other keys are still the admin's to set here.
-    expect(onScreen()).toEqual(expect.arrayContaining(["OMDB Ratings", "Ratings from MDBList", "RPDB Posters"]));
+    expect(onScreen()).toEqual(expect.arrayContaining(["OMDB ratings", "Ratings from MDBList", "RPDB posters"]));
 
     await userEvent.type(searchBox(), "tmdb metadata");
-    expect(screen.queryByRole("button", { name: /^TMDB Metadata/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^TMDB metadata/ })).not.toBeInTheDocument();
   });
 
   it("keeps TMDB Metadata when the key was saved here, or is missing", () => {
@@ -295,7 +295,7 @@ describe("SettingsPage", () => {
     renderPage("integrations");
 
     // By its header, whose name carries the health label beside the title.
-    expect(screen.getByRole("button", { name: /^TMDB Metadata/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^TMDB metadata/ })).toBeInTheDocument();
   });
 
   it("leads with a count of what is healthy, so the page answers before it is read", async () => {
@@ -320,9 +320,9 @@ describe("SettingsPage", () => {
     renderPage();
 
     await userEvent.click(screen.getByRole("tab", { name: at(SETTINGS_TABS, 1, "settings tab").label }));
-    const header = screen.getByRole("button", { name: /Trakt Integration/ });
+    const header = screen.getByRole("button", { name: /^Trakt/ });
 
-    expect(header).toHaveAccessibleName("Trakt Integration Token expired");
+    expect(header).toHaveAccessibleName("Trakt Token expired");
     expect(header.querySelector(".status-dot--bad")).not.toBeNull();
   });
 
@@ -345,7 +345,7 @@ describe("SettingsPage", () => {
     await userEvent.clear(searchBox());
     setExtrasEnabled(true);
     await userEvent.type(searchBox(), "ollama");
-    expect(onScreen()).toEqual(["AI Recommendations"]);
+    expect(onScreen()).toEqual(["AI recommendations"]);
   });
 
   it("drops the group headings while searching, where a result set spans all of them", async () => {
@@ -379,10 +379,10 @@ describe("SettingsPage for an account that isn't the admin", () => {
     renderPage("preferences");
 
     // Metadata & Region is theirs too: region and spoiler protection are per account.
-    for (const title of ["Account", "Metadata & Region", "Profile", "Notifications", "About"]) {
+    for (const title of ["Account", "Metadata & region", "Profile", "Notifications", "About"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
-    expect(screen.queryByRole("button", { name: /^Sync Status/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Sync status/ })).not.toBeInTheDocument();
   });
 
   it("leaves only their own data and connections on the integrations tab", () => {
@@ -390,10 +390,10 @@ describe("SettingsPage for an account that isn't the admin", () => {
     renderPage("integrations");
 
     // Each account connects its own Trakt, and has its own webhook link.
-    for (const title of ["Data", "Trakt Integration", "Plex, Jellyfin & Emby Webhooks", "Media Servers", "Simkl", "MDBList", "Ratings from MDBList"]) {
+    for (const title of ["Data", "Trakt", "Plex, Jellyfin & Emby webhooks", "Media servers", "Simkl", "MDBList", "Ratings from MDBList"]) {
       expect(screen.getByRole("button", { name: new RegExp(`^${title}`) })).toBeInTheDocument();
     }
-    for (const title of ["TMDB Metadata", "Invites & Accounts", "Stremio Addon"]) {
+    for (const title of ["TMDB metadata", "Invites & accounts", "Stremio addon"]) {
       expect(screen.queryByRole("button", { name: new RegExp(`^${title}`) })).not.toBeInTheDocument();
     }
   });
@@ -405,6 +405,6 @@ describe("SettingsPage for an account that isn't the admin", () => {
 
     await user.type(screen.getByLabelText("Search settings"), "trakt");
 
-    expect(screen.queryByRole("button", { name: /^Trakt Integration/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^Trakt/ })).not.toBeInTheDocument();
   });
 });

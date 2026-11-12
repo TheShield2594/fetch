@@ -53,7 +53,7 @@ const addon = (over: Partial<TvAddon> = {}): TvAddon => ({
 
 async function renderAddons() {
   render(<TvAddonsSettings />);
-  await waitFor(() => expect(screen.queryByText("Loading addons...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading addons…")).not.toBeInTheDocument());
 }
 
 describe("TvAddonsSettings", () => {

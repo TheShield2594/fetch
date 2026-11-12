@@ -89,7 +89,7 @@ export function PreferencesSettings() {
   };
 
   if (loading) {
-    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Loading preferences...</div>;
+    return <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text-dim)" }}><Loader2 size={16} className="animate-spin" /> Loading preferences…</div>;
   }
 
   return (
@@ -178,7 +178,7 @@ export function PreferencesSettings() {
         {error ? (
           <span className="flex items-center gap-2 text-danger"><AlertCircle size={14} /> {error}</span>
         ) : saving ? (
-          <><Loader2 size={14} className="animate-spin" /> Saving...</>
+          <><Loader2 size={14} className="animate-spin" /> Saving…</>
         ) : saved ? (
           <span className="flex items-center gap-2" style={{ color: "var(--status-ok)" }}><Check size={14} /> Saved</span>
         ) : (

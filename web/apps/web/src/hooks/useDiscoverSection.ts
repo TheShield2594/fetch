@@ -5,7 +5,7 @@ import { useCachedState } from "./useCachedState";
  * One independently-loading block of a page: its value, whether it is loading,
  * whether it failed, and the guard that keeps the newest answer.
  *
- * The dashboard had this written out five times — a `useRef` counter, two
+ * Discover had this written out five times — a `useRef` counter, two
  * `useState` flags, and three `token.current === token` checks per loader — and
  * the copies had drifted. One of them read the counter without advancing it,
  * which made it no guard at all in the direction that matters: a Retry never
@@ -17,7 +17,7 @@ import { useCachedState } from "./useCachedState";
  * something cached to show.
  */
 
-export type DashboardSection<T> = {
+export type DiscoverSection<T> = {
   value: T;
   loading: boolean;
   failed: boolean;
@@ -36,7 +36,7 @@ export type DashboardSection<T> = {
   set: (value: T) => void;
 };
 
-export function useDashboardSection<TValue, TFetched = TValue>(
+export function useDiscoverSection<TValue, TFetched = TValue>(
   /** The `useCachedState` key, and what a failure is logged under. */
   key: string,
   initial: TValue,
@@ -60,7 +60,7 @@ export function useDashboardSection<TValue, TFetched = TValue>(
      */
     onError?: ((error: unknown) => void) | undefined;
   } = {}
-): DashboardSection<TValue> {
+): DiscoverSection<TValue> {
   const [value, set, meta] = useCachedState<TValue>(key, initial);
   const [loading, setLoading] = useState(!meta.hadCachedValue);
   const [failed, setFailed] = useState(false);

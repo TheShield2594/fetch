@@ -140,7 +140,7 @@ export function InvitesSettings() {
               <li key={account.id} className="flex items-center justify-between gap-3 text-sm" style={{ color: "var(--text-dim)" }}>
                 <span>
                   <strong style={{ color: "var(--text)" }}>{account.username}</strong>
-                  {account.isAdmin && <span className="ml-2 text-xs text-claw-text">Admin</span>}
+                  {account.isAdmin && <span className="ml-2 text-xs text-accent-text">Admin</span>}
                   <span className="ml-2 text-xs">
                     {account.profileCount} {account.profileCount === 1 ? "profile" : "profiles"}
                   </span>

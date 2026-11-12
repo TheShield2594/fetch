@@ -39,7 +39,7 @@ const channel = (over: Partial<NotificationChannel> = {}): NotificationChannel =
 
 async function renderChannels() {
   render(<NotificationChannelsSettings />);
-  await waitFor(() => expect(screen.queryByText("Loading channels...")).not.toBeInTheDocument());
+  await waitFor(() => expect(screen.queryByText("Loading channels…")).not.toBeInTheDocument());
 }
 
 describe("NotificationChannelsSettings", () => {

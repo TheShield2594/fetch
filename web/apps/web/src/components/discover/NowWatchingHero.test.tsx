@@ -4,7 +4,7 @@ import type { CheckIn } from "../../api";
 import { NowWatchingHero } from "./NowWatchingHero";
 
 /*
- * DashboardPage only ever renders this component from an active check-in, and
+ * DiscoverPage only ever renders this component from an active check-in, and
  * its page tests mock `getCheckin` with `checkin: null` — so neither branch of
  * NowWatchingHero is exercised there. A regression that always rendered the
  * flat panel would pass those tests. These cover the two branches directly.

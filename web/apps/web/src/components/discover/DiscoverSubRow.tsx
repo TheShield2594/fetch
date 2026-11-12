@@ -43,7 +43,7 @@ export function DiscoverSubRow({
         <SectionError message={`Couldn't load ${label.toLowerCase()} recommendations.`} onRetry={onRetry} />
       ) : loading ? (
         aiActive
-          ? <p className="text-sm italic" style={{ color: "var(--text-dim)" }}>Generating AI recommendations...</p>
+          ? <p className="text-sm italic" style={{ color: "var(--text-dim)" }}>Generating AI recommendations…</p>
           : <CarouselSkeleton />
       ) : (
         <CarouselTrack
@@ -58,11 +58,16 @@ export function DiscoverSubRow({
               item={item}
               reason={reasons[item.id]}
               onSelect={onSelect}
-              badge={
-                <span className="inline-flex items-center gap-1 rounded-md bg-plum-500/80 px-1.5 py-0.5 text-2xs font-semibold text-white backdrop-blur-sm">
-                  <Sparkles className="h-2.5 w-2.5" />
-                  {aiActive && <span>AI</span>}
-                </span>
+              // Only on a pick the AI actually made. With AI off these rails
+              // are TMDB's recommendations, and a sparkle on them claimed a
+              // judgement nobody had made.
+              marker={
+                aiActive ? (
+                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-semibold text-white" style={{ background: "rgba(0,0,0,0.6)" }}>
+                    <Sparkles aria-hidden="true" className="h-2.5 w-2.5" />
+                    AI
+                  </span>
+                ) : undefined
               }
             />
           ))}

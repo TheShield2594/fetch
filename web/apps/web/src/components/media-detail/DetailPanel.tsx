@@ -18,6 +18,7 @@ import { CheckInBlock } from "./CheckInBlock";
 import { WatchHistorySection } from "./WatchHistorySection";
 import { MoreActionsMenu } from "./MoreActionsMenu";
 import { RecommendationsSection } from "./RecommendationsSection";
+import { SectionError } from "../SectionError";
 import { buildMetaLine, formatRuntime, nextEpisodeUp, statusColor, type WatchLogTarget } from "./detailPanelUtils";
 import { formatRating, ratingLabel, RATING_MAX } from "../../utils/rating";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
@@ -56,6 +57,8 @@ export function DetailPanel({
   historyLoading,
   detail,
   detailLoading,
+  detailFailed = false,
+  onRetryDetail,
   onClose,
   onShowToast,
   onHistoryChange,
@@ -68,6 +71,9 @@ export function DetailPanel({
   /** Cast, providers, recommendations, seasons and dropped state, fetched as one bundle by `useDetailPanel`. */
   detail: PanelDetail | null;
   detailLoading: boolean;
+  /** The bundle request failed — not "this title has no cast", but "we couldn't ask". */
+  detailFailed?: boolean | undefined;
+  onRetryDetail?: (() => void) | undefined;
   onClose: () => void;
   onShowToast: ShowToast;
   onHistoryChange: (events: WatchEvent[]) => void;
@@ -675,6 +681,16 @@ export function DetailPanel({
               that it is `contents`, and its sections take their place in the
               one column by `order`. */}
           <div className="contents lg:col-span-2 lg:row-start-3 lg:mt-12 lg:block lg:space-y-10">
+            {/* Episodes, providers, cast and recommendations all come from the
+                one bundle, so when it fails they fail together: one error in
+                their place, rather than four sections that each quietly don't
+                render and leave a short page that looks like a title with no
+                data. */}
+            {detailFailed && onRetryDetail && (
+              <div className="order-2">
+                <SectionError message="Couldn't load the details for this title." onRetry={onRetryDetail} />
+              </div>
+            )}
             {/* The episode list leads on a series: it is the most-used surface
                 on the panel, and it used to sit below the ratings, the cast,
                 the lists, the stars, the tags and the drop control. */}

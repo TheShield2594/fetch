@@ -32,6 +32,13 @@ import { computeProgressSummary, seasonCountSuffix } from "./series-progress";
 export const HERO_SCRIM =
   "linear-gradient(to top, var(--bg-0) 6%, color-mix(in srgb, var(--bg-0) 82%, transparent) 30%, color-mix(in srgb, var(--bg-0) 30%, transparent) 58%, transparent 88%)";
 
+/**
+ * `sizes` for a hero's backdrop: the page column, which is the viewport less
+ * its gutters up to the content's 1400px cap. Literal lengths, because the
+ * preload scanner reads this before any stylesheet.
+ */
+export const HERO_BACKDROP_SIZES = "(min-width: 1400px) 1350px, 100vw";
+
 /** The first in-progress series, featured above the rail. */
 export function ContinueWatchingHero({
   s,
@@ -124,11 +131,17 @@ export function ContinueWatchingHero({
       className="relative mb-3 flex flex-col justify-end overflow-hidden rounded-3xl p-5 sm:p-6"
       style={{ minHeight: "19rem", border: "1px solid var(--border)" }}
     >
-      <img
+      {/* Through `Poster` rather than a bare <img>: the backdrop ladder up to
+          w1280 with a `sizes` for the column (the stored w500 was drawn at
+          1310px), top-weighted cropping, high fetch priority — this is the
+          first picture on the page — and the tint if the file fails. */}
+      <Poster
         src={s.background}
         alt=""
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover"
+        variant="backdrop"
+        eager
+        sizes={HERO_BACKDROP_SIZES}
+        className="absolute inset-0 h-full w-full"
       />
       <div className="absolute inset-0" style={{ background: HERO_SCRIM }} />
       <div className="relative z-10 min-w-0">

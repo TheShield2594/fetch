@@ -127,7 +127,7 @@ export function DashboardHeader({
               Streak unavailable &middot; Retry
             </button>
           )}
-          <Link to="/stats" className="text-xs font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+          <Link to="/stats" className="tap-target inline-flex min-h-6 items-center text-xs font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
             Full stats &rarr;
           </Link>
         </div>

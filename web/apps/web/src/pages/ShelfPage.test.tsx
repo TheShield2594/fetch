@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
 import { TitlePanelProvider } from "../components/media-detail/titlePanel";
-import { type CatalogList, type ListItemWithMeta, OfflineWriteQueuedError, type PlaybackProgress, type SeriesProgress } from "../api";
+import { ApiError, type CatalogList, type ListItemWithMeta, OfflineWriteQueuedError, type PlaybackProgress, type SeriesProgress } from "../api";
 import { ToastProvider } from "../hooks/useToast";
 import { ShelfPage } from "./ShelfPage";
 
@@ -324,13 +324,28 @@ describe("ShelfPage", () => {
 
     // By text rather than by role: the toast provider keeps two empty live
     // regions mounted, one of which is also role="alert".
-    expect(await screen.findByText("API down")).toBeInTheDocument();
+    expect(await screen.findByText("Couldn't load your shelf. Try again in a moment.")).toBeInTheDocument();
 
     getLists.mockResolvedValue({ lists: [list("l1", "Watchlist")] });
     getListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
     await user.click(screen.getByRole("button", { name: "Retry" }));
 
     expect(await screen.findByText("Understudy")).toBeInTheDocument();
+  });
+
+  // #509: after a 429 with nothing cached the page used to say "0 titles",
+  // show the raw "Too Many Requests", and offer the first-run empty state all
+  // at once — which reads as a library that has been emptied.
+  it("shows only the error when the shelf fails with nothing to fall back on", async () => {
+    getLists.mockRejectedValueOnce(new ApiError("Too Many Requests", 429));
+    renderShelf();
+
+    expect(await screen.findByText("Couldn't load your shelf. Try again in a moment.")).toBeInTheDocument();
+    expect(screen.queryByText("Too Many Requests")).toBeNull();
+    expect(screen.queryByText("Nothing on the shelf yet")).toBeNull();
+    expect(screen.queryByText(/0 titles/)).toBeNull();
+    expect(screen.queryByRole("link", { name: "Connect a source" })).toBeNull();
+    expect(screen.getAllByRole("button", { name: "Retry" })).toHaveLength(1);
   });
 
   /*

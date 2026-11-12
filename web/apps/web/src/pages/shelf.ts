@@ -326,6 +326,9 @@ export function shelfEntryFromPlayback(p: PlaybackProgress): ShelfEntry {
       inWatchlist: false,
       inCollection: false,
       lists: [],
+      // The resume card is 16:9; without the backdrop it centre-cropped the
+      // poster into that frame.
+      background: p.background ?? null,
     },
     playback: p,
   };

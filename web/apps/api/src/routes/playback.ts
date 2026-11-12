@@ -57,7 +57,9 @@ type PlaybackRow = {
   pausedAt: Date;
 };
 
-const toPlaybackData = (row: PlaybackRow, meta?: { name: string | null; poster: string | null }) => ({
+type PlaybackMeta = { name: string | null; poster: string | null; background: string | null };
+
+const toPlaybackData = (row: PlaybackRow, meta?: PlaybackMeta) => ({
   id: row.id,
   type: row.type,
   imdbId: row.imdbId,
@@ -67,7 +69,7 @@ const toPlaybackData = (row: PlaybackRow, meta?: { name: string | null; poster: 
   positionSeconds: row.positionSeconds,
   durationSeconds: row.durationSeconds,
   pausedAt: row.pausedAt.toISOString(),
-  ...(meta ? { name: meta.name, poster: meta.poster } : {}),
+  ...(meta ? { name: meta.name, poster: meta.poster, background: meta.background } : {}),
 });
 
 /** A non-negative integer from a query string, `undefined` when absent, `null` when malformed. */
@@ -97,14 +99,20 @@ const playbackRoutes: FastifyPluginAsync = async (app) => {
     // Episodes are stored against the series, so one lookup covers both.
     const metadata = await prisma.metadata.findMany({
       where: { imdbId: { in: [...new Set(rows.map((row) => row.imdbId))] } },
-      select: { imdbId: true, name: true, poster: true },
+      // The backdrop as well as the poster: a resume card is landscape, and a
+      // centre-cropped poster in a 16:9 frame loses most of the picture.
+      select: { imdbId: true, name: true, poster: true, background: true },
     });
     const metaByImdbId = new Map(metadata.map((m) => [m.imdbId, m]));
 
     return {
       playback: rows.map((row) => {
         const meta = metaByImdbId.get(row.imdbId);
-        return toPlaybackData(row, { name: meta?.name ?? null, poster: meta?.poster ?? null });
+        return toPlaybackData(row, {
+          name: meta?.name ?? null,
+          poster: meta?.poster ?? null,
+          background: meta?.background ?? null,
+        });
       }),
     };
   });

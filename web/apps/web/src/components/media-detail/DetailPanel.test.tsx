@@ -116,6 +116,17 @@ describe("DetailPanel section degradation", () => {
     expect(screen.queryByText("More Like This")).not.toBeInTheDocument();
   });
 
+  // #502: a failed request is said out loud, with a way back, rather than
+  // looking the same as a title TMDB knows nothing about.
+  it("says the details couldn't load, and retries, when the bundle failed", async () => {
+    const onRetryDetail = vi.fn();
+    renderPanel({ detailFailed: true, onRetryDetail });
+
+    expect(await screen.findByText("Couldn't load the details for this title.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(onRetryDetail).toHaveBeenCalledTimes(1);
+  });
+
   it("draws the bundle's sections once it does arrive", async () => {
     renderPanel({ detail: FULL_DETAIL });
 

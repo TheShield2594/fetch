@@ -161,3 +161,23 @@ describe("useDetailPanel bundle cache", () => {
     expect(asB.result.current.detail?.dropped).toBe(false);
   });
 });
+
+// #502: a failed bundle used to be swallowed, leaving a hero over a short page
+// that read as a title with no data.
+describe("useDetailPanel when the bundle fails", () => {
+  it("reports the failure and loads again on retry", async () => {
+    enterProfile("profile-a");
+    getDetailBundle.mockRejectedValueOnce(new Error("Network error"));
+
+    const view = renderHook(() => useDetailPanel());
+    act(() => view.result.current.setSelectedItem(SERIES));
+    await waitFor(() => expect(view.result.current.detailFailed).toBe(true));
+    expect(view.result.current.detail).toBeNull();
+    expect(view.result.current.detailLoading).toBe(false);
+
+    act(() => view.result.current.retryDetail());
+    await waitFor(() => expect(view.result.current.detail).not.toBeNull());
+    expect(view.result.current.detailFailed).toBe(false);
+    expect(getDetailBundle).toHaveBeenCalledTimes(2);
+  });
+});

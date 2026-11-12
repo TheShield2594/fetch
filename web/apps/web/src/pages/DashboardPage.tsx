@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { AlertCircle, Film, Tv, TrendingUp, Clock } from "lucide-react";
+import { Film, Tv, TrendingUp, Clock } from "lucide-react";
 import {
   api,
+  ApiError,
   type CalendarEntry,
   type CheckIn,
   type DetailedWatchStats,
@@ -19,10 +20,12 @@ import { useHorizontalScroll } from "../components/carousel-utils";
 import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { historyItemImdbId, watchEventTitle } from "../utils/watchEvents";
 import { timeUntil } from "../utils/timeAgo";
+import { loadErrorMessage } from "../utils/loadError";
 import { useCachedState } from "../hooks/useCachedState";
 import { ScrollArrows } from "../components/ScrollArrows";
 import { SectionHeader } from "../components/SectionHeader";
 import { SectionError } from "../components/SectionError";
+import { LoadErrorBanner } from "../components/LoadErrorBanner";
 import { useDashboardSection } from "../hooks/useDashboardSection";
 import { CarouselSkeleton } from "../components/dashboard/CarouselSkeleton";
 import { ContinueWatchingCard } from "../components/dashboard/ContinueWatchingCard";
@@ -74,11 +77,19 @@ export function DashboardPage() {
     [],
     useCallback(() => api.getTrending("movie", "week"), []),
     {
-      apply: (res, set) => set(res.metas ?? []),
+      apply: (res, set) => {
+        set(res.metas ?? []);
+        // A key added in Settings since the last failure: without this the
+        // "needs a TMDB API key" note outlived the key it asked for.
+        setTrendingNeedsTmdb(false);
+      },
       // An unconfigured TMDB key is the one failure worth naming: the rail then
       // says what to go and set rather than offering a Retry that cannot work.
       onError: useCallback((err: unknown) => {
-        setTrendingNeedsTmdb(err instanceof Error && /tmdb/i.test(err.message));
+        setTrendingNeedsTmdb(
+          (err instanceof ApiError && err.code === "tmdb_not_configured") ||
+            (err instanceof Error && /tmdb/i.test(err.message))
+        );
       }, []),
     },
   );
@@ -171,9 +182,10 @@ export function DashboardPage() {
       setStats(statsRes);
       setActiveCheckin(checkinRes.checkin);
       setNowPlaying(nowPlayingRes.sessions ?? []);
+      setError(null);
     } catch (err) {
       if (signal?.aborted) return;
-      setError(err instanceof Error ? err.message : "Failed to load dashboard");
+      setError(loadErrorMessage(err, "Discover"));
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
@@ -351,35 +363,43 @@ export function DashboardPage() {
     }
   };
 
-  if (error) {
+  /*
+   * Whether the page has anything true to show without this load: a cached
+   * answer from an earlier visit, or one this mount already received.
+   *
+   * A failed refresh with that in hand is a banner above the cached sections,
+   * not a page that throws them away — the whole screen used to go to "Unable
+   * to connect to the API" while every section below had data to show. With
+   * nothing in hand, the error is the page, because the empty states the
+   * sections would otherwise fall back to ("No series in progress") would be
+   * claims about a library this page never heard from.
+   */
+  const hasContent =
+    progressMeta.hadCachedValue || historyMeta.hadCachedValue || stats != null || progress.length > 0 || history.length > 0;
+
+  const retryLoad = () => {
+    setError(null);
+    // Skeletons while the retry is out, rather than the empty states a page
+    // with nothing loaded would otherwise fall through to for a moment.
+    if (!hasContent) setLoading(true);
+    void load();
+  };
+
+  if (error && !hasContent) {
     return (
       <>
         <PageHeading />
-        <div
-          className="mx-auto max-w-lg space-y-4 rounded-2xl border border-claw-400/20 bg-claw-400/5 p-8 text-center"
-        >
-          <AlertCircle className="mx-auto h-12 w-12 text-claw-text" />
-          <p className="text-xl font-semibold text-claw-text">Unable to connect to the API</p>
-          <p className="text-sm" style={{ color: "var(--text-dim)" }}>{error}</p>
-          <p className="text-sm" style={{ color: "var(--text-dim)" }}>
-            API base: <span className="font-mono text-claw-text">{runtimeConfig.getApiBase()}</span>
+        <SectionError variant="page" message={error} onRetry={retryLoad}>
+          <p className="mt-2 text-sm" style={{ color: "var(--text-dim)" }}>
+            API base: <span className="font-mono">{runtimeConfig.getApiBase()}</span>
           </p>
-          <div className="flex items-center justify-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="btn-primary"
-            >
-              Reload
-            </button>
-            <Link
-              to="/settings"
-              className="btn-secondary"
-            >
-              Settings
-            </Link>
-          </div>
-        </div>
+          <Link
+            to="/settings"
+            className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline"
+          >
+            Check the connection in Settings &rarr;
+          </Link>
+        </SectionError>
       </>
     );
   }
@@ -417,6 +437,10 @@ export function DashboardPage() {
         statsFailed={detailed.failed}
         onRetryStats={() => void loadDetailed()}
       />
+
+      {/* A refresh that failed over a cached page: the sections below keep the
+          last answer, and this says it is not the newest one. */}
+      {error && <LoadErrorBanner message={error} onRetry={retryLoad} className="" />}
 
       {/* ── Hero: Now Watching ── */}
       {activeCheckin && <NowWatchingHero checkin={activeCheckin} onCheckout={(logWatch) => void handleCheckout(logWatch)} />}
@@ -497,32 +521,29 @@ export function DashboardPage() {
               ))}
             </div>
           ) : trendingMovies.length === 0 ? (
-            <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
-              <TrendingUp className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
-              {trendingNeedsTmdb ? (
-                <>
-                  <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                    Trending needs a TMDB API key to fetch content.
-                  </p>
-                  <Link to="/settings?tab=integrations" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
-                    Set it up in Settings &rarr;
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
-                    Unable to load trending content.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => void loadTrending()}
-                    className="mt-1 rounded text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
-                  >
-                    Retry
-                  </button>
-                </>
-              )}
-            </div>
+            /* Three different things, which used to share one "Unable to load"
+               card: a key to go and set, a request to retry, and a week that
+               simply had nothing in it. */
+            trendingNeedsTmdb ? (
+              <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
+                <TrendingUp className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
+                <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
+                  Trending needs a TMDB API key to fetch content.
+                </p>
+                <Link to="/settings?tab=integrations" className="mt-1 inline-block py-1 text-sm font-medium text-claw-text underline-offset-2 transition-colors hover:underline">
+                  Set it up in Settings &rarr;
+                </Link>
+              </div>
+            ) : trending.failed ? (
+              <SectionError message="Couldn't load trending titles." onRetry={() => void loadTrending()} />
+            ) : (
+              <div className="rounded-2xl py-12 text-center" style={{ border: "1px dashed var(--border-strong)" }}>
+                <TrendingUp className="mx-auto h-10 w-10" style={{ color: "var(--text-mute)" }} />
+                <p className="mt-3 text-sm" style={{ color: "var(--text-dim)" }}>
+                  Nothing trending this week.
+                </p>
+              </div>
+            )
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:[grid-template-columns:repeat(auto-fit,var(--poster-card-w))]">
               {trendingMovies.slice(0, 4).map((item, index) => (

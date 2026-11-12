@@ -12,12 +12,15 @@ import {
 } from "../api";
 import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
 import { GhostLoader } from "../components/GhostLoader";
+import { LoadErrorBanner } from "../components/LoadErrorBanner";
+import { SectionError } from "../components/SectionError";
 import { Poster } from "../components/Poster";
 import { ProgressRuler } from "../components/ProgressRuler";
 import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
 import { useCachedState } from "../hooks/useCachedState";
 import { useToast } from "../hooks/useToast";
+import { loadErrorMessage } from "../utils/loadError";
 import { timeAgo } from "../utils/timeAgo";
 import {
   applyShelfFilter,
@@ -175,6 +178,10 @@ function UpNextCard({
         className="absolute inset-0 h-full w-full"
         eager={eager}
         sizes="(min-width: 640px) 420px, 304px"
+        // A landscape still takes the backdrop ladder: at 2x a 420px card
+        // wants more than the poster ladder's top rung. A poster standing in
+        // for one keeps the poster ladder.
+        variant={entry.item?.background ? "backdrop" : "poster"}
       />
       {/* The scrim starts at 35% rather than at the top: a caption needs a
           floor under it, and darkening the whole frame to get one takes the
@@ -321,6 +328,10 @@ export function ShelfPage() {
 
   const [loading, setLoading] = useState(!itemsMeta.hadCachedValue);
   const [error, setError] = useState<string | null>(null);
+  // Whether there is a real answer on screen — from this load or the cache. The
+  // summary line counts what is on the shelf, and before a load has succeeded
+  // "0 titles" is not a count, it is a guess.
+  const [loaded, setLoaded] = useState(itemsMeta.hadCachedValue);
   const [markingId, setMarkingId] = useState<string | null>(null);
   const [playbackBusyId, setPlaybackBusyId] = useState<string | null>(null);
   const [renderLimit, setRenderLimit] = useState(RENDER_PAGE_SIZE);
@@ -366,10 +377,11 @@ export function ShelfPage() {
       setCheckin(checkinRes.checkin);
       setLastEvent(historyRes[0] ?? null);
       setPlayback(playbackRes.playback ?? []);
+      setLoaded(true);
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return;
       if (loadAbortRef.current !== controller) return;
-      setError(err instanceof Error ? err.message : "Failed to load your shelf");
+      setError(loadErrorMessage(err, "your shelf"));
     } finally {
       if (loadAbortRef.current === controller) setLoading(false);
     }
@@ -574,7 +586,18 @@ export function ShelfPage() {
     lastEvent ? `Last watched ${timeAgo(lastEvent.watchedAt)}` : null
   );
 
-  const nothingAtAll = !loading && everything.length === 0;
+  /*
+   * A failed load with nothing to show is a failure, not an empty shelf.
+   *
+   * Without this the page rendered three things at once after a 429: "0
+   * titles", the error, and the first-run "Nothing on the shelf yet" with its
+   * Search and Connect buttons — which reads as a library that has been
+   * emptied and invites starting over. With nothing cached the error is the
+   * only true thing to say; with something cached, the cache stays on screen
+   * and the error is a banner above it.
+   */
+  const failedEmpty = error != null && everything.length === 0;
+  const nothingAtAll = !loading && !failedEmpty && everything.length === 0;
 
   return (
     <div>
@@ -585,25 +608,16 @@ export function ShelfPage() {
         {/* 15px, not the 12px caption rank: this is the large title's own
             subtitle, and the only line on the screen that describes the whole
             of what is under it. */}
-        <p className="mt-0.5 truncate text-[0.9375rem] tabular-nums" style={{ color: "var(--text-dim)" }}>
-          {summary}
-        </p>
+        {loaded && !failedEmpty && (
+          <p className="mt-0.5 truncate text-[0.9375rem] tabular-nums" style={{ color: "var(--text-dim)" }}>
+            {summary}
+          </p>
+        )}
       </header>
 
-      {error && (
-        <div
-          role="alert"
-          className="mb-5 flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 text-sm text-danger"
-          style={{ background: "color-mix(in srgb, var(--status-bad) 8%, transparent)", border: "1px solid color-mix(in srgb, var(--status-bad) 25%, transparent)" }}
-        >
-          <span className="flex-1">{error}</span>
-          <button type="button" onClick={() => void load()} className="btn-secondary btn-sm">
-            Retry
-          </button>
-        </div>
-      )}
+      {error && !failedEmpty && <LoadErrorBanner message={error} onRetry={() => void load()} />}
 
-      {!nothingAtAll && (
+      {!nothingAtAll && !failedEmpty && (
         <SegmentedControl
           label="Filter the shelf by kind"
           options={kindOptions(counts)}
@@ -626,7 +640,11 @@ export function ShelfPage() {
         />
       )}
 
-      {loading && shelf.length === 0 && inProgress.length === 0 && continueWatching.length === 0 ? (
+      {failedEmpty ? (
+        <div className="mt-6">
+          <SectionError variant="page" message={error ?? ""} onRetry={() => void load()} />
+        </div>
+      ) : loading && shelf.length === 0 && inProgress.length === 0 && continueWatching.length === 0 ? (
         <GhostLoader label="Loading your shelf…" className="items-center py-24" />
       ) : nothingAtAll ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">

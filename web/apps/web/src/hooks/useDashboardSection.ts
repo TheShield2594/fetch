@@ -50,10 +50,13 @@ export function useDashboardSection<TValue, TFetched = TValue>(
      */
     apply?: ((fetched: TFetched, set: (value: TValue) => void) => void) | undefined;
     /**
-     * Runs instead of the default "record the failure" when the fetch throws,
-     * for a section with something more to say — the trending rail
-     * distinguishes "TMDB is not configured" from any other error. Also only
-     * when this run is still the newest.
+     * Runs after the failure is recorded, for a section with something more to
+     * say — the trending rail distinguishes "TMDB is not configured" from any
+     * other error. Also only when this run is still the newest.
+     *
+     * In addition to `failed`, not instead of it: when it replaced the flag, a
+     * failed trending load and an honestly empty one looked the same to the
+     * page, which then called a quiet week "Unable to load trending content".
      */
     onError?: ((error: unknown) => void) | undefined;
   } = {}
@@ -94,9 +97,8 @@ export function useDashboardSection<TValue, TFetched = TValue>(
     } catch (error) {
       console.error(`Failed to load ${key}:`, error);
       if (token.current !== claimed) return;
-      const onError = latest.current.onError;
-      if (onError) onError(error);
-      else setFailed(true);
+      setFailed(true);
+      latest.current.onError?.(error);
     } finally {
       if (token.current === claimed) setLoading(false);
     }

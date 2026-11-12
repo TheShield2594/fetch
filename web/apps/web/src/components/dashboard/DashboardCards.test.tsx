@@ -103,8 +103,7 @@ describe("ContinueWatchingHero", () => {
 
   /** The decorative full-bleed backdrop, not the poster in the card's corner. */
   const backdropOf = (container: HTMLElement) =>
-    // The poster's own loading placeholder is also a hidden image; it isn't this.
-    container.querySelector('img[aria-hidden="true"]:not(.poster-blur)');
+    container.querySelector("img.poster-image-backdrop");
   // The bottom-up cinematic scrim (see HERO_SCRIM) — a gradient that rises to
   // the top, painted only when there is a backdrop to darken.
   const scrimOf = (container: HTMLElement) =>
@@ -115,6 +114,16 @@ describe("ContinueWatchingHero", () => {
 
     expect(backdropOf(container)).toHaveAttribute("src", "https://image.tmdb.org/t/p/w500/bd.jpg");
     expect(scrimOf(container)).toBeInTheDocument();
+  });
+
+  // #505: the stored w500 was drawn 1310px wide. The hero offers up to w1280
+  // and is the first thing the page asks for.
+  it("offers the backdrop at hero widths, first in line", () => {
+    const { container } = renderHero({ background: "https://image.tmdb.org/t/p/w500/bd.jpg" });
+    const img = backdropOf(container);
+
+    expect(img?.getAttribute("srcset")).toContain("https://image.tmdb.org/t/p/w1280/bd.jpg 1280w");
+    expect(img).toHaveAttribute("fetchpriority", "high");
   });
 
   it("is a flat panel when there is no backdrop, rather than a scrim over nothing", () => {

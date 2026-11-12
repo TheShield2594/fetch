@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { CarouselTrack } from "./CarouselTrack";
 
@@ -97,5 +97,23 @@ describe("CarouselTrack", () => {
       </CarouselTrack>
     );
     expect((fades(container)[0] as HTMLElement).style.background).toBe("linear-gradient(to right, var(--bg-1), transparent)");
+  });
+
+  // #503: the cast rail is photos and names, nothing focusable, so a keyboard
+  // user could not reach it to scroll it.
+  it("makes a labelled track a focusable, named region", () => {
+    render(
+      <CarouselTrack scrollRef={() => {}} canScrollLeft={false} canScrollRight label="Cast">
+        <div>Donatas Banionis</div>
+      </CarouselTrack>
+    );
+    const region = screen.getByRole("region", { name: "Cast" });
+    expect(region).toHaveAttribute("tabindex", "0");
+  });
+
+  it("leaves an unlabelled track out of the tab order", () => {
+    const { container } = renderTrack(false, true);
+    expect(track(container)).not.toHaveAttribute("tabindex");
+    expect(track(container)).not.toHaveAttribute("role");
   });
 });

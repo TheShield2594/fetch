@@ -90,6 +90,30 @@ describe("Poster", () => {
     expect(screen.getByText("TL")).toBeInTheDocument();
   });
 
+  // #505: backdrops were offered only the poster ladder, which stops at w780.
+  it("offers a backdrop the landscape ladder, up to w1280, cropped from the top", () => {
+    const { container } = render(
+      <Poster src="https://image.tmdb.org/t/p/w500/bd.jpg" alt="Severance" variant="backdrop" sizes="100vw" />
+    );
+    const img = container.querySelector("img.poster-image") as HTMLImageElement;
+
+    expect(img.getAttribute("srcset")).toBe(
+      "https://image.tmdb.org/t/p/w300/bd.jpg 300w, https://image.tmdb.org/t/p/w780/bd.jpg 780w, https://image.tmdb.org/t/p/w1280/bd.jpg 1280w"
+    );
+    expect(img).toHaveClass("poster-image-backdrop");
+  });
+
+  it("fails a backdrop to the tint alone, without spelling out the title over the caption", () => {
+    const { container } = render(
+      <Poster src="https://image.tmdb.org/t/p/w500/bd.jpg" alt="Severance" variant="backdrop" />
+    );
+    fireEvent.error(container.querySelector("img.poster-image") as HTMLImageElement);
+
+    expect(container.querySelector("img")).toBeNull();
+    expect(container.querySelector(".poster-art")).toBeInTheDocument();
+    expect(screen.queryByText("SE")).toBeNull();
+  });
+
   it("fades a poster in over its placeholder while the bytes are in flight", () => {
     const { container } = render(<Poster src="https://image.tmdb.org/t/p/w500/a.jpg" alt="A" />);
 

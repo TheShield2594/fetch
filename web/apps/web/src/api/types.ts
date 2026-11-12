@@ -451,6 +451,8 @@ export type PlaybackProgress = {
   pausedAt: string;
   name: string | null;
   poster: string | null;
+  /** The title's landscape backdrop. Optional: an API older than this field leaves it out. */
+  background?: string | null | undefined;
 };
 
 export type ExportPayload = {

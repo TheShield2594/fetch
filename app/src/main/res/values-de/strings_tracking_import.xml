@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Aus anderer Quelle importieren</string>
+    <string name="tracking_import_subtitle">Gesehen-Verlauf und Fortsetzungspunkte aus einem anderen verbundenen Dienst in %1$s übernehmen, deine maßgebliche Quelle.</string>
+    <string name="tracking_import_running">Wird importiert…</string>
+    <string name="tracking_import_dialog_title">In %1$s importieren</string>
+    <string name="tracking_import_dialog_subtitle">Dort gesehene Titel werden in %1$s als gesehen markiert. Fortsetzungspunkte werden übernommen, sofern %1$s keinen neueren hat. Es wird nichts entfernt.</string>
+    <string name="tracking_import_done_title">Import abgeschlossen</string>
+    <string name="tracking_import_done_from">Von %1$s nach %2$s</string>
+    <string name="tracking_import_done_watched">Gesehen: %1$d importiert, %2$d übersprungen</string>
+    <string name="tracking_import_done_progress">Fortsetzungspunkte: %1$d importiert, %2$d übersprungen</string>
+    <string name="tracking_import_done_failed">Von %1$s nicht angenommen: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Der Gesehen-Verlauf kann zwischen diesen Diensten nicht importiert werden.</string>
+    <string name="tracking_import_unsupported_progress">Fortsetzungspunkte können zwischen diesen Diensten nicht importiert werden.</string>
+    <string name="tracking_import_failed_title">Import fehlgeschlagen</string>
+    <string name="tracking_import_failed_subtitle">Fetch konnte %1$s nicht lesen oder nicht in %2$s schreiben. Prüfe, ob beide verbunden sind, und versuche es erneut.</string>
+</resources>

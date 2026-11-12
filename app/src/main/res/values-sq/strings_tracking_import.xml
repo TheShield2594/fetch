@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importo nga një burim tjetër</string>
+    <string name="tracking_import_subtitle">Kopjo historikun e shikimeve dhe pikat e rifillimit nga një shërbim tjetër i lidhur te %1$s, burimi yt kryesor.</string>
+    <string name="tracking_import_running">Po importohet…</string>
+    <string name="tracking_import_dialog_title">Importo te %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Titujt e shikuar atje shënohen si të shikuar te %1$s. Pikat e rifillimit kopjohen, përveç nëse %1$s ka një më të re. Asgjë nuk hiqet.</string>
+    <string name="tracking_import_done_title">Importimi përfundoi</string>
+    <string name="tracking_import_done_from">Nga %1$s te %2$s</string>
+    <string name="tracking_import_done_watched">Të shikuar: %1$d të importuar, %2$d të anashkaluar</string>
+    <string name="tracking_import_done_progress">Pikat e rifillimit: %1$d të importuara, %2$d të anashkaluara</string>
+    <string name="tracking_import_done_failed">Të papranuara nga %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Historiku i shikimeve nuk mund të importohet ndërmjet këtyre shërbimeve.</string>
+    <string name="tracking_import_unsupported_progress">Pikat e rifillimit nuk mund të importohen ndërmjet këtyre shërbimeve.</string>
+    <string name="tracking_import_failed_title">Importimi dështoi</string>
+    <string name="tracking_import_failed_subtitle">Fetch nuk mundi të lexonte %1$s ose të shkruante te %2$s. Kontrollo që të dy janë të lidhur dhe provo përsëri.</string>
+</resources>

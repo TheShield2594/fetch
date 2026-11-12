@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importar de outra fonte</string>
+    <string name="tracking_import_subtitle">Copie o histórico de vistos e os pontos de retoma de outro serviço ligado para %1$s, a sua fonte principal.</string>
+    <string name="tracking_import_running">A importar…</string>
+    <string name="tracking_import_dialog_title">Importar para %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Os títulos vistos lá são marcados como vistos em %1$s. Os pontos de retoma são copiados, a menos que %1$s tenha um mais recente. Nada é removido.</string>
+    <string name="tracking_import_done_title">Importação concluída</string>
+    <string name="tracking_import_done_from">De %1$s para %2$s</string>
+    <string name="tracking_import_done_watched">Vistos: %1$d importados, %2$d ignorados</string>
+    <string name="tracking_import_done_progress">Pontos de retoma: %1$d importados, %2$d ignorados</string>
+    <string name="tracking_import_done_failed">Não aceites por %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">O histórico de vistos não pode ser importado entre estes serviços.</string>
+    <string name="tracking_import_unsupported_progress">Os pontos de retoma não podem ser importados entre estes serviços.</string>
+    <string name="tracking_import_failed_title">A importação falhou</string>
+    <string name="tracking_import_failed_subtitle">O Fetch não conseguiu ler %1$s ou escrever em %2$s. Verifique se ambos estão ligados e tente novamente.</string>
+</resources>

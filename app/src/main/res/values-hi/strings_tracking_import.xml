@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">किसी दूसरे स्रोत से इम्पोर्ट करें</string>
+    <string name="tracking_import_subtitle">किसी दूसरी कनेक्टेड सेवा से देखा गया इतिहास और फिर से शुरू करने के पॉइंट %1$s में कॉपी करें, जो आपका मुख्य स्रोत है।</string>
+    <string name="tracking_import_running">इम्पोर्ट हो रहा है…</string>
+    <string name="tracking_import_dialog_title">%1$s में इम्पोर्ट करें</string>
+    <string name="tracking_import_dialog_subtitle">वहाँ देखे गए टाइटल %1$s में देखे गए के रूप में मार्क होंगे। फिर से शुरू करने के पॉइंट कॉपी होंगे, जब तक %1$s में नया पॉइंट न हो। कुछ भी हटाया नहीं जाता।</string>
+    <string name="tracking_import_done_title">इम्पोर्ट पूरा हुआ</string>
+    <string name="tracking_import_done_from">%1$s से %2$s में</string>
+    <string name="tracking_import_done_watched">देखे गए: %1$d इम्पोर्ट हुए, %2$d छोड़े गए</string>
+    <string name="tracking_import_done_progress">फिर से शुरू करने के पॉइंट: %1$d इम्पोर्ट हुए, %2$d छोड़े गए</string>
+    <string name="tracking_import_done_failed">%1$s ने स्वीकार नहीं किए: %2$d</string>
+    <string name="tracking_import_unsupported_watched">इन सेवाओं के बीच देखा गया इतिहास इम्पोर्ट नहीं किया जा सकता।</string>
+    <string name="tracking_import_unsupported_progress">इन सेवाओं के बीच फिर से शुरू करने के पॉइंट इम्पोर्ट नहीं किए जा सकते।</string>
+    <string name="tracking_import_failed_title">इम्पोर्ट विफल रहा</string>
+    <string name="tracking_import_failed_subtitle">Fetch %1$s को पढ़ नहीं सका या %2$s में लिख नहीं सका। जाँचें कि दोनों कनेक्टेड हैं और फिर से कोशिश करें।</string>
+</resources>

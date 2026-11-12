@@ -57,7 +57,7 @@ class TrackingSettingsViewModelTest {
         val trakt = mockk<TraktAuthDataStore> { every { state } returns flowOf(TraktAuthState()) }
         val simkl = mockk<SimklAuthRepository> { every { state } returns MutableStateFlow(SimklAuthState()) }
         val website = mockk<FetchWebsiteStore> { every { session } returns MutableStateFlow(null) }
-        val viewModel = TrackingSettingsViewModel(controller, settings, mockk(), trakt, simkl, harness.store, website, profiles)
+        val viewModel = TrackingSettingsViewModel(controller, settings, mockk(), mockk(relaxed = true), trakt, simkl, harness.store, website, profiles)
         runCurrent()
         assertEquals(setOf(TrackingProviderId.MDBLIST), viewModel.uiState.value.connectedProviderIds)
         val previousCount = reconciliations.size

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">অন্য উৎস থেকে ইমপোর্ট করুন</string>
+    <string name="tracking_import_subtitle">অন্য একটি সংযুক্ত সার্ভিস থেকে দেখার ইতিহাস ও আবার শুরুর পয়েন্ট %1$s-এ কপি করুন, যা আপনার মূল উৎস।</string>
+    <string name="tracking_import_running">ইমপোর্ট হচ্ছে…</string>
+    <string name="tracking_import_dialog_title">%1$s-এ ইমপোর্ট করুন</string>
+    <string name="tracking_import_dialog_subtitle">সেখানে দেখা টাইটেলগুলো %1$s-এ দেখা হিসেবে চিহ্নিত হবে। %1$s-এ নতুন কিছু না থাকলে আবার শুরুর পয়েন্ট কপি হবে। কিছুই মুছে ফেলা হয় না।</string>
+    <string name="tracking_import_done_title">ইমপোর্ট শেষ হয়েছে</string>
+    <string name="tracking_import_done_from">%1$s থেকে %2$s-এ</string>
+    <string name="tracking_import_done_watched">দেখা: %1$dটি ইমপোর্ট হয়েছে, %2$dটি বাদ দেওয়া হয়েছে</string>
+    <string name="tracking_import_done_progress">আবার শুরুর পয়েন্ট: %1$dটি ইমপোর্ট হয়েছে, %2$dটি বাদ দেওয়া হয়েছে</string>
+    <string name="tracking_import_done_failed">%1$s গ্রহণ করেনি: %2$d</string>
+    <string name="tracking_import_unsupported_watched">এই সার্ভিসগুলোর মধ্যে দেখার ইতিহাস ইমপোর্ট করা যায় না।</string>
+    <string name="tracking_import_unsupported_progress">এই সার্ভিসগুলোর মধ্যে আবার শুরুর পয়েন্ট ইমপোর্ট করা যায় না।</string>
+    <string name="tracking_import_failed_title">ইমপোর্ট ব্যর্থ হয়েছে</string>
+    <string name="tracking_import_failed_subtitle">Fetch %1$s পড়তে বা %2$s-এ লিখতে পারেনি। দুটিই সংযুক্ত আছে কিনা দেখে আবার চেষ্টা করুন।</string>
+</resources>

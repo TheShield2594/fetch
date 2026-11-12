@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">ייבוא ממקור אחר</string>
+    <string name="tracking_import_subtitle">העתקת היסטוריית הצפייה ונקודות ההמשך משירות מחובר אחר אל %1$s, המקור הקובע שלך.</string>
+    <string name="tracking_import_running">מייבא…</string>
+    <string name="tracking_import_dialog_title">ייבוא אל %1$s</string>
+    <string name="tracking_import_dialog_subtitle">כותרים שנצפו שם יסומנו כנצפו ב-%1$s. נקודות המשך מועתקות אלא אם ב-%1$s יש נקודה חדשה יותר. דבר לא נמחק.</string>
+    <string name="tracking_import_done_title">הייבוא הסתיים</string>
+    <string name="tracking_import_done_from">מ-%1$s אל %2$s</string>
+    <string name="tracking_import_done_watched">נצפו: %1$d יובאו, %2$d דולגו</string>
+    <string name="tracking_import_done_progress">נקודות המשך: %1$d יובאו, %2$d דולגו</string>
+    <string name="tracking_import_done_failed">לא התקבלו על ידי %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">לא ניתן לייבא היסטוריית צפייה בין השירותים האלה.</string>
+    <string name="tracking_import_unsupported_progress">לא ניתן לייבא נקודות המשך בין השירותים האלה.</string>
+    <string name="tracking_import_failed_title">הייבוא נכשל</string>
+    <string name="tracking_import_failed_subtitle">ל-Fetch לא הייתה אפשרות לקרוא מ-%1$s או לכתוב אל %2$s. יש לוודא ששניהם מחוברים ולנסות שוב.</string>
+</resources>

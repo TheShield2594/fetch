@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">استيراد من مصدر آخر</string>
+    <string name="tracking_import_subtitle">انسخ سجل المشاهدة ونقاط الاستئناف من خدمة متصلة أخرى إلى %1$s، مصدرك المعتمد.</string>
+    <string name="tracking_import_running">جارٍ الاستيراد…</string>
+    <string name="tracking_import_dialog_title">استيراد إلى %1$s</string>
+    <string name="tracking_import_dialog_subtitle">العناوين التي شوهدت هناك تُعلَّم كمشاهَدة في %1$s. تُنسخ نقاط الاستئناف ما لم يكن لدى %1$s نقطة أحدث. لا يُحذف أي شيء.</string>
+    <string name="tracking_import_done_title">اكتمل الاستيراد</string>
+    <string name="tracking_import_done_from">من %1$s إلى %2$s</string>
+    <string name="tracking_import_done_watched">المشاهَد: تم استيراد %1$d، وتخطي %2$d</string>
+    <string name="tracking_import_done_progress">نقاط الاستئناف: تم استيراد %1$d، وتخطي %2$d</string>
+    <string name="tracking_import_done_failed">لم يقبلها %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">لا يمكن استيراد سجل المشاهدة بين هاتين الخدمتين.</string>
+    <string name="tracking_import_unsupported_progress">لا يمكن استيراد نقاط الاستئناف بين هاتين الخدمتين.</string>
+    <string name="tracking_import_failed_title">فشل الاستيراد</string>
+    <string name="tracking_import_failed_subtitle">تعذّر على Fetch القراءة من %1$s أو الكتابة إلى %2$s. تأكد من اتصال كليهما ثم حاول مرة أخرى.</string>
+</resources>

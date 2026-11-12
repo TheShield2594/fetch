@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importuj z innego źródła</string>
+    <string name="tracking_import_subtitle">Kopiuje historię obejrzanych i punkty wznowienia z innej połączonej usługi do %1$s, Twojego głównego źródła.</string>
+    <string name="tracking_import_running">Importowanie…</string>
+    <string name="tracking_import_dialog_title">Importuj do %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Tytuły obejrzane tam zostaną oznaczone jako obejrzane w %1$s. Punkty wznowienia są kopiowane, chyba że %1$s ma nowszy. Nic nie jest usuwane.</string>
+    <string name="tracking_import_done_title">Import zakończony</string>
+    <string name="tracking_import_done_from">Z %1$s do %2$s</string>
+    <string name="tracking_import_done_watched">Obejrzane: zaimportowano %1$d, pominięto %2$d</string>
+    <string name="tracking_import_done_progress">Punkty wznowienia: zaimportowano %1$d, pominięto %2$d</string>
+    <string name="tracking_import_done_failed">Nie przyjęte przez %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Historii obejrzanych nie można importować między tymi usługami.</string>
+    <string name="tracking_import_unsupported_progress">Punktów wznowienia nie można importować między tymi usługami.</string>
+    <string name="tracking_import_failed_title">Import nie powiódł się</string>
+    <string name="tracking_import_failed_subtitle">Fetch nie mógł odczytać %1$s lub zapisać w %2$s. Sprawdź, czy oba są połączone, i spróbuj ponownie.</string>
+</resources>

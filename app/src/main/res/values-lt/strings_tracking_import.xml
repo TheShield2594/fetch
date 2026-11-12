@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importuoti iš kito šaltinio</string>
+    <string name="tracking_import_subtitle">Nukopijuokite žiūrėjimo istoriją ir tęsimo vietas iš kitos prijungtos paslaugos į %1$s, jūsų pagrindinį šaltinį.</string>
+    <string name="tracking_import_running">Importuojama…</string>
+    <string name="tracking_import_dialog_title">Importuoti į %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Ten žiūrėti pavadinimai %1$s bus pažymėti kaip žiūrėti. Tęsimo vietos nukopijuojamos, nebent %1$s turi naujesnę. Niekas nepašalinama.</string>
+    <string name="tracking_import_done_title">Importavimas baigtas</string>
+    <string name="tracking_import_done_from">Iš %1$s į %2$s</string>
+    <string name="tracking_import_done_watched">Žiūrėta: importuota %1$d, praleista %2$d</string>
+    <string name="tracking_import_done_progress">Tęsimo vietos: importuota %1$d, praleista %2$d</string>
+    <string name="tracking_import_done_failed">%1$s nepriėmė: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Žiūrėjimo istorijos negalima importuoti tarp šių paslaugų.</string>
+    <string name="tracking_import_unsupported_progress">Tęsimo vietų negalima importuoti tarp šių paslaugų.</string>
+    <string name="tracking_import_failed_title">Importuoti nepavyko</string>
+    <string name="tracking_import_failed_subtitle">Fetch nepavyko nuskaityti %1$s arba įrašyti į %2$s. Patikrinkite, ar abi prijungtos, ir bandykite dar kartą.</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importer fra en annen kilde</string>
+    <string name="tracking_import_subtitle">Kopier sett-historikk og fortsettelsespunkter fra en annen tilkoblet tjeneste til %1$s, hovedkilden din.</string>
+    <string name="tracking_import_running">Importerer…</string>
+    <string name="tracking_import_dialog_title">Importer til %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Titler sett der markeres som sett i %1$s. Fortsettelsespunkter kopieres med mindre %1$s har et nyere. Ingenting fjernes.</string>
+    <string name="tracking_import_done_title">Importen er ferdig</string>
+    <string name="tracking_import_done_from">Fra %1$s til %2$s</string>
+    <string name="tracking_import_done_watched">Sett: %1$d importert, %2$d hoppet over</string>
+    <string name="tracking_import_done_progress">Fortsettelsespunkter: %1$d importert, %2$d hoppet over</string>
+    <string name="tracking_import_done_failed">Ikke godtatt av %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Sett-historikk kan ikke importeres mellom disse tjenestene.</string>
+    <string name="tracking_import_unsupported_progress">Fortsettelsespunkter kan ikke importeres mellom disse tjenestene.</string>
+    <string name="tracking_import_failed_title">Importen mislyktes</string>
+    <string name="tracking_import_failed_subtitle">Fetch kunne ikke lese %1$s eller skrive til %2$s. Kontroller at begge er tilkoblet, og prøv igjen.</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">別のソースからインポート</string>
+    <string name="tracking_import_subtitle">接続済みの別のサービスから視聴履歴と再開位置を、メインのソースである %1$s にコピーします。</string>
+    <string name="tracking_import_running">インポート中…</string>
+    <string name="tracking_import_dialog_title">%1$s にインポート</string>
+    <string name="tracking_import_dialog_subtitle">そこで視聴したタイトルは %1$s で視聴済みになります。再開位置は %1$s により新しいものがない場合にコピーされます。削除されるものはありません。</string>
+    <string name="tracking_import_done_title">インポートが完了しました</string>
+    <string name="tracking_import_done_from">%1$s から %2$s へ</string>
+    <string name="tracking_import_done_watched">視聴済み: %1$d 件をインポート、%2$d 件をスキップ</string>
+    <string name="tracking_import_done_progress">再開位置: %1$d 件をインポート、%2$d 件をスキップ</string>
+    <string name="tracking_import_done_failed">%1$s が受け付けなかった項目: %2$d</string>
+    <string name="tracking_import_unsupported_watched">これらのサービス間では視聴履歴をインポートできません。</string>
+    <string name="tracking_import_unsupported_progress">これらのサービス間では再開位置をインポートできません。</string>
+    <string name="tracking_import_failed_title">インポートに失敗しました</string>
+    <string name="tracking_import_failed_subtitle">Fetch は %1$s を読み込めないか、%2$s に書き込めませんでした。両方が接続されていることを確認して、もう一度お試しください。</string>
+</resources>

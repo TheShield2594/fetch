@@ -54,6 +54,9 @@ Highlights:
   current one has a PIN), and "search for … in Fetch" opens Fetch's search.
 - **Watch state.** Continue Watching, next-episode autoplay, skip intro/recap from community
   markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, and the Android TV "Watch Next" row.
+  The watch progress source you pick (Fetch Sync, Trakt, Simkl, MDBList or the Fetch website) is
+  the one source of truth for Continue Watching and watched marks; you can import history from the
+  others into it once from Settings → Tracking.
 - **Debrid through addons.** Like Stremio, debrid accounts are set up in the addons that support them.
   Fetch is debrid-only: it has no torrent engine and hides torrent results that have no playable link.
 - **Your own library.** Jellyfin, Emby and Plex items appear alongside addon results and outrank them.

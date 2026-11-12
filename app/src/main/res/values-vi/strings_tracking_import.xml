@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Nhập từ nguồn khác</string>
+    <string name="tracking_import_subtitle">Sao chép lịch sử đã xem và điểm tiếp tục từ một dịch vụ đã kết nối khác vào %1$s, nguồn chính của bạn.</string>
+    <string name="tracking_import_running">Đang nhập…</string>
+    <string name="tracking_import_dialog_title">Nhập vào %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Các nội dung đã xem ở đó sẽ được đánh dấu đã xem trong %1$s. Điểm tiếp tục được sao chép trừ khi %1$s có điểm mới hơn. Không có gì bị xóa.</string>
+    <string name="tracking_import_done_title">Đã nhập xong</string>
+    <string name="tracking_import_done_from">Từ %1$s vào %2$s</string>
+    <string name="tracking_import_done_watched">Đã xem: đã nhập %1$d, bỏ qua %2$d</string>
+    <string name="tracking_import_done_progress">Điểm tiếp tục: đã nhập %1$d, bỏ qua %2$d</string>
+    <string name="tracking_import_done_failed">%1$s không chấp nhận: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Không thể nhập lịch sử đã xem giữa các dịch vụ này.</string>
+    <string name="tracking_import_unsupported_progress">Không thể nhập điểm tiếp tục giữa các dịch vụ này.</string>
+    <string name="tracking_import_failed_title">Nhập không thành công</string>
+    <string name="tracking_import_failed_subtitle">Fetch không thể đọc %1$s hoặc ghi vào %2$s. Hãy kiểm tra cả hai đã được kết nối rồi thử lại.</string>
+</resources>

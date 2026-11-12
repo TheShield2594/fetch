@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importa da un’altra fonte</string>
+    <string name="tracking_import_subtitle">Copia la cronologia dei visti e i punti di ripresa da un altro servizio collegato in %1$s, la tua fonte principale.</string>
+    <string name="tracking_import_running">Importazione…</string>
+    <string name="tracking_import_dialog_title">Importa in %1$s</string>
+    <string name="tracking_import_dialog_subtitle">I titoli visti lì vengono segnati come visti in %1$s. I punti di ripresa vengono copiati, a meno che %1$s non ne abbia uno più recente. Non viene rimosso nulla.</string>
+    <string name="tracking_import_done_title">Importazione completata</string>
+    <string name="tracking_import_done_from">Da %1$s a %2$s</string>
+    <string name="tracking_import_done_watched">Visti: %1$d importati, %2$d saltati</string>
+    <string name="tracking_import_done_progress">Punti di ripresa: %1$d importati, %2$d saltati</string>
+    <string name="tracking_import_done_failed">Non accettati da %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">La cronologia dei visti non può essere importata tra questi servizi.</string>
+    <string name="tracking_import_unsupported_progress">I punti di ripresa non possono essere importati tra questi servizi.</string>
+    <string name="tracking_import_failed_title">Importazione non riuscita</string>
+    <string name="tracking_import_failed_subtitle">Fetch non è riuscito a leggere %1$s o a scrivere in %2$s. Verifica che siano entrambi collegati e riprova.</string>
+</resources>

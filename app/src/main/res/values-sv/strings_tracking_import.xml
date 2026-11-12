@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings → Tracking: import another source into the source of truth -->
+    <string name="tracking_import_title">Importera från en annan källa</string>
+    <string name="tracking_import_subtitle">Kopiera visningshistorik och återupptagningspunkter från en annan ansluten tjänst till %1$s, din huvudkälla.</string>
+    <string name="tracking_import_running">Importerar…</string>
+    <string name="tracking_import_dialog_title">Importera till %1$s</string>
+    <string name="tracking_import_dialog_subtitle">Titlar som setts där markeras som sedda i %1$s. Återupptagningspunkter kopieras om inte %1$s har en nyare. Inget tas bort.</string>
+    <string name="tracking_import_done_title">Importen är klar</string>
+    <string name="tracking_import_done_from">Från %1$s till %2$s</string>
+    <string name="tracking_import_done_watched">Sedda: %1$d importerade, %2$d överhoppade</string>
+    <string name="tracking_import_done_progress">Återupptagningspunkter: %1$d importerade, %2$d överhoppade</string>
+    <string name="tracking_import_done_failed">Inte godkända av %1$s: %2$d</string>
+    <string name="tracking_import_unsupported_watched">Visningshistorik kan inte importeras mellan dessa tjänster.</string>
+    <string name="tracking_import_unsupported_progress">Återupptagningspunkter kan inte importeras mellan dessa tjänster.</string>
+    <string name="tracking_import_failed_title">Importen misslyckades</string>
+    <string name="tracking_import_failed_subtitle">Fetch kunde inte läsa %1$s eller skriva till %2$s. Kontrollera att båda är anslutna och försök igen.</string>
+</resources>

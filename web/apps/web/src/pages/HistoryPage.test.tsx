@@ -115,7 +115,7 @@ describe("HistoryPage", () => {
     renderPage();
 
     expect(await screen.findByText("Network down")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Movies" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Films" })).toBeInTheDocument();
   });
 
   // A button inside a button has no defined accessible mapping, and assistive
@@ -289,7 +289,7 @@ describe("HistoryPage caching and pagination", () => {
     renderPage();
     await findEpisode();
 
-    await user.click(screen.getByRole("button", { name: "Movies" }));
+    await user.click(screen.getByRole("button", { name: "Films" }));
     await waitFor(() => expect(episodeRow()).not.toBeInTheDocument());
 
     expect(readCache("history:events:movie")).toEqual([ALIEN]);
@@ -687,7 +687,7 @@ describe("HistoryPage binges, days and finding things", () => {
     renderPage();
     await screen.findByText("Alien");
 
-    await user.click(screen.getByRole("button", { name: "Movies" }));
+    await user.click(screen.getByRole("button", { name: "Films" }));
 
     expect(await screen.findByText("Network down")).toBeInTheDocument();
     expect(screen.queryByText("Alien")).toBeNull();

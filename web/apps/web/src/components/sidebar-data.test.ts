@@ -109,4 +109,14 @@ describe("railSources", () => {
     expect(RAIL_SOURCES.map((s) => s.id)).not.toContain("job-status");
     expect(railSources({ "job-status": ok("All healthy") })).toEqual([]);
   });
+
+  it("links each row to its own Settings section, or to the tab when the server set it up", () => {
+    const rows = railSources({
+      trakt: ok("Synced"),
+      tmdb: { tone: "ok", label: "Key set (env)", short: "Key set", setByServer: true },
+    });
+    // Settings doesn't list a section the server's environment answers, so a
+    // link to it would open on nothing.
+    expect(rows.map((r) => r.href)).toEqual(["/settings?section=trakt", "/settings"]);
+  });
 });

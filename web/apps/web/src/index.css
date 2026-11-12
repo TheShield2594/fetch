@@ -18,6 +18,31 @@
 }
 
 /*
+ * Fetch's rules, which everything below answers to.
+ *
+ *   Artwork leads. Posters, stills and backdrops are the content; chrome is
+ *   near-black (or the theme's page colour), quiet, and gets out of their way.
+ *   A surface earns a fill only when it holds controls, never as decoration.
+ *
+ *   Red is action and location. The accent marks the thing to press and the
+ *   place you are — the primary button, the current page, the sweep of the
+ *   loader — and nothing else. A red that only decorates spends the one
+ *   signal the palette has.
+ *
+ *   White is focus. The text colour at full strength is what you are reading
+ *   or what has the keyboard; everything else steps down to --text-dim and
+ *   --text-mute.
+ *
+ *   Copy is plain and dry. No mascot puns, no exclamation marks, and no
+ *   gradients or glows standing in for hierarchy.
+ *
+ * Many of the measured values in this file — corner radii, the settle curve,
+ * the label alphas, the 12px caption — started life as a well-made platform's
+ * own numbers. They are kept because they work, not to make the web app pass
+ * for a native one: Fetch is its own product, shared with the TV.
+ */
+
+/*
  * Two accent tokens exist because one accent colour can't do both jobs at a
  * readable contrast:
  *
@@ -46,8 +71,9 @@
  */
 
 /*
- * Platform surfaces — the tokens the Apple-style chrome needs that a palette
- * of backgrounds and borders can't supply on its own.
+ * Chrome surfaces — the tokens the shell's controls need (the segmented
+ * control's track and thumb, the tab bar's material, the identity tints) that
+ * a palette of backgrounds and borders can't supply on its own.
  *
  * Declared here, ahead of the themes, and derived from --text / --bg-1 so the
  * themes that don't restate them (glass, midnight, letterboxd, fetch) still get
@@ -55,7 +81,7 @@
  * properties substitute at use time rather than at declaration, so these read
  * whichever theme's --text is in force on the element.
  *
- * Light and dark restate every one of them with UIKit's own values below.
+ * Light and dark restate every one of them with measured values of their own below.
  */
 :root {
   /* The system palette. Restated by light below; the three dark themes that
@@ -87,7 +113,7 @@
   --poster-ratio: 2 / 3;
 
   /*
-   * iOS/macOS light — a grey page with white cards on it, which is the
+   * A grey page with white cards on it, which is the
    * inversion the grouped-list style depends on: an inset list is only inset
    * if the surface behind it is darker than the rows.
    */
@@ -104,7 +130,7 @@
      at >= 3:1 against both its --bg-0 and its --bg-1. */
   --border-field: #838388;
   --text: #000000;
-  /* UIKit's own secondary and tertiary labels are 0.6 and 0.3 alpha, which
+  /* Secondary and tertiary labels at the usual 0.6 and 0.3 alpha
      measure 3.30:1 and 1.6:1 on this page — below the 4.5:1 the rest of this
      file holds itself to. Held at the alpha that clears it instead; see the
      contrast note at the top. */
@@ -127,7 +153,7 @@
 }
 
 /*
- * Light's platform surfaces, in a block of their own. They used to sit in the
+ * Light's chrome surfaces, in a block of their own. They used to sit in the
  * `:root, [data-theme="light"]` block above, and `:root` is the <html> element
  * under every theme: the themes that don't restate these (glass, midnight,
  * letterboxd, fetch) took light's white segmented thumb under their own
@@ -161,9 +187,10 @@
   --poster-ratio: 2 / 3;
 
   /*
-   * iOS/macOS dark — true black, not a warm near-black. The page is #000 so an
-   * OLED phone paints nothing at all where the artwork isn't, and the grouped
-   * surface above it is systemGray6 rather than a tint of the text colour.
+   * True black, not a warm near-black. The page is #000 so an OLED phone
+   * paints nothing at all where the artwork isn't — artwork leads, and the
+   * chrome around it is absent — and the grouped surface above it is a fixed
+   * grey rather than a tint of the text colour.
    */
   --bg-0: #000000;
   --bg-1: #1c1c1e;
@@ -416,15 +443,15 @@
    *
    * `ease-out` is fine for a tint and wrong for anything that travels: it
    * leaves at full speed and coasts to a stop, which reads as a thing being
-   * dragged. This is the curve UIKit moves sheets, segmented thumbs and
-   * push transitions on — almost all of the ease is spent decelerating, so a
-   * control arrives rather than stops.
+   * dragged. This one spends almost all of its ease decelerating, so a
+   * control arrives rather than stops: the selection settles onto the row you
+   * picked, the way the TV's focus settles onto a card.
    *
    * Used by everything that moves a distance: the segmented thumb, the
    * sidebar's selection, the tab bar's marker, sheet entrances. Colour
    * transitions keep `ease-in-out`; there is no distance to decelerate over.
    */
-  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
 
   /*
    * The poster card — Discover's repeating rail unit.
@@ -451,13 +478,12 @@
   /*
    * The interface face — one stack, no webfont.
    *
-   * The app shipped a variable webfont (Plus Jakarta Sans) as its interface
-   * face, which is the single most legible way an interface can announce that
-   * it is not a platform app: on an iPhone every system control around it is
-   * set in SF, and a page that isn't reads as a website inside a browser
-   * chrome even when the browser chrome is hidden. This asks for SF by the
-   * names the platform answers to, and falls through to each other platform's
-   * own UI face rather than to a second download.
+   * The fallback for the themes that aren't Fetch. The Fetch theme sets its
+   * interface in Schibsted Grotesk, the TV app's face, which is what makes the
+   * two read as one product (see the @font-face at the top); the other five
+   * themes are alternate palettes and take each device's own UI face at no
+   * download cost, rather than a third-party webfont that would be neither
+   * Fetch's nor the device's.
    *
    * `-apple-system` and `BlinkMacSystemFont` reach SF without naming it, which
    * is what Safari and Chrome on Apple platforms want; the two 'SF Pro' names
@@ -1172,11 +1198,10 @@ body {
    * mono was buying a second, weaker thing: a visible rank change between what
    * the app was told and what it knows.
    *
-   * A platform interface buys that rank with size and colour instead, and
-   * spends the face on belonging: SF Text at 12px in the secondary label colour
-   * is what every caption in Settings, Music and TV is set in, and a run of
-   * SMALL-CAPS MONO beside it is the one thing on the screen that could not
-   * have come from the system. So all three keep the tabular figures and give
+   * Size and colour buy that rank instead, and the face is spent on being
+   * one voice: a 12px caption in the secondary label colour sits with the rest
+   * of the interface, and a run of SMALL-CAPS MONO beside it was the one thing
+   * on the screen that spoke in a different one. So all three keep the tabular figures and give
    * up the face, and two of the three give up the uppercasing with it.
    *
    * Three classes, one face:
@@ -1185,8 +1210,8 @@ body {
    *   .meta-row   a metadata run — "Show · S3 E4 of 8 · 42 min left".
    *   .eyebrow    the label above a block — "In progress", "Recently added".
    *
-   * `.eyebrow` stays uppercase, because a grouped-list section header is
-   * uppercase on the platform too — and it uppercases in CSS rather than in
+   * `.eyebrow` stays uppercase, because it labels a group rather than being
+   * read as a sentence — and it uppercases in CSS rather than in
    * the string, so the accessible name stays sentence case: "IN PROGRESS"
    * written into the markup is spelled out letter by letter by some screen
    * readers, and is untranslatable by all of them. Write the words normally;
@@ -1201,7 +1226,7 @@ body {
   .meta-row,
   .eyebrow {
     font-variant-numeric: tabular-nums;
-    /* 0.75rem = 12px, the platform's caption size — and one step *up* from the
+    /* 0.75rem = 12px, the caption size — and one step *up* from the
        11px the mono ran at, which it could afford because a mono face sets
        visibly larger than the interface face at the same size. */
     font-size: 0.75rem;
@@ -1259,7 +1284,7 @@ body {
    * pills that each filled and emptied in place, so the only piece of state the
    * control carried teleported across the row every time it changed. Here there
    * is one thumb, positioned arithmetically off the selected index, riding
-   * `translateX` on the platform curve.
+   * `translateX` on the settle curve.
    *
    * The options are `flex: 1` siblings inside a grid of equal columns, so a
    * slot is exactly `100 / count` percent and nothing has to be measured — no
@@ -1289,7 +1314,7 @@ body {
     border-radius: 0.4375rem;
     background: var(--segment-thumb);
     box-shadow: var(--segment-thumb-shadow);
-    transition: transform var(--duration-base) var(--ease-ios);
+    transition: transform var(--duration-base) var(--ease-settle);
   }
 
   .segmented-option {
@@ -1319,8 +1344,8 @@ body {
   }
 
   /*
-   * The grouped inset list — the platform's answer to "a run of rows that
-   * belong together".
+   * The grouped inset list — one surface for "a run of rows that belong
+   * together", the way the TV's settings screens group them.
    *
    * One surface holding a list, not a list of surfaces: the group carries the
    * radius, the fill and (on light) the shadow, and the rows inside it are
@@ -1678,8 +1703,8 @@ body {
  *
  *   fade   150ms  the scrim (and anything that should only fade)
  *   pop    200ms  centered dialogs — fade + scale from 0.97
- *   sheet  260ms  bottom sheets and full-screen mobile panels, on the iOS
- *                 sheet curve
+ *   sheet  260ms  bottom sheets and full-screen mobile panels, on the
+ *                 settle curve
  *
  * `.overlay-scrim` is the scrim's *paint* — every backdrop shares one darkness
  * and blur, so stacked or swapped overlays (command palette → detail panel)
@@ -1738,8 +1763,8 @@ body {
 }
 
 :root {
-  /* iOS's sheet curve: fast out of the gate, long settle. */
-  --overlay-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  /* The settle curve: fast out of the gate, long settle. */
+  --overlay-sheet-ease: var(--ease-settle);
 }
 
 .overlay-fade {
@@ -2090,201 +2115,51 @@ html.vt-title-open .overlay-sheet {
 }
 
 /*
- * Ghost loader — a Pac-Man ghost painted as a 14x14 grid of blocks, with the
- * bottom two rows flickering between two phases so the fringe appears to
- * ripple. Adapted from a Uiverse.io design onto the theme tokens.
+ * The loader — FETCH on the wordmark's dot matrix, with a band of accent
+ * sweeping across it column by column (see FetchLoader.tsx).
  *
- * Body, fringe and pupils are all --accent, so the ghost picks up whichever
- * theme is live. The sclera is the one fixed colour: --on-accent is the
- * token that guarantees contrast on an accent fill, but it resolves to
- * near-black on most of the six themes, which turns the eyes into hollow
- * sockets and costs the shape its read as a Pac-Man ghost. White holds that
- * read everywhere, at 2.4:1 (dark, the weakest accent) to 4.0:1 (midnight)
- * against the body — under the text threshold, but this is a 40px decorative
- * block with the accessible name carried by GhostLoader's sr-only label, not
- * something anyone reads.
+ * At rest every dot is the text colour at low alpha, so the word is always
+ * legible as a shape; the sweep lifts each column to the accent at full
+ * strength and lets it settle back. The delay per column is what makes the
+ * band: 33 columns at 45ms is a pass of about 1.5s inside a 2.1s cycle, so
+ * there is a beat of stillness between passes rather than a continuous scroll.
  *
- * The drop shadow is the accent at low alpha rather than black, which would
- * vanish against the four dark themes' backgrounds.
- *
- * Individual cells get their `grid-area` inline from GhostLoader.tsx; putting
- * the 27 single-property rules here instead would triple the size of this
- * block for nothing. Only paint and flicker phase live in CSS.
+ * Colour is the accent because the accent means "something is happening
+ * here". The resting tint is --text, not a grey, so it belongs to whichever
+ * of the six themes is live.
  */
-.fetch-ghost {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  /* The layout box stays 140px square — this only changes the painted size. */
-  transform: scale(var(--fetch-ghost-scale, 0.8));
+.fetch-loader circle {
+  fill: var(--text);
+  opacity: 0.16;
+  animation: fetch-dot-sweep 2.1s var(--ease-settle) infinite;
+  animation-delay: calc(var(--dot-column, 0) * 45ms);
 }
 
-.fetch-ghost__body {
-  position: relative;
-  width: 140px;
-  height: 140px;
-  display: grid;
-  grid-template-columns: repeat(14, 1fr);
-  grid-template-rows: repeat(14, 1fr);
-  animation: ghost-bob 0.5s infinite;
-  grid-template-areas:
-    "a1  a2  a3  a4  a5  top0  top0  top0  top0  a10 a11 a12 a13 a14"
-    "b1  b2  b3  top1 top1 top1 top1 top1 top1 top1 top1 b12 b13 b14"
-    "c1 c2 top2 top2 top2 top2 top2 top2 top2 top2 top2 top2 c13 c14"
-    "d1 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 d14"
-    "e1 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 e14"
-    "f1 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 top3 f14"
-    "top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4"
-    "top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4"
-    "top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4"
-    "top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4"
-    "top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4"
-    "top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4 top4"
-    "st0 st0 an4 st1 an7 st2 an10 an10 st3 an13 st4 an16 st5 st5"
-    "an1 an2 an3 an5 an6 an8 an9 an9 an11 an12 an14 an15 an17 an18";
-}
-
-.fetch-ghost__cell {
-  background-color: var(--accent);
-}
-
-/* The two fringe phases run in antiphase, so the notches appear to slide. */
-.fetch-ghost__cell--flicker-a {
-  animation: ghost-flicker-a 0.5s infinite;
-}
-
-.fetch-ghost__cell--flicker-b {
-  animation: ghost-flicker-b 0.5s infinite;
-}
-
-.fetch-ghost__eye {
-  position: absolute;
-  top: 30px;
-  left: 10px;
-  width: 40px;
-  height: 50px;
-}
-
-.fetch-ghost__eye--right {
-  left: auto;
-  right: 30px;
-}
-
-/* A plus-shaped sclera: a tall bar crossed by a wide one. */
-.fetch-ghost__eye::before,
-.fetch-ghost__eye::after {
-  content: "";
-  display: block;
-  position: absolute;
-  background-color: #fff;
-}
-
-.fetch-ghost__eye::before {
-  width: 20px;
-  height: 50px;
-  transform: translateX(10px);
-}
-
-.fetch-ghost__eye::after {
-  width: 40px;
-  height: 30px;
-  transform: translateY(10px);
-}
-
-.fetch-ghost__pupil {
-  position: absolute;
-  top: 50px;
-  left: 10px;
-  z-index: 1;
-  width: 20px;
-  height: 20px;
-  background-color: var(--accent);
-  animation: ghost-look 3s infinite;
-}
-
-.fetch-ghost__pupil--right {
-  left: auto;
-  right: 50px;
-}
-
-.fetch-ghost__shadow {
-  position: absolute;
-  top: 80%;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background-color: rgb(var(--accent-rgb) / 0.35);
-  transform: rotateX(80deg);
-  filter: blur(20px);
-  animation: ghost-shadow 0.5s infinite;
-}
-
-@keyframes ghost-bob {
-  0%, 49% {
-    transform: translateY(0);
+@keyframes fetch-dot-sweep {
+  0%, 100% {
+    fill: var(--text);
+    opacity: 0.16;
   }
-  50%, 100% {
-    transform: translateY(-10px);
+  12% {
+    fill: var(--accent);
+    opacity: 1;
   }
-}
-
-@keyframes ghost-flicker-a {
-  0%, 49% {
-    background-color: var(--accent);
-  }
-  50%, 100% {
-    background-color: transparent;
-  }
-}
-
-@keyframes ghost-flicker-b {
-  0%, 49% {
-    background-color: transparent;
-  }
-  50%, 100% {
-    background-color: var(--accent);
-  }
-}
-
-@keyframes ghost-look {
-  0%, 49% {
-    transform: translateX(0);
-  }
-  50%, 99% {
-    transform: translateX(10px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-@keyframes ghost-shadow {
-  0%, 49% {
-    opacity: 0.5;
-  }
-  50%, 100% {
-    opacity: 0.2;
+  40% {
+    fill: var(--text);
+    opacity: 0.16;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   /*
-   * The global reduce block above collapses every animation to 0.001ms and one
-   * iteration, which would leave the ghost mid-flicker: the phase-b cells hold
-   * their 100% keyframe (painted) while the phase-a cells hold theirs
-   * (transparent), tearing a bite out of one half of the fringe. Drop the
-   * animations outright and paint the whole fringe instead, so what's left is
-   * a still ghost rather than a broken one.
+   * The global reduce block collapses every animation to one 0.001ms
+   * iteration, which would leave each dot on its last keyframe — the faint
+   * resting tint — and the loader as a ghost of a word. Drop the sweep and
+   * draw the wordmark still and whole instead.
    */
-  .fetch-ghost__body,
-  .fetch-ghost__pupil,
-  .fetch-ghost__shadow {
+  .fetch-loader circle {
     animation: none;
-  }
-
-  .fetch-ghost__cell--flicker-a,
-  .fetch-ghost__cell--flicker-b {
-    animation: none;
-    background-color: var(--accent);
+    fill: var(--text-dim);
+    opacity: 1;
   }
 }

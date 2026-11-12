@@ -1,5 +1,5 @@
 import { ProfileSettings } from "../components/settings/ProfileSettings";
-import { PAGE_TITLE } from "../components/typography";
+import { PageFrame, PageHeader } from "../components/PageFrame";
 
 /**
  * The household, on a page of its own: add, rename, recolour and pick a
@@ -8,9 +8,9 @@ import { PAGE_TITLE } from "../components/typography";
  */
 export function ProfilesPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-6 py-2">
-      <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>Profiles</h1>
+    <PageFrame width="reading" className="space-y-6">
+      <PageHeader title="Profiles" className="" />
       <ProfileSettings />
-    </div>
+    </PageFrame>
   );
 }

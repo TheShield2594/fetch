@@ -244,13 +244,18 @@ describe("validated responses", () => {
 
   it("passes a well-formed response straight through", async () => {
     const entry = {
+      kind: "episode",
       seriesImdbId: "tt0903747",
       seriesName: "Breaking Bad",
       poster: null,
+      still: null,
+      backdrop: null,
       season: 5,
       episode: 14,
       episodeName: "Ozymandias",
       airDate: "2026-09-14",
+      airsAt: null,
+      watched: false,
       overview: null,
     };
     fetchMock.mockResolvedValue(json({ calendar: [entry] }));

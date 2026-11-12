@@ -11,14 +11,15 @@ import {
   type WatchEvent,
 } from "../api";
 import { useOnTitleClose, useTitlePanel } from "../components/media-detail/titlePanel";
-import { GhostLoader } from "../components/GhostLoader";
 import { LoadErrorBanner } from "../components/LoadErrorBanner";
 import { SectionError } from "../components/SectionError";
 import { LandscapeCard, type LandscapeAction } from "../components/LandscapeCard";
 import { ProgressRuler } from "../components/ProgressRuler";
 import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
 import { SelectField } from "../components/SelectField";
-import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
+import { SECTION_TITLE } from "../components/typography";
+import { EmptyState } from "../components/EmptyState";
+import { PageFrame, PageHeader } from "../components/PageFrame";
 import { useCachedState } from "../hooks/useCachedState";
 import { useToast } from "../hooks/useToast";
 import { loadErrorMessage } from "../utils/loadError";
@@ -40,7 +41,7 @@ import {
   type ShelfSort,
 } from "./shelf";
 import { PosterGrid } from "../components/PosterGrid";
-import { PosterCard } from "../components/PosterCard";
+import { PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 
 /*
  * The Shelf.
@@ -129,6 +130,39 @@ type UpNextItem = {
   action?: LandscapeAction | undefined;
   dismiss?: { label: string; onClick: () => void } | undefined;
 };
+
+/**
+ * The Shelf while its first answer is out: the Up next row and the library
+ * grid, at the sizes they land at, so nothing moves when the real cards
+ * arrive. A centred spinner here meant the whole page jumped twice — once when
+ * it went, and again as the row and grid pushed down past where it had been.
+ */
+function ShelfSkeleton() {
+  return (
+    <div className="mt-6 flex flex-col gap-7" role="status" aria-busy="true">
+      <span className="sr-only">Loading your shelf…</span>
+      <div aria-hidden="true">
+        <div className="skeleton mb-3 h-6 w-28 rounded" />
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:gap-4">
+          <div className="skeleton aspect-video w-full rounded-2xl lg:w-[min(30rem,50%)] lg:flex-none" />
+          <div className="hidden min-w-0 gap-3 overflow-hidden sm:flex lg:flex-1">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="skeleton aspect-video w-[15rem] flex-none rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+      <div aria-hidden="true">
+        <div className="skeleton mb-3 h-6 w-24 rounded" />
+        <PosterGrid density="library">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <PosterCardSkeleton key={i} />
+          ))}
+        </PosterGrid>
+      </div>
+    </div>
+  );
+}
 
 function UpNextCard({
   item,
@@ -588,20 +622,11 @@ export function ShelfPage() {
   const nothingAtAll = !loading && !failedEmpty && everything.length === 0;
 
   return (
-    <div>
-      <header className="mb-4 min-w-0">
-        <h1 className={PAGE_TITLE} style={{ color: "var(--text)" }}>
-          Shelf
-        </h1>
-        {/* 15px, not the 12px caption rank: this is the large title's own
-            subtitle, and the only line on the screen that describes the whole
-            of what is under it. */}
-        {loaded && !failedEmpty && (
-          <p className="mt-0.5 truncate text-[0.9375rem] tabular-nums" style={{ color: "var(--text-dim)" }}>
-            {summary}
-          </p>
-        )}
-      </header>
+    <PageFrame>
+      <PageHeader
+        title="Shelf"
+        summary={loaded && !failedEmpty ? <p className="truncate">{summary}</p> : undefined}
+      />
 
       {error && !failedEmpty && <LoadErrorBanner message={error} onRetry={() => void load()} />}
 
@@ -633,25 +658,24 @@ export function ShelfPage() {
           <SectionError variant="page" message={error ?? ""} onRetry={() => void load()} />
         </div>
       ) : loading && shelf.length === 0 && inProgress.length === 0 && continueWatching.length === 0 ? (
-        <GhostLoader label="Loading your shelf…" className="items-center py-24" />
+        <ShelfSkeleton />
       ) : nothingAtAll ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className={SECTION_TITLE} style={{ color: "var(--text-dim)" }}>
-            Nothing on the shelf yet
-          </p>
-          <p className="mt-1.5 max-w-sm text-sm" style={{ color: "var(--text-mute)" }}>
-            Search for a show or a film to add it to a list, or connect a source in Settings and let
-            your history fill this in on its own.
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <Link to="/search" className="btn-primary btn-sm">
-              Search
-            </Link>
-            <Link to="/settings" className="btn-secondary btn-sm">
-              Connect a source
-            </Link>
-          </div>
-        </div>
+        <EmptyState
+          title="Nothing on the shelf yet"
+          action={
+            <>
+              <Link to="/search" className="btn-primary btn-sm">
+                Search
+              </Link>
+              <Link to="/settings?tab=integrations" className="btn-secondary btn-sm">
+                Connect a source
+              </Link>
+            </>
+          }
+        >
+          Search for a show or a film to add it to a list, or connect a source in Settings and let
+          your history fill this in on its own.
+        </EmptyState>
       ) : (
         // Fades in over the ghost it replaces rather than cutting to it.
         <div className="content-in mt-6 flex flex-col gap-7">
@@ -803,6 +827,6 @@ export function ShelfPage() {
           </section>
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }

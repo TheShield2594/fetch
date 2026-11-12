@@ -14,7 +14,6 @@ import {
   Plus,
   Search,
   Trash2,
-  Tv,
   X,
 } from "lucide-react";
 import { api, ApiError, type CatalogList, type ListItemWithMeta, type MediaType, type SearchResult } from "../api";
@@ -27,6 +26,9 @@ import { mergeByRelevance } from "../utils/mergeSearchResults";
 import { SearchAddDialog, SearchAddResultRow } from "../components/SearchAddDialog";
 import { Poster } from "../components/Poster";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
+import { PageFrame, PageHeader } from "../components/PageFrame";
+import { SegmentedControl, type SegmentedOption } from "../components/SegmentedControl";
+import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
 import { PosterGrid } from "../components/PosterGrid";
 import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 import { ListLinkPanel } from "../components/ListLinkPanel";
@@ -156,10 +158,10 @@ function toSearchResult(item: ListItemWithMeta, list?: CatalogList): SearchResul
 // toggle this modal used to force — one task should not have two models.
 type AddFilter = "all" | MediaType;
 
-const ADD_FILTERS: { value: AddFilter; label: string; icon?: typeof Film }[] = [
+const ADD_FILTERS: SegmentedOption<AddFilter>[] = [
   { value: "all", label: "All" },
-  { value: "movie", label: "Movies", icon: Film },
-  { value: "series", label: "Series", icon: Tv },
+  { value: "movie", label: "Films" },
+  { value: "series", label: "Shows" },
 ];
 
 const resultKey = (type: string, imdbId: string) => `${type}:${imdbId}`;
@@ -234,31 +236,13 @@ function AddItemModal({
       inputLabel="Search movies and series"
       onClose={onClose}
       filters={
-        <div
-          role="group"
-          aria-label="Filter by type"
-          className="mt-2.5 inline-flex rounded-full bg-[var(--surface)] p-1"
-          style={{ borderWidth: 1, borderStyle: "solid", borderColor: "var(--border-strong)" }}
-        >
-          {ADD_FILTERS.map((opt) => {
-            const Icon = opt.icon;
-            const active = filter === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setFilter(opt.value)}
-                aria-pressed={active}
-                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-medium transition-[color,background-color,box-shadow] duration-base ${
-                  active ? "bg-accent-500 text-accent-on shadow-e1" : "text-[var(--text-mute)] hover:text-[var(--text)]"
-                }`}
-              >
-                {Icon && <Icon className="h-3 w-3" />}
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
+        <SegmentedControl
+          label="Filter by type"
+          options={ADD_FILTERS}
+          value={filter}
+          onChange={setFilter}
+          className="mt-2.5 w-56"
+        />
       }
     >
       {error && <p role="alert" className="mb-2 rounded-lg bg-rose-500/10 border border-rose-500/20 px-3 py-2 text-xs text-danger">{error}</p>}
@@ -355,13 +339,18 @@ function ListsIndex({
 }) {
   return (
     <section aria-labelledby="lists-index-title">
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <h1 id="lists-index-title" className={PAGE_TITLE} style={{ color: "var(--text)" }}>Lists</h1>
-        <button type="button" onClick={onCreate} className="btn-primary flex-none">
-          <Plus className="h-4 w-4" />
-          New list
-        </button>
-      </div>
+      <PageHeader
+        title="Lists"
+        titleId="lists-index-title"
+        className="mb-5"
+        summary={lists.length > 0 ? `${lists.length} ${lists.length === 1 ? "list" : "lists"}` : undefined}
+        actions={
+          <button type="button" onClick={onCreate} className="btn-primary flex-none">
+            <Plus className="h-4 w-4" />
+            New list
+          </button>
+        }
+      />
       {loading ? (
         <PosterGrid>
           {Array.from({ length: 4 }).map((_, i) => <PosterCardSkeleton key={i} />)}
@@ -914,15 +903,9 @@ function ListView({
           {Array.from({ length: 8 }).map((_, i) => <PosterCardSkeleton key={i} />)}
         </PosterGrid>
       ) : items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border)" } as React.CSSProperties}>
-            <FolderOpen className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
-          </div>
-          <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>This list is empty</p>
-          <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-            Click <span className="font-semibold text-accent-text">+ Add</span> to search and add titles.
-          </p>
-        </div>
+        <EmptyState title="This list is empty">
+          Use <span className="font-semibold text-accent-text">Add</span> to search for titles and put them here.
+        </EmptyState>
       ) : draft ? (
         <PosterGrid>
           {draft.map((item, index) => {
@@ -1178,7 +1161,7 @@ export function ListsPage() {
   };
 
   return (
-    <div>
+    <PageFrame>
       {error && (
         <p role="alert" className="mb-4 rounded-xl border border-rose-500/20 bg-rose-500/5 px-4 py-3 text-sm text-danger">{error}</p>
       )}
@@ -1205,20 +1188,19 @@ export function ListsPage() {
           }}
         />
       ) : listNotFound ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <>
           <h1 className="sr-only">Lists</h1>
-          <div className="flex h-20 w-20 items-center justify-center rounded-full ring-1" style={{ backgroundColor: "var(--surface)", "--tw-ring-color": "var(--border)" } as React.CSSProperties}>
-            <FolderOpen className="h-10 w-10" style={{ color: "var(--text-mute)" }} />
-          </div>
-          <p className={`mt-4 ${SECTION_TITLE}`} style={{ color: "var(--text-dim)" }}>That list no longer exists</p>
-          <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
+          <EmptyState
+            title="That list no longer exists"
+            action={
+              <button type="button" onClick={() => selectList(null)} className={EMPTY_STATE_ACTION}>
+                All lists
+              </button>
+            }
+          >
             It may have been deleted since you saved the link.
-          </p>
-          <button type="button" onClick={() => selectList(null)} className="btn-secondary mt-4">
-            <ArrowLeft className="h-4 w-4" />
-            All lists
-          </button>
-        </div>
+          </EmptyState>
+        </>
       ) : (
         <>
           <h1 className="sr-only">Lists</h1>
@@ -1236,6 +1218,6 @@ export function ListsPage() {
           onClose={() => setCreating(false)}
         />
       )}
-    </div>
+    </PageFrame>
   );
 }

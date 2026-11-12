@@ -291,6 +291,34 @@ describe("trakt-client", () => {
     });
   });
 
+  describe("calendar", () => {
+    it("walks a window longer than Trakt answers at once in 31-day steps", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      const paths: string[] = [];
+      const fetchMock = vi.fn().mockImplementation(async (url: URL) => {
+        paths.push(new URL(url).pathname);
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          json: async () => [{ first_aired: "2026-01-02T02:00:00.000Z", episode: { season: 1, number: 1 }, show: { ids: { imdb: "tt1" } } }],
+        };
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { getTraktClient } = await import("./trakt-client.js");
+      const client = await getTraktClient("p1");
+      const rows = await client.fetchMyShowsCalendar("2026-01-01", 70, makeLogger());
+
+      expect(paths).toEqual([
+        "/calendars/my/shows/2026-01-01/31",
+        "/calendars/my/shows/2026-02-01/31",
+        "/calendars/my/shows/2026-03-04/8",
+      ]);
+      expect(rows).toHaveLength(3);
+    });
+  });
+
   describe("pagination limits", () => {
     it("stops fetching once the page-count header is reached", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });

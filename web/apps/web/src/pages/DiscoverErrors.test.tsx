@@ -115,7 +115,7 @@ describe("Discover's trending rail", () => {
   it("says an empty week is empty, not that it failed", async () => {
     render(discover());
 
-    expect(await screen.findByText("Nothing trending this week.")).toBeInTheDocument();
+    expect(await screen.findByText("Nothing trending this week")).toBeInTheDocument();
     expect(screen.queryByText("Couldn't load trending titles.")).toBeNull();
   });
 

@@ -1,6 +1,6 @@
 import { Check, X } from "lucide-react";
 import type { CheckIn } from "../../api";
-import { KICKER, PAGE_TITLE } from "../typography";
+import { KICKER, SECTION_TITLE } from "../typography";
 import { Poster } from "../Poster";
 import { HERO_BACKDROP_SIZES, HERO_SCRIM } from "./ContinueWatchingHero";
 
@@ -29,7 +29,7 @@ export function NowWatchingHero({
     // Discover and it was invisible to heading navigation — the one
     // element a screen-reader user jumping by heading would most expect to land
     // on was the one they couldn't reach.
-    <h2 className={`mt-1 truncate ${PAGE_TITLE}`} style={{ color: "var(--text)" }}>{checkin.name}</h2>
+    <h2 className={`mt-1 truncate ${SECTION_TITLE}`} style={{ color: "var(--text)" }}>{checkin.name}</h2>
   );
   const episode = checkin.season != null && checkin.episode != null && (
     <p className="mt-1 text-sm" style={{ color: "var(--text-dim)" }}>

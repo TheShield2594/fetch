@@ -107,6 +107,12 @@ export type RailSource = {
   health: SectionHealth;
   /** What the row actually prints: `short` where the mapper set one. */
   status: string;
+  /**
+   * Where the row goes: its own Settings section, or — for one the server's
+   * environment configures, which Settings doesn't list — the status board,
+   * so the link never names a section that isn't rendered.
+   */
+  href: string;
 };
 
 /**
@@ -125,6 +131,9 @@ export function railSources(health: Record<string, SectionHealth>): RailSource[]
   return RAIL_SOURCES.flatMap((source) => {
     const entry = health[source.id];
     if (!entry || entry.tone === "idle") return [];
-    return [{ ...source, health: entry, status: entry.short ?? entry.label }];
+    // A source the server's environment configures has no section of its
+    // own in Settings, so it goes to the status board instead.
+    const href = entry.setByServer ? "/settings" : `/settings?section=${encodeURIComponent(source.id)}`;
+    return [{ ...source, health: entry, status: entry.short ?? entry.label, href }];
   });
 }

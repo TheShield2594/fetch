@@ -31,6 +31,7 @@ import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
 import { HomeFoldersSettings } from "../components/tv/HomeFoldersSettings";
 import { TvSettingsForm } from "../components/tv/TvSettingsForm";
 import { PAGE_TITLE, SECTION_TITLE } from "../components/typography";
+import { PageFrame } from "../components/PageFrame";
 
 declare const __APP_VERSION__: string;
 const APP_VERSION = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "unknown";
@@ -613,8 +614,11 @@ export function SettingsPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <h1 className={`${PAGE_TITLE} ${current ? "sr-only lg:not-sr-only" : ""}`}>Settings</h1>
+    // The wide frame, not the reading one: from `lg` this is two panes, and the
+    // section pane is what the reading width is for. Left-aligned like every
+    // other page, so the title doesn't move between routes.
+    <PageFrame className="max-w-6xl">
+      <h1 className={`${PAGE_TITLE} ${current ? "sr-only lg:not-sr-only" : ""}`} style={{ color: "var(--text)" }}>Settings</h1>
       <div className="mt-4 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8">
         {/* The list. From `lg` always beside the content; below it, only on
             the index — a phone shows one thing at a time. */}
@@ -650,6 +654,6 @@ export function SettingsPage() {
           )}
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }

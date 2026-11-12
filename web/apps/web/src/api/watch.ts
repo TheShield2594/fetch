@@ -154,7 +154,9 @@ export const watchApi = {
     return request<void>(`/playback/${encodeURIComponent(id)}`, { method: "DELETE" });
   },
   // Calendar
-  async getCalendar(days = 30) {
-    return validated("/calendar", parseCalendarResponse, await request<unknown>(`/calendar?days=${days}`));
+  /** `days` days from `start` (YYYY-MM-DD, today when omitted); the start may be in the past. */
+  async getCalendar(days = 30, start?: string) {
+    const query = start ? `?days=${days}&start=${encodeURIComponent(start)}` : `?days=${days}`;
+    return validated("/calendar", parseCalendarResponse, await request<unknown>(`/calendar${query}`));
   },
 };

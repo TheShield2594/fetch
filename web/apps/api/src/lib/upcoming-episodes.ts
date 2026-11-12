@@ -4,7 +4,7 @@ import { getTmdb } from "./tmdb-client.js";
 import { showDetailsCache } from "./cache.js";
 import type { ShowDetails } from "../tmdb.js";
 
-async function getCachedShowDetails(
+export async function getCachedShowDetails(
   tmdb: Awaited<ReturnType<typeof getTmdb>>,
   tmdbId: number
 ): Promise<ShowDetails | null> {
@@ -21,15 +21,16 @@ async function getCachedShowDetails(
 }
 
 /**
- * One upcoming episode.
- *
- * The shape itself lives in `@fetch/shared`, because `apps/web` validates
- * this response at its own boundary and the two definitions had been
- * hand-copied duplicates. Aliased rather than renamed at the call sites: within
- * the API this is an episode that has not aired, and "calendar" is what the one
- * route that serves them happens to be called.
+ * The next episode of a series in progress: a calendar entry that is always an
+ * episode, so its season and number are always there. Read by the episode
+ * notification job; the calendar itself is built in calendar.ts.
  */
-export type UpcomingEpisode = CalendarEntry;
+export type UpcomingEpisode = CalendarEntry & {
+  kind: "episode" | "premiere";
+  season: number;
+  episode: number;
+  episodeName: string;
+};
 
 /**
  * TMDB series statuses that rule out a next episode. Everything else —
@@ -56,6 +57,7 @@ export const getUpcomingEpisodes = async (
   });
 
   if (progressRows.length === 0) return [];
+  const imdbIds = progressRows.map((p) => p.seriesImdbId);
 
   // Every show that survives this query costs a TMDB round trip below, so the
   // filtering has to happen here rather than on the results. The notification
@@ -65,22 +67,20 @@ export const getUpcomingEpisodes = async (
   // rather than to the size of the library.
   const metadata = await prisma.metadata.findMany({
     where: {
-      imdbId: { in: progressRows.map((p) => p.seriesImdbId) },
+      imdbId: { in: imdbIds },
       type: "series",
       tmdbId: { not: null },
       OR: [{ status: null }, { status: { notIn: NO_FURTHER_EPISODES } }],
     },
-    select: { imdbId: true, tmdbId: true, name: true, poster: true },
+    select: { imdbId: true, tmdbId: true, name: true, poster: true, background: true },
   });
 
   if (metadata.length === 0) return [];
 
   const metaByImdbId = new Map(metadata.map((m) => [m.imdbId, m]));
-  // Ordered by the progress rows rather than by the metadata query, so the
+  // Ordered by the caller's list rather than by the metadata query, so the
   // most-recently-watched shows are still the ones fetched first.
-  const seriesImdbIds = progressRows
-    .map((p) => p.seriesImdbId)
-    .filter((imdbId) => metaByImdbId.has(imdbId));
+  const seriesImdbIds = imdbIds.filter((imdbId) => metaByImdbId.has(imdbId));
 
   let tmdb: Awaited<ReturnType<typeof getTmdb>>;
   try {
@@ -112,16 +112,27 @@ export const getUpcomingEpisodes = async (
         if (Number.isNaN(airDate.getTime())) return [];
         if (airDate < today || airDate > futureDate) return [];
 
-        return [{
+        const episode: UpcomingEpisode = {
+          // An episode 1 opens a season — the one date a follower most wants
+          // to know — so it is told apart from the weekly run.
+          kind: ep.episode_number === 1 ? "premiere" : "episode",
           seriesImdbId: imdbId,
           seriesName: meta.name,
           poster: meta.poster,
+          // A still is a frame of the episode itself, which is exactly what
+          // spoiler protection is there to keep off the screen.
+          still: spoilerProtection ? null : (ep.still ?? null),
+          backdrop: meta.background ?? null,
           season: ep.season_number,
           episode: ep.episode_number,
           episodeName: spoilerProtection ? `Episode ${ep.episode_number}` : ep.name,
           airDate: ep.air_date,
+          // TMDB knows the day only, and these are by definition unwatched.
+          airsAt: null,
+          watched: false,
           overview: spoilerProtection ? null : (ep.overview ?? null),
-        }];
+        };
+        return [episode];
       })
     );
 

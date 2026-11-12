@@ -9,8 +9,8 @@
     letterboxd: "#14181c",
   };
 
-  // Each theme's --accent, for the pre-hydration spinner in index.html. That
-  // spinner paints before the app's CSS exists, so it cannot read --accent and
+  // Each theme's --accent, for the pre-hydration loader in index.html. That
+  // loader paints before the app's CSS exists, so it cannot read --accent and
   // used to be a hard-coded orange — which is the wrong brand colour on the
   // blue and red themes, on the one frame a visitor sees first. Keep in sync
   // with the --accent declarations in apps/web/src/index.css.

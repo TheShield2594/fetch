@@ -152,20 +152,24 @@
         justify-content: center;
         background: inherit;
       }
-      #initial-loader .spinner {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 3px solid rgba(150, 150, 150, 0.25);
-        /* theme-init.js sets --loader-accent from the live theme's --accent
-           before this paints. The fallback is the default Fetch theme's
-           accent, which is the theme a page opens on when that script did not
-           run at all. */
-        border-top-color: var(--loader-accent, #dc2b33);
-        animation: initial-loader-spin 0.8s linear infinite;
+      /* The FETCH wordmark on its dot matrix with a band of accent sweeping
+         across it — the same loader the app draws once it has hydrated
+         (FetchLoader.tsx), so a cold start doesn't hand over from one wait to
+         a different-looking one. Each column is a <g> whose delay times the
+         sweep. theme-init.js sets --loader-accent from the live theme's
+         --accent before this paints; the fallback is the default Fetch theme's
+         accent, the theme a page opens on when that script did not run. */
+      #initial-loader g {
+        fill: rgb(150, 150, 150);
+        opacity: 0.3;
+        animation: initial-loader-sweep 2.1s cubic-bezier(0.32, 0.72, 0, 1) infinite;
       }
-      @keyframes initial-loader-spin {
-        to { transform: rotate(360deg); }
+      @keyframes initial-loader-sweep {
+        0%, 40%, 100% { fill: rgb(150, 150, 150); opacity: 0.3; }
+        12% { fill: var(--loader-accent, #dc2b33); opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #initial-loader g { animation: none; opacity: 0.6; }
       }
       #root:not(:empty) ~ #initial-loader {
         display: none;
@@ -174,7 +178,7 @@
   </head>
   <body>
     <div id="root"></div>
-    <div id="initial-loader" aria-hidden="true"><div class="spinner"></div></div>
+    <div id="initial-loader" aria-hidden="true"><svg viewBox="0 0 33 7" width="83" height="18"><g style="animation-delay:0ms"><circle cx="0.5" cy="0.5" r=".42"/><circle cx="0.5" cy="1.5" r=".42"/><circle cx="0.5" cy="2.5" r=".42"/><circle cx="0.5" cy="3.5" r=".42"/><circle cx="0.5" cy="4.5" r=".42"/><circle cx="0.5" cy="5.5" r=".42"/><circle cx="0.5" cy="6.5" r=".42"/></g><g style="animation-delay:45ms"><circle cx="1.5" cy="0.5" r=".42"/><circle cx="1.5" cy="3.5" r=".42"/></g><g style="animation-delay:90ms"><circle cx="2.5" cy="0.5" r=".42"/><circle cx="2.5" cy="3.5" r=".42"/></g><g style="animation-delay:135ms"><circle cx="3.5" cy="0.5" r=".42"/><circle cx="3.5" cy="3.5" r=".42"/></g><g style="animation-delay:180ms"><circle cx="4.5" cy="0.5" r=".42"/></g><g style="animation-delay:315ms"><circle cx="7.5" cy="0.5" r=".42"/><circle cx="7.5" cy="1.5" r=".42"/><circle cx="7.5" cy="2.5" r=".42"/><circle cx="7.5" cy="3.5" r=".42"/><circle cx="7.5" cy="4.5" r=".42"/><circle cx="7.5" cy="5.5" r=".42"/><circle cx="7.5" cy="6.5" r=".42"/></g><g style="animation-delay:360ms"><circle cx="8.5" cy="0.5" r=".42"/><circle cx="8.5" cy="3.5" r=".42"/><circle cx="8.5" cy="6.5" r=".42"/></g><g style="animation-delay:405ms"><circle cx="9.5" cy="0.5" r=".42"/><circle cx="9.5" cy="3.5" r=".42"/><circle cx="9.5" cy="6.5" r=".42"/></g><g style="animation-delay:450ms"><circle cx="10.5" cy="0.5" r=".42"/><circle cx="10.5" cy="3.5" r=".42"/><circle cx="10.5" cy="6.5" r=".42"/></g><g style="animation-delay:495ms"><circle cx="11.5" cy="0.5" r=".42"/><circle cx="11.5" cy="6.5" r=".42"/></g><g style="animation-delay:630ms"><circle cx="14.5" cy="0.5" r=".42"/></g><g style="animation-delay:675ms"><circle cx="15.5" cy="0.5" r=".42"/></g><g style="animation-delay:720ms"><circle cx="16.5" cy="0.5" r=".42"/><circle cx="16.5" cy="1.5" r=".42"/><circle cx="16.5" cy="2.5" r=".42"/><circle cx="16.5" cy="3.5" r=".42"/><circle cx="16.5" cy="4.5" r=".42"/><circle cx="16.5" cy="5.5" r=".42"/><circle cx="16.5" cy="6.5" r=".42"/></g><g style="animation-delay:765ms"><circle cx="17.5" cy="0.5" r=".42"/></g><g style="animation-delay:810ms"><circle cx="18.5" cy="0.5" r=".42"/></g><g style="animation-delay:945ms"><circle cx="21.5" cy="1.5" r=".42"/><circle cx="21.5" cy="2.5" r=".42"/><circle cx="21.5" cy="3.5" r=".42"/><circle cx="21.5" cy="4.5" r=".42"/><circle cx="21.5" cy="5.5" r=".42"/></g><g style="animation-delay:990ms"><circle cx="22.5" cy="0.5" r=".42"/><circle cx="22.5" cy="6.5" r=".42"/></g><g style="animation-delay:1035ms"><circle cx="23.5" cy="0.5" r=".42"/><circle cx="23.5" cy="6.5" r=".42"/></g><g style="animation-delay:1080ms"><circle cx="24.5" cy="0.5" r=".42"/><circle cx="24.5" cy="6.5" r=".42"/></g><g style="animation-delay:1125ms"><circle cx="25.5" cy="1.5" r=".42"/><circle cx="25.5" cy="5.5" r=".42"/></g><g style="animation-delay:1260ms"><circle cx="28.5" cy="0.5" r=".42"/><circle cx="28.5" cy="1.5" r=".42"/><circle cx="28.5" cy="2.5" r=".42"/><circle cx="28.5" cy="3.5" r=".42"/><circle cx="28.5" cy="4.5" r=".42"/><circle cx="28.5" cy="5.5" r=".42"/><circle cx="28.5" cy="6.5" r=".42"/></g><g style="animation-delay:1305ms"><circle cx="29.5" cy="3.5" r=".42"/></g><g style="animation-delay:1350ms"><circle cx="30.5" cy="3.5" r=".42"/></g><g style="animation-delay:1395ms"><circle cx="31.5" cy="3.5" r=".42"/></g><g style="animation-delay:1440ms"><circle cx="32.5" cy="0.5" r=".42"/><circle cx="32.5" cy="1.5" r=".42"/><circle cx="32.5" cy="2.5" r=".42"/><circle cx="32.5" cy="3.5" r=".42"/><circle cx="32.5" cy="4.5" r=".42"/><circle cx="32.5" cy="5.5" r=".42"/><circle cx="32.5" cy="6.5" r=".42"/></g></svg></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

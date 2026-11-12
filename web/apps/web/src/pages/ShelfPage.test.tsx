@@ -14,6 +14,7 @@ vi.mock("../api", async (importOriginal) => {
     api: {
       getLists: vi.fn(),
       getListItems: vi.fn(),
+      getAllListItems: vi.fn(),
       getSeriesProgress: vi.fn(),
       getCheckin: vi.fn(),
       getWatchHistory: vi.fn(),
@@ -37,6 +38,7 @@ vi.mock("../components/MediaDetailPanel", async () => ({
 const { api } = await import("../api");
 const getLists = vi.mocked(api.getLists);
 const getListItems = vi.mocked(api.getListItems);
+const getAllListItems = vi.mocked(api.getAllListItems);
 const getSeriesProgress = vi.mocked(api.getSeriesProgress);
 const getCheckin = vi.mocked(api.getCheckin);
 const getWatchHistory = vi.mocked(api.getWatchHistory);
@@ -100,6 +102,13 @@ function renderShelf(path = "/") {
 beforeEach(() => {
   getLists.mockResolvedValue({ lists: [list("l1", "Watchlist")] });
   getListItems.mockResolvedValue({ items: [] });
+  // The library route answers what the per-list route would for every list,
+  // so each test can describe its lists the way it always has.
+  getAllListItems.mockImplementation(async () => {
+    const { lists } = await getLists();
+    const pages = await Promise.all(lists.map((l) => getListItems(l.id)));
+    return { items: pages.flatMap((page) => page.items) };
+  });
   getSeriesProgress.mockResolvedValue([]);
   getCheckin.mockResolvedValue({ checkin: null });
   getWatchHistory.mockResolvedValue([]);
@@ -132,7 +141,18 @@ describe("ShelfPage", () => {
     expect(screen.getByText("Nightjar")).toBeInTheDocument();
   });
 
-  it("keeps the grid up when one list fails, rather than emptying the shelf", async () => {
+  it("asks for the library in one request however many lists there are", async () => {
+    getLists.mockResolvedValue({ lists: ["a", "b", "c", "d", "e"].map((id) => list(id, id)) });
+    getAllListItems.mockResolvedValue({ items: [item("tt1", "Understudy")] });
+    renderShelf();
+
+    expect(await screen.findByText("Understudy")).toBeInTheDocument();
+    expect(getAllListItems).toHaveBeenCalledTimes(1);
+    expect(getListItems).not.toHaveBeenCalled();
+  });
+
+  it("asks list by list on an API without the library route, and keeps the grid up when one list fails", async () => {
+    getAllListItems.mockRejectedValue(new ApiError("That isn't on the server.", 404));
     getLists.mockResolvedValue({ lists: [list("l1", "Watchlist"), list("l2", "Broken")] });
     getListItems.mockImplementation(async (listId: string) => {
       if (listId === "l2") throw new Error("nope");
@@ -256,8 +276,9 @@ describe("ShelfPage", () => {
     expect(screen.getAllByText("The Long Shore")).toHaveLength(1);
   });
 
-  it("marks the next episode from the row, then refetches — a watch moves the whole block", async () => {
+  it("marks the next episode from the row, then asks only for progress again — two requests", async () => {
     const user = userEvent.setup();
+    getAllListItems.mockResolvedValue({ items: [] });
     getSeriesProgress.mockResolvedValue([series()]);
     markNextEpisodeWatched.mockResolvedValue(undefined);
     renderShelf();
@@ -266,6 +287,10 @@ describe("ShelfPage", () => {
 
     await waitFor(() => expect(markNextEpisodeWatched).toHaveBeenCalledWith("tt9"));
     await waitFor(() => expect(getSeriesProgress).toHaveBeenCalledTimes(2));
+    // Nothing else the page opened with is asked again.
+    for (const fn of [getLists, getAllListItems, getCheckin, getWatchHistory, getPlayback]) {
+      expect(fn).toHaveBeenCalledTimes(1);
+    }
   });
 
   it("opens the media panel for a title", async () => {
@@ -444,7 +469,7 @@ describe("ShelfPage", () => {
       expect(screen.queryByRole("region", { name: "Up next" })).not.toBeInTheDocument();
     });
 
-    it("marks the paused episode watched, clears the point, then refetches", async () => {
+    it("marks the paused episode watched, clears the point, and asks only for progress again", async () => {
       const user = userEvent.setup();
       getPlayback.mockResolvedValue({
         playback: [paused({ type: "episode", imdbId: "tt9", season: 2, episode: 7, name: "The Long Shore" })],
@@ -459,7 +484,12 @@ describe("ShelfPage", () => {
         )
       );
       await waitFor(() => expect(deletePlayback).toHaveBeenCalledWith("p1"));
-      await waitFor(() => expect(getPlayback).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(getSeriesProgress).toHaveBeenCalledTimes(2));
+      expect(getPlayback).toHaveBeenCalledTimes(1);
+      expect(getAllListItems).toHaveBeenCalledTimes(1);
+      await waitFor(() =>
+        expect(screen.queryByRole("button", { name: "Mark S2:E7 of The Long Shore watched" })).not.toBeInTheDocument()
+      );
     });
 
     it("takes the card off at once when the watch is queued offline", async () => {

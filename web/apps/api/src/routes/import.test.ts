@@ -102,7 +102,7 @@ describe("POST /import/external — row caps", () => {
   });
 });
 
-describe("POST /import/external — lists, TV Time and bad files", () => {
+describe("POST /import/external — lists and bad files", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     trackerMocks.importTrackerItems.mockImplementation(async (_p: string, watches: unknown[], watchlist: unknown[]) => ({
@@ -119,7 +119,7 @@ describe("POST /import/external — lists, TV Time and bad files", () => {
     const response = await app.inject({
       method: "POST",
       url: "/import/external",
-      payload: { format: "tvtime-shows", csv: "Const,Title\ntt1,A" },
+      payload: { format: "letterboxd-watchlist", csv: "Const,Title\ntt1,A" },
     });
     expect(response.statusCode).toBe(400);
     expect(response.json().code).toBe("bad_format");
@@ -166,27 +166,5 @@ describe("POST /import/external — lists, TV Time and bad files", () => {
     });
     const [watch] = trackerMocks.importTrackerItems.mock.calls[0]![1] as { undated?: boolean; imdbId: string }[];
     expect(watch).toMatchObject({ imdbId: "tt0087884", undated: true });
-  });
-
-  it("matches TV Time shows once per series and imports each episode", async () => {
-    tmdbMock.search.mockResolvedValue([{ imdbId: "tt11280740", year: 2022 }]);
-    const app = await buildApp();
-    const csv = [
-      "series_name,season_number,episode_number,created_at",
-      "Severance,1,1,2022-02-18 20:00:00",
-      "Severance,1,2,2022-02-19 20:00:00",
-      "Unknown Show,1,1,2022-02-19 20:00:00",
-    ].join("\n");
-    tmdbMock.search.mockImplementation(async (type: string, query: string) =>
-      type === "series" && query === "Severance" ? [{ imdbId: "tt11280740", year: 2022 }] : []
-    );
-
-    const response = await app.inject({ method: "POST", url: "/import/external", payload: { format: "tvtime-shows", csv } });
-
-    expect(response.json().summary).toMatchObject({ imported: 2, skipped: 1 });
-    expect(tmdbMock.search).toHaveBeenCalledTimes(2);
-    const watches = trackerMocks.importTrackerItems.mock.calls[0]![1] as { seriesImdbId: string; episode: number }[];
-    expect(watches.map((w) => w.episode)).toEqual([1, 2]);
-    expect(watches.every((w) => w.seriesImdbId === "tt11280740")).toBe(true);
   });
 });

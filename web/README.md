@@ -377,7 +377,7 @@ Fetch records what you've watched from whichever of these you set up — none is
 | **Emby** | Webhook, as it happens |
 | **The web app** | Marking watched by hand, check-ins, the scrobble API |
 | **Trakt** | Optional — see [Trakt is optional](#trakt-is-optional) |
-| **Other trackers** | One-off CSV/JSON imports (Letterboxd, IMDb, Simkl, TV Time) — see [Export / import your data](#export--import-your-data) |
+| **Other trackers** | One-off CSV/JSON imports (Letterboxd, IMDb, Simkl) — see [Export / import your data](#export--import-your-data) |
 
 ### Simkl
 
@@ -538,9 +538,8 @@ Settings → Data also supports importing directly from other trackers' CSV expo
 - **Letterboxd** (the files in its export zip): `letterboxd-diary` (dated viewings and their ratings), `letterboxd-ratings`, `letterboxd-watched` (films marked watched; only those with no play here yet, since the diary already holds the dated ones) and `letterboxd-watchlist` (into the watchlist).
 - **IMDb**: `imdb-ratings`, `imdb-watchlist` (into the watchlist) and `imdb-list` (into the custom list named by `listName`, created when there is none; importing again fills it rather than making another).
 - **Simkl**: `simkl`.
-- **TV Time**, from an export saved before TV Time closed in July 2026: `tvtime-shows` (`tracking-prod-records-v2.csv`, one watched episode per row) and `tvtime-movies` (`tracking-prod-records.csv`; viewings become plays, to-watch films join the watchlist). Columns are read by name (`series_name`, `season_number`, `episode_number`, `created_at`; `movie_name`, `type`, `updated_at`, `release_date`), so a file from an older export with different headers is refused with the columns it needs.
 
-Letterboxd and TV Time exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis (TV Time shows once per show, not per episode); unmatched rows are skipped and reported in the import summary. A file that isn't the export the format names gets a `400` saying so.
+Letterboxd exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis; unmatched rows are skipped and reported in the import summary. A file that isn't the export the format names gets a `400` saying so.
 
 Imports are sent as a single request body, capped at `MAX_BODY_SIZE_MB` (32 MB by default — roughly 200k watch events). A larger file is rejected with a 413 that names the limit; raise the variable and restart the API to accept it.
 

@@ -23,8 +23,6 @@ import {
   importListName,
   parseImdbList,
   parseLetterboxdTitles,
-  parseTvTimeEpisodes,
-  parseTvTimeMovies,
   type ListEntry,
 } from "../lib/external-import.js";
 
@@ -44,21 +42,20 @@ const parseDate = (v: string | undefined): Date | null => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
-// Letterboxd and TV Time exports don't include IMDb IDs, so we resolve
+// Letterboxd exports don't include IMDb IDs, so we resolve
 // title (+ year, when present) against TMDB on a best-effort basis.
 const resolveImdbIdByTitle = async (
   title: string,
   year: number | null,
-  cache: Map<string, string | null>,
-  type: "movie" | "series" = "movie"
+  cache: Map<string, string | null>
 ): Promise<string | null> => {
-  const cacheKey = `${type}::${title.toLowerCase()}::${year ?? ""}`;
+  const cacheKey = `${title.toLowerCase()}::${year ?? ""}`;
   if (cache.has(cacheKey)) return cache.get(cacheKey) ?? null;
 
   let imdbId: string | null;
   try {
     const tmdb = await getTmdb();
-    const results = await tmdb.search(type, title);
+    const results = await tmdb.search("movie", title);
     const match = year ? results.find((r) => r.year === year) : results[0];
     // TMDB is an upstream we don't control — an id from it gets the same
     // format check as one typed into a CSV column.
@@ -100,10 +97,7 @@ const importRoutes: FastifyPluginAsync = async (app) => {
     // Bounded on top of MAX_BODY_SIZE_MB: row count, not payload size, is what
     // a single request's work scales with — and for Letterboxd that work
     // includes a TMDB search per unique title.
-    // TV Time's show history is a row per episode but a TMDB search per show, so it
-    // takes the id-carrying ceiling; its film file is a search per row, like Letterboxd.
-    const rowLimit =
-      format.startsWith("letterboxd") || format === "tvtime-movies" ? MAX_TMDB_LOOKUP_ROWS : MAX_IMPORT_ROWS;
+    const rowLimit = format.startsWith("letterboxd") ? MAX_TMDB_LOOKUP_ROWS : MAX_IMPORT_ROWS;
     if (dataRows.length > rowLimit) {
       return reply.code(413).send({ error: tooManyRowsMessage("CSV rows", rowLimit), code: "too_many_rows" });
     }
@@ -121,12 +115,8 @@ const importRoutes: FastifyPluginAsync = async (app) => {
         await importLetterboxd(dataRows, col, profileId, summary, titleCache, format, request.log);
       } else if (format === "letterboxd-watched" || format === "letterboxd-watchlist") {
         await importLetterboxdTitles(dataRows, col, profileId, summary, titleCache, format, request.log);
-      } else if (format === "imdb-watchlist" || format === "imdb-list") {
-        await importImdbList(dataRows, col, profileId, summary, format === "imdb-list" ? listName : null, request.log);
-      } else if (format === "tvtime-shows") {
-        await importTvTimeShows(dataRows, col, profileId, summary, titleCache, request.log);
       } else {
-        await importTvTimeMovies(dataRows, col, profileId, summary, titleCache, request.log);
+        await importImdbList(dataRows, col, profileId, summary, format === "imdb-list" ? listName : null, request.log);
       }
     } catch (error) {
       // A file that isn't the export the format names: say so instead of failing the request.
@@ -149,8 +139,6 @@ const EXTERNAL_FORMATS = [
   "imdb-watchlist",
   "imdb-list",
   "simkl",
-  "tvtime-shows",
-  "tvtime-movies",
 ] as const;
 type ExternalFormat = (typeof EXTERNAL_FORMATS)[number];
 const isExternalFormat = (value: unknown): value is ExternalFormat =>
@@ -217,84 +205,6 @@ async function importImdbList(
     return;
   }
   const result = await importTrackerItems(profileId, [], entries, log);
-  summary.listed += result.watchlist;
-  summary.skipped += result.skipped;
-}
-
-/**
- * TV Time's show history, matched to IMDb by series name on TMDB (the export
- * names shows; its ids are TVDB's). A show TMDB can't place is skipped whole.
- */
-async function importTvTimeShows(
-  rows: string[][],
-  col: (name: string) => number,
-  profileId: string,
-  summary: ExternalImportSummary,
-  titleCache: Map<string, string | null>,
-  log: FastifyBaseLogger
-) {
-  const parsed = parseTvTimeEpisodes(rows, col);
-  const names = [...new Set(parsed.flatMap((row) => (row ? [row.seriesName] : [])))];
-  if (names.length > MAX_TMDB_LOOKUP_ROWS) {
-    throw Object.assign(new Error(`Too many shows in one import (limit ${MAX_TMDB_LOOKUP_ROWS.toLocaleString("en-US")}).`), {
-      code: "BAD_FORMAT",
-    });
-  }
-  const ids = new Map(
-    (
-      await mapWithConcurrency(names, TMDB_LOOKUP_CONCURRENCY, async (name) => [
-        name,
-        await resolveImdbIdByTitle(name, null, titleCache, "series"),
-      ] as const)
-    )
-  );
-  const watches: ImportedWatch[] = [];
-  for (const row of parsed) {
-    const seriesImdbId = row ? ids.get(row.seriesName) : null;
-    if (!row || !seriesImdbId) {
-      summary.skipped += 1;
-      continue;
-    }
-    watches.push({
-      type: "episode",
-      seriesImdbId,
-      season: row.season,
-      episode: row.episode,
-      watchedAt: row.watchedAt,
-      title: row.seriesName,
-    });
-  }
-  const result = await importTrackerItems(profileId, watches, [], log);
-  summary.imported += result.episodes;
-  summary.skipped += result.skipped;
-}
-
-/** TV Time's films: viewings become plays, the to-watch list joins the watchlist. */
-async function importTvTimeMovies(
-  rows: string[][],
-  col: (name: string) => number,
-  profileId: string,
-  summary: ExternalImportSummary,
-  titleCache: Map<string, string | null>,
-  log: FastifyBaseLogger
-) {
-  const parsed = parseTvTimeMovies(rows, col);
-  const imdbIds = await mapWithConcurrency(parsed, TMDB_LOOKUP_CONCURRENCY, async (row) =>
-    row ? resolveImdbIdByTitle(row.title, row.year, titleCache) : null
-  );
-  const watches: ImportedWatch[] = [];
-  const watchlist: ImportedWatchlistItem[] = [];
-  parsed.forEach((row, i) => {
-    const imdbId = imdbIds[i];
-    if (!row || !imdbId) {
-      summary.skipped += 1;
-      return;
-    }
-    if (row.watched && row.date) watches.push({ type: "movie", imdbId, title: row.title, watchedAt: row.date });
-    else watchlist.push({ type: "movie", imdbId, title: row.title });
-  });
-  const result = await importTrackerItems(profileId, watches, watchlist, log);
-  summary.imported += result.movies;
   summary.listed += result.watchlist;
   summary.skipped += result.skipped;
 }

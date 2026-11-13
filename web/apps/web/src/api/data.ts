@@ -16,9 +16,7 @@ export type ExternalImportFormat =
   | "imdb-ratings"
   | "imdb-watchlist"
   | "imdb-list"
-  | "simkl"
-  | "tvtime-shows"
-  | "tvtime-movies";
+  | "simkl";
 
 export const dataApi = {
   // Data export / import

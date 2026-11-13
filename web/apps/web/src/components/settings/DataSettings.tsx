@@ -22,8 +22,6 @@ const EXTERNAL_LABELS: Record<ExternalFormat, string> = {
   "imdb-watchlist": "IMDb watchlist export",
   "imdb-list": "IMDb list export, into a list",
   simkl: "Simkl export",
-  "tvtime-shows": "TV Time shows (tracking-prod-records-v2.csv)",
-  "tvtime-movies": "TV Time movies (tracking-prod-records.csv)",
 };
 
 const plural = (count: number, one: string, many: string) => `${count.toLocaleString()} ${count === 1 ? one : many}`;
@@ -429,9 +427,9 @@ export function DataSettings() {
         <div>
           <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Import from another tracker</p>
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-            Migrate watch history, ratings and lists from a Letterboxd, IMDb, Simkl or TV Time export. Titles
-            exported without an IMDb id (Letterboxd, TV Time) are matched by name and year; any that can&apos;t be
-            matched are skipped and counted.
+            Migrate watch history, ratings and lists from a Letterboxd, IMDb, or Simkl export. Letterboxd titles
+            come without an IMDb id, so they are matched by name and year; any that can&apos;t be matched are skipped
+            and counted.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

@@ -5,8 +5,6 @@ import {
   parseExportDate,
   parseImdbList,
   parseLetterboxdTitles,
-  parseTvTimeEpisodes,
-  parseTvTimeMovies,
 } from "./external-import.js";
 
 /** Rows and a header lookup the way the route builds them. */
@@ -17,14 +15,8 @@ const table = (csv: string) => {
 };
 
 describe("parseExportDate", () => {
-  it("reads TV Time's zone-less times as UTC, with one or two spaces", () => {
-    expect(parseExportDate("2022-09-28 18:48:36")?.toISOString()).toBe("2022-09-28T18:48:36.000Z");
-    expect(parseExportDate("2022-09-28  18:48:36")?.toISOString()).toBe("2022-09-28T18:48:36.000Z");
-  });
-
-  it("reads ISO dates and rejects placeholders and junk", () => {
+  it("reads dates and rejects junk", () => {
     expect(parseExportDate("2024-01-05")?.toISOString()).toBe("2024-01-05T00:00:00.000Z");
-    expect(parseExportDate("0000-00-00 00:00:00")).toBeNull();
     expect(parseExportDate("soon")).toBeNull();
     expect(parseExportDate("")).toBeNull();
   });
@@ -68,41 +60,6 @@ describe("parseImdbList", () => {
     expect(imdbListItemType("Short")).toBe("movie");
     expect(imdbListItemType("Video Game")).toBeNull();
     expect(imdbListItemType("")).toBe("movie");
-  });
-});
-
-describe("parseTvTimeEpisodes", () => {
-  it("reads episodes by header name, whatever the column order", () => {
-    const { rows, col } = table(`episode_id,created_at,series_name,season_number,episode_number
-123,2022-09-28 18:48:36,Severance,1,2
-124,2022-09-28 19:40:00,Severance,,
-125,,Severance,1,3`);
-    expect(parseTvTimeEpisodes(rows, col)).toEqual([
-      { seriesName: "Severance", season: 1, episode: 2, watchedAt: new Date("2022-09-28T18:48:36.000Z") },
-      null,
-      null,
-    ]);
-  });
-
-  it("names the columns it needs when they are missing", () => {
-    const { rows, col } = table(`id,name\n1,x`);
-    expect(() => parseTvTimeEpisodes(rows, col)).toThrow(/series_name/);
-  });
-});
-
-describe("parseTvTimeMovies", () => {
-  it("splits viewings from the to-watch list", () => {
-    const { rows, col } = table(`movie_name,type,updated_at,release_date
-Arrival,watch,2021-02-03 20:00:00,2016-11-11 00:00:00
-Arrival,rewatch,2023-02-03 20:00:00,2016-11-11 00:00:00
-Dune,watchlist,,0000-00-00 00:00:00
-Heat,watch,,1995-12-15 00:00:00`);
-    expect(parseTvTimeMovies(rows, col)).toEqual([
-      { title: "Arrival", year: 2016, date: new Date("2021-02-03T20:00:00.000Z"), watched: true },
-      { title: "Arrival", year: 2016, date: new Date("2023-02-03T20:00:00.000Z"), watched: true },
-      { title: "Dune", year: null, date: null, watched: false },
-      null,
-    ]);
   });
 });
 

@@ -18,10 +18,12 @@ object AddonWebPage {
             config.setLocale(Locale.forLanguageTag(tag))
             baseContext.createConfigurationContext(config)
         } else baseContext
-        fun jsString(resId: Int): String = context.getString(resId)
-            .replace("\\", "\\\\")
-            .replace("'", "\\'")
-            .replace("\n", "\\n")
+        // Translations go through the shared escapers: jsString returns a complete, quoted JS
+        // literal that is also safe inside <script>; html escapes markup characters.
+        fun jsString(resId: Int): String = PhoneWebEscaping.jsString(context.getString(resId))
+        fun html(resId: Int): String = PhoneWebEscaping.escapeHtml(context.getString(resId))
+        // Markup built inside an existing JS string literal: HTML-escaped, then JS-escaped.
+        fun jsHtml(resId: Int): String = PhoneWebEscaping.jsStringContent(html(resId))
         val isCollectionsOnly = webConfigMode == AddonWebConfigMode.COLLECTIONS_ONLY
         val pageTitle = if (isCollectionsOnly) {
             context.getString(R.string.web_manage_collections_title)
@@ -51,17 +53,17 @@ object AddonWebPage {
         }
         val tabButtons = listOfNotNull(
             if (allowAddonManagement) {
-                """    <button class="tab${if (defaultTab == "addons") " active" else ""}" type="button" onclick="switchTab('addons')">${context.getString(R.string.web_tab_addons)}</button>"""
+                """    <button class="tab${if (defaultTab == "addons") " active" else ""}" type="button" onclick="switchTab('addons')">${html(R.string.web_tab_addons)}</button>"""
             } else {
                 null
             },
             if (allowCatalogManagement) {
-                """    <button class="tab${if (defaultTab == "catalogs") " active" else ""}" type="button" onclick="switchTab('catalogs')">${context.getString(R.string.web_tab_home_layout)}</button>"""
+                """    <button class="tab${if (defaultTab == "catalogs") " active" else ""}" type="button" onclick="switchTab('catalogs')">${html(R.string.web_tab_home_layout)}</button>"""
             } else {
                 null
             },
             if (allowCollectionManagement) {
-                """    <button class="tab${if (defaultTab == "collections") " active" else ""}" type="button" onclick="switchTab('collections')">${context.getString(R.string.web_tab_collections)}</button>"""
+                """    <button class="tab${if (defaultTab == "collections") " active" else ""}" type="button" onclick="switchTab('collections')">${html(R.string.web_tab_collections)}</button>"""
             } else {
                 null
             }
@@ -80,17 +82,17 @@ ${tabButtons}
             """
   <div class="tab-content active" id="tab-addons">
     <div class="add-section">
-      <label>${context.getString(R.string.web_add_addon_url)}</label>
+      <label>${html(R.string.web_add_addon_url)}</label>
       <div class="add-row">
-        <input type="url" id="addonUrl" placeholder="${context.getString(R.string.web_placeholder_url)}" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="btn" id="addBtn" onclick="addAddon()">${context.getString(R.string.web_btn_add)}</button>
+        <input type="url" id="addonUrl" placeholder="${html(R.string.web_placeholder_url)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn" id="addBtn" onclick="addAddon()">${html(R.string.web_btn_add)}</button>
       </div>
       <div class="add-error" id="addError"></div>
     </div>
 
-    <div class="section-label">${context.getString(R.string.web_installed_addons)}</div>
+    <div class="section-label">${html(R.string.web_installed_addons)}</div>
     <ul class="addon-list" id="addonList"></ul>
-    <div class="empty-state" id="emptyState">${context.getString(R.string.web_no_addons)}</div>
+    <div class="empty-state" id="emptyState">${html(R.string.web_no_addons)}</div>
   </div>
 """
         } else {
@@ -100,11 +102,11 @@ ${tabButtons}
             """
   <div class="tab-content" id="tab-catalogs">
     <div class="section-block">
-      <div class="section-label">${context.getString(R.string.web_home_catalogs)}</div>
+      <div class="section-label">${html(R.string.web_home_catalogs)}</div>
       <div id="followAddonsToggle" class="addon-item" style="border-top:none;padding:0.75rem 0">
         <div class="catalog-info">
-          <div class="catalog-name">${context.getString(R.string.catalog_order_follow_addons)}</div>
-          <div class="catalog-meta">${context.getString(R.string.catalog_order_follow_addons_desc)}</div>
+          <div class="catalog-name">${html(R.string.catalog_order_follow_addons)}</div>
+          <div class="catalog-meta">${html(R.string.catalog_order_follow_addons_desc)}</div>
         </div>
         <label class="toggle-switch">
           <input type="checkbox" id="followAddonsCheckbox" onchange="toggleFollowAddonsOrder()">
@@ -113,11 +115,11 @@ ${tabButtons}
         </label>
       </div>
       <div class="add-section" style="display:flex;gap:0.5rem">
-        <button class="btn" onclick="enableAllCatalogs()" style="flex:1">${context.getString(R.string.web_btn_enable_all)}</button>
-        <button class="btn" onclick="disableAllCatalogs()" style="flex:1">${context.getString(R.string.web_btn_disable_all)}</button>
+        <button class="btn" onclick="enableAllCatalogs()" style="flex:1">${html(R.string.web_btn_enable_all)}</button>
+        <button class="btn" onclick="disableAllCatalogs()" style="flex:1">${html(R.string.web_btn_disable_all)}</button>
       </div>
       <ul class="addon-list" id="catalogList"></ul>
-      <div class="empty-state" id="catalogEmptyState">${context.getString(R.string.web_no_catalogs)}</div>
+      <div class="empty-state" id="catalogEmptyState">${html(R.string.web_no_catalogs)}</div>
     </div>
   </div>
 """
@@ -128,18 +130,18 @@ ${tabButtons}
             """
   <div class="tab-content${if (defaultTab == "collections") " active" else ""}" id="tab-collections">
     <div class="section-block">
-      <div class="section-label">${context.getString(R.string.web_tab_collections)}</div>
+      <div class="section-label">${html(R.string.web_tab_collections)}</div>
       <div class="add-section" style="display:flex;gap:0.5rem">
-        <button class="btn" onclick="enableAllCollections()" style="flex:1">${context.getString(R.string.web_btn_show_all)}</button>
-        <button class="btn" onclick="disableAllCollections()" style="flex:1">${context.getString(R.string.web_btn_hide_all)}</button>
+        <button class="btn" onclick="enableAllCollections()" style="flex:1">${html(R.string.web_btn_show_all)}</button>
+        <button class="btn" onclick="disableAllCollections()" style="flex:1">${html(R.string.web_btn_hide_all)}</button>
       </div>
       <div class="add-section" style="display:flex;gap:0.5rem">
-        <button class="btn" onclick="addCollection()" style="flex:1">${context.getString(R.string.web_btn_new_collection)}</button>
-        <button class="btn" onclick="exportCollections()" style="flex:1">${context.getString(R.string.web_btn_export)}</button>
-        <button class="btn" onclick="showImportModal()" style="flex:1">${context.getString(R.string.web_btn_import)}</button>
+        <button class="btn" onclick="addCollection()" style="flex:1">${html(R.string.web_btn_new_collection)}</button>
+        <button class="btn" onclick="exportCollections()" style="flex:1">${html(R.string.web_btn_export)}</button>
+        <button class="btn" onclick="showImportModal()" style="flex:1">${html(R.string.web_btn_import)}</button>
       </div>
       <div id="collectionsList"></div>
-      <div class="empty-state" id="collectionsEmptyState">${context.getString(R.string.web_no_collections)}</div>
+      <div class="empty-state" id="collectionsEmptyState">${html(R.string.web_no_collections)}</div>
     </div>
   </div>
 """
@@ -152,7 +154,7 @@ ${tabButtons}
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>${context.getString(R.string.app_name)} - $pageTitle</title>
+<title>${html(R.string.app_name)} - ${PhoneWebEscaping.escapeHtml(pageTitle)}</title>
 <style>
   * {
     margin: 0;
@@ -1080,7 +1082,7 @@ ${tabButtons}
 <div class="page">
   <div class="header">
     <img src="/logo.png" alt="Fetch" class="header-logo">
-    <p>$pageSubtitle</p>
+    <p>${PhoneWebEscaping.escapeHtml(pageSubtitle)}</p>
   </div>
 
   $tabsHtml
@@ -1093,42 +1095,42 @@ ${tabButtons}
 
   <div class="import-overlay" id="importOverlay">
     <div class="import-modal">
-      <div style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">${context.getString(R.string.web_import_collections_title)}</div>
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">${html(R.string.web_import_collections_title)}</div>
       <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
-        <button class="btn import-tab-btn active" onclick="switchImportTab('paste')">${context.getString(R.string.web_import_tab_paste)}</button>
-        <button class="btn import-tab-btn" onclick="switchImportTab('file')">${context.getString(R.string.web_import_tab_file)}</button>
-        <button class="btn import-tab-btn" onclick="switchImportTab('url')">${context.getString(R.string.web_import_tab_url)}</button>
+        <button class="btn import-tab-btn active" onclick="switchImportTab('paste')">${html(R.string.web_import_tab_paste)}</button>
+        <button class="btn import-tab-btn" onclick="switchImportTab('file')">${html(R.string.web_import_tab_file)}</button>
+        <button class="btn import-tab-btn" onclick="switchImportTab('url')">${html(R.string.web_import_tab_url)}</button>
 	      </div>
 	      <div id="import-tab-paste" class="import-tab active">
-	        <textarea id="importJsonInput" placeholder="${context.getString(R.string.web_import_paste_placeholder)}" style="width:100%;min-height:120px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0.75rem;color:#fff;font-family:monospace;font-size:0.8rem;resize:vertical"></textarea>
+	        <textarea id="importJsonInput" placeholder="${html(R.string.web_import_paste_placeholder)}" style="width:100%;min-height:120px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0.75rem;color:#fff;font-family:monospace;font-size:0.8rem;resize:vertical"></textarea>
 	      </div>
 	      <div id="import-tab-file" class="import-tab">
 	        <label style="display:block;text-align:center;padding:2rem;border:2px dashed rgba(255,255,255,0.15);border-radius:12px;cursor:pointer;color:rgba(255,255,255,0.4);font-size:0.85rem;transition:border-color 0.2s" id="fileDropLabel">
 	          <input type="file" id="importFileInput" accept=".json,application/json" style="display:none" onchange="onFileSelected(this)">
-	          ${context.getString(R.string.web_import_file_select)}
+	          ${html(R.string.web_import_file_select)}
 	          <div id="fileSelectedName" style="color:#fff;font-weight:600;margin-top:0.5rem;display:none"></div>
 	        </label>
 	      </div>
 	      <div id="import-tab-url" class="import-tab">
-	        <input type="url" id="importUrlInput" placeholder="${context.getString(R.string.collections_import_url_placeholder)}" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:0.875rem 1.25rem;color:#fff;font-family:inherit;font-size:0.9rem">
+	        <input type="url" id="importUrlInput" placeholder="${html(R.string.collections_import_url_placeholder)}" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:100px;padding:0.875rem 1.25rem;color:#fff;font-family:inherit;font-size:0.9rem">
       </div>
       <div id="importError" style="color:rgba(207,102,121,0.9);font-size:0.8rem;margin-top:0.5rem;display:none"></div>
 	      <div id="importSuccess" style="color:rgba(130,200,130,0.9);font-size:0.8rem;margin-top:0.5rem;display:none"></div>
 	      <div style="display:flex;gap:0.75rem;margin-top:1rem">
-	        <button class="btn" onclick="dismissImportModal()" style="flex:1">${context.getString(R.string.collections_cancel)}</button>
-	        <button class="btn" onclick="doImport()" style="flex:1" id="importBtn">${context.getString(R.string.web_btn_import)}</button>
+	        <button class="btn" onclick="dismissImportModal()" style="flex:1">${html(R.string.collections_cancel)}</button>
+	        <button class="btn" onclick="doImport()" style="flex:1" id="importBtn">${html(R.string.web_btn_import)}</button>
 	      </div>
     </div>
   </div>
 
-  <button class="btn btn-save" id="saveBtn" onclick="saveChanges()">${context.getString(R.string.web_btn_save)}</button>
+  <button class="btn btn-save" id="saveBtn" onclick="saveChanges()">${html(R.string.web_btn_save)}</button>
 </div>
 
 <div class="status-overlay" id="statusOverlay">
   <div class="status-content" id="statusContent"></div>
 </div>
 
-<div class="connection-bar" id="connectionBar">${context.getString(R.string.web_connection_lost)}</div>
+<div class="connection-bar" id="connectionBar">${html(R.string.web_connection_lost)}</div>
 
 <script>
 var addons = [];
@@ -1147,177 +1149,177 @@ var POLL_TIMEOUT = 120000;
 var POLL_INTERVAL = 1500;
 
 var i18n = {
-  newCollection: '${context.getString(R.string.collections_new).replace("'", "\\'")}',
-  backdrop: '${context.getString(R.string.collections_editor_backdrop).replace("'", "\\'")}',
-  pinAbove: '${context.getString(R.string.collections_editor_pin_above).replace("'", "\\'")}',
-  viewMode: '${context.getString(R.string.collections_editor_view_mode).replace("'", "\\'")}',
-  tabs: '${context.getString(R.string.collections_editor_view_mode_tabs).replace("'", "\\'")}',
-  rows: '${context.getString(R.string.collections_editor_view_mode_rows).replace("'", "\\'")}',
-  followHome: '${context.getString(R.string.collections_editor_view_mode_follow).replace("'", "\\'")}',
-  showAllTab: '${context.getString(R.string.collections_editor_show_all_tab).replace("'", "\\'")}',
-  cover: '${context.getString(R.string.collections_editor_cover).replace("'", "\\'")}',
-  coverNone: '${context.getString(R.string.collections_editor_cover_none).replace("'", "\\'")}',
-  coverEmoji: '${context.getString(R.string.collections_editor_cover_emoji).replace("'", "\\'")}',
-  coverImage: '${context.getString(R.string.collections_editor_cover_image_url).replace("'", "\\'")}',
-  focusGif: '${context.getString(R.string.collections_editor_focus_gif).replace("'", "\\'")}',
-  playGif: '${context.getString(R.string.collections_editor_play_gif).replace("'", "\\'")}',
-  heroBackdrop: '${context.getString(R.string.collections_editor_hero_backdrop).replace("'", "\\'")}',
-  heroVideo: '${context.getString(R.string.collections_editor_hero_video).replace("'", "\\'")}',
-  titleLogo: '${context.getString(R.string.collections_editor_title_logo).replace("'", "\\'")}',
-  tileShape: '${context.getString(R.string.collections_editor_tile_shape).replace("'", "\\'")}',
-  hideTitle: '${context.getString(R.string.collections_editor_hide_title).replace("'", "\\'")}',
-  catalogs: '${context.getString(R.string.collections_editor_catalogs).replace("'", "\\'")}',
-  addCatalog: '${context.getString(R.string.collections_editor_add_catalog).replace("'", "\\'")}',
-  addTmdb: '${context.getString(R.string.collections_editor_add_source).replace("'", "\\'")}',
-  addTrakt: '${context.getString(R.string.collections_editor_add_trakt_source).replace("'", "\\'")}',
-  tmdbSearch: '${context.getString(R.string.collections_editor_tmdb_search).replace("'", "\\'")}',
-  tmdbSources: '${context.getString(R.string.collections_editor_tmdb_sources).replace("'", "\\'")}',
-  traktSources: '${context.getString(R.string.collections_editor_trakt_sources).replace("'", "\\'")}',
-  traktList: '${context.getString(R.string.collections_editor_trakt_list).replace("'", "\\'")}',
-  traktSearchResults: '${context.getString(R.string.collections_editor_trakt_search_results).replace("'", "\\'")}',
-  traktDirection: '${context.getString(R.string.collections_editor_trakt_direction).replace("'", "\\'")}',
-  traktAscending: '${context.getString(R.string.collections_editor_trakt_ascending).replace("'", "\\'")}',
-  traktDescending: '${context.getString(R.string.collections_editor_trakt_descending).replace("'", "\\'")}',
-  tmdbIdOrUrl: '${context.getString(R.string.collections_editor_tmdb_id_or_url).replace("'", "\\'")}',
-  tmdbPublicList: '${context.getString(R.string.collections_editor_tmdb_public_list).replace("'", "\\'")}',
-  tmdbNetworkId: '${context.getString(R.string.collections_editor_tmdb_network_id).replace("'", "\\'")}',
-  tmdbCollectionId: '${context.getString(R.string.collections_editor_tmdb_collection_id).replace("'", "\\'")}',
-  tmdbCompanySearch: '${context.getString(R.string.collections_editor_tmdb_company_search).replace("'", "\\'")}',
-  tmdbPersonId: '${context.getString(R.string.collections_editor_tmdb_person_id).replace("'", "\\'")}',
-  tmdbDisplayTitle: '${context.getString(R.string.collections_editor_tmdb_display_title).replace("'", "\\'")}',
-  tmdbTitleHelper: '${context.getString(R.string.collections_editor_tmdb_title_helper).replace("'", "\\'")}',
-  tmdbHelpPresets: '${context.getString(R.string.collections_editor_tmdb_help_presets).replace("'", "\\'")}',
-  tmdbHelpList: '${context.getString(R.string.collections_editor_tmdb_help_list).replace("'", "\\'")}',
-  tmdbHelpProduction: '${context.getString(R.string.collections_editor_tmdb_help_production).replace("'", "\\'")}',
-  tmdbHelpNetwork: '${context.getString(R.string.collections_editor_tmdb_help_network).replace("'", "\\'")}',
-  tmdbHelpCollection: '${context.getString(R.string.collections_editor_tmdb_help_collection).replace("'", "\\'")}',
-  tmdbHelpPerson: '${context.getString(R.string.collections_editor_tmdb_help_person).replace("'", "\\'")}',
-  tmdbHelpDirector: '${context.getString(R.string.collections_editor_tmdb_help_director).replace("'", "\\'")}',
-  tmdbHelpDiscover: '${context.getString(R.string.collections_editor_tmdb_help_discover).replace("'", "\\'")}',
-  tmdbSearchHelper: '${context.getString(R.string.collections_editor_tmdb_search_helper).replace("'", "\\'")}',
-  tmdbCollectionHelper: '${context.getString(R.string.collections_editor_tmdb_collection_helper).replace("'", "\\'")}',
-  tmdbNetworkHelper: '${context.getString(R.string.collections_editor_tmdb_network_helper).replace("'", "\\'")}',
-  tmdbListHelper: '${context.getString(R.string.collections_editor_tmdb_list_helper).replace("'", "\\'")}',
-  tmdbPersonHelper: '${context.getString(R.string.collections_editor_tmdb_person_helper).replace("'", "\\'")}',
-  tmdbCollection: '${context.getString(R.string.collections_editor_tmdb_collection).replace("'", "\\'")}',
-  filterType: '${context.getString(R.string.library_filter_type).replace("'", "\\'")}',
-  filterSort: '${context.getString(R.string.library_filter_sort).replace("'", "\\'")}',
-  movie: '${context.getString(R.string.type_movie).replace("'", "\\'")}',
-  series: '${context.getString(R.string.type_series).replace("'", "\\'")}',
-  popular: '${context.getString(R.string.tmdb_entity_rail_popular).replace("'", "\\'")}',
-  topRated: '${context.getString(R.string.tmdb_entity_rail_top_rated).replace("'", "\\'")}',
-  mostVoted: '${context.getString(R.string.tmdb_entity_rail_most_voted).replace("'", "\\'")}',
-  recent: '${context.getString(R.string.tmdb_entity_rail_recent).replace("'", "\\'")}',
-  tmdbQuickGenres: '${context.getString(R.string.collections_editor_tmdb_quick_genres).replace("'", "\\'")}',
-  tmdbQuickLanguages: '${context.getString(R.string.collections_editor_tmdb_quick_languages).replace("'", "\\'")}',
-  tmdbQuickCountries: '${context.getString(R.string.collections_editor_tmdb_quick_countries).replace("'", "\\'")}',
-  tmdbQuickKeywords: '${context.getString(R.string.collections_editor_tmdb_quick_keywords).replace("'", "\\'")}',
-  tmdbQuickCompanies: '${context.getString(R.string.collections_editor_tmdb_quick_companies).replace("'", "\\'")}',
-  tmdbQuickNetworks: '${context.getString(R.string.collections_editor_tmdb_quick_networks).replace("'", "\\'")}',
-  tmdbGenres: '${context.getString(R.string.collections_editor_tmdb_genres).replace("'", "\\'")}',
-  tmdbDateFrom: '${context.getString(R.string.collections_editor_tmdb_date_from).replace("'", "\\'")}',
-  tmdbDateTo: '${context.getString(R.string.collections_editor_tmdb_date_to).replace("'", "\\'")}',
-  tmdbRatingMin: '${context.getString(R.string.collections_editor_tmdb_rating_min).replace("'", "\\'")}',
-  tmdbRatingMax: '${context.getString(R.string.collections_editor_tmdb_rating_max).replace("'", "\\'")}',
-  tmdbVotesMin: '${context.getString(R.string.collections_editor_tmdb_votes_min).replace("'", "\\'")}',
-  tmdbLanguage: '${context.getString(R.string.collections_editor_tmdb_language).replace("'", "\\'")}',
-  tmdbCountry: '${context.getString(R.string.collections_editor_tmdb_country).replace("'", "\\'")}',
-  tmdbKeywords: '${context.getString(R.string.collections_editor_tmdb_keywords).replace("'", "\\'")}',
-  tmdbCompanies: '${context.getString(R.string.collections_editor_tmdb_companies).replace("'", "\\'")}',
-  tmdbNetworks: '${context.getString(R.string.collections_editor_tmdb_networks).replace("'", "\\'")}',
-  tmdbYear: '${context.getString(R.string.collections_editor_tmdb_year).replace("'", "\\'")}',
-  tmdbWatchProviders: '${context.getString(R.string.collections_editor_tmdb_watch_providers).replace("'", "\\'")}',
-  tmdbWatchRegion: '${context.getString(R.string.collections_editor_tmdb_watch_region).replace("'", "\\'")}',
-  tmdbQuickWatchProviders: '${context.getString(R.string.collections_editor_tmdb_quick_watch_providers).replace("'", "\\'")}',
-  tmdbQuickWatchRegions: '${context.getString(R.string.collections_editor_tmdb_quick_watch_regions).replace("'", "\\'")}',
-  addFolder: '${context.getString(R.string.collections_editor_add_folder).replace("'", "\\'")}',
-  newFolder: '${jsString(R.string.collections_editor_new_folder)}',
-  folders: '${context.getString(R.string.collections_editor_folders).replace("'", "\\'")}',
-  hidden: '${context.getString(R.string.web_badge_disabled).replace("'", "\\'")}',
-  display: '${context.getString(R.string.collections_editor_display).replace("'", "\\'")}',
-  shape: '${context.getString(R.string.collections_editor_tile_shape).replace("'", "\\'")}',
-  shapePoster: '${context.getString(R.string.collections_editor_shape_poster).replace("'", "\\'")}',
-  shapeWide: '${context.getString(R.string.collections_editor_shape_wide).replace("'", "\\'")}',
-  shapeSquare: '${context.getString(R.string.collections_editor_shape_square).replace("'", "\\'")}',
-  tapToPickEmoji: '${context.getString(R.string.collections_editor_cover_emoji).replace("'", "\\'")}',
-  added: '${jsString(R.string.web_source_added)}',
-  add: '+ ${jsString(R.string.web_btn_add)}',
-  movies: '${jsString(R.string.type_movies)}',
-  seriesPlural: '${jsString(R.string.type_series_plural)}',
-  collectionNamePlaceholder: '${jsString(R.string.collections_editor_placeholder_name)}',
-  backdropPlaceholder: '${jsString(R.string.collections_editor_placeholder_backdrop)}',
-  folderPlaceholder: '${jsString(R.string.collections_editor_placeholder_folder)}',
-  searchEmojiPlaceholder: '${jsString(R.string.collections_editor_search_emoji_placeholder)}',
-  coverImagePlaceholder: '${jsString(R.string.collections_editor_placeholder_cover_image)}',
-  focusGifPlaceholder: '${jsString(R.string.collections_editor_placeholder_gif)}',
-  heroBackdropPlaceholder: '${jsString(R.string.collections_editor_placeholder_hero_backdrop)}',
-  heroVideoPlaceholder: '${jsString(R.string.collections_editor_placeholder_hero_video)}',
-  titleLogoPlaceholder: '${jsString(R.string.collections_editor_placeholder_title_logo)}',
-  filterActiveSourcesPlaceholder: '${jsString(R.string.collections_editor_filter_active_sources_placeholder)}',
-  searchCatalogsPlaceholder: '${jsString(R.string.collections_editor_search_catalogs_placeholder)}',
-  tmdbDefaultList: '${jsString(R.string.collections_editor_tmdb_default_list)}',
-  tmdbDefaultProduction: '${jsString(R.string.collections_editor_tmdb_default_production)}',
-  tmdbDefaultNetwork: '${jsString(R.string.collections_editor_tmdb_default_network)}',
-  tmdbDefaultDiscover: '${jsString(R.string.collections_editor_tmdb_default_discover)}',
-  tmdbMovieCollection: '${jsString(R.string.collections_editor_tmdb_movie_collection)}',
-  tmdbModePresets: '${jsString(R.string.collections_editor_tmdb_mode_presets)}',
-  tmdbModePublicList: '${jsString(R.string.collections_editor_tmdb_mode_public_list)}',
-  tmdbModeProduction: '${jsString(R.string.collections_editor_tmdb_mode_production)}',
-  tmdbModeNetwork: '${jsString(R.string.collections_editor_tmdb_mode_network)}',
-  tmdbModePerson: '${jsString(R.string.collections_editor_tmdb_mode_person)}',
-  tmdbModeDirector: '${jsString(R.string.collections_editor_tmdb_mode_director)}',
-  tmdbModeCustom: '${jsString(R.string.collections_editor_tmdb_mode_custom)}',
-  tmdbPersonCredits: '${jsString(R.string.collections_editor_tmdb_person_credits)}',
-  tmdbDirectorCredits: '${jsString(R.string.collections_editor_tmdb_director_credits)}',
-  tmdbPlaceholderList: '${jsString(R.string.collections_editor_tmdb_placeholder_list)}',
-  tmdbPlaceholderCollection: '${jsString(R.string.collections_editor_tmdb_placeholder_collection)}',
-  tmdbPlaceholderCompany: '${jsString(R.string.collections_editor_tmdb_placeholder_company)}',
-  tmdbPlaceholderNetwork: '${jsString(R.string.collections_editor_tmdb_placeholder_network)}',
-  tmdbPlaceholderPerson: '${jsString(R.string.collections_editor_tmdb_person_placeholder)}',
-  traktIdPlaceholder: '${jsString(R.string.collections_editor_trakt_id_placeholder)}',
-  traktNamePlaceholder: '${jsString(R.string.collection_editor_trakt_name_placeholder)}',
-  sortOriginal: '${jsString(R.string.collections_editor_sort_original)}',
-  sortListOrder: '${jsString(R.string.collections_editor_sort_list_order)}',
-  sortRecentlyAdded: '${jsString(R.string.collections_editor_sort_recently_added)}',
-  sortTitle: '${jsString(R.string.collections_editor_sort_title)}',
-  sortReleased: '${jsString(R.string.collections_editor_sort_released)}',
-  sortVotes: '${jsString(R.string.collections_editor_sort_votes)}',
-  choiceBoth: '${jsString(R.string.collection_editor_choice_both)}',
-  show: '${jsString(R.string.web_title_show)}',
-  hide: '${jsString(R.string.web_title_hide)}',
-  remove: '${jsString(R.string.web_btn_remove)}',
-  sendToTop: '${jsString(R.string.web_order_send_to_top)}',
-  sendToBottom: '${jsString(R.string.web_order_send_to_bottom)}',
-  moveUp: '${jsString(R.string.cd_move_up)}',
-  moveDown: '${jsString(R.string.cd_move_down)}',
-  issueSingular: '${jsString(R.string.web_issue_singular)}',
-  issuePlural: '${jsString(R.string.web_issue_plural)}',
-  sourceSingular: '${jsString(R.string.web_source_singular)}',
-  sourcePlural: '${jsString(R.string.web_source_plural)}',
-  noSourcesAdded: '${jsString(R.string.web_no_sources_added)}',
-  selectFileFirst: '${jsString(R.string.web_import_select_file_first)}',
-  enterUrl: '${jsString(R.string.web_import_enter_url)}',
-  failedFetchUrl: '${jsString(R.string.web_import_failed_fetch_url)}',
-  noJsonProvided: '${jsString(R.string.web_import_no_json)}',
-  expectedJsonArray: '${jsString(R.string.web_import_expected_array)}',
-  emptyJsonArray: '${jsString(R.string.web_import_empty_array)}',
-  invalidJson: '${jsString(R.string.web_import_invalid_json)}',
-  importSuccess: '${jsString(R.string.web_import_success)}',
-  importCollectionInvalidId: '${jsString(R.string.web_import_error_collection_invalid_id)}',
-  importCollectionInvalidTitle: '${jsString(R.string.web_import_error_collection_invalid_title)}',
-  importCollectionFoldersArray: '${jsString(R.string.web_import_error_collection_folders_array)}',
-  importFolderInvalidFormat: '${jsString(R.string.web_import_error_folder_invalid_format)}',
-  importFolderMissingId: '${jsString(R.string.web_import_error_folder_missing_id)}',
-  importFolderMissingTitle: '${jsString(R.string.web_import_error_folder_missing_title)}',
-  importSourcesArray: '${jsString(R.string.web_import_error_sources_array)}',
-  importInvalidTileShape: '${jsString(R.string.web_import_error_invalid_tile_shape)}',
-  importSourceInvalidFormat: '${jsString(R.string.web_import_error_source_invalid_format)}',
-  importSourceMissingAddonFields: '${jsString(R.string.web_import_error_source_missing_addon_fields)}',
-  importSourceMissingTmdbType: '${jsString(R.string.web_import_error_source_missing_tmdb_type)}',
-  importSourceMissingTraktId: '${jsString(R.string.web_import_error_source_missing_trakt_id)}',
-  errorValidTmdbId: '${jsString(R.string.collections_editor_error_valid_tmdb_id_or_url)}',
-  errorLoadTmdbSource: '${jsString(R.string.collections_editor_error_load_tmdb_source)}',
-  errorLoadTraktList: '${jsString(R.string.collections_editor_error_load_trakt_list)}'
+  newCollection: ${jsString(R.string.collections_new)},
+  backdrop: ${jsString(R.string.collections_editor_backdrop)},
+  pinAbove: ${jsString(R.string.collections_editor_pin_above)},
+  viewMode: ${jsString(R.string.collections_editor_view_mode)},
+  tabs: ${jsString(R.string.collections_editor_view_mode_tabs)},
+  rows: ${jsString(R.string.collections_editor_view_mode_rows)},
+  followHome: ${jsString(R.string.collections_editor_view_mode_follow)},
+  showAllTab: ${jsString(R.string.collections_editor_show_all_tab)},
+  cover: ${jsString(R.string.collections_editor_cover)},
+  coverNone: ${jsString(R.string.collections_editor_cover_none)},
+  coverEmoji: ${jsString(R.string.collections_editor_cover_emoji)},
+  coverImage: ${jsString(R.string.collections_editor_cover_image_url)},
+  focusGif: ${jsString(R.string.collections_editor_focus_gif)},
+  playGif: ${jsString(R.string.collections_editor_play_gif)},
+  heroBackdrop: ${jsString(R.string.collections_editor_hero_backdrop)},
+  heroVideo: ${jsString(R.string.collections_editor_hero_video)},
+  titleLogo: ${jsString(R.string.collections_editor_title_logo)},
+  tileShape: ${jsString(R.string.collections_editor_tile_shape)},
+  hideTitle: ${jsString(R.string.collections_editor_hide_title)},
+  catalogs: ${jsString(R.string.collections_editor_catalogs)},
+  addCatalog: ${jsString(R.string.collections_editor_add_catalog)},
+  addTmdb: ${jsString(R.string.collections_editor_add_source)},
+  addTrakt: ${jsString(R.string.collections_editor_add_trakt_source)},
+  tmdbSearch: ${jsString(R.string.collections_editor_tmdb_search)},
+  tmdbSources: ${jsString(R.string.collections_editor_tmdb_sources)},
+  traktSources: ${jsString(R.string.collections_editor_trakt_sources)},
+  traktList: ${jsString(R.string.collections_editor_trakt_list)},
+  traktSearchResults: ${jsString(R.string.collections_editor_trakt_search_results)},
+  traktDirection: ${jsString(R.string.collections_editor_trakt_direction)},
+  traktAscending: ${jsString(R.string.collections_editor_trakt_ascending)},
+  traktDescending: ${jsString(R.string.collections_editor_trakt_descending)},
+  tmdbIdOrUrl: ${jsString(R.string.collections_editor_tmdb_id_or_url)},
+  tmdbPublicList: ${jsString(R.string.collections_editor_tmdb_public_list)},
+  tmdbNetworkId: ${jsString(R.string.collections_editor_tmdb_network_id)},
+  tmdbCollectionId: ${jsString(R.string.collections_editor_tmdb_collection_id)},
+  tmdbCompanySearch: ${jsString(R.string.collections_editor_tmdb_company_search)},
+  tmdbPersonId: ${jsString(R.string.collections_editor_tmdb_person_id)},
+  tmdbDisplayTitle: ${jsString(R.string.collections_editor_tmdb_display_title)},
+  tmdbTitleHelper: ${jsString(R.string.collections_editor_tmdb_title_helper)},
+  tmdbHelpPresets: ${jsString(R.string.collections_editor_tmdb_help_presets)},
+  tmdbHelpList: ${jsString(R.string.collections_editor_tmdb_help_list)},
+  tmdbHelpProduction: ${jsString(R.string.collections_editor_tmdb_help_production)},
+  tmdbHelpNetwork: ${jsString(R.string.collections_editor_tmdb_help_network)},
+  tmdbHelpCollection: ${jsString(R.string.collections_editor_tmdb_help_collection)},
+  tmdbHelpPerson: ${jsString(R.string.collections_editor_tmdb_help_person)},
+  tmdbHelpDirector: ${jsString(R.string.collections_editor_tmdb_help_director)},
+  tmdbHelpDiscover: ${jsString(R.string.collections_editor_tmdb_help_discover)},
+  tmdbSearchHelper: ${jsString(R.string.collections_editor_tmdb_search_helper)},
+  tmdbCollectionHelper: ${jsString(R.string.collections_editor_tmdb_collection_helper)},
+  tmdbNetworkHelper: ${jsString(R.string.collections_editor_tmdb_network_helper)},
+  tmdbListHelper: ${jsString(R.string.collections_editor_tmdb_list_helper)},
+  tmdbPersonHelper: ${jsString(R.string.collections_editor_tmdb_person_helper)},
+  tmdbCollection: ${jsString(R.string.collections_editor_tmdb_collection)},
+  filterType: ${jsString(R.string.library_filter_type)},
+  filterSort: ${jsString(R.string.library_filter_sort)},
+  movie: ${jsString(R.string.type_movie)},
+  series: ${jsString(R.string.type_series)},
+  popular: ${jsString(R.string.tmdb_entity_rail_popular)},
+  topRated: ${jsString(R.string.tmdb_entity_rail_top_rated)},
+  mostVoted: ${jsString(R.string.tmdb_entity_rail_most_voted)},
+  recent: ${jsString(R.string.tmdb_entity_rail_recent)},
+  tmdbQuickGenres: ${jsString(R.string.collections_editor_tmdb_quick_genres)},
+  tmdbQuickLanguages: ${jsString(R.string.collections_editor_tmdb_quick_languages)},
+  tmdbQuickCountries: ${jsString(R.string.collections_editor_tmdb_quick_countries)},
+  tmdbQuickKeywords: ${jsString(R.string.collections_editor_tmdb_quick_keywords)},
+  tmdbQuickCompanies: ${jsString(R.string.collections_editor_tmdb_quick_companies)},
+  tmdbQuickNetworks: ${jsString(R.string.collections_editor_tmdb_quick_networks)},
+  tmdbGenres: ${jsString(R.string.collections_editor_tmdb_genres)},
+  tmdbDateFrom: ${jsString(R.string.collections_editor_tmdb_date_from)},
+  tmdbDateTo: ${jsString(R.string.collections_editor_tmdb_date_to)},
+  tmdbRatingMin: ${jsString(R.string.collections_editor_tmdb_rating_min)},
+  tmdbRatingMax: ${jsString(R.string.collections_editor_tmdb_rating_max)},
+  tmdbVotesMin: ${jsString(R.string.collections_editor_tmdb_votes_min)},
+  tmdbLanguage: ${jsString(R.string.collections_editor_tmdb_language)},
+  tmdbCountry: ${jsString(R.string.collections_editor_tmdb_country)},
+  tmdbKeywords: ${jsString(R.string.collections_editor_tmdb_keywords)},
+  tmdbCompanies: ${jsString(R.string.collections_editor_tmdb_companies)},
+  tmdbNetworks: ${jsString(R.string.collections_editor_tmdb_networks)},
+  tmdbYear: ${jsString(R.string.collections_editor_tmdb_year)},
+  tmdbWatchProviders: ${jsString(R.string.collections_editor_tmdb_watch_providers)},
+  tmdbWatchRegion: ${jsString(R.string.collections_editor_tmdb_watch_region)},
+  tmdbQuickWatchProviders: ${jsString(R.string.collections_editor_tmdb_quick_watch_providers)},
+  tmdbQuickWatchRegions: ${jsString(R.string.collections_editor_tmdb_quick_watch_regions)},
+  addFolder: ${jsString(R.string.collections_editor_add_folder)},
+  newFolder: ${jsString(R.string.collections_editor_new_folder)},
+  folders: ${jsString(R.string.collections_editor_folders)},
+  hidden: ${jsString(R.string.web_badge_disabled)},
+  display: ${jsString(R.string.collections_editor_display)},
+  shape: ${jsString(R.string.collections_editor_tile_shape)},
+  shapePoster: ${jsString(R.string.collections_editor_shape_poster)},
+  shapeWide: ${jsString(R.string.collections_editor_shape_wide)},
+  shapeSquare: ${jsString(R.string.collections_editor_shape_square)},
+  tapToPickEmoji: ${jsString(R.string.collections_editor_cover_emoji)},
+  added: ${jsString(R.string.web_source_added)},
+  add: ${PhoneWebEscaping.jsString("+ " + context.getString(R.string.web_btn_add))},
+  movies: ${jsString(R.string.type_movies)},
+  seriesPlural: ${jsString(R.string.type_series_plural)},
+  collectionNamePlaceholder: ${jsString(R.string.collections_editor_placeholder_name)},
+  backdropPlaceholder: ${jsString(R.string.collections_editor_placeholder_backdrop)},
+  folderPlaceholder: ${jsString(R.string.collections_editor_placeholder_folder)},
+  searchEmojiPlaceholder: ${jsString(R.string.collections_editor_search_emoji_placeholder)},
+  coverImagePlaceholder: ${jsString(R.string.collections_editor_placeholder_cover_image)},
+  focusGifPlaceholder: ${jsString(R.string.collections_editor_placeholder_gif)},
+  heroBackdropPlaceholder: ${jsString(R.string.collections_editor_placeholder_hero_backdrop)},
+  heroVideoPlaceholder: ${jsString(R.string.collections_editor_placeholder_hero_video)},
+  titleLogoPlaceholder: ${jsString(R.string.collections_editor_placeholder_title_logo)},
+  filterActiveSourcesPlaceholder: ${jsString(R.string.collections_editor_filter_active_sources_placeholder)},
+  searchCatalogsPlaceholder: ${jsString(R.string.collections_editor_search_catalogs_placeholder)},
+  tmdbDefaultList: ${jsString(R.string.collections_editor_tmdb_default_list)},
+  tmdbDefaultProduction: ${jsString(R.string.collections_editor_tmdb_default_production)},
+  tmdbDefaultNetwork: ${jsString(R.string.collections_editor_tmdb_default_network)},
+  tmdbDefaultDiscover: ${jsString(R.string.collections_editor_tmdb_default_discover)},
+  tmdbMovieCollection: ${jsString(R.string.collections_editor_tmdb_movie_collection)},
+  tmdbModePresets: ${jsString(R.string.collections_editor_tmdb_mode_presets)},
+  tmdbModePublicList: ${jsString(R.string.collections_editor_tmdb_mode_public_list)},
+  tmdbModeProduction: ${jsString(R.string.collections_editor_tmdb_mode_production)},
+  tmdbModeNetwork: ${jsString(R.string.collections_editor_tmdb_mode_network)},
+  tmdbModePerson: ${jsString(R.string.collections_editor_tmdb_mode_person)},
+  tmdbModeDirector: ${jsString(R.string.collections_editor_tmdb_mode_director)},
+  tmdbModeCustom: ${jsString(R.string.collections_editor_tmdb_mode_custom)},
+  tmdbPersonCredits: ${jsString(R.string.collections_editor_tmdb_person_credits)},
+  tmdbDirectorCredits: ${jsString(R.string.collections_editor_tmdb_director_credits)},
+  tmdbPlaceholderList: ${jsString(R.string.collections_editor_tmdb_placeholder_list)},
+  tmdbPlaceholderCollection: ${jsString(R.string.collections_editor_tmdb_placeholder_collection)},
+  tmdbPlaceholderCompany: ${jsString(R.string.collections_editor_tmdb_placeholder_company)},
+  tmdbPlaceholderNetwork: ${jsString(R.string.collections_editor_tmdb_placeholder_network)},
+  tmdbPlaceholderPerson: ${jsString(R.string.collections_editor_tmdb_person_placeholder)},
+  traktIdPlaceholder: ${jsString(R.string.collections_editor_trakt_id_placeholder)},
+  traktNamePlaceholder: ${jsString(R.string.collection_editor_trakt_name_placeholder)},
+  sortOriginal: ${jsString(R.string.collections_editor_sort_original)},
+  sortListOrder: ${jsString(R.string.collections_editor_sort_list_order)},
+  sortRecentlyAdded: ${jsString(R.string.collections_editor_sort_recently_added)},
+  sortTitle: ${jsString(R.string.collections_editor_sort_title)},
+  sortReleased: ${jsString(R.string.collections_editor_sort_released)},
+  sortVotes: ${jsString(R.string.collections_editor_sort_votes)},
+  choiceBoth: ${jsString(R.string.collection_editor_choice_both)},
+  show: ${jsString(R.string.web_title_show)},
+  hide: ${jsString(R.string.web_title_hide)},
+  remove: ${jsString(R.string.web_btn_remove)},
+  sendToTop: ${jsString(R.string.web_order_send_to_top)},
+  sendToBottom: ${jsString(R.string.web_order_send_to_bottom)},
+  moveUp: ${jsString(R.string.cd_move_up)},
+  moveDown: ${jsString(R.string.cd_move_down)},
+  issueSingular: ${jsString(R.string.web_issue_singular)},
+  issuePlural: ${jsString(R.string.web_issue_plural)},
+  sourceSingular: ${jsString(R.string.web_source_singular)},
+  sourcePlural: ${jsString(R.string.web_source_plural)},
+  noSourcesAdded: ${jsString(R.string.web_no_sources_added)},
+  selectFileFirst: ${jsString(R.string.web_import_select_file_first)},
+  enterUrl: ${jsString(R.string.web_import_enter_url)},
+  failedFetchUrl: ${jsString(R.string.web_import_failed_fetch_url)},
+  noJsonProvided: ${jsString(R.string.web_import_no_json)},
+  expectedJsonArray: ${jsString(R.string.web_import_expected_array)},
+  emptyJsonArray: ${jsString(R.string.web_import_empty_array)},
+  invalidJson: ${jsString(R.string.web_import_invalid_json)},
+  importSuccess: ${jsString(R.string.web_import_success)},
+  importCollectionInvalidId: ${jsString(R.string.web_import_error_collection_invalid_id)},
+  importCollectionInvalidTitle: ${jsString(R.string.web_import_error_collection_invalid_title)},
+  importCollectionFoldersArray: ${jsString(R.string.web_import_error_collection_folders_array)},
+  importFolderInvalidFormat: ${jsString(R.string.web_import_error_folder_invalid_format)},
+  importFolderMissingId: ${jsString(R.string.web_import_error_folder_missing_id)},
+  importFolderMissingTitle: ${jsString(R.string.web_import_error_folder_missing_title)},
+  importSourcesArray: ${jsString(R.string.web_import_error_sources_array)},
+  importInvalidTileShape: ${jsString(R.string.web_import_error_invalid_tile_shape)},
+  importSourceInvalidFormat: ${jsString(R.string.web_import_error_source_invalid_format)},
+  importSourceMissingAddonFields: ${jsString(R.string.web_import_error_source_missing_addon_fields)},
+  importSourceMissingTmdbType: ${jsString(R.string.web_import_error_source_missing_tmdb_type)},
+  importSourceMissingTraktId: ${jsString(R.string.web_import_error_source_missing_trakt_id)},
+  errorValidTmdbId: ${jsString(R.string.collections_editor_error_valid_tmdb_id_or_url)},
+  errorLoadTmdbSource: ${jsString(R.string.collections_editor_error_load_tmdb_source)},
+  errorLoadTraktList: ${jsString(R.string.collections_editor_error_load_trakt_list)}
   };
 var connectionLost = false;
 var consecutiveErrors = 0;
@@ -1325,7 +1327,7 @@ var allowAddonManagement = ${allowAddonManagement.toString().lowercase()};
 var allowCatalogManagement = ${allowCatalogManagement.toString().lowercase()};
 var allowCollectionManagement = ${allowCollectionManagement.toString().lowercase()};
 var availableTabs = $availableTabsJs;
-var successStatusMessage = '${successStatusMessage.replace("'", "\\'")}';
+var successStatusMessage = ${PhoneWebEscaping.jsString(successStatusMessage)};
 var activeTab = '$defaultTab';
 
 function switchTab(tab) {
@@ -1477,17 +1479,17 @@ function tmdbSourceSubtitle(src) {
 }
 
 var EMOJI_CATEGORIES = [
-  {name:'${jsString(R.string.collections_editor_emoji_category_streaming)}', emojis:['🎬','🎭','🎥','📺','🍿','🎞️','📽️','🎦','📡','📻']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_genres)}', emojis:['💀','👻','🔪','💣','🚀','🛸','🧙','🦸','🧟','🤖','💘','😂','😱','🤯','🥺','😈']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_sports)}', emojis:['⚽','🏀','🏈','⚾','🎾','🏐','🏒','🥊','🏎️','🏆','🎯','🏋️']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_music)}', emojis:['🎵','🎶','🎤','🎸','🥁','🎹','🎷','🎺','🎻','🪗']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_nature)}', emojis:['🌍','🌊','🏔️','🌋','🌅','🌙','⭐','🔥','❄️','🌈','🌸','🍀']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_animals)}', emojis:['🐕','🐈','🦁','🐻','🦊','🐺','🦅','🐉','🦋','🐬','🦈','🐙']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_food)}', emojis:['🍕','🍔','🍣','🍜','🍩','🍰','🍷','🍺','☕','🧁','🌮','🥗']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_travel)}', emojis:['✈️','🚂','🚗','⛵','🏖️','🗼','🏰','🗽','🎡','🏕️','🌆','🛣️']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_people)}', emojis:['👨‍👩‍👧‍👦','👫','👶','🧒','👩','👨','🧓','💃','🕺','🥷','🧑‍🚀','🧑‍🎨']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_objects)}', emojis:['📱','💻','🎮','🕹️','📷','🔮','💡','🔑','💎','🎁','📚','✏️']},
-  {name:'${jsString(R.string.collections_editor_emoji_category_flags)}', emojis:[
+  {name:${jsString(R.string.collections_editor_emoji_category_streaming)}, emojis:['🎬','🎭','🎥','📺','🍿','🎞️','📽️','🎦','📡','📻']},
+  {name:${jsString(R.string.collections_editor_emoji_category_genres)}, emojis:['💀','👻','🔪','💣','🚀','🛸','🧙','🦸','🧟','🤖','💘','😂','😱','🤯','🥺','😈']},
+  {name:${jsString(R.string.collections_editor_emoji_category_sports)}, emojis:['⚽','🏀','🏈','⚾','🎾','🏐','🏒','🥊','🏎️','🏆','🎯','🏋️']},
+  {name:${jsString(R.string.collections_editor_emoji_category_music)}, emojis:['🎵','🎶','🎤','🎸','🥁','🎹','🎷','🎺','🎻','🪗']},
+  {name:${jsString(R.string.collections_editor_emoji_category_nature)}, emojis:['🌍','🌊','🏔️','🌋','🌅','🌙','⭐','🔥','❄️','🌈','🌸','🍀']},
+  {name:${jsString(R.string.collections_editor_emoji_category_animals)}, emojis:['🐕','🐈','🦁','🐻','🦊','🐺','🦅','🐉','🦋','🐬','🦈','🐙']},
+  {name:${jsString(R.string.collections_editor_emoji_category_food)}, emojis:['🍕','🍔','🍣','🍜','🍩','🍰','🍷','🍺','☕','🧁','🌮','🥗']},
+  {name:${jsString(R.string.collections_editor_emoji_category_travel)}, emojis:['✈️','🚂','🚗','⛵','🏖️','🗼','🏰','🗽','🎡','🏕️','🌆','🛣️']},
+  {name:${jsString(R.string.collections_editor_emoji_category_people)}, emojis:['👨‍👩‍👧‍👦','👫','👶','🧒','👩','👨','🧓','💃','🕺','🥷','🧑‍🚀','🧑‍🎨']},
+  {name:${jsString(R.string.collections_editor_emoji_category_objects)}, emojis:['📱','💻','🎮','🕹️','📷','🔮','💡','🔑','💎','🎁','📚','✏️']},
+  {name:${jsString(R.string.collections_editor_emoji_category_flags)}, emojis:[
     '🏳️‍🌈','🏴‍☠️',
     '🇦🇫','🇦🇱','🇩🇿','🇦🇸','🇦🇩','🇦🇴','🇦🇮','🇦🇬','🇦🇷','🇦🇲','🇦🇼','🇦🇺',
     '🇦🇹','🇦🇿','🇧🇸','🇧🇭','🇧🇩','🇧🇧','🇧🇾','🇧🇪','🇧🇿','🇧🇯','🇧🇲','🇧🇹',
@@ -1507,7 +1509,7 @@ var EMOJI_CATEGORIES = [
     '🇹🇭','🇹🇱','🇹🇬','🇹🇴','🇹🇹','🇹🇳','🇹🇷','🇹🇲','🇹🇻','🇺🇬','🇺🇦','🇦🇪',
     '🇬🇧','🇺🇸','🇺🇾','🇺🇿','🇻🇺','🇻🇪','🇻🇳','🇾🇪','🇿🇲','🇿🇼'
   ]},
-  {name:'${jsString(R.string.collections_editor_emoji_category_symbols)}', emojis:['❤️','💜','💙','💚','💛','🧡','🖤','🤍','✅','❌','⚡','💯']}
+  {name:${jsString(R.string.collections_editor_emoji_category_symbols)}, emojis:['❤️','💜','💙','💚','💛','🧡','🖤','🤍','✅','❌','⚡','💯']}
 ];
 
 var openEmojiPicker = null;
@@ -1668,13 +1670,13 @@ function renderAddons() {
       '</div>' +
       '<div class="addon-info">' +
         '<div class="addon-name">' + escapeHtml(addon.name || addon.url) +
-          (addon.isNew ? '<span class="badge-new">${context.getString(R.string.web_badge_new).replace("'", "\\'")}</span>' : '') +
+          (addon.isNew ? '<span class="badge-new">${jsHtml(R.string.web_badge_new)}</span>' : '') +
         '</div>' +
         (addon.description ? '<div class="addon-desc">' + escapeHtml(addon.description) + '</div>' : '') +
         '<div class="addon-url">' + escapeHtml(addon.url) + '</div>' +
       '</div>' +
       '<div class="addon-actions">' +
-        '<button class="btn btn-remove" onclick="removeAddon(' + i + ')">${context.getString(R.string.web_btn_remove).replace("'", "\\'")}</button>' +
+        '<button class="btn btn-remove" onclick="removeAddon(' + i + ')">${jsHtml(R.string.web_btn_remove)}</button>' +
       '</div>';
 
     list.appendChild(li);
@@ -1736,14 +1738,14 @@ function renderCatalogs() {
       '</div>' +
       '<div class="catalog-info">' +
         '<div class="catalog-name">' + escapeHtml(formatCatalogTitle(catalog.catalogName, catalog.type)) +
-          (isCollection ? '<span class="badge-collection">${context.getString(R.string.web_badge_collection).replace("'", "\\'")}</span>' : '') +
-          (catalog.isDisabled ? '<span class="badge-disabled">${context.getString(R.string.web_badge_disabled).replace("'", "\\'")}</span>' : '') +
+          (isCollection ? '<span class="badge-collection">${jsHtml(R.string.web_badge_collection)}</span>' : '') +
+          (catalog.isDisabled ? '<span class="badge-disabled">${jsHtml(R.string.web_badge_disabled)}</span>' : '') +
         '</div>' +
         '<div class="catalog-meta">' + escapeHtml(catalog.addonName) + '</div>' +
       '</div>' +
       '<div class="addon-actions">' +
         '<button class="' + toggleClass + '" onclick="toggleCatalog(' + i + ')">' +
-          (catalog.isDisabled ? '${context.getString(R.string.web_btn_enable).replace("'", "\\'")}' : '${context.getString(R.string.web_btn_disable).replace("'", "\\'")}') +
+          (catalog.isDisabled ? ${jsString(R.string.web_btn_enable)} : ${jsString(R.string.web_btn_disable)}) +
         '</button>' +
       '</div>';
 
@@ -1922,7 +1924,7 @@ async function addAddon() {
   url = url.replace(/\/+$/, '');
 
   if (addons.some(function(a) { return a.url === url; })) {
-    errorEl.textContent = '${context.getString(R.string.web_error_addon_exists).replace("'", "\\'")}';
+    errorEl.textContent = ${jsString(R.string.web_error_addon_exists)};
     errorEl.style.display = 'block';
     setTimeout(function() { errorEl.style.display = 'none'; }, 3000);
     return;
@@ -1972,7 +1974,7 @@ async function saveChanges() {
       saveBtn.disabled = false;
     }
   } catch (e) {
-    showErrorStatus('${context.getString(R.string.web_error_failed_save).replace("'", "\\'")}');
+    showErrorStatus(${jsString(R.string.web_error_failed_save)});
     saveBtn.disabled = false;
   }
 }
@@ -1982,8 +1984,8 @@ function showPendingStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="spinner"></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_waiting_tv).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_waiting_tv).replace("'", "\\'")}</div>';
+    '<div class="status-title">${jsHtml(R.string.web_status_waiting_tv)}</div>' +
+    '<div class="status-message">${jsHtml(R.string.web_status_msg_waiting_tv)}</div>';
   content.className = 'status-content';
   overlay.classList.add('visible');
 }
@@ -1992,7 +1994,7 @@ function showSuccessStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_changes_applied).replace("'", "\\'")}</div>' +
+    '<div class="status-title">${jsHtml(R.string.web_status_changes_applied)}</div>' +
     '<div class="status-message">' + escapeHtml(successStatusMessage) + '</div>';
   content.className = 'status-content status-success';
   setTimeout(dismissStatus, 2500);
@@ -2002,8 +2004,8 @@ function showRejectedStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_changes_rejected).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_changes_rejected).replace("'", "\\'")}</div>';
+    '<div class="status-title">${jsHtml(R.string.web_status_changes_rejected)}</div>' +
+    '<div class="status-message">${jsHtml(R.string.web_status_msg_changes_rejected)}</div>';
   content.className = 'status-content status-rejected';
   setTimeout(function() {
     addons = JSON.parse(JSON.stringify(originalAddons));
@@ -2022,9 +2024,9 @@ function showErrorStatus(msg) {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_error).replace("'", "\\'")}</div>' +
+    '<div class="status-title">${jsHtml(R.string.web_status_error)}</div>' +
     '<div class="status-message">' + escapeHtml(msg) + '</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${jsHtml(R.string.web_btn_dismiss)}</button></div>';
   content.className = 'status-content status-error';
   overlay.classList.add('visible');
 }
@@ -2033,9 +2035,9 @@ function showTimeoutStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_status_timeout).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_timeout).replace("'", "\\'")}</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-title">${jsHtml(R.string.web_status_timeout)}</div>' +
+    '<div class="status-message">${jsHtml(R.string.web_status_msg_timeout)}</div>' +
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${jsHtml(R.string.web_btn_dismiss)}</button></div>';
   content.className = 'status-content status-error';
 }
 
@@ -2043,9 +2045,9 @@ function showDisconnectedStatus() {
   var content = document.getElementById('statusContent');
   content.innerHTML =
     '<div class="status-icon"><div class="status-svg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(207,102,121,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg></div></div>' +
-    '<div class="status-title">${context.getString(R.string.web_connection_lost).replace("'", "\\'")}</div>' +
-    '<div class="status-message">${context.getString(R.string.web_status_msg_connection_lost).replace("'", "\\'")}</div>' +
-    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${context.getString(R.string.web_btn_dismiss).replace("'", "\\'")}</button></div>';
+    '<div class="status-title">${jsHtml(R.string.web_connection_lost)}</div>' +
+    '<div class="status-message">${jsHtml(R.string.web_status_msg_connection_lost)}</div>' +
+    '<div class="status-dismiss"><button class="btn" onclick="dismissStatus()">${jsHtml(R.string.web_btn_dismiss)}</button></div>';
   content.className = 'status-content status-error';
 }
 

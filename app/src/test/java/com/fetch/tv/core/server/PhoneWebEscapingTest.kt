@@ -24,7 +24,7 @@ class PhoneWebEscapingTest {
             "' onfocus='x" to "&#39; onfocus=&#39;x",
             "café ✓ 日本" to "café ✓ 日本",
         ).forEach { (input, expected) ->
-            assertEquals(input, expected, PhoneHubWebPage.escapeHtml(input))
+            assertEquals(input, expected, PhoneWebEscaping.escapeHtml(input))
         }
     }
 
@@ -38,24 +38,49 @@ class PhoneWebEscapingTest {
             "line\nbreak" to "\"line\\nbreak\"",
             "tab\there" to "\"tab\\there\"",
             "carriage\rreturn" to "\"carriage\\rreturn\"",
-            "</script><script>alert(1)</script>" to "\"<\\/script><script>alert(1)<\\/script>\"",
-            "</SCRIPT>" to "\"<\\/SCRIPT>\"",
+            "</script><script>alert(1)</script>" to "\"\\u003c/script>\\u003cscript>alert(1)\\u003c/script>\"",
+            "</SCRIPT>" to "\"\\u003c/SCRIPT>\"",
+            "<!--<script>" to "\"\\u003c!--\\u003cscript>\"",
             "it's" to "\"it's\"",
             "café ✓" to "\"café ✓\"",
         ).forEach { (input, expected) ->
-            assertEquals(input, expected, PhoneHubWebPage.jsString(input))
+            assertEquals(input, expected, PhoneWebEscaping.jsString(input))
         }
     }
 
     @Test
     fun `jsString never emits a closing tag sequence or a raw line break`() {
-        listOf("</", "</script>", "a</b", "x\n</script>\ny", "\u0000\u001f").forEach { input ->
-            val literal = PhoneHubWebPage.jsString(input)
-            assertFalse(input, literal.contains("</"))
+        listOf("</", "</script>", "a</b", "x\n</script>\ny", "<!--<script>", "\u0000\u001f").forEach { input ->
+            val literal = PhoneWebEscaping.jsString(input)
+            assertFalse(input, literal.contains('<'))
             assertFalse(input, literal.contains('\n'))
             assertFalse(input, literal.contains('\r'))
             assertTrue(input, literal.startsWith("\"") && literal.endsWith("\""))
         }
+    }
+
+    @Test
+    fun `jsStringContent is safe spliced into a single- or double-quoted literal`() {
+        listOf(
+            "plain" to "plain",
+            "it's" to "it\\'s",
+            "say \"hi\"" to "say \\\"hi\\\"",
+            "line\nbreak\rreturn" to "line\\nbreak\\rreturn",
+            "back\\slash" to "back\\\\slash",
+            "</script>" to "\\u003c/script>",
+        ).forEach { (input, expected) ->
+            assertEquals(input, expected, PhoneWebEscaping.jsStringContent(input))
+        }
+    }
+
+    @Test
+    fun `custom poster page puts its strings into script as escaped literals`() {
+        val page = CustomPosterWebPage.html(null)
+        val script = page.substringAfter("<script>").substringBefore("</script>")
+        assertTrue(script.contains("msg(\"Saved!\",true)"))
+        assertTrue(script.contains("textContent=\"No pattern set\""))
+        // The placeholder attribute escapes its ampersands.
+        assertTrue(page.contains("placeholder=\"https://example.com/poster?id={id}&amp;id_type={id_type}&amp;type={type}\""))
     }
 
     @Test

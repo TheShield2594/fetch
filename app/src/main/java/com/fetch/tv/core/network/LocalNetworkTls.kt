@@ -1,5 +1,6 @@
 package com.fetch.tv.core.network
 
+import android.annotation.SuppressLint
 import com.fetch.tv.core.server.PairingGuard
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -39,6 +40,12 @@ object LocalNetworkTls {
         return LOCAL_SUFFIXES.any { normalized.endsWith(it) }
     }
 
+    // Lint (CustomX509TrustManager): accepting any certificate is deliberate and bounded. This
+    // manager is only installed by [unverifiedClient], whose network interceptor refuses to send a
+    // request unless both the URL host and the address actually connected to are local. Public
+    // hosts always use the platform trust manager. Narrowing further (trust-on-first-use pinning
+    // per local server) would also stop a LAN device impersonating a known server; see #492.
+    @SuppressLint("CustomX509TrustManager")
     private val trustAllManager = object : X509TrustManager {
         override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
         override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit

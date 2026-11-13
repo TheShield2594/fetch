@@ -3,6 +3,8 @@ package com.fetch.tv.core.server
 import android.content.Context
 import android.content.res.Configuration
 import com.fetch.tv.R
+import com.fetch.tv.core.server.PhoneWebEscaping.escapeHtml
+import com.fetch.tv.core.server.PhoneWebEscaping.jsString
 import java.util.Locale
 
 internal object CustomPosterWebPage {
@@ -45,7 +47,7 @@ internal object CustomPosterWebPage {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>$appName - $pageTitle</title>
+<title>${escapeHtml(appName)} - ${escapeHtml(pageTitle)}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
@@ -81,17 +83,17 @@ color:rgba(255,255,255,0.5);word-break:break-all;max-height:60px;overflow:auto}
 </head>
 <body>
 <div class="card">
-  <h1>$pageTitle</h1>
-  <p class="subtitle">$pageSubtitle</p>
-  <label for="pattern">$labelPattern</label>
-  <textarea id="pattern" placeholder="${placeholder.replace("&", "&amp;")}" spellcheck="false"></textarea>
+  <h1>${escapeHtml(pageTitle)}</h1>
+  <p class="subtitle">${escapeHtml(pageSubtitle)}</p>
+  <label for="pattern">${escapeHtml(labelPattern)}</label>
+  <textarea id="pattern" placeholder="${escapeHtml(placeholder)}" spellcheck="false"></textarea>
   <div class="actions">
-    <button onclick="save()">$saveAction</button>
-    <button onclick="clear_()">$clearAction</button>
+    <button onclick="save()">${escapeHtml(saveAction)}</button>
+    <button onclick="clear_()">${escapeHtml(clearAction)}</button>
   </div>
   <div id="status" class="status"></div>
-  <div id="current" class="current empty">$loadingLabel</div>
-  <div class="info">$placeholdersInfo</div>
+  <div id="current" class="current empty">${escapeHtml(loadingLabel)}</div>
+  <div class="info">${escapeHtml(placeholdersInfo)}</div>
 </div>
 <script>
 const ${'$'}s=document.getElementById('status');
@@ -101,14 +103,14 @@ function msg(t,ok){${'$'}s.textContent=t;${'$'}s.className='status '+(ok?'ok':'e
 setTimeout(()=>{${'$'}s.textContent='';${'$'}s.className='status'},3000)}
 async function load(){try{const r=await fetch('/api/pattern');const d=await r.json();
 if(d.pattern){${'$'}t.value=d.pattern;${'$'}c.textContent=d.pattern;${'$'}c.classList.remove('empty')}
-else{${'$'}c.textContent='$noPatternLabel';${'$'}c.classList.add('empty')}}catch(e){${'$'}c.textContent='Error'}}
-async function save(){const p=${'$'}t.value.trim();if(!p){msg('$errorEmpty',false);return}
+else{${'$'}c.textContent=${jsString(noPatternLabel)};${'$'}c.classList.add('empty')}}catch(e){${'$'}c.textContent='Error'}}
+async function save(){const p=${'$'}t.value.trim();if(!p){msg(${jsString(errorEmpty)},false);return}
 try{const r=await fetch('/api/pattern',{method:'POST',headers:{'Content-Type':'application/json'},
-body:JSON.stringify({pattern:p})});if(r.ok){msg('$savedMsg',true);load()}else{msg('$errorSave',false)}}
-catch(e){msg('$errorConnection',false)}}
+body:JSON.stringify({pattern:p})});if(r.ok){msg(${jsString(savedMsg)},true);load()}else{msg(${jsString(errorSave)},false)}}
+catch(e){msg(${jsString(errorConnection)},false)}}
 async function clear_(){try{const r=await fetch('/api/clear',{method:'POST'});
-if(r.ok){msg('$clearedMsg',true);${'$'}t.value='';load()}else{msg('$errorClear',false)}}
-catch(e){msg('$errorConnection',false)}}
+if(r.ok){msg(${jsString(clearedMsg)},true);${'$'}t.value='';load()}else{msg(${jsString(errorClear)},false)}}
+catch(e){msg(${jsString(errorConnection)},false)}}
 load();
 </script>
 </body>

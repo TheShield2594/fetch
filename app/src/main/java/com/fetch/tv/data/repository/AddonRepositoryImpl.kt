@@ -1,5 +1,7 @@
 package com.fetch.tv.data.repository
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import android.content.Context
 import android.util.Log
 import androidx.core.content.edit
@@ -318,7 +320,7 @@ class AddonRepositoryImpl(
                 NetworkResult.Success(addon)
             }
             is NetworkResult.Error -> {
-                Log.w(TAG, "Failed to fetch addon manifest for url=$manifestUrl code=${result.code} message=${result.message}")
+                Log.w(TAG, "Failed to fetch addon manifest for url=${manifestUrl.hostOnlyUrlForLog()} code=${result.code} message=${result.message.redactUrlsForLog(manifestUrl)}")
                 result
             }
             NetworkResult.Loading -> NetworkResult.Loading

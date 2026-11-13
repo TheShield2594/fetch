@@ -63,7 +63,7 @@ class PairingGuard(
                     sessions += sessionId
                     return Decision.Paired(
                         cookie = "$COOKIE_NAME=$sessionId; Path=/; HttpOnly; SameSite=Strict",
-                        location = uri.ifBlank { "/" }
+                        location = safeRedirectPath(uri)
                     )
                 }
             }
@@ -134,6 +134,19 @@ class PairingGuard(
             if (bytes.size == 16 && (bytes[0].toInt() and 0xFE) == 0xFC) return true
             // Carrier-grade NAT range (100.64.0.0/10), used by some home and travel routers.
             return bytes.size == 4 && (bytes[0].toInt() and 0xFF) == 100 && (bytes[1].toInt() and 0xC0) == 64
+        }
+
+        /**
+         * Keeps the post-pairing redirect on this server: only a path starting with a single `/`
+         * is used. `//host` and `/\host` are treated by browsers as links to another host, so
+         * those (and anything else) fall back to `/`.
+         */
+        fun safeRedirectPath(uri: String): String {
+            val path = uri.trim()
+            if (!path.startsWith('/')) return "/"
+            if (path.length > 1 && (path[1] == '/' || path[1] == '\\')) return "/"
+            if (path.any { it.isISOControl() }) return "/"
+            return path
         }
 
         private fun constantTimeEquals(a: String, b: String): Boolean =

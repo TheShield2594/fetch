@@ -1,5 +1,7 @@
 package com.fetch.tv.data.repository
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import com.fetch.tv.core.addon.AddonUrls
 import com.fetch.tv.core.streams.AddonCallResult
 import com.fetch.tv.core.streams.AddonRequestGuard
@@ -436,7 +438,7 @@ class StreamRepositoryImpl @Inject constructor(
             is NetworkResult.Error -> {
                 Log.w(
                     TAG,
-                    "Streams failed addon=$addonName code=${result.code} message=${result.message} url=$streamUrl"
+                    "Streams failed addon=$addonName code=${result.code} message=${result.message.redactUrlsForLog(streamUrl)} url=${streamUrl.hostOnlyUrlForLog()}"
                 )
                 result
             }

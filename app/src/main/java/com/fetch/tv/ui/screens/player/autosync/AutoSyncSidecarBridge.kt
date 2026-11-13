@@ -2,6 +2,8 @@
 
 package com.fetch.tv.ui.screens.player.autosync
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import android.util.Log
 import androidx.media3.common.C
 import androidx.media3.extractor.text.CuesWithTiming
@@ -86,7 +88,7 @@ internal suspend fun replaceAutoSyncSidecarSubtitle(
             parseSidecarTimedCuesRobust(body, url).cues
         }
         if (parsed.isEmpty()) {
-            Log.w(TAG, "replacement parse empty url=$url; keeping $expectedCurrentUrl")
+            Log.w(TAG, "replacement parse empty url=${url.hostOnlyUrlForLog()}; keeping ${expectedCurrentUrl.hostOnlyUrlForLog()}")
             return false
         }
 
@@ -99,8 +101,8 @@ internal suspend fun replaceAutoSyncSidecarSubtitle(
     } catch (error: Exception) {
         Log.w(
             TAG,
-            "replacement preparation failed url=$url: ${error.message}; " +
-                "keeping $expectedCurrentUrl",
+            "replacement preparation failed url=${url.hostOnlyUrlForLog()}: ${error.message.redactUrlsForLog(url, expectedCurrentUrl)}; " +
+                "keeping ${expectedCurrentUrl.hostOnlyUrlForLog()}",
         )
         return false
     }

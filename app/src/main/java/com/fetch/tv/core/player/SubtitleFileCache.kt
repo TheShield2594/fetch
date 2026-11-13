@@ -1,5 +1,6 @@
 package com.fetch.tv.core.player
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -115,7 +116,7 @@ class SubtitleFileCache @Inject constructor(
             call.timeout().timeout(PER_FILE_TIMEOUT_MS, TimeUnit.MILLISECONDS)
             call.execute().use { response ->
                 if (!response.isSuccessful) {
-                    Log.w(TAG, "HTTP ${response.code} downloading subtitle: ${input.url}")
+                    Log.w(TAG, "HTTP ${response.code} downloading subtitle: ${input.url.hostOnlyUrlForLog()}")
                     return null
                 }
 
@@ -123,12 +124,12 @@ class SubtitleFileCache @Inject constructor(
                 // Reject oversized bodies before buffering them: subtitles are small, and an
                 // unbounded read across parallel downloads could exhaust the heap.
                 if (body.contentLength() > MAX_SUBTITLE_BYTES) {
-                    Log.w(TAG, "Skipping oversized subtitle (${body.contentLength()} bytes): ${input.url}")
+                    Log.w(TAG, "Skipping oversized subtitle (${body.contentLength()} bytes): ${input.url.hostOnlyUrlForLog()}")
                     return null
                 }
                 val source = body.source()
                 if (source.request(MAX_SUBTITLE_BYTES + 1)) {
-                    Log.w(TAG, "Skipping oversized subtitle (> $MAX_SUBTITLE_BYTES bytes): ${input.url}")
+                    Log.w(TAG, "Skipping oversized subtitle (> $MAX_SUBTITLE_BYTES bytes): ${input.url.hostOnlyUrlForLog()}")
                     return null
                 }
                 val bodyBytes = source.buffer.readByteArray()
@@ -144,7 +145,7 @@ class SubtitleFileCache @Inject constructor(
                 file
             )
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to download subtitle file: ${input.url}", e)
+            Log.w(TAG, "Failed to download subtitle file: ${input.url.hostOnlyUrlForLog()}", e)
             file.delete()
             null
         }

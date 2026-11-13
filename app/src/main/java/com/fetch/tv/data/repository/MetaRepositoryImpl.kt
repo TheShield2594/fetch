@@ -1,5 +1,7 @@
 package com.fetch.tv.data.repository
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.core.addon.AddonUrls
@@ -234,7 +236,7 @@ class MetaRepositoryImpl @Inject constructor(
                 Log.w(
                     TAG,
                     "Addon unresolved (not installed, disabled, or URL not matched), " +
-                        "requesting as-is url=$addonBaseUrl type=$requestedType id=$id"
+                        "requesting as-is url=${addonBaseUrl.hostOnlyUrlForLog()} type=$requestedType id=$id"
                 )
             } else {
                 Log.w(
@@ -269,7 +271,7 @@ class MetaRepositoryImpl @Inject constructor(
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.w(TAG, "getMeta failed for $url: ${e.message}")
+                    Log.w(TAG, "getMeta failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url, addonBaseUrl)}")
                     null
                 } finally {
                     inFlightMeta.remove(cacheKey)
@@ -605,7 +607,7 @@ class MetaRepositoryImpl @Inject constructor(
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.w(TAG, "Primary meta fetch failed for $url: ${e.message}")
+                    Log.w(TAG, "Primary meta fetch failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url, addon.baseUrl)}")
                     null
                 } finally {
                     inFlightPrimaryMeta.remove(cacheKey)

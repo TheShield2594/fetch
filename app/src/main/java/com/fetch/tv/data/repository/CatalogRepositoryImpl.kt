@@ -1,6 +1,7 @@
 package com.fetch.tv.data.repository
 
 import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.core.addon.AddonUrls
@@ -180,7 +181,7 @@ class CatalogRepositoryImpl @Inject constructor(
             is NetworkResult.Error -> {
                 Log.w(
                     TAG,
-                    "Catalog fetch failed addonId=$addonId type=$type catalogId=$catalogId code=${result.code} message=${result.message} url=${url.hostOnlyUrlForLog()}"
+                    "Catalog fetch failed addonId=$addonId type=$type catalogId=$catalogId code=${result.code} message=${result.message.redactUrlsForLog(url)} url=${url.hostOnlyUrlForLog()}"
                 )
                 // Offline or failing: the cached row already on screen is better than an error.
                 if (cachedRow == null) {

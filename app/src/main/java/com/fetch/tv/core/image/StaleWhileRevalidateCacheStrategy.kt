@@ -1,6 +1,7 @@
 package com.fetch.tv.core.image
 
 import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import android.util.Log
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
@@ -155,7 +156,7 @@ class StaleWhileRevalidateCacheStrategy(
                 }
             } catch (e: Exception) {
                 if (e !is kotlinx.coroutines.CancellationException) {
-                    Log.w(TAG, "Revalidation error: ${url.hostOnlyUrlForLog()} - ${e.message}")
+                    Log.w(TAG, "Revalidation error: ${url.hostOnlyUrlForLog()} - ${e.message.redactUrlsForLog(url)}")
                 }
             } finally {
                 revalidatingUrls.remove(url)

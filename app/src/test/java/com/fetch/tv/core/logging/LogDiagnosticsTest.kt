@@ -62,4 +62,31 @@ class LogDiagnosticsTest {
         assertEquals("(null)", (null as String?).hostOnlyUrlForLog())
         assertEquals("(empty)", "".hostOnlyUrlForLog())
     }
+
+    @Test
+    fun `hostOnlyUrlForLog needs a leading scheme and stops the host at a backslash`() {
+        val nested = "torrentio.example/realdebrid=SECRETKEY/manifest.json?next=https://example.org"
+        val logged = nested.hostOnlyUrlForLog()
+        assertTrue(logged, logged.startsWith("(no host)/…"))
+        assertFalse(logged.contains("SECRETKEY"))
+
+        val backslash = "https://example.com\\provider-key/sub.srt".hostOnlyUrlForLog()
+        assertTrue(backslash, backslash.startsWith("https://example.com/…"))
+        assertFalse(backslash.contains("provider-key"))
+    }
+
+    @Test
+    fun `redactUrlsForLog removes known and embedded urls from messages`() {
+        val manifest = "torrentio.example/realdebrid=SECRETKEY/manifest.json"
+        val malformed = "Malformed URL. Base: https://base.example/, Relative: $manifest".redactUrlsForLog(manifest)!!
+        assertFalse(malformed, malformed.contains("SECRETKEY"))
+        assertTrue(malformed, malformed.startsWith("Malformed URL. Base: https://base.example/…[len="))
+
+        val timeout = "Request to https://addon.example/KEY123/manifest.json timed out".redactUrlsForLog()!!
+        assertFalse(timeout, timeout.contains("KEY123"))
+        assertTrue(timeout, timeout.contains("https://addon.example/…[len=") && timeout.endsWith(" timed out"))
+
+        assertEquals("plain failure", "plain failure".redactUrlsForLog("https://a.example/x"))
+        assertEquals(null, (null as String?).redactUrlsForLog())
+    }
 }

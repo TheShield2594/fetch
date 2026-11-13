@@ -36,18 +36,41 @@ fun String?.urlForLog(): String {
 fun String?.hostOnlyUrlForLog(): String {
     val value = this ?: return "(null)"
     if (value.isEmpty()) return "(empty)"
-    val schemeEnd = value.indexOf("://")
-    val origin = if (schemeEnd > 0) {
-        val authorityStart = schemeEnd + 3
-        val authorityEnd = value.indexOfAny(charArrayOf('/', '?', '#'), authorityStart).let { if (it < 0) value.length else it }
+    // Only a scheme at the very start counts: indexOf("://") alone would find a URL nested in the
+    // query of a scheme-less value and keep everything before it, path secrets included.
+    val scheme = LEADING_SCHEME.find(value)
+    val origin = if (scheme != null) {
+        val authorityStart = scheme.range.last + 1
+        // OkHttp also ends the authority at a backslash.
+        val authorityEnd = value.indexOfAny(AUTHORITY_END, authorityStart).let { if (it < 0) value.length else it }
         // Drop any user-info (user:password@) from the authority.
         val host = value.substring(authorityStart, authorityEnd).substringAfterLast('@')
-        "${value.substring(0, schemeEnd)}://$host"
+        "${scheme.groupValues[1]}://$host"
     } else {
         "(no host)"
     }
     return "$origin/…[${value.rawForLog()}]"
 }
+
+/**
+ * Makes free text such as an exception message safe to log: each of [urls] that appears in it
+ * (even without a scheme, as Retrofit's "Malformed URL" message shows it) and any other
+ * `scheme://…` token is replaced by its [hostOnlyUrlForLog] form.
+ */
+fun String?.redactUrlsForLog(vararg urls: String?): String? {
+    var text = this ?: return null
+    urls.filterNotNull().filter { it.isNotEmpty() }.sortedByDescending { it.length }.forEach { url ->
+        text = text.replace(url, url.hostOnlyUrlForLog())
+    }
+    return URL_IN_TEXT.replace(text) { match ->
+        // Leave tokens the step above already reduced.
+        if (match.value.contains("/…[len=")) match.value else match.value.hostOnlyUrlForLog()
+    }
+}
+
+private val LEADING_SCHEME = Regex("""^([A-Za-z][A-Za-z0-9+.-]*)://""")
+private val AUTHORITY_END = charArrayOf('/', '\\', '?', '#')
+private val URL_IN_TEXT = Regex("""[A-Za-z][A-Za-z0-9+.-]*://[^\s"'<>]+""")
 
 fun String?.bodySnippetForLog(maxLength: Int = Int.MAX_VALUE): String {
     val value = this ?: return "(null)"

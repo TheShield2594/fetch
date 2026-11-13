@@ -24,8 +24,12 @@ internal object PhoneWebEscaping {
         }
     }
 
-    /** A complete, double-quoted JS string literal that is also safe inside a `<script>` element. */
-    fun jsString(value: String): String = JsonPrimitive(value).toString().replace("</", "<\\/")
+    /**
+     * A complete, double-quoted JS string literal that is also safe inside a `<script>` element.
+     * Every `<` is written as `\u003c`: escaping only `</` would leave `<!--<script>` able to
+     * switch the HTML parser into the double-escaped script state.
+     */
+    fun jsString(value: String): String = JsonPrimitive(value).toString().replace("<", "\\u003c")
 
     /**
      * The inside of a JS string literal, for text spliced into a literal the page already opens

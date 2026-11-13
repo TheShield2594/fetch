@@ -1,6 +1,7 @@
 package com.fetch.tv.data.repository
 
 import com.fetch.tv.core.logging.hostOnlyUrlForLog
+import com.fetch.tv.core.logging.redactUrlsForLog
 import android.content.Context
 import android.util.Log
 import com.fetch.tv.core.addon.AddonUrls
@@ -270,7 +271,7 @@ class MetaRepositoryImpl @Inject constructor(
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.w(TAG, "getMeta failed for ${url.hostOnlyUrlForLog()}: ${e.message}")
+                    Log.w(TAG, "getMeta failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url)}")
                     null
                 } finally {
                     inFlightMeta.remove(cacheKey)
@@ -606,7 +607,7 @@ class MetaRepositoryImpl @Inject constructor(
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.w(TAG, "Primary meta fetch failed for ${url.hostOnlyUrlForLog()}: ${e.message}")
+                    Log.w(TAG, "Primary meta fetch failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url)}")
                     null
                 } finally {
                     inFlightPrimaryMeta.remove(cacheKey)

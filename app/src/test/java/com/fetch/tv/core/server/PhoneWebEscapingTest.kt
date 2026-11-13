@@ -38,8 +38,9 @@ class PhoneWebEscapingTest {
             "line\nbreak" to "\"line\\nbreak\"",
             "tab\there" to "\"tab\\there\"",
             "carriage\rreturn" to "\"carriage\\rreturn\"",
-            "</script><script>alert(1)</script>" to "\"<\\/script><script>alert(1)<\\/script>\"",
-            "</SCRIPT>" to "\"<\\/SCRIPT>\"",
+            "</script><script>alert(1)</script>" to "\"\\u003c/script>\\u003cscript>alert(1)\\u003c/script>\"",
+            "</SCRIPT>" to "\"\\u003c/SCRIPT>\"",
+            "<!--<script>" to "\"\\u003c!--\\u003cscript>\"",
             "it's" to "\"it's\"",
             "café ✓" to "\"café ✓\"",
         ).forEach { (input, expected) ->
@@ -49,9 +50,9 @@ class PhoneWebEscapingTest {
 
     @Test
     fun `jsString never emits a closing tag sequence or a raw line break`() {
-        listOf("</", "</script>", "a</b", "x\n</script>\ny", "\u0000\u001f").forEach { input ->
+        listOf("</", "</script>", "a</b", "x\n</script>\ny", "<!--<script>", "\u0000\u001f").forEach { input ->
             val literal = PhoneWebEscaping.jsString(input)
-            assertFalse(input, literal.contains("</"))
+            assertFalse(input, literal.contains('<'))
             assertFalse(input, literal.contains('\n'))
             assertFalse(input, literal.contains('\r'))
             assertTrue(input, literal.startsWith("\"") && literal.endsWith("\""))
@@ -66,7 +67,7 @@ class PhoneWebEscapingTest {
             "say \"hi\"" to "say \\\"hi\\\"",
             "line\nbreak\rreturn" to "line\\nbreak\\rreturn",
             "back\\slash" to "back\\\\slash",
-            "</script>" to "<\\/script>",
+            "</script>" to "\\u003c/script>",
         ).forEach { (input, expected) ->
             assertEquals(input, expected, PhoneWebEscaping.jsStringContent(input))
         }

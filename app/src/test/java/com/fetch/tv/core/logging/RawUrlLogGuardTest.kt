@@ -55,17 +55,75 @@ class RawUrlLogGuardTest {
         }
     }
 
-    /** Text from [start] up to the parenthesis that closes the call, ignoring nesting. */
+    @Test
+    fun `the scanner reads past parentheses inside strings and comments`() {
+        val source = """Log.w(TAG, "Failed ) (" /* ) */ + "${'$'}{x.size})" + ${'$'}manifestUrl) // ) trailing"""
+        val args = callArguments(source, source.indexOf('(') + 1)
+        assertTrue(args, args.endsWith("${'$'}manifestUrl"))
+        assertTrue(rawUrlExpression.matches("manifestUrl"))
+
+        val raw = "Log.e(TAG, \"\"\"a ) \"b\" \$url\"\"\")"
+        assertTrue(callArguments(raw, raw.indexOf('(') + 1).contains("${'$'}url"))
+    }
+
+    /**
+     * Text from [start] up to the parenthesis that closes the call. Parentheses inside string and
+     * char literals and comments are skipped; `${'$'}{…}` templates inside strings are read as code.
+     */
     private fun callArguments(text: String, start: Int): String {
-        var depth = 1
-        var i = start
-        while (i < text.length && depth > 0) {
-            when (text[i]) {
-                '(' -> depth++
-                ')' -> depth--
+        val end = skipCode(text, start)
+        return text.substring(start, (end - 1).coerceIn(start, text.length))
+    }
+
+    /** Index just past the bracket that closes the code starting at [from]. */
+    private fun skipCode(text: String, from: Int): Int {
+        var i = from
+        var depth = 0
+        while (i < text.length) {
+            val c = text[i]
+            when {
+                text.startsWith("//", i) -> i = text.indexOf('\n', i).let { if (it < 0) text.length else it }
+                text.startsWith("/*", i) -> i = text.indexOf("*/", i + 2).let { if (it < 0) text.length else it + 2 }
+                c == '"' -> i = skipString(text, i)
+                c == '\'' -> i = skipCharLiteral(text, i)
+                c == '(' || c == '{' || c == '[' -> { depth++; i++ }
+                c == ')' || c == '}' || c == ']' -> {
+                    if (depth == 0) return i + 1
+                    depth--
+                    i++
+                }
+                else -> i++
             }
-            i++
         }
-        return text.substring(start, (i - 1).coerceAtLeast(start))
+        return text.length
+    }
+
+    /** Index just past the string literal opening at [from] (plain or raw). */
+    private fun skipString(text: String, from: Int): Int {
+        val raw = text.startsWith("\"\"\"", from)
+        var i = from + if (raw) 3 else 1
+        while (i < text.length) {
+            when {
+                raw && text.startsWith("\"\"\"", i) -> {
+                    // A raw string may end with extra quotes ("""a"""").
+                    i += 3
+                    while (i < text.length && text[i] == '"') i++
+                    return i
+                }
+                !raw && text[i] == '"' -> return i + 1
+                !raw && text[i] == '\\' -> i += 2
+                text.startsWith("${'$'}{", i) -> i = skipCode(text, i + 2)
+                else -> i++
+            }
+        }
+        return text.length
+    }
+
+    private fun skipCharLiteral(text: String, from: Int): Int {
+        var i = from + 1
+        if (i < text.length && text[i] == '\\') i += 2 else i++
+        // Unicode escapes ('\u0041') are longer; run to the closing quote.
+        while (i < text.length && text[i] != '\'') i++
+        return (i + 1).coerceAtMost(text.length)
     }
 }

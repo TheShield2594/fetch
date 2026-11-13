@@ -241,17 +241,21 @@ class TrackingState(
     // --- Watched history ---
 
     /** Marks [target] (a movie or one episode) watched or unwatched on every connected service and the Fetch website. */
-    fun setWatched(target: PlaybackTarget, watched: Boolean) {
-        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.setWatched(target, watched) } }
-        website()?.takeIf { it.paired }?.let { tracker -> scope.launch { tracker.setWatched(target, watched) } }
+    /**
+     * Marks [target] watched or unwatched on every connected service, watched at [time] or now.
+     * Only the Fetch website can record an unknown date; the others get [WatchTime.atMs] as given.
+     */
+    fun setWatched(target: PlaybackTarget, watched: Boolean, time: WatchTime? = null) {
+        mdbList()?.takeIf { it.connected }?.let { tracker -> scope.launch { tracker.setWatched(target, watched, time?.atMs) } }
+        website()?.takeIf { it.paired }?.let { tracker -> scope.launch { tracker.setWatched(target, watched, time) } }
         val item = trackedItem(target) ?: return
         connected.forEach { service ->
             scope.launch {
                 runCatching {
                     withTokens(service) { tokens ->
                         when (service) {
-                            TrackingService.TRAKT -> if (watched) trakt.addToHistory(tokens, item) else trakt.removeFromHistory(tokens, item)
-                            TrackingService.SIMKL -> if (watched) simkl.addToHistory(tokens, item) else simkl.removeFromHistory(tokens, item)
+                            TrackingService.TRAKT -> if (watched) trakt.addToHistory(tokens, item, time?.atMs) else trakt.removeFromHistory(tokens, item)
+                            TrackingService.SIMKL -> if (watched) simkl.addToHistory(tokens, item, time?.atMs) else simkl.removeFromHistory(tokens, item)
                         }
                     }
                 }
@@ -403,3 +407,6 @@ class TrackingState(
         )
     }
 }
+
+/** When a hand-marked watch happened ("Mark as watched on…"); without one it is now. */
+data class WatchTime(val atMs: Long, val dateUnknown: Boolean = false)

@@ -461,9 +461,9 @@ class MdbListTracker(
         quietly { account.withAuth { auth -> client.scrobble(auth, action, item, percent.toDouble()) } }
     }
 
-    suspend fun setWatched(target: PlaybackTarget, watched: Boolean) {
+    suspend fun setWatched(target: PlaybackTarget, watched: Boolean, atMs: Long? = null) {
         val item = MdbListTarget.of(target) ?: return
-        quietly { account.withAuth { auth -> client.setWatched(auth, listOf(item), watched) } }
+        quietly { account.withAuth { auth -> client.setWatched(auth, listOf(item), watched, atMs ?: System.currentTimeMillis()) } }
     }
 
     /** Drops [entry]'s resume point on MDBList (Remove from Continue Watching). */

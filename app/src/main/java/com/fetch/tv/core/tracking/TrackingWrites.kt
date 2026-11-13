@@ -26,7 +26,13 @@ enum class TrackingListStatus(val wireValue: String) {
 
 data class TrackingHistoryItem(
     val media: TrackingMediaReference,
-    val watchedAtEpochMs: Long? = null
+    val watchedAtEpochMs: Long? = null,
+    /**
+     * The viewer doesn't know when they watched it. [watchedAtEpochMs] is then only an ordering
+     * time; the Fetch website records the flag, other providers have no way to say it and get the
+     * time as given.
+     */
+    val dateUnknown: Boolean = false
 ) {
     /**
      * Whether this mark describes a whole series rather than something that was watched.

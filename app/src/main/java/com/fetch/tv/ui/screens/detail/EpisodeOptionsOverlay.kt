@@ -102,6 +102,8 @@ internal fun EpisodeOptionsOverlay(
     onPlayManually: () -> Unit = {},
     showPlayManually: Boolean = false,
     onToggleWatched: () -> Unit,
+    /** "Mark as watched on…", beside plain "Mark as watched" while the episode is unwatched. */
+    onMarkWatchedOn: () -> Unit = {},
     onMarkSeasonWatched: () -> Unit = {},
     onMarkSeasonUnwatched: () -> Unit = {},
     onMarkPreviousEpisodesWatched: () -> Unit = {},
@@ -217,6 +219,15 @@ internal fun EpisodeOptionsOverlay(
                     onClick = onToggleWatched
                 )
             )
+            if (!isWatched) {
+                add(
+                    EpisodeOverlayAction(
+                        label = stringResource(R.string.episodes_mark_watched_on),
+                        enabled = !isPending,
+                        onClick = onMarkWatchedOn
+                    )
+                )
+            }
             add(
                 EpisodeOverlayAction(
                     label = if (isSeasonFullyWatched) {

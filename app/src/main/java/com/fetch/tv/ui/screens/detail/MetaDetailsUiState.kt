@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.core.util.WatchedWhen
 import com.fetch.tv.core.tracking.TrackingMembershipRemovalConfirmation
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
 import com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle
@@ -124,6 +125,8 @@ sealed class MetaDetailsEvent {
     data class OnMarkSeasonUnwatched(val season: Int) : MetaDetailsEvent()
     data class OnMarkPreviousEpisodesWatched(val video: Video) : MetaDetailsEvent()
     data class OnMarkPreviousSeasonsWatched(val season: Int) : MetaDetailsEvent()
+    /** "Mark watched on…": [target] logged at [whenWatched] rather than now. */
+    data class OnMarkWatchedOn(val target: WatchedOnTarget, val whenWatched: WatchedWhen) : MetaDetailsEvent()
     data object OnLibraryLongPress : MetaDetailsEvent()
     data class OnPickerMembershipToggled(val listKey: String) : MetaDetailsEvent()
     data object OnPickerSave : MetaDetailsEvent()

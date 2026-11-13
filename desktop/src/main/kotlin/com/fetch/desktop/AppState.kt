@@ -1438,7 +1438,14 @@ class AppState(
      * Marks [videos] of [preview] (or the movie itself when empty) watched or unwatched here, on
      * Trakt and Simkl, as the TV's "Mark as watched" does.
      */
-    fun setWatched(preview: MetaPreview, videos: List<Video>, watched: Boolean, episodes: List<Video> = detailMeta?.takeIf { it.id == preview.id }?.videos.orEmpty()) {
+    fun setWatched(
+        preview: MetaPreview,
+        videos: List<Video>,
+        watched: Boolean,
+        episodes: List<Video> = detailMeta?.takeIf { it.id == preview.id }?.videos.orEmpty(),
+        /** "Mark as watched on…": when, instead of now. Only used for marking watched. */
+        whenWatched: com.fetch.tv.core.util.WatchedWhen? = null
+    ) {
         val base = PlaybackTarget(
             contentId = preview.id,
             contentType = preview.apiType,
@@ -1453,8 +1460,20 @@ class AppState(
         val ids = targets.map { it.videoId }
         val changed = ids.filter { (it in watchedSet) != watched }
         if (changed.isEmpty()) return
-        saveProgress(WatchHistory.setWatched(progress, base, ids, watched, System.currentTimeMillis()))
-        targets.filter { it.videoId in changed }.forEach { tracking.setWatched(it, watched) }
+        val now = System.currentTimeMillis()
+        saveProgress(WatchHistory.setWatched(progress, base, ids, watched, now))
+        // Each one at its own time where that is its release date: the episode's air date, or
+        // the film's (which only the open detail page has).
+        val movieReleased = detailMeta?.takeIf { it.id == preview.id }?.released
+        targets.filter { it.videoId in changed }.forEach { target ->
+            val time = whenWatched?.takeIf { watched }?.let { choice ->
+                WatchTime(
+                    atMs = com.fetch.tv.core.util.watchedAtFor(choice, target.video?.released ?: movieReleased, now),
+                    dateUnknown = choice == com.fetch.tv.core.util.WatchedWhen.Unknown
+                )
+            }
+            tracking.setWatched(target, watched, time)
+        }
         message = when {
             videos.size > 1 -> "Marked ${videos.size} episodes ${if (watched) "watched" else "unwatched"}"
             videos.size == 1 -> "Marked ${episodeTag(videos[0].season, videos[0].episode) ?: "episode"} ${if (watched) "watched" else "unwatched"}"

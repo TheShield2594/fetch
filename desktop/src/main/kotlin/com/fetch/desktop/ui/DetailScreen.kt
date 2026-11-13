@@ -94,6 +94,8 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
     val isSeries = preview.type == ContentType.SERIES ||
         (meta?.videos?.any { it.season != null } == true && preview.type != ContentType.MOVIE)
     val listState = rememberLazyListState()
+    // "Mark as watched on…", while its dialog is open.
+    var watchedOn by remember { mutableStateOf<WatchedOnRequest?>(null) }
 
     // A rating limit blocks the title, as on TV.
     if (!state.detailLoading && !state.allowed(meta, preview)) {
@@ -156,6 +158,15 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                             if (isSeries) state.setWatched(preview, meta?.videos.orEmpty().filter { (it.season ?: 0) > 0 && com.fetch.desktop.isAired(it) }, on)
                             else state.setWatched(preview, emptyList(), on)
                         },
+                        onWatchedOn = if (isSeries) null else {
+                            {
+                                watchedOn = WatchedOnRequest(
+                                    title = tr("When did you watch %1\$s?", meta?.name ?: preview.name),
+                                    releaseDateAvailable = com.fetch.tv.core.util.releaseWatchedAt(meta?.released ?: preview.released, System.currentTimeMillis()) != null,
+                                    isSeason = false
+                                ) { choice -> state.setWatched(preview, emptyList(), true, whenWatched = choice) }
+                            }
+                        },
                         minHeight = heroMinHeight,
                         extraActions = {
                             QueueDetailButton(state, preview)
@@ -202,6 +213,15 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                                         })
                                         queueMenuItem(state, preview, video)?.let(::add)
                                         add(ContextMenuItem(if (watched) tr("Mark as unwatched") else tr("Mark as watched")) { state.setWatched(preview, listOf(video), !watched) })
+                                        if (!watched) {
+                                            add(ContextMenuItem(tr("Mark as watched on…")) {
+                                                watchedOn = WatchedOnRequest(
+                                                    title = tr("When did you watch S%1\$s E%2\$s?", video.season ?: 0, video.episode ?: 0),
+                                                    releaseDateAvailable = com.fetch.tv.core.util.releaseWatchedAt(video.released, System.currentTimeMillis()) != null,
+                                                    isSeason = false
+                                                ) { choice -> state.setWatched(preview, listOf(video), true, whenWatched = choice) }
+                                            })
+                                        }
                                         val before = com.fetch.desktop.data.WatchHistory.episodesBefore(videos, video)
                                         if (before.any { !state.isWatched(it.id) }) {
                                             add(ContextMenuItem(tr("Mark previous episodes as watched")) { state.setWatched(preview, before, true) })
@@ -211,6 +231,15 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
                                             add(ContextMenuItem(if (seasonWatched) "Mark season ${video.season} as unwatched" else "Mark season ${video.season} as watched") {
                                                 state.setWatched(preview, season, !seasonWatched)
                                             })
+                                            if (!seasonWatched) {
+                                                add(ContextMenuItem("Mark season ${video.season} as watched on…") {
+                                                    watchedOn = WatchedOnRequest(
+                                                        title = tr("When did you watch season %1\$s?", video.season),
+                                                        releaseDateAvailable = true,
+                                                        isSeason = true
+                                                    ) { choice -> state.setWatched(preview, season, true, whenWatched = choice) }
+                                                })
+                                            }
                                         }
                                     }
                                 }
@@ -301,6 +330,7 @@ fun DetailScreen(state: AppState, preview: MetaPreview) {
             }
         }
     }
+    watchedOn?.let { request -> WatchedOnDialog(request, onDismiss = { watchedOn = null }) }
     }
 }
 
@@ -324,6 +354,8 @@ private fun Hero(
     onManageLists: () -> Unit,
     watched: Boolean,
     onToggleWatched: (Boolean) -> Unit,
+    /** "Watched on…" beside "Mark watched", for an unwatched film; null leaves it out. */
+    onWatchedOn: (() -> Unit)? = null,
     tmdbRating: Float?,
     minHeight: Dp,
     /** MDBList's ratings (Settings › MDBList), in [mdbListOrder]; they replace the addon's IMDb badge, as on TV. */
@@ -425,6 +457,9 @@ private fun Hero(
                     onClick = { onToggleWatched(!watched) },
                     icon = if (watched) FetchIcons.Check else null
                 )
+            }
+            if (!watched && onWatchedOn != null) {
+                SecondaryButton("Watched on…", onClick = onWatchedOn)
             }
             val trailer = meta?.trailerYtIds?.firstOrNull() ?: preview.trailerYtIds.firstOrNull()
             if (trailer != null && layout.detailTrailerButton) {

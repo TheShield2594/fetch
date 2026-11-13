@@ -156,6 +156,17 @@ interface WatchProgressRepository {
     suspend fun markAsCompletedBatch(progressList: List<WatchProgress>)
 
     /**
+     * Marks [progressList] completed at the times [watchedAt] gives, instead of now — for a watch
+     * logged after the fact ("Mark watched on…"). [dateUnknown] records that the viewer doesn't
+     * know when; the times are then only used to order the history.
+     */
+    suspend fun markAsCompletedAt(
+        progressList: List<WatchProgress>,
+        watchedAt: (WatchProgress) -> Long,
+        dateUnknown: Boolean = false
+    ) = markAsCompletedBatch(progressList)
+
+    /**
      * Remove multiple episodes from history in a single batch operation.
      */
     suspend fun removeFromHistoryBatch(

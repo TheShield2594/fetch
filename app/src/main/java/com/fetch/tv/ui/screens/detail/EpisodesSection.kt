@@ -397,6 +397,8 @@ fun EpisodesRow(
     onEpisodeManualPlayClick: (Video) -> Unit = onEpisodeClick,
     onEpisodeStartFromBeginningClick: (Video) -> Unit = onEpisodeClick,
     onToggleEpisodeWatched: (Video) -> Unit,
+    /** "Mark as watched on…" for an unwatched episode. */
+    onMarkEpisodeWatchedOn: (Video) -> Unit = {},
     showManualPlayOption: Boolean = false,
     onMarkSeasonWatched: (Int) -> Unit = {},
     onMarkSeasonUnwatched: (Int) -> Unit = {},
@@ -615,6 +617,10 @@ fun EpisodesRow(
             showPlayManually = showManualPlayOption && canPlayEpisode(selectedEpisode),
             onToggleWatched = {
                 onToggleEpisodeWatched(selectedEpisode)
+                optionsEpisode = null
+            },
+            onMarkWatchedOn = {
+                onMarkEpisodeWatchedOn(selectedEpisode)
                 optionsEpisode = null
             },
             onMarkSeasonWatched = {
@@ -1146,7 +1152,9 @@ fun SeasonOptionsDialog(
     onDismiss: () -> Unit,
     onMarkSeasonWatched: () -> Unit,
     onMarkSeasonUnwatched: () -> Unit,
-    onMarkPreviousSeasonsWatched: () -> Unit = {}
+    onMarkPreviousSeasonsWatched: () -> Unit = {},
+    /** "Mark season as watched on…"; offered while the season isn't fully watched. */
+    onMarkSeasonWatchedOn: () -> Unit = {}
 ) {
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -1166,6 +1174,15 @@ fun SeasonOptionsDialog(
                 .focusRequester(primaryFocusRequester)
         ) {
             Text(if (isFullyWatched) stringResource(R.string.episodes_mark_season_unwatched) else stringResource(R.string.episodes_mark_season_watched))
+        }
+
+        if (!isFullyWatched) {
+            DetailButton(
+                onClick = onMarkSeasonWatchedOn,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.episodes_mark_season_watched_on))
+            }
         }
 
         if (hasPreviousSeasons && season > 0) {

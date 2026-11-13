@@ -149,6 +149,22 @@ class TraktClientTest {
         )
     }
 
+    @Test
+    fun `history at a given time names it, for a movie and an episode`() = runBlocking {
+        val at = java.time.Instant.parse("2019-03-01T12:00:00Z").toEpochMilli()
+        val fake = FakeHttp.always(201)
+        client(fake).addToHistory(testTokens, TrackedItem("tt1", "movie"), watchedAtMs = at)
+        client(fake).addToHistory(testTokens, TrackedItem("tt2", "series", 3, 4), watchedAtMs = at)
+        assertEquals(
+            json("""{"movies":[{"ids":{"imdb":"tt1"},"watched_at":"2019-03-01T12:00:00Z"}]}"""),
+            json(fake.sent[0].body)
+        )
+        assertEquals(
+            json("""{"shows":[{"ids":{"imdb":"tt2"},"seasons":[{"number":3,"episodes":[{"number":4,"watched_at":"2019-03-01T12:00:00Z"}]}]}]}"""),
+            json(fake.sent[1].body)
+        )
+    }
+
     @Test(expected = TrackingAuthException::class)
     fun `401 throws TrackingAuthException`(): Unit = runBlocking {
         client(FakeHttp.always(401)).playback(testTokens)

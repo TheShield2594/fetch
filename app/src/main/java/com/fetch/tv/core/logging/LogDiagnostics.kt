@@ -63,20 +63,26 @@ fun String?.redactUrlsForLog(vararg urls: String?): String? {
     // tokens are redacted, then the placeholders are filled in. Nothing in the input is trusted
     // as "already redacted", so text that merely looks like hostOnlyUrlForLog output is reduced
     // like any other URL.
-    val known = urls.filterNotNull().filter { it.isNotEmpty() }.distinct().sortedByDescending { it.length }
+    // Each known URL takes the rest of its token with it, so a suffix such as "?token=…" after
+    // it is redacted too.
+    val tokens = mutableListOf<String>()
     var masked = text.replace(PLACEHOLDER_CHAR.toString(), "")
-    known.forEachIndexed { index, url ->
-        masked = masked.replace(url, "$PLACEHOLDER_CHAR$index$PLACEHOLDER_CHAR")
+    urls.filterNotNull().filter { it.isNotEmpty() }.distinct().sortedByDescending { it.length }.forEach { url ->
+        masked = Regex(Regex.escape(url) + TOKEN_TAIL).replace(masked) { match ->
+            tokens += match.value
+            "$PLACEHOLDER_CHAR${tokens.lastIndex}$PLACEHOLDER_CHAR"
+        }
     }
     masked = URL_IN_TEXT.replace(masked) { it.value.hostOnlyUrlForLog() }
-    return PLACEHOLDER.replace(masked) { known[it.groupValues[1].toInt()].hostOnlyUrlForLog() }
+    return PLACEHOLDER.replace(masked) { tokens[it.groupValues[1].toInt()].hostOnlyUrlForLog() }
 }
 
 private const val PLACEHOLDER_CHAR = '\u0000'
 private val PLACEHOLDER = Regex("\u0000(\\d+)\u0000")
 private val LEADING_SCHEME = Regex("""^([A-Za-z][A-Za-z0-9+.-]*)://""")
 private val AUTHORITY_END = charArrayOf('/', '\\', '?', '#')
-private val URL_IN_TEXT = Regex("""[A-Za-z][A-Za-z0-9+.-]*://[^\s"'<>\u0000]+""")
+private const val TOKEN_TAIL = """[^\s"'<>\u0000]*"""
+private val URL_IN_TEXT = Regex("""[A-Za-z][A-Za-z0-9+.-]*://""" + TOKEN_TAIL.dropLast(1) + "+")
 
 fun String?.bodySnippetForLog(maxLength: Int = Int.MAX_VALUE): String {
     val value = this ?: return "(null)"

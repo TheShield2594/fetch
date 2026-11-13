@@ -94,6 +94,17 @@ class LogDiagnosticsTest {
         val nested = "GET https://cdn.example/a?u=SECRET failed".redactUrlsForLog("https://cdn.example/a?u=SECRET")!!
         assertFalse(nested, nested.contains("SECRET"))
 
+        // A suffix after a known URL belongs to the same token and is redacted with it.
+        val known = "https://addon.example/meta/movie/item.json"
+        val suffixed = "GET $known?token=SECRET failed".redactUrlsForLog(known)!!
+        assertFalse(suffixed, suffixed.contains("SECRET"))
+        assertTrue(suffixed, suffixed.startsWith("GET https://addon.example/…[len=") && suffixed.endsWith(" failed"))
+
+        // A scheme-less known URL with a suffix is reduced to its fingerprint.
+        val relative = "Relative: torrentio.example/KEY/manifest.json?x=1, done".redactUrlsForLog("torrentio.example/KEY/manifest.json")!!
+        assertFalse(relative, relative.contains("KEY"))
+        assertTrue(relative, relative.endsWith(" done"))
+
         assertEquals("plain failure", "plain failure".redactUrlsForLog("https://a.example/x"))
         assertEquals(null, (null as String?).redactUrlsForLog())
     }

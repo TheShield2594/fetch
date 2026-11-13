@@ -39,7 +39,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # Signs with the release key from the FETCH_RELEASE_* secrets. Without them the job stops,
       # unless "allow_debug_signing" is ticked: an install signed with the debug key can't later
@@ -136,7 +136,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # jpackage needs rpmbuild for the .rpm; the .deb tools are already on the runner.
       - name: Install rpm

@@ -1,5 +1,6 @@
 package com.fetch.tv.core.logging
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -33,20 +34,9 @@ class RawUrlLogGuardTest {
     @Test
     fun `release log calls do not print raw urls`() {
         assertTrue("run from the app module", sourceRoot.isDirectory)
-        val offenders = mutableListOf<String>()
-        sourceRoot.walkTopDown().filter { it.isFile && it.extension == "kt" }.forEach { file ->
-            val text = file.readText()
-            Regex("""\bLog\.(i|w|e|wtf)\(""").findAll(text).forEach { call ->
-                val args = callArguments(text, call.range.last + 1)
-                template.findAll(args).forEach { match ->
-                    val expression = match.groupValues[1].ifEmpty { match.groupValues[2] }
-                    if (rawUrlExpression.matches(expression) && expression.trim() !in allowedNames) {
-                        val line = text.substring(0, call.range.first).count { it == '\n' } + 1
-                        offenders += "${file.path}:$line: ${match.value}"
-                    }
-                }
-            }
-        }
+        val offenders = sourceRoot.walkTopDown().filter { it.isFile && it.extension == "kt" }.flatMap { file ->
+            rawUrlLogs(file.readText()).map { (line, template) -> "${'$'}{file.path}:${'$'}line: ${'$'}template" }
+        }.toList()
         if (offenders.isNotEmpty()) {
             fail(
                 "Log.i/w/e calls print a raw URL; wrap it in hostOnlyUrlForLog():\n" +
@@ -56,15 +46,35 @@ class RawUrlLogGuardTest {
     }
 
     @Test
-    fun `the scanner reads past parentheses inside strings and comments`() {
-        val source = """Log.w(TAG, "Failed ) (" /* ) */ + "${'$'}{x.size})" + ${'$'}manifestUrl) // ) trailing"""
-        val args = callArguments(source, source.indexOf('(') + 1)
-        assertTrue(args, args.endsWith("${'$'}manifestUrl"))
-        assertTrue(rawUrlExpression.matches("manifestUrl"))
-
-        val raw = "Log.e(TAG, \"\"\"a ) \"b\" \$url\"\"\")"
-        assertTrue(callArguments(raw, raw.indexOf('(') + 1).contains("${'$'}url"))
+    fun `the guard sees urls after parentheses in strings and nested comments`() {
+        val d = "${'$'}"
+        listOf(
+            "Log.w(TAG, \"Failed ) $d" + "manifestUrl\")",
+            "Log.w(TAG, /* outer /* inner */ ) */ \"Failed ) $d" + "manifestUrl\")",
+            "Log.e(TAG, \"a ) \" + \"$d{list.size})\" + \" $d" + "{input.url}\") // ) trailing",
+            "Log.i(TAG, \"\"\"raw ) \"quoted\" $d" + "streamUrl\"\"\")",
+            "Log.w(TAG, \"char $d{')'} then $d" + "url\")",
+        ).forEach { source ->
+            assertEquals(source, 1, rawUrlLogs(source).size)
+        }
+        listOf(
+            "Log.w(TAG, \"ok ) $d{url.hostOnlyUrlForLog()}\")",
+            "Log.w(TAG, \"done\") // $d" + "url",
+            "Log.w(TAG, \"done\") /* $d" + "url */",
+        ).forEach { source ->
+            assertEquals(source, 0, rawUrlLogs(source).size)
+        }
     }
+
+    /** (line, template) for each raw URL template inside a Log.i/w/e/wtf call in [text]. */
+    private fun rawUrlLogs(text: String): List<Pair<Int, String>> =
+        Regex("""\bLog\.(i|w|e|wtf)\(""").findAll(text).flatMap { call ->
+            val line = text.substring(0, call.range.first).count { it == '\n' } + 1
+            template.findAll(callArguments(text, call.range.last + 1)).mapNotNull { match ->
+                val expression = match.groupValues[1].ifEmpty { match.groupValues[2] }
+                if (rawUrlExpression.matches(expression) && expression.trim() !in allowedNames) line to match.value else null
+            }
+        }.toList()
 
     /**
      * Text from [start] up to the parenthesis that closes the call. Parentheses inside string and
@@ -83,7 +93,7 @@ class RawUrlLogGuardTest {
             val c = text[i]
             when {
                 text.startsWith("//", i) -> i = text.indexOf('\n', i).let { if (it < 0) text.length else it }
-                text.startsWith("/*", i) -> i = text.indexOf("*/", i + 2).let { if (it < 0) text.length else it + 2 }
+                text.startsWith("/*", i) -> i = skipBlockComment(text, i)
                 c == '"' -> i = skipString(text, i)
                 c == '\'' -> i = skipCharLiteral(text, i)
                 c == '(' || c == '{' || c == '[' -> { depth++; i++ }
@@ -117,6 +127,20 @@ class RawUrlLogGuardTest {
             }
         }
         return text.length
+    }
+
+    /** Index just past the block comment opening at [from]; Kotlin block comments nest. */
+    private fun skipBlockComment(text: String, from: Int): Int {
+        var i = from + 2
+        var depth = 1
+        while (i < text.length && depth > 0) {
+            when {
+                text.startsWith("/*", i) -> { depth++; i += 2 }
+                text.startsWith("*/", i) -> { depth--; i += 2 }
+                else -> i++
+            }
+        }
+        return i
     }
 
     private fun skipCharLiteral(text: String, from: Int): Int {

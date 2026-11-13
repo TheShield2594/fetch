@@ -271,7 +271,7 @@ class MetaRepositoryImpl @Inject constructor(
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.w(TAG, "getMeta failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url)}")
+                    Log.w(TAG, "getMeta failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url, addonBaseUrl)}")
                     null
                 } finally {
                     inFlightMeta.remove(cacheKey)
@@ -607,7 +607,7 @@ class MetaRepositoryImpl @Inject constructor(
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.w(TAG, "Primary meta fetch failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url)}")
+                    Log.w(TAG, "Primary meta fetch failed for ${url.hostOnlyUrlForLog()}: ${e.message.redactUrlsForLog(url, addon.baseUrl)}")
                     null
                 } finally {
                     inFlightPrimaryMeta.remove(cacheKey)

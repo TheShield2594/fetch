@@ -105,6 +105,13 @@ class LogDiagnosticsTest {
         assertFalse(relative, relative.contains("KEY"))
         assertTrue(relative, relative.endsWith(" done"))
 
+        // The meta timeout names an uninstalled addon by its (possibly scheme-less) base URL, not
+        // the meta URL; callers pass both.
+        val base = "addon.example/KEY123"
+        val timedOut = "$base didn't answer in time".redactUrlsForLog("$base/meta/movie/id.json", base)!!
+        assertFalse(timedOut, timedOut.contains("KEY123"))
+        assertTrue(timedOut, timedOut.endsWith(" didn't answer in time"))
+
         assertEquals("plain failure", "plain failure".redactUrlsForLog("https://a.example/x"))
         assertEquals(null, (null as String?).redactUrlsForLog())
     }

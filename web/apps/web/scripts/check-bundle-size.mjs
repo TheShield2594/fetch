@@ -14,7 +14,8 @@
 // kind above (tens of kB) does not; raise them on purpose, with the reason in
 // the commit, rather than to make a red build go green.
 //
-// Usage: node scripts/check-bundle-size.mjs [distDir]   (run after `vite build`)
+// Usage: node scripts/check-bundle-size.mjs [distDir] [--report]   (run after `vite build`;
+// --report also lists every chunk by gzipped size)
 import { readFileSync, readdirSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { gzipSync } from "node:zlib";

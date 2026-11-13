@@ -857,7 +857,7 @@ function DoneStep({ tmdbConfigured, onFinish, onBack }: { tmdbConfigured: boolea
           {/* Only promises the trending starter when it can appear: it needs
               a TMDB key, and only shows on a Shelf with nothing on it yet. */}
           {tmdbConfigured
-            ? "If your shelf is still empty, it opens on what's trending this week: tap + on anything you want to watch. "
+            ? "If your shelf is still empty, it may open on what's trending this week, for you to pick from. "
             : "Your shelf fills in from Search and the sources you connected. Add a TMDB key in Settings for artwork and search. "}
           The TV reads the same lists, and the TV page is where you manage it.
         </p>

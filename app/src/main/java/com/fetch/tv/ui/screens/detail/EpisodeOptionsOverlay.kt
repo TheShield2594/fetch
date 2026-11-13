@@ -123,6 +123,9 @@ internal fun EpisodeOptionsOverlay(
     val primaryFocusRequester = remember { FocusRequester() }
     val detailsFocusRequester = remember { FocusRequester() }
     val detailsScrollState = rememberScrollState()
+    // Up to eight actions with "Mark as watched on…"; on a short screen the last ones scroll
+    // into view as focus reaches them rather than sitting below the edge.
+    val actionsScrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val strEpisode = stringResource(R.string.episodes_episode)
     // With the spoiler option on, an unwatched episode's title and overview stay hidden here too.
@@ -507,6 +510,7 @@ internal fun EpisodeOptionsOverlay(
                 Column(
                     modifier = Modifier
                         .width(actionsWidth)
+                        .verticalScroll(actionsScrollState)
                         .onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown || onNavigateEpisode == null) {
                                 return@onPreviewKeyEvent false

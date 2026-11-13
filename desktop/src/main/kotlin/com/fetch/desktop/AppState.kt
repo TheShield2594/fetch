@@ -1462,13 +1462,18 @@ class AppState(
         if (changed.isEmpty()) return
         val now = System.currentTimeMillis()
         saveProgress(WatchHistory.setWatched(progress, base, ids, watched, now))
-        // Each one at its own time where that is its release date: the episode's air date, or
-        // the film's (which only the open detail page has).
-        val movieReleased = detailMeta?.takeIf { it.id == preview.id }?.released
+        // Each one at its own time where that is its release date: an episode's own air date
+        // (never the series' premiere — an undated episode falls back to now), or the film's,
+        // from the open detail page or else the preview, as the menu that offered it read it.
+        val movieReleased = detailMeta?.takeIf { it.id == preview.id }?.released ?: preview.released
         targets.filter { it.videoId in changed }.forEach { target ->
             val time = whenWatched?.takeIf { watched }?.let { choice ->
                 WatchTime(
-                    atMs = com.fetch.tv.core.util.watchedAtFor(choice, target.video?.released ?: movieReleased, now),
+                    atMs = com.fetch.tv.core.util.watchedAtFor(
+                        choice,
+                        if (target.video != null) target.video.released else movieReleased,
+                        now
+                    ),
                     dateUnknown = choice == com.fetch.tv.core.util.WatchedWhen.Unknown
                 )
             }

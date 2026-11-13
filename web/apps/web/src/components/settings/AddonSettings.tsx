@@ -1,12 +1,115 @@
 import { useCallback, useEffect, useState } from "react";
-import { api, runtimeConfig } from "../../api";
+import { api, ApiError, runtimeConfig } from "../../api";
 import { useTransientFlag } from "../../hooks/useTransientFlag";
 import type { AddonCatalogOption } from "../../api";
-import { Loader2, Check, AlertCircle, Copy, ExternalLink, Sparkles, RefreshCw } from "lucide-react";
+import { Loader2, Check, AlertCircle, Copy, ExternalLink, Sparkles, RefreshCw, KeyRound } from "lucide-react";
+import { ConfirmReview } from "../ConfirmReview";
 import { KICKER } from "../typography";
 import { ownAddonManifestUrl } from "../../utils/ownAddon";
 
-function AddonManifestUrl({ profileName, multiProfile, profileKey }: { profileName: string | null; multiProfile: boolean; profileKey: string | null }) {
+/**
+ * "Change this profile's addon URL": a new key for this profile alone, for a URL
+ * that got out. The old URL stops working at once, so Stremio stops syncing
+ * until the new one is installed, which the confirmation says first.
+ */
+function RotateAddonUrl({ profileId, profileName, onRotated }: { profileId: string; profileName: string | null; onRotated: (key: string | null) => void }) {
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useTransientFlag(4000);
+  // Asked for only when the server wants it: the profile's unlock has lapsed.
+  const [needsPin, setNeedsPin] = useState(false);
+  const [pin, setPin] = useState("");
+
+  const close = () => {
+    setConfirming(false);
+    setError(null);
+    setNeedsPin(false);
+    setPin("");
+  };
+
+  const rotate = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await api.rotateAddonUrl(profileId, needsPin ? pin : undefined);
+      onRotated(res.stremioProfileKey);
+      close();
+      setDone(true);
+    } catch (err) {
+      if (err instanceof ApiError && err.code === "profile_pin_required") {
+        setNeedsPin(true);
+        setError("Enter this profile's PIN to change its addon URL.");
+      } else {
+        setError(err instanceof Error ? err.message : "Couldn't change the addon URL");
+        setPin("");
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (confirming) {
+    return (
+      <ConfirmReview
+        label="Change this profile's addon URL?"
+        message={
+          <>
+            Give {profileName ? <strong>{profileName}</strong> : "this profile"} a new addon URL? The current one stops working at
+            once: Stremio stops showing this profile&apos;s catalogs and stops marking things watched until you install the new URL
+            shown above. Other profiles&apos; URLs aren&apos;t affected.
+          </>
+        }
+        confirmLabel="Change URL"
+        icon={<KeyRound size={14} />}
+        onConfirm={() => void rotate()}
+        onCancel={close}
+        busy={busy}
+        disabled={needsPin && !pin.trim()}
+        error={error}
+      >
+        {needsPin && (
+          <label className="block text-xs font-semibold" style={{ color: "var(--text-dim)" }}>
+            Profile PIN
+            <input
+              type="password"
+              inputMode="numeric"
+              autoComplete="off"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              maxLength={8}
+              className="mt-1.5 block w-32 rounded-lg border px-2.5 py-1.5 text-sm field-control"
+              style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
+            />
+          </label>
+        )}
+      </ConfirmReview>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+      <button type="button" onClick={() => setConfirming(true)} className="btn-secondary btn-sm">
+        <KeyRound size={14} /> Change this profile&apos;s addon URL
+      </button>
+      <span role="status" className="text-xs" style={{ color: done ? "var(--text-dim)" : "var(--text-mute)" }}>
+        {done ? "New URL ready. Install it in Stremio to keep syncing." : "If the URL got out, replace it here."}
+      </span>
+    </div>
+  );
+}
+
+function AddonManifestUrl({
+  profileName,
+  multiProfile,
+  profileKey,
+  onRotated,
+}: {
+  profileName: string | null;
+  multiProfile: boolean;
+  profileKey: string | null;
+  onRotated: (key: string | null) => void;
+}) {
   const [copied, setCopied] = useTransientFlag();
   // Longer than a success: a failure the user has to do something about should
   // not disappear at the same speed as a confirmation they can ignore.
@@ -77,6 +180,9 @@ function AddonManifestUrl({ profileName, multiProfile, profileKey }: { profileNa
         The URL points to your addon server, and Stremio must be able to reach it. Keep it to yourself: anyone with it can see this profile's catalogs and mark things watched.
         {multiProfile && " To use a different profile in Stremio, switch profiles here and install the URL shown then — each profile has its own."}
       </p>
+      {activeProfileId && profileKey && (
+        <RotateAddonUrl profileId={activeProfileId} profileName={profileName} onRotated={onRotated} />
+      )}
     </div>
   );
 }
@@ -201,7 +307,7 @@ export function AddonSettings() {
 
   return (
     <div className="space-y-4">
-      <AddonManifestUrl profileName={profileName} multiProfile={multiProfile} profileKey={profileKey} />
+      <AddonManifestUrl profileName={profileName} multiProfile={multiProfile} profileKey={profileKey} onRotated={setProfileKey} />
       {profilesFailed && (
         <div role="status" className="flex flex-wrap items-center gap-2 text-xs" style={{ color: "var(--text-mute)" }}>
           <AlertCircle size={14} className="flex-none text-warning" aria-hidden="true" />

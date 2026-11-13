@@ -191,7 +191,7 @@ describe("stremio routes — addon config is per profile", () => {
     beforeEach(async () => {
       process.env.API_TOKEN = "test-api-token";
       const { deriveStremioSecret } = await import("../lib/stremio-secret.js");
-      manifestUrl = `/addon/stremio/${deriveStremioSecret(PROFILE_ID)}/manifest.json`;
+      manifestUrl = `/addon/stremio/${deriveStremioSecret(PROFILE_ID, 0)}/manifest.json`;
     });
 
     afterEach(() => {
@@ -415,7 +415,7 @@ describe("stremio routes — ?profileId names a profile, it does not unlock one"
     try {
       const response = await app.inject({
         method: "GET",
-        url: `/addon/stremio/${deriveStremioSecret(PROFILE_ID)}/manifest.json`,
+        url: `/addon/stremio/${deriveStremioSecret(PROFILE_ID, 0)}/manifest.json`,
       });
 
       expect(response.statusCode).toBe(200);
@@ -441,7 +441,7 @@ describe("stremio routes — the addon URL is gated by a per-profile secret", ()
 
   const secretFor = async (profileId: string): Promise<string> => {
     const { deriveStremioSecret } = await import("../lib/stremio-secret.js");
-    return deriveStremioSecret(profileId) as string;
+    return deriveStremioSecret(profileId, 0) as string;
   };
 
   it("serves the manifest of the profile the secret was minted for", async () => {

@@ -17,8 +17,12 @@ export * from "./api/types";
 export type * from "./api/tv";
 export {
   inviteCodeFromPath,
+  isTotpChallenge,
   migrateLegacySession,
   type Account,
+  type SecondFactor,
+  type TotpChallenge,
+  type TotpStatus,
   type AccountEvent,
   type AccountSummary,
   type Invite,

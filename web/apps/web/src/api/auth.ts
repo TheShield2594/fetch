@@ -16,7 +16,23 @@ export type Account = {
   isAdmin: boolean;
   /** Set when someone else chose the password (the admin, or the server's `fetch` command). */
   mustChangePassword?: boolean;
+  /** Whether signing in asks for a code from an authenticator app. */
+  totpEnabled?: boolean;
 };
+
+/**
+ * What `login` answers with a right password on an account with two-factor
+ * sign-in on: no session yet, but a challenge to send back with a code.
+ */
+export type TotpChallenge = { totpRequired: true; challenge: string };
+
+export const isTotpChallenge = (value: Account | TotpChallenge): value is TotpChallenge =>
+  "totpRequired" in value && value.totpRequired === true;
+
+export type TotpStatus = { enabled: boolean; enabledAt: string | null; recoveryCodesLeft: number };
+
+/** The second factor as typed: a code from the app, or one of the recovery codes. */
+export type SecondFactor = { code: string } | { recoveryCode: string };
 
 /** One place the account is signed in: a browser session or a paired TV. */
 export type SignIn =
@@ -185,10 +201,46 @@ export const authApi = {
       })
     );
   },
-  async login(username: string, password: string) {
+  /**
+   * Signs in, or, for an account with two-factor sign-in on, answers with the
+   * challenge `loginWithSecondFactor` finishes it with.
+   */
+  async login(username: string, password: string): Promise<Account | TotpChallenge> {
+    const result = await request<SignedIn | TotpChallenge>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+    if ("totpRequired" in result && result.totpRequired) return result;
+    return signIn(result as SignedIn);
+  },
+  async loginWithSecondFactor(challenge: string, factor: SecondFactor) {
     return signIn(
-      await request<SignedIn>("/auth/login", { method: "POST", body: JSON.stringify({ username, password }) })
+      await request<SignedIn>("/auth/login/totp", { method: "POST", body: JSON.stringify({ challenge, ...factor }) })
     );
+  },
+  getTotpStatus() {
+    return request<TotpStatus>("/auth/totp");
+  },
+  /** A new secret to add to an authenticator app. Two-factor stays off until `enableTotp`. */
+  startTotpSetup(currentPassword: string) {
+    return request<{ secret: string; uri: string }>("/auth/totp/setup", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword }),
+    });
+  },
+  /** Turns two-factor on with a code from the new secret. The recovery codes are shown this once. */
+  enableTotp(code: string) {
+    return request<{ recoveryCodes: string[] }>("/auth/totp/enable", { method: "POST", body: JSON.stringify({ code }) });
+  },
+  disableTotp(currentPassword: string, factor: SecondFactor) {
+    return request<void>("/auth/totp/disable", { method: "POST", body: JSON.stringify({ currentPassword, ...factor }) });
+  },
+  /** New recovery codes in place of the old ones, shown this once. */
+  regenerateRecoveryCodes(currentPassword: string, factor: SecondFactor) {
+    return request<{ recoveryCodes: string[] }>("/auth/totp/recovery-codes", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword, ...factor }),
+    });
   },
   async register(inviteCode: string, username: string, password: string) {
     return signIn(
@@ -286,6 +338,13 @@ export const authApi = {
     return request<void>(`/auth/accounts/${encodeURIComponent(id)}/password`, {
       method: "POST",
       body: JSON.stringify({ newPassword, adminPassword }),
+    });
+  },
+  /** Turns off a member's two-factor sign-in, for a lost authenticator. */
+  removeMemberTotp(id: string, adminPassword: string) {
+    return request<void>(`/auth/accounts/${encodeURIComponent(id)}/totp/remove`, {
+      method: "POST",
+      body: JSON.stringify({ adminPassword }),
     });
   },
   /** Hands the admin role to another account. The caller stops being the admin. */

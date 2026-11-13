@@ -1185,4 +1185,77 @@ describe("profiles routes", () => {
       });
     });
   });
+
+  describe("POST /profiles/:id/addon-url/rotate", () => {
+    const row = (pinHash: string | null) => ({
+      ...profileRow({ id: PROFILE_ID, name: "Alice", pinHash }),
+      accountId: ACCOUNT_ID,
+      stremioKeyGeneration: 0,
+    });
+
+    it("moves the profile to its next key generation and answers with the new URL", async () => {
+      process.env.API_TOKEN = "test-api-token";
+      prismaMock.profile.findUnique.mockResolvedValue(row(null));
+      prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID, name: "Alice", accountId: ACCOUNT_ID, stremioKeyGeneration: 1 });
+      const app = await buildApp(SESSION);
+
+      const response = await app.inject({ method: "POST", url: `/profiles/${PROFILE_ID}/addon-url/rotate`, payload: {} });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: PROFILE_ID }, data: { stremioKeyGeneration: { increment: 1 } } })
+      );
+      const { deriveStremioProfileKey } = await import("@fetch/shared");
+      const body = response.json<{ stremioProfileKey: string; stremioManifestPath: string }>();
+      expect(body.stremioProfileKey).toBe(deriveStremioProfileKey("test-api-token", PROFILE_ID, 1));
+      expect(body.stremioProfileKey).not.toBe(deriveStremioProfileKey("test-api-token", PROFILE_ID, 0));
+      expect(body.stremioManifestPath).toBe(`/addon/stremio/${body.stremioProfileKey}/manifest.json`);
+    });
+
+    it("asks a PIN-protected profile for its PIN", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue(row(hashPin("1234")));
+      const app = await buildApp(SESSION);
+
+      const missing = await app.inject({ method: "POST", url: `/profiles/${PROFILE_ID}/addon-url/rotate`, payload: {} });
+      expect(missing.statusCode).toBe(401);
+      expect(missing.json().code).toBe("profile_pin_required");
+
+      const wrong = await app.inject({
+        method: "POST",
+        url: `/profiles/${PROFILE_ID}/addon-url/rotate`,
+        payload: { currentPin: "9999" },
+      });
+      expect(wrong.statusCode).toBe(401);
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+
+    it("answers another account's profile as missing", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue({ ...row(null), accountId: "someone-else" });
+      const app = await buildApp(SESSION);
+
+      const response = await app.inject({ method: "POST", url: `/profiles/${PROFILE_ID}/addon-url/rotate`, payload: {} });
+      expect(response.statusCode).toBe(404);
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /profiles/:id/addon-url/generation", () => {
+    it("is there for the addon service only", async () => {
+      process.env.API_TOKEN = "test-api-token";
+      prismaMock.profile.findUnique.mockResolvedValue({ stremioKeyGeneration: 3 });
+      const app = await buildApp();
+      const { deriveServiceToken, SERVICE_TOKEN_HEADER } = await import("@fetch/shared");
+
+      const plain = await app.inject({ method: "GET", url: `/profiles/${PROFILE_ID}/addon-url/generation` });
+      expect(plain.statusCode).toBe(404);
+
+      const service = await app.inject({
+        method: "GET",
+        url: `/profiles/${PROFILE_ID}/addon-url/generation`,
+        headers: { [SERVICE_TOKEN_HEADER]: deriveServiceToken("test-api-token") },
+      });
+      expect(service.statusCode).toBe(200);
+      expect(service.json()).toEqual({ generation: 3 });
+    });
+  });
 });

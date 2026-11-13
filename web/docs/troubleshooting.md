@@ -161,6 +161,30 @@ split into two words rather than guessing), or its id. Add `--account <username>
 when two accounts have a profile of that name. The
 profile is then open to anyone using that account until a new PIN is set.
 
+**A phone with the authenticator app is lost.** Sign in with one of the
+recovery codes saved when two-factor sign-in was turned on (**Lost your phone?
+Use a recovery code** on the code screen); each works once. Then turn
+two-factor off and on again in Settings → Account to set up the new phone, or
+make new recovery codes there. With no recovery codes left, the admin can turn
+it off for a member: Settings → Invites & accounts → **Turn off two-factor** on
+their account, with the admin's own password. For any account, the admin's
+included, from the server:
+
+```bash
+docker compose exec api fetch reset-2fa <username>
+```
+
+The account then signs in with its password alone until two-factor is turned on
+again. Rotating `API_TOKEN` has the same effect as losing the phone, since the
+secret is encrypted under it: recovery codes still work, and so does this
+command.
+
+**A Stremio addon URL got out.** Anyone holding a profile's addon URL can read
+that profile's lists in Stremio. Replace it from Settings → Stremio addon →
+**Change this profile's addon URL** while using that profile: the old URL stops
+working at once, and Stremio needs the new one installed to keep syncing. Other
+profiles' URLs are unchanged.
+
 **The admin's account should be someone else's.** The admin hands the role on
 from Settings → Invites & accounts → **Make admin**; there is one admin at a time.
 

@@ -30,8 +30,22 @@ import {
   isValidPassword,
   MAX_PASSWORD_LENGTH,
   PASSWORD_ERROR,
+  removeTotp,
   setTemporaryPassword,
 } from "../lib/account-admin.js";
+import { decryptSecret, encryptSecret, SECRET_CONTEXT } from "../lib/secret-box.js";
+import {
+  challengeMatchesAccount,
+  generateRecoveryCodes,
+  generateTotpSecret,
+  hashRecoveryCode,
+  matchTotp,
+  mintTotpChallenge,
+  normalizeRecoveryCode,
+  normalizeTotpCode,
+  readTotpChallenge,
+  totpUri,
+} from "../lib/totp.js";
 
 // Sign-in for the website. Invite-only: the first account is the admin, made
 // with API_TOKEN (`POST /auth/bootstrap`); everyone else redeems a single-use
@@ -41,6 +55,13 @@ import {
 // Recovery: the admin can give a member a temporary password and hand the
 // admin role on; a forgotten admin password is reset from the server's shell
 // with `fetch reset-password` (src/cli.ts, docs/troubleshooting.md).
+//
+// Two-factor sign-in is optional, per account and off by default (#564). With
+// it on, a right password at `POST /auth/login` earns a challenge rather than a
+// session, and `POST /auth/login/totp` takes that challenge with a code from
+// the authenticator, or one of the recovery codes, to finish signing in. A lost
+// authenticator is recovered with a recovery code, by the admin, or with
+// `fetch reset-2fa`. TVs sign in by pairing and are not asked.
 
 const USERNAME_PATTERN = /^[a-z0-9_.-]{3,32}$/;
 const USERNAME_ERROR = "Username must be 3–32 characters: letters, numbers, dots, dashes or underscores";
@@ -76,13 +97,82 @@ const normalizeUsername = (value: unknown): string | null => {
   return USERNAME_PATTERN.test(username) ? username : null;
 };
 
-type AccountRow = { id: string; username: string; isAdmin: boolean; mustChangePassword?: boolean };
+type AccountRow = {
+  id: string;
+  username: string;
+  isAdmin: boolean;
+  mustChangePassword?: boolean;
+  totpSecret?: string | null;
+};
 const publicAccount = (account: AccountRow) => ({
   id: account.id,
   username: account.username,
   isAdmin: account.isAdmin,
   mustChangePassword: account.mustChangePassword ?? false,
+  totpEnabled: Boolean(account.totpSecret),
 });
+
+type TotpAccount = {
+  id: string;
+  username: string;
+  totpSecret: string | null;
+  totpLastUsedStep: number | null;
+  totpRecoveryCodes: string[];
+};
+
+/**
+ * Checks a second-factor code for an account with two-factor on: a code from
+ * the authenticator, or failing that a recovery code, which is used up. Each
+ * is accepted once (a code's time step is recorded; a recovery code is
+ * removed) with a conditional write, so two requests racing with the same code
+ * can't both get in.
+ *
+ * The caller counts a failure towards the lockout.
+ */
+const checkSecondFactor = async (
+  account: TotpAccount,
+  body: Record<string, unknown>
+): Promise<"code" | "recovery_code" | null> => {
+  const code = normalizeTotpCode(body.code);
+  if (code && account.totpSecret) {
+    // An undecryptable secret means API_TOKEN changed since it was saved; only
+    // a recovery code (or the admin, or `fetch reset-2fa`) gets past it then.
+    const secret = decryptSecret(SECRET_CONTEXT.accountTotpSecret, account.totpSecret);
+    const step = secret ? matchTotp(secret, code, Date.now(), account.totpLastUsedStep) : null;
+    if (step !== null) {
+      const { count } = await prisma.account.updateMany({
+        where: {
+          id: account.id,
+          OR: [{ totpLastUsedStep: null }, { totpLastUsedStep: { lt: step } }],
+        },
+        data: { totpLastUsedStep: step },
+      });
+      if (count === 1) return "code";
+    }
+    return null;
+  }
+
+  const recovery = normalizeRecoveryCode(body.recoveryCode ?? body.code);
+  if (recovery) {
+    const hash = hashRecoveryCode(recovery);
+    if (!account.totpRecoveryCodes.includes(hash)) return null;
+    // Removed from the column as it is now, not from the copy read above: two
+    // different codes used at once would otherwise each write back the other.
+    const count = await prisma.$executeRaw`
+      UPDATE "Account" SET "totpRecoveryCodes" = array_remove("totpRecoveryCodes", ${hash})
+      WHERE id = ${account.id}::uuid AND ${hash} = ANY("totpRecoveryCodes")`;
+    return count === 1 ? "recovery_code" : null;
+  }
+  return null;
+};
+
+/** The recovery codes to show once, and their hashes to keep. */
+const freshRecoveryCodes = () => {
+  const codes = generateRecoveryCodes();
+  return { codes, hashes: codes.map((code) => hashRecoveryCode(normalizeRecoveryCode(code)!)) };
+};
+
+const WRONG_CODE_RESPONSE = { error: "That code isn't right", code: "totp_incorrect" } as const;
 
 const lockedOut = (retryAfterSec: number) => ({
   error: "Too many incorrect attempts. Try again later.",
@@ -98,7 +188,10 @@ const lockedOut = (retryAfterSec: number) => ({
 const verifyOwnPassword = async (
   request: FastifyRequest,
   account: { username: string; passwordHash: string },
-  raw: unknown
+  raw: unknown,
+  // False when a second factor is checked next: the count is then cleared only
+  // once that passes too, so a right password can't reset it between guesses.
+  clearOnSuccess = true
 ): Promise<{ ok: true } | { ok: false; status: 401 | 429; body: object }> => {
   const attemptKey = loginAttemptKey(account.username, request);
   const lockout = await getLockout(attemptKey);
@@ -108,7 +201,7 @@ const verifyOwnPassword = async (
     await recordFailure(attemptKey);
     return { ok: false, status: 401, body: { error: "Incorrect password", code: "password_incorrect" } };
   }
-  await clearAttempts(attemptKey);
+  if (clearOnSuccess) await clearAttempts(attemptKey);
   return { ok: true };
 };
 
@@ -229,7 +322,48 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       return failed();
     }
 
+    // Two-factor on: the password was right, but that earns a challenge, not a
+    // session. The failed-attempt count is left as it is, since wrong codes
+    // count towards the same lockout and a right password must not reset it
+    // between guesses at the code.
+    if (account.totpSecret) {
+      return reply.code(200).send({ totpRequired: true, challenge: mintTotpChallenge(account) });
+    }
+
     await clearAttempts(attemptKey);
+    return signedIn(request, reply, account, 200);
+  });
+
+  // The second step of signing in with two-factor on: the challenge from
+  // `POST /auth/login` and a code from the authenticator, or a recovery code.
+  app.post("/auth/login/totp", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    const body = bodyOf(request);
+    const expired = () =>
+      reply.code(401).send({ error: "Sign-in timed out. Enter your password again.", code: "totp_challenge_invalid" });
+
+    const accountId = readTotpChallenge(body.challenge);
+    if (!accountId || !UUID_V4_PATTERN.test(accountId)) return expired();
+    const account = await prisma.account.findUnique({ where: { id: accountId } });
+    if (!account?.totpSecret || !challengeMatchesAccount(body.challenge as string, account)) return expired();
+
+    const attemptKey = loginAttemptKey(account.username, request);
+    const lockout = await getLockout(attemptKey);
+    if (lockout.locked) return reply.code(429).send(lockedOut(lockout.retryAfterSec));
+
+    const used = await checkSecondFactor(account, body);
+    if (!used) {
+      await recordFailure(attemptKey);
+      await recordAccountEvent(account.id, "totp_failed", { request });
+      return reply.code(401).send(WRONG_CODE_RESPONSE);
+    }
+
+    await clearAttempts(attemptKey);
+    if (used === "recovery_code") {
+      await recordAccountEvent(account.id, "recovery_code_used", {
+        request,
+        detail: `${account.totpRecoveryCodes.length - 1} left`,
+      });
+    }
     return signedIn(request, reply, account, 200);
   });
 
@@ -465,6 +599,130 @@ const authRoutes: FastifyPluginAsync = async (app) => {
 
   // The code is returned once and only its digest is kept, so a lost link is
   // revoked and replaced rather than looked up again.
+  // ─── Two-factor sign-in (the account's own) ───
+
+  app.get("/auth/totp", async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to see two-factor sign-in" });
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) return reply.code(404).send({ error: "Account not found" });
+    return {
+      enabled: Boolean(account.totpSecret),
+      enabledAt: account.totpEnabledAt?.toISOString() ?? null,
+      recoveryCodesLeft: account.totpSecret ? account.totpRecoveryCodes.length : 0,
+    };
+  });
+
+  // Starts setting up two-factor: a new secret, held aside until a code from
+  // it is confirmed. The password is asked again, so a browser left signed in
+  // can't be used to tie the account to someone else's phone.
+  app.post("/auth/totp/setup", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to set up two-factor sign-in" });
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) return reply.code(404).send({ error: "Account not found" });
+    if (account.totpSecret) {
+      return reply.code(409).send({ error: "Two-factor sign-in is already on", code: "totp_already_enabled" });
+    }
+    const proof = await verifyOwnPassword(request, account, bodyOf(request).currentPassword);
+    if (!proof.ok) return reply.code(proof.status).send(proof.body);
+
+    const secret = generateTotpSecret();
+    await prisma.account.update({
+      where: { id: account.id },
+      data: { totpPendingSecret: encryptSecret(SECRET_CONTEXT.accountTotpPendingSecret, secret) },
+    });
+    return { secret, uri: totpUri(secret, account.username) };
+  });
+
+  // Finishes setting up: one code from the new secret turns two-factor on and
+  // answers with the recovery codes, which are shown this once.
+  app.post("/auth/totp/enable", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    if (request.auth?.kind !== "session") return reply.code(400).send({ error: "Sign in to set up two-factor sign-in" });
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) return reply.code(404).send({ error: "Account not found" });
+    if (account.totpSecret) {
+      return reply.code(409).send({ error: "Two-factor sign-in is already on", code: "totp_already_enabled" });
+    }
+    const pending = account.totpPendingSecret
+      ? decryptSecret(SECRET_CONTEXT.accountTotpPendingSecret, account.totpPendingSecret)
+      : null;
+    if (!pending) {
+      return reply.code(400).send({ error: "Start setting up two-factor sign-in again", code: "totp_setup_missing" });
+    }
+    const code = normalizeTotpCode(bodyOf(request).code);
+    const step = code ? matchTotp(pending, code, Date.now()) : null;
+    if (step === null) return reply.code(400).send(WRONG_CODE_RESPONSE);
+
+    const { codes, hashes } = freshRecoveryCodes();
+    // Only from the setup this code was checked against: two confirmations at
+    // once must not both succeed with different recovery codes.
+    const { count } = await prisma.account.updateMany({
+      where: { id: account.id, totpSecret: null, totpPendingSecret: account.totpPendingSecret },
+      data: {
+        totpSecret: encryptSecret(SECRET_CONTEXT.accountTotpSecret, pending),
+        totpPendingSecret: null,
+        totpEnabledAt: new Date(),
+        totpLastUsedStep: step,
+        totpRecoveryCodes: hashes,
+      },
+    });
+    if (count !== 1) {
+      return reply.code(409).send({ error: "Two-factor sign-in changed meanwhile. Start again.", code: "totp_setup_changed" });
+    }
+    await recordAccountEvent(account.id, "totp_enabled", { request });
+    return { recoveryCodes: codes };
+  });
+
+  // Turning two-factor off, or replacing the recovery codes, asks for the
+  // password and a current code (or a recovery code).
+  const reauthWithSecondFactor = async (request: FastifyRequest, reply: FastifyReply) => {
+    if (request.auth?.kind !== "session") {
+      void reply.code(400).send({ error: "Sign in to change two-factor sign-in" });
+      return null;
+    }
+    const account = await prisma.account.findUnique({ where: { id: request.auth.accountId } });
+    if (!account) {
+      void reply.code(404).send({ error: "Account not found" });
+      return null;
+    }
+    if (!account.totpSecret) {
+      void reply.code(400).send({ error: "Two-factor sign-in is off", code: "totp_not_enabled" });
+      return null;
+    }
+    const body = bodyOf(request);
+    const proof = await verifyOwnPassword(request, account, body.currentPassword, false);
+    if (!proof.ok) {
+      void reply.code(proof.status).send(proof.body);
+      return null;
+    }
+    const attemptKey = loginAttemptKey(account.username, request);
+    const used = await checkSecondFactor(account, body);
+    if (!used) {
+      await recordFailure(attemptKey);
+      await recordAccountEvent(account.id, "totp_failed", { request });
+      void reply.code(401).send(WRONG_CODE_RESPONSE);
+      return null;
+    }
+    await clearAttempts(attemptKey);
+    if (used === "recovery_code") await recordAccountEvent(account.id, "recovery_code_used", { request });
+    return account;
+  };
+
+  app.post("/auth/totp/disable", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    const account = await reauthWithSecondFactor(request, reply);
+    if (!account) return reply;
+    await removeTotp(account.id);
+    await recordAccountEvent(account.id, "totp_disabled", { request });
+    return reply.code(204).send();
+  });
+
+  app.post("/auth/totp/recovery-codes", CREDENTIAL_RATE_LIMIT, async (request, reply) => {
+    const account = await reauthWithSecondFactor(request, reply);
+    if (!account) return reply;
+    const { codes, hashes } = freshRecoveryCodes();
+    await prisma.account.update({ where: { id: account.id }, data: { totpRecoveryCodes: hashes } });
+    return { recoveryCodes: codes };
+  });
+
   app.post("/auth/invites", { preHandler: requireAdmin }, async (request, reply) => {
     const body = bodyOf(request);
     const days = body.expiresInDays === undefined ? DEFAULT_INVITE_DAYS : Number(body.expiresInDays);
@@ -593,6 +851,29 @@ const authRoutes: FastifyPluginAsync = async (app) => {
 
       await setTemporaryPassword(target.id, body.newPassword);
       await recordAccountEvent(target.id, "password_reset", { request, detail: "By the admin" });
+      return reply.code(204).send();
+    }
+  );
+
+  // Turns off two-factor sign-in for a member who lost their authenticator and
+  // their recovery codes. The admin's own password is asked again, as for a
+  // temporary password; the admin turns their own off in Account.
+  app.post<{ Params: { id: string } }>(
+    "/auth/accounts/:id/totp/remove",
+    { preHandler: requireAdmin, ...CREDENTIAL_RATE_LIMIT },
+    async (request, reply) => {
+      if (!UUID_V4_PATTERN.test(request.params.id)) return reply.code(400).send({ error: "id must be a valid UUID" });
+      if (request.auth?.kind === "session" && request.auth.accountId === request.params.id) {
+        return reply.code(400).send({ error: "Turn off your own two-factor sign-in in Account" });
+      }
+      const target = await prisma.account.findUnique({ where: { id: request.params.id } });
+      if (!target) return reply.code(404).send({ error: "Account not found" });
+      if (!target.totpSecret) return reply.code(400).send({ error: "That account doesn't use two-factor sign-in" });
+      const proof = await verifyAdminReauth(request, bodyOf(request).adminPassword);
+      if (!proof.ok) return reply.code(proof.status).send(proof.body);
+
+      await removeTotp(target.id);
+      await recordAccountEvent(target.id, "totp_disabled", { request, detail: "By the admin" });
       return reply.code(204).send();
     }
   );

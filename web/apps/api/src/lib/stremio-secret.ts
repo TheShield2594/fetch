@@ -13,7 +13,8 @@ import { prisma } from "./prisma.js";
 // same construction the addon service uses for its mutation token — so it needs
 // no extra configuration and no storage, and a URL that leaks (via proxy or
 // access logs, say) does not yield the token it came from. Rotating `API_TOKEN`
-// rotates every addon URL with it.
+// rotates every addon URL with it; replacing one profile's URL from Settings
+// bumps that profile's `stremioKeyGeneration`, which is mixed in too.
 //
 // The secret is per profile, so it doubles as the profile selector: the URL a
 // profile installs serves that profile's lists and nothing else, which is what
@@ -23,10 +24,27 @@ const SECRET_PATTERN = /^[0-9a-f]{64}$/;
 /** Path shape the API token gate treats as a candidate public addon URL. */
 const SECRET_PATH_PATTERN = /^\/addon\/stremio\/[0-9a-f]{64}(?:\/|$)/;
 
-export const deriveStremioSecret = (profileId: string): string | null => {
+// A profile's `stremioKeyGeneration` is mixed in, so replacing one profile's
+// URL (`POST /profiles/:id/addon-url/rotate`) retires that URL alone.
+export const deriveStremioSecret = (profileId: string, generation: number): string | null => {
   const apiToken = process.env.API_TOKEN;
   if (!apiToken) return null;
-  return deriveStremioProfileKey(apiToken, profileId);
+  return deriveStremioProfileKey(apiToken, profileId, generation);
+};
+
+/** The API's own manifest path and URL for a profile's current key, and the key itself. */
+export const stremioManifestFor = (
+  profileId: string,
+  generation: number,
+  publicBase: string | null | undefined = process.env.FETCH_API_PUBLIC?.replace(/\/+$/, "")
+): { stremioManifestPath: string | null; stremioManifestUrl: string | null; stremioProfileKey: string | null } => {
+  const secret = deriveStremioSecret(profileId, generation);
+  const path = secret ? `/addon/stremio/${secret}/manifest.json` : null;
+  return {
+    stremioManifestPath: path,
+    stremioManifestUrl: path && publicBase ? `${publicBase}${path}` : null,
+    stremioProfileKey: secret,
+  };
 };
 
 // Both sides are fixed-width hex digests, so the length guard — needed because
@@ -49,9 +67,13 @@ const secretsMatch = (presented: string, expected: string): boolean => {
 export const resolveProfileFromStremioSecret = async (candidate: unknown): Promise<string | null> => {
   if (typeof candidate !== "string" || !SECRET_PATTERN.test(candidate)) return null;
 
-  const profiles = await prisma.profile.findMany({ select: { id: true }, orderBy: { createdAt: "asc" } });
+  const profiles = await prisma.profile.findMany({
+    select: { id: true, stremioKeyGeneration: true },
+    orderBy: { createdAt: "asc" },
+  });
   for (const profile of profiles) {
-    const expected = deriveStremioSecret(profile.id);
+    // Only the current generation: a replaced URL is an unknown secret.
+    const expected = deriveStremioSecret(profile.id, profile.stremioKeyGeneration);
     if (expected && secretsMatch(candidate, expected)) return profile.id;
   }
   return null;

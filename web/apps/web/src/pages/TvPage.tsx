@@ -1,6 +1,6 @@
 import { type ReactNode, useContext, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router";
-import { Activity, ChevronLeft, ChevronRight, FolderTree, LayoutList, Puzzle, SlidersHorizontal } from "lucide-react";
+import { Activity, Captions, ChevronLeft, ChevronRight, Clapperboard, FolderTree, LayoutList, LayoutTemplate, ListFilter, Palette, Puzzle, SlidersHorizontal } from "lucide-react";
 import { PageFrame, PageHeader } from "../components/PageFrame";
 import { DevicesSettings } from "../components/settings/DevicesSettings";
 import { HomeLayoutSettings } from "../components/tv/HomeLayoutSettings";
@@ -30,7 +30,8 @@ export type TvSection = {
  * pairing was a row inside it — so the device the website exists to manage was
  * four taps from anywhere, and a person who installed the server for their TV
  * was never offered it. Home rows, Home folders, addons and playback are what
- * this profile looks like on the TV; Synced data is every profile's.
+ * this profile looks like on the TV, with its appearance, layout, playback,
+ * subtitle, stream and metadata settings; Synced data is every profile's.
  */
 export const TV_SECTIONS: TvSection[] = [
   {
@@ -58,12 +59,53 @@ export const TV_SECTIONS: TvSection[] = [
     content: <TvAddonsSettings />,
   },
   {
+    id: "tv-appearance",
+    title: "Appearance",
+    blurb: "Colour theme, AMOLED black, font, and Essential or Advanced.",
+    icon: <Palette size={20} />,
+    scope: "profile",
+    content: <TvSettingsForm section="appearance" />,
+  },
+  {
+    id: "tv-layout",
+    title: "Layout",
+    blurb: "Hero, posters, Continue Watching, detail pages and trailers.",
+    icon: <LayoutTemplate size={20} />,
+    scope: "profile",
+    content: <TvSettingsForm section="layout" />,
+  },
+  {
+    // `tv-settings` was the one page of TV settings, so old links keep landing on playback.
     id: "tv-settings",
     title: "Playback",
-    blurb: "Auto-play, the best match, audio and subtitles.",
+    blurb: "Auto-play, the next episode, the player's controls and audio.",
     icon: <SlidersHorizontal size={20} />,
     scope: "profile",
-    content: <TvSettingsForm />,
+    content: <TvSettingsForm section="playback" />,
+  },
+  {
+    id: "tv-subtitles",
+    title: "Subtitles",
+    blurb: "Subtitle languages, size, colours and an HDR style.",
+    icon: <Captions size={20} />,
+    scope: "profile",
+    content: <TvSettingsForm section="subtitles" />,
+  },
+  {
+    id: "tv-streams",
+    title: "Streams",
+    blurb: "How the best match is ranked, and the stream list's badges.",
+    icon: <ListFilter size={20} />,
+    scope: "profile",
+    content: <TvSettingsForm section="streams" />,
+  },
+  {
+    id: "tv-content",
+    title: "Content and metadata",
+    blurb: "TMDB details, how far back Continue Watching goes, recommendations.",
+    icon: <Clapperboard size={20} />,
+    scope: "profile",
+    content: <TvSettingsForm section="content" />,
   },
   {
     id: "tv-overview",
@@ -191,7 +233,7 @@ export function TvPage() {
             {profileName ? `${profileName} on the TV` : "This profile on the TV"}
           </h2>
           <p className="mt-1 text-sm" style={{ color: "var(--text-mute)" }}>
-            Each profile has its own Home screen, addons and playback settings.
+            Each profile has its own Home screen, addons, look and playback settings.
           </p>
         </div>
         <ul className="grid gap-2.5 sm:grid-cols-2">

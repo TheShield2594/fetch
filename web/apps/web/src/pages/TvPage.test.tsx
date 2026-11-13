@@ -42,7 +42,12 @@ describe("TvPage", () => {
       ["Home rows", "tv-home"],
       ["Home folders", "home-folders"],
       ["Addons", "tv-addons"],
+      ["Appearance", "tv-appearance"],
+      ["Layout", "tv-layout"],
       ["Playback", "tv-settings"],
+      ["Subtitles", "tv-subtitles"],
+      ["Streams", "tv-streams"],
+      ["Content and metadata", "tv-content"],
       ["Synced data", "tv-overview"],
     ]) {
       expect(screen.getByRole("link", { name: new RegExp(`^${name}`) })).toHaveAttribute("href", `/tv?section=${section}`);

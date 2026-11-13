@@ -2,12 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   ARGB_WHITE,
   MDBLIST_RATING_SOURCES,
+  TV_SETTING_FIELDS,
   TV_SETTING_GROUPS,
   argbAlpha,
   argbToHex,
+  encodePalette,
   hexToArgb,
+  isFieldVisible,
   readField,
   readMdbListRatingSettings,
+  readPalette,
   readRankingRules,
   visibleMdbListSources,
   withField,
@@ -147,5 +151,74 @@ describe("MDBList rating settings", () => {
       value: "mal,imdb,trakt,tmdb,tomatoes,audience,letterboxd,metacritic",
     });
     expect(readMdbListRatingSettings(next).order[0]).toBe("mal");
+  });
+});
+
+describe("the wider settings catalogue", () => {
+  const settingsField = (feature: string, key: string): TvSettingField => {
+    const found = TV_SETTING_FIELDS.find((f) => f.feature === feature && f.key === key);
+    if (!found) throw new Error(`no field ${feature}.${key}`);
+    return found;
+  };
+
+  it("never offers a key twice, or one the TV keeps on the device", () => {
+    const ids = TV_SETTING_FIELDS.map((f) => `${f.feature}.${f.key}`);
+    expect(new Set(ids).size).toBe(ids.length);
+    // `localOnlyPlayerProfileSettingsKeys` and friends in the TV's ProfileSettingsSyncService.
+    for (const deviceOnly of ["player_settings.frame_rate_matching", "player_settings.player_preference", "trailer_settings.trailer_allow_4k"]) {
+      expect(ids).not.toContain(deviceOnly);
+    }
+  });
+
+  it("points every visibleWhen at a field of the same feature", () => {
+    for (const f of TV_SETTING_FIELDS.filter((f) => f.visibleWhen)) {
+      expect(TV_SETTING_FIELDS.some((p) => p.feature === f.feature && p.key === f.visibleWhen?.key)).toBe(true);
+    }
+  });
+
+  it("shows a dependent field only while its parent allows it", () => {
+    const surfaces = settingsField("theme_settings", "amoled_surfaces_mode");
+    expect(isFieldVisible({}, surfaces)).toBe(false);
+    const amoled = withField({}, settingsField("theme_settings", "amoled_mode"), true);
+    expect(isFieldVisible(amoled, surfaces)).toBe(true);
+    // A parent at its default counts, so the regex field waits for the regex mode.
+    expect(isFieldVisible({}, settingsField("player_settings", "stream_auto_play_regex"))).toBe(false);
+  });
+
+  it("turns pure-black surfaces off with AMOLED, as the TV does", () => {
+    let doc = withField({}, settingsField("theme_settings", "amoled_mode"), true);
+    doc = withField(doc, settingsField("theme_settings", "amoled_surfaces_mode"), true);
+    doc = withField(doc, settingsField("theme_settings", "amoled_mode"), false);
+    expect(doc.features?.theme_settings?.amoled_surfaces_mode).toEqual({ type: "boolean", value: false });
+  });
+
+  it("keeps the poster height at 3:2 with the width", () => {
+    const doc = withField({}, settingsField("layout_settings", "poster_card_width_dp"), 140);
+    expect(doc.features?.layout_settings?.poster_card_width_dp).toEqual({ type: "int", value: 140 });
+    expect(doc.features?.layout_settings?.poster_card_height_dp).toEqual({ type: "int", value: 210 });
+  });
+
+  it("stores thresholds as floats and segment sets as sorted string sets", () => {
+    const minutes = withField({}, settingsField("player_settings", "next_episode_threshold_minutes_before_end_v2"), 1.5);
+    expect(minutes.features?.player_settings?.next_episode_threshold_minutes_before_end_v2).toEqual({ type: "float", value: 1.5 });
+    const skip = settingsField("player_settings", "auto_skip_segment_types");
+    const doc = withField({}, skip, ["recap", "intro", "recap"]);
+    expect(doc.features?.player_settings?.auto_skip_segment_types).toEqual({ type: "string_set", value: ["intro", "recap"] });
+    expect(readField(doc, skip)).toEqual(["intro", "recap"]);
+  });
+
+  it("removes a nullable language for None rather than storing an empty one", () => {
+    const secondary = settingsField("player_settings", "subtitle_secondary_language");
+    const set = withField(TV_DOCUMENT, secondary, "fr");
+    expect(readField(set, secondary)).toBe("fr");
+    const cleared = withField(set, secondary, "");
+    expect(cleared.features?.player_settings && "subtitle_secondary_language" in cleared.features.player_settings).toBe(false);
+    expect(cleared.features?.player_settings?.some_future_setting).toEqual({ type: "boolean", value: true });
+  });
+
+  it("reads and writes the custom theme in the TV's encoding", () => {
+    expect(readPalette("#112233,#445566,#778899")).toEqual(["#112233", "#445566", "#778899"]);
+    expect(readPalette("nonsense")).toEqual(["#b75aff", "#ec70a9", "#ffb37a"]);
+    expect(encodePalette(["#aabbcc", "ddeeff", "#010203"])).toBe("#AABBCC,#DDEEFF,#010203");
   });
 });

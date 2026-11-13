@@ -30,6 +30,17 @@ vi.mock("../lib/batch-ratings.js", () => ({
   batchUpsertRatings: (...args: unknown[]) => batchMocks.batchUpsertRatings(...args),
 }));
 
+const trackerMocks = {
+  importTrackerItems: vi.fn(),
+  addTitlesToNamedList: vi.fn(),
+};
+vi.mock("../lib/tracker-import.js", () => ({
+  importTrackerItems: (...args: unknown[]) => trackerMocks.importTrackerItems(...args),
+}));
+vi.mock("../lib/trakt-import.js", () => ({
+  addTitlesToNamedList: (...args: unknown[]) => trackerMocks.addTitlesToNamedList(...args),
+}));
+
 /** Big enough to hold the row-cap payloads; production sets this from MAX_BODY_SIZE_MB. */
 const buildApp = (): Promise<FastifyInstance> =>
   buildRouteApp(() => import("./import.js"), { bodyLimit: 256 * 1024 * 1024 });
@@ -88,5 +99,94 @@ describe("POST /import/external — row caps", () => {
     expect(response.statusCode).toBe(413);
     expect(response.json().error).toContain("200,000");
     expect(batchMocks.batchUpsertRatings).not.toHaveBeenCalled();
+  });
+});
+
+describe("POST /import/external — lists, TV Time and bad files", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    trackerMocks.importTrackerItems.mockImplementation(async (_p: string, watches: unknown[], watchlist: unknown[]) => ({
+      movies: watches.filter((w) => (w as { type: string }).type === "movie").length,
+      episodes: watches.filter((w) => (w as { type: string }).type === "episode").length,
+      watchlist: watchlist.length,
+      skipped: 0,
+    }));
+    trackerMocks.addTitlesToNamedList.mockImplementation(async (_p: string, _n: string, entries: unknown[]) => entries.length);
+  });
+
+  it("answers a file that isn't the named export with a 400, not a 500", async () => {
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/import/external",
+      payload: { format: "tvtime-shows", csv: "Const,Title\ntt1,A" },
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("bad_format");
+  });
+
+  it("needs a list name for an IMDb list, and fills that list", async () => {
+    const app = await buildApp();
+    const csv = "Position,Const,Title,Title Type\n1,tt0111161,A Film,Movie\n2,tt0903747,A Show,TV Series";
+
+    const missing = await app.inject({ method: "POST", url: "/import/external", payload: { format: "imdb-list", csv } });
+    expect(missing.statusCode).toBe(400);
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/import/external",
+      payload: { format: "imdb-list", csv, listName: " Favourites " },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().summary.listed).toBe(2);
+    expect(trackerMocks.addTitlesToNamedList).toHaveBeenCalledWith(PROFILE_ID, "Favourites", [
+      { type: "movie", imdbId: "tt0111161" },
+      { type: "series", imdbId: "tt0903747" },
+    ]);
+  });
+
+  it("puts an IMDb watchlist on the watchlist", async () => {
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/import/external",
+      payload: { format: "imdb-watchlist", csv: "Position,Const,Title Type\n1,tt0111161,Movie" },
+    });
+    expect(response.json().summary.listed).toBe(1);
+    expect(trackerMocks.importTrackerItems.mock.calls[0]![2]).toEqual([{ type: "movie", imdbId: "tt0111161" }]);
+  });
+
+  it("adds Letterboxd watched films only where there is no play yet", async () => {
+    tmdbMock.search.mockResolvedValue([{ imdbId: "tt0087884", year: 1984 }]);
+    const app = await buildApp();
+    await app.inject({
+      method: "POST",
+      url: "/import/external",
+      payload: { format: "letterboxd-watched", csv: "Date,Name,Year,Letterboxd URI\n2023-04-01,Paris Texas,1984,x" },
+    });
+    const [watch] = trackerMocks.importTrackerItems.mock.calls[0]![1] as { undated?: boolean; imdbId: string }[];
+    expect(watch).toMatchObject({ imdbId: "tt0087884", undated: true });
+  });
+
+  it("matches TV Time shows once per series and imports each episode", async () => {
+    tmdbMock.search.mockResolvedValue([{ imdbId: "tt11280740", year: 2022 }]);
+    const app = await buildApp();
+    const csv = [
+      "series_name,season_number,episode_number,created_at",
+      "Severance,1,1,2022-02-18 20:00:00",
+      "Severance,1,2,2022-02-19 20:00:00",
+      "Unknown Show,1,1,2022-02-19 20:00:00",
+    ].join("\n");
+    tmdbMock.search.mockImplementation(async (type: string, query: string) =>
+      type === "series" && query === "Severance" ? [{ imdbId: "tt11280740", year: 2022 }] : []
+    );
+
+    const response = await app.inject({ method: "POST", url: "/import/external", payload: { format: "tvtime-shows", csv } });
+
+    expect(response.json().summary).toMatchObject({ imported: 2, skipped: 1 });
+    expect(tmdbMock.search).toHaveBeenCalledTimes(2);
+    const watches = trackerMocks.importTrackerItems.mock.calls[0]![1] as { seriesImdbId: string; episode: number }[];
+    expect(watches.map((w) => w.episode)).toEqual([1, 2]);
+    expect(watches.every((w) => w.seriesImdbId === "tt11280740")).toBe(true);
   });
 });

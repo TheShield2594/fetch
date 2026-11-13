@@ -4,6 +4,7 @@ import type { TraktClient } from "../trakt.js";
 import { prisma } from "./prisma.js";
 import { batchUpsertRatings, type RatingInput } from "./batch-ratings.js";
 import { getDefaultCollection } from "./collection.js";
+import { backfillMissingMetadata } from "./metadata.js";
 
 /**
  * The parts of a Trakt account that aren't watch history: ratings, the
@@ -327,4 +328,36 @@ export const importTraktPersonalLists = async (
   }
 
   return result;
+};
+
+/**
+ * Adds titles to the profile's custom list called [name], creating it when
+ * there is none — the way the Trakt list import fills a list of the same name
+ * rather than making a second. Used by the IMDb list import. Returns how many
+ * titles were newly added.
+ */
+export const addTitlesToNamedList = async (
+  profileId: string,
+  name: string,
+  entries: { type: "movie" | "series"; imdbId: string }[]
+): Promise<number> => {
+  const existing = await prisma.list.findFirst({
+    where: { profileId, kind: ListKind.custom, name },
+    orderBy: { createdAt: "asc" },
+  });
+  const list = existing ?? (await prisma.list.create({ data: { profileId, kind: ListKind.custom, name } }));
+  const added = await addListItems(
+    list.id,
+    entries.map((entry) => ({
+      type: entry.type === "movie" ? ListItemType.movie : ListItemType.series,
+      imdbId: entry.imdbId,
+    }))
+  );
+  backfillMissingMetadata(
+    entries.map((entry) => ({
+      imdbId: entry.imdbId,
+      type: entry.type === "movie" ? MetadataType.movie : MetadataType.series,
+    }))
+  );
+  return added;
 };

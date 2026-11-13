@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { api, type ExportPayload } from "../../api";
+import { api, type ExportPayload, type ExternalImportFormat } from "../../api";
 import { useAccount } from "../../hooks/useAccount";
 import { useProfile } from "../../hooks/useProfile";
 import { Loader2, Check, AlertCircle, Download, Eraser, Upload } from "lucide-react";
@@ -10,13 +10,20 @@ import { downloadProfileExport } from "../../utils/exportDownload";
 /** The version of the Fetch export this site writes and the server reads back. */
 const EXPORT_VERSION = 1;
 
-type ExternalFormat = "letterboxd-diary" | "letterboxd-ratings" | "imdb-ratings" | "simkl";
+type ExternalFormat = ExternalImportFormat;
 
+// In the order people reach for them: each service's files together.
 const EXTERNAL_LABELS: Record<ExternalFormat, string> = {
-  "letterboxd-diary": "Letterboxd diary export",
-  "letterboxd-ratings": "Letterboxd ratings export",
+  "letterboxd-diary": "Letterboxd diary (diary.csv)",
+  "letterboxd-ratings": "Letterboxd ratings (ratings.csv)",
+  "letterboxd-watched": "Letterboxd watched films (watched.csv)",
+  "letterboxd-watchlist": "Letterboxd watchlist (watchlist.csv)",
   "imdb-ratings": "IMDb ratings export",
+  "imdb-watchlist": "IMDb watchlist export",
+  "imdb-list": "IMDb list export, into a list",
   simkl: "Simkl export",
+  "tvtime-shows": "TV Time shows (tracking-prod-records-v2.csv)",
+  "tvtime-movies": "TV Time movies (tracking-prod-records.csv)",
 };
 
 const plural = (count: number, one: string, many: string) => `${count.toLocaleString()} ${count === 1 ? one : many}`;
@@ -71,7 +78,7 @@ export function csvRecords(text: string): string[][] {
 type ImportPreview =
   | { kind: "json"; fileName: string; payload: ExportPayload; parts: string[]; replacesSettings: boolean }
   | { kind: "csv"; fileName: string; csv: string; rows: number }
-  | { kind: "external"; fileName: string; csv: string; rows: number; format: ExternalFormat };
+  | { kind: "external"; fileName: string; csv: string; rows: number; format: ExternalFormat; listName?: string };
 
 /** Reads a Fetch JSON export, or says why it isn't one. */
 export function previewJsonExport(
@@ -142,6 +149,7 @@ export function DataSettings() {
   const [importError, setImportError] = useState<string | null>(null);
 
   const [externalFormat, setExternalFormat] = useState<ExternalFormat>("letterboxd-diary");
+  const [externalListName, setExternalListName] = useState("");
   const [externalResult, setExternalResult] = useState<string | null>(null);
   const [externalError, setExternalError] = useState<string | null>(null);
 
@@ -221,7 +229,14 @@ export function DataSettings() {
     // Each tracker's columns are its own, and the server knows them; the
     // preview only needs to say how much is in the file.
     const rows = Math.max(0, csvRecords(csv).length - 1);
-    setPreview({ kind: "external", fileName: file.name, csv, rows, format: externalFormat });
+    setPreview({
+      kind: "external",
+      fileName: file.name,
+      csv,
+      rows,
+      format: externalFormat,
+      ...(externalFormat === "imdb-list" ? { listName: externalListName.trim() } : {}),
+    });
   };
 
   const runImport = async () => {
@@ -238,9 +253,12 @@ export function DataSettings() {
         const res = await api.importCsv(preview.csv);
         setImportResult(`Imported ${res.summary.imported} watch events (${res.summary.skipped} rows skipped)`);
       } else {
-        const res = await api.importExternal(preview.format, preview.csv);
+        const res = await api.importExternal(preview.format, preview.csv, preview.listName);
+        const s = res.summary;
         setExternalResult(
-          `Imported ${res.summary.imported} watch events, ${res.summary.ratingsImported} ratings (${res.summary.skipped} rows skipped)`
+          `Imported ${plural(s.imported, "watch event", "watch events")}, ${plural(s.ratingsImported, "rating", "ratings")}` +
+            (s.listed ? `, ${plural(s.listed, "list item", "list items")}` : "") +
+            ` (${plural(s.skipped, "row", "rows")} skipped)`
         );
       }
       setPreview(null);
@@ -281,7 +299,8 @@ export function DataSettings() {
           : "nothing to import"
         : p.kind === "csv"
           ? plural(p.rows, "row of watch history", "rows of watch history")
-          : `${plural(p.rows, "row", "rows")} from a ${EXTERNAL_LABELS[p.format]}`;
+          : `${plural(p.rows, "row", "rows")} from a ${EXTERNAL_LABELS[p.format]}` +
+            (p.kind === "external" && p.listName ? `, for the list “${p.listName}”` : "");
     return (
       <>
         <strong>{p.fileName}</strong> holds {what}. Importing adds it to <strong>{profileName}</strong>: it never deletes
@@ -410,7 +429,9 @@ export function DataSettings() {
         <div>
           <p className="text-sm font-semibold" style={{ color: "var(--text-dim)" }}>Import from another tracker</p>
           <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-            Migrate watch history and ratings from a Letterboxd, IMDb, or Simkl export.
+            Migrate watch history, ratings and lists from a Letterboxd, IMDb, Simkl or TV Time export. Titles
+            exported without an IMDb id (Letterboxd, TV Time) are matched by name and year; any that can&apos;t be
+            matched are skipped and counted.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -424,6 +445,16 @@ export function DataSettings() {
               <option key={format} value={format}>{EXTERNAL_LABELS[format]}</option>
             ))}
           </SelectField>
+          {externalFormat === "imdb-list" && (
+            <input
+              aria-label="List name"
+              placeholder="List name"
+              value={externalListName}
+              onChange={(e) => setExternalListName(e.target.value)}
+              maxLength={120}
+              className="rounded-xl border border-[var(--border-field)] bg-[var(--bg-0)] px-4 py-2.5 text-sm text-[var(--text)] field-control"
+            />
+          )}
           <input
             ref={externalFileInputRef}
             type="file"
@@ -438,7 +469,7 @@ export function DataSettings() {
           <button
             type="button"
             onClick={() => externalFileInputRef.current?.click()}
-            disabled={importing}
+            disabled={importing || (externalFormat === "imdb-list" && !externalListName.trim())}
             className="btn-secondary"
           >
             <Upload size={16} /> Import CSV

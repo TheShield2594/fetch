@@ -59,8 +59,8 @@ describe("the watch dialog's episode pickers", () => {
     expect((episode as HTMLSelectElement).value).toBe("1");
     expect(within(episode).getAllByRole("option")).toHaveLength(10);
 
-    await user.click(screen.getByRole("button", { name: "Just finished" }));
-    expect(onLog).toHaveBeenCalledWith(expect.any(String), { season: 2, episode: 1 }, undefined);
+    await user.click(screen.getByRole("button", { name: "Just now" }));
+    expect(onLog).toHaveBeenCalledWith({ watchedAt: expect.any(String) }, { season: 2, episode: 1 });
   });
 
   it("keeps typed numbers for a show with no season data", () => {

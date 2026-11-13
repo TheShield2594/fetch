@@ -275,9 +275,9 @@ Discovery responses are cached in memory and returned as Stremio meta previews
 | `GET` | `/series/progress/:imdbId` | One show. |
 | `GET` | `/series/:imdbId/watched-episodes` | |
 | `POST` | `/series/:imdbId/watch-next` | Mark the next unwatched episode. |
-| `POST` | `/series/:imdbId/season/:seasonNumber/episode/:episodeNumber/watch` | |
+| `POST` | `/series/:imdbId/season/:seasonNumber/episode/:episodeNumber/watch` | Optional body `{ watchedAt?, dateUnknown? }`; now when omitted |
 | `DELETE` | `/series/:imdbId/season/:seasonNumber/episode/:episodeNumber/watch` | |
-| `POST` | `/series/:imdbId/season/:seasonNumber/watch-all` | |
+| `POST` | `/series/:imdbId/season/:seasonNumber/watch-all` | Body `{ episodeNumbers, watchedAt?, dateUnknown?, watchedAtByEpisode? }`; `watchedAtByEpisode` maps an episode number to its own time |
 | `GET` | `/show/:imdbId/dropped` | |
 | `POST` | `/show/:imdbId/drop` | Hide a show from Continue Watching without deleting its history. |
 | `DELETE` | `/show/:imdbId/drop` | Un-drop. |

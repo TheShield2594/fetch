@@ -347,7 +347,7 @@ describe("DetailPanel actions", () => {
     await user.selectOptions(season, "1");
     expect(within(episode).getAllByRole("option")).toHaveLength(9);
     await user.selectOptions(episode, "9");
-    await user.click(screen.getByRole("button", { name: "Just finished" }));
+    await user.click(screen.getByRole("button", { name: "Just now" }));
 
     await waitFor(() =>
       expect(api.logWatch).toHaveBeenCalledWith(

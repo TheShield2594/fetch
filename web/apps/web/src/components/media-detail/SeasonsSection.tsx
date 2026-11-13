@@ -5,6 +5,9 @@ import { ProgressRuler } from "../ProgressRuler";
 import { StarPicker } from "../StarPicker";
 import { KICKER } from "../typography";
 import { parseSizedTmdbImage, tmdbImageAtWidth } from "../../poster-widths";
+import { localDateFromIsoDate, utcNoonIsoFromIsoDate } from "../../utils/calendarDate";
+import { WatchDateModal } from "./WatchDateModal";
+import type { WatchLogTarget, WatchWhen } from "./detailPanelUtils";
 
 export interface SeasonInfo {
   seasonNumber: number;
@@ -64,14 +67,24 @@ const episodeKey = (season: number, episode: number) => `${season}:${episode}`;
 const EMPTY_WATCHED: ReadonlySet<string> = new Set<string>();
 
 export function SeasonsSection({
-  imdbId, seasons, loading, onError, onToast,
+  imdbId, seasons, loading, onError, onToast, onWatchNow, onWatched,
 }: {
   imdbId: string;
   seasons: SeasonInfo[];
   loading: boolean;
   onError?: (message: string) => void;
   onToast?: (message: string, type: "success" | "info") => void;
+  /** Checks in to an episode — the watch dialog's "Now watching". Left out when one is already running. */
+  onWatchNow?: ((season: number, episode: number) => Promise<void>) | undefined;
+  /** Something was logged here, for a caller showing the history to refresh it. */
+  onWatched?: (() => void) | undefined;
 }) {
+  /**
+   * The episode or season the watch dialog is open for. Marking one watched
+   * asks when, as logging a watch from the panel does: an episode seen years
+   * ago ticked off today would otherwise be filed under today.
+   */
+  const [logTarget, setLogTarget] = useState<Extract<WatchLogTarget, { kind: "episode" | "season" }> | null>(null);
   /*
    * The episodes of this show that have been watched — or `null`, meaning the
    * read has not answered yet.
@@ -278,38 +291,64 @@ export function SeasonsSection({
     if (next != null) loadEpisodes(next);
   };
 
-  const toggleEpisode = async (seasonNumber: number, episodeNumber: number) => {
+  const toggleEpisode = async (seasonNumber: number, ep: EpisodeInfo) => {
+    const episodeNumber = ep.episodeNumber;
     const k = episodeKey(seasonNumber, episodeNumber);
     if (pendingEpisode[k]) return;
-    // This is the guard `imdbIdRef` exists for, and the only response below that
-    // was not honouring it: a tick applied after the panel has been swapped to
-    // another show writes the previous show's episode key into this one's
-    // watched set, and the set is keyed by season and episode alone.
+    if (!watchedSet.has(k)) {
+      setLogTarget({
+        kind: "episode",
+        seriesImdbId: imdbId,
+        season: seasonNumber,
+        episode: episodeNumber,
+        fixed: true,
+        airDate: ep.airDate,
+        name: ep.name,
+      });
+      return;
+    }
+    // This is the guard `imdbIdRef` exists for: a tick changed after the panel
+    // has been swapped to another show would write the previous show's episode
+    // key into this one's watched set, and the set is keyed by season and
+    // episode alone.
     const requestImdbId = imdbId;
     setPendingEpisode((p) => ({ ...p, [k]: true }));
-    const isWatched = watchedSet.has(k);
     try {
-      if (isWatched) {
-        await api.unmarkEpisodeWatched(imdbId, seasonNumber, episodeNumber);
-        if (imdbIdRef.current !== requestImdbId) return;
-        setWatched((prev) => { const next = new Set(prev ?? []); next.delete(k); return next; });
-      } else {
-        await api.markEpisodeWatched(imdbId, seasonNumber, episodeNumber);
-        if (imdbIdRef.current !== requestImdbId) return;
-        setWatched((prev) => new Set(prev ?? []).add(k));
-      }
+      await api.unmarkEpisodeWatched(imdbId, seasonNumber, episodeNumber);
+      if (imdbIdRef.current !== requestImdbId) return;
+      setWatched((prev) => { const next = new Set(prev ?? []); next.delete(k); return next; });
+      onWatched?.();
     } catch (err) {
-      // Held by the service worker until the connection is back — only the mark
-      // is queued, never the unmark, so this is the episode becoming watched.
-      // Ticking it is what the user just asked for and what will be true; the
-      // toast is the whole of the difference from an online tap.
-      if (err instanceof OfflineWriteQueuedError && !isWatched) {
-        if (imdbIdRef.current !== requestImdbId) return;
-        setWatched((prev) => new Set(prev ?? []).add(k));
-        onToast?.(err.message, "info");
-      } else {
-        onError?.(err instanceof Error ? err.message : "Failed to update episode");
-      }
+      onError?.(err instanceof Error ? err.message : "Failed to update episode");
+    } finally {
+      setPendingEpisode((p) => ({ ...p, [k]: false }));
+    }
+  };
+
+  /**
+   * Logs an episode at the time the watch dialog was given. Rejects with what
+   * went wrong so the dialog can stay open and say so.
+   */
+  const logEpisode = async (seasonNumber: number, episodeNumber: number, when: WatchWhen) => {
+    const k = episodeKey(seasonNumber, episodeNumber);
+    const requestImdbId = imdbId;
+    setPendingEpisode((p) => ({ ...p, [k]: true }));
+    try {
+      await api.markEpisodeWatched(imdbId, seasonNumber, episodeNumber, {
+        watchedAt: when.watchedAt,
+        dateUnknown: when.dateUnknown,
+      });
+      if (imdbIdRef.current !== requestImdbId) return;
+      setWatched((prev) => new Set(prev ?? []).add(k));
+      onWatched?.();
+    } catch (err) {
+      // Held by the service worker until the connection is back. Ticking it is
+      // what the user just asked for and what will be true; the toast is the
+      // whole of the difference from an online tap.
+      if (!(err instanceof OfflineWriteQueuedError)) throw err;
+      if (imdbIdRef.current !== requestImdbId) return;
+      setWatched((prev) => new Set(prev ?? []).add(k));
+      onToast?.(err.message, "info");
     } finally {
       setPendingEpisode((p) => ({ ...p, [k]: false }));
     }
@@ -380,8 +419,13 @@ export function SeasonsSection({
     );
   };
 
-  const markSeasonWatched = async (season: SeasonInfo) => {
+  const markSeasonWatched = (season: SeasonInfo) => {
     if (pendingSeason[season.seasonNumber]) return;
+    setLogTarget({ kind: "season", seriesImdbId: imdbId, season: season.seasonNumber, name: season.name });
+  };
+
+  /** As `logEpisode`, for every episode of a season. */
+  const logSeason = async (season: SeasonInfo, when: WatchWhen) => {
     const requestImdbId = imdbId;
     setPendingSeason((p) => ({ ...p, [season.seasonNumber]: true }));
     // Declared out here so the catch below can tick the same episodes the write
@@ -397,19 +441,37 @@ export function SeasonsSection({
         setEpisodesBySeason((c) => ({ ...c, [season.seasonNumber]: episodes! }));
       }
       episodeNumbers = episodes.map((e) => e.episodeNumber);
-      const res = await api.markSeasonWatched(imdbId, season.seasonNumber, episodeNumbers);
+      // "Release dates": each episode that has aired on the day it did. One
+      // with no air date, or one still to come, gets the shared time (now).
+      let byEpisode: Record<number, string> | undefined;
+      if (when.releaseDates) {
+        byEpisode = {};
+        for (const ep of episodes) {
+          const day = ep.airDate ? localDateFromIsoDate(ep.airDate.slice(0, 10)) : null;
+          const iso = day && day.getTime() <= Date.now() ? utcNoonIsoFromIsoDate(ep.airDate!.slice(0, 10)) : null;
+          if (iso) byEpisode[ep.episodeNumber] = iso;
+        }
+      }
+      const res = await api.markSeasonWatched(
+        imdbId,
+        season.seasonNumber,
+        episodeNumbers,
+        { watchedAt: when.watchedAt, dateUnknown: when.dateUnknown },
+        byEpisode
+      );
       if (imdbIdRef.current !== requestImdbId) return;
       setWatched((prev) => {
         const next = new Set(prev ?? []);
         for (const n of episodeNumbers) next.add(episodeKey(season.seasonNumber, n));
         return next;
       });
+      onWatched?.();
       onToast?.(
         res.marked > 0 ? `Marked ${res.marked} episode${res.marked === 1 ? "" : "s"} watched` : "Season already watched",
         "success"
       );
     } catch (err) {
-      // As in `toggleEpisode`: queued is saved, so the ticks go on. How many of
+      // As in `logEpisode`: queued is saved, so the ticks go on. How many of
       // them were already ticked is the server's count, which nobody has yet —
       // the message says what happened instead of guessing at a number.
       if (err instanceof OfflineWriteQueuedError && imdbIdRef.current === requestImdbId) {
@@ -419,8 +481,8 @@ export function SeasonsSection({
           return next;
         });
         onToast?.(err.message, "info");
-      } else {
-        onError?.(err instanceof Error ? err.message : "Failed to mark season watched");
+      } else if (!(err instanceof OfflineWriteQueuedError)) {
+        throw err;
       }
     } finally {
       setPendingSeason((p) => ({ ...p, [season.seasonNumber]: false }));
@@ -532,7 +594,7 @@ export function SeasonsSection({
                     />
                     <button
                       type="button"
-                      onClick={() => void markSeasonWatched(s)}
+                      onClick={() => markSeasonWatched(s)}
                       disabled={pendingSeason[s.seasonNumber]}
                       className="btn-tonal btn-xs flex-none"
                     >
@@ -650,7 +712,7 @@ export function SeasonsSection({
                                 circle is deliberately not growing to meet it. */}
                             <button
                               type="button"
-                              onClick={() => void toggleEpisode(s.seasonNumber, ep.episodeNumber)}
+                              onClick={() => void toggleEpisode(s.seasonNumber, ep)}
                               disabled={pendingEpisode[k]}
                               className={`tap-target flex h-5 w-5 flex-none items-center justify-center rounded-full transition-opacity hover:opacity-75 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset ${
                                 isWatched ? "" : "ring-[1.5px] ring-current ring-inset"
@@ -721,6 +783,26 @@ export function SeasonsSection({
           );
         })}
       </div>
+
+      {logTarget && (
+        <WatchDateModal
+          target={logTarget}
+          onLog={async (when) => {
+            if (logTarget.kind === "episode") {
+              await logEpisode(logTarget.season, logTarget.episode, when);
+            } else {
+              const season = seasons.find((x) => x.seasonNumber === logTarget.season);
+              if (season) await logSeason(season, when);
+            }
+          }}
+          onWatchNow={
+            logTarget.kind === "episode" && onWatchNow
+              ? () => onWatchNow(logTarget.season, logTarget.episode)
+              : undefined
+          }
+          onClose={() => setLogTarget(null)}
+        />
+      )}
     </div>
   );
 }

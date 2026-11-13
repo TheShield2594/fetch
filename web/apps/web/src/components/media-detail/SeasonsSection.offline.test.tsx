@@ -62,6 +62,8 @@ describe("an offline tick the server later refuses", () => {
     // No clicking to expand: the panel opens the season you are in, which with
     // nothing watched is the first one.
     await user.click(await screen.findByRole("button", { name: /Mark .* watched$/ }));
+    // The tick asks when; "Just now" is the tap it used to be on its own.
+    await user.click(await screen.findByRole("button", { name: "Just now" }));
 
     // Held, not failed: the episode reads as watched and the copy says why.
     await waitFor(() => expect(episodeToggle()).toHaveAttribute("aria-pressed", "true"));
@@ -85,6 +87,8 @@ describe("an offline tick the server later refuses", () => {
     render(<SeasonsSection imdbId="tt1" seasons={SEASONS} loading={false} />);
 
     await user.click(await screen.findByRole("button", { name: /Mark .* watched$/ }));
+    // The tick asks when; "Just now" is the tap it used to be on its own.
+    await user.click(await screen.findByRole("button", { name: "Just now" }));
     await waitFor(() => expect(episodeToggle()).toHaveAttribute("aria-pressed", "true"));
 
     getWatchedEpisodes.mockResolvedValue({ episodes: [{ season: 1, episode: 1 }] });
@@ -104,6 +108,8 @@ describe("an offline tick the server later refuses", () => {
     render(<SeasonsSection imdbId="tt1" seasons={SEASONS} loading={false} />);
 
     await user.click(await screen.findByRole("button", { name: /Mark .* watched$/ }));
+    // The tick asks when; "Just now" is the tap it used to be on its own.
+    await user.click(await screen.findByRole("button", { name: "Just now" }));
     await waitFor(() => expect(episodeToggle()).toHaveAttribute("aria-pressed", "true"));
 
     getWatchedEpisodes.mockRejectedValue(new Error("still offline"));

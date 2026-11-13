@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   Check, Film, Play, Star, X,
 } from "lucide-react";
@@ -19,7 +19,7 @@ import { WatchHistorySection } from "./WatchHistorySection";
 import { MoreActionsMenu } from "./MoreActionsMenu";
 import { RecommendationsSection } from "./RecommendationsSection";
 import { SectionError } from "../SectionError";
-import { buildMetaLine, formatRuntime, nextEpisodeUp, statusColor, type WatchLogTarget } from "./detailPanelUtils";
+import { buildMetaLine, formatRuntime, nextEpisodeUp, statusColor, type WatchLogTarget, type WatchWhen } from "./detailPanelUtils";
 import { formatRating, ratingLabel, RATING_MAX } from "../../utils/rating";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -300,11 +300,11 @@ export function DetailPanel({
     }
   };
 
-  const handleLog = async (dateIso: string, episodeInfo?: { season: number; episode: number }, dateUnknown?: boolean) => {
-    if (!watchTarget) return;
+  const handleLog = async (when: WatchWhen, episodeInfo?: { season: number; episode: number }) => {
+    if (!watchTarget || watchTarget.kind === "season") return;
     try {
       if (watchTarget.kind === "movie") {
-        await api.logWatch({ type: "movie", imdbId: watchTarget.imdbId, watchedAt: dateIso, dateUnknown });
+        await api.logWatch({ type: "movie", imdbId: watchTarget.imdbId, watchedAt: when.watchedAt, dateUnknown: when.dateUnknown });
       } else {
         await api.logWatch({
           type: "episode",
@@ -312,8 +312,8 @@ export function DetailPanel({
           seriesImdbId: watchTarget.seriesImdbId,
           season: episodeInfo?.season ?? watchTarget.season,
           episode: episodeInfo?.episode ?? watchTarget.episode,
-          watchedAt: dateIso,
-          dateUnknown,
+          watchedAt: when.watchedAt,
+          dateUnknown: when.dateUnknown,
         });
       }
     } catch (err) {
@@ -332,6 +332,29 @@ export function DetailPanel({
       onHistoryChange(updated);
     } catch { /* best-effort */ }
   };
+
+  /*
+   * An episode's air date, for the watch dialog's "Release date". A season's
+   * episode list is asked for once and kept while the panel is open, since
+   * stepping through the episode picker asks again for each one.
+   */
+  const seasonEpisodesCache = useRef(new Map<string, Promise<{ episodeNumber: number; airDate?: string | null }[]>>());
+  const loadAirDate = useCallback(
+    async (season: number, episode: number, signal: AbortSignal) => {
+      const key = `${item.imdbId}:${season}`;
+      let pending = seasonEpisodesCache.current.get(key);
+      if (!pending) {
+        // Not tied to `signal`: the list outlives the pick that asked for it.
+        pending = api.getSeasonEpisodes(item.imdbId, season).then((r) => r.episodes);
+        seasonEpisodesCache.current.set(key, pending);
+        pending.catch(() => seasonEpisodesCache.current.delete(key));
+      }
+      const episodes = await pending;
+      if (signal.aborted) return null;
+      return episodes.find((e) => e.episodeNumber === episode)?.airDate ?? null;
+    },
+    [item.imdbId]
+  );
 
   const handleSelectRecommendation = (rec: TrendingMeta) => {
     onSelectItem({
@@ -708,6 +731,10 @@ export function DetailPanel({
                   loading={sectionsLoading}
                   onError={(msg) => onShowToast(msg, "error")}
                   onToast={(msg, type) => onShowToast(msg, type)}
+                  onWatchNow={activeCheckin || checkinLoading ? undefined : (season, episode) => handleCheckin(season, episode)}
+                  onWatched={() => {
+                    void api.getWatchHistory(50, 0, { imdbId: item.imdbId }).then(onHistoryChange).catch(() => undefined);
+                  }}
                 />
               </div>
             )}
@@ -774,6 +801,12 @@ export function DetailPanel({
           target={watchTarget}
           seasons={seasons}
           onLog={handleLog}
+          onWatchNow={
+            activeCheckin || checkinLoading
+              ? undefined
+              : (episode) => handleCheckin(episode?.season, episode?.episode)
+          }
+          loadAirDate={item.type === "series" ? loadAirDate : undefined}
           onClose={() => setWatchTarget(null)}
         />
       )}

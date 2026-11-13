@@ -190,20 +190,26 @@ class SimklSyncRepository @Inject constructor(
     }
 
     private suspend fun refreshSnapshot(profileId: Int, generation: Long) = snapshotMutex.withLock {
-        val previous = _state.value
-        _state.value = previous.copy(isLoading = true, errorMessage = null)
+        synchronized(publishLock) {
+            if (!isCurrent(profileId, generation)) return@withLock
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+        }
+        // Like the commits, sync from this profile's saved snapshot, never from the shown state.
+        val previous = persistedSnapshot(profileId)
         val result = try {
-            engine.synchronize(previous.snapshot)
+            engine.synchronize(previous)
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
             Log.w(TAG, "Simkl sync failed", error)
-            if (isCurrent(profileId, generation)) {
-                _state.value = previous.copy(
-                    isLoading = false,
-                    hasLoaded = true,
-                    errorMessage = error.message ?: "Unable to sync Simkl"
-                )
+            synchronized(publishLock) {
+                if (isCurrent(profileId, generation)) {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        hasLoaded = true,
+                        errorMessage = error.message ?: "Unable to sync Simkl"
+                    )
+                }
             }
             return@withLock
         }
@@ -212,13 +218,14 @@ class SimklSyncRepository @Inject constructor(
         // pause, so a read that follows the user's own write can still describe the previous viewing.
         // Keep our own newer rows over the fetched ones; the account stays authoritative for the rest.
         val merged = result.copy(
-            playback = mergeFetchedPlayback(result.playback, previous.snapshot.playback)
+            playback = mergeFetchedPlayback(result.playback, previous.playback)
         )
+        // Null when nothing the projection reads changed: the one already shown is kept.
         val projection = if (
-            merged.entries === previous.snapshot.entries &&
-            merged.playback === previous.snapshot.playback
+            merged.entries === previous.entries &&
+            merged.playback === previous.playback
         ) {
-            _projection.value
+            null
         } else {
             buildProjection(merged)
         }
@@ -227,7 +234,7 @@ class SimklSyncRepository @Inject constructor(
         storage.save(profileId, encodeSnapshot(merged))
         synchronized(publishLock) {
             if (isCurrent(profileId, generation)) {
-                _projection.value = projection
+                if (projection != null) _projection.value = projection
                 _state.value = SimklSyncState(snapshot = merged, hasLoaded = true)
             }
         }

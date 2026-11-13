@@ -1,17 +1,24 @@
 package com.fetch.tv.data.simkl
 
+import android.util.Log
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.tracking.TrackingRefreshIntent
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.flow.MutableStateFlow
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class SimklSyncRepositoryProfileTest {
@@ -113,9 +120,60 @@ class SimklSyncRepositoryProfileTest {
         val profileOneResult = SimklSnapshotProjection.create(
             json.decodeFromString<SimklSyncSnapshot>(storage.payloads.getValue(1))
         ).watchedShowEpisodes
+        assertEquals(
+            listOf(1, 5),
+            json.decodeFromString<SimklSyncSnapshot>(storage.payloads.getValue(1))
+                .entries.single().seasons.single().episodes.mapNotNull(SimklEpisode::number).sorted()
+        )
         assertNotEquals(profileOneResult, expected)
         assertEquals(expected, repository.projection.value.watchedShowEpisodes)
         assertEquals(profileTwo, repository.state.value.snapshot)
+    }
+
+    @Test
+    fun `a failed refresh that ends after a profile switch leaves the new profile's state alone`() = runBlocking {
+        mockkStatic(Log::class)
+        every { Log.w(any(), any<String>(), any()) } returns 0
+        try {
+            val storage = MemoryStorage()
+            val active = MutableStateFlow(1)
+            val profileManager = mockk<ProfileManager> { every { activeProfileId } returns active }
+            val profileTwo = snapshotWithEpisodes(1, 2, 3)
+            storage.payloads[1] = json.encodeToString(snapshotWithEpisodes(1))
+            storage.payloads[2] = json.encodeToString(profileTwo)
+            val engine = mockk<SimklSyncEngine>()
+            coEvery { engine.synchronize(any()) } answers {
+                active.value = 2
+                throw IllegalStateException("network")
+            }
+            val authState = mockk<SimklAuthState> { every { isAuthenticated } returns true }
+            val authStorage = mockk<SimklAuthStorage>(relaxed = true) {
+                every { state } returns MutableStateFlow(authState)
+            }
+            val repository = SimklSyncRepository(
+                engine = engine,
+                storage = storage,
+                authRepository = mockk(relaxed = true),
+                authStorage = authStorage,
+                profileManager = profileManager
+            )
+
+            repository.refresh(TrackingRefreshIntent.USER_INITIATED)
+
+            withTimeout(5_000) {
+                while (repository.state.value.snapshot != profileTwo) delay(10)
+            }
+            val state = repository.state.value
+            assertEquals(profileTwo, state.snapshot)
+            assertNull(state.errorMessage)
+            assertFalse(state.isLoading)
+            assertEquals(
+                SimklSnapshotProjection.create(profileTwo).watchedShowEpisodes,
+                repository.projection.value.watchedShowEpisodes
+            )
+        } finally {
+            unmockkStatic(Log::class)
+        }
     }
 
     private fun snapshotWithEpisodes(vararg numbers: Int) = SimklSyncSnapshot(

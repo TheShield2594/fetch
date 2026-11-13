@@ -86,6 +86,14 @@ class LogDiagnosticsTest {
         assertFalse(timeout, timeout.contains("KEY123"))
         assertTrue(timeout, timeout.contains("https://addon.example/…[len=") && timeout.endsWith(" timed out"))
 
+        // Input that only looks redacted is not trusted.
+        val spoofed = "Request to https://addon.example/…[len=KEY123/manifest.json timed out".redactUrlsForLog()!!
+        assertFalse(spoofed, spoofed.contains("KEY123"))
+
+        // A known URL that is also embedded in a longer scheme:// token is still reduced.
+        val nested = "GET https://cdn.example/a?u=SECRET failed".redactUrlsForLog("https://cdn.example/a?u=SECRET")!!
+        assertFalse(nested, nested.contains("SECRET"))
+
         assertEquals("plain failure", "plain failure".redactUrlsForLog("https://a.example/x"))
         assertEquals(null, (null as String?).redactUrlsForLog())
     }

@@ -156,10 +156,11 @@ const checkSecondFactor = async (
   if (recovery) {
     const hash = hashRecoveryCode(recovery);
     if (!account.totpRecoveryCodes.includes(hash)) return null;
-    const { count } = await prisma.account.updateMany({
-      where: { id: account.id, totpRecoveryCodes: { has: hash } },
-      data: { totpRecoveryCodes: account.totpRecoveryCodes.filter((stored) => stored !== hash) },
-    });
+    // Removed from the column as it is now, not from the copy read above: two
+    // different codes used at once would otherwise each write back the other.
+    const count = await prisma.$executeRaw`
+      UPDATE "Account" SET "totpRecoveryCodes" = array_remove("totpRecoveryCodes", ${hash})
+      WHERE id = ${account.id}::uuid AND ${hash} = ANY("totpRecoveryCodes")`;
     return count === 1 ? "recovery_code" : null;
   }
   return null;
@@ -187,7 +188,10 @@ const lockedOut = (retryAfterSec: number) => ({
 const verifyOwnPassword = async (
   request: FastifyRequest,
   account: { username: string; passwordHash: string },
-  raw: unknown
+  raw: unknown,
+  // False when a second factor is checked next: the count is then cleared only
+  // once that passes too, so a right password can't reset it between guesses.
+  clearOnSuccess = true
 ): Promise<{ ok: true } | { ok: false; status: 401 | 429; body: object }> => {
   const attemptKey = loginAttemptKey(account.username, request);
   const lockout = await getLockout(attemptKey);
@@ -197,7 +201,7 @@ const verifyOwnPassword = async (
     await recordFailure(attemptKey);
     return { ok: false, status: 401, body: { error: "Incorrect password", code: "password_incorrect" } };
   }
-  await clearAttempts(attemptKey);
+  if (clearOnSuccess) await clearAttempts(attemptKey);
   return { ok: true };
 };
 
@@ -649,8 +653,10 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     if (step === null) return reply.code(400).send(WRONG_CODE_RESPONSE);
 
     const { codes, hashes } = freshRecoveryCodes();
-    await prisma.account.update({
-      where: { id: account.id },
+    // Only from the setup this code was checked against: two confirmations at
+    // once must not both succeed with different recovery codes.
+    const { count } = await prisma.account.updateMany({
+      where: { id: account.id, totpSecret: null, totpPendingSecret: account.totpPendingSecret },
       data: {
         totpSecret: encryptSecret(SECRET_CONTEXT.accountTotpSecret, pending),
         totpPendingSecret: null,
@@ -659,6 +665,9 @@ const authRoutes: FastifyPluginAsync = async (app) => {
         totpRecoveryCodes: hashes,
       },
     });
+    if (count !== 1) {
+      return reply.code(409).send({ error: "Two-factor sign-in changed meanwhile. Start again.", code: "totp_setup_changed" });
+    }
     await recordAccountEvent(account.id, "totp_enabled", { request });
     return { recoveryCodes: codes };
   });
@@ -680,7 +689,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       return null;
     }
     const body = bodyOf(request);
-    const proof = await verifyOwnPassword(request, account, body.currentPassword);
+    const proof = await verifyOwnPassword(request, account, body.currentPassword, false);
     if (!proof.ok) {
       void reply.code(proof.status).send(proof.body);
       return null;
@@ -693,6 +702,7 @@ const authRoutes: FastifyPluginAsync = async (app) => {
       void reply.code(401).send(WRONG_CODE_RESPONSE);
       return null;
     }
+    await clearAttempts(attemptKey);
     if (used === "recovery_code") await recordAccountEvent(account.id, "recovery_code_used", { request });
     return account;
   };

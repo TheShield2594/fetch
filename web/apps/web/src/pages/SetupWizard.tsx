@@ -453,7 +453,15 @@ function SecondFactorStep({
         >
           {useRecovery ? "Use a code from the app instead" : "Lost your phone? Use a recovery code"}
         </button>
-        <button type="button" onClick={() => onRestart(null)} className="font-medium underline" style={{ color: "var(--text-mute)" }}>
+        <button
+          type="button"
+          onClick={() => onRestart(null)}
+          // A pending check that succeeds still signs this browser in, so it
+          // can't be abandoned half-way.
+          disabled={submitting}
+          className="font-medium underline disabled:opacity-50"
+          style={{ color: "var(--text-mute)" }}
+        >
           Back
         </button>
       </div>

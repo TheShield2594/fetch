@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance, InjectOptions } from "fastify";
 import { deriveServiceToken, deriveStremioProfileKey, SERVICE_TOKEN_HEADER } from "@fetch/shared";
 import { prisma } from "../lib/prisma.js";
@@ -26,6 +26,18 @@ beforeAll(async () => {
     await instance.register(profiles.default);
     await instance.register(stremio.default);
   });
+});
+
+// Each test runs mid-way through one fixed 30-second step, so a step boundary
+// can't land between making a code and the server checking it. Only Date is
+// faked; timers run as normal.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(Math.floor(Date.now() / 30_000) * 30_000 + 15_000);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const call = (bearer: string | null, options: InjectOptions) =>
@@ -171,6 +183,44 @@ describe("two-factor sign-in", () => {
     const status = (await call(used.json().token, { method: "GET", url: "/auth/totp" })).json();
     expect(status).toMatchObject({ enabled: true, recoveryCodesLeft: 9 });
     expect(await activityOf(used.json().token)).toContain("recovery_code_used");
+  });
+
+  it("uses up two different recovery codes used at the same moment, and neither comes back", async () => {
+    const { token } = await bootstrapAdmin();
+    const { recoveryCodes } = await enableTotp(token, "owner-password");
+    const challenges = await Promise.all([
+      login("owner", "owner-password").then((r) => r.json().challenge as string),
+      login("owner", "owner-password").then((r) => r.json().challenge as string),
+    ]);
+
+    const results = await Promise.all(
+      challenges.map((challenge, i) =>
+        call(null, { method: "POST", url: "/auth/login/totp", payload: { challenge, recoveryCode: recoveryCodes[i] } })
+      )
+    );
+    expect(results.map((r) => r.statusCode)).toEqual([200, 200]);
+    expect((await call(token, { method: "GET", url: "/auth/totp" })).json().recoveryCodesLeft).toBe(8);
+
+    const { challenge } = (await login("owner", "owner-password")).json() as { challenge: string };
+    const again = await call(null, { method: "POST", url: "/auth/login/totp", payload: { challenge, recoveryCode: recoveryCodes[0] } });
+    expect(again.statusCode).toBe(401);
+  });
+
+  it("doesn't let a right password reset the count of wrong codes when turning off", async () => {
+    const { token } = await bootstrapAdmin();
+    await enableTotp(token, "owner-password");
+
+    let status = 0;
+    for (let i = 0; i < 12 && status !== 429; i += 1) {
+      status = (
+        await call(token, {
+          method: "POST",
+          url: "/auth/totp/disable",
+          payload: { currentPassword: "owner-password", code: "000000" },
+        })
+      ).statusCode;
+    }
+    expect(status).toBe(429);
   });
 
   it("turns off with the password and a current code", async () => {

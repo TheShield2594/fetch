@@ -633,6 +633,21 @@ describe("signed addon URLs", () => {
     expect(fresh.statusCode).toBe(200);
   });
 
+  it("refuses a signed URL while the API can't confirm its key, even one it served before", async () => {
+    const url = `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json`;
+    expect((await app.inject({ method: "GET", url })).statusCode).toBe(200);
+
+    const stubbedFetch = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (input: string | URL, init?: RequestInit) =>
+      String(input).includes("/addon-url/generation") ? jsonResponse({ error: "down" }, 503) : stubbedFetch(input, init)
+    );
+    try {
+      expect((await app.inject({ method: "GET", url })).statusCode).toBe(404);
+    } finally {
+      fetchMock.mockImplementation(stubbedFetch);
+    }
+  });
+
   it("answers a profile the API doesn't know as unknown", async () => {
     delete keyGenerations[OTHER_PROFILE_ID];
     const response = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });

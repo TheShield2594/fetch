@@ -85,13 +85,16 @@ const readThrough = async (
   const inFlight = profileLookups.get(key);
   if (inFlight) return inFlight;
 
-  const lookup = load()
+  // A lookup still in flight when the cache is invalidated read the rows as they
+  // were before the change (an addon key generation, say), so it answers its own
+  // callers but must not repopulate the cache, nor drop a newer lookup's entry.
+  const lookup: Promise<CachedProfile[]> = load()
     .then((profiles) => {
-      if (profiles.length > 0) profileCache.set(key, profiles);
+      if (profiles.length > 0 && profileLookups.get(key) === lookup) profileCache.set(key, profiles);
       return profiles;
     })
     .finally(() => {
-      profileLookups.delete(key);
+      if (profileLookups.get(key) === lookup) profileLookups.delete(key);
     });
 
   profileLookups.set(key, lookup);

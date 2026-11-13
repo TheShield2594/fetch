@@ -161,7 +161,7 @@ function Enrol({ username, onEnabled, onCancel }: { username: string | null; onE
           <button type="submit" disabled={busy || !password} className="btn-primary">
             {busy ? <Loader2 size={16} className="animate-spin" /> : null} Continue
           </button>
-          <button type="button" onClick={onCancel} className="btn-secondary">Cancel</button>
+          <button type="button" onClick={onCancel} disabled={busy} className="btn-secondary">Cancel</button>
         </div>
       </form>
     );

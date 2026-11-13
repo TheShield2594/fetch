@@ -55,10 +55,10 @@ export const SIGNED_PROFILE_ROUTE_PREFIX = "/u/:profileId/:profileKey";
 // as at the API, and this service caches whole responses that would otherwise
 // carry on answering it.
 //
-// The last generation seen per profile is kept, for two things only: answering
-// while the API is briefly unreachable (as the default-profile lookup does),
-// and the rate limiter, which has to decide synchronously. A profile the API
-// says does not exist is forgotten.
+// The last generation seen per profile is kept for the rate limiter alone, which
+// has to decide synchronously. It never authorizes a request: when the API
+// can't be asked, signed URLs are refused. A profile the API says does not
+// exist is forgotten.
 const knownGenerations = new Map<string, number>();
 
 /** The generation last confirmed for a profile, if any. */
@@ -82,9 +82,10 @@ const lookupGeneration = async (profileId: string, logger: FastifyBaseLogger): P
     knownGenerations.set(profileId, generation);
     return generation;
   } catch (error) {
-    const known = knownGenerations.get(profileId);
-    logger.warn(error, "Failed to check a profile's addon key; using the last one seen, if any");
-    return known ?? null;
+    // Fail closed: the generation is what retires a replaced URL, so one that
+    // can't be confirmed authorizes nothing, however recently it was seen.
+    logger.warn(error, "Failed to check a profile's addon key; refusing its signed URL until the API answers");
+    return null;
   }
 };
 

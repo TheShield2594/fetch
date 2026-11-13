@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { api, runtimeConfig } from "../../api";
+import { api, ApiError, runtimeConfig } from "../../api";
 import { useTransientFlag } from "../../hooks/useTransientFlag";
 import type { AddonCatalogOption } from "../../api";
 import { Loader2, Check, AlertCircle, Copy, ExternalLink, Sparkles, RefreshCw, KeyRound } from "lucide-react";
@@ -17,17 +17,33 @@ function RotateAddonUrl({ profileId, profileName, onRotated }: { profileId: stri
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useTransientFlag(4000);
+  // Asked for only when the server wants it: the profile's unlock has lapsed.
+  const [needsPin, setNeedsPin] = useState(false);
+  const [pin, setPin] = useState("");
+
+  const close = () => {
+    setConfirming(false);
+    setError(null);
+    setNeedsPin(false);
+    setPin("");
+  };
 
   const rotate = async () => {
     setBusy(true);
     setError(null);
     try {
-      const res = await api.rotateAddonUrl(profileId);
+      const res = await api.rotateAddonUrl(profileId, needsPin ? pin : undefined);
       onRotated(res.stremioProfileKey);
-      setConfirming(false);
+      close();
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't change the addon URL");
+      if (err instanceof ApiError && err.code === "profile_pin_required") {
+        setNeedsPin(true);
+        setError("Enter this profile's PIN to change its addon URL.");
+      } else {
+        setError(err instanceof Error ? err.message : "Couldn't change the addon URL");
+        setPin("");
+      }
     } finally {
       setBusy(false);
     }
@@ -47,13 +63,27 @@ function RotateAddonUrl({ profileId, profileName, onRotated }: { profileId: stri
         confirmLabel="Change URL"
         icon={<KeyRound size={14} />}
         onConfirm={() => void rotate()}
-        onCancel={() => {
-          setConfirming(false);
-          setError(null);
-        }}
+        onCancel={close}
         busy={busy}
+        disabled={needsPin && !pin.trim()}
         error={error}
-      />
+      >
+        {needsPin && (
+          <label className="block text-xs font-semibold" style={{ color: "var(--text-dim)" }}>
+            Profile PIN
+            <input
+              type="password"
+              inputMode="numeric"
+              autoComplete="off"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              maxLength={8}
+              className="mt-1.5 block w-32 rounded-lg border px-2.5 py-1.5 text-sm field-control"
+              style={{ borderColor: "var(--border-field)", color: "var(--text)", background: "var(--bg-1)" }}
+            />
+          </label>
+        )}
+      </ConfirmReview>
     );
   }
 

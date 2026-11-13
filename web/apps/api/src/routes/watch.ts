@@ -324,6 +324,33 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
+  // Every title the profile has ever watched, as bare ids: films by their own
+  // id, episodes by their series, plus any series with a progress row (an
+  // import can leave one with no watch event behind it). Discover filters its
+  // lead and its "unwatched" rails by this, which /watch/history could only
+  // answer by paging through the whole of it. One row per title, so it stays
+  // small however long the history is.
+  app.get("/watch/titles", async (request) => {
+    const profileId = request.profileId!;
+    const [rows, progress] = await Promise.all([
+      prisma.watchEvent.groupBy({
+        by: ["type", "imdbId", "seriesImdbId"],
+        where: { profileId },
+      }),
+      prisma.seriesProgress.findMany({ where: { profileId }, select: { seriesImdbId: true } }),
+    ]);
+
+    const movies = new Set<string>();
+    const series = new Set<string>();
+    for (const row of rows) {
+      if (row.type === "movie") movies.add(row.imdbId);
+      else series.add(row.seriesImdbId || row.imdbId);
+    }
+    for (const row of progress) series.add(row.seriesImdbId);
+
+    return { movies: [...movies], series: [...series] };
+  });
+
   // Unmarks a film: every play of it goes, as "not watched" means on a TV.
   // Episodes have their own route under /series.
   app.delete<{ Params: { imdbId: string } }>("/watch/movie/:imdbId", async (request, reply) => {

@@ -496,7 +496,11 @@ class PhoneHubServer(
                 .replace("'/api/", "'/$prefix/api/")
                 .replace("\"/api/", "\"/$prefix/api/")
                 .replace("\"/logo.png\"", "\"/$prefix/logo.png\"")
-                .replaceFirst(Regex("<body([^>]*)>"), "<body$1>${PhoneHubWebPage.backLink(backLabel)}")
+                // The label is translated text: escape it for the replacement, where `$` and `\` are special.
+                .replaceFirst(
+                    Regex("<body([^>]*)>"),
+                    "<body\$1>" + Regex.escapeReplacement(PhoneHubWebPage.backLink(backLabel))
+                )
 
         fun startOnAvailablePort(
             actions: PhoneHubActions,

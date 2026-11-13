@@ -15,12 +15,6 @@ internal fun SimklSyncSnapshot.reconcileWatchedPlayback(): SimklSyncSnapshot {
     return if (retainedPlayback.size == playback.size) this else copy(playback = retainedPlayback)
 }
 
-internal fun SimklSyncSnapshot.isHiddenFromContinueWatching(contentId: String): Boolean =
-    entries.any { entry ->
-        entry.status.hidesContinueWatching() &&
-            entry.matchesContent(contentId = contentId, trackingProviderItemId = null)
-    }
-
 internal fun SimklListStatus?.hidesContinueWatching(): Boolean =
     this == SimklListStatus.ON_HOLD || this == SimklListStatus.DROPPED
 

@@ -1355,16 +1355,6 @@ body {
   }
 
   /*
-   * The hairline around artwork. A poster is a rectangle of someone else's
-   * colour, and a dark one on a dark page has no edge at all without this —
-   * `inset` rather than a border so it doesn't add to the box, and 0.5px so it
-   * reads as the edge of the image rather than as a frame around it.
-   */
-  .art-hairline {
-    box-shadow: inset 0 0 0 0.5px var(--border-strong);
-  }
-
-  /*
    * Horizontal safe-area insets.
    *
    * index.html sets `viewport-fit=cover`, so in landscape on a notched phone

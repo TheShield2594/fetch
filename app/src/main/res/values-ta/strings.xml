@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">மாற்றங்களை செயல்படுத்த உங்கள் டிவியில் உறுதிப்படுத்தவும்.</string>
     <string name="web_status_changes_applied">மாற்றங்கள் செயல்படுத்தப்பட்டன</string>
     <string name="web_status_msg_addon_updated">உங்கள் ஆடான் அமைப்பு டிவியில் புதுப்பிக்கப்பட்டது.</string>
-    <string name="web_status_msg_repo_updated">உங்கள் சேமிப்பக அமைப்பு டிவியில் புதுப்பிக்கப்பட்டது.</string>
     <string name="web_status_changes_rejected">மாற்றங்கள் நிராகரிக்கப்பட்டன</string>
     <string name="web_status_msg_changes_rejected">டிவியில் மாற்றங்கள் நிராகரிக்கப்பட்டன. உங்கள் பட்டியல் மீட்டமைக்கப்பட்டது.</string>
     <string name="web_status_error">ஏதோ தவறு ஏற்பட்டது</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">நேரம் முடிந்தது</string>
     <string name="web_status_msg_timeout">டிவியிலிருந்து பதில் இல்லை. மீண்டும் முயற்சிக்கவும்.</string>
     <string name="web_status_msg_connection_lost">டிவி சேவையகத்தை இனி அணுக முடியவில்லை. மாற்றங்கள் செயல்படுத்தப்பட்டிருக்கலாம்.</string>
-    <string name="web_manage_repos_title">சேமிப்பகங்களை நிர்வகிக்கவும்</string>
-    <string name="web_manage_repos_subtitle">உங்கள் சேமிப்பகங்களை நிர்வகிக்கவும்</string>
-    <string name="web_add_repo_url">URL மூலம் சேமிப்பகம் சேர்க்கவும்</string>
-    <string name="web_installed">நிறுவப்பட்டது</string>
-    <string name="web_no_repos">சேமிப்பகங்கள் எதுவும் நிறுவப்படவில்லை</string>
-    <string name="web_error_repo_exists">இந்த சேமிப்பகம் ஏற்கனவே பட்டியலில் உள்ளது</string>
     <string name="web_manage_collections_title">முகப்பு கோப்புறைகளை நிர்வகிக்கவும்</string>
     <string name="web_manage_collections_subtitle">உங்கள் முகப்புத் திரையில் உள்ள கோப்புறை வரிசைகளை உருவாக்கி நிர்வகிக்கவும்</string>
     <string name="web_status_msg_collections_updated">உங்கள் முகப்பு கோப்புறைகள் டிவியில் புதுப்பிக்கப்பட்டன.</string>

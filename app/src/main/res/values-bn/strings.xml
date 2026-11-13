@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">পরিবর্তনগুলো অ্যাপ্লাই করতে অনুগ্রহ করে আপনার টিভিতে কনফার্ম করুন।</string>
     <string name="web_status_changes_applied">পরিবর্তনগুলো অ্যাপ্লাই করা হয়েছে</string>
     <string name="web_status_msg_addon_updated">টিভিতে আপনার অ্যাডন কনফিগারেশন আপডেট করা হয়েছে।</string>
-    <string name="web_status_msg_repo_updated">টিভিতে আপনার রিপোজিটরি কনফিগারেশন আপডেট করা হয়েছে।</string>
     <string name="web_status_changes_rejected">পরিবর্তনগুলো বাতিল করা হয়েছে</string>
     <string name="web_status_msg_changes_rejected">টিভিতে পরিবর্তনগুলো বাতিল করা হয়েছে। আপনার তালিকা আগের অবস্থায় ফিরিয়ে নেওয়া হয়েছে।</string>
     <string name="web_status_error">কিছু একটা ভুল হয়েছে</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">সময় শেষ</string>
     <string name="web_status_msg_timeout">টিভি থেকে কোনো সাড়া পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।</string>
     <string name="web_status_msg_connection_lost">টিভি সার্ভারে আর পৌঁছানো যাচ্ছে না। পরিবর্তনগুলো হয়তো অ্যাপ্লাই করা হয়েছে।</string>
-    <string name="web_manage_repos_title">রিপোজিটরি ম্যানেজ করুন</string>
-    <string name="web_manage_repos_subtitle">আপনার রিপোজিটরি ম্যানেজ করুন</string>
-    <string name="web_add_repo_url">URL দিয়ে রিপোজিটরি যোগ করুন</string>
-    <string name="web_installed">ইনস্টল করা হয়েছে</string>
-    <string name="web_no_repos">কোনো রিপোজিটরি ইনস্টল করা নেই</string>
-    <string name="web_error_repo_exists">এই রিপোজিটরি আগে থেকেই তালিকায় আছে</string>
     <string name="web_manage_collections_title">হোম ফোল্ডার ম্যানেজ করুন</string>
     <string name="web_manage_collections_subtitle">আপনার হোম স্ক্রিনের ফোল্ডার সারিগুলো তৈরি এবং ম্যানেজ করুন</string>
     <string name="web_status_msg_collections_updated">টিভিতে আপনার হোম ফোল্ডার আপডেট করা হয়েছে।</string>

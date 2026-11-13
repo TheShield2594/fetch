@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">変更を適用するにはTVで確認してください。</string>
     <string name="web_status_changes_applied">変更が適用されました</string>
     <string name="web_status_msg_addon_updated">アドオン設定がTVで更新されました。</string>
-    <string name="web_status_msg_repo_updated">リポジトリ設定がTVで更新されました。</string>
     <string name="web_status_changes_rejected">変更が拒否されました</string>
     <string name="web_status_msg_changes_rejected">TVで変更が拒否されました。リストを元に戻しました。</string>
     <string name="web_status_error">問題が発生しました</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">タイムアウト</string>
     <string name="web_status_msg_timeout">TVからの応答がありません。もう一度お試しください。</string>
     <string name="web_status_msg_connection_lost">TVサーバーにアクセスできません。変更は適用された可能性があります。</string>
-    <string name="web_manage_repos_title">リポジトリ管理</string>
-    <string name="web_manage_repos_subtitle">リポジトリを管理</string>
-    <string name="web_add_repo_url">URLでリポジトリを追加</string>
-    <string name="web_installed">インストール済み</string>
-    <string name="web_no_repos">インストール済みリポジトリがありません</string>
-    <string name="web_error_repo_exists">このリポジトリは既にリストにあります</string>
     <string name="web_manage_collections_title">ホームフォルダー管理</string>
     <string name="web_manage_collections_subtitle">ホーム画面のフォルダー行を作成・管理</string>
     <string name="web_status_msg_collections_updated">ホームフォルダーがテレビで更新されました。</string>

@@ -132,11 +132,6 @@ class YouTubeSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setMaxVideoHeight(height: Int) {
-        if (height !in VIDEO_HEIGHT_OPTIONS) return
-        store(profileManager.currentProfileId()).edit { it[maxVideoHeightKey] = height }
-    }
-
     /** Steps the quality cap to [next] of the stored one, read inside the edit so quick presses each count. */
     suspend fun stepMaxVideoHeight(next: (Int) -> Int) {
         store(profileManager.currentProfileId()).edit { prefs ->
@@ -154,10 +149,6 @@ class YouTubeSettingsDataStore @Inject constructor(
                     ?: category.defaultMode
             }
         }
-    }
-
-    suspend fun setSponsorBlockMode(category: SponsorBlockCategory, mode: SponsorBlockMode) {
-        store(profileManager.currentProfileId()).edit { it[sponsorBlockModeKey(category)] = mode.name }
     }
 
     /** Steps [category]'s mode to [next] of the stored one, read inside the edit so quick presses each count. */

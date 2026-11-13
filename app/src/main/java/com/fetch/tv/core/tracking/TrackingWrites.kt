@@ -51,9 +51,6 @@ data class TrackingMutationResult(
     val notFoundCount: Int = 0,
     val resolutions: List<TrackingMutationResolution> = emptyList()
 ) {
-    val resolvedListStatuses: List<TrackingListStatus>
-        get() = resolutions.mapNotNull(TrackingMutationResolution::listStatus)
-
     val isComplete: Boolean
         get() = notFoundCount == 0
 }
@@ -63,21 +60,6 @@ data class TrackingMutationResolution(
     val mediaKind: TrackingMediaKind? = null,
     val providerSubtype: String? = null
 )
-
-interface TrackingListWriter {
-    val providerId: TrackingProviderId
-
-    suspend fun moveToList(
-        profileId: Int,
-        items: Collection<TrackingMediaReference>,
-        destination: TrackingListStatus
-    ): TrackingMutationResult
-
-    suspend fun removeFromList(
-        profileId: Int,
-        items: Collection<TrackingMediaReference>
-    ): TrackingMutationResult
-}
 
 interface TrackingHistoryWriter {
     val providerId: TrackingProviderId

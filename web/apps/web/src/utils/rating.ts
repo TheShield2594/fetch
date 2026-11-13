@@ -38,11 +38,6 @@ export function toStars(rating: number): number {
   return rating / 2;
 }
 
-/** Stars out of 5 → stored 1-10. `4.5` → `9`. */
-export function fromStars(stars: number): number {
-  return Math.round(stars * 2);
-}
-
 /** `4.5`, `4` — no trailing `.0`, so a whole number doesn't look measured. */
 export function formatStars(rating: number): string {
   return String(Math.round(toStars(rating) * 10) / 10);

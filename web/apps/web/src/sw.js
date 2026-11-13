@@ -126,10 +126,10 @@ registerRoute(
 // the INVALIDATE_API_CACHE message — was dead code there.
 //
 // The base can't be compiled in. It is a runtime value: config.js, written when
-// the web container starts, which a browser can further override per-device in
-// Settings. So the worker learns it — from the page, the only place that
-// override exists, and from config.js at install, for the first load before any
-// page has had the chance to say. Cache Storage carries it across the stops and
+// the web container starts. So the worker learns it — from config.js at
+// install, for the first load before any page has had the chance to say, and
+// from the page on every load after, so a container restarted with a new base
+// is picked up without waiting for a new worker. Cache Storage carries it across the stops and
 // starts a service worker's lifetime is made of.
 
 // ─── Which of its endpoints are cacheable ───
@@ -470,9 +470,9 @@ registerRoute(
 // succeeds — simplest way to avoid serving another profile's or
 // now-stale data, at the cost of a few extra refetches.
 self.addEventListener("message", (event) => {
-  // Sent on every load and whenever the per-device API base override changes:
-  // the page is the only place that override exists, so without this the worker
-  // would keep matching against the container's compiled-in base.
+  // Sent on every load: the base the worker stored at install outlives the
+  // container's config.js, so without this a redeploy that moved the API would
+  // leave the worker matching against the old one.
   if (event.data?.type === "SET_API_BASE") {
     event.waitUntil(rememberApiBase(event.data.apiBase));
     return;

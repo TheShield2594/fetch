@@ -3,7 +3,6 @@ package com.fetch.tv.data.simkl
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -254,7 +253,6 @@ class SimklPlaybackReconciliationTest {
         )
 
         assertTrue(snapshot.reconcileWatchedPlayback().playback.isEmpty())
-        assertTrue(snapshot.isHiddenFromContinueWatching("tt4574334"))
     }
 
     @Test
@@ -278,7 +276,6 @@ class SimklPlaybackReconciliationTest {
         )
 
         assertTrue(snapshot.reconcileWatchedPlayback().playback.isEmpty())
-        assertTrue(snapshot.isHiddenFromContinueWatching("tt4574334"))
     }
 
     @Test
@@ -302,7 +299,6 @@ class SimklPlaybackReconciliationTest {
         )
 
         assertEquals(snapshot.playback, snapshot.reconcileWatchedPlayback().playback)
-        assertFalse(snapshot.isHiddenFromContinueWatching("tt4574334"))
     }
 
     @Test

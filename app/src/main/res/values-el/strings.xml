@@ -29,7 +29,6 @@
   <string name="web_status_msg_waiting_tv">Επιβεβαιώστε τις αλλαγές στην TV σας για να εφαρμοστούν.</string>
   <string name="web_status_changes_applied">Οι αλλαγές εφαρμόστηκαν</string>
   <string name="web_status_msg_addon_updated">Η διαμόρφωση πρόσθετων ενημερώθηκε στην TV.</string>
-  <string name="web_status_msg_repo_updated">Η διαμόρφωση αποθετηρίων ενημερώθηκε στην TV.</string>
   <string name="web_status_changes_rejected">Οι αλλαγές απορρίφθηκαν</string>
   <string name="web_status_msg_changes_rejected">Οι αλλαγές απορρίφθηκαν στην TV. Η λίστα σας επανήλθε.</string>
   <string name="web_status_error">Κάτι πήγε στραβά</string>
@@ -38,12 +37,6 @@
   <string name="web_status_timeout">Λήξη χρονικού ορίου</string>
   <string name="web_status_msg_timeout">Δεν υπήρξε απόκριση από την TV. Δοκιμάστε ξανά.</string>
   <string name="web_status_msg_connection_lost">Ο διακομιστής TV δεν είναι πλέον προσβάσιμος. Οι αλλαγές ενδέχεται να εφαρμόστηκαν.</string>
-  <string name="web_manage_repos_title">Διαχείριση αποθετηρίων</string>
-  <string name="web_manage_repos_subtitle">Διαχειριστείτε τα αποθετήριά σας</string>
-  <string name="web_add_repo_url">Προσθήκη αποθετηρίου μέσω URL</string>
-  <string name="web_installed">Εγκατεστημένο</string>
-  <string name="web_no_repos">Δεν υπάρχουν εγκατεστημένα αποθετήρια</string>
-  <string name="web_error_repo_exists">Αυτό το αποθετήριο υπάρχει ήδη στη λίστα</string>
   <string name="web_manage_collections_title">Διαχείριση φακέλων αρχικής</string>
   <string name="web_manage_collections_subtitle">Δημιουργήστε και διαχειριστείτε τις γραμμές φακέλων της αρχικής οθόνης σας</string>
   <string name="web_status_msg_collections_updated">Οι φάκελοι αρχικής σας ενημερώθηκαν στην TV.</string>

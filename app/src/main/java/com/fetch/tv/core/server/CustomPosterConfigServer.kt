@@ -4,6 +4,12 @@ import android.content.Context
 import com.fetch.tv.R
 import fi.iki.elonen.NanoHTTPD
 import java.nio.charset.StandardCharsets
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.put
 
 class CustomPosterConfigServer(
     private val currentPatternProvider: () -> String,
@@ -39,7 +45,7 @@ class CustomPosterConfigServer(
         return newFixedLengthResponse(
             Response.Status.OK,
             "application/json; charset=utf-8",
-            """{"pattern":"${pattern.replace("\"", "\\\"")}"}"""
+            patternJson(pattern)
         )
     }
 
@@ -70,26 +76,6 @@ class CustomPosterConfigServer(
         )
     }
 
-    private fun extractJsonString(json: String, key: String): String? {
-        // Simple extraction without pulling in a JSON library
-        val keyPattern = "\"$key\""
-        val keyIndex = json.indexOf(keyPattern)
-        if (keyIndex < 0) return null
-        val colonIndex = json.indexOf(':', keyIndex + keyPattern.length)
-        if (colonIndex < 0) return null
-        val rest = json.substring(colonIndex + 1).trimStart()
-        if (rest.isEmpty()) return null
-        return if (rest.startsWith("\"")) {
-            val endQuote = rest.indexOf('"', 1)
-            if (endQuote < 0) null
-            else rest.substring(1, endQuote).replace("\\\"", "\"").replace("\\\\", "\\")
-        } else {
-            // unquoted value - take until comma or closing brace
-            val end = rest.indexOfFirst { it == ',' || it == '}' }
-            if (end < 0) rest.trim() else rest.substring(0, end).trim()
-        }
-    }
-
     private fun readUtf8Body(session: IHTTPSession): String {
         val length = session.headers["content-length"]?.toIntOrNull() ?: return ""
         if (length <= 0) return ""
@@ -104,6 +90,25 @@ class CustomPosterConfigServer(
     }
 
     companion object {
+        /** The current pattern as JSON; the pattern may hold any character, backslashes included. */
+        internal fun patternJson(pattern: String): String =
+            buildJsonObject { put("pattern", pattern) }.toString()
+
+        /**
+         * The string (or bare number/boolean) at [key] in the JSON object [json], decoded, or null
+         * when the body is not a JSON object or has no such value.
+         */
+        internal fun extractJsonString(json: String, key: String): String? {
+            val element = try {
+                Json.parseToJsonElement(json)
+            } catch (_: IllegalArgumentException) {
+                // SerializationException, which malformed JSON throws, is one.
+                return null
+            }
+            val value = (element as? JsonObject)?.get(key) as? JsonPrimitive ?: return null
+            return value.contentOrNull
+        }
+
         fun startOnAvailablePort(
             currentPatternProvider: () -> String,
             onPatternChanged: (String) -> Unit,

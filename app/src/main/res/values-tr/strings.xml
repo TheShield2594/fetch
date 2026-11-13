@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">Değişiklikleri uygulamak için lütfen TV\'nizden onaylayın.</string>
     <string name="web_status_changes_applied">Değişiklikler Uygulandı</string>
     <string name="web_status_msg_addon_updated">Eklenti yapılandırmanız TV\'de güncellendi.</string>
-    <string name="web_status_msg_repo_updated">Uzantı deposu yapılandırmanız TV\'de güncellendi.</string>
     <string name="web_status_changes_rejected">Değişiklikler Reddedildi</string>
     <string name="web_status_msg_changes_rejected">Değişiklikler TV\'de reddedildi. Listeniz eski haline döndürüldü.</string>
     <string name="web_status_error">Bir Şeyler Ters Gitti</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">Zaman Aşımı</string>
     <string name="web_status_msg_timeout">TV\'den yanıt alınamadı. Lütfen tekrar deneyin.</string>
     <string name="web_status_msg_connection_lost">TV sunucusuna artık ulaşılamıyor. Değişiklikler uygulanmış olabilir.</string>
-    <string name="web_manage_repos_title">Uzantı Depolarını Yönet</string>
-    <string name="web_manage_repos_subtitle">Uzantı depolarınızı yönetin</string>
-    <string name="web_add_repo_url">URL ile uzantı deposu ekle</string>
-    <string name="web_installed">Yüklü</string>
-    <string name="web_no_repos">Yüklü uzantı deposu yok</string>
-    <string name="web_error_repo_exists">Bu uzantı deposu zaten listede var</string>
     <string name="web_manage_collections_title">Ana Sayfa Klasörlerini Yönet</string>
     <string name="web_manage_collections_subtitle">Ana Sayfa ekranınızdaki klasör satırlarını oluşturun ve yönetin</string>
     <string name="web_status_msg_collections_updated">Ana Sayfa klasörleriniz TV\'de güncellendi.</string>

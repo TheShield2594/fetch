@@ -95,11 +95,7 @@
           // and these responses would be fetched for nothing.
           if (window.location.pathname !== "/") return;
 
-          var base = (
-            (window.localStorage.getItem("fetch_api_base_override") || "").trim() ||
-            window.__FETCH_API_BASE__ ||
-            ""
-          ).replace(/\/+$/, "");
+          var base = (window.__FETCH_API_BASE__ || "").replace(/\/+$/, "");
           if (!base) return;
 
           // The session and a PIN profile's access are HttpOnly cookies, sent

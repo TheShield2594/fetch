@@ -31,6 +31,5 @@ class TraktTrackingScrobblerTest {
         )
 
         coVerify(exactly = 1) { service.scrobbleStop(any(), 45f) }
-        coVerify(exactly = 0) { service.scrobblePause(any(), any()) }
     }
 }

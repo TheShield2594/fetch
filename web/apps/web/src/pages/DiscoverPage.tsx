@@ -103,6 +103,10 @@ export function DiscoverPage() {
   // spinning while the requests it already made are made again.
   const [progress, setProgress, progressMeta] = useCachedState<SeriesProgress[]>("dash:progress", []);
   const [history, setHistory, historyMeta] = useCachedState<WatchEvent[]>("dash:history", []);
+  // Every title ever watched, for `seen`. `history` is only the newest page, the
+  // seed for "Because you watched": a film watched before it would otherwise
+  // come back as the lead or in a trending rail.
+  const [watchedTitles, setWatchedTitles] = useCachedState<string[]>("dash:watched-titles", []);
 
   const [loading, setLoading] = useState(!progressMeta.hadCachedValue && !historyMeta.hadCachedValue);
   const [error, setError] = useState<string | null>(null);
@@ -246,15 +250,19 @@ export function DiscoverPage() {
   // on screen.
   const load = useCallback(async (signal?: AbortSignal) => {
     try {
-      const [progressRes, historyRes, checkinRes, nowPlayingRes] = await Promise.all([
+      const [progressRes, historyRes, watchedRes, checkinRes, nowPlayingRes] = await Promise.all([
         api.getSeriesProgress(signal),
         api.getWatchHistory(20, 0, { signal }),
+        // Best-effort: an API from before /watch/titles leaves `seen` to the
+        // newest page of history and progress, as it always was.
+        api.getWatchedTitles(signal).catch(() => null),
         api.getCheckin(signal).catch(() => ({ checkin: null })),
         api.getNowPlaying(signal).catch(() => ({ sessions: [] })),
       ]);
       if (signal?.aborted) return;
       setProgress(progressRes ?? []);
       setHistory(historyRes ?? []);
+      if (watchedRes) setWatchedTitles([...watchedRes.movies, ...watchedRes.series]);
       setActiveCheckin(checkinRes.checkin);
       setNowPlaying(nowPlayingRes.sessions ?? []);
       setError(null);
@@ -264,7 +272,7 @@ export function DiscoverPage() {
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
-  }, [setProgress, setHistory]);
+  }, [setProgress, setHistory, setWatchedTitles]);
 
   // A mark and its Undo each refresh, and the two can overlap: only the
   // newest refresh's answer is applied, so an older one landing late can't
@@ -408,11 +416,13 @@ export function DiscoverPage() {
   if (added.base !== watchlist.items) setAdded({ base: watchlist.items, ids: new Set() });
   const addedToWatchlist = added.ids;
   const seen = useMemo(() => {
-    const ids = new Set<string>();
+    const ids = new Set<string>(watchedTitles);
+    // Still folded in: a watch logged since `watchedTitles` was read shows up
+    // here first.
     for (const s of progress) ids.add(s.imdbId);
     for (const e of history) ids.add(historyItemImdbId(e));
     return ids;
-  }, [progress, history]);
+  }, [watchedTitles, progress, history]);
   const onWatchlist = useMemo(
     () => new Set([...watchlist.items.map((i) => i.id), ...addedToWatchlist]),
     [watchlist.items, addedToWatchlist]

@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Potvrdite izmene na svom TV-u da biste ih primenili.</string>
     <string name="web_status_changes_applied">Izmene su primenjene</string>
     <string name="web_status_msg_addon_updated">Podešavanje vašeg dodatka je ažurirano na TV-u.</string>
-    <string name="web_status_msg_repo_updated">Podešavanje vašeg repozitorijuma je ažurirano na TV-u.</string>
     <string name="web_status_changes_rejected">Izmene su odbijene</string>
     <string name="web_status_msg_changes_rejected">Izmene su odbijene na TV-u. Vaša lista je vraćena na prethodno stanje.</string>
     <string name="web_status_error">Nešto je pošlo po zlu</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Vreme za odziv je isteklo</string>
     <string name="web_status_msg_timeout">Nema odgovora sa TV-a. Pokušajte ponovo.</string>
     <string name="web_status_msg_connection_lost">Server na TV-u više nije dostupan. Izmene su možda primenjene.</string>
-    <string name="web_manage_repos_title">Upravljanje repozitorijumima</string>
-    <string name="web_manage_repos_subtitle">Upravljajte svojim repozitorijumima</string>
-    <string name="web_add_repo_url">Dodaj repozitorijum putem URL-a</string>
-    <string name="web_installed">Instalirano</string>
-    <string name="web_no_repos">Nema instaliranih repozitorijuma</string>
-    <string name="web_error_repo_exists">Ovaj repozitorijum se već nalazi na listi</string>
     <string name="web_manage_collections_title">Upravljanje fasciklama na Početnoj</string>
     <string name="web_manage_collections_subtitle">Kreirajte i upravljajte redovima fascikli na svom početnom ekranu</string>
     <string name="web_status_msg_collections_updated">Vaše fascikle na Početnoj su ažurirane na TV-u.</string>

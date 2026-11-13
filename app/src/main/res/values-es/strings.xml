@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">Confirma los cambios en tu TV para aplicarlos.</string>
     <string name="web_status_changes_applied">Cambios aplicados</string>
     <string name="web_status_msg_addon_updated">Tu configuración de complementos se ha actualizado en la TV.</string>
-    <string name="web_status_msg_repo_updated">Tu configuración de repositorios se ha actualizado en la TV.</string>
     <string name="web_status_changes_rejected">Cambios rechazados</string>
     <string name="web_status_msg_changes_rejected">Los cambios fueron rechazados en la TV. Tu lista se ha revertido.</string>
     <string name="web_status_error">Algo salió mal</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">Tiempo de espera agotado</string>
     <string name="web_status_msg_timeout">Sin respuesta de la TV. Inténtalo de nuevo.</string>
     <string name="web_status_msg_connection_lost">Ya no se puede acceder al servidor de la TV. Es posible que los cambios se hayan aplicado.</string>
-    <string name="web_manage_repos_title">Administrar repositorios</string>
-    <string name="web_manage_repos_subtitle">Administra tus repositorios</string>
-    <string name="web_add_repo_url">Añadir repositorio por URL</string>
-    <string name="web_installed">Instalado</string>
-    <string name="web_no_repos">No hay repositorios instalados</string>
-    <string name="web_error_repo_exists">Este repositorio ya está en la lista</string>
     <string name="web_manage_collections_title">Administrar carpetas de inicio</string>
     <string name="web_manage_collections_subtitle">Crea y administra las filas de carpetas de tu pantalla de inicio</string>
     <string name="web_status_msg_collections_updated">Tus carpetas de inicio se han actualizado en la TV.</string>

@@ -19,6 +19,7 @@ vi.mock("../api", async (importOriginal) => {
     api: {
       getSeriesProgress: vi.fn(),
       getWatchHistory: vi.fn(),
+      getWatchedTitles: vi.fn(async () => ({ movies: [], series: [] })),
       getCheckin: vi.fn(),
       getNowPlaying: vi.fn(),
       getTrending: vi.fn(),

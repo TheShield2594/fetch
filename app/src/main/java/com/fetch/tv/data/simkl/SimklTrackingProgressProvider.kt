@@ -122,9 +122,3 @@ class SimklTrackingProgressProvider @Inject constructor(
 
     override suspend fun prepareNextUpSeed(progress: WatchProgress): WatchProgress = progress
 }
-
-internal fun checkWatchedByVideoId(
-    snapshot: SimklSyncSnapshot,
-    videoId: String,
-    episode: Int
-): Boolean = SimklSnapshotProjection.create(snapshot).isWatchedByVideoId(videoId, episode)

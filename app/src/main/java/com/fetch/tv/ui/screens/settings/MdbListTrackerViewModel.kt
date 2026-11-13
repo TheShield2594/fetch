@@ -171,7 +171,7 @@ class MdbListTrackerViewModel @Inject constructor(
         connectionJob?.cancel()
         val scope = authStore.scope()
         action.value = MdbListTrackerAction()
-        viewModelScope.launch(Dispatchers.IO) { authStore.cancelSession(scope = scope) }
+        viewModelScope.launch(Dispatchers.IO) { auth.cancelDeviceAuthorization(scope) }
     }
 
     fun onDisconnect() {

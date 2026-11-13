@@ -128,10 +128,6 @@ class TraktPublicListSourceResolver @Inject constructor(
         traktApi.getPopularLists()
     }
 
-    fun parseTraktListId(input: String): Long? {
-        return parseTraktListPath(input)?.toLongOrNull()
-    }
-
     private suspend fun loadProminentLists(
         call: suspend () -> Response<List<TraktProminentListDto>>
     ): List<TraktPublicListSearchResult> = withContext(Dispatchers.IO) {

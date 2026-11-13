@@ -920,7 +920,6 @@
     <string name="web_status_msg_waiting_tv">Bekräfta ändringarna på din TV för att tillämpa dem.</string>
     <string name="web_status_changes_applied">Ändringar tillämpade</string>
     <string name="web_status_msg_addon_updated">Din tilläggskonfiguration har uppdaterats på TV:n.</string>
-    <string name="web_status_msg_repo_updated">Din arkivkonfiguration har uppdaterats på TV:n.</string>
     <string name="web_status_changes_rejected">Ändringar avvisade</string>
     <string name="web_status_msg_changes_rejected">Ändringarna avvisades på TV:n. Din lista har återställts.</string>
     <string name="web_status_error">Något gick fel</string>
@@ -929,12 +928,6 @@
     <string name="web_status_timeout">Tidsgräns nådd</string>
     <string name="web_status_msg_timeout">Inget svar från TV:n. Försök igen.</string>
     <string name="web_status_msg_connection_lost">TV-servern är inte längre tillgänglig. Ändringarna kan ha tillämpats.</string>
-    <string name="web_manage_repos_title">Hantera arkiv</string>
-    <string name="web_manage_repos_subtitle">Hantera dina arkiv</string>
-    <string name="web_add_repo_url">Lägg till arkiv via URL</string>
-    <string name="web_installed">Installerat</string>
-    <string name="web_no_repos">Inga arkiv installerade</string>
-    <string name="web_error_repo_exists">Detta arkiv finns redan i listan</string>
     <string name="web_manage_collections_title">Hantera Hem-mappar</string>
     <string name="web_manage_collections_subtitle">Skapa och hantera mappraderna på din hemskärm</string>
     <string name="web_status_msg_collections_updated">Dina Hem-mappar har uppdaterats på TV:n.</string>

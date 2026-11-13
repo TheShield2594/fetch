@@ -9,7 +9,6 @@ import com.fetch.tv.core.poster.withCustomPosterArt
 import com.fetch.tv.core.profile.LauncherExposureGate
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.domain.model.WatchProgress
-import com.fetch.tv.ui.screens.home.ContinueWatchingItem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -63,30 +62,6 @@ class TvRecommendationManager @Inject constructor(
     companion object {
         const val TAG = "TvRecommendation"
         val isPlaybackActive = MutableStateFlow(false)
-    }
-
-    suspend fun updateWatchNextFromCwItems(items: List<ContinueWatchingItem>) {
-        val progressList = items.mapNotNull { item ->
-            when (item) {
-                is ContinueWatchingItem.InProgress -> item.progress
-                is ContinueWatchingItem.NextUp -> WatchProgress(
-                    contentId = item.info.contentId,
-                    contentType = item.info.contentType,
-                    name = item.info.name,
-                    poster = item.info.poster,
-                    backdrop = item.info.backdrop,
-                    logo = item.info.logo,
-                    videoId = item.info.videoId,
-                    season = item.info.season,
-                    episode = item.info.episode,
-                    episodeTitle = item.info.episodeTitle,
-                    position = 0L,
-                    duration = 0L,
-                    lastWatched = item.info.lastWatched
-                )
-            }
-        }
-        updateWatchNext(progressList)
     }
 
     suspend fun updateWatchNext(items: List<WatchProgress>) {

@@ -1,5 +1,6 @@
 package com.fetch.tv.data.simkl
 
+import androidx.annotation.VisibleForTesting
 import com.fetch.tv.core.tracking.selectPreferredTrackingNextUpSeeds
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.model.WatchedItem
@@ -168,6 +169,8 @@ internal class SimklSnapshotProjection private constructor(
     }
 }
 
+/** The seeds a [SimklSnapshotProjection] built from this snapshot gives; production reads them off the cached projection. */
+@VisibleForTesting
 internal fun SimklSyncSnapshot.toSimklNextUpSeeds(
     preferFurthestEpisode: Boolean
 ): List<WatchProgress> = SimklSnapshotProjection.create(this).nextUp(preferFurthestEpisode)

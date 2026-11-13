@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Моля, потвърдете промените на телевизора си, за да ги приложите.</string>
     <string name="web_status_changes_applied">Промените са приложени</string>
     <string name="web_status_msg_addon_updated">Настройките на вашето приложение бяха актуализирани на телевизора.</string>
-    <string name="web_status_msg_repo_updated">Конфигурацията на вашето хранилище беше актуализирана на телевизора.</string>
     <string name="web_status_changes_rejected">Промените бяха отхвърлени</string>
     <string name="web_status_msg_changes_rejected">Промените бяха отхвърлени на телевизора. Списъкът ви беше възстановен.</string>
     <string name="web_status_error">Възникна проблем</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Времето изтече</string>
     <string name="web_status_msg_timeout">Няма отговор от телевизора. Моля, опитайте отново.</string>
     <string name="web_status_msg_connection_lost">Телевизорът вече не е достъпен. Възможно е промените да са приложени.</string>
-    <string name="web_manage_repos_title">Управление на хранилища</string>
-    <string name="web_manage_repos_subtitle">Управлявайте своите хранилища</string>
-    <string name="web_add_repo_url">Добавяне на хранилище чрез URL</string>
-    <string name="web_installed">Инсталирано</string>
-    <string name="web_no_repos">Няма инсталирани хранилища</string>
-    <string name="web_error_repo_exists">Това хранилище вече е в списъка</string>
     <string name="web_manage_collections_title">Управление на папки на началния екран</string>
     <string name="web_manage_collections_subtitle">Създавайте и управлявайте редовете с папки на началния си екран</string>
     <string name="web_status_msg_collections_updated">Папките ви на началния екран бяха обновени на телевизора.</string>

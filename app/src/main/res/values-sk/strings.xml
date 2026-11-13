@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">Potvrďte zmeny na vašom TV pre ich použitie.</string>
     <string name="web_status_changes_applied">Zmeny boli uložené</string>
     <string name="web_status_msg_addon_updated">Konfigurácia doplnkov bola na TV aktualizovaná.</string>
-    <string name="web_status_msg_repo_updated">Konfigurácia repozitárov bola na TV aktualizovaná.</string>
     <string name="web_status_changes_rejected">Zmeny boli zamietnuté</string>
     <string name="web_status_msg_changes_rejected">Zmeny boli odmietnuté na TV. Váš zoznam bol obnovený.</string>
     <string name="web_status_error">Niečo sa pokazilo</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">Časový limit vypršal</string>
     <string name="web_status_msg_timeout">Žiadna odpoveď od TV. Skúste to znova.</string>
     <string name="web_status_msg_connection_lost">Server TV už nie je dostupný. Zmeny mohli byť použité.</string>
-    <string name="web_manage_repos_title">Spravovať repozitáre</string>
-    <string name="web_manage_repos_subtitle">Spravovať vaše repozitáre</string>
-    <string name="web_add_repo_url">Pridať repozitár pomocou URL</string>
-    <string name="web_installed">Nainštalované</string>
-    <string name="web_no_repos">Žiadne repozitáre nie sú nainštalované</string>
-    <string name="web_error_repo_exists">Tento repozitár je už v zozname</string>
     <string name="web_manage_collections_title">Spravovať domovské priečinky</string>
     <string name="web_manage_collections_subtitle">Vytvoriť a spravovať riadky priečinkov na domovskej obrazovke</string>
     <string name="web_status_msg_collections_updated">Vaše domovské priečinky boli na TV aktualizované.</string>

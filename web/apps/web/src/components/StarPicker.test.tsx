@@ -2,7 +2,6 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { StarPicker } from "./StarPicker";
-import { fromStars, toStars } from "../utils/rating";
 import { first } from "../test/present";
 
 describe("StarPicker", () => {
@@ -77,16 +76,5 @@ describe("StarPicker", () => {
     await userEvent.click(screen.getByRole("button", { name: "Rate 4 out of 5" }));
 
     expect(onRate).not.toHaveBeenCalled();
-  });
-});
-
-describe("star scale", () => {
-  it("round-trips every stored value without losing precision", () => {
-    // The reason ratings stay stored out of ten: five stars in half steps is
-    // the same ten values, so an imported 9 stays a 9 rather than collapsing
-    // into a 10.
-    for (let stored = 1; stored <= 10; stored++) {
-      expect(fromStars(toStars(stored))).toBe(stored);
-    }
   });
 });

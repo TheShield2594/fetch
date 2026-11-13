@@ -1506,12 +1506,6 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setFrameRateMatching(enabled: Boolean) {
-        setFrameRateMatchingMode(
-            if (enabled) FrameRateMatchingMode.START_STOP else FrameRateMatchingMode.OFF
-        )
-    }
-
     suspend fun setStreamAutoPlayMode(mode: StreamAutoPlayMode) {
         store(profileManager.currentProfileId()).edit { prefs ->
             prefs[streamAutoPlayModeKey] = mode.name
@@ -1695,11 +1689,6 @@ class PlayerSettingsDataStore @Inject constructor(
     suspend fun setSubtitleOrganizationMode(mode: SubtitleOrganizationMode) {
         store(profileManager.currentProfileId()).edit { prefs ->
             prefs[subtitleOrganizationModeKey] = mode.name
-        }
-    }
-    suspend fun setResizeMode(mode: Int) {
-        store(profileManager.currentProfileId()).edit { prefs ->
-            prefs[resizeModeKey] = mode.coerceIn(0, 4)
         }
     }
 

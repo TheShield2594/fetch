@@ -454,23 +454,6 @@ describe("moving a pre-cookie sign-in into the cookie", () => {
 });
 
 describe("runtimeConfig", () => {
-  it("prefers a saved API base override over the build-time default", () => {
-    expect(runtimeConfig.getApiBase()).toBe(runtimeConfig.apiBaseDefault);
-
-    runtimeConfig.setApiBaseOverride("  https://fetch.example  ");
-
-    expect(runtimeConfig.getApiBaseOverride()).toBe("https://fetch.example");
-    expect(runtimeConfig.getApiBase()).toBe("https://fetch.example");
-  });
-
-  it("removes the override rather than storing a blank one", () => {
-    runtimeConfig.setApiBaseOverride("https://fetch.example");
-    runtimeConfig.setApiBaseOverride("   ");
-
-    expect(window.localStorage.getItem(runtimeConfig.apiBaseOverrideKey)).toBeNull();
-    expect(runtimeConfig.getApiBase()).toBe(runtimeConfig.apiBaseDefault);
-  });
-
   it("removes the session id rather than storing a blank one", () => {
     runtimeConfig.setSessionId("  ");
 

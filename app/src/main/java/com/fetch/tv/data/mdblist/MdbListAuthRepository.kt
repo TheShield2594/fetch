@@ -91,8 +91,9 @@ class MdbListAuthRepository(
         }
     }
 
-    fun cancelDeviceAuthorization() {
-        store.cancelSession()
+    /** Drops the pending device code for [scope], so a late device or token response is ignored. */
+    fun cancelDeviceAuthorization(scope: MdbListAuthScope = store.scope()) {
+        store.cancelSession(scope = scope)
     }
 
     suspend fun authorization(

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  EAGER_ROUTES,
   IDLE_PREFETCH,
   ROUTE_LOADERS,
   loadDetailPanel,
@@ -18,7 +17,9 @@ import { SIDEBAR_NAV_ITEMS } from "../components/Sidebar";
 //
 // The exception is a route already in the entry bundle: there is no chunk to
 // warm, so it declares itself eager instead of carrying a loader that would
-// only make the build warn about a mixed static/dynamic import.
+// only make the build warn about a mixed static/dynamic import (see the note
+// above the loaders in routePrefetch.ts).
+const EAGER_ROUTES = new Set(["/"]);
 const isCovered = (to: string) => EAGER_ROUTES.has(to) || typeof ROUTE_LOADERS[to] === "function";
 
 // Prefetch state is process-wide, and a stubbed `api` would otherwise be the

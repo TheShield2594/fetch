@@ -166,40 +166,6 @@ class ProgramBuilder @Inject constructor(
         return result
     }
 
-    fun clearAllWatchNextPrograms() {
-        var cursor: android.database.Cursor? = null
-        try {
-            cursor = context.contentResolver.query(
-                TvContractCompat.WatchNextPrograms.CONTENT_URI,
-                arrayOf(
-                    TvContractCompat.WatchNextPrograms._ID,
-                    TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID
-                ),
-                null, null, null
-            )
-            cursor?.let {
-                while (it.moveToNext()) {
-                    val idIdx = it.getColumnIndex(
-                        TvContractCompat.WatchNextPrograms.COLUMN_INTERNAL_PROVIDER_ID
-                    )
-                    if (idIdx >= 0) {
-                        val providerId = it.getString(idIdx)
-                        if (providerId?.startsWith("wn_") == true) {
-                            val pkIdx = it.getColumnIndex(TvContractCompat.WatchNextPrograms._ID)
-                            if (pkIdx >= 0) {
-                                val uri = TvContractCompat.buildWatchNextProgramUri(it.getLong(pkIdx))
-                                context.contentResolver.delete(uri, null, null)
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (_: Exception) {
-        } finally {
-            cursor?.close()
-        }
-    }
-
     private fun findWatchNextByInternalId(internalId: String): Long? {
         return try {
             val cursor = context.contentResolver.query(

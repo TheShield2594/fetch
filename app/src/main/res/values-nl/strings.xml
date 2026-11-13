@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Bevestig de wijzigingen op je tv om ze toe te passen.</string>
     <string name="web_status_changes_applied">Wijzigingen toegepast</string>
     <string name="web_status_msg_addon_updated">Je add-onconfiguratie is bijgewerkt op de tv.</string>
-    <string name="web_status_msg_repo_updated">Je repositoryconfiguratie is bijgewerkt op de tv.</string>
     <string name="web_status_changes_rejected">Wijzigingen geweigerd</string>
     <string name="web_status_msg_changes_rejected">De wijzigingen zijn op de tv geweigerd. Je lijst is teruggezet.</string>
     <string name="web_status_error">Er is iets misgegaan</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Time-out</string>
     <string name="web_status_msg_timeout">Geen reactie van de tv. Probeer het opnieuw.</string>
     <string name="web_status_msg_connection_lost">De tv-server is niet meer bereikbaar. De wijzigingen zijn mogelijk toch toegepast.</string>
-    <string name="web_manage_repos_title">Repositories beheren</string>
-    <string name="web_manage_repos_subtitle">Beheer je repositories</string>
-    <string name="web_add_repo_url">Repository toevoegen via URL</string>
-    <string name="web_installed">Geïnstalleerd</string>
-    <string name="web_no_repos">Geen repositories geïnstalleerd</string>
-    <string name="web_error_repo_exists">Deze repository staat al in de lijst</string>
     <string name="web_manage_collections_title">Home-mappen beheren</string>
     <string name="web_manage_collections_subtitle">Maak en beheer de maprijen op je startscherm</string>
     <string name="web_status_msg_collections_updated">Je Home-mappen zijn bijgewerkt op de tv.</string>

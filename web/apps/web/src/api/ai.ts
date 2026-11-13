@@ -29,9 +29,6 @@ export const aiApi = {
       body: JSON.stringify({ config }),
     });
   },
-  refreshAiRecs() {
-    return request<{ refreshed: boolean }>("/recommendations/ai/refresh", { method: "POST", timeoutMs: 60000 });
-  },
   getAiRecommendations(type: MediaType, limit = 20) {
     return request<{ metas: TrendingMeta[]; reasons?: Record<string, string> | undefined }>(`/recommendations/ai?type=${type}&limit=${limit}`);
   },

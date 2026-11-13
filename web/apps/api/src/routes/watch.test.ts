@@ -22,6 +22,7 @@ const prismaMock = {
     groupBy: vi.fn(),
     deleteMany: vi.fn(),
   },
+  seriesProgress: { findMany: vi.fn() },
   metadata: { findMany: vi.fn(), upsert: vi.fn() },
   rating: { findMany: vi.fn() },
   $transaction: vi.fn(async (callback: (tx: typeof txMock) => unknown) => callback(txMock)),
@@ -266,6 +267,36 @@ describe("watch routes", () => {
       expect(prismaMock.watchEvent.deleteMany).toHaveBeenCalledWith({
         where: { profileId: PROFILE_ID, type: "movie", imdbId: "tmdb:603" },
       });
+      await app.close();
+    });
+  });
+
+  describe("GET /watch/titles", () => {
+    it("lists each watched title once: films by id, episodes and progress rows by series", async () => {
+      prismaMock.watchEvent.groupBy.mockResolvedValue([
+        { type: "movie", imdbId: "tt-film", seriesImdbId: null },
+        { type: "episode", imdbId: "tt-ep1", seriesImdbId: "tt-show" },
+        { type: "episode", imdbId: "tt-ep2", seriesImdbId: "tt-show" },
+        // An episode logged without its series falls back to its own id, as /watch/state does.
+        { type: "episode", imdbId: "tt-orphan", seriesImdbId: null },
+      ]);
+      prismaMock.seriesProgress.findMany.mockResolvedValue([{ seriesImdbId: "tt-show" }, { seriesImdbId: "tt-imported" }]);
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "GET", url: "/watch/titles" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({
+        movies: ["tt-film"],
+        series: ["tt-show", "tt-orphan", "tt-imported"],
+      });
+      expect(prismaMock.watchEvent.groupBy).toHaveBeenCalledWith({
+        by: ["type", "imdbId", "seriesImdbId"],
+        where: { profileId: PROFILE_ID },
+      });
+      expect(prismaMock.seriesProgress.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { profileId: PROFILE_ID } })
+      );
       await app.close();
     });
   });

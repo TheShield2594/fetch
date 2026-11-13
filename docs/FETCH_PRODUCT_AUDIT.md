@@ -26,10 +26,20 @@ The first version of this report ended with four questions. The owner answered t
 
 | Question | Answer | Effect on the report |
 |---|---|---|
-| Is the Supabase backend or watch party in use? | No, and it will not be. The TV app is the product; the website is for the watchlist, history and settings. | E2 is a plain removal with no deprecation period. The website's scope is narrowed to exactly those three things. |
+| Is the Supabase backend or watch party in use? | No, and it will not be. The TV app is the product; the website is for the watchlist, history and settings. | E2 is a plain removal with no deprecation period. The website's scope is narrowed to exactly those three things. *(The narrowing was revised on 13 November 2026: discovery stays. See below.)* |
 | Is the YouTube section used? | Yes. | It stays. E3 changes from "remove" to "contain": one shared parser, out of the critical paths, failures isolated. |
 | Are app-store releases planned? | No. GitHub releases only. | The `playstore` flavour has no purpose and is recommended for removal (new item E6). Store-review risk drops out. |
 | Who is the desktop app for? | The owner and a few friends. | It stays as a personal tool. It is not a product surface: no parity target, no polish budget, shared code instead of copies. |
+
+#### Revised 13 November 2026: discovery is in scope for the website (#535)
+
+The first answer above narrowed the website to the watchlist, history and settings. The website design review (#498) then worked from the opposite assumption, and the UI sat between the two. The owner settled it in favour of the review:
+
+| Question | Answer | Effect on the report |
+|---|---|---|
+| Is discovery in scope for the website? | Yes. Discover, Search, Calendar and Stats stay in primary navigation, and trending, TMDB recommendations and upcoming episodes stay first-class. | The website is the account server **and** a place to find what to watch next. It keeps the watchlist, history and settings for the TV, and keeps its discovery pages. The recommendation in §13 to narrow it to those three things is withdrawn. AI recommendations stay opt-in (off by default), which is unchanged. |
+
+The review's discovery issues stand as done rather than being closed as out of scope: #512 (editorial Discover), #513 and #514 (Discover cards and errors), #515 (Search browse state), #519 (Calendar), #521 (Stats) and #561 (Discover skips watched titles). Rejected alternatives: removing Discover from primary navigation with "upcoming" folded into the Shelf, and a middle path keeping trending and TMDB recommendations as a secondary page with no further investment.
 
 ### What was and was not possible
 
@@ -862,7 +872,7 @@ Quality is my judgment from code: **A** strong, **B** solid, **C** works with ca
 
 **Desktop (55.9k lines).** Structurally near parity with the TV, and a competent mouse app. It is a personal tool for the owner and a few friends, which is a fine reason to have it and changes what it should cost. Today only 7.8k lines are shared; Trakt, Simkl, MDBList, sync, party and YouTube clients are reimplemented, some byte-for-byte. The built-in player reads every frame back to the CPU and has been tested only on a software rasteriser (`docs/desktop.md`). **Recommendation: keep it, and stop treating it as a second product.** Drop the parity target and `docs/desktop-parity.md`; default to external mpv playback; when a client is touched on the TV side, move it into `shared/` instead of editing two copies, starting with the YouTube parser since both apps keep YouTube. Desktop work should never block or delay a TV release.
 
-**Website (61k lines, 146 routes).** TV pairing and sync are real and cover profiles, addons, Home rows, settings, lists and watch state. Security is above hobby standard: accounts, invites, scrypt, per-TV revocable tokens, SSRF guards. Two problems: self-hosting is heavy (five containers; HTTPS needed), and the scope still includes AI recommendations from its origin as a standalone tracker (the Steam games tracker has since been removed). The owner's stated purpose for it is the watchlist, history and settings. **Recommendation: narrow it to exactly that**, as "the Fetch account server", in its README and navigation, and move AI recommendations out of the default path or out of the repo.
+**Website (61k lines, 146 routes).** TV pairing and sync are real and cover profiles, addons, Home rows, settings, lists and watch state. Security is above hobby standard: accounts, invites, scrypt, per-TV revocable tokens, SSRF guards. Two problems: self-hosting is heavy (five containers; HTTPS needed), and the scope still includes AI recommendations from its origin as a standalone tracker (the Steam games tracker has since been removed). The owner's stated purpose for it is the watchlist, history and settings. **Recommendation: narrow it to exactly that**, as "the Fetch account server", in its README and navigation, and move AI recommendations out of the default path or out of the repo. *(Superseded 13 November 2026, #535: discovery stays in scope; only the AI part of this recommendation stands, and AI recommendations are already off by default. See "Owner decisions recorded after the audit".)*
 
 **Strategy.** TV plus website is the coherent, differentiating pair: a household's profiles, limits and lists managed from a phone on a server the user owns. No competitor offers that. The third backend is the over-extension, and the desktop is fine as long as it is budgeted as a personal tool.
 

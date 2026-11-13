@@ -42,6 +42,24 @@ export const setTemporaryPassword = async (accountId: string, password: string):
   ]);
 };
 
+/**
+ * Turns two-factor sign-in off for an account: its secret, any half-finished
+ * setup and its recovery codes all go. For the account itself (with its
+ * password and a code), the admin, and `fetch reset-2fa`.
+ */
+export const removeTotp = async (accountId: string): Promise<void> => {
+  await prisma.account.update({
+    where: { id: accountId },
+    data: {
+      totpSecret: null,
+      totpPendingSecret: null,
+      totpEnabledAt: null,
+      totpLastUsedStep: null,
+      totpRecoveryCodes: [],
+    },
+  });
+};
+
 /** Removes a profile's PIN, and with it any lockout its wrong guesses earned. */
 export const clearProfilePin = async (profileId: string): Promise<void> => {
   await prisma.profile.update({ where: { id: profileId }, data: { pinHash: null } });

@@ -330,7 +330,7 @@ https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
 
 Rather than assembling either by hand, use **Settings → Stremio Addon** — it always shows the correct, ready-to-paste URL for the profile you're currently using. To install for someone else: switch to their profile, come back, and copy the URL again. Catalogs, "Mark Watched", and scrobbles from that installation all belong to that profile.
 
-Older URL forms keep working while your install has a single account: `/p/PROFILE-ID/manifest.json` names a profile without a key, and the prefix-less `/manifest.json` resolves to your oldest profile. Neither proves the caller may see that profile, so the add-on stops answering them as soon as a second account exists (`ADDON_REQUIRE_SIGNED_URLS=auto`, the default). Once the add-on is reachable from outside your home, set `ADDON_REQUIRE_SIGNED_URLS=true` in `.env` so it answers only the signed `/u/` URLs even with one account; `false` keeps the old forms working regardless. Whenever they are refused, each person reinstalls from **Settings → Stremio Addon**. Rotating `API_TOKEN` changes every key, so reinstall after that too.
+Older URL forms keep working while your install has a single account: `/p/PROFILE-ID/manifest.json` names a profile without a key, and the prefix-less `/manifest.json` resolves to your oldest profile. Neither proves the caller may see that profile, so the add-on stops answering them as soon as a second account exists (`ADDON_REQUIRE_SIGNED_URLS=auto`, the default). Once the add-on is reachable from outside your home, set `ADDON_REQUIRE_SIGNED_URLS=true` in `.env` so it answers only the signed `/u/` URLs even with one account; `false` keeps the old forms working regardless. Whenever they are refused, each person reinstalls from **Settings → Stremio Addon**. Rotating `API_TOKEN` changes every key, so reinstall after that too. A single profile's URL that got out can be replaced on its own from the same page (**Change this profile's addon URL**), which leaves every other profile's URL alone.
 
 ### Signing in to Plex, Jellyfin and Emby
 
@@ -600,7 +600,8 @@ Rotating also invalidates everything else derived from it, so plan a rotation as
 
 - every stored credential above is unreadable until re-entered (a notification channel whose URL can't be read says so in Settings: remove it and add it again; an add-on whose URL can't be read drops out of the list until it is reinstalled or the TV next syncs);
 - every profile unlock (a PIN-protected profile has to be unlocked again);
-- every add-on URL, the built-in Stremio catalog and the separate add-on service alike — reinstall each from Settings;
+- every add-on URL, the built-in Stremio catalog and the separate add-on service alike — reinstall each from Settings (one profile's URL can be replaced on its own, without rotating anything: Settings → Stremio addon → Change this profile's addon URL);
+- every account's two-factor sign-in secret: those accounts sign in with a recovery code, then turn two-factor off and on again (or run `fetch reset-2fa <username>`);
 - the addon service's token to the API, which it derives itself, so restart both services together;
 - scripts and anything else holding the old token as a bearer.
 

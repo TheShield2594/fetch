@@ -3,7 +3,7 @@ import { verifyToken } from "./auth.js";
 import { isStremioSecretPath } from "./stremio-secret.js";
 
 /** The sign-in routes, which are how a browser gets a bearer token at all. */
-const SIGN_IN_PATHS = new Set(["/auth/status", "/auth/login", "/auth/register"]);
+const SIGN_IN_PATHS = new Set(["/auth/status", "/auth/login", "/auth/login/totp", "/auth/register"]);
 
 /**
  * Routes that cannot carry a bearer token by construction: the sign-in routes,

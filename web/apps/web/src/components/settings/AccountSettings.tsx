@@ -6,6 +6,7 @@ import { ConfirmReview } from "../ConfirmReview";
 import { newPasswordProblem, PasswordField } from "../PasswordField";
 import { SignInsSettings } from "./SignInsSettings";
 import { ActivitySettings } from "./ActivitySettings";
+import { TwoFactorSettings } from "./TwoFactorSettings";
 
 const SUBHEADING = "text-sm font-semibold";
 const DIVIDED = "space-y-3 border-t pt-6";
@@ -301,6 +302,17 @@ export function AccountSettings() {
           <section aria-labelledby="account-password" className={DIVIDED} style={{ borderColor: "var(--border)" }}>
             <h3 id="account-password" className={SUBHEADING} style={{ color: "var(--text)" }}>Change password</h3>
             <ChangePasswordForm
+              onChanged={() => {
+                refresh();
+                changed();
+              }}
+            />
+          </section>
+
+          <section aria-labelledby="account-2fa" className={DIVIDED} style={{ borderColor: "var(--border)" }}>
+            <h3 id="account-2fa" className={SUBHEADING} style={{ color: "var(--text)" }}>Two-factor sign-in</h3>
+            <TwoFactorSettings
+              username={account.username}
               onChanged={() => {
                 refresh();
                 changed();

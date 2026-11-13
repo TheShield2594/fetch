@@ -1,5 +1,5 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
-import { AlertCircle, Check, Copy, KeyRound, Loader2, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import { AlertCircle, Check, Copy, KeyRound, Loader2, ShieldCheck, ShieldOff, Trash2, UserPlus } from "lucide-react";
 import { type AccountSummary, api, ApiError, type Invite } from "../../api";
 import { useAccount } from "../../hooks/useAccount";
 import { useTransientFlag } from "../../hooks/useTransientFlag";
@@ -137,7 +137,7 @@ function TemporaryPasswordForm({
   );
 }
 
-type AccountAction = "remove" | "password" | "admin";
+type AccountAction = "remove" | "password" | "admin" | "totp";
 
 function AccountRow({
   account,
@@ -193,6 +193,22 @@ function AccountRow({
     }
   };
 
+  const removeTotp = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await api.removeMemberTotp(account.id, adminPassword);
+    } catch (err) {
+      setError(describeError(err, "Could not turn off two-factor sign-in."));
+      setBusy(false);
+      return;
+    }
+    setBusy(false);
+    setAction(null);
+    setNotice(`Two-factor sign-in is off for ${account.username}. They sign in with their password alone.`);
+    onChanged();
+  };
+
   const profiles = `${account.profileCount} ${account.profileCount === 1 ? "profile" : "profiles"}`;
 
   return (
@@ -202,6 +218,7 @@ function AccountRow({
           <strong style={{ color: "var(--text)" }}>{account.username}</strong>
           {account.isAdmin && <span className="ml-2 text-xs text-accent-text">Admin</span>}
           {isMe && <span className="ml-2 text-xs">You</span>}
+          {account.totpEnabled && <span className="ml-2 text-xs">Two-factor on</span>}
           <span className="ml-2 text-xs">{profiles}</span>
         </span>
         {member && action === null && (
@@ -209,6 +226,11 @@ function AccountRow({
             <button type="button" onClick={() => open("password")} className="btn-secondary btn-sm" aria-label={`Set a temporary password for ${account.username}`}>
               <KeyRound size={14} /> Temporary password
             </button>
+            {account.totpEnabled && (
+              <button type="button" onClick={() => open("totp")} className="btn-secondary btn-sm" aria-label={`Turn off two-factor sign-in for ${account.username}`}>
+                <ShieldOff size={14} /> Turn off two-factor
+              </button>
+            )}
             <button type="button" onClick={() => open("admin")} className="btn-secondary btn-sm" aria-label={`Make ${account.username} the admin`}>
               <ShieldCheck size={14} /> Make admin
             </button>
@@ -251,6 +273,33 @@ function AccountRow({
             setNotice(`${account.username} has a temporary password. Pass it on to them.`);
           }}
         />
+      )}
+      {action === "totp" && (
+        <ConfirmReview
+          label={`Turn off two-factor sign-in for ${account.username}?`}
+          message={
+            <>
+              Turn off two-factor sign-in for <strong>{account.username}</strong>? Do this when they&apos;ve lost their
+              authenticator and their recovery codes. They sign in with their password alone until they turn it on again.
+            </>
+          }
+          confirmLabel="Turn off two-factor"
+          icon={<ShieldOff size={14} />}
+          onConfirm={() => void removeTotp()}
+          onCancel={() => setAction(null)}
+          busy={busy}
+          disabled={!adminPassword}
+          error={error}
+        >
+          <PasswordField
+            label="Your password"
+            value={adminPassword}
+            onChange={setAdminPassword}
+            autoComplete="current-password"
+            // eslint-disable-next-line jsx-a11y/no-autofocus -- opened by the Turn off two-factor button, so focus belongs here
+            autoFocus
+          />
+        </ConfirmReview>
       )}
       {action === "admin" && (
         <ConfirmReview

@@ -438,6 +438,8 @@ Trakt.
 | `POST` | `/profiles/:id/verify` | `{ pin }` → a profile token for `x-profile-token` (with `X-Fetch-Client: web`, the `fetch_profile` cookie instead). `401` on a wrong PIN, `429` once the profile is locked out after repeated failures — separate from the global rate limit. |
 | `POST` | `/profiles/lock` | Expires the website's `fetch_profile` cookie, so the profile in use needs its PIN again; nothing else is signed out. `204`. A TV just forgets its `x-profile-token`. |
 | `POST` | `/profiles/:id/clear-pin` | `{ password }` → `{ profile }`. Removes a forgotten PIN. Only the admin, signed in, on a profile in their own account (`403 admin_required` otherwise, `404` for another account's profile), with the account password asked again (`401 password_incorrect`). |
+| `POST` | `/profiles/:id/addon-url/rotate` | `{ currentPin? }` → `{ stremioManifestPath, stremioManifestUrl, stremioProfileKey }`. Replaces the profile's Stremio addon key, so the URL it had answers `404` (from the API and the addon service) from now on; other profiles' URLs are unchanged. A PIN-protected profile needs its profile token or `currentPin`. Records `addon_url_rotated`. |
+| `GET` | `/profiles/:id/addon-url/generation` | The addon service only (service token), `404` to anything else. `{ generation }`: which generation of the profile's key is current, which the addon service checks a signed `/u/` URL against. |
 
 The settings mirror what the TV keeps per profile, so a profile edited here reads
 the same on every paired TV. All are optional on write; `null` clears the
@@ -575,23 +577,30 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | --- | --- | --- |
 | `GET` | `/auth/status` | Public. `{ setupRequired }`: true until the admin account exists. Called with `API_TOKEN`, it also returns `multipleAccounts`, which the add-on service uses to decide whether keyless add-on URLs are safe. |
 | `POST` | `/auth/bootstrap` | `API_TOKEN` only. `{ username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). Creates the admin, which takes every profile that existed before accounts. `409` once an account exists. |
-| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. |
+| `POST` | `/auth/login` | Public. `{ username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). `401` for a wrong password or an unknown name alike; `429 { retryAfterSec }` after repeated failures, with the same escalating lockout as profile PINs. For an account with two-factor sign-in on, a right password answers `{ totpRequired: true, challenge }` instead, and no session. |
+| `POST` | `/auth/login/totp` | Public. `{ challenge, code }` or `{ challenge, recoveryCode }` → what `/auth/login` answers on success. `challenge` is good for five minutes and only while the password and two-factor setup are unchanged (`401 totp_challenge_invalid` otherwise: sign in again). `401 totp_incorrect` for a wrong code, a code already used, or a used recovery code; wrong codes count towards the same lockout as wrong passwords. |
+| `GET` | `/auth/totp` | `{ enabled, enabledAt, recoveryCodesLeft }`. Session only. |
+| `POST` | `/auth/totp/setup` | `{ currentPassword }` → `{ secret, uri }`: a new secret (base32) and its `otpauth://` URI for a QR code. Two-factor stays off until `/auth/totp/enable`. `409 totp_already_enabled` when it is on. Session only. |
+| `POST` | `/auth/totp/enable` | `{ code }` → `{ recoveryCodes }`. A code from the new secret turns two-factor on. The ten recovery codes are shown only here; only their hashes are stored. `400 totp_incorrect`, `400 totp_setup_missing`. Session only. |
+| `POST` | `/auth/totp/disable` | `{ currentPassword, code }` (or `recoveryCode`). Turns two-factor off. `204`. Session only. |
+| `POST` | `/auth/totp/recovery-codes` | `{ currentPassword, code }` (or `recoveryCode`) → `{ recoveryCodes }`. Replaces the recovery codes. Session only. |
 | `POST` | `/auth/logout` | Ends this session and expires the website's cookies. `204`. |
-| `GET` | `/auth/me` | `{ account: { id, username, isAdmin, mustChangePassword } \| null, isAdmin, sessionId }`. `account` and `sessionId` are null for `API_TOKEN`. `mustChangePassword` is true while the account signs in with a password someone else set. |
+| `GET` | `/auth/me` | `{ account: { id, username, isAdmin, mustChangePassword, totpEnabled } \| null, isAdmin, sessionId }`. `account` and `sessionId` are null for `API_TOKEN`. `mustChangePassword` is true while the account signs in with a password someone else set. |
 | `PATCH` | `/auth/me` | `{ username, currentPassword }` → `{ account }`. `401 password_incorrect`, `409` for a taken name. |
 | `DELETE` | `/auth/me` | `{ currentPassword }`. Deletes the signed-in account and everything its profiles own. The admin can't (`400 admin_cannot_delete`): hand admin on first. Expires the website's cookies. |
 | `POST` | `/auth/password` | `{ currentPassword, newPassword, signOutTvs? }`. Signs out every other session, and with `signOutTvs: true` every paired device. Clears `mustChangePassword`. `204`. |
 | `GET` | `/auth/sessions` | Where the account is signed in: `{ sessions: [...] }`, browsers (`kind: "browser"`, `id`, `current`, `userAgent`, `ipAddress`, `createdAt`, `lastUsedAt`, `expiresAt`) then TVs (`kind: "tv"`, `id`, `name`, `appVersion`, `createdAt`, `lastUsedAt`). Session only. |
 | `DELETE` | `/auth/sessions/:id` | Ends one of the account's browser sessions. A TV is ended with `DELETE /devices/:id`. Session only. Ending this browser's own session also expires its cookies. |
 | `POST` | `/auth/sessions/revoke-others` | `{ includeTvs? }` → `{ browsers, tvs }`. Ends every other browser session, and every TV with `includeTvs: true`. The calling session stays. Session only. |
-| `GET` | `/auth/activity` | `{ events: [{ id, kind, detail, ipAddress, userAgent, createdAt }] }`, newest first, at most 50, kept 90 days. `kind` is one of `sign_in`, `sign_in_failed`, `password_changed`, `password_reset`, `pin_changed`, `pin_removed`, `pin_cleared`, `tv_paired`, `tv_signed_out`, `session_revoked`, `signed_out_everywhere`, `username_changed`, `admin_granted`, `admin_transferred`. Session only. |
+| `GET` | `/auth/activity` | `{ events: [{ id, kind, detail, ipAddress, userAgent, createdAt }] }`, newest first, at most 50, kept 90 days. `kind` is one of `sign_in`, `sign_in_failed`, `password_changed`, `password_reset`, `pin_changed`, `pin_removed`, `pin_cleared`, `tv_paired`, `tv_signed_out`, `session_revoked`, `signed_out_everywhere`, `username_changed`, `admin_granted`, `admin_transferred`, `addon_url_rotated`, `totp_enabled`, `totp_disabled`, `totp_failed`, `recovery_code_used`. Session only. |
 | `POST` | `/auth/invites` | Admin. `{ expiresInDays? }` (1–30, default 7) → `{ invite: { id, code, expiresAt }, url }`. The code is shown only here; only its hash is stored. `url` is built from `FETCH_WEB_PUBLIC`, or null when that is unset. |
 | `GET` | `/auth/invites` | Admin. `{ invites: [{ id, createdAt, expiresAt, usedAt, usedBy }] }`. |
 | `DELETE` | `/auth/invites/:id` | Admin. Revokes an invite. |
 | `POST` | `/auth/register` | Public. `{ inviteCode, username, password }` → `{ token, account, sessionId }` (the website: a cookie and `{ account, sessionId }`). Creates the account and a first profile named after it. `400 invite_invalid` for a used, expired or unknown code; `409` for a taken name, which leaves the invite usable. |
-| `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, createdAt, profileCount }] }`. |
+| `GET` | `/auth/accounts` | Admin. `{ accounts: [{ id, username, isAdmin, mustChangePassword, totpEnabled, createdAt, profileCount }] }`. |
 | `DELETE` | `/auth/accounts/:id` | Admin. Deletes the account and everything its profiles own. The admin account can't be deleted. |
 | `POST` | `/auth/accounts/:id/password` | Admin. `{ newPassword, adminPassword }`. Gives a member a temporary password: they are signed out of every browser (not their TVs) and `mustChangePassword` is set until they choose their own. `adminPassword` is the admin's own, asked again (`401 password_incorrect`); `API_TOKEN` needs none. Not for the caller's own account. |
+| `POST` | `/auth/accounts/:id/totp/remove` | Admin. `{ adminPassword }`. Turns off a member's two-factor sign-in, for a lost authenticator and lost recovery codes. `adminPassword` as for a temporary password. Not for the caller's own account. `204`. |
 | `POST` | `/auth/accounts/:id/make-admin` | Admin. `{ adminPassword }`. Hands the admin role to that account; there is one admin, so the caller stops being it. |
 
 Usernames are 3–32 characters of letters, numbers, `.`, `-` and `_`, and are
@@ -599,8 +608,16 @@ case-insensitive. Passwords are 8–256 characters, hashed with scrypt. Routes
 that ask for a password again count wrong ones towards the same lockout as
 signing in from that address.
 
-A forgotten admin password or a PIN nobody can enter is reset on the server
-with the `fetch` command; see [troubleshooting](troubleshooting.md#forgotten-password-or-pin).
+A forgotten admin password, a PIN nobody can enter or a lost authenticator is
+reset on the server with the `fetch` command; see
+[troubleshooting](troubleshooting.md#forgotten-password-or-pin).
+
+Two-factor codes are the standard TOTP kind (RFC 6238: SHA-1, six digits, 30
+seconds, one step of clock drift either way), so any authenticator app reads
+them. The secret is encrypted at rest under a key derived from `API_TOKEN`, so
+rotating `API_TOKEN` leaves accounts with two-factor on able to sign in only
+with a recovery code until it is turned off and on again (the API names them in
+its startup error).
 
 `GET /profiles` lists the caller's own profiles (every profile, for
 `API_TOKEN`), and a new profile belongs to the caller's account. An account
@@ -732,6 +749,14 @@ With `ADDON_REQUIRE_SIGNED_URLS=true` that is the only URL form the addon
 service serves; under the default `auto` it is the only one once a second
 account exists, which the addon learns from `GET /auth/status` (called with
 `API_TOKEN`, it adds `multipleAccounts`).
+
+Each profile's key also depends on its key generation, which **Change this
+profile's addon URL** in Settings (`POST /profiles/:id/addon-url/rotate`) moves
+on: the old URL then answers `404` from the API and the addon service alike,
+and other profiles' URLs are unchanged. A profile that has never been changed is
+at generation 0, which derives the same key as before generations existed, so
+installed URLs kept working through the upgrade. Rotating `API_TOKEN` still
+changes every profile's key.
 
 A custom list's catalog is also served as plain JSON at
 `/stremio/list/:listId?type=&limit=&profileId=`, which the TV and desktop apps

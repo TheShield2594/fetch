@@ -1,6 +1,15 @@
 import { type FormEvent, type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { Check, CheckCircle2, ChevronDown, Loader2, AlertCircle, AlertTriangle, ArrowLeft, ArrowRight, Link as LinkIcon, ListChecks, Server, Tv } from "lucide-react";
-import { type Account, api, ApiError, inviteCodeFromPath, type Profile, runtimeConfig, type TmdbStatus } from "../api";
+import {
+  type Account,
+  api,
+  ApiError,
+  inviteCodeFromPath,
+  isTotpChallenge,
+  type Profile,
+  runtimeConfig,
+  type TmdbStatus,
+} from "../api";
 import { BrandLockup } from "../components/BrandMark";
 import { TmdbSettings } from "../components/settings/TmdbSettings";
 import { TraktSettings } from "../components/settings/TraktSettings";
@@ -187,6 +196,9 @@ function AccountStep({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<AccountField, string>>>({});
+  // Set once the password was right on an account with two-factor sign-in on:
+  // the form then asks for the code instead.
+  const [challenge, setChallenge] = useState<string | null>(null);
   const copy = ACCOUNT_COPY[mode];
   const creating = mode !== "login";
   const apiTokenRef = useRef<HTMLInputElement>(null);
@@ -231,13 +243,17 @@ function AccountStep({
     setSubmitting(true);
     setError(null);
     try {
-      const account =
+      const result =
         mode === "bootstrap"
           ? await api.bootstrapAdmin(apiToken.trim(), username.trim(), password)
           : mode === "register"
             ? await api.register(inviteCode ?? "", username.trim(), password)
             : await api.login(username.trim(), password);
-      onSignedIn(account, password);
+      if (isTotpChallenge(result)) {
+        setChallenge(result.challenge);
+        return;
+      }
+      onSignedIn(result, password);
     } catch (err) {
       if (mode === "bootstrap" && err instanceof ApiError && err.status === 401) {
         setError("That API token was rejected by the server. Double-check it and try again.");
@@ -248,6 +264,19 @@ function AccountStep({
       setSubmitting(false);
     }
   };
+
+  if (challenge) {
+    return (
+      <SecondFactorStep
+        challenge={challenge}
+        onSignedIn={(account) => onSignedIn(account, password)}
+        onRestart={(message) => {
+          setChallenge(null);
+          setError(message);
+        }}
+      />
+    );
+  }
 
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
@@ -314,6 +343,123 @@ function AccountStep({
       {mode === "login" && (
         <p className="text-xs leading-relaxed" style={{ color: "var(--text-mute)" }}>
           Forgot your password? Ask the admin to set a temporary one. If you are the admin, see the{" "}
+          <a href={RECOVERY_GUIDE_URL} target="_blank" rel="noreferrer" className="font-medium text-accent-text underline">
+            recovery guide
+          </a>
+          .
+        </p>
+      )}
+    </form>
+  );
+}
+
+/**
+ * The second half of signing in with two-factor on: a code from the
+ * authenticator app, or one of the recovery codes for a lost phone.
+ */
+function SecondFactorStep({
+  challenge,
+  onSignedIn,
+  onRestart,
+}: {
+  challenge: string;
+  onSignedIn: (account: Account) => void;
+  /** Back to the password, with why: the challenge expired, or the person chose to. */
+  onRestart: (message: string | null) => void;
+}) {
+  const [useRecovery, setUseRecovery] = useState(false);
+  const [value, setValue] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const id = useId();
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [useRecovery]);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const entered = value.trim();
+    if (!entered) {
+      setError(useRecovery ? "Enter one of your recovery codes." : "Enter the 6-digit code from your authenticator app.");
+      inputRef.current?.focus();
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const account = await api.loginWithSecondFactor(
+        challenge,
+        useRecovery ? { recoveryCode: entered } : { code: entered }
+      );
+      onSignedIn(account);
+    } catch (err) {
+      if (err instanceof ApiError && err.code === "totp_challenge_invalid") {
+        onRestart("Sign-in timed out. Enter your password again.");
+        return;
+      }
+      setError(err instanceof Error ? err.message : "Could not reach the Fetch server.");
+      setValue("");
+      inputRef.current?.focus();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} noValidate className="space-y-4">
+      <div>
+        <h1 className={SECTION_TITLE}>{useRecovery ? "Use a recovery code" : "Enter your code"}</h1>
+        <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          {useRecovery
+            ? "Enter one of the recovery codes you saved when you turned on two-factor sign-in. Each works once."
+            : "Open your authenticator app and enter the 6-digit code it shows for Fetch."}
+        </p>
+      </div>
+      <div>
+        <label htmlFor={id} className={LABEL_CLASS}>
+          {useRecovery ? "Recovery code" : "Code"}
+        </label>
+        <input
+          id={id}
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          inputMode={useRecovery ? "text" : "numeric"}
+          autoComplete="one-time-code"
+          autoCapitalize="none"
+          spellCheck={false}
+          maxLength={useRecovery ? 16 : 7}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : undefined}
+          className={`mt-1.5 ${INPUT_CLASS} font-mono tracking-widest`}
+        />
+        <FieldError id={`${id}-error`} message={error ?? undefined} />
+      </div>
+      <button type="submit" disabled={submitting} className="btn-primary btn-lg w-full">
+        {submitting ? <><Loader2 size={16} className="animate-spin" /> Checking…</> : <>Sign in <ArrowRight size={16} /></>}
+      </button>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+        <button
+          type="button"
+          onClick={() => {
+            setUseRecovery((v) => !v);
+            setValue("");
+            setError(null);
+          }}
+          className="font-medium text-accent-text underline"
+        >
+          {useRecovery ? "Use a code from the app instead" : "Lost your phone? Use a recovery code"}
+        </button>
+        <button type="button" onClick={() => onRestart(null)} className="font-medium underline" style={{ color: "var(--text-mute)" }}>
+          Back
+        </button>
+      </div>
+      {useRecovery && (
+        <p className="text-xs leading-relaxed" style={{ color: "var(--text-mute)" }}>
+          No recovery codes left? The admin can turn off two-factor sign-in for your account. If you are the admin, see the{" "}
           <a href={RECOVERY_GUIDE_URL} target="_blank" rel="noreferrer" className="font-medium text-accent-text underline">
             recovery guide
           </a>

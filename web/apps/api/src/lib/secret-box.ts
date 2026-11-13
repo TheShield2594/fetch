@@ -56,6 +56,9 @@ export const SECRET_CONTEXT = {
   // an ntfy topic, an addon manifest URL with a debrid key in its path.
   notificationChannelUrl: "notificationChannel.url",
   profileAddonManifestUrl: "profileAddon.manifestUrl",
+  // An account's two-factor secret, on and being set up.
+  accountTotpSecret: "account.totpSecret",
+  accountTotpPendingSecret: "account.totpPendingSecret",
 } as const;
 
 /** The context a KV row's value is encrypted under — its own key. */

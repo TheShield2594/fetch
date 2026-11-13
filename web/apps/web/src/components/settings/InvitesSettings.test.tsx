@@ -15,6 +15,7 @@ vi.mock("../../api", async (importOriginal) => {
       deleteAccount: vi.fn(),
       setMemberPassword: vi.fn(),
       makeAdmin: vi.fn(),
+      removeMemberTotp: vi.fn(),
     },
   };
 });
@@ -48,6 +49,7 @@ beforeEach(() => {
   vi.mocked(api.revokeInvite).mockResolvedValue(undefined);
   vi.mocked(api.setMemberPassword).mockResolvedValue(undefined);
   vi.mocked(api.makeAdmin).mockResolvedValue(undefined);
+  vi.mocked(api.removeMemberTotp).mockResolvedValue(undefined);
 });
 
 describe("InvitesSettings", () => {
@@ -121,5 +123,25 @@ describe("InvitesSettings", () => {
     await user.click(within(review).getByRole("button", { name: "Make admin" }));
     await waitFor(() => expect(refresh).toHaveBeenCalled());
     expect(api.makeAdmin).toHaveBeenLastCalledWith("a2", "wrong-password");
+  });
+
+  it("turns off a member's two-factor sign-in with the admin's password", async () => {
+    vi.mocked(api.getAccounts).mockResolvedValue({
+      accounts: [
+        { id: "a1", username: "owner", isAdmin: true, createdAt: "2026-10-01T00:00:00Z", profileCount: 2 },
+        { id: "a2", username: "friend", isAdmin: false, createdAt: "2026-10-02T00:00:00Z", profileCount: 1, totpEnabled: true },
+      ],
+    });
+    const user = userEvent.setup();
+    render(<InvitesSettings />);
+
+    await user.click(await screen.findByRole("button", { name: "Turn off two-factor sign-in for friend" }));
+    const review = screen.getByRole("alertdialog", { name: "Turn off two-factor sign-in for friend?" });
+    expect(within(review).getByRole("button", { name: "Turn off two-factor" })).toBeDisabled();
+    await user.type(within(review).getByLabelText("Your password"), "owner-password");
+    await user.click(within(review).getByRole("button", { name: "Turn off two-factor" }));
+
+    expect(await screen.findByText(/two-factor sign-in is off for friend/i)).toBeInTheDocument();
+    expect(api.removeMemberTotp).toHaveBeenCalledWith("a2", "owner-password");
   });
 });

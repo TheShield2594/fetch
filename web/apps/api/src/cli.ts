@@ -3,6 +3,7 @@
  * container where the database is reachable:
  *
  *   docker compose exec api fetch reset-password <username>
+ *   docker compose exec api fetch reset-2fa <username>
  *   docker compose exec api fetch clear-pin <profile>
  *   docker compose exec api fetch accounts
  *
@@ -19,6 +20,7 @@ import {
   generateTemporaryPassword,
   isValidPassword,
   PASSWORD_ERROR,
+  removeTotp,
   setTemporaryPassword,
 } from "./lib/account-admin.js";
 import { recordAccountEvent } from "./lib/account-events.js";
@@ -33,6 +35,10 @@ Commands:
                                    and asked for a new password at its next
                                    sign-in. Without --password a random one is
                                    made and printed.
+  reset-2fa <username>             Turn off an account's two-factor sign-in,
+                                   for a lost authenticator with no recovery
+                                   codes left. Its password is unchanged; it
+                                   can turn two-factor on again in Settings.
   clear-pin <profile>              Remove a profile's PIN. <profile> is its id,
       [--account <username>]       or its name, in quotes if it has a space
                                    ("Kids Room"). Add --account when two
@@ -45,6 +51,7 @@ class UsageError extends Error {}
 const COMMANDS: Record<string, { args: number; argName?: string; options: string[] }> = {
   accounts: { args: 0, options: [] },
   "reset-password": { args: 1, argName: "a username", options: ["password"] },
+  "reset-2fa": { args: 1, argName: "a username", options: [] },
   "clear-pin": { args: 1, argName: "a profile id or name", options: ["account"] },
 };
 
@@ -84,7 +91,7 @@ const listAccounts = async (out: (line: string) => void) => {
     return;
   }
   for (const account of accounts) {
-    out(`${account.username}${account.isAdmin ? " (admin)" : ""}`);
+    out(`${account.username}${account.isAdmin ? " (admin)" : ""}${account.totpSecret ? " [2FA]" : ""}`);
     for (const profile of account.profiles) {
       out(`  ${profile.name}${profile.pinHash ? " [PIN]" : ""}  ${profile.id}`);
     }
@@ -104,6 +111,20 @@ const resetPassword = async (username: string | undefined, chosen: string | unde
   out("Their TVs stay signed in; they can sign those out in Settings → Account.");
   if (chosen === undefined) out(`Temporary password: ${password}`);
   out("They'll be asked to choose a new one when they sign in.");
+};
+
+const resetTwoFactor = async (username: string | undefined, out: (line: string) => void) => {
+  if (!username) throw new UsageError("reset-2fa needs a username");
+  const account = await prisma.account.findUnique({ where: { username: username.trim().toLowerCase() } });
+  if (!account) throw new UsageError(`No account is called "${username}". Run "fetch accounts" to list them.`);
+  if (!account.totpSecret && !account.totpPendingSecret) {
+    out(`${account.username} doesn't use two-factor sign-in. Nothing to do.`);
+    return;
+  }
+  await removeTotp(account.id);
+  await recordAccountEvent(account.id, "totp_disabled", { detail: "From the server" });
+  out(`Turned off two-factor sign-in for ${account.username}. They sign in with their password alone now,`);
+  out("and can turn two-factor on again in Settings → Account.");
 };
 
 const clearPin = async (target: string | undefined, accountName: string | undefined, out: (line: string) => void) => {
@@ -166,6 +187,9 @@ export const run = async (argv: string[], out: (line: string) => void = console.
         return 0;
       case "reset-password":
         await resetPassword(rest[0], options.password, out);
+        return 0;
+      case "reset-2fa":
+        await resetTwoFactor(rest[0], out);
         return 0;
       default:
         await clearPin(rest[0], options.account, out);

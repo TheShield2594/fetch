@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SetupWizard, WIZARD_STEPS, previousStep } from "./SetupWizard";
+import { ApiError } from "../api/client";
 
 vi.mock("../api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../api")>();
@@ -11,6 +12,7 @@ vi.mock("../api", async (importOriginal) => {
       getAuthStatus: vi.fn(),
       bootstrapAdmin: vi.fn(),
       login: vi.fn(),
+      loginWithSecondFactor: vi.fn(),
       register: vi.fn(),
       changePassword: vi.fn(),
       getTmdbStatus: vi.fn(),
@@ -40,6 +42,7 @@ const { api } = await import("../api");
 const getAuthStatus = vi.mocked(api.getAuthStatus);
 const bootstrapAdmin = vi.mocked(api.bootstrapAdmin);
 const login = vi.mocked(api.login);
+const loginWithSecondFactor = vi.mocked(api.loginWithSecondFactor);
 const register = vi.mocked(api.register);
 const changePassword = vi.mocked(api.changePassword);
 const getTmdbStatus = vi.mocked(api.getTmdbStatus);
@@ -62,6 +65,7 @@ beforeEach(() => {
   getAuthStatus.mockReset().mockResolvedValue({ setupRequired: true });
   bootstrapAdmin.mockReset().mockResolvedValue(ADMIN);
   login.mockReset().mockResolvedValue(FRIEND);
+  loginWithSecondFactor.mockReset().mockResolvedValue(FRIEND);
   register.mockReset().mockResolvedValue(FRIEND);
   changePassword.mockReset().mockResolvedValue(undefined);
   getTmdbStatus.mockReset().mockResolvedValue({ configured: true, source: "env" });
@@ -347,6 +351,68 @@ describe("SetupWizard, an install that is already set up", () => {
 
     await waitFor(() => expect(onComplete).toHaveBeenCalled());
     expect(login).toHaveBeenCalledWith("friend", "friend-password");
+  });
+
+  it("asks for a code after the password when two-factor sign-in is on", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false });
+    login.mockResolvedValue({ totpRequired: true, challenge: "the-challenge" });
+    loginWithSecondFactor
+      .mockRejectedValueOnce(new ApiError("That code isn't right", 401, "totp_incorrect"))
+      .mockResolvedValueOnce(FRIEND);
+    const onComplete = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={onComplete} />);
+
+    await user.type(await screen.findByLabelText("Username"), "friend");
+    await user.type(screen.getByLabelText("Password"), "friend-password");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    expect(await screen.findByRole("heading", { name: "Enter your code" })).toBeInTheDocument();
+    expect(onComplete).not.toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText("Code"), "111111");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+    expect(await screen.findByText("That code isn't right")).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Code"), "123456");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+    await waitFor(() => expect(onComplete).toHaveBeenCalled());
+    expect(loginWithSecondFactor).toHaveBeenLastCalledWith("the-challenge", { code: "123456" });
+  });
+
+  it("takes a recovery code in place of the app's code", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false });
+    login.mockResolvedValue({ totpRequired: true, challenge: "the-challenge" });
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    await user.type(await screen.findByLabelText("Username"), "friend");
+    await user.type(screen.getByLabelText("Password"), "friend-password");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+    await user.click(await screen.findByRole("button", { name: /use a recovery code/i }));
+    await user.type(screen.getByLabelText("Recovery code"), "abcde-fghjk");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    await waitFor(() =>
+      expect(loginWithSecondFactor).toHaveBeenCalledWith("the-challenge", { recoveryCode: "abcde-fghjk" })
+    );
+  });
+
+  it("goes back to the password when the code step times out", async () => {
+    getAuthStatus.mockResolvedValue({ setupRequired: false });
+    login.mockResolvedValue({ totpRequired: true, challenge: "the-challenge" });
+    loginWithSecondFactor.mockRejectedValue(new ApiError("Sign-in timed out", 401, "totp_challenge_invalid"));
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+
+    await user.type(await screen.findByLabelText("Username"), "friend");
+    await user.type(screen.getByLabelText("Password"), "friend-password");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+    await user.type(await screen.findByLabelText("Code"), "123456");
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
+
+    expect(await screen.findByText(/sign-in timed out\. enter your password again/i)).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toBeInTheDocument();
   });
 
   it("says where to go when the password is forgotten", async () => {

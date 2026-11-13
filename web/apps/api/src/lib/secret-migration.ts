@@ -137,6 +137,19 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
     );
   }
 
+  // Two-factor secrets are only ever written encrypted, so there is nothing to
+  // encrypt here — but one the current key can't open locks its account out of
+  // codes (recovery codes still work), and that belongs in the same report.
+  const totpAccounts = await prisma.account.findMany({
+    where: { totpSecret: { not: null } },
+    select: { username: true, totpSecret: true },
+  });
+  for (const account of totpAccounts) {
+    if (account.totpSecret && decryptSecret(SECRET_CONTEXT.accountTotpSecret, account.totpSecret) === null) {
+      sweep.unreadable.push(`Two-factor secret (${account.username})`);
+    }
+  }
+
   if (sweep.encrypted > 0) {
     logger.info(
       { count: sweep.encrypted },

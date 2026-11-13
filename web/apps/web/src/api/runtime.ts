@@ -463,7 +463,7 @@ export function invalidatedCachePrefixes(path: string): string[] | null {
 
   // POSTs that change nothing: checking an AI provider's connection, and
   // signing in (which swaps the token, and that purges both caches itself).
-  if (route === "/ai/test" || route === "/auth/login") return [];
+  if (route === "/ai/test" || route === "/auth/login" || route === "/auth/login/totp") return [];
 
   // Settings, keys, integrations and imports. A Trakt import writes thousands
   // of watch rows, a metadata refresh changes every poster, and a language

@@ -7,6 +7,7 @@ const prismaMock = {
   profileConnection: { findMany: vi.fn(async () => []), update: vi.fn() },
   notificationChannel: { findMany: vi.fn(), update: vi.fn() },
   profileAddon: { findMany: vi.fn(), update: vi.fn() },
+  account: { findMany: vi.fn(async (): Promise<{ username: string; totpSecret: string | null }[]> => []) },
 };
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
@@ -34,6 +35,7 @@ beforeEach(() => {
   prismaMock.notificationChannel.findMany.mockResolvedValue([]);
   prismaMock.profileConnection.findMany.mockResolvedValue([]);
   prismaMock.profileAddon.findMany.mockResolvedValue([]);
+  prismaMock.account.findMany.mockResolvedValue([]);
   for (const model of [prismaMock.kV, prismaMock.traktToken, prismaMock.notificationChannel, prismaMock.profileAddon]) {
     model.update.mockResolvedValue({});
   }
@@ -171,4 +173,13 @@ describe("encryptStoredSecrets", () => {
     expect(sweep).toEqual({ encrypted: 0, unreadable: ["Add-on URL (Locked)"] });
     expect(prismaMock.profileAddon.update).not.toHaveBeenCalled();
   });
+});
+
+it("names a two-factor secret the current API_TOKEN can't open", async () => {
+  const sealed = encryptSecret(SECRET_CONTEXT.accountTotpSecret, "JBSWY3DPEHPK3PXP");
+  prismaMock.account.findMany.mockResolvedValue([{ username: "alex", totpSecret: sealed }]);
+  expect((await run()).unreadable).toEqual([]);
+
+  process.env.API_TOKEN = "rotated-token";
+  expect((await run()).unreadable).toEqual(["Two-factor secret (alex)"]);
 });

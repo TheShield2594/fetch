@@ -12,6 +12,7 @@ vi.mock("../../api", async (importOriginal) => {
       changePassword: vi.fn(),
       getSignIns: vi.fn(),
       getActivity: vi.fn(),
+      getTotpStatus: vi.fn(),
     },
   };
 });
@@ -29,6 +30,7 @@ beforeEach(() => {
   vi.mocked(api.changePassword).mockReset().mockResolvedValue(undefined);
   vi.mocked(api.getSignIns).mockReset().mockResolvedValue({ sessions: [] });
   vi.mocked(api.getActivity).mockReset().mockResolvedValue({ events: [] });
+  vi.mocked(api.getTotpStatus).mockReset().mockResolvedValue({ enabled: false, enabledAt: null, recoveryCodesLeft: 0 });
 });
 
 describe("AccountSettings", () => {

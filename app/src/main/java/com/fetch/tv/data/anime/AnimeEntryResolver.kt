@@ -73,10 +73,14 @@ class AnimeEntryResolver @Inject constructor(
             val season = media.episode?.season ?: return null
             val number = media.episode?.number ?: return null
             val ids = simkl.resolveIdsForImdbEpisode(imdb, season, number)?.takeIf { it.type == "anime" } ?: return null
+            // Simkl falls back to the show's first entry when it can't find the one owning this
+            // season. Only trust the numbering when the episode mapping places this episode, or the
+            // entry is known to be this season's: otherwise S2E3 would move season 1 to episode 3.
             val animeEpisode = simkl.getEpisodeMapping(ids.simklId, ids.type)
                 .firstOrNull { it.tvdbSeason == season && it.tvdbEpisode == number }
                 ?.animeEpisode
-                ?: number
+                ?: number.takeIf { ids.tvdbSeason == season }
+                ?: return null
             target(ids, animeEpisode)
         }
     }

@@ -133,16 +133,28 @@ class StremioImportTest {
     }
 
     @Test
-    fun `imported marks and resume points go through the usual plan`() = runTest {
+    fun `a film watched before and being played again keeps its resume point`() = runTest {
         val snapshot = buildStremioSnapshot(
-            listOf(item("tt1", "movie", timesWatched = 1, lastWatched = 100L, timeOffset = 500L, duration = 1_000L))
+            listOf(item("tt5", "movie", timesWatched = 1, lastWatched = 900L, timeOffset = 3_000_000L, duration = 6_000_000L))
         ) { null }
 
+        // When it was first finished is unknown; lastWatched is the current playback.
+        assertEquals(0L, snapshot.watched.single().watchedAt)
         val plan = planTrackingImport(snapshot, TrackingImportSnapshot())
-
         assertEquals(1, plan.watched.size)
-        // Finished at the same time it was last played: not a resume point.
-        assertEquals(0, plan.progress.size)
+        assertEquals(listOf("tt5"), plan.progress.map { it.contentId })
+    }
+
+    @Test
+    fun `watched episodes without numbers are counted as unreadable`() = runTest {
+        // The episode list has the anchor but no season or episode numbers to file the marks under.
+        val unnumbered = (1..9).map { episode("tt2934286", 1, it).copy(id = "x$it", season = null, episode = null) }
+        val field = "x5:5:eJyTZwAAAEAAIA=="
+
+        val snapshot = buildStremioSnapshot(listOf(item("tt2934286", "series", watched = field))) { unnumbered }
+
+        assertTrue(snapshot.watched.isEmpty())
+        assertEquals(1, snapshot.unreadable)
     }
 
     private fun episode(seriesId: String, season: Int, episode: Int) = Video(

@@ -54,6 +54,12 @@ describe("parseImdbList", () => {
     ]);
   });
 
+  it("refuses a ratings export, which has Const and Title Type but no Position", () => {
+    const { rows, col } = table(`Const,Your Rating,Date Rated,Title,Title Type
+tt0111161,9,2024-01-01,A Film,Movie`);
+    expect(() => parseImdbList(rows, col)).toThrow(/Position/);
+  });
+
   it("maps IMDb's title types", () => {
     expect(imdbListItemType("TV Mini Series")).toBe("series");
     expect(imdbListItemType("TV Movie")).toBe("movie");

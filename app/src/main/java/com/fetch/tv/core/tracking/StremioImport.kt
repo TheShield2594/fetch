@@ -182,7 +182,9 @@ suspend fun buildStremioSnapshot(
                         contentId = item.id,
                         contentType = "movie",
                         title = item.name,
-                        watchedAt = item.lastWatched,
+                        // Watched before and being played again: lastWatched is this playback, not
+                        // when it was finished, which stays unknown so the resume point survives.
+                        watchedAt = if (item.isInContinueWatching()) 0L else item.lastWatched,
                         poster = item.poster
                     )
                 }
@@ -205,13 +207,17 @@ suspend fun buildStremioSnapshot(
                             ?.let { anchor -> episodeOf(anchor, item.id, byId) }
                             ?.let { (season, episode) -> watched += item.episodeMark(season, episode, item.lastWatchedFor(field)) }
                     } else {
+                        var unmapped = false
                         ids.forEach { id ->
-                            val video = byId[id] ?: return@forEach
-                            val season = video.season ?: return@forEach
-                            val episode = video.episode ?: return@forEach
-                            val at = if (id == item.videoId) item.lastWatched else 0L
-                            watched += item.episodeMark(season, episode, at)
+                            val position = episodeOf(id, item.id, byId)
+                            if (position == null) {
+                                unmapped = true
+                                return@forEach
+                            }
+                            watched += item.episodeMark(position.first, position.second, item.watchedTimeOf(id))
                         }
+                        // Some watched episodes had no season or episode number to file them under.
+                        if (unmapped) unreadable++
                     }
                 }
 
@@ -235,7 +241,15 @@ suspend fun buildStremioSnapshot(
 
 /** The watched time for the anchor episode: only known when it is also the last video played. */
 private fun StremioLibraryItem.lastWatchedFor(field: String): Long =
-    if (parseStremioWatchedField(field)?.anchorVideo == videoId) lastWatched else 0L
+    parseStremioWatchedField(field)?.anchorVideo?.let(::watchedTimeOf) ?: 0L
+
+/**
+ * When episode [videoId] was finished: [StremioLibraryItem.lastWatched] when it is the last video
+ * played and not being played again now (a resume point means lastWatched is that playback);
+ * otherwise unknown.
+ */
+private fun StremioLibraryItem.watchedTimeOf(videoId: String): Long =
+    if (videoId == this.videoId && !isInContinueWatching()) lastWatched else 0L
 
 /** Stremio's own rule for Continue Watching. */
 private fun StremioLibraryItem.isInContinueWatching(): Boolean =

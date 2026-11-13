@@ -13,7 +13,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
-- **More of your other trackers' exports.** Settings → Data → Import from another tracker now reads Letterboxd's `watched.csv` (films marked watched but never logged) and `watchlist.csv`, and IMDb watchlists and lists (a list goes into a custom list you name). A file that isn't the export you picked is now refused with a message instead of failing.
+- **More of your other trackers' exports.** Settings → Data → Import from another tracker now reads Letterboxd's `watched.csv` (films marked watched but never logged) and `watchlist.csv`, and IMDb watchlists and lists (a list goes into a custom list you name). Import the Letterboxd diary before `watched.csv`, or a film can end up with two plays. A file that isn't the export you picked is now refused with a message instead of failing, except that `watched.csv` and `watchlist.csv` look the same, so swapping those two can't be caught.
 
 - **Optional two-factor sign-in.** Settings → Account can turn on codes from an authenticator app (TOTP): scan a QR code, confirm one code, and save ten one-time recovery codes. Signing in then asks for a code after the password, and wrong codes count towards the same lockout as wrong passwords. It is off by default, TVs are unaffected, and a lost phone is recovered with a recovery code, by the admin (Invites & accounts → Turn off two-factor) or with `fetch reset-2fa <username>` on the server ([#564](https://github.com/TheShield2594/fetch/issues/564)).
 

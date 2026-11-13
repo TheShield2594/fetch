@@ -84,10 +84,10 @@ class StremioAccountApi @Inject constructor(
 
     private suspend fun execute(request: Request): String = withContext(Dispatchers.IO) {
         client.newCall(request).execute().use { response ->
-            val body = response.body?.string().orEmpty()
-            // Stremio reports most errors as a 200 with an `error` object; anything else is transport.
-            if (!response.isSuccessful && body.isBlank()) throw IOException("Stremio HTTP ${response.code}")
-            body
+            // Stremio answers its own errors (bad key, code not approved yet) as a 200 with an
+            // `error` object, which the callers read. Any other status is a failure, whatever its body.
+            if (!response.isSuccessful) throw IOException("Stremio HTTP ${response.code}")
+            response.body?.string().orEmpty()
         }
     }
 

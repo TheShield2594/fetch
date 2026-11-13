@@ -14,6 +14,8 @@ import com.fetch.tv.data.anime.nextAnimeProgress
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * AniList as a scrobble target: finishing an anime episode in Fetch moves the matching AniList
@@ -42,6 +44,9 @@ class AniListScrobbler @Inject constructor(
 ) : TrackingScrobbler {
     override val providerId = TrackingProviderId.ANILIST
 
+    /** One read-then-write at a time, so two quick STOPs can't write progress from the same stale read. */
+    private val updateLock = Mutex()
+
     override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
         if (action != TrackingScrobbleAction.STOP || event.progressPercent < ANIME_WATCHED_PERCENT) return
         // Captured before any network call so a profile switch can't move another profile's list.
@@ -49,9 +54,11 @@ class AniListScrobbler @Inject constructor(
         val token = state.accessToken?.takeIf { state.isAuthenticated() } ?: return
         val target = resolver.forAniList(event.media, token) ?: return
         val mediaId = target.aniListId ?: return
-        val update = nextAnimeProgress(api.entry(token, mediaId), target.episode) ?: return
-        api.saveProgress(token, mediaId, update.progress, update.status)
-        Log.d(TAG, "AniList $mediaId progress ${update.progress} (${update.status})")
+        updateLock.withLock {
+            val update = nextAnimeProgress(api.entry(token, mediaId), target.episode) ?: return
+            api.saveProgress(token, mediaId, update.progress, update.status)
+            Log.d(TAG, "AniList $mediaId progress ${update.progress} (${update.status})")
+        }
     }
 
     private companion object {

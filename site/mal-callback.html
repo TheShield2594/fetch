@@ -38,7 +38,8 @@
 </main>
 <script>
   // Everything stays in this page: the code is read from the address and never sent anywhere.
-  // It is useless without the secret the TV kept when the sign-in started.
+  // On its own it can't sign anyone in: the TV also needs the sign-in's one-time secret, which
+  // went to MyAnimeList in the sign-in link and never comes to this page.
   (function () {
     var params = new URLSearchParams(location.search);
     var code = params.get('code');

@@ -46,7 +46,11 @@ export type ListEntry = { type: "movie" | "series"; imdbId: string };
 export const parseImdbList = (rows: string[][], col: ColumnLookup): (ListEntry | null)[] => {
   const constCol = col("const");
   const typeCol = col("title type");
-  if (constCol === -1) throw badFormat("Unrecognized IMDb list export header");
+  // `Position` is what sets a list or watchlist export apart from a ratings export, which also
+  // has Const and Title Type: without it, every rated title would land on the list.
+  if (constCol === -1 || typeCol === -1 || col("position") === -1) {
+    throw badFormat("Unrecognized IMDb list export header: needs Position, Const and Title Type columns");
+  }
   return rows.map((row) => {
     const imdbId = normalizeImdbId(cell(row, constCol));
     if (!imdbId) return null;
@@ -55,7 +59,7 @@ export const parseImdbList = (rows: string[][], col: ColumnLookup): (ListEntry |
   });
 };
 
-/** IMDb's Title Type: "Movie", "TV Movie", "Short" are films; "TV Series", "TV Mini Series" are series. */
+/** IMDb's Title Type: "Movie", "TV Movie", "Short" are films; "TV Series", "TV Mini Series" are series. A blank cell is a film. */
 export const imdbListItemType = (titleType: string): "movie" | "series" | null => {
   const value = titleType.trim().toLowerCase();
   if (!value) return "movie";

@@ -216,6 +216,7 @@ internal fun StremioLinkDialog(
         when (it.reason) {
             StremioLinkState.Error.Reason.NETWORK -> stringResource(R.string.tracking_stremio_link_error_network)
             StremioLinkState.Error.Reason.EXPIRED -> stringResource(R.string.tracking_stremio_link_error_expired)
+            StremioLinkState.Error.Reason.PROFILE_CHANGED -> stringResource(R.string.tracking_stremio_link_error_profile)
         }
     }
     FetchDialog(

@@ -196,7 +196,10 @@ class PhoneHubController @Inject constructor(
     @Volatile private var lastActivityMs = 0L
     @Volatile private var traktCode: PhoneHubDeviceCode? = null
     @Volatile private var simklCode: PhoneHubDeviceCode? = null
-    /** The MyAnimeList sign-in the phone's link starts; its verifier never leaves the TV. */
+    /**
+     * The MyAnimeList sign-in the phone's link starts. MAL only supports the `plain` PKCE method, so
+     * the verifier is in that link (to the phone and MAL), but never reaches the callback page.
+     */
     @Volatile private var malPending: MalPendingSignIn? = null
 
     private val logoBytes: ByteArray? by lazy {

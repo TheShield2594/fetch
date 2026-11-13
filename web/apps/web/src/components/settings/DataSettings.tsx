@@ -16,7 +16,7 @@ type ExternalFormat = ExternalImportFormat;
 const EXTERNAL_LABELS: Record<ExternalFormat, string> = {
   "letterboxd-diary": "Letterboxd diary (diary.csv)",
   "letterboxd-ratings": "Letterboxd ratings (ratings.csv)",
-  "letterboxd-watched": "Letterboxd watched films (watched.csv)",
+  "letterboxd-watched": "Letterboxd watched films (watched.csv, after the diary)",
   "letterboxd-watchlist": "Letterboxd watchlist (watchlist.csv)",
   "imdb-ratings": "IMDb ratings export",
   "imdb-watchlist": "IMDb watchlist export",

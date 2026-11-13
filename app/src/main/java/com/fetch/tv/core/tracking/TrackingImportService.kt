@@ -51,7 +51,7 @@ sealed interface StremioLinkState {
     data object Creating : StremioLinkState
     data class Waiting(val code: String, val link: String, val expiresAtEpochMs: Long) : StremioLinkState
     data class Error(val reason: Reason) : StremioLinkState {
-        enum class Reason { NETWORK, EXPIRED }
+        enum class Reason { NETWORK, EXPIRED, PROFILE_CHANGED }
     }
 }
 
@@ -102,6 +102,8 @@ class TrackingImportService @Inject constructor(
     fun startStremioLink() {
         if (_status.value is TrackingImportStatus.Running) return
         stremioLinkJob?.cancel()
+        // The import lands in the profile that asked for it, not whichever is active at approval.
+        val profileId = profileManager.activeProfileId.value
         stremioLinkJob = scope.launch {
             _stremioLink.value = StremioLinkState.Creating
             val code = try {
@@ -136,10 +138,17 @@ class TrackingImportService @Inject constructor(
                 _stremioLink.value = StremioLinkState.Error(StremioLinkState.Error.Reason.EXPIRED)
                 return@launch
             }
-            _stremioLink.value = StremioLinkState.Idle
             val reader = StremioImportReader(authKey)
+            if (profileManager.activeProfileId.value != profileId) {
+                // The profile changed while the phone approved: importing now would write another
+                // profile's history, and its source of truth is a different one too.
+                reader.close()
+                _stremioLink.value = StremioLinkState.Error(StremioLinkState.Error.Reason.PROFILE_CHANGED)
+                return@launch
+            }
+            _stremioLink.value = StremioLinkState.Idle
             // Another import got there first: don't leave the session signed in.
-            if (!run(TrackingImportOrigin.Stremio) { reader }) reader.close()
+            if (!run(TrackingImportOrigin.Stremio, profileId) { reader }) reader.close()
         }
     }
 
@@ -173,13 +182,16 @@ class TrackingImportService @Inject constructor(
     }
 
     /** False when another import is already running and this one didn't start. */
-    private fun run(origin: TrackingImportOrigin, reader: suspend (profileId: Int) -> TrackingImportReader?): Boolean {
+    private fun run(
+        origin: TrackingImportOrigin,
+        profileId: Int = profileManager.activeProfileId.value,
+        reader: suspend (profileId: Int) -> TrackingImportReader?
+    ): Boolean {
         if (_status.value is TrackingImportStatus.Running) return false
         scope.launch {
             val target = sourceOfTruth()
             if (origin == TrackingImportOrigin.Connected(target)) return@launch
             _status.value = TrackingImportStatus.Running(origin, target)
-            val profileId = profileManager.activeProfileId.value
             var from: TrackingImportReader? = null
             _status.value = try {
                 from = reader(profileId)

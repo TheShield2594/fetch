@@ -96,7 +96,8 @@ class MalAuthStore @Inject constructor(
         } catch (error: MalApiException) {
             if (error.unauthorized) {
                 Log.w(TAG, "MyAnimeList refused the refresh token; signing out", error)
-                clear(profileId)
+                // Only if this is still the sign-in that was refused: the phone may have signed in again meanwhile.
+                store(profileId).edit { prefs -> if (prefs[refreshKey] == state.refreshToken) prefs.clear() }
                 return null
             }
             Log.w(TAG, "MyAnimeList token refresh failed", error)
@@ -106,12 +107,16 @@ class MalAuthStore @Inject constructor(
             Log.w(TAG, "MyAnimeList token refresh failed", error)
             return token.takeIf { state.expiresAt > System.currentTimeMillis() }
         }
+        var applied = false
         store(profileId).edit { prefs ->
+            // A new sign-in landed while the refresh was out: keep it, and drop this stale result.
+            if (prefs[refreshKey] != state.refreshToken) return@edit
             prefs[accessKey] = refreshed.accessToken
             prefs[refreshKey] = refreshed.refreshToken
             prefs[expiresAtKey] = refreshed.expiresAt
+            applied = true
         }
-        refreshed.accessToken
+        if (applied) refreshed.accessToken else current(profileId).accessToken
     }
 
     private fun androidx.datastore.preferences.core.Preferences.toState() = MalAuthState(

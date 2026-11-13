@@ -124,9 +124,9 @@
     <string name="error_meta_not_found">Метаданните не са намерени</string>
     <string name="error_meta_no_supported_addon">Нито една инсталирана добавка не поддържа метаданни за „%1$s“.</string>
     <string name="error_meta_no_addon_for_id">Нито една инсталирана добавка не може да предостави метаданни за id=%1$s (type=%2$s).</string>
-    <string name="error_meta_tried_none">Опитани мета добавки: %1$s. Нито една не предостави метаданни за id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_generic">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени за id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_issues">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени за id=%2$s (type=%3$s). Проблеми: %4$s.</string>
+    <string name="error_meta_tried_none">Опитани мета добавки: %1$s. Нито една не предостави метаданни.</string>
+    <string name="error_meta_tried_generic">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени.</string>
+    <string name="error_meta_tried_issues">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени. Проблеми: %2$s.</string>
     <string name="error_stream_no_supported_addon">Нито една инсталирана добавка не поддържа потоци за „%1$s“.</string>
     <string name="error_stream_tried_none">Опитани стрийм добавки: %1$s. Нито една не върна потоци.</string>
     <string name="error_stream_tried_generic">Опитани стрийм добавки: %1$s. Потокът не може да бъде зареден.</string>

@@ -125,9 +125,9 @@
     <string name="error_meta_not_found">Метадані не знайдено</string>
     <string name="error_meta_no_supported_addon">Немає встановлених адонів, що підтримують метадані для \"%1$s\".</string>
     <string name="error_meta_no_addon_for_id">Жоден встановлений адон не зміг надати метадані для id=%1$s (тип=%2$s).</string>
-    <string name="error_meta_tried_none">Перевірено адони: %1$s. Жоден із них не надав метадані для id=%2$s (тип=%3$s).</string>
-    <string name="error_meta_tried_generic">Перевірено адони: %1$s. Не вдалося завантажити метадані для id=%2$s (тип=%3$s).</string>
-    <string name="error_meta_tried_issues">Перевірено адони: %1$s. Не вдалося завантажити метадані для id=%2$s (тип=%3$s). Проблеми: %4$s.</string>
+    <string name="error_meta_tried_none">Перевірено адони: %1$s. Жоден із них не надав метадані.</string>
+    <string name="error_meta_tried_generic">Перевірено адони: %1$s. Не вдалося завантажити метадані.</string>
+    <string name="error_meta_tried_issues">Перевірено адони: %1$s. Не вдалося завантажити метадані. Проблеми: %2$s.</string>
     <string name="error_stream_no_supported_addon">Жоден встановлений адон не підтримує потоки для \"%1$s\".</string>
     <string name="error_stream_tried_none">Перевірено адони потоків: %1$s. Жоден із них не повернув потоки.</string>
     <string name="error_stream_tried_generic">Перевірено адони потоків: %1$s. Не вдалося завантажити потоки.</string>

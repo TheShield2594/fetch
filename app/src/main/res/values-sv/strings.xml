@@ -40,9 +40,9 @@
     <string name="error_meta_not_found">Metadata hittades inte</string>
     <string name="error_meta_no_supported_addon">Inget installerat tillägg stödjer metadata för \"%1$s\".</string>
     <string name="error_meta_no_addon_for_id">Inget installerat tillägg kunde tillhandahålla metadata för id=%1$s (typ=%2$s).</string>
-    <string name="error_meta_tried_none">Provade metatillägg: %1$s. Inget av dem tillhandahöll metadata för id=%2$s (typ=%3$s).</string>
-    <string name="error_meta_tried_generic">Provade metatillägg: %1$s. Metadata kunde inte laddas för id=%2$s (typ=%3$s).</string>
-    <string name="error_meta_tried_issues">Provade metatillägg: %1$s. Metadata kunde inte laddas för id=%2$s (typ=%3$s). Problem: %4$s.</string>
+    <string name="error_meta_tried_none">Provade metatillägg: %1$s. Inget av dem tillhandahöll metadata.</string>
+    <string name="error_meta_tried_generic">Provade metatillägg: %1$s. Metadata kunde inte laddas.</string>
+    <string name="error_meta_tried_issues">Provade metatillägg: %1$s. Metadata kunde inte laddas. Problem: %2$s.</string>
 
     <!-- ContinueWatchingSection -->
     <string name="continue_watching">Fortsätt titta</string>

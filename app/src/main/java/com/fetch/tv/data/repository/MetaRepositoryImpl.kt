@@ -786,7 +786,7 @@ class MetaRepositoryImpl @Inject constructor(
         val missingOnly = failures.isNotEmpty() && failures.all { it.kind == MetaFailureKind.MISSING }
 
         return if (missingOnly) {
-            context.getString(R.string.error_meta_tried_none, triedAddons, id, type)
+            context.getString(R.string.error_meta_tried_none, triedAddons)
         } else {
             val issueSummary = failures
                 .filter { it.kind == MetaFailureKind.REQUEST_FAILED }
@@ -794,9 +794,9 @@ class MetaRepositoryImpl @Inject constructor(
                 .take(3)
                 .joinToString("; ") { "${it.addonName}: ${it.detail}" }
             if (issueSummary.isBlank()) {
-                context.getString(R.string.error_meta_tried_generic, triedAddons, id, type)
+                context.getString(R.string.error_meta_tried_generic, triedAddons)
             } else {
-                context.getString(R.string.error_meta_tried_issues, triedAddons, id, type, issueSummary)
+                context.getString(R.string.error_meta_tried_issues, triedAddons, issueSummary)
             }
         }
     }

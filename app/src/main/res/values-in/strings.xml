@@ -127,9 +127,9 @@
     <string name="error_meta_not_found">Meta tidak ditemukan</string>
     <string name="error_meta_no_supported_addon">Tidak ada addon terpasang yang mendukung metadata untuk \"%1$s\".</string>
     <string name="error_meta_no_addon_for_id">Tidak ada addon terpasang yang bisa menyediakan metadata untuk id=%1$s (type=%2$s).</string>
-    <string name="error_meta_tried_none">Mencoba addon meta: %1$s. Tidak ada yang menyediakan metadata untuk id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_generic">Mencoba addon meta: %1$s. Metadata tidak dapat dimuat untuk id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_issues">Mencoba addon meta: %1$s. Metadata tidak dapat dimuat untuk id=%2$s (type=%3$s). Masalah: %4$s.</string>
+    <string name="error_meta_tried_none">Mencoba addon meta: %1$s. Tidak ada yang menyediakan metadata.</string>
+    <string name="error_meta_tried_generic">Mencoba addon meta: %1$s. Metadata tidak dapat dimuat.</string>
+    <string name="error_meta_tried_issues">Mencoba addon meta: %1$s. Metadata tidak dapat dimuat. Masalah: %2$s.</string>
     <string name="error_stream_no_supported_addon">Tidak ada addon terpasang yang mendukung stream untuk \"%1$s\".</string>
     <string name="error_stream_tried_none">Mencoba addon stream: %1$s. Tidak ada yang menyediakan stream.</string>
     <string name="error_stream_tried_generic">Mencoba addon stream: %1$s. Stream tidak dapat dimuat.</string>

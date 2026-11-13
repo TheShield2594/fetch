@@ -124,9 +124,9 @@
     <string name="error_meta_not_found">Meta nenalezeno</string>
     <string name="error_meta_no_supported_addon">Žádný nainstalovaný doplněk nepodporuje metadata pro \"%1$s\".</string>
     <string name="error_meta_no_addon_for_id">Žádný nainstalovaný doplněk nemohl poskytnout metadata pro id=%1$s (typ=%2$s).</string>
-    <string name="error_meta_tried_none">Vyzkoušené meta doplňky: %1$s. Žádný z nich neposkytl metadata pro id=%2$s (typ=%3$s).</string>
-    <string name="error_meta_tried_generic">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena pro id=%2$s (typ=%3$s).</string>
-    <string name="error_meta_tried_issues">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena pro id=%2$s (typ=%3$s). Problémy: %4$s.</string>
+    <string name="error_meta_tried_none">Vyzkoušené meta doplňky: %1$s. Žádný z nich neposkytl metadata.</string>
+    <string name="error_meta_tried_generic">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena.</string>
+    <string name="error_meta_tried_issues">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena. Problémy: %2$s.</string>
     <string name="error_stream_no_supported_addon">Žádný nainstalovaný doplněk nepodporuje streamy pro \"%1$s\".</string>
     <string name="error_stream_tried_none">Vyzkoušené streamovací doplňky: %1$s. Žádný z nich nevrátil streamy.</string>
     <string name="error_stream_tried_generic">Vyzkoušené streamovací doplňky: %1$s. Streamy nemohly být načteny.</string>

@@ -28,6 +28,9 @@ sealed interface TrackingImportOrigin {
 
     /** A Stremio account, signed in for the import only and signed out afterwards. */
     data object Stremio : TrackingImportOrigin
+
+    /** The AniList account connected for scrobbling. */
+    data object AniList : TrackingImportOrigin
 }
 
 data class TrackingImportWriteResult(

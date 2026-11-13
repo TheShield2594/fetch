@@ -7,6 +7,9 @@ import com.fetch.tv.data.local.WatchProgressPreferences
 import com.fetch.tv.data.local.WatchProgressSource
 import com.fetch.tv.data.local.WatchedItemsPreferences
 import com.fetch.tv.core.network.NetworkResult
+import com.fetch.tv.core.util.runSuspendCatching
+import com.fetch.tv.data.anilist.AniListApi
+import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.stremio.StremioAccountApi
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.repository.MetaRepository
@@ -64,7 +67,9 @@ class TrackingImportService @Inject constructor(
     private val watchedItemsPreferences: WatchedItemsPreferences,
     private val profileManager: ProfileManager,
     private val stremioApi: StremioAccountApi,
-    private val metaRepository: MetaRepository
+    private val metaRepository: MetaRepository,
+    private val aniListAuth: AniListAuthStore,
+    private val aniListApi: AniListApi
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val importer = TrackingImporter()
@@ -131,6 +136,16 @@ class TrackingImportService @Inject constructor(
             val reader = StremioImportReader(authKey)
             // Another import got there first: don't leave the session signed in.
             if (!run(TrackingImportOrigin.Stremio) { reader }) reader.close()
+        }
+    }
+
+    /** Imports the connected AniList account's anime into the source of truth. */
+    fun startAniList() {
+        run(TrackingImportOrigin.AniList) { profileId ->
+            val state = aniListAuth.current(profileId)
+            val token = state.accessToken?.takeIf { state.isAuthenticated() }
+            val userId = state.userId
+            if (token == null || userId == null) null else AniListImportReader(token, userId)
         }
     }
 
@@ -285,10 +300,20 @@ class TrackingImportService @Inject constructor(
 
         suspend fun close() {
             withContext(NonCancellable) {
-                runCatching { stremioApi.logout(authKey) }
+                runSuspendCatching { stremioApi.logout(authKey) }
                     .onFailure { Log.w(TAG, "Couldn't sign the Stremio import session out", it) }
             }
         }
+    }
+
+    private inner class AniListImportReader(
+        private val token: String,
+        private val userId: Long
+    ) : TrackingImportReader {
+        override val origin = TrackingImportOrigin.AniList
+        override val capabilities = setOf(TrackingCapability.WATCHED_READ)
+
+        override suspend fun read(): TrackingImportSnapshot = buildAniListSnapshot(aniListApi.animeLists(token, userId))
     }
 
     /** Fetch Sync: this TV's own watch state for the profile. */

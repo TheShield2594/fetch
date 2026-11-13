@@ -151,6 +151,47 @@ internal fun TraktAccountDialog(
     }
 }
 
+/**
+ * AniList on the TV: signed in from the phone hub (AniList has no TV sign-in), so this only says
+ * how, or shows the account and signs it out.
+ */
+@Composable
+internal fun AniListAccountDialog(
+    state: AniListAccountUiState,
+    onDisconnect: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = stringResource(R.string.anilist_name),
+        suppressFirstKeyUp = false
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+            val lines = if (state.connected) {
+                listOf(
+                    stringResource(R.string.anilist_connected_as, state.username.orEmpty()),
+                    stringResource(R.string.anilist_connected_description)
+                )
+            } else {
+                listOf(stringResource(R.string.anilist_description), stringResource(R.string.anilist_sign_in_from_phone))
+            }
+            lines.forEach { line ->
+                Text(text = line, style = MaterialTheme.typography.bodyMedium, color = FetchTheme.colors.TextSecondary)
+            }
+        }
+        SettingsDialogActionRow {
+            SettingsDialogActionButton(text = stringResource(R.string.action_close), onClick = onDismiss)
+            if (state.connected) {
+                SettingsDialogActionButton(
+                    text = stringResource(R.string.trakt_disconnect),
+                    onClick = onDisconnect,
+                    destructive = true
+                )
+            }
+        }
+    }
+}
+
 /** The link code that signs a Stremio account in for a one-off history import. */
 @Composable
 internal fun StremioLinkDialog(
@@ -168,7 +209,6 @@ internal fun StremioLinkDialog(
     FetchDialog(
         onDismiss = onDismiss,
         title = "",
-        width = 720.dp,
         titleTextAlign = TextAlign.Center,
         suppressFirstKeyUp = false,
         scrollable = true

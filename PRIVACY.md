@@ -6,7 +6,7 @@ below.
 
 ## What stays on your TV
 
-Your addons, profiles, watch progress, library, settings and Trakt/Simkl/MDBList keys are
+Your addons, profiles, watch progress, library, settings and Trakt/Simkl/MDBList/AniList keys are
 stored on the device. Uninstalling Fetch deletes them.
 
 ## What Fetch talks to
@@ -15,6 +15,11 @@ Fetch connects to services you add or turn on yourself:
 
 - **Stremio addons** you install. Each addon receives the IDs of the titles you browse or play.
 - **Trakt, Simkl, MDBList** when you sign in to them.
+- **AniList** (`graphql.anilist.co`), only when you sign in to it from the phone page. When you
+  finish an anime episode, Fetch looks the title up on AniList and updates that entry's
+  progress. To work out which AniList entry an IMDb-listed show's season is, Fetch asks Simkl's
+  public ID lookup with the show's IMDb ID, the same lookup skip markers use. Importing your
+  AniList history reads your anime lists.
 - **Stremio** (`link.stremio.com` and `api.strem.io`), only when you import a Stremio account's
   history from Settings → Tracking. You approve a code on stremio.com, Fetch reads your
   library's watch state once and signs that session out again. It keeps no Stremio sign-in.

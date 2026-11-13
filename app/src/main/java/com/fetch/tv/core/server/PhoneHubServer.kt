@@ -38,7 +38,16 @@ data class PhoneHubAccountStatus(
     val trakt: PhoneHubTrackerStatus,
     val simkl: PhoneHubTrackerStatus,
     val mediaServerProviders: List<Pair<String, String>>,
-    val mediaServers: List<String>
+    val mediaServers: List<String>,
+    /** Null in builds without an AniList client id, which hides the section. */
+    val aniList: PhoneHubAniListStatus? = null
+)
+
+/** AniList signs in on the phone: [authorizeUrl] ends on AniList's page showing the token to paste. */
+data class PhoneHubAniListStatus(
+    val connected: Boolean,
+    val username: String?,
+    val authorizeUrl: String
 )
 
 /**
@@ -81,6 +90,8 @@ interface PhoneHubActions {
     fun sendRemote(command: RemoteCommand): Boolean
     suspend fun accountStatus(): PhoneHubAccountStatus
     suspend fun saveMdbListKey(apiKey: String): PhoneHubResult
+    /** Checks an AniList access token pasted on the phone and signs the profile in with it. */
+    suspend fun connectAniList(token: String): PhoneHubResult = PhoneHubResult(false)
     suspend fun connectMediaServer(providerId: String, address: String, username: String, password: String): PhoneHubResult
     suspend fun startTrackerSignIn(tracker: String): Result<PhoneHubDeviceCode>
     suspend fun rankingRules(): StreamRankingRules
@@ -176,6 +187,8 @@ class PhoneHubServer(
         session.method == Method.POST && uri == "/api/remote" -> handleRemote(readJson(session))
         session.method == Method.GET && uri == "/api/accounts" -> jsonResponse(accountsJson())
         session.method == Method.POST && uri == "/api/accounts/mdblist" -> handleMdbList(readJson(session))
+        session.method == Method.POST && uri == "/api/accounts/anilist" ->
+            result(runBlocking { actions.connectAniList(readJson(session).string("token").orEmpty().trim()) })
         session.method == Method.POST && uri == "/api/accounts/mediaserver" -> handleMediaServer(readJson(session))
         session.method == Method.POST && uri == "/api/accounts/tracker" -> handleTracker(readJson(session))
         session.method == Method.GET && uri == "/api/ranking" -> jsonResponse(rankingJson())
@@ -391,6 +404,13 @@ class PhoneHubServer(
                 }
             })
             put("mediaServers", buildJsonArray { status.mediaServers.forEach { add(JsonPrimitive(it)) } })
+            status.aniList?.let { aniList ->
+                put("aniList", buildJsonObject {
+                    put("connected", aniList.connected)
+                    aniList.username?.let { put("username", it) }
+                    put("authorizeUrl", aniList.authorizeUrl)
+                })
+            }
         }
     }
 

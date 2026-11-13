@@ -47,6 +47,7 @@ class PhoneHubWebPage(private val resources: Resources) {
           fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
           input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #646d7e; background: #161a21; color: inherit; font: inherit; }
           button { padding: 12px 16px; border: 0; border-radius: 10px; background: #2d6cdf; color: #fff; font: inherit; cursor: pointer; }
+          a.button { display: inline-block; padding: 12px 16px; border-radius: 10px; background: #2d6cdf; color: #fff; text-decoration: none; }
           button.secondary { background: #2a303b; }
           button:disabled { opacity: 0.5; cursor: default; }
           .row { display: flex; gap: 8px; margin-top: 8px; }
@@ -205,6 +206,16 @@ class PhoneHubWebPage(private val resources: Resources) {
             <div id="trackerCode"></div>
             <div id="trackerStatus" class="status" role="status"></div>
 
+            <div id="aniList" hidden>
+              <h2>${h(R.string.phone_web_anilist_heading)}</h2>
+              <p class="hint">${h(R.string.phone_web_anilist_steps)}</p>
+              <div class="row"><a id="aniListOpen" class="button" target="_blank" rel="noopener">${h(R.string.phone_web_anilist_open)}</a></div>
+              <label for="aniListToken">${h(R.string.phone_web_anilist_token)}</label>
+              <input id="aniListToken" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <div class="row"><button id="saveAniList">${h(R.string.phone_web_anilist_save)}</button></div>
+              <div id="aniListStatus" class="status" role="status"></div>
+            </div>
+
             <h2>${h(R.string.phone_web_server_heading)}</h2>
             <label for="serverProvider">${h(R.string.phone_web_server_type)}</label>
             <select id="serverProvider"></select>
@@ -228,6 +239,14 @@ class PhoneHubWebPage(private val resources: Resources) {
                 if (s.trakt.connected) trackers.push('Trakt' + (s.trakt.username ? ' (' + s.trakt.username + ')' : ''));
                 if (s.simkl.connected) trackers.push('Simkl' + (s.simkl.username ? ' (' + s.simkl.username + ')' : ''));
                 show('trackerStatus', trackers.length ? fmt(CONNECTED_LIST, trackers.join(SEPARATOR)) : '');
+                const aniList = document.getElementById('aniList');
+                aniList.hidden = !s.aniList;
+                if (s.aniList) {
+                  document.getElementById('aniListOpen').href = s.aniList.authorizeUrl;
+                  show('aniListStatus', s.aniList.connected
+                    ? fmt(${j(R.string.phone_web_anilist_connected)}, s.aniList.username || '')
+                    : ${j(R.string.phone_web_anilist_disconnected)});
+                }
                 const select = document.getElementById('serverProvider');
                 if (!select.options.length) {
                   s.mediaServerProviders.forEach(function (p) {
@@ -245,6 +264,13 @@ class PhoneHubWebPage(private val resources: Resources) {
               post('/api/accounts/mdblist', { apiKey: document.getElementById('mdbKey').value })
                 .then(function (d) { document.getElementById('mdbKey').value = ''; show('mdbStatus', d.message || ${j(R.string.phone_web_saved)}); refresh(); })
                 .catch(function (e) { show('mdbStatus', e.message, true); });
+            });
+            document.getElementById('saveAniList').addEventListener('click', function () {
+              const field = document.getElementById('aniListToken');
+              show('aniListStatus', ${j(R.string.phone_web_checking)});
+              post('/api/accounts/anilist', { token: field.value.trim() })
+                .then(function (d) { field.value = ''; show('aniListStatus', d.message || ${j(R.string.phone_web_saved)}); refresh(); })
+                .catch(function (e) { show('aniListStatus', e.message, true); });
             });
             function startTracker(tracker) {
               show('trackerStatus', ${j(R.string.phone_web_starting)});

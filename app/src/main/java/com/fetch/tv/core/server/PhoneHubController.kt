@@ -19,6 +19,9 @@ import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.core.util.withAppLocale
+import com.fetch.tv.data.anilist.AniListApi
+import com.fetch.tv.data.anilist.AniListApiException
+import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
@@ -63,6 +66,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "PhoneHubController"
+private const val ANILIST_TOKEN_LIFETIME_MS = 364L * 24 * 60 * 60 * 1000
 
 /** How long the hub keeps serving a paired phone after the TV screen closes, with no requests. */
 private const val REMOTE_IDLE_TIMEOUT_MS = 10 * 60_000L
@@ -139,7 +143,9 @@ class PhoneHubController @Inject constructor(
     private val addonRepository: AddonRepository,
     private val profileManager: ProfileManager,
     private val websiteStore: FetchWebsiteStore,
-    private val websitePairing: dagger.Lazy<FetchWebsitePairing>
+    private val websitePairing: dagger.Lazy<FetchWebsitePairing>,
+    private val aniListApi: AniListApi,
+    private val aniListAuth: AniListAuthStore
 ) : PhoneHubActions {
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, error ->
@@ -292,8 +298,38 @@ class PhoneHubController @Inject constructor(
             mediaServerProviders = serverRepository.providers
                 .filter { it.signInMethod == ServerSignInMethod.PASSWORD }
                 .map { it.id to it.displayName },
-            mediaServers = serverRepository.uiState.value.connections.map { "${it.name} (${it.userName})" }
+            mediaServers = serverRepository.uiState.value.connections.map { "${it.name} (${it.userName})" },
+            aniList = if (!aniListApi.isConfigured) null else aniListAuth.current().let { state ->
+                PhoneHubAniListStatus(
+                    connected = state.isAuthenticated(),
+                    username = state.username?.takeIf { state.isAuthenticated() },
+                    authorizeUrl = aniListApi.authorizeUrl
+                )
+            }
         )
+    }
+
+    override suspend fun connectAniList(token: String): PhoneHubResult {
+        settingsBlocked()?.let { return it }
+        if (!aniListApi.isConfigured || token.isBlank()) return PhoneHubResult(false, text(R.string.phone_web_anilist_rejected))
+        // The profile that was active when the token arrived, whatever happens during the check.
+        val profileId = aniListAuth.activeProfileId()
+        val viewer = try {
+            aniListApi.viewer(token)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: AniListApiException) {
+            return PhoneHubResult(
+                false,
+                text(if (error.unauthorized) R.string.phone_web_anilist_rejected else R.string.phone_web_anilist_unavailable)
+            )
+        } catch (error: Exception) {
+            return PhoneHubResult(false, text(R.string.phone_web_anilist_unavailable))
+        }
+        // AniList's implicit-grant tokens last a year; a day's margin avoids using one as it lapses.
+        val expiresAt = System.currentTimeMillis() + ANILIST_TOKEN_LIFETIME_MS
+        aniListAuth.save(profileId, token, expiresAt, viewer.id, viewer.name)
+        return PhoneHubResult(true, text(R.string.phone_web_anilist_connected, viewer.name))
     }
 
     // Account changes are also settings changes, so restricted profiles need the TV unlocked.

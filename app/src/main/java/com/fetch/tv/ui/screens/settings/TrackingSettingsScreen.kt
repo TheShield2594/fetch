@@ -61,10 +61,13 @@ fun TrackingSettingsContent(
     val trackingState by trackingViewModel.uiState.collectAsStateWithLifecycle()
     val importStatus by trackingViewModel.importStatus.collectAsStateWithLifecycle()
     val stremioLink by trackingViewModel.stremioLink.collectAsStateWithLifecycle()
+    val aniList by trackingViewModel.aniList.collectAsStateWithLifecycle()
+    var showAniListDialog by remember { mutableStateOf(false) }
     val ownTraktFocusRequester = remember { FocusRequester() }
     val traktFocusRequester = initialFocusRequester ?: ownTraktFocusRequester
     val simklFocusRequester = remember { FocusRequester() }
     val mdbListFocusRequester = remember { FocusRequester() }
+    val aniListFocusRequester = remember { FocusRequester() }
     val libraryFocusRequester = remember { FocusRequester() }
     val watchProgressFocusRequester = remember { FocusRequester() }
     val importFocusRequester = remember { FocusRequester() }
@@ -89,6 +92,7 @@ fun TrackingSettingsContent(
         showWatchProgressDialog ||
         showImportDialog ||
         stremioLink !is StremioLinkState.Idle ||
+        showAniListDialog ||
         importStatus is TrackingImportStatus.Done ||
         importStatus is TrackingImportStatus.Failed ||
         showDaysCapDialog ||
@@ -108,7 +112,7 @@ fun TrackingSettingsContent(
             TrackingProviderId.SIMKL -> simklState.mode == SimklConnectionMode.CONNECTED
             TrackingProviderId.MDBLIST -> mdbListState.isConnected
             // Signed in by pairing under Settings → Account, never from here.
-            TrackingProviderId.FETCH_WEBSITE, null -> false
+            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, null -> false
         }
         if (activeProvider == dismissOnConnected && connected) {
             activeProvider = null
@@ -124,6 +128,7 @@ fun TrackingSettingsContent(
             TrackingFocusTarget.TRAKT -> traktFocusRequester
             TrackingFocusTarget.SIMKL -> simklFocusRequester
             TrackingFocusTarget.MDBLIST -> mdbListFocusRequester
+            TrackingFocusTarget.ANILIST -> aniListFocusRequester
             TrackingFocusTarget.LIBRARY -> libraryFocusRequester
             TrackingFocusTarget.WATCH_PROGRESS -> watchProgressFocusRequester
             TrackingFocusTarget.IMPORT -> importFocusRequester
@@ -140,7 +145,7 @@ fun TrackingSettingsContent(
             TrackingProviderId.SIMKL -> TrackingFocusTarget.SIMKL
             TrackingProviderId.MDBLIST -> TrackingFocusTarget.MDBLIST
             // Paired under Settings → Account; it has no account dialog here.
-            TrackingProviderId.FETCH_WEBSITE -> return@openProvider
+            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> return@openProvider
         }
         activeProvider = provider
         disconnectProvider = null
@@ -174,12 +179,18 @@ fun TrackingSettingsContent(
                     mdbListViewModel.onConnect()
                 }
             }
-            TrackingProviderId.FETCH_WEBSITE -> Unit
+            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> Unit
         }
     }
 
     TrackingSettingsOverview(
         essentialMode = essentialMode,
+        aniList = aniList,
+        aniListFocusRequester = aniListFocusRequester,
+        onAniListClick = {
+            restoreFocusTarget = TrackingFocusTarget.ANILIST
+            showAniListDialog = true
+        },
         traktState = traktState,
         simklState = simklState,
         mdbListState = mdbListState,
@@ -285,7 +296,7 @@ fun TrackingSettingsContent(
                 }
             )
         }
-        TrackingProviderId.FETCH_WEBSITE, null -> Unit
+        TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, null -> Unit
     }
 
     disconnectProvider?.let { provider ->
@@ -300,7 +311,7 @@ fun TrackingSettingsContent(
                     TrackingProviderId.SIMKL -> R.string.simkl_disconnect_title
                     TrackingProviderId.MDBLIST -> R.string.mdblist_disconnect_title
                     // Signed out under Settings → Account; this dialog never opens for it.
-                    TrackingProviderId.FETCH_WEBSITE -> error("The Fetch website is signed out under Settings → Account")
+                    TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> error("Signed out elsewhere; this dialog never opens for it")
                 }
             ),
             subtitle = stringResource(
@@ -309,7 +320,7 @@ fun TrackingSettingsContent(
                     TrackingProviderId.SIMKL -> R.string.simkl_disconnect_subtitle
                     TrackingProviderId.MDBLIST -> R.string.mdblist_disconnect_subtitle
                     // Signed out under Settings → Account; this dialog never opens for it.
-                    TrackingProviderId.FETCH_WEBSITE -> error("The Fetch website is signed out under Settings → Account")
+                    TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> error("Signed out elsewhere; this dialog never opens for it")
                 }
             ),
             width = FetchTheme.components.dialog.width,
@@ -331,7 +342,7 @@ fun TrackingSettingsContent(
                             TrackingProviderId.TRAKT -> traktViewModel.onDisconnectClick()
                             TrackingProviderId.SIMKL -> simklViewModel.onDisconnect()
                             TrackingProviderId.MDBLIST -> mdbListViewModel.onDisconnect()
-                            TrackingProviderId.FETCH_WEBSITE -> Unit
+                            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> Unit
                         }
                     },
                     destructive = true
@@ -386,20 +397,38 @@ fun TrackingSettingsContent(
                     TrackingImportOrigin.Connected(source),
                     watchProgressSourceLabel(source)
                 )
-            } + SettingsPickerOption<TrackingImportOrigin?>(
-                TrackingImportOrigin.Stremio,
-                stringResource(R.string.tracking_import_stremio_option)
+            } + listOfNotNull(
+                SettingsPickerOption<TrackingImportOrigin?>(
+                    TrackingImportOrigin.AniList,
+                    stringResource(R.string.anilist_name)
+                ).takeIf { aniList.connected },
+                SettingsPickerOption<TrackingImportOrigin?>(
+                    TrackingImportOrigin.Stremio,
+                    stringResource(R.string.tracking_import_stremio_option)
+                )
             ),
             selectedValue = null,
             onOptionSelected = { origin ->
                 when (origin) {
                     is TrackingImportOrigin.Connected -> trackingViewModel.importFrom(origin.source)
                     TrackingImportOrigin.Stremio -> trackingViewModel.startStremioImport()
+                    TrackingImportOrigin.AniList -> trackingViewModel.importFromAniList()
                     null -> Unit
                 }
                 showImportDialog = false
             },
             onDismiss = { showImportDialog = false }
+        )
+    }
+
+    if (showAniListDialog) {
+        AniListAccountDialog(
+            state = aniList,
+            onDisconnect = {
+                trackingViewModel.disconnectAniList()
+                showAniListDialog = false
+            },
+            onDismiss = { showAniListDialog = false }
         )
     }
 
@@ -434,6 +463,11 @@ fun TrackingSettingsContent(
                     )
                     TrackingImportOrigin.Stremio -> stringResource(
                         R.string.tracking_import_stremio_failed_subtitle,
+                        watchProgressSourceLabel(status.target)
+                    )
+                    TrackingImportOrigin.AniList -> stringResource(
+                        R.string.tracking_import_failed_subtitle,
+                        stringResource(R.string.anilist_name),
                         watchProgressSourceLabel(status.target)
                     )
                 }
@@ -548,6 +582,9 @@ fun TrackingSettingsContent(
 
 @Composable
 internal fun TrackingSettingsOverview(
+    aniList: AniListAccountUiState = AniListAccountUiState(),
+    aniListFocusRequester: FocusRequester = remember { FocusRequester() },
+    onAniListClick: () -> Unit = {},
     traktState: TraktUiState,
     simklState: SimklSettingsUiState,
     mdbListState: MdbListTrackerUiState,
@@ -642,6 +679,25 @@ internal fun TrackingSettingsOverview(
                                 .focusRequester(mdbListFocusRequester)
                                 .testTag(TrackingSettingsTestTags.MDBLIST_PROVIDER)
                         )
+                        // Hidden in builds without an AniList client id.
+                        if (aniList.configured) {
+                            SettingsActionRow(
+                                title = stringResource(R.string.anilist_name),
+                                subtitle = if (aniList.connected) {
+                                    stringResource(R.string.anilist_connected_as, aniList.username.orEmpty())
+                                } else {
+                                    stringResource(R.string.anilist_description)
+                                },
+                                value = stringResource(
+                                    if (aniList.connected) R.string.tracking_status_connected else R.string.tracking_status_disconnected
+                                ),
+                                valueColor = if (aniList.connected) FetchTheme.colors.Success else FetchTheme.colors.TextSecondary,
+                                onClick = onAniListClick,
+                                modifier = Modifier
+                                    .focusRequester(aniListFocusRequester)
+                                    .testTag(TrackingSettingsTestTags.ANILIST_PROVIDER)
+                            )
+                        }
                     }
                 }
                 if (!essentialMode) item(key = "tracking_sources") {
@@ -870,6 +926,7 @@ private fun watchProgressSourceLabel(source: WatchProgressSource): String = when
 private fun importOriginLabel(origin: TrackingImportOrigin): String = when (origin) {
     is TrackingImportOrigin.Connected -> watchProgressSourceLabel(origin.source)
     TrackingImportOrigin.Stremio -> stringResource(R.string.stremio_name)
+    TrackingImportOrigin.AniList -> stringResource(R.string.anilist_name)
 }
 
 @Composable
@@ -909,6 +966,7 @@ private enum class TrackingFocusTarget {
     TRAKT,
     SIMKL,
     MDBLIST,
+    ANILIST,
     LIBRARY,
     WATCH_PROGRESS,
     IMPORT,
@@ -921,6 +979,7 @@ internal object TrackingSettingsTestTags {
     const val TRAKT_PROVIDER = "tracking_provider_trakt"
     const val SIMKL_PROVIDER = "tracking_provider_simkl"
     const val MDBLIST_PROVIDER = "tracking_provider_mdblist"
+    const val ANILIST_PROVIDER = "tracking_provider_anilist"
     const val MDBLIST_LIBRARY_LISTS = "tracking_mdblist_library_lists"
     const val LIBRARY_SOURCE = "tracking_source_library"
     const val WATCH_PROGRESS_SOURCE = "tracking_source_watch_progress"

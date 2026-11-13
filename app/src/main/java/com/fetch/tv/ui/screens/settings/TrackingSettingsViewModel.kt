@@ -12,6 +12,8 @@ import com.fetch.tv.core.tracking.TrackingSourceSelection
 import com.fetch.tv.core.tracking.availableLibrarySourceModes
 import com.fetch.tv.core.tracking.availableWatchProgressSources
 import com.fetch.tv.core.tracking.effectiveTrackingSourceSelection
+import com.fetch.tv.data.anilist.AniListApi
+import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.local.TraktAuthDataStore
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressSource
@@ -26,7 +28,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -48,6 +53,13 @@ data class TrackingSettingsUiState(
         get() = availableWatchProgressSources.filter { it != watchProgressSource }
 }
 
+/** AniList is signed in from the phone hub; the TV only shows it and signs it out. */
+data class AniListAccountUiState(
+    val configured: Boolean = false,
+    val connected: Boolean = false,
+    val username: String? = null
+)
+
 @HiltViewModel
 class TrackingSettingsViewModel @Inject constructor(
     private val sourceController: TrackingSourceController,
@@ -58,12 +70,23 @@ class TrackingSettingsViewModel @Inject constructor(
     simklAuthRepository: SimklAuthRepository,
     mdbListAuth: MdbListAuthStore,
     websiteStore: FetchWebsiteStore,
-    profiles: ProfileManager
+    profiles: ProfileManager,
+    private val aniListAuth: AniListAuthStore,
+    aniListApi: AniListApi
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TrackingSettingsUiState())
     val uiState: StateFlow<TrackingSettingsUiState> = _uiState.asStateFlow()
     val importStatus: StateFlow<TrackingImportStatus> = importService.status
     val stremioLink: StateFlow<StremioLinkState> = importService.stremioLink
+    val aniList: StateFlow<AniListAccountUiState> = aniListAuth.state
+        .map { state ->
+            AniListAccountUiState(
+                configured = aniListApi.isConfigured,
+                connected = state.isAuthenticated(),
+                username = state.username?.takeIf { state.isAuthenticated() }
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AniListAccountUiState(configured = aniListApi.isConfigured))
 
     init {
         viewModelScope.launch {
@@ -139,4 +162,12 @@ class TrackingSettingsViewModel @Inject constructor(
     }
 
     fun cancelStremioImport() = importService.cancelStremioLink()
+
+    fun importFromAniList() {
+        if (_uiState.value.isReady && aniList.value.connected) importService.startAniList()
+    }
+
+    fun disconnectAniList() {
+        viewModelScope.launch { aniListAuth.clear() }
+    }
 }

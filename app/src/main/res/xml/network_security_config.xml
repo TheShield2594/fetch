@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <base-config cleartextTrafficPermitted="true">
+<!--
+  Cleartext stays allowed for every host (lint InsecureBaseConfiguration, reviewed in #492):
+  - Self-hosted addons, Jellyfin/Plex/Emby and WebDAV servers on the LAN are usually plain HTTP,
+    and network-security-config can only list domain names, not private IP ranges, so local
+    servers addressed by IP can't be allowed on their own.
+  - Third-party Stremio addons and the stream URLs they return are still often http://, and
+    the app has no control over which hosts those are.
+  HTTPS is used whenever a URL asks for it; public HTTPS hosts get full certificate validation
+  (only local hosts may skip it, see LocalNetworkTls).
+-->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config
+        cleartextTrafficPermitted="true"
+        tools:ignore="InsecureBaseConfiguration">
         <trust-anchors>
             <certificates src="system" />
             <certificates src="@raw/isrgrootx1" />

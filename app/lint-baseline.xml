@@ -26947,39 +26947,6 @@
     </issue>
 
     <issue
-        id="CustomX509TrustManager"
-        message="Implementing a custom `X509TrustManager` is error-prone and likely to be insecure. It is likely to disable certificate validation altogether, and is non-trivial to implement correctly without calling Android&apos;s default implementation."
-        errorLine1="    private val trustAllManager = object : X509TrustManager {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/com/fetch/tv/core/network/LocalNetworkTls.kt"
-            line="42"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="InsecureBaseConfiguration"
-        message="Insecure Base Configuration"
-        errorLine1="    &lt;base-config cleartextTrafficPermitted=&quot;true&quot;>"
-        errorLine2="                                            ~~~~">
-        <location
-            file="src/main/res/xml/network_security_config.xml"
-            line="3"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="DataExtractionRules"
-        message="The attribute `android:allowBackup` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher."
-        errorLine1="        android:allowBackup=&quot;false&quot;"
-        errorLine2="                             ~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="39"
-            column="30"/>
-    </issue>
-
-    <issue
         id="UnnecessaryArrayInit"
         message="This initialization lambda (`{ 0L }`) is unnecessary and is less efficient"
         errorLine1="        val numRecompositions = remember { LongArray(1) { 0L } }"

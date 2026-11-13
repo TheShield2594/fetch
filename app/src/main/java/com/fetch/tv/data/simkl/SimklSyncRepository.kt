@@ -3,6 +3,7 @@ package com.fetch.tv.data.simkl
 import android.util.Log
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tracking.TrackingRefreshIntent
+import com.fetch.tv.core.util.runSuspendCatching
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
@@ -37,6 +38,13 @@ class SimklSyncRepository @Inject constructor(
     private var loadedProfileId: Int? = null
     private var profileGeneration = 0L
 
+    /**
+     * Held while [_state] and [_projection] are published together, by the profile-switch reset
+     * as well as every write. A publish checks that its profile is still active inside this lock,
+     * so a switch can't land between its two writes and leave one profile's data on another.
+     */
+    private val publishLock = Any()
+
     val state: StateFlow<SimklSyncState> = _state.asStateFlow()
     internal val projection: StateFlow<SimklSnapshotProjection> = _projection.asStateFlow()
 
@@ -44,10 +52,12 @@ class SimklSyncRepository @Inject constructor(
         scope.launch {
             profileManager.activeProfileId.collect { profileId ->
                 if (loadedProfileId != profileId) {
-                    profileGeneration += 1L
-                    loadedProfileId = null
-                    _state.value = SimklSyncState()
-                    _projection.value = SimklSnapshotProjection.Empty
+                    synchronized(publishLock) {
+                        profileGeneration += 1L
+                        loadedProfileId = null
+                        _state.value = SimklSyncState()
+                        _projection.value = SimklSnapshotProjection.Empty
+                    }
                     loadProfile(profileId)
                 }
             }
@@ -90,10 +100,12 @@ class SimklSyncRepository @Inject constructor(
         val profileId = profileManager.activeProfileId.value
         profileGeneration += 1L
         storage.remove(profileId)
-        if (profileId == profileManager.activeProfileId.value) {
-            loadedProfileId = profileId
-            _projection.value = SimklSnapshotProjection.Empty
-            _state.value = SimklSyncState(hasLoaded = true)
+        synchronized(publishLock) {
+            if (profileId == profileManager.activeProfileId.value) {
+                loadedProfileId = profileId
+                _projection.value = SimklSnapshotProjection.Empty
+                _state.value = SimklSyncState(hasLoaded = true)
+            }
         }
     }
 
@@ -110,37 +122,39 @@ class SimklSyncRepository @Inject constructor(
         ensureLoaded()
         snapshotMutex.withLock {
             val profileId = profileManager.activeProfileId.value
-            val current = _state.value
-            val playback = current.snapshot.playback.filterNot { session -> session.id in sessionIds }
-            if (playback.size == current.snapshot.playback.size) return@withLock
-            val snapshot = current.snapshot.copy(playback = playback)
+            val base = persistedSnapshot(profileId)
+            val playback = base.playback.filterNot { session -> session.id in sessionIds }
+            if (playback.size == base.playback.size) return@withLock
+            val snapshot = base.copy(playback = playback)
             val projection = buildProjection(snapshot)
             storage.save(profileId, encodeSnapshot(snapshot))
-            if (profileId == profileManager.activeProfileId.value) {
-                _projection.value = projection
-                _state.value = current.copy(snapshot = snapshot)
-            }
+            publishIfCurrent(profileId, null, snapshot, projection)
         }
     }
 
-    internal suspend fun commitScrobble(result: SimklScrobbleResult) = withContext(Dispatchers.IO) {
+    /**
+     * [expectedProfileId] is the profile the scrobble was sent for: when another one is active
+     * by the time the answer arrives, the result belongs to neither and is dropped.
+     */
+    internal suspend fun commitScrobble(
+        result: SimklScrobbleResult,
+        expectedProfileId: Int? = null
+    ) = withContext(Dispatchers.IO) {
         ensureLoaded()
         val profileId = profileManager.activeProfileId.value
         val generation = profileGeneration
         snapshotMutex.withLock {
+            if (expectedProfileId != null && profileId != expectedProfileId) return@withLock
             if (!isCurrent(profileId, generation)) return@withLock
-            val current = _state.value
-            val snapshot = current.snapshot.applyScrobbleResult(
+            val base = persistedSnapshot(profileId)
+            val snapshot = base.applyScrobbleResult(
                 result = result,
                 committedAtEpochMs = System.currentTimeMillis()
             )
-            if (snapshot == current.snapshot) return@withLock
+            if (snapshot == base) return@withLock
             val projection = buildProjection(snapshot)
             storage.save(profileId, encodeSnapshot(snapshot))
-            if (isCurrent(profileId, generation)) {
-                _projection.value = projection
-                _state.value = current.copy(snapshot = snapshot)
-            }
+            publishIfCurrent(profileId, generation, snapshot, projection)
         }
     }
 
@@ -150,55 +164,52 @@ class SimklSyncRepository @Inject constructor(
         val generation = profileGeneration
         snapshotMutex.withLock {
             if (!isCurrent(profileId, generation)) return@withLock
-            val current = _state.value
-            val snapshot = current.snapshot.applyMutationReceipt(
+            val base = persistedSnapshot(profileId)
+            val snapshot = base.applyMutationReceipt(
                 receipt = receipt,
                 committedAtEpochMs = System.currentTimeMillis()
             )
-            if (snapshot == current.snapshot) return@withLock
+            if (snapshot == base) return@withLock
             val projection = buildProjection(snapshot)
             storage.save(profileId, encodeSnapshot(snapshot))
-            if (isCurrent(profileId, generation)) {
-                _projection.value = projection
-                _state.value = current.copy(snapshot = snapshot)
-            }
+            publishIfCurrent(profileId, generation, snapshot, projection)
         }
     }
 
     private suspend fun loadProfile(profileId: Int) = loadMutex.withLock {
         if (loadedProfileId == profileId) return@withLock
-        val snapshot = storage.load(profileId)
-            ?.trim()
-            ?.takeIf(String::isNotEmpty)
-            ?.let { payload ->
-                runCatching { decodeSnapshot(payload) }
-                    .onFailure { error -> Log.w(TAG, "Unable to decode Simkl snapshot", error) }
-                    .getOrNull()
-            }
-            ?: SimklSyncSnapshot()
+        val snapshot = persistedSnapshot(profileId)
         val projection = buildProjection(snapshot)
-        if (profileId == profileManager.activeProfileId.value) {
-            loadedProfileId = profileId
-            _projection.value = projection
-            _state.value = SimklSyncState(snapshot = snapshot, hasLoaded = true)
+        synchronized(publishLock) {
+            if (profileId == profileManager.activeProfileId.value) {
+                loadedProfileId = profileId
+                _projection.value = projection
+                _state.value = SimklSyncState(snapshot = snapshot, hasLoaded = true)
+            }
         }
     }
 
     private suspend fun refreshSnapshot(profileId: Int, generation: Long) = snapshotMutex.withLock {
-        val previous = _state.value
-        _state.value = previous.copy(isLoading = true, errorMessage = null)
+        synchronized(publishLock) {
+            if (!isCurrent(profileId, generation)) return@withLock
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
+        }
+        // Like the commits, sync from this profile's saved snapshot, never from the shown state.
+        val previous = persistedSnapshot(profileId)
         val result = try {
-            engine.synchronize(previous.snapshot)
+            engine.synchronize(previous)
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
             Log.w(TAG, "Simkl sync failed", error)
-            if (isCurrent(profileId, generation)) {
-                _state.value = previous.copy(
-                    isLoading = false,
-                    hasLoaded = true,
-                    errorMessage = error.message ?: "Unable to sync Simkl"
-                )
+            synchronized(publishLock) {
+                if (isCurrent(profileId, generation)) {
+                    _state.value = _state.value.copy(
+                        isLoading = false,
+                        hasLoaded = true,
+                        errorMessage = error.message ?: "Unable to sync Simkl"
+                    )
+                }
             }
             return@withLock
         }
@@ -207,27 +218,66 @@ class SimklSyncRepository @Inject constructor(
         // pause, so a read that follows the user's own write can still describe the previous viewing.
         // Keep our own newer rows over the fetched ones; the account stays authoritative for the rest.
         val merged = result.copy(
-            playback = mergeFetchedPlayback(result.playback, previous.snapshot.playback)
+            playback = mergeFetchedPlayback(result.playback, previous.playback)
         )
+        // Null when nothing the projection reads changed: the one already shown is kept.
         val projection = if (
-            merged.entries === previous.snapshot.entries &&
-            merged.playback === previous.snapshot.playback
+            merged.entries === previous.entries &&
+            merged.playback === previous.playback
         ) {
-            _projection.value
+            null
         } else {
             buildProjection(merged)
         }
         authRepository.synchronizeUserSettings(merged.activities?.settings?.all)
         if (!isCurrent(profileId, generation)) return@withLock
         storage.save(profileId, encodeSnapshot(merged))
-        if (isCurrent(profileId, generation)) {
-            _projection.value = projection
-            _state.value = SimklSyncState(snapshot = merged, hasLoaded = true)
+        synchronized(publishLock) {
+            if (isCurrent(profileId, generation)) {
+                if (projection != null) _projection.value = projection
+                _state.value = SimklSyncState(snapshot = merged, hasLoaded = true)
+            }
         }
     }
 
     private fun isCurrent(profileId: Int, generation: Long): Boolean =
         profileId == profileManager.activeProfileId.value && generation == profileGeneration
+
+    /**
+     * The snapshot saved for [profileId]. Writes start from this rather than from [_state]: a
+     * profile switch replaces [_state] without taking [snapshotMutex], so reading it could
+     * start one profile's write from another profile's snapshot. Every change is saved before
+     * it is published, so the saved copy is never behind the in-memory one.
+     */
+    private suspend fun persistedSnapshot(profileId: Int): SimklSyncSnapshot =
+        storage.load(profileId)
+            ?.trim()
+            ?.takeIf(String::isNotEmpty)
+            ?.let { payload ->
+                runSuspendCatching { decodeSnapshot(payload) }
+                    .onFailure { error -> Log.w(TAG, "Unable to decode Simkl snapshot", error) }
+                    .getOrNull()
+            }
+            ?: SimklSyncSnapshot()
+
+    /** Shows a saved [snapshot] only while [profileId] (and [generation], when given) is still active. */
+    private fun publishIfCurrent(
+        profileId: Int,
+        generation: Long?,
+        snapshot: SimklSyncSnapshot,
+        projection: SimklSnapshotProjection
+    ) {
+        synchronized(publishLock) {
+            val stillCurrent = if (generation == null) {
+                profileId == profileManager.activeProfileId.value
+            } else {
+                isCurrent(profileId, generation)
+            }
+            if (!stillCurrent) return
+            _projection.value = projection
+            _state.value = _state.value.copy(snapshot = snapshot)
+        }
+    }
 
     fun invalidateProjections(animeIdPreference: SimklAnimeIdPreference? = null) {
         animeIdPreference?.let { preference -> SimklAnimeIdPreferenceHolder.current = preference }
@@ -238,11 +288,13 @@ class SimklSyncRepository @Inject constructor(
                 if (!isCurrent(profileId, generation)) return@withLock
                 val current = _state.value
                 val projection = buildProjection(current.snapshot)
-                if (!isCurrent(profileId, generation) || current.snapshot !== _state.value.snapshot) {
-                    return@withLock
+                synchronized(publishLock) {
+                    if (!isCurrent(profileId, generation) || current.snapshot !== _state.value.snapshot) {
+                        return@withLock
+                    }
+                    _projection.value = projection
+                    _state.value = current.copy(projectionVersion = current.projectionVersion + 1L)
                 }
-                _projection.value = projection
-                _state.value = current.copy(projectionVersion = current.projectionVersion + 1L)
             }
         }
     }

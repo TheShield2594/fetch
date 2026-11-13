@@ -66,21 +66,24 @@ class TraktScrobbleService @Inject constructor(
     private val retryDelayMs = 1_500L
     private val serverOverloadedRetryDelayMs = 5_000L
 
-    suspend fun scrobbleStart(item: TraktScrobbleItem, progressPercent: Float) {
-        sendScrobble(action = "start", item = item, progressPercent = progressPercent)
+    /** [profileId] is the profile that watched; null falls back to the active one. */
+    suspend fun scrobbleStart(item: TraktScrobbleItem, progressPercent: Float, profileId: Int? = null) {
+        sendScrobble(action = "start", item = item, progressPercent = progressPercent, profileId = profileId)
     }
 
-    suspend fun scrobbleStop(item: TraktScrobbleItem, progressPercent: Float) {
-        sendScrobble(action = "stop", item = item, progressPercent = progressPercent)
+    suspend fun scrobbleStop(item: TraktScrobbleItem, progressPercent: Float, profileId: Int? = null) {
+        sendScrobble(action = "stop", item = item, progressPercent = progressPercent, profileId = profileId)
     }
 
     private suspend fun sendScrobble(
         action: String,
         item: TraktScrobbleItem,
-        progressPercent: Float
+        progressPercent: Float,
+        profileId: Int?
     ) {
-        val activeProfileId = profileManager.activeProfileId.value
-        if (!traktAuthService.getCurrentAuthState().isAuthenticated) return
+        // The playback's own profile, so its token is used even after a profile switch.
+        val activeProfileId = profileId ?: profileManager.activeProfileId.value
+        if (!traktAuthService.getCurrentAuthState(activeProfileId).isAuthenticated) return
         if (!traktAuthService.hasRequiredCredentials()) return
 
         val clampedProgress = progressPercent.coerceIn(0f, 100f)
@@ -93,7 +96,7 @@ class TraktScrobbleService @Inject constructor(
 
         for (attempt in 1..attempts) {
             val response = try {
-                traktAuthService.executeAuthorizedWriteRequest { authHeader ->
+                traktAuthService.executeAuthorizedWriteRequest(activeProfileId) { authHeader ->
                     when (action) {
                         "start" -> traktApi.scrobbleStart(authHeader, requestBody)
                         else -> traktApi.scrobbleStop(authHeader, requestBody)

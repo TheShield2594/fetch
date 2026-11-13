@@ -65,6 +65,14 @@ abstract class TrackingModule {
     abstract fun bindFetchWebsiteHistory(writer: com.fetch.tv.data.website.FetchWebsiteTrackingHistoryWriter): TrackingHistoryWriter
 
     @Binds
+    @IntoSet
+    abstract fun bindAniListProvider(provider: com.fetch.tv.data.anilist.AniListTrackingProvider): TrackingProvider
+
+    @Binds
+    @IntoSet
+    abstract fun bindMalProvider(provider: com.fetch.tv.data.mal.MalTrackingProvider): TrackingProvider
+
+    @Binds
     @Singleton
     abstract fun bindSimklAuthStorage(storage: AndroidSimklAuthStorage): SimklAuthStorage
 

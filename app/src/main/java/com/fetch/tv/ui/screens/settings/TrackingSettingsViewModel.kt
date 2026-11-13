@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.tracking.StremioLinkState
 import com.fetch.tv.core.tracking.TrackingImportService
 import com.fetch.tv.core.tracking.TrackingImportStatus
 import com.fetch.tv.core.tracking.TrackingProviderId
@@ -11,7 +12,11 @@ import com.fetch.tv.core.tracking.TrackingSourceSelection
 import com.fetch.tv.core.tracking.availableLibrarySourceModes
 import com.fetch.tv.core.tracking.availableWatchProgressSources
 import com.fetch.tv.core.tracking.effectiveTrackingSourceSelection
+import com.fetch.tv.data.anilist.AniListApi
+import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.local.TraktAuthDataStore
+import com.fetch.tv.data.mal.MalApi
+import com.fetch.tv.data.mal.MalAuthStore
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressSource
 import com.fetch.tv.data.simkl.SimklAnimeIdPreference
@@ -25,7 +30,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -47,6 +55,13 @@ data class TrackingSettingsUiState(
         get() = availableWatchProgressSources.filter { it != watchProgressSource }
 }
 
+/** AniList and MyAnimeList are signed in from the phone hub; the TV only shows them and signs them out. */
+data class AnimeAccountUiState(
+    val configured: Boolean = false,
+    val connected: Boolean = false,
+    val username: String? = null
+)
+
 @HiltViewModel
 class TrackingSettingsViewModel @Inject constructor(
     private val sourceController: TrackingSourceController,
@@ -57,11 +72,34 @@ class TrackingSettingsViewModel @Inject constructor(
     simklAuthRepository: SimklAuthRepository,
     mdbListAuth: MdbListAuthStore,
     websiteStore: FetchWebsiteStore,
-    profiles: ProfileManager
+    profiles: ProfileManager,
+    private val aniListAuth: AniListAuthStore,
+    aniListApi: AniListApi,
+    private val malAuth: MalAuthStore,
+    malApi: MalApi
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TrackingSettingsUiState())
     val uiState: StateFlow<TrackingSettingsUiState> = _uiState.asStateFlow()
     val importStatus: StateFlow<TrackingImportStatus> = importService.status
+    val stremioLink: StateFlow<StremioLinkState> = importService.stremioLink
+    val aniList: StateFlow<AnimeAccountUiState> = aniListAuth.state
+        .map { state ->
+            AnimeAccountUiState(
+                configured = aniListApi.isConfigured,
+                connected = state.isAuthenticated(),
+                username = state.username?.takeIf { state.isAuthenticated() }
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnimeAccountUiState(configured = aniListApi.isConfigured))
+    val mal: StateFlow<AnimeAccountUiState> = malAuth.state
+        .map { state ->
+            AnimeAccountUiState(
+                configured = malApi.isConfigured,
+                connected = state.isAuthenticated,
+                username = state.username?.takeIf { state.isAuthenticated }
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnimeAccountUiState(configured = malApi.isConfigured))
 
     init {
         viewModelScope.launch {
@@ -130,4 +168,27 @@ class TrackingSettingsViewModel @Inject constructor(
     }
 
     fun acknowledgeImport() = importService.acknowledge()
+
+    /** Shows a Stremio link code; the import starts once it is approved on a phone. */
+    fun startStremioImport() {
+        if (_uiState.value.isReady) importService.startStremioLink()
+    }
+
+    fun cancelStremioImport() = importService.cancelStremioLink()
+
+    fun importFromAniList() {
+        if (_uiState.value.isReady && aniList.value.connected) importService.startAniList()
+    }
+
+    fun disconnectAniList() {
+        viewModelScope.launch { aniListAuth.clear() }
+    }
+
+    fun importFromMal() {
+        if (_uiState.value.isReady && mal.value.connected) importService.startMal()
+    }
+
+    fun disconnectMal() {
+        viewModelScope.launch { malAuth.clear() }
+    }
 }

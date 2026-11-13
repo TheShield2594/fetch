@@ -228,10 +228,12 @@ class TrackingImporterTest {
     fun `nothing is read when neither part of the import is possible`() = runTest {
         val source = mockk<TrackingImportEndpoint> {
             every { this@mockk.source } returns WatchProgressSource.SIMKL
+            every { origin } returns TrackingImportOrigin.Connected(WatchProgressSource.SIMKL)
             every { capabilities } returns setOf(TrackingCapability.WATCHED_READ)
         }
         val target = mockk<TrackingImportEndpoint> {
             every { this@mockk.source } returns WatchProgressSource.TRAKT
+            every { origin } returns TrackingImportOrigin.Connected(WatchProgressSource.TRAKT)
             every { capabilities } returns setOf(TrackingCapability.PROGRESS_WRITE)
         }
 
@@ -261,6 +263,7 @@ class TrackingImporterTest {
         )
         val target = mockk<TrackingImportEndpoint>(relaxed = true) {
             every { this@mockk.source } returns WatchProgressSource.TRAKT
+            every { origin } returns TrackingImportOrigin.Connected(WatchProgressSource.TRAKT)
             every { capabilities } returns ALL
             coEvery { read() } returns TrackingImportSnapshot()
             // First batch: one of two not found. Second batch: the request fails.
@@ -280,6 +283,85 @@ class TrackingImporterTest {
         assertTrue("imdb:tt1" in trackingImportAliases("tt1"))
         assertTrue("tmdb:42" in trackingImportAliases("tmdb:42"))
         assertEquals(setOf("tt1:2:3", "imdb:tt1"), trackingImportAliases("tt1:2:3"))
+    }
+
+    @Test
+    fun `a profile switch mid-import stops the writes and is reported`() = runTest {
+        val source = FakeEndpoint(
+            WatchProgressSource.SIMKL,
+            TrackingImportSnapshot(watched = (1..4).map { movie("tt$it", watchedAt = it.toLong()) })
+        )
+        val target = FakeEndpoint(WatchProgressSource.FETCH_WEBSITE)
+        var active = 1
+        // The target is read as profile 1, then the viewer switches to profile 2 before any write.
+        val bound = ProfileBoundImportEndpoint(target, profileId = 1) { active.also { active = 2 } }
+
+        val result = TrackingImporter(batchSize = 2).import(source, bound)
+
+        assertTrue(bound.profileChanged)
+        assertEquals(0, target.finishCount)
+        assertEquals(0, target.writtenWatched.size)
+        assertEquals(4, result.failed)
+    }
+
+    @Test
+    fun `a switch during one resume point stops the rest of the batch`() = runTest {
+        var active = 1
+        val written = mutableListOf<String>()
+        // A provider-style target: each resume point is its own call, and the viewer switches
+        // profile while the first one is being written.
+        val target = object : TrackingImportEndpoint {
+            override val source = WatchProgressSource.FETCH_WEBSITE
+            override val capabilities = ALL
+            override suspend fun read() = TrackingImportSnapshot()
+            override suspend fun writeWatched(items: List<WatchedItem>) = TrackingImportWriteResult(items.size)
+            override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult {
+                written += items.map { it.contentId }
+                active = 2
+                return TrackingImportWriteResult(items.size)
+            }
+        }
+        val bound = ProfileBoundImportEndpoint(target, profileId = 1) { active }
+
+        val result = bound.writeProgress(listOf(progress("tt1", 100L, percent = 50f), progress("tt2", 100L, percent = 50f)))
+
+        assertEquals(listOf("tt1"), written)
+        assertEquals(TrackingImportWriteResult(1, 1), result)
+        assertTrue(bound.profileChanged)
+    }
+
+    @Test
+    fun `a failing resume point keeps the count of the ones already written`() = runTest {
+        val target = object : TrackingImportEndpoint {
+            override val source = WatchProgressSource.FETCH_WEBSITE
+            override val capabilities = ALL
+            override suspend fun read() = TrackingImportSnapshot()
+            override suspend fun writeWatched(items: List<WatchedItem>) = TrackingImportWriteResult(items.size)
+            override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult {
+                if (items.single().contentId == "tt2") error("the service refused it")
+                return TrackingImportWriteResult(items.size)
+            }
+        }
+        val bound = ProfileBoundImportEndpoint(target, profileId = 1) { 1 }
+
+        val result = bound.writeProgress(
+            listOf(progress("tt1", 100L, percent = 50f), progress("tt2", 100L, percent = 50f), progress("tt3", 100L, percent = 50f))
+        )
+
+        assertEquals(TrackingImportWriteResult(2, 1), result)
+    }
+
+    @Test
+    fun `an import into an unchanged profile writes through`() = runTest {
+        val source = FakeEndpoint(WatchProgressSource.SIMKL, TrackingImportSnapshot(watched = listOf(movie("tt1", 1L))))
+        val target = FakeEndpoint(WatchProgressSource.FETCH_WEBSITE)
+        val bound = ProfileBoundImportEndpoint(target, profileId = 3) { 3 }
+
+        TrackingImporter().import(source, bound)
+
+        assertEquals(1, target.writtenWatched.size)
+        assertEquals(1, target.finishCount)
+        assertTrue(!bound.profileChanged)
     }
 
     private class FakeEndpoint(

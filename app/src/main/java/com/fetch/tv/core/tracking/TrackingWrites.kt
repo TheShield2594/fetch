@@ -43,7 +43,13 @@ data class TrackingHistoryItem(
 
 data class TrackingScrobbleEvent(
     val media: TrackingMediaReference,
-    val progressPercent: Double
+    val progressPercent: Double,
+    /**
+     * The TV profile whose playback (or import) this is. Scrobblers act for it, not for whichever
+     * profile is active when they run, so a profile switch can't send it to another account. Null
+     * only for callers that have no profile, which fall back to the active one.
+     */
+    val profileId: Int? = null
 )
 
 data class TrackingMutationResult(

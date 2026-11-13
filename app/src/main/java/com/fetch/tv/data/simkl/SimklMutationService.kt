@@ -93,7 +93,8 @@ class SimklMutationService internal constructor(
 
     internal suspend fun scrobble(
         action: TrackingScrobbleAction,
-        event: TrackingScrobbleEvent
+        event: TrackingScrobbleEvent,
+        expectedAuthScope: SimklAuthScope? = null
     ): SimklScrobbleResult {
         require(event.media.hasResolvableIdentity) { "Simkl scrobble requires a media ID or title" }
         require(event.media.kind == TrackingMediaKind.MOVIE || event.media.episode != null) {
@@ -111,7 +112,8 @@ class SimklMutationService internal constructor(
                     body = buildSimklScrobbleBody(event, json),
                     retryPolicy = SimklRetryPolicy.NEVER,
                     scrobbleStopConflictIsSuccess = action == TrackingScrobbleAction.STOP
-                )
+                ),
+                expectedAuthScope = expectedAuthScope
             )
         } catch (error: Throwable) {
             Log.e(

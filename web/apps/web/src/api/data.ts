@@ -8,6 +8,16 @@ import type {
   ImportSummary,
 } from "./types";
 
+export type ExternalImportFormat =
+  | "letterboxd-diary"
+  | "letterboxd-ratings"
+  | "letterboxd-watched"
+  | "letterboxd-watchlist"
+  | "imdb-ratings"
+  | "imdb-watchlist"
+  | "imdb-list"
+  | "simkl";
+
 export const dataApi = {
   // Data export / import
   exportData() {
@@ -34,14 +44,15 @@ export const dataApi = {
       timeoutMs: 60000,
     });
   },
-  importExternal(format: "letterboxd-diary" | "letterboxd-ratings" | "imdb-ratings" | "simkl", csv: string) {
+  /** [listName] is the custom list an `imdb-list` import fills; it is created when there is none. */
+  importExternal(format: ExternalImportFormat, csv: string, listName?: string) {
     return request<{
       status: string;
       format: string;
-      summary: { imported: number; ratingsImported: number; skipped: number };
+      summary: { imported: number; ratingsImported: number; listed: number; skipped: number };
     }>("/import/external", {
       method: "POST",
-      body: JSON.stringify({ format, csv }),
+      body: JSON.stringify({ format, csv, ...(listName ? { listName } : {}) }),
       timeoutMs: 120000,
     });
   },

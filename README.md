@@ -53,10 +53,11 @@ Highlights:
   and shows also turn up in the TV's own search (unless a profile has parental limits or the
   current one has a PIN), and "search for … in Fetch" opens Fetch's search.
 - **Watch state.** Continue Watching, next-episode autoplay, skip intro/recap from community
-  markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, and the Android TV "Watch Next" row.
+  markers (IntroDB, AniSkip, Anime-Skip), Trakt and Simkl sync, AniList and MyAnimeList progress updates for anime,
+  and the Android TV "Watch Next" row.
   The watch progress source you pick (Fetch Sync, Trakt, Simkl, MDBList or the Fetch website) is
   the one source of truth for Continue Watching and watched marks; you can import history from the
-  others into it once from Settings → Tracking.
+  others, from AniList or MyAnimeList, or from a Stremio account, into it once from Settings → Tracking.
 - **Debrid through addons.** Like Stremio, debrid accounts are set up in the addons that support them.
   Fetch is debrid-only: it has no torrent engine and hides torrent results that have no playable link.
 - **Your own library.** Jellyfin, Emby and Plex items appear alongside addon results and outrank them.
@@ -127,8 +128,13 @@ developer. Without them the build works but the integration says its credentials
 | --- | --- |
 | `TRAKT_CLIENT_ID`, `TRAKT_REDIRECT_URI` | [trakt.tv/oauth/applications](https://trakt.tv/oauth/applications). Trakt only accepts https redirect URIs; any https page works, e.g. this repo's URL. Fetch signs in with a device code and never opens it, but `TRAKT_REDIRECT_URI` must match the registered value or token refresh fails. New apps get no client secret; `TRAKT_CLIENT_SECRET` is only for older apps that have one |
 | `SIMKL_CLIENT_ID` | [simkl.com/settings/developer](https://simkl.com/settings/developer/), app type "TV, devices & command line" (PIN sign-in, no secret or redirect URL) |
+| `ANILIST_CLIENT_ID` | [anilist.co/settings/developer](https://anilist.co/settings/developer), with redirect URL `https://anilist.co/api/v2/oauth/pin` (AniList then shows the sign-in token to paste into the phone page; no client secret is used) |
+| `MAL_CLIENT_ID`, `MAL_REDIRECT_URI` | [myanimelist.net/apiconfig](https://myanimelist.net/apiconfig), app type "other" (no secret). Its App Redirect URL must equal `MAL_REDIRECT_URI`, which defaults to `https://theshield2594.github.io/fetch/mal-callback.html`: the page in `site/` that the Pages workflow publishes once Pages is on (Settings → Pages → Source: GitHub Actions). A fork sets its own Pages address here |
 | `MDBLIST_CLIENT_ID` | an OAuth app registered with MDBList |
 | `TMDB_API_KEY` | [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) |
+
+AniList and MyAnimeList, including publishing the MyAnimeList sign-in page and how viewers sign
+in, are covered step by step in [docs/anime-tracking.md](docs/anime-tracking.md).
 
 Put them in `local.properties` for local builds, or export them as environment variables
 (these take precedence). The Release workflow reads repository secrets with the same names

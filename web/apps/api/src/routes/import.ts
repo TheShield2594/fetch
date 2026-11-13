@@ -17,6 +17,14 @@ import {
   tooManyRowsMessage,
 } from "../lib/import-validation.js";
 import { parseCsv } from "./export.js";
+import { importTrackerItems, type ImportedWatch, type ImportedWatchlistItem } from "../lib/tracker-import.js";
+import { addTitlesToNamedList } from "../lib/trakt-import.js";
+import {
+  importListName,
+  parseImdbList,
+  parseLetterboxdTitles,
+  type ListEntry,
+} from "../lib/external-import.js";
 
 const TMDB_LOOKUP_CONCURRENCY = 5;
 
@@ -34,7 +42,7 @@ const parseDate = (v: string | undefined): Date | null => {
   return Number.isNaN(d.getTime()) ? null : d;
 };
 
-// Letterboxd diary/ratings exports don't include IMDb IDs, so we resolve
+// Letterboxd exports don't include IMDb IDs, so we resolve
 // title (+ year, when present) against TMDB on a best-effort basis.
 const resolveImdbIdByTitle = async (
   title: string,
@@ -65,14 +73,18 @@ const importRoutes: FastifyPluginAsync = async (app) => {
 
   app.post<{ Body: unknown }>("/import/external", async (request, reply) => {
     const profileId = request.profileId!;
-    const body = request.body as { format?: unknown; csv?: unknown } | null;
+    const body = request.body as { format?: unknown; csv?: unknown; listName?: unknown } | null;
     const format = body?.format;
     const csv = typeof body?.csv === "string" ? body.csv : "";
 
-    if (format !== "letterboxd-diary" && format !== "letterboxd-ratings" && format !== "imdb-ratings" && format !== "simkl") {
-      return reply.code(400).send({ error: "format must be one of: letterboxd-diary, letterboxd-ratings, imdb-ratings, simkl" });
+    if (!isExternalFormat(format)) {
+      return reply.code(400).send({ error: `format must be one of: ${EXTERNAL_FORMATS.join(", ")}` });
     }
     if (!csv.trim()) return reply.code(400).send({ error: "csv is required" });
+    const listName = importListName(body?.listName);
+    if (format === "imdb-list" && !listName) {
+      return reply.code(400).send({ error: "listName is required for an IMDb list" });
+    }
 
     const [headerRow, ...bodyRows] = parseCsv(csv);
     // A header and at least one row after it — the old `rows.length < 2`.
@@ -91,26 +103,117 @@ const importRoutes: FastifyPluginAsync = async (app) => {
     }
     const col = (name: string) => header.indexOf(name);
 
-    const summary = { imported: 0, ratingsImported: 0, skipped: 0 };
+    const summary: ExternalImportSummary = { imported: 0, ratingsImported: 0, listed: 0, skipped: 0 };
     const titleCache = new Map<string, string | null>();
 
-    if (format === "imdb-ratings") {
-      await importImdbRatings(dataRows, col, profileId, summary);
-    } else if (format === "simkl") {
-      await importSimkl(dataRows, col, profileId, summary, request.log);
-    } else {
-      await importLetterboxd(dataRows, col, profileId, summary, titleCache, format, request.log);
+    try {
+      if (format === "imdb-ratings") {
+        await importImdbRatings(dataRows, col, profileId, summary);
+      } else if (format === "simkl") {
+        await importSimkl(dataRows, col, profileId, summary, request.log);
+      } else if (format === "letterboxd-diary" || format === "letterboxd-ratings") {
+        await importLetterboxd(dataRows, col, profileId, summary, titleCache, format, request.log);
+      } else if (format === "letterboxd-watched" || format === "letterboxd-watchlist") {
+        await importLetterboxdTitles(dataRows, col, profileId, summary, titleCache, format, request.log);
+      } else {
+        await importImdbList(dataRows, col, profileId, summary, format === "imdb-list" ? listName : null, request.log);
+      }
+    } catch (error) {
+      // A file that isn't the export the format names: say so instead of failing the request.
+      if ((error as { code?: unknown }).code === "BAD_FORMAT") {
+        return reply.code(400).send({ error: (error as Error).message, code: "bad_format" });
+      }
+      throw error;
     }
 
     return reply.code(200).send({ status: "imported", format, summary });
   });
 };
 
+const EXTERNAL_FORMATS = [
+  "letterboxd-diary",
+  "letterboxd-ratings",
+  "letterboxd-watched",
+  "letterboxd-watchlist",
+  "imdb-ratings",
+  "imdb-watchlist",
+  "imdb-list",
+  "simkl",
+] as const;
+type ExternalFormat = (typeof EXTERNAL_FORMATS)[number];
+const isExternalFormat = (value: unknown): value is ExternalFormat =>
+  typeof value === "string" && (EXTERNAL_FORMATS as readonly string[]).includes(value);
+
+/** `listed`: titles added to the watchlist or a list. */
+type ExternalImportSummary = { imported: number; ratingsImported: number; listed: number; skipped: number };
+
+/**
+ * Letterboxd's `watched.csv` and `watchlist.csv`. Watched films are added only
+ * when the profile has no play of them at all: the diary (imported on its own)
+ * holds the dated viewings, and `watched.csv` repeats every one of them, so this
+ * brings over just the films marked watched but never logged.
+ */
+async function importLetterboxdTitles(
+  rows: string[][],
+  col: (name: string) => number,
+  profileId: string,
+  summary: ExternalImportSummary,
+  titleCache: Map<string, string | null>,
+  format: "letterboxd-watched" | "letterboxd-watchlist",
+  log: FastifyBaseLogger
+) {
+  const parsed = parseLetterboxdTitles(rows, col);
+  const imdbIds = await mapWithConcurrency(parsed, TMDB_LOOKUP_CONCURRENCY, async (row) =>
+    row ? resolveImdbIdByTitle(row.title, row.year, titleCache) : null
+  );
+  const watches: ImportedWatch[] = [];
+  const watchlist: ImportedWatchlistItem[] = [];
+  parsed.forEach((row, i) => {
+    const imdbId = imdbIds[i];
+    if (!row || !imdbId) {
+      summary.skipped += 1;
+      return;
+    }
+    if (format === "letterboxd-watchlist") {
+      watchlist.push({ type: "movie", imdbId, title: row.title });
+    } else {
+      watches.push({ type: "movie", imdbId, title: row.title, watchedAt: row.date ?? new Date(), undated: true });
+    }
+  });
+  const result = await importTrackerItems(profileId, watches, watchlist, log);
+  summary.imported += result.movies;
+  summary.listed += result.watchlist;
+  summary.skipped += result.skipped;
+}
+
+/** An IMDb watchlist into the watchlist, or another IMDb list into the custom list [listName]. */
+async function importImdbList(
+  rows: string[][],
+  col: (name: string) => number,
+  profileId: string,
+  summary: ExternalImportSummary,
+  listName: string | null,
+  log: FastifyBaseLogger
+) {
+  const entries: ListEntry[] = [];
+  for (const entry of parseImdbList(rows, col)) {
+    if (entry) entries.push(entry);
+    else summary.skipped += 1;
+  }
+  if (listName) {
+    summary.listed += await addTitlesToNamedList(profileId, listName, entries);
+    return;
+  }
+  const result = await importTrackerItems(profileId, [], entries, log);
+  summary.listed += result.watchlist;
+  summary.skipped += result.skipped;
+}
+
 async function importImdbRatings(
   rows: string[][],
   col: (name: string) => number,
   profileId: string,
-  summary: { imported: number; ratingsImported: number; skipped: number }
+  summary: ExternalImportSummary
 ) {
   // IMDb ratings export header: Const,Your Rating,Date Rated,Title,Title Type,IMDb Rating,...
   const constCol = col("const");
@@ -145,7 +248,7 @@ async function importSimkl(
   rows: string[][],
   col: (name: string) => number,
   profileId: string,
-  summary: { imported: number; ratingsImported: number; skipped: number },
+  summary: ExternalImportSummary,
   log: FastifyBaseLogger
 ) {
   // Simkl CSV export header: Title,Year,Type,WatchedDate,Rating,ImdbId (column naming varies by export tool;
@@ -220,7 +323,7 @@ async function importLetterboxd(
   rows: string[][],
   col: (name: string) => number,
   profileId: string,
-  summary: { imported: number; ratingsImported: number; skipped: number },
+  summary: ExternalImportSummary,
   titleCache: Map<string, string | null>,
   format: "letterboxd-diary" | "letterboxd-ratings",
   log: FastifyBaseLogger

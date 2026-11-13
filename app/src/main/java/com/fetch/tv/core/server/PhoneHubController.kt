@@ -19,7 +19,13 @@ import com.fetch.tv.core.remote.RemoteCommandBus
 import com.fetch.tv.core.streams.ranking.StreamRankingRules
 import com.fetch.tv.core.util.readWordmarkPngBytes
 import com.fetch.tv.core.util.withAppLocale
+import com.fetch.tv.data.anilist.AniListApi
+import com.fetch.tv.data.anilist.AniListApiException
+import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
+import com.fetch.tv.data.mal.MalApi
+import com.fetch.tv.data.mal.MalApiException
+import com.fetch.tv.data.mal.MalAuthStore
 import com.fetch.tv.data.local.MDBListSettingsDataStore
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
@@ -63,6 +69,31 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "PhoneHubController"
+private const val ANILIST_TOKEN_LIFETIME_MS = 364L * 24 * 60 * 60 * 1000
+private const val MAL_SIGN_IN_LIFETIME_MS = 20L * 60 * 1000
+
+internal data class MalPendingSignIn(val verifier: String, val state: String, val createdAt: Long)
+
+internal data class MalCallback(val code: String, val state: String?)
+
+/**
+ * What the phone pasted: the code on its own, or the callback page's whole address
+ * (`…/mal-callback.html?code=…&state=…`), whose state is then checked too.
+ */
+internal fun parseMalCallback(value: String): MalCallback? {
+    val text = value.trim()
+    if (text.isEmpty()) return null
+    if (!text.contains("code=")) {
+        return text.takeIf { it.none(Char::isWhitespace) && it.length <= 2048 }?.let { MalCallback(it, null) }
+    }
+    val query = text.substringAfter('?', text).substringBefore('#')
+    val params = query.split('&').mapNotNull { part ->
+        val key = part.substringBefore('=', "")
+        if (key.isEmpty()) null else key to java.net.URLDecoder.decode(part.substringAfter('='), "UTF-8")
+    }.toMap()
+    val code = params["code"]?.takeIf(String::isNotBlank) ?: return null
+    return MalCallback(code, params["state"])
+}
 
 /** How long the hub keeps serving a paired phone after the TV screen closes, with no requests. */
 private const val REMOTE_IDLE_TIMEOUT_MS = 10 * 60_000L
@@ -139,7 +170,11 @@ class PhoneHubController @Inject constructor(
     private val addonRepository: AddonRepository,
     private val profileManager: ProfileManager,
     private val websiteStore: FetchWebsiteStore,
-    private val websitePairing: dagger.Lazy<FetchWebsitePairing>
+    private val websitePairing: dagger.Lazy<FetchWebsitePairing>,
+    private val aniListApi: AniListApi,
+    private val aniListAuth: AniListAuthStore,
+    private val malApi: MalApi,
+    private val malAuth: MalAuthStore
 ) : PhoneHubActions {
     private val scope = CoroutineScope(
         SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, error ->
@@ -161,6 +196,11 @@ class PhoneHubController @Inject constructor(
     @Volatile private var lastActivityMs = 0L
     @Volatile private var traktCode: PhoneHubDeviceCode? = null
     @Volatile private var simklCode: PhoneHubDeviceCode? = null
+    /**
+     * The MyAnimeList sign-in the phone's link starts. MAL only supports the `plain` PKCE method, so
+     * the verifier is in that link (to the phone and MAL), but never reaches the callback page.
+     */
+    @Volatile private var malPending: MalPendingSignIn? = null
 
     private val logoBytes: ByteArray? by lazy {
         context.readWordmarkPngBytes()
@@ -292,8 +332,78 @@ class PhoneHubController @Inject constructor(
             mediaServerProviders = serverRepository.providers
                 .filter { it.signInMethod == ServerSignInMethod.PASSWORD }
                 .map { it.id to it.displayName },
-            mediaServers = serverRepository.uiState.value.connections.map { "${it.name} (${it.userName})" }
+            mediaServers = serverRepository.uiState.value.connections.map { "${it.name} (${it.userName})" },
+            aniList = if (!aniListApi.isConfigured) null else aniListAuth.current().let { state ->
+                PhoneHubAnimeAccountStatus(
+                    connected = state.isAuthenticated(),
+                    username = state.username?.takeIf { state.isAuthenticated() },
+                    authorizeUrl = aniListApi.authorizeUrl
+                )
+            },
+            mal = if (!malApi.isConfigured) null else malAuth.current().let { state ->
+                val signIn = pendingMalSignIn()
+                PhoneHubAnimeAccountStatus(
+                    connected = state.isAuthenticated,
+                    username = state.username?.takeIf { state.isAuthenticated },
+                    authorizeUrl = malApi.authorizeUrl(signIn.verifier, signIn.state)
+                )
+            }
         )
+    }
+
+    /** The current MyAnimeList sign-in, kept while the page polls so the link stays the same. */
+    private fun pendingMalSignIn(): MalPendingSignIn {
+        val now = System.currentTimeMillis()
+        malPending?.takeIf { now - it.createdAt < MAL_SIGN_IN_LIFETIME_MS }?.let { return it }
+        return MalPendingSignIn(MalApi.newVerifier(), MalApi.newVerifier(32), now).also { malPending = it }
+    }
+
+    override suspend fun connectMal(code: String): PhoneHubResult {
+        settingsBlocked()?.let { return it }
+        val pending = malPending
+        val parsed = parseMalCallback(code)
+        if (!malApi.isConfigured || pending == null || parsed == null) {
+            return PhoneHubResult(false, text(R.string.phone_web_mal_rejected))
+        }
+        // A pasted callback address carries the state: it must be this sign-in's.
+        if (parsed.state != null && parsed.state != pending.state) return PhoneHubResult(false, text(R.string.phone_web_mal_rejected))
+        val profileId = malAuth.activeProfileId()
+        return try {
+            val tokens = malApi.exchangeCode(parsed.code, pending.verifier)
+            val user = malApi.me(tokens.accessToken)
+            malAuth.save(profileId, tokens, user)
+            malPending = null
+            PhoneHubResult(true, text(R.string.phone_web_mal_connected, user.name))
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: MalApiException) {
+            PhoneHubResult(false, text(if (error.unauthorized) R.string.phone_web_mal_rejected else R.string.phone_web_mal_unavailable))
+        } catch (error: Exception) {
+            PhoneHubResult(false, text(R.string.phone_web_mal_unavailable))
+        }
+    }
+
+    override suspend fun connectAniList(token: String): PhoneHubResult {
+        settingsBlocked()?.let { return it }
+        if (!aniListApi.isConfigured || token.isBlank()) return PhoneHubResult(false, text(R.string.phone_web_anilist_rejected))
+        // The profile that was active when the token arrived, whatever happens during the check.
+        val profileId = aniListAuth.activeProfileId()
+        val viewer = try {
+            aniListApi.viewer(token)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: AniListApiException) {
+            return PhoneHubResult(
+                false,
+                text(if (error.unauthorized) R.string.phone_web_anilist_rejected else R.string.phone_web_anilist_unavailable)
+            )
+        } catch (error: Exception) {
+            return PhoneHubResult(false, text(R.string.phone_web_anilist_unavailable))
+        }
+        // AniList's implicit-grant tokens last a year; a day's margin avoids using one as it lapses.
+        val expiresAt = System.currentTimeMillis() + ANILIST_TOKEN_LIFETIME_MS
+        aniListAuth.save(profileId, token, expiresAt, viewer.id, viewer.name)
+        return PhoneHubResult(true, text(R.string.phone_web_anilist_connected, viewer.name))
     }
 
     // Account changes are also settings changes, so restricted profiles need the TV unlocked.

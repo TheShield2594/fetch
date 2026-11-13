@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **More of your other trackers' exports.** Settings → Data → Import from another tracker now reads Letterboxd's `watched.csv` (films marked watched but never logged) and `watchlist.csv`, and IMDb watchlists and lists (a list goes into a custom list you name). Import the Letterboxd diary before `watched.csv`, or a film can end up with two plays. A file that isn't the export you picked is now refused with a message instead of failing, except for files that look the same: swapping Letterboxd's `watched.csv` and `watchlist.csv`, or an IMDb watchlist and an IMDb list, can't be caught.
+
 - **Optional two-factor sign-in.** Settings → Account can turn on codes from an authenticator app (TOTP): scan a QR code, confirm one code, and save ten one-time recovery codes. Signing in then asks for a code after the password, and wrong codes count towards the same lockout as wrong passwords. It is off by default, TVs are unaffected, and a lost phone is recovered with a recovery code, by the admin (Invites & accounts → Turn off two-factor) or with `fetch reset-2fa <username>` on the server ([#564](https://github.com/TheShield2594/fetch/issues/564)).
 
 - **Replace one profile's Stremio addon URL.** Settings → Stremio addon → Change this profile's addon URL gives the profile a new key, and the old URL answers 404 from the API and the addon service at once, without rotating `API_TOKEN` or touching other profiles. URLs installed before this keep working until they are replaced ([#565](https://github.com/TheShield2594/fetch/issues/565)).

@@ -17,22 +17,45 @@ import kotlinx.coroutines.CancellationException
  */
 data class TrackingImportSnapshot(
     val watched: List<WatchedItem> = emptyList(),
-    val inProgress: List<WatchProgress> = emptyList()
+    val inProgress: List<WatchProgress> = emptyList(),
+    /** Series whose watched episodes the source holds but couldn't be read out (see [TrackingImportResult.unreadable]). */
+    val unreadable: Int = 0
 )
+
+/** Where an import comes from: a connected source, or an account that is only ever read once. */
+sealed interface TrackingImportOrigin {
+    data class Connected(val source: WatchProgressSource) : TrackingImportOrigin
+
+    /** A Stremio account, signed in for the import only and signed out afterwards. */
+    data object Stremio : TrackingImportOrigin
+
+    /** The AniList account connected for scrobbling. */
+    data object AniList : TrackingImportOrigin
+
+    /** The MyAnimeList account connected for scrobbling. */
+    data object MyAnimeList : TrackingImportOrigin
+}
 
 data class TrackingImportWriteResult(
     val written: Int,
     val failed: Int = 0
 )
 
-/** A source that can be read from and, as the source of truth, written to. */
-interface TrackingImportEndpoint {
-    val source: WatchProgressSource
+/** Something history can be imported from. */
+interface TrackingImportReader {
+    val origin: TrackingImportOrigin
 
     /** Of [TrackingCapability.WATCHED_READ], [TrackingCapability.WATCHED_WRITE], [TrackingCapability.PROGRESS_READ] and [TrackingCapability.PROGRESS_WRITE]. */
     val capabilities: Set<TrackingCapability>
 
     suspend fun read(): TrackingImportSnapshot
+}
+
+/** A source that can be read from and, as the source of truth, written to. */
+interface TrackingImportEndpoint : TrackingImportReader {
+    val source: WatchProgressSource
+
+    override val origin: TrackingImportOrigin get() = TrackingImportOrigin.Connected(source)
 
     suspend fun writeWatched(items: List<WatchedItem>): TrackingImportWriteResult
 
@@ -43,7 +66,7 @@ interface TrackingImportEndpoint {
 }
 
 data class TrackingImportResult(
-    val source: WatchProgressSource,
+    val source: TrackingImportOrigin,
     val target: WatchProgressSource,
     val watchedImported: Int = 0,
     /** Already watched in the source of truth, or a whole-series mark nobody can copy safely. */
@@ -54,7 +77,9 @@ data class TrackingImportResult(
     /** Sent but not accepted (unknown to the target, or the request failed). */
     val failed: Int = 0,
     /** Capabilities the import needed but the source can't read or the source of truth can't write. */
-    val unsupported: Set<TrackingCapability> = emptySet()
+    val unsupported: Set<TrackingCapability> = emptySet(),
+    /** Series whose episode history the source has but Fetch couldn't map to episodes. */
+    val unreadable: Int = 0
 ) {
     val imported: Int get() = watchedImported + progressImported
     val skipped: Int get() = watchedSkipped + progressSkipped
@@ -189,10 +214,10 @@ class TrackingImporter(
     private val batchSize: Int = DEFAULT_BATCH_SIZE
 ) {
     suspend fun import(
-        source: TrackingImportEndpoint,
+        source: TrackingImportReader,
         target: TrackingImportEndpoint
     ): TrackingImportResult {
-        require(source.source != target.source) { "A source can't be imported into itself" }
+        require(source.origin != target.origin) { "A source can't be imported into itself" }
         val unsupported = buildSet {
             if (TrackingCapability.WATCHED_READ !in source.capabilities) add(TrackingCapability.WATCHED_READ)
             if (TrackingCapability.PROGRESS_READ !in source.capabilities) add(TrackingCapability.PROGRESS_READ)
@@ -204,13 +229,14 @@ class TrackingImporter(
         val canImportProgress = TrackingCapability.PROGRESS_READ !in unsupported &&
             TrackingCapability.PROGRESS_WRITE !in unsupported
         if (!canImportWatched && !canImportProgress) {
-            return TrackingImportResult(source.source, target.source, unsupported = unsupported)
+            return TrackingImportResult(source.origin, target.source, unsupported = unsupported)
         }
 
         val sourceSnapshot = source.read().let { snapshot ->
             TrackingImportSnapshot(
                 watched = if (TrackingCapability.WATCHED_READ in source.capabilities) snapshot.watched else emptyList(),
-                inProgress = if (TrackingCapability.PROGRESS_READ in source.capabilities) snapshot.inProgress else emptyList()
+                inProgress = if (TrackingCapability.PROGRESS_READ in source.capabilities) snapshot.inProgress else emptyList(),
+                unreadable = snapshot.unreadable
             )
         }
         val plan = planTrackingImport(sourceSnapshot, target.read())
@@ -223,14 +249,15 @@ class TrackingImporter(
             runCatching { target.finish() }.onFailure { if (it is CancellationException) throw it }
         }
         return TrackingImportResult(
-            source = source.source,
+            source = source.origin,
             target = target.source,
             watchedImported = watchedWrite.written,
             watchedSkipped = plan.watchedSkipped + watchedSkippedUnsupported,
             progressImported = progressWrite.written,
             progressSkipped = plan.progressSkipped + progressSkippedUnsupported,
             failed = watchedWrite.failed + progressWrite.failed,
-            unsupported = unsupported
+            unsupported = unsupported,
+            unreadable = sourceSnapshot.unreadable
         )
     }
 
@@ -257,5 +284,58 @@ class TrackingImporter(
 
     companion object {
         const val DEFAULT_BATCH_SIZE = 50
+    }
+}
+
+/**
+ * Keeps an import's writes in the profile it started for. Some sources of truth (the Fetch
+ * website, provider scrobblers) act for whichever profile is active when they are called, so
+ * after a profile switch mid-import every further read or write is refused instead of landing in
+ * the other profile; [profileChanged] then tells the caller the import was cut short.
+ */
+internal class ProfileBoundImportEndpoint(
+    private val delegate: TrackingImportEndpoint,
+    private val profileId: Int,
+    private val activeProfileId: () -> Int
+) : TrackingImportEndpoint by delegate {
+    var profileChanged: Boolean = false
+        private set
+
+    private fun stillBound(): Boolean {
+        if (activeProfileId() != profileId) profileChanged = true
+        return !profileChanged
+    }
+
+    override suspend fun read(): TrackingImportSnapshot {
+        check(stillBound()) { "The profile changed before the import read its target" }
+        return delegate.read()
+    }
+
+    override suspend fun writeWatched(items: List<WatchedItem>): TrackingImportWriteResult =
+        if (stillBound()) delegate.writeWatched(items) else TrackingImportWriteResult(0, items.size)
+
+    /**
+     * One resume point at a time, each checked: provider targets write them through scrobbles
+     * that pick the active profile per call, so a batch-level check would let a switch partway
+     * through send the rest to the other profile.
+     */
+    override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult {
+        var written = 0
+        items.forEach { item ->
+            if (!stillBound()) return TrackingImportWriteResult(written, items.size - written)
+            // One failing resume point doesn't lose the count of those already written.
+            written += try {
+                delegate.writeProgress(listOf(item)).written.coerceIn(0, 1)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                0
+            }
+        }
+        return TrackingImportWriteResult(written, items.size - written)
+    }
+
+    override suspend fun finish() {
+        if (stillBound()) delegate.finish()
     }
 }

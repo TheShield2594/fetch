@@ -6,7 +6,7 @@ below.
 
 ## What stays on your TV
 
-Your addons, profiles, watch progress, library, settings and Trakt/Simkl/MDBList keys are
+Your addons, profiles, watch progress, library, settings and Trakt/Simkl/MDBList/AniList/MyAnimeList keys are
 stored on the device. Uninstalling Fetch deletes them.
 
 ## What Fetch talks to
@@ -15,6 +15,25 @@ Fetch connects to services you add or turn on yourself:
 
 - **Stremio addons** you install. Each addon receives the IDs of the titles you browse or play.
 - **Trakt, Simkl, MDBList** when you sign in to them.
+- **AniList** (`graphql.anilist.co`), only when you sign in to it from the phone page. When you
+  finish an anime episode, Fetch looks the title up on AniList and updates that entry's
+  progress. To work out which AniList entry an IMDb-listed show's season is, Fetch asks Simkl's
+  public ID lookup with the show's IMDb ID, the same lookup skip markers use. Importing your
+  AniList history reads your anime lists.
+- **MyAnimeList** (`myanimelist.net` and `api.myanimelist.net`), only when you sign in to it
+  from the phone page, and used the same way as AniList. Signing in ends on a small page this
+  project publishes on GitHub Pages (`theshield2594.github.io`) that shows the one-time sign-in
+  code for you to copy. MyAnimeList sends your browser to that page with the code in its
+  address, so GitHub, which serves the page, receives the code with the request; the page
+  itself sends it nowhere else. The code alone can't sign anyone in:
+  using it also takes a one-time secret the TV makes for each sign-in. MyAnimeList only supports
+  the "plain" form of this check, so that secret travels in the sign-in link your phone opens at
+  MyAnimeList; it never reaches the callback page. To match a MyAnimeList entry to an AniList one, Fetch asks
+  AniList's public API with the entry's id.
+- **Stremio** (`link.stremio.com` and `api.strem.io`), only when you import a Stremio account's
+  history from Settings → Tracking. You approve a code on stremio.com, Fetch reads your
+  library's watch state once and signs that session out again. It keeps no Stremio sign-in.
+  Episode lists for your series come from your own addons.
 - **Jellyfin / Emby / Plex servers** you connect. Signing in to Plex also talks to plex.tv,
   which approves the sign-in code and lists the servers your account can reach.
 - **Metadata and artwork providers** your addons point to (for example TMDB image hosts),

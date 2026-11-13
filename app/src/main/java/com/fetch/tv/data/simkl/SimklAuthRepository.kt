@@ -29,6 +29,9 @@ class SimklAuthRepository(
 
     fun hasRequiredCredentials(): Boolean = configuration.clientId.isNotBlank()
 
+    /** The profile (and sign-in generation) the held Simkl credentials belong to. */
+    fun currentScope(): SimklAuthScope = storage.currentScope()
+
     suspend fun startPinAuth(): SimklPinSession = mutex.withLock {
         val authScope = storage.currentScope()
         if (!hasRequiredCredentials()) throw SimklAuthException(SimklAuthError.MISSING_CLIENT_ID)

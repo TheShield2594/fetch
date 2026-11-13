@@ -370,6 +370,8 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.trakt_name,
         R.string.simkl_name,
         R.string.mdblist_name,
+        R.string.anilist_name,
+        R.string.mal_name,
         R.string.tracking_sources_title,
         R.string.trakt_library_source_title,
         R.string.trakt_watch_progress_title,

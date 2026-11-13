@@ -533,7 +533,13 @@ A dump is a complete copy of your database — every profile's watch history and
 
 In addition to full database backups, Settings → Data lets you export your lists, watch history, series progress, and ratings as a single JSON file, and re-import it later (e.g. after a fresh install, or to migrate to a new instance). The API also accepts CSV watch-history imports (columns: `imdbId`, `type`, `watchedAt`, with optional `season`/`episode`) for importing history exported from other tools.
 
-Settings → Data also supports importing directly from other trackers' CSV exports via `POST /import/external` (`format`: `letterboxd-diary`, `letterboxd-ratings`, `imdb-ratings`, or `simkl`). Letterboxd exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis; unmatched rows are skipped and reported in the import summary.
+Settings → Data also supports importing directly from other trackers' CSV exports via `POST /import/external`:
+
+- **Letterboxd** (the files in its export zip): `letterboxd-diary` (dated viewings and their ratings), `letterboxd-ratings`, `letterboxd-watched` (films marked watched; only those with no play here yet, since the diary already holds the dated ones) and `letterboxd-watchlist` (into the watchlist). Import the diary **before** `watched.csv`: a film `watched.csv` brings in first gets a play dated when it was marked, and the diary's dated viewing of it is then added as a second play.
+- **IMDb**: `imdb-ratings`, `imdb-watchlist` (into the watchlist) and `imdb-list` (into the custom list named by `listName`, created when there is none; importing again fills it rather than making another).
+- **Simkl**: `simkl`.
+
+Letterboxd exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis; unmatched rows are skipped and reported in the import summary. A file that isn't the export the format names gets a `400` saying so, with two exceptions, pairs of exports that have the same columns, so picking the wrong one of the pair can't be caught and brings its titles in the other way: Letterboxd's `watched.csv` and `watchlist.csv` (plays instead of watchlist entries, or the reverse), and an IMDb watchlist and an IMDb list (the watchlist instead of the named list, or the reverse).
 
 Imports are sent as a single request body, capped at `MAX_BODY_SIZE_MB` (32 MB by default — roughly 200k watch events). A larger file is rejected with a 413 that names the limit; raise the variable and restart the API to accept it.
 

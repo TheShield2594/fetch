@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { AlertCircle, AlertTriangle, Loader2, Tv } from "lucide-react";
 import { api, type SyncOverview, type SyncOverviewDevice } from "../../api";
 import { StatusBadge } from "../settings/StatusBadge";
@@ -134,7 +135,11 @@ export function TvOverview() {
           </h4>
           {overview.devices.length === 0 ? (
             <p className="text-sm" style={{ color: "var(--text-dim)" }}>
-              No TVs signed in yet. Sign one in under Your TVs, at the top of this page.
+              No TVs signed in yet.{" "}
+              <Link to="/tv" className="font-medium text-accent-text underline underline-offset-2">
+                Sign one in
+              </Link>
+              .
             </p>
           ) : (
             <ul className="space-y-2">

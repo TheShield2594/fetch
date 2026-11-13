@@ -284,6 +284,36 @@ describe("SetupWizard, first run", () => {
     expect(screen.getByText("simkl settings")).toBeInTheDocument();
   });
 
+  it("leaves a profile with a PIN as it is, rather than editing it without the PIN", async () => {
+    getProfiles.mockResolvedValue({ profiles: [{ ...DEFAULT_PROFILE, name: "Sam", hasPin: true }] });
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+
+    expect(await screen.findByText(/has a PIN/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByRole("heading", { name: "Artwork and search" })).toBeInTheDocument();
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  it("says a source check failed, rather than that the server offers none, and retries", async () => {
+    getSimklStatus.mockRejectedValueOnce(new Error("timeout"));
+    getMediaServers.mockRejectedValueOnce(new Error("timeout"));
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+    await nameProfile(user);
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByText(/couldn't check every source/i)).toBeInTheDocument();
+    expect(screen.queryByText(/isn't set up for any history sources/i)).toBeNull();
+    await user.click(screen.getByRole("button", { name: /try again/i }));
+
+    expect(await screen.findByRole("button", { name: /simkl/i })).toBeInTheDocument();
+    expect(screen.queryByText(/couldn't check every source/i)).toBeNull();
+  });
+
   it("signs in a TV during setup", async () => {
     const user = userEvent.setup();
     render(<SetupWizard onComplete={vi.fn()} />);

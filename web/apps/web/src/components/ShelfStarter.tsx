@@ -93,6 +93,9 @@ export function ShelfStarter({
   };
 
   const addedCount = Object.values(states).filter((s) => s === "added").length;
+  // Held while an add is in flight, so the Shelf's reload can't land before
+  // it and leave that title off until the next visit.
+  const adding = Object.values(states).some((s) => s === "busy");
 
   return (
     <section aria-labelledby="shelf-starter" className="content-in mt-2 space-y-4">
@@ -114,7 +117,7 @@ export function ShelfStarter({
               <span className="meta-row" style={{ color: "var(--text-mute)" }}>
                 {addedCount} added
               </span>
-              <button type="button" onClick={onDone} className="btn-primary btn-sm">
+              <button type="button" onClick={onDone} disabled={adding} className="btn-primary btn-sm">
                 Show my shelf
               </button>
             </>

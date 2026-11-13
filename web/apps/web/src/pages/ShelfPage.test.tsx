@@ -368,7 +368,7 @@ describe("ShelfPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Start your shelf" })).toBeInTheDocument();
     expect(screen.queryByText("Nothing on the shelf yet")).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Add Tidewater to your watchlist" }));
+    await user.click(await screen.findByRole("button", { name: "Add Tidewater to your watchlist" }));
 
     expect(addToList).toHaveBeenCalledWith("wl", { type: "series", imdbId: "tt20", title: "Tidewater" });
     expect(await screen.findByRole("button", { name: "Tidewater is on your watchlist" })).toHaveAttribute("aria-pressed", "true");

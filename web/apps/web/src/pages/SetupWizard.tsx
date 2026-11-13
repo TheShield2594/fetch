@@ -547,6 +547,24 @@ function ProfileStep({
     );
   }
 
+  // A profile that already has a PIN (one adopted from before accounts) can't
+  // be edited without it, and setup has no business asking for it: it is
+  // picked, PIN and all, on the profile picker after setup.
+  if (target?.hasPin) {
+    return (
+      <div className="space-y-4">
+        <StepHeading title="Who's watching?">
+          Your profile, {target.name}, has a PIN. You&apos;ll enter it when setup is done, and can rename it in Settings
+          → Profiles.
+        </StepHeading>
+        <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
+          Continue <ArrowRight size={16} />
+        </button>
+        <BackButton onBack={onBack} />
+      </div>
+    );
+  }
+
   if (!target) {
     return (
       <div className="space-y-4">
@@ -605,7 +623,14 @@ export const TMDB_MISSING_EFFECTS = [
  * calling a near-requirement optional and then showing "needs a TMDB API key"
  * on four pages.
  */
-function TmdbStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => void }) {
+function TmdbStep({
+  onContinue,
+  onBack,
+}: {
+  /** Whether a key is in place as the step is left. */
+  onContinue: (tmdbConfigured: boolean) => void;
+  onBack: () => void;
+}) {
   const [status, setStatus] = useState<TmdbStatus | null>(null);
   const [confirmingSkip, setConfirmingSkip] = useState(false);
   const onStatus = useCallback((next: TmdbStatus) => {
@@ -636,11 +661,11 @@ function TmdbStep({ onContinue, onBack }: { onContinue: () => void; onBack: () =
       )}
 
       {configured ? (
-        <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
+        <button type="button" onClick={() => onContinue(true)} className="btn-primary btn-lg w-full">
           Continue <ArrowRight size={16} />
         </button>
       ) : confirmingSkip ? (
-        <button type="button" onClick={onContinue} className="btn-secondary btn-lg w-full">
+        <button type="button" onClick={() => onContinue(false)} className="btn-secondary btn-lg w-full">
           Go on without artwork <ArrowRight size={16} />
         </button>
       ) : (
@@ -661,20 +686,29 @@ type HistorySource = { id: string; name: string; blurb: string; icon: ReactNode;
  * from the list it supports. One that can't be offered isn't shown, rather
  * than shown with a Connect button that cannot work.
  */
-export async function availableHistorySources(): Promise<string[]> {
-  const ask = <T,>(read: () => Promise<T>) => read().catch(() => null);
+export async function availableHistorySources(): Promise<{ available: string[]; failed: boolean }> {
+  // A check that fails is "we could not ask", not "not offered": it is
+  // reported as such, with a retry, rather than quietly dropping the source.
+  let failed = false;
+  const ask = <T,>(read: () => Promise<T>) =>
+    Promise.resolve()
+      .then(read)
+      .catch(() => {
+        failed = true;
+        return null;
+      });
   const [trakt, simkl, mdblist, media] = await Promise.all([
     ask(() => api.getTraktStatus()),
     ask(() => api.getSimklStatus()),
     ask(() => api.getMdbListStatus()),
     ask(() => api.getMediaServers()),
   ]);
-  const ids: string[] = [];
-  if (trakt?.configured) ids.push("trakt");
-  if (simkl?.configured) ids.push("simkl");
-  if (mdblist?.configured) ids.push("mdblist");
-  if (media && media.providers.length > 0) ids.push("media-servers");
-  return ids;
+  const available: string[] = [];
+  if (media && media.providers.length > 0) available.push("media-servers");
+  if (trakt?.configured) available.push("trakt");
+  if (simkl?.configured) available.push("simkl");
+  if (mdblist?.configured) available.push("mdblist");
+  return { available, failed };
 }
 
 const HISTORY_SOURCES: HistorySource[] = [
@@ -687,17 +721,27 @@ const HISTORY_SOURCES: HistorySource[] = [
 /** "Bring your history": every source this server supports, each opening in place. */
 function HistoryStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => void }) {
   const [available, setAvailable] = useState<string[] | null>(null);
+  const [checkFailed, setCheckFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const [open, setOpen] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    void availableHistorySources().then((ids) => {
-      if (!cancelled) setAvailable(ids);
+    void availableHistorySources().then((result) => {
+      if (cancelled) return;
+      setAvailable(result.available);
+      setCheckFailed(result.failed);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [attempt]);
+
+  const retry = () => {
+    setAvailable(null);
+    setCheckFailed(false);
+    setAttempt((n) => n + 1);
+  };
 
   const sources = HISTORY_SOURCES.filter((source) => available?.includes(source.id));
 
@@ -712,11 +756,11 @@ function HistoryStep({ onContinue, onBack }: { onContinue: () => void; onBack: (
         <p className="flex items-center gap-2 text-sm" style={{ color: "var(--text-mute)" }}>
           <Loader2 size={16} className="animate-spin" /> Checking what this server offers…
         </p>
-      ) : sources.length === 0 ? (
+      ) : sources.length === 0 && !checkFailed ? (
         <p className="text-sm" style={{ color: "var(--text-dim)" }}>
           This server isn&apos;t set up for any history sources yet. You can add titles yourself from Search.
         </p>
-      ) : (
+      ) : sources.length === 0 ? null : (
         <ul className="space-y-2">
           {sources.map((source) => {
             const expanded = open === source.id;
@@ -748,6 +792,13 @@ function HistoryStep({ onContinue, onBack }: { onContinue: () => void; onBack: (
             );
           })}
         </ul>
+      )}
+
+      {available !== null && checkFailed && (
+        <div role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-danger">
+          <span className="flex items-center gap-2"><AlertCircle size={16} /> Couldn&apos;t check every source with the server.</span>
+          <button type="button" onClick={retry} className="btn-secondary btn-sm">Try again</button>
+        </div>
       )}
 
       <button type="button" onClick={onContinue} className="btn-primary btn-lg w-full">
@@ -794,7 +845,7 @@ function TvStep({ onContinue, onBack }: { onContinue: () => void; onBack: () => 
   );
 }
 
-function DoneStep({ onFinish, onBack }: { onFinish: () => void; onBack: () => void }) {
+function DoneStep({ tmdbConfigured, onFinish, onBack }: { tmdbConfigured: boolean; onFinish: () => void; onBack: () => void }) {
   return (
     <div className="space-y-4 text-center">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/20">
@@ -803,8 +854,12 @@ function DoneStep({ onFinish, onBack }: { onFinish: () => void; onBack: () => vo
       <div>
         <h1 className={SECTION_TITLE}>You're all set</h1>
         <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--text-mute)" }}>
-          Your shelf opens with what&apos;s trending this week: tap + on anything you want to watch. The TV reads the
-          same lists, and the TV page is where you manage it.
+          {/* Only promises the trending starter when it can appear: it needs
+              a TMDB key, and only shows on a Shelf with nothing on it yet. */}
+          {tmdbConfigured
+            ? "If your shelf is still empty, it opens on what's trending this week: tap + on anything you want to watch. "
+            : "Your shelf fills in from Search and the sources you connected. Add a TMDB key in Settings for artwork and search. "}
+          The TV reads the same lists, and the TV page is where you manage it.
         </p>
       </div>
       <button
@@ -830,6 +885,7 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
   // The temporary password just used to sign in, while a new one is chosen.
   const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [tmdbConfigured, setTmdbConfigured] = useState(false);
 
   // A session that is still waiting on a new password (the page was reloaded
   // after signing in with a temporary one) goes straight back to that step.
@@ -929,10 +985,18 @@ export function SetupWizard({ onComplete }: { onComplete: () => void }) {
       {step === "profile" && (
         <ProfileStep suggestedName={account?.username ?? ""} onContinue={() => setStep("tmdb")} onBack={goBack} />
       )}
-      {step === "tmdb" && <TmdbStep onContinue={() => setStep("history")} onBack={goBack} />}
+      {step === "tmdb" && (
+        <TmdbStep
+          onContinue={(configured) => {
+            setTmdbConfigured(configured);
+            setStep("history");
+          }}
+          onBack={goBack}
+        />
+      )}
       {step === "history" && <HistoryStep onContinue={() => setStep("tv")} onBack={goBack} />}
       {step === "tv" && <TvStep onContinue={() => setStep("done")} onBack={goBack} />}
-      {step === "done" && <DoneStep onFinish={finish} onBack={goBack} />}
+      {step === "done" && <DoneStep tmdbConfigured={tmdbConfigured} onFinish={finish} onBack={goBack} />}
     </WizardShell>
   );
 }

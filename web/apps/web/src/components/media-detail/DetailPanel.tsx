@@ -530,7 +530,7 @@ export function DetailPanel({
                 * obvious. The status stays, in the fact row — "Returning" and
                 * "Ended" are the one thing here a reader cannot infer.
                 */}
-              <h2 className={DISPLAY_TITLE} style={{ color: "var(--text)" }}>{item.name}</h2>
+              <h2 className={`${DISPLAY_TITLE} break-words`} style={{ color: "var(--text)" }}>{item.name}</h2>
 
               {/* One line of facts, and the certification as a badge at the end
                   of it — see `buildMetaLine` for why that one leaves the run. */}

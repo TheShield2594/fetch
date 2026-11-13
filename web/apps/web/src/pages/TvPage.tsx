@@ -75,6 +75,8 @@ export const TV_SECTIONS: TvSection[] = [
   },
 ];
 
+const HUB_TITLE_ID = "tv-hub-title";
+
 function SectionTile({ section }: { section: TvSection }) {
   return (
     <li>
@@ -111,6 +113,9 @@ export function TvPage() {
 
   // A pick moves focus to the section's heading, as in Settings; arriving by
   // link is not a pick.
+  // Back from a section, focus goes to the page's title: the "TV" link that
+  // was pressed is gone, and the pathname didn't change, so the shell won't
+  // move it either.
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
   useEffect(() => {
@@ -118,7 +123,15 @@ export function TvPage() {
       firstRender.current = false;
       return;
     }
-    if (current) headingRef.current?.focus();
+    if (current) {
+      headingRef.current?.focus();
+    } else {
+      const title = document.getElementById(HUB_TITLE_ID);
+      if (title) {
+        title.tabIndex = -1;
+        title.focus();
+      }
+    }
   }, [current]);
 
   if (current) {
@@ -162,6 +175,7 @@ export function TvPage() {
     <PageFrame width="reading" className="space-y-8">
       <PageHeader
         title="TV"
+        titleId={HUB_TITLE_ID}
         className=""
         summary={<p>The Fetch app on your TV: which ones are signed in, and what each profile sees there.</p>}
       />

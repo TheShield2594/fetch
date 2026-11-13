@@ -90,7 +90,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Unit tests
         run: ./gradlew --no-daemon :app:testDebugUnitTest
@@ -118,7 +118,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Lint (debug)
         run: ./gradlew --no-daemon :app:lintDebug
@@ -144,7 +144,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # The minified, resource-shrunk release build, signed with the debug key. Catches R8
       # and keep-rule regressions before a manual release does.
@@ -174,7 +174,7 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # Hardware acceleration for the emulator on the hosted Linux runner.
       - name: Enable KVM

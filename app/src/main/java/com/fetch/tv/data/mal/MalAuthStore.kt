@@ -97,8 +97,15 @@ class MalAuthStore @Inject constructor(
             if (error.unauthorized) {
                 Log.w(TAG, "MyAnimeList refused the refresh token; signing out", error)
                 // Only if this is still the sign-in that was refused: the phone may have signed in again meanwhile.
-                store(profileId).edit { prefs -> if (prefs[refreshKey] == state.refreshToken) prefs.clear() }
-                return null
+                var cleared = false
+                store(profileId).edit { prefs ->
+                    if (prefs[refreshKey] == state.refreshToken) {
+                        prefs.clear()
+                        cleared = true
+                    }
+                }
+                // A sign-in that replaced the refused one is still good: use it.
+                return if (cleared) null else current(profileId).accessToken
             }
             Log.w(TAG, "MyAnimeList token refresh failed", error)
             // Still usable until it actually expires.

@@ -286,3 +286,38 @@ class TrackingImporter(
         const val DEFAULT_BATCH_SIZE = 50
     }
 }
+
+/**
+ * Keeps an import's writes in the profile it started for. Some sources of truth (the Fetch
+ * website, provider scrobblers) act for whichever profile is active when they are called, so
+ * after a profile switch mid-import every further read or write is refused instead of landing in
+ * the other profile; [profileChanged] then tells the caller the import was cut short.
+ */
+internal class ProfileBoundImportEndpoint(
+    private val delegate: TrackingImportEndpoint,
+    private val profileId: Int,
+    private val activeProfileId: () -> Int
+) : TrackingImportEndpoint by delegate {
+    var profileChanged: Boolean = false
+        private set
+
+    private fun stillBound(): Boolean {
+        if (activeProfileId() != profileId) profileChanged = true
+        return !profileChanged
+    }
+
+    override suspend fun read(): TrackingImportSnapshot {
+        check(stillBound()) { "The profile changed before the import read its target" }
+        return delegate.read()
+    }
+
+    override suspend fun writeWatched(items: List<WatchedItem>): TrackingImportWriteResult =
+        if (stillBound()) delegate.writeWatched(items) else TrackingImportWriteResult(0, items.size)
+
+    override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult =
+        if (stillBound()) delegate.writeProgress(items) else TrackingImportWriteResult(0, items.size)
+
+    override suspend fun finish() {
+        if (stillBound()) delegate.finish()
+    }
+}

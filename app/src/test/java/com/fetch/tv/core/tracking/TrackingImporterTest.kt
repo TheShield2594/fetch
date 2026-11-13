@@ -285,6 +285,38 @@ class TrackingImporterTest {
         assertEquals(setOf("tt1:2:3", "imdb:tt1"), trackingImportAliases("tt1:2:3"))
     }
 
+    @Test
+    fun `a profile switch mid-import stops the writes and is reported`() = runTest {
+        val source = FakeEndpoint(
+            WatchProgressSource.SIMKL,
+            TrackingImportSnapshot(watched = (1..4).map { movie("tt$it", watchedAt = it.toLong()) })
+        )
+        val target = FakeEndpoint(WatchProgressSource.FETCH_WEBSITE)
+        var active = 1
+        // The target is read as profile 1, then the viewer switches to profile 2 before any write.
+        val bound = ProfileBoundImportEndpoint(target, profileId = 1) { active.also { active = 2 } }
+
+        val result = TrackingImporter(batchSize = 2).import(source, bound)
+
+        assertTrue(bound.profileChanged)
+        assertEquals(0, target.finishCount)
+        assertEquals(0, target.writtenWatched.size)
+        assertEquals(4, result.failed)
+    }
+
+    @Test
+    fun `an import into an unchanged profile writes through`() = runTest {
+        val source = FakeEndpoint(WatchProgressSource.SIMKL, TrackingImportSnapshot(watched = listOf(movie("tt1", 1L))))
+        val target = FakeEndpoint(WatchProgressSource.FETCH_WEBSITE)
+        val bound = ProfileBoundImportEndpoint(target, profileId = 3) { 3 }
+
+        TrackingImporter().import(source, bound)
+
+        assertEquals(1, target.writtenWatched.size)
+        assertEquals(1, target.finishCount)
+        assertTrue(!bound.profileChanged)
+    }
+
     private class FakeEndpoint(
         override val source: WatchProgressSource,
         private val snapshot: TrackingImportSnapshot = TrackingImportSnapshot(),

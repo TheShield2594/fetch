@@ -195,11 +195,16 @@ class TrackingImportService @Inject constructor(
             var from: TrackingImportReader? = null
             _status.value = try {
                 from = reader(profileId)
-                val into = endpoint(target, profileId)
+                val into = endpoint(target, profileId)?.let { endpoint ->
+                    ProfileBoundImportEndpoint(endpoint, profileId) { profileManager.activeProfileId.value }
+                }
                 if (from == null || into == null) {
                     TrackingImportStatus.Failed(origin, target)
                 } else {
-                    TrackingImportStatus.Done(importer.import(from, into))
+                    val result = importer.import(from, into)
+                    // Switched profile mid-import: what was written stays in the right profile,
+                    // but the rest was refused, so report it as not done.
+                    if (into.profileChanged) TrackingImportStatus.Failed(origin, target) else TrackingImportStatus.Done(result)
                 }
             } catch (error: CancellationException) {
                 throw error

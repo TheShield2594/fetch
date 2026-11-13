@@ -4,11 +4,14 @@ import com.fetch.tv.core.profile.ProfileManager
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class SimklSyncRepositoryProfileTest {
@@ -20,9 +23,13 @@ class SimklSyncRepositoryProfileTest {
     )
 
     private class MemoryStorage : SimklSyncStorage {
-        val payloads = mutableMapOf<Int, String>()
+        val payloads = java.util.concurrent.ConcurrentHashMap<Int, String>()
+        var onSave: (Int) -> Unit = {}
         override suspend fun load(profileId: Int): String? = payloads[profileId]
-        override suspend fun save(profileId: Int, payload: String) { payloads[profileId] = payload }
+        override suspend fun save(profileId: Int, payload: String) {
+            payloads[profileId] = payload
+            onSave(profileId)
+        }
         override suspend fun remove(profileId: Int) { payloads.remove(profileId) }
     }
 
@@ -76,6 +83,39 @@ class SimklSyncRepositoryProfileTest {
         repository.commitScrobble(stopOf(episode = 2), expectedProfileId = 1)
 
         assertEquals(before, storage.payloads.toMap())
+    }
+
+    @Test
+    fun `a profile switch right after the save leaves the new profile's state and projection alone`() = runBlocking {
+        val storage = MemoryStorage()
+        val active = MutableStateFlow(1)
+        val profileManager = mockk<ProfileManager> { every { activeProfileId } returns active }
+        val profileTwo = snapshotWithEpisodes(1, 2, 3)
+        storage.payloads[1] = json.encodeToString(snapshotWithEpisodes(1))
+        storage.payloads[2] = json.encodeToString(profileTwo)
+        val repository = SimklSyncRepository(
+            engine = mockk(relaxed = true),
+            storage = storage,
+            authRepository = mockk(relaxed = true),
+            authStorage = mockk(relaxed = true),
+            profileManager = profileManager
+        )
+        repository.ensureLoaded()
+        // The switch lands after profile 1's result is saved and before it is shown.
+        storage.onSave = { profileId -> if (profileId == 1) active.value = 2 }
+
+        repository.commitScrobble(stopOf(episode = 5), expectedProfileId = 1)
+
+        withTimeout(5_000) {
+            while (repository.state.value.snapshot != profileTwo) delay(10)
+        }
+        val expected = SimklSnapshotProjection.create(profileTwo).watchedShowEpisodes
+        val profileOneResult = SimklSnapshotProjection.create(
+            json.decodeFromString<SimklSyncSnapshot>(storage.payloads.getValue(1))
+        ).watchedShowEpisodes
+        assertNotEquals(profileOneResult, expected)
+        assertEquals(expected, repository.projection.value.watchedShowEpisodes)
+        assertEquals(profileTwo, repository.state.value.snapshot)
     }
 
     private fun snapshotWithEpisodes(vararg numbers: Int) = SimklSyncSnapshot(

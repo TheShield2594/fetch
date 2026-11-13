@@ -38,6 +38,13 @@ class SimklSyncRepository @Inject constructor(
     private var loadedProfileId: Int? = null
     private var profileGeneration = 0L
 
+    /**
+     * Held while [_state] and [_projection] are published together, by the profile-switch reset
+     * as well as every write. A publish checks that its profile is still active inside this lock,
+     * so a switch can't land between its two writes and leave one profile's data on another.
+     */
+    private val publishLock = Any()
+
     val state: StateFlow<SimklSyncState> = _state.asStateFlow()
     internal val projection: StateFlow<SimklSnapshotProjection> = _projection.asStateFlow()
 
@@ -45,10 +52,12 @@ class SimklSyncRepository @Inject constructor(
         scope.launch {
             profileManager.activeProfileId.collect { profileId ->
                 if (loadedProfileId != profileId) {
-                    profileGeneration += 1L
-                    loadedProfileId = null
-                    _state.value = SimklSyncState()
-                    _projection.value = SimklSnapshotProjection.Empty
+                    synchronized(publishLock) {
+                        profileGeneration += 1L
+                        loadedProfileId = null
+                        _state.value = SimklSyncState()
+                        _projection.value = SimklSnapshotProjection.Empty
+                    }
                     loadProfile(profileId)
                 }
             }
@@ -91,10 +100,12 @@ class SimklSyncRepository @Inject constructor(
         val profileId = profileManager.activeProfileId.value
         profileGeneration += 1L
         storage.remove(profileId)
-        if (profileId == profileManager.activeProfileId.value) {
-            loadedProfileId = profileId
-            _projection.value = SimklSnapshotProjection.Empty
-            _state.value = SimklSyncState(hasLoaded = true)
+        synchronized(publishLock) {
+            if (profileId == profileManager.activeProfileId.value) {
+                loadedProfileId = profileId
+                _projection.value = SimklSnapshotProjection.Empty
+                _state.value = SimklSyncState(hasLoaded = true)
+            }
         }
     }
 
@@ -169,10 +180,12 @@ class SimklSyncRepository @Inject constructor(
         if (loadedProfileId == profileId) return@withLock
         val snapshot = persistedSnapshot(profileId)
         val projection = buildProjection(snapshot)
-        if (profileId == profileManager.activeProfileId.value) {
-            loadedProfileId = profileId
-            _projection.value = projection
-            _state.value = SimklSyncState(snapshot = snapshot, hasLoaded = true)
+        synchronized(publishLock) {
+            if (profileId == profileManager.activeProfileId.value) {
+                loadedProfileId = profileId
+                _projection.value = projection
+                _state.value = SimklSyncState(snapshot = snapshot, hasLoaded = true)
+            }
         }
     }
 
@@ -212,9 +225,11 @@ class SimklSyncRepository @Inject constructor(
         authRepository.synchronizeUserSettings(merged.activities?.settings?.all)
         if (!isCurrent(profileId, generation)) return@withLock
         storage.save(profileId, encodeSnapshot(merged))
-        if (isCurrent(profileId, generation)) {
-            _projection.value = projection
-            _state.value = SimklSyncState(snapshot = merged, hasLoaded = true)
+        synchronized(publishLock) {
+            if (isCurrent(profileId, generation)) {
+                _projection.value = projection
+                _state.value = SimklSyncState(snapshot = merged, hasLoaded = true)
+            }
         }
     }
 
@@ -238,27 +253,22 @@ class SimklSyncRepository @Inject constructor(
             }
             ?: SimklSyncSnapshot()
 
-    /**
-     * Shows a saved [snapshot] only while [profileId] (and [generation], when given) is still
-     * active. The state is read before that check and swapped with compare-and-set, so a profile
-     * switch landing at any point in between makes this a no-op instead of showing one profile's
-     * snapshot on another.
-     */
+    /** Shows a saved [snapshot] only while [profileId] (and [generation], when given) is still active. */
     private fun publishIfCurrent(
         profileId: Int,
         generation: Long?,
         snapshot: SimklSyncSnapshot,
         projection: SimklSnapshotProjection
     ) {
-        val current = _state.value
-        val stillCurrent = if (generation == null) {
-            profileId == profileManager.activeProfileId.value
-        } else {
-            isCurrent(profileId, generation)
-        }
-        if (!stillCurrent) return
-        if (_state.compareAndSet(current, current.copy(snapshot = snapshot))) {
+        synchronized(publishLock) {
+            val stillCurrent = if (generation == null) {
+                profileId == profileManager.activeProfileId.value
+            } else {
+                isCurrent(profileId, generation)
+            }
+            if (!stillCurrent) return
             _projection.value = projection
+            _state.value = _state.value.copy(snapshot = snapshot)
         }
     }
 
@@ -271,11 +281,13 @@ class SimklSyncRepository @Inject constructor(
                 if (!isCurrent(profileId, generation)) return@withLock
                 val current = _state.value
                 val projection = buildProjection(current.snapshot)
-                if (!isCurrent(profileId, generation) || current.snapshot !== _state.value.snapshot) {
-                    return@withLock
+                synchronized(publishLock) {
+                    if (!isCurrent(profileId, generation) || current.snapshot !== _state.value.snapshot) {
+                        return@withLock
+                    }
+                    _projection.value = projection
+                    _state.value = current.copy(projectionVersion = current.projectionVersion + 1L)
                 }
-                _projection.value = projection
-                _state.value = current.copy(projectionVersion = current.projectionVersion + 1L)
             }
         }
     }

@@ -1,6 +1,6 @@
 /**
- * Finding something to watch: search, what is trending, what a
- * provider is carrying, and the catalogues built from those.
+ * Finding something to watch: search, what is trending, and recommendations
+ * built from what the profile has watched.
  */
 
 import { request } from "./client";
@@ -44,32 +44,13 @@ export const discoverApi = {
       { signal, timeoutMs: 20000 }
     );
   },
-  // Trending & Popular
   getTrending(type: MediaType, window: "day" | "week" = "week") {
     return request<{ metas: TrendingMeta[] }>(`/trending?type=${type}&window=${window}`);
   },
-  getPopular(type: MediaType) {
-    return request<{ metas: TrendingMeta[] }>(`/popular?type=${type}`);
-  },
-  // Streaming
-  getStreamingCatalog(type: MediaType, provider: string) {
-    return request<{ metas: TrendingMeta[]; provider: string }>(`/streaming?type=${type}&provider=${encodeURIComponent(provider)}`);
-  },
-  getStreamingProviders() {
-    return request<{ providers: Array<{ key: string; id: number; name: string }> }>("/streaming/providers");
-  },
-  // Anime
-  getAnimeCatalog(type: MediaType) {
-    return request<{ metas: TrendingMeta[] }>(`/anime?type=${type}`);
-  },
-  // Recommendations
   /** TMDB's "if you liked this" for one title — Discover's "Because you watched". */
   getRecommendationsFor(type: MediaType, imdbId: string) {
     return request<{ metas: TrendingMeta[] }>(
       `/recommendations?type=${type}&imdbId=${encodeURIComponent(imdbId)}`
     );
-  },
-  getPersonalRecommendations(type: MediaType, limit = 20) {
-    return request<{ metas: TrendingMeta[] }>(`/recommendations/personal?type=${type}&limit=${limit}`);
   },
 };

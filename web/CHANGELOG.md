@@ -23,6 +23,14 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **A smaller cold start.** The first visit no longer downloads profile-editing code: a shared constant had pulled the profile sheet into the entry. Icons used across pages share one chunk, so `index.html` preloads four files instead of thirty-odd, and CI fails the build if the entry or the cold start grows past a budget ([#531](https://github.com/TheShield2594/fetch/issues/531)).
 
+### Fixed
+
+- **Discover no longer leads with something you watched long ago.** Discover's lead and its trending and "Because you watched" rails filtered out only series in progress and the newest 20 watches, so an older film or a finished show could come back as "something new". They now filter by `GET /watch/titles`, every title the profile has ever watched ([#561](https://github.com/TheShield2594/fetch/issues/561)).
+
+### Removed
+
+- **Unused client code and the hidden API base override.** The per-browser API base override had no field in Settings and could only be set from the console; it is gone, along with the comments in the CSP script and the service worker that described it. Five unused Discover calls (popular, streaming, anime, personal recommendations), the AI refresh call and a few leftovers went with it ([#373](https://github.com/TheShield2594/fetch/issues/373)).
+
 ### Security
 
 - **Parental limits can't be undone by a request racing a grown-up.** `PATCH /profiles/:id` and a TV's profile push now write parental fields only if the limits are still the ones they were checked against, as the import already did. On a persistent conflict the PATCH answers `409 parental_limits_changed` and the TV push skips the parental fields but still syncs the name and picture ([#553](https://github.com/TheShield2594/fetch/issues/553)).

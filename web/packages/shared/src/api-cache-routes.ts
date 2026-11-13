@@ -90,6 +90,7 @@ export const API_CACHE_ROUTES: readonly ApiCacheRoute[] = [
   // before it seeks, and an offline answer there would be a guess.
   { pattern: "playback", tier: "revalidate" },
   { pattern: "watch/history(?:/months)?", tier: "revalidate" },
+  { pattern: "watch/titles", tier: "revalidate" },
   { pattern: "watch/stats(?:/detailed)?", tier: "revalidate" },
   { pattern: "lists(?:/.*)?", tier: "revalidate" },
   { pattern: "calendar", tier: "revalidate" },

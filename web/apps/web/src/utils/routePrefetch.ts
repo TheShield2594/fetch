@@ -16,12 +16,11 @@ import { PAGE_SIZE as HISTORY_PAGE_SIZE } from "../pages/history-paging";
 // named export straight out of a prefetch loader in `lazy()`.
 type Loader = () => Promise<unknown>;
 
-// The Shelf is not here on purpose. App.tsx imports it statically — it is the
-// landing route, so it ships in the entry bundle — and a dynamic import of a
-// statically-imported module can't be split out, so Rollup folds the chunk back
-// in and warns about the mixed import for every build. There is nothing to
+// The Shelf ("/") has no loader on purpose. App.tsx imports it statically — it
+// is the landing route, so it ships in the entry bundle — and a dynamic import
+// of a statically-imported module can't be split out, so Rollup folds the chunk
+// back in and warns about the mixed import for every build. There is nothing to
 // prefetch: the code is already loaded before any nav link exists to hover.
-export const EAGER_ROUTES = new Set(["/"]);
 
 export const loadSearchPage = () => import("../pages/SearchPage");
 export const loadDiscoverPage = () => import("../pages/DiscoverPage");

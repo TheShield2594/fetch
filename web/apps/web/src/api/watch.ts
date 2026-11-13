@@ -42,6 +42,14 @@ export const watchApi = {
     const res = await request<unknown>(`/watch/history?${params}`, { signal: opts?.signal });
     return validated("/watch/history", parseWatchHistoryResponse, res).history;
   },
+  /**
+   * Every title the profile has watched, however long ago: films by id, shows
+   * by their series id. For filtering out what's been seen, which the newest
+   * page of history can't do.
+   */
+  getWatchedTitles(signal?: AbortSignal) {
+    return request<{ movies: string[]; series: string[] }>("/watch/titles", { signal });
+  },
   /** The months that have history in them, newest first — for jumping to one. */
   async getWatchHistoryMonths(opts?: { type?: "movie" | "episode" | undefined; signal?: AbortSignal | undefined }) {
     const params = new URLSearchParams();

@@ -29,7 +29,6 @@ const API_BASE_DEFAULT = stripTrailingSlash(
 const ADDON_BASE_DEFAULT = stripTrailingSlash(
   window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"
 );
-const API_BASE_OVERRIDE_KEY = "fetch_api_base_override";
 const PROFILE_ID_KEY = "fetch_profile_id";
 /**
  * The signed-in session's id: the API's row id for it, which is *not* a
@@ -94,26 +93,10 @@ const applyCacheScope = () => setCacheScope(currentIdentity());
 export const runtimeConfig = {
   apiBaseDefault: API_BASE_DEFAULT,
   addonBaseDefault: ADDON_BASE_DEFAULT,
-  apiBaseOverrideKey: API_BASE_OVERRIDE_KEY,
   sessionIdKey: SESSION_ID_KEY,
   profileIdKey: PROFILE_ID_KEY,
-  getApiBaseOverride() {
-    return window.localStorage.getItem(API_BASE_OVERRIDE_KEY)?.trim() ?? "";
-  },
-  setApiBaseOverride(value: string) {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      window.localStorage.removeItem(API_BASE_OVERRIDE_KEY);
-    } else {
-      window.localStorage.setItem(API_BASE_OVERRIDE_KEY, trimmed);
-    }
-    // The service worker decides what to cache by comparing against the API
-    // base, and this override lives only here — a worker never told about it
-    // would go on matching the base the container was built with.
-    void tellServiceWorkerWhereTheApiIs();
-  },
   getApiBase() {
-    return runtimeConfig.getApiBaseOverride() || API_BASE_DEFAULT;
+    return API_BASE_DEFAULT;
   },
   getAddonBase() {
     return ADDON_BASE_DEFAULT;
@@ -267,8 +250,7 @@ export async function purgeApiCache(): Promise<void> {
  * registered: on a browser that supports service workers but has none (a plain
  * http:// LAN deployment, say) every call would leave a promise pending for the
  * life of the page. The install-time read of `config.js` covers the worker's
- * first run either way, and a later call — the override changing, the next page
- * load — reaches it once it is active.
+ * first run either way, and the next page load reaches it once it is active.
  */
 async function postToServiceWorker(message: unknown): Promise<void> {
   if (!navigator.serviceWorker) return;

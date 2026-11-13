@@ -55,9 +55,8 @@ export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra } = {}) =
   // worker. See src/image-cdn-hosts.mjs.
   for (const origin of IMAGE_CDN_ORIGINS) add(origin);
 
-  // Escape hatch for anything else this deployment's browser must reach —
-  // most obviously an API base set per-browser via Settings → "API base URL",
-  // which the container cannot know about.
+  // Escape hatch for anything else this deployment's browser must reach that
+  // the container's own configuration doesn't name.
   // Every entry has to parse as an absolute origin. That rejects the two things
   // worth rejecting: a whole scheme (`https:`) or a bare `*`, either of which
   // would re-open the any-host hole this whole file exists to close, and any

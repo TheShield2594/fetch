@@ -133,6 +133,9 @@ developer. Without them the build works but the integration says its credentials
 | `MDBLIST_CLIENT_ID` | an OAuth app registered with MDBList |
 | `TMDB_API_KEY` | [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) |
 
+AniList and MyAnimeList, including publishing the MyAnimeList sign-in page and how viewers sign
+in, are covered step by step in [docs/anime-tracking.md](docs/anime-tracking.md).
+
 Put them in `local.properties` for local builds, or export them as environment variables
 (these take precedence). The Release workflow reads repository secrets with the same names
 (Settings → Secrets and variables → Actions) and warns in its log for each one that is unset.

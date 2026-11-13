@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -61,6 +62,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.core.qr.QrCodeGenerator
+import com.fetch.tv.core.tracking.StremioLinkState
 import com.fetch.tv.data.repository.TraktProgressService
 import com.fetch.tv.data.simkl.SIMKL_AUTOMATIC_REFRESH_INTERVAL_MINUTES
 import com.fetch.tv.data.simkl.SimklConnectionMode
@@ -146,6 +148,53 @@ internal fun TraktAccountDialog(
                 onDismiss = onDismiss
             )
         }
+    }
+}
+
+/** The link code that signs a Stremio account in for a one-off history import. */
+@Composable
+internal fun StremioLinkDialog(
+    state: StremioLinkState,
+    onRetry: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val waiting = state as? StremioLinkState.Waiting
+    val error = (state as? StremioLinkState.Error)?.let {
+        when (it.reason) {
+            StremioLinkState.Error.Reason.NETWORK -> stringResource(R.string.tracking_stremio_link_error_network)
+            StremioLinkState.Error.Reason.EXPIRED -> stringResource(R.string.tracking_stremio_link_error_expired)
+        }
+    }
+    FetchDialog(
+        onDismiss = onDismiss,
+        title = "",
+        width = 720.dp,
+        titleTextAlign = TextAlign.Center,
+        suppressFirstKeyUp = false,
+        scrollable = true
+    ) {
+        val name = stringResource(R.string.stremio_name)
+        TrackingDeviceAuthContent(
+            providerName = name,
+            logo = rememberVectorPainter(Icons.Filled.Sync),
+            logoContentDescription = name,
+            logoLabel = name,
+            qrContentDescription = stringResource(R.string.cd_stremio_qr),
+            instruction = stringResource(R.string.tracking_stremio_link_instruction),
+            userCode = waiting?.code,
+            displayUrl = waiting?.link,
+            qrUrl = waiting?.link,
+            expiresAtEpochMs = waiting?.expiresAtEpochMs,
+            isLoading = state is StremioLinkState.Creating,
+            isPolling = waiting != null,
+            credentialsConfigured = true,
+            statusMessage = if (waiting != null) stringResource(R.string.tracking_stremio_link_waiting) else null,
+            errorMessage = error,
+            missingCredentialsMessage = "",
+            onStartConnection = onRetry,
+            onRetryPolling = onRetry,
+            onDismiss = onDismiss
+        )
     }
 }
 

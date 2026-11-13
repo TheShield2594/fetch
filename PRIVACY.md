@@ -15,6 +15,10 @@ Fetch connects to services you add or turn on yourself:
 
 - **Stremio addons** you install. Each addon receives the IDs of the titles you browse or play.
 - **Trakt, Simkl, MDBList** when you sign in to them.
+- **Stremio** (`link.stremio.com` and `api.strem.io`), only when you import a Stremio account's
+  history from Settings → Tracking. You approve a code on stremio.com, Fetch reads your
+  library's watch state once and signs that session out again. It keeps no Stremio sign-in.
+  Episode lists for your series come from your own addons.
 - **Jellyfin / Emby / Plex servers** you connect. Signing in to Plex also talks to plex.tv,
   which approves the sign-in code and lists the servers your account can reach.
 - **Metadata and artwork providers** your addons point to (for example TMDB image hosts),

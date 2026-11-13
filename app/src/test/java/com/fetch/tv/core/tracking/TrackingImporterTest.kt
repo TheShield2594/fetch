@@ -228,10 +228,12 @@ class TrackingImporterTest {
     fun `nothing is read when neither part of the import is possible`() = runTest {
         val source = mockk<TrackingImportEndpoint> {
             every { this@mockk.source } returns WatchProgressSource.SIMKL
+            every { origin } returns TrackingImportOrigin.Connected(WatchProgressSource.SIMKL)
             every { capabilities } returns setOf(TrackingCapability.WATCHED_READ)
         }
         val target = mockk<TrackingImportEndpoint> {
             every { this@mockk.source } returns WatchProgressSource.TRAKT
+            every { origin } returns TrackingImportOrigin.Connected(WatchProgressSource.TRAKT)
             every { capabilities } returns setOf(TrackingCapability.PROGRESS_WRITE)
         }
 
@@ -261,6 +263,7 @@ class TrackingImporterTest {
         )
         val target = mockk<TrackingImportEndpoint>(relaxed = true) {
             every { this@mockk.source } returns WatchProgressSource.TRAKT
+            every { origin } returns TrackingImportOrigin.Connected(WatchProgressSource.TRAKT)
             every { capabilities } returns ALL
             coEvery { read() } returns TrackingImportSnapshot()
             // First batch: one of two not found. Second batch: the request fails.

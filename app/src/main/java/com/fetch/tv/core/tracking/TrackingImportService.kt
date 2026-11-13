@@ -6,6 +6,10 @@ import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressPreferences
 import com.fetch.tv.data.local.WatchProgressSource
 import com.fetch.tv.data.local.WatchedItemsPreferences
+import com.fetch.tv.core.network.NetworkResult
+import com.fetch.tv.data.stremio.StremioAccountApi
+import com.fetch.tv.domain.model.Video
+import com.fetch.tv.domain.repository.MetaRepository
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.model.WatchedItem
 import javax.inject.Inject
@@ -13,7 +17,15 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,9 +35,19 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 sealed interface TrackingImportStatus {
     data object Idle : TrackingImportStatus
-    data class Running(val source: WatchProgressSource, val target: WatchProgressSource) : TrackingImportStatus
+    data class Running(val source: TrackingImportOrigin, val target: WatchProgressSource) : TrackingImportStatus
     data class Done(val result: TrackingImportResult) : TrackingImportStatus
-    data class Failed(val source: WatchProgressSource, val target: WatchProgressSource) : TrackingImportStatus
+    data class Failed(val source: TrackingImportOrigin, val target: WatchProgressSource) : TrackingImportStatus
+}
+
+/** Signing a Stremio account in for an import, through Stremio's link code. */
+sealed interface StremioLinkState {
+    data object Idle : StremioLinkState
+    data object Creating : StremioLinkState
+    data class Waiting(val code: String, val link: String, val expiresAtEpochMs: Long) : StremioLinkState
+    data class Error(val reason: Reason) : StremioLinkState {
+        enum class Reason { NETWORK, EXPIRED }
+    }
 }
 
 /**
@@ -40,12 +62,17 @@ class TrackingImportService @Inject constructor(
     private val historyWriters: TrackingHistoryWriterRegistry,
     private val watchProgressPreferences: WatchProgressPreferences,
     private val watchedItemsPreferences: WatchedItemsPreferences,
-    private val profileManager: ProfileManager
+    private val profileManager: ProfileManager,
+    private val stremioApi: StremioAccountApi,
+    private val metaRepository: MetaRepository
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val importer = TrackingImporter()
     private val _status = MutableStateFlow<TrackingImportStatus>(TrackingImportStatus.Idle)
     val status: StateFlow<TrackingImportStatus> = _status.asStateFlow()
+    private val _stremioLink = MutableStateFlow<StremioLinkState>(StremioLinkState.Idle)
+    val stremioLink: StateFlow<StremioLinkState> = _stremioLink.asStateFlow()
+    private var stremioLinkJob: Job? = null
 
     /** The current source of truth, after falling back for a provider that is no longer connected. */
     suspend fun sourceOfTruth(): WatchProgressSource =
@@ -56,27 +83,90 @@ class TrackingImportService @Inject constructor(
         availableWatchProgressSources(connected).filter { it != target }
 
     fun start(source: WatchProgressSource) {
+        run(TrackingImportOrigin.Connected(source)) { profileId -> endpoint(source, profileId) }
+    }
+
+    /**
+     * Shows a Stremio link code and waits for it to be approved; the import starts by itself
+     * once it is. The account is only read, and signed out again when the import ends.
+     */
+    fun startStremioLink() {
         if (_status.value is TrackingImportStatus.Running) return
+        stremioLinkJob?.cancel()
+        stremioLinkJob = scope.launch {
+            _stremioLink.value = StremioLinkState.Creating
+            val code = try {
+                stremioApi.createLinkCode()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Log.w(TAG, "Couldn't get a Stremio link code", error)
+                _stremioLink.value = StremioLinkState.Error(StremioLinkState.Error.Reason.NETWORK)
+                return@launch
+            }
+            val expiresAt = System.currentTimeMillis() + STREMIO_LINK_TIMEOUT_MS
+            _stremioLink.value = StremioLinkState.Waiting(code.code, code.link, expiresAt)
+            var authKey: String? = null
+            var failures = 0
+            while (authKey == null && System.currentTimeMillis() < expiresAt) {
+                delay(STREMIO_LINK_POLL_MS)
+                authKey = try {
+                    stremioApi.readLinkCode(code.code).also { failures = 0 }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (error: Exception) {
+                    if (++failures >= STREMIO_LINK_MAX_FAILURES) {
+                        Log.w(TAG, "Stopped waiting for the Stremio link code", error)
+                        _stremioLink.value = StremioLinkState.Error(StremioLinkState.Error.Reason.NETWORK)
+                        return@launch
+                    }
+                    null
+                }
+            }
+            if (authKey == null) {
+                _stremioLink.value = StremioLinkState.Error(StremioLinkState.Error.Reason.EXPIRED)
+                return@launch
+            }
+            _stremioLink.value = StremioLinkState.Idle
+            val reader = StremioImportReader(authKey)
+            // Another import got there first: don't leave the session signed in.
+            if (!run(TrackingImportOrigin.Stremio) { reader }) reader.close()
+        }
+    }
+
+    fun cancelStremioLink() {
+        stremioLinkJob?.cancel()
+        stremioLinkJob = null
+        _stremioLink.value = StremioLinkState.Idle
+    }
+
+    /** False when another import is already running and this one didn't start. */
+    private fun run(origin: TrackingImportOrigin, reader: suspend (profileId: Int) -> TrackingImportReader?): Boolean {
+        if (_status.value is TrackingImportStatus.Running) return false
         scope.launch {
             val target = sourceOfTruth()
-            if (source == target) return@launch
-            _status.value = TrackingImportStatus.Running(source, target)
+            if (origin == TrackingImportOrigin.Connected(target)) return@launch
+            _status.value = TrackingImportStatus.Running(origin, target)
             val profileId = profileManager.activeProfileId.value
+            var from: TrackingImportReader? = null
             _status.value = try {
-                val from = endpoint(source, profileId)
+                from = reader(profileId)
                 val into = endpoint(target, profileId)
                 if (from == null || into == null) {
-                    TrackingImportStatus.Failed(source, target)
+                    TrackingImportStatus.Failed(origin, target)
                 } else {
                     TrackingImportStatus.Done(importer.import(from, into))
                 }
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                Log.w(TAG, "Import from ${source.name} into ${target.name} failed", error)
-                TrackingImportStatus.Failed(source, target)
+                Log.w(TAG, "Import from $origin into ${target.name} failed", error)
+                TrackingImportStatus.Failed(origin, target)
+            } finally {
+                (from as? StremioImportReader)?.close()
             }
         }
+        return true
     }
 
     fun acknowledge() {
@@ -161,6 +251,46 @@ class TrackingImportService @Inject constructor(
         }
     }
 
+    /** A Stremio account's library, read once with an auth key that is signed out afterwards. */
+    private inner class StremioImportReader(private val authKey: String) : TrackingImportReader {
+        override val origin = TrackingImportOrigin.Stremio
+        override val capabilities = setOf(TrackingCapability.WATCHED_READ, TrackingCapability.PROGRESS_READ)
+
+        override suspend fun read(): TrackingImportSnapshot {
+            val items = stremioApi.library(authKey)
+            val lookups = Semaphore(STREMIO_META_CONCURRENCY)
+            // Episode lists are fetched in parallel up front; the snapshot is then built from them.
+            val videos = withContext(Dispatchers.IO) {
+                items.filter { it.isSeries && (!it.watched.isNullOrBlank() || it.timeOffset > 0L) }
+                    .map { item -> async { item.id to lookups.withPermit { episodesOf(item) } } }
+                    .awaitAll()
+                    .toMap()
+            }
+            return buildStremioSnapshot(items) { item -> videos[item.id] }
+        }
+
+        private suspend fun episodesOf(item: StremioLibraryItem): List<Video>? = try {
+            withTimeoutOrNull(STREMIO_META_TIMEOUT_MS) {
+                metaRepository.getMetaFromAllAddons(type = "series", id = item.id)
+                    .first { it is NetworkResult.Success || it is NetworkResult.Error }
+                    .let { (it as? NetworkResult.Success)?.data?.videos }
+                    ?.takeIf { it.isNotEmpty() }
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            Log.w(TAG, "No episode list for a Stremio library item", error)
+            null
+        }
+
+        suspend fun close() {
+            withContext(NonCancellable) {
+                runCatching { stremioApi.logout(authKey) }
+                    .onFailure { Log.w(TAG, "Couldn't sign the Stremio import session out", it) }
+            }
+        }
+    }
+
     /** Fetch Sync: this TV's own watch state for the profile. */
     private inner class LocalImportEndpoint(private val profileId: Int) : TrackingImportEndpoint {
         override val source = WatchProgressSource.FETCH_SYNC
@@ -198,6 +328,12 @@ class TrackingImportService @Inject constructor(
     private companion object {
         const val TAG = "TrackingImport"
         const val READ_TIMEOUT_MS = 30_000L
+        const val STREMIO_LINK_POLL_MS = 3_000L
+        /** Stremio doesn't say how long a link code lives; stop asking after this long. */
+        const val STREMIO_LINK_TIMEOUT_MS = 10L * 60_000L
+        const val STREMIO_LINK_MAX_FAILURES = 5
+        const val STREMIO_META_CONCURRENCY = 4
+        const val STREMIO_META_TIMEOUT_MS = 20_000L
     }
 }
 

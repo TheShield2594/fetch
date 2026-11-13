@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.core.tracking.StremioLinkState
 import com.fetch.tv.core.tracking.TrackingImportService
 import com.fetch.tv.core.tracking.TrackingImportStatus
 import com.fetch.tv.core.tracking.TrackingProviderId
@@ -62,6 +63,7 @@ class TrackingSettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(TrackingSettingsUiState())
     val uiState: StateFlow<TrackingSettingsUiState> = _uiState.asStateFlow()
     val importStatus: StateFlow<TrackingImportStatus> = importService.status
+    val stremioLink: StateFlow<StremioLinkState> = importService.stremioLink
 
     init {
         viewModelScope.launch {
@@ -130,4 +132,11 @@ class TrackingSettingsViewModel @Inject constructor(
     }
 
     fun acknowledgeImport() = importService.acknowledge()
+
+    /** Shows a Stremio link code; the import starts once it is approved on a phone. */
+    fun startStremioImport() {
+        if (_uiState.value.isReady) importService.startStremioLink()
+    }
+
+    fun cancelStremioImport() = importService.cancelStremioLink()
 }

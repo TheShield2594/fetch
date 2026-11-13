@@ -2,7 +2,7 @@
 <resources>
     <!-- Settings → Tracking: import another source into the source of truth -->
     <string name="tracking_import_title">Import from another source</string>
-    <string name="tracking_import_subtitle">Copy watched history and resume points from another connected service into %1$s, your source of truth.</string>
+    <string name="tracking_import_subtitle">Copy watched history and resume points from another connected service, or from a Stremio account, into %1$s, your source of truth.</string>
     <string name="tracking_import_running">Importing…</string>
     <string name="tracking_import_dialog_title">Import into %1$s</string>
     <string name="tracking_import_dialog_subtitle">Titles watched there are marked watched in %1$s. Resume points are copied unless %1$s has a newer one. Nothing is removed.</string>
@@ -15,4 +15,15 @@
     <string name="tracking_import_unsupported_progress">Resume points can’t be imported between these services.</string>
     <string name="tracking_import_failed_title">Import failed</string>
     <string name="tracking_import_failed_subtitle">Fetch couldn’t read %1$s or write to %2$s. Check that both are connected and try again.</string>
+
+    <!-- Import from a Stremio account, signed in with a link code just for the import -->
+    <string name="stremio_name" translatable="false">Stremio</string>
+    <string name="tracking_import_stremio_option">Stremio account</string>
+    <string name="tracking_stremio_link_instruction">Scan the code or open the link on your phone, sign in to Stremio and approve. Fetch reads your Stremio library once, then signs out.</string>
+    <string name="tracking_stremio_link_waiting">Waiting for you to approve on your phone…</string>
+    <string name="tracking_stremio_link_error_network">Couldn’t reach Stremio. Check your connection and try again.</string>
+    <string name="tracking_stremio_link_error_expired">The code wasn’t approved in time. Try again for a new one.</string>
+    <string name="cd_stremio_qr">Stremio sign-in QR code</string>
+    <string name="tracking_import_done_unreadable">Episode history for %1$d shows couldn’t be read: none of your addons had their episode list. Their last watched episode was still imported where Fetch could tell which it was.</string>
+    <string name="tracking_import_stremio_failed_subtitle">Fetch couldn’t read your Stremio library or write to %1$s. Try again.</string>
 </resources>

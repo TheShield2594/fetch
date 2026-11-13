@@ -32,6 +32,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import com.fetch.tv.R
 import com.fetch.tv.core.tracking.TrackingCapability
+import com.fetch.tv.core.tracking.StremioLinkState
+import com.fetch.tv.core.tracking.TrackingImportOrigin
 import com.fetch.tv.core.tracking.TrackingImportStatus
 import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.data.local.MoreLikeThisSourcePreference
@@ -58,6 +60,7 @@ fun TrackingSettingsContent(
     val mdbListLibraryLists by mdbListViewModel.libraryLists.collectAsStateWithLifecycle()
     val trackingState by trackingViewModel.uiState.collectAsStateWithLifecycle()
     val importStatus by trackingViewModel.importStatus.collectAsStateWithLifecycle()
+    val stremioLink by trackingViewModel.stremioLink.collectAsStateWithLifecycle()
     val ownTraktFocusRequester = remember { FocusRequester() }
     val traktFocusRequester = initialFocusRequester ?: ownTraktFocusRequester
     val simklFocusRequester = remember { FocusRequester() }
@@ -85,6 +88,7 @@ fun TrackingSettingsContent(
         showLibrarySourceDialog ||
         showWatchProgressDialog ||
         showImportDialog ||
+        stremioLink !is StremioLinkState.Idle ||
         importStatus is TrackingImportStatus.Done ||
         importStatus is TrackingImportStatus.Failed ||
         showDaysCapDialog ||
@@ -374,18 +378,39 @@ fun TrackingSettingsContent(
 
     if (showImportDialog) {
         val target = watchProgressSourceLabel(trackingState.watchProgressSource)
-        SettingsSingleChoiceDialog<WatchProgressSource?>(
+        SettingsSingleChoiceDialog<TrackingImportOrigin?>(
             title = stringResource(R.string.tracking_import_dialog_title, target),
             subtitle = stringResource(R.string.tracking_import_dialog_subtitle, target),
             options = trackingState.importSources.map { source ->
-                SettingsPickerOption(source, watchProgressSourceLabel(source))
-            },
+                SettingsPickerOption<TrackingImportOrigin?>(
+                    TrackingImportOrigin.Connected(source),
+                    watchProgressSourceLabel(source)
+                )
+            } + SettingsPickerOption<TrackingImportOrigin?>(
+                TrackingImportOrigin.Stremio,
+                stringResource(R.string.tracking_import_stremio_option)
+            ),
             selectedValue = null,
-            onOptionSelected = { source ->
-                if (source != null) trackingViewModel.importFrom(source)
+            onOptionSelected = { origin ->
+                when (origin) {
+                    is TrackingImportOrigin.Connected -> trackingViewModel.importFrom(origin.source)
+                    TrackingImportOrigin.Stremio -> trackingViewModel.startStremioImport()
+                    null -> Unit
+                }
                 showImportDialog = false
             },
             onDismiss = { showImportDialog = false }
+        )
+    }
+
+    if (stremioLink !is StremioLinkState.Idle) {
+        StremioLinkDialog(
+            state = stremioLink,
+            onRetry = trackingViewModel::startStremioImport,
+            onDismiss = {
+                restoreFocusTarget = TrackingFocusTarget.IMPORT
+                trackingViewModel.cancelStremioImport()
+            }
         )
     }
 
@@ -401,11 +426,17 @@ fun TrackingSettingsContent(
         is TrackingImportStatus.Failed -> TrackingImportResultDialog(
             title = stringResource(R.string.tracking_import_failed_title),
             lines = listOf(
-                stringResource(
-                    R.string.tracking_import_failed_subtitle,
-                    watchProgressSourceLabel(status.source),
-                    watchProgressSourceLabel(status.target)
-                )
+                when (val origin = status.source) {
+                    is TrackingImportOrigin.Connected -> stringResource(
+                        R.string.tracking_import_failed_subtitle,
+                        watchProgressSourceLabel(origin.source),
+                        watchProgressSourceLabel(status.target)
+                    )
+                    TrackingImportOrigin.Stremio -> stringResource(
+                        R.string.tracking_import_stremio_failed_subtitle,
+                        watchProgressSourceLabel(status.target)
+                    )
+                }
             ),
             onDismiss = {
                 restoreFocusTarget = TrackingFocusTarget.IMPORT
@@ -638,7 +669,8 @@ internal fun TrackingSettingsOverview(
                                 .focusRequester(watchProgressFocusRequester)
                                 .testTag(TrackingSettingsTestTags.WATCH_PROGRESS_SOURCE)
                         )
-                        if (trackingState.importSources.isNotEmpty()) {
+                        // Always offered: a Stremio account can be imported without connecting anything.
+                        run {
                             val importing = importStatus is TrackingImportStatus.Running
                             SettingsActionRow(
                                 title = stringResource(R.string.tracking_import_title),
@@ -835,6 +867,12 @@ private fun watchProgressSourceLabel(source: WatchProgressSource): String = when
 }
 
 @Composable
+private fun importOriginLabel(origin: TrackingImportOrigin): String = when (origin) {
+    is TrackingImportOrigin.Connected -> watchProgressSourceLabel(origin.source)
+    TrackingImportOrigin.Stremio -> stringResource(R.string.stremio_name)
+}
+
+@Composable
 private fun librarySourceLabel(mode: LibrarySourceMode): String = when (mode) {
     LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
     LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
@@ -924,7 +962,7 @@ private fun TrackingImportResultDialog(
 @Composable
 private fun trackingImportResultLines(status: TrackingImportStatus.Done): List<String> {
     val result = status.result
-    val sourceLabel = watchProgressSourceLabel(result.source)
+    val sourceLabel = importOriginLabel(result.source)
     val targetLabel = watchProgressSourceLabel(result.target)
     return buildList {
         add(stringResource(R.string.tracking_import_done_from, sourceLabel, targetLabel))
@@ -938,6 +976,7 @@ private fun trackingImportResultLines(status: TrackingImportStatus.Done): List<S
         } else {
             add(stringResource(R.string.tracking_import_done_progress, result.progressImported, result.progressSkipped))
         }
+        if (result.unreadable > 0) add(stringResource(R.string.tracking_import_done_unreadable, result.unreadable))
         if (result.failed > 0) add(stringResource(R.string.tracking_import_done_failed, targetLabel, result.failed))
     }
 }

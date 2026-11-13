@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Za uveljavitev sprememb jih potrdite na televizorju.</string>
     <string name="web_status_changes_applied">Spremembe uveljavljene</string>
     <string name="web_status_msg_addon_updated">Vaša konfiguracija dodatkov je bila posodobljena na televizorju.</string>
-    <string name="web_status_msg_repo_updated">Vaša konfiguracija repozitorijev je bila posodobljena na televizorju.</string>
     <string name="web_status_changes_rejected">Spremembe zavrnjene</string>
     <string name="web_status_msg_changes_rejected">Spremembe so bile na televizorju zavrnjene. Vaš seznam je bil povrnjen.</string>
     <string name="web_status_error">Nekaj je šlo narobe</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Čas je potekel</string>
     <string name="web_status_msg_timeout">Ni odziva s televizorja. Poskusite znova.</string>
     <string name="web_status_msg_connection_lost">Strežnik televizorja ni več dosegljiv. Spremembe so bile morda uveljavljene.</string>
-    <string name="web_manage_repos_title">Upravljanje repozitorijev</string>
-    <string name="web_manage_repos_subtitle">Upravljajte svoje repozitorije</string>
-    <string name="web_add_repo_url">Dodaj repozitorij prek URL-ja</string>
-    <string name="web_installed">Nameščeno</string>
-    <string name="web_no_repos">Ni nameščenih repozitorijev</string>
-    <string name="web_error_repo_exists">Ta repozitorij je že na seznamu</string>
     <string name="web_manage_collections_title">Upravljanje domačih map</string>
     <string name="web_manage_collections_subtitle">Ustvarite in upravljajte vrstice map na domačem zaslonu</string>
     <string name="web_status_msg_collections_updated">Vaše domače mape so bile posodobljene na televizorju.</string>

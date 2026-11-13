@@ -1,6 +1,7 @@
 package com.fetch.tv.data.local
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -223,6 +224,8 @@ class WatchProgressPreferences @Inject constructor(
         }.distinctUntilChanged().flowOn(Dispatchers.Default)
     }
 
+    /** [observeAllRawProgress] for the active profile. */
+    @VisibleForTesting
     val allRawProgress: Flow<List<WatchProgress>> = profileManager.activeProfileId.flatMapLatest { pid ->
         observeAllRawProgress(pid)
     }
@@ -518,19 +521,6 @@ class WatchProgressPreferences @Inject constructor(
         Log.d(TAG, "applyRemoteChanges: profile=$profileId before=$beforeCount after=$afterCount upserts=${upserts.size} deletes=${deletes.size} preservedLocal=$preservedLocalItems")
         return preservedLocalItems
     }
-
-    suspend fun replaceWithRemoteEntries(
-        remoteEntries: Map<String, WatchProgress>,
-        pendingUpsertKeys: Set<String> = emptySet(),
-        pendingDeleteKeys: Set<String> = emptySet(),
-        profileId: Int
-    ): Boolean = mergeRemoteEntries(
-        remoteEntries = remoteEntries,
-        pendingUpsertKeys = pendingUpsertKeys,
-        pendingDeleteKeys = pendingDeleteKeys,
-        profileId = profileId,
-        removeMissingRemoteEntries = true
-    )
 
     /**
      * Clear all watch progress

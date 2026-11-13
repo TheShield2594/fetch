@@ -8,7 +8,6 @@ import com.fetch.tv.data.remote.dto.trakt.TraktHistoryRemoveRequestDto
 import com.fetch.tv.data.remote.dto.trakt.TraktHistoryRemoveResponseDto
 import com.fetch.tv.data.remote.dto.trakt.TraktHistoryAddRequestDto
 import com.fetch.tv.data.remote.dto.trakt.TraktHistoryAddResponseDto
-import com.fetch.tv.data.remote.dto.trakt.TraktHistoryItemDto
 import com.fetch.tv.data.remote.dto.trakt.TraktCommentDto
 import com.fetch.tv.data.remote.dto.trakt.TraktCreateOrUpdateListRequestDto
 import com.fetch.tv.data.remote.dto.trakt.TraktListItemDto
@@ -147,13 +146,6 @@ interface TraktApi {
         @Header("Authorization") authorization: String,
         @Body body: TraktHistoryAddRequestDto
     ): Response<TraktHistoryAddResponseDto>
-
-    @GET("sync/history/{type}/{id}")
-    suspend fun getHistoryById(
-        @Header("Authorization") authorization: String,
-        @Path("type") type: String,
-        @Path("id") id: String
-    ): Response<List<TraktHistoryItemDto>>
 
     @GET("shows/{id}/progress/watched")
     suspend fun getShowProgressWatched(
@@ -345,14 +337,6 @@ interface TraktApi {
         @Path("list_id") listId: String,
         @Body body: TraktListItemsMutationRequestDto
     ): Response<TraktListItemsMutationResponseDto>
-
-    @GET("sync/watchlist/{type}")
-    suspend fun getWatchlist(
-        @Header("Authorization") authorization: String,
-        @Path("type") type: String,
-        @Query("page") page: Int = 1,
-        @Query("limit") limit: Int = 1000
-    ): Response<List<TraktListItemDto>>
 
     @GET("users/{id}/watchlist/{type}/{sort}")
     suspend fun getUserWatchlist(

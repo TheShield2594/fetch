@@ -29,7 +29,6 @@
 <string name="web_status_msg_waiting_tv">Conferma le modifiche sulla tua TV per applicarle.</string>
 <string name="web_status_changes_applied">Modifiche Applicate</string>
 <string name="web_status_msg_addon_updated">La configurazione degli addon è stata aggiornata sulla TV.</string>
-<string name="web_status_msg_repo_updated">La configurazione del repository è stata aggiornata sulla TV.</string>
 <string name="web_status_changes_rejected">Modifiche Rifiutate</string>
 <string name="web_status_msg_changes_rejected">Le modifiche sono state rifiutate sulla TV. L\'elenco è stato ripristinato.</string>
 <string name="web_status_error">Qualcosa è andato storto</string>
@@ -38,12 +37,6 @@
 <string name="web_status_timeout">Tempo Scaduto</string>
 <string name="web_status_msg_timeout">Nessuna risposta dalla TV. Riprova.</string>
 <string name="web_status_msg_connection_lost">Il server della TV non è più raggiungibile. Le modifiche potrebbero essere state applicate.</string>
-<string name="web_manage_repos_title">Gestisci Repository</string>
-<string name="web_manage_repos_subtitle">Gestisci i tuoi repository</string>
-<string name="web_add_repo_url">Aggiungi repository tramite URL</string>
-<string name="web_installed">Installato</string>
-<string name="web_no_repos">Nessun repository installato</string>
-<string name="web_error_repo_exists">Questo repository è già presente nell\'elenco</string>
 <string name="web_manage_collections_title">Gestisci Cartelle della Home</string>
 <string name="web_manage_collections_subtitle">Crea e gestisci le righe di cartelle della tua schermata Home</string>
 <string name="web_status_msg_collections_updated">Le tue cartelle della Home sono state aggiornate sulla TV.</string>

@@ -1,5 +1,6 @@
 package com.fetch.tv.core.server
 
+import androidx.annotation.VisibleForTesting
 import fi.iki.elonen.NanoHTTPD
 import java.net.InetAddress
 import java.security.SecureRandom
@@ -31,7 +32,8 @@ class PairingGuard(
     private var token: String? = newSecret()
     private val sessions = ConcurrentHashMap.newKeySet<String>()
 
-    /** Token to put in the QR code; null once a phone has paired. */
+    /** Token to put in the QR code; null once a phone has paired. Production reads it through [pairingUrl]. */
+    @get:VisibleForTesting
     val pairingToken: String? get() = token
 
     val pairedSessionCount: Int get() = sessions.size

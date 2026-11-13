@@ -26,7 +26,6 @@
     <string name="web_status_msg_waiting_tv">Molimo potvrdite promjene na vašem TV-u da biste ih primijenili.</string>
     <string name="web_status_changes_applied">Promjene Primijenjene</string>
     <string name="web_status_msg_addon_updated">Vaša konfiguracija addona je ažurirana na TV-u.</string>
-    <string name="web_status_msg_repo_updated">Konfiguracija vašeg repozitorija je ažurirana na TV-u.</string>
     <string name="web_status_changes_rejected">Promjene Odbijene</string>
     <string name="web_status_msg_changes_rejected">Promjene su odbijene na TV-u. Vaša lista je vraćena na prethodno stanje.</string>
     <string name="web_status_error">Nešto je pošlo po zlu</string>
@@ -35,12 +34,6 @@
     <string name="web_status_timeout">Isteklo Vrijeme</string>
     <string name="web_status_msg_timeout">Nema odgovora od TV-a. Molimo pokušajte ponovo.</string>
     <string name="web_status_msg_connection_lost">TV server više nije dostupan. Promjene su možda primijenjene.</string>
-    <string name="web_manage_repos_title">Upravljaj Repozitorijima</string>
-    <string name="web_manage_repos_subtitle">Upravljaj svojim repozitorijima</string>
-    <string name="web_add_repo_url">Dodaj repozitorij preko URL-a</string>
-    <string name="web_installed">Instalirano</string>
-    <string name="web_no_repos">Nema instaliranih repozitorija</string>
-    <string name="web_error_repo_exists">Ovaj repozitorij je već na listi</string>
     <string name="web_manage_collections_title">Upravljaj Folderima na Početnoj</string>
     <string name="web_manage_collections_subtitle">Kreiraj i upravljaj redovima foldera na svom početnom ekranu</string>
     <string name="web_status_msg_collections_updated">Vaši folderi na početnoj su ažurirani na TV-u.</string>

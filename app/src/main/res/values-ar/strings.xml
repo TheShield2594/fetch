@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">يرجى تأكيد التغييرات على التلفاز لتطبيقها.</string>
     <string name="web_status_changes_applied">تم تطبيق التغييرات</string>
     <string name="web_status_msg_addon_updated">تم تحديث إعدادات الإضافات على التلفاز.</string>
-    <string name="web_status_msg_repo_updated">تم تحديث إعدادات مستودعك على التلفاز.</string>
     <string name="web_status_changes_rejected">تم رفض التغييرات</string>
     <string name="web_status_msg_changes_rejected">تم رفض التغييرات على التلفاز. تمت استعادة قائمتك إلى ما كانت عليه.</string>
     <string name="web_status_error">حدث خطأ ما</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">انتهت المهلة</string>
     <string name="web_status_msg_timeout">لا توجد استجابة من التلفاز. يرجى إعادة المحاولة .</string>
     <string name="web_status_msg_connection_lost">لم يعد من الممكن الوصول إلى خادم التلفاز. ربما تم تطبيق التغييرات.</string>
-    <string name="web_manage_repos_title">إدارة المستودعات</string>
-    <string name="web_manage_repos_subtitle">إدارة مستودعاتك</string>
-    <string name="web_add_repo_url">إضافة مستودع عبر الرابط</string>
-    <string name="web_installed">مثبت</string>
-    <string name="web_no_repos">لا توجد مستودعات مثبتة</string>
-    <string name="web_error_repo_exists">هذا المستودع موجود مسبقًا في القائمة</string>
     <string name="web_manage_collections_title">إدارة مجلدات الرئيسية</string>
     <string name="web_manage_collections_subtitle">إنشاء وإدارة صفوف المجلدات على شاشتك الرئيسية</string>
     <string name="web_status_msg_collections_updated">تم تحديث مجلدات الرئيسية على التلفاز.</string>

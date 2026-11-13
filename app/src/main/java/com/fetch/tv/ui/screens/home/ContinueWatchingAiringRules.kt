@@ -37,23 +37,6 @@ fun fullyWatchedNextUpAction(nextUpHasAired: Boolean): FullyWatchedNextUpAction 
 }
 
 /**
- * Whether a fully-watched next-up item should be excluded from Continue Watching.
- * Always false after the air-day fix — kept as an explicit API so tests can
- * assert the regression never returns.
- */
-fun shouldDropFullyWatchedNextUpFromContinueWatching(nextUpHasAired: Boolean): Boolean {
-    // Intentionally ignore [nextUpHasAired]: both aired and unaired next-ups stay.
-    @Suppress("UNUSED_PARAMETER")
-    val unused = nextUpHasAired
-    return false
-}
-
-/**
- * Pre-fix behavior retained only for regression tests (must not be used in prod).
- */
-internal fun legacyShouldDropFullyWatchedNextUp(nextUpHasAired: Boolean): Boolean = nextUpHasAired
-
-/**
  * Inject an aired unwatched episode into the badge episode set so a later badge
  * pass does not re-apply the fully-watched checkmark from a stale aired list.
  */

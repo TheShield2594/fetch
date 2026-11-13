@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">Konfirmasi perubahan di TV Anda untuk menerapkannya.</string>
     <string name="web_status_changes_applied">Perubahan Diterapkan</string>
     <string name="web_status_msg_addon_updated">Konfigurasi addon Anda telah diperbarui di TV.</string>
-    <string name="web_status_msg_repo_updated">Konfigurasi repositori Anda telah diperbarui di TV.</string>
     <string name="web_status_changes_rejected">Perubahan Ditolak</string>
     <string name="web_status_msg_changes_rejected">Perubahan ditolak di TV. Daftar Anda telah dikembalikan.</string>
     <string name="web_status_error">Terjadi Kesalahan</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">Waktu Habis</string>
     <string name="web_status_msg_timeout">Tidak ada respons dari TV. Coba lagi.</string>
     <string name="web_status_msg_connection_lost">Server TV sudah tidak dapat dijangkau. Perubahan mungkin sudah diterapkan.</string>
-    <string name="web_manage_repos_title">Kelola Repositori</string>
-    <string name="web_manage_repos_subtitle">Kelola repositori Anda</string>
-    <string name="web_add_repo_url">Tambah repositori lewat URL</string>
-    <string name="web_installed">Terpasang</string>
-    <string name="web_no_repos">Tidak ada repositori terpasang</string>
-    <string name="web_error_repo_exists">Repositori ini sudah ada dalam daftar</string>
     <string name="web_manage_collections_title">Kelola Folder Beranda</string>
     <string name="web_manage_collections_subtitle">Buat dan kelola baris folder di layar Beranda Anda</string>
     <string name="web_status_msg_collections_updated">Folder Beranda Anda telah diperbarui di TV.</string>

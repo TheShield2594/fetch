@@ -192,9 +192,6 @@ class ParentalControls @Inject constructor(
     fun filtersContent(): Boolean =
         activeRestrictions.value.isRestricted || activeFilterTitleLists.value.hidden.isNotEmpty() || approvedTitlesOnly
 
-    fun restrictionsFor(profileId: Int): ProfileRestrictions =
-        allRestrictions.value[profileId] ?: ProfileRestrictions.None
-
     /**
      * The primary profile is the parent profile and can't be restricted. Callers ask for the
      * parent PIN first.

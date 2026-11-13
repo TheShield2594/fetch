@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -51,21 +50,6 @@ class AuthSessionNoticeDataStore @Inject constructor(
             preferences[traktExplicitLogoutKey] = true
             preferences[pendingTraktNoticeKey] = false
         }
-    }
-
-    suspend fun markUnexpectedTraktLogoutIfNeeded(): Boolean {
-        var marked = false
-        context.authSessionNoticeDataStore.edit { preferences ->
-            val hadAuth = preferences[hadTraktAuthKey] == true
-            val explicitLogout = preferences[traktExplicitLogoutKey] == true
-            if (hadAuth && !explicitLogout) {
-                preferences[pendingTraktNoticeKey] = true
-                marked = true
-            }
-            preferences[hadTraktAuthKey] = false
-            preferences[traktExplicitLogoutKey] = false
-        }
-        return marked
     }
 
     suspend fun markTraktReconnectRequired() {

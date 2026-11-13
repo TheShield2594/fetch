@@ -26,7 +26,6 @@
     <string name="web_status_msg_waiting_tv">Пожалуйста, подтвердите изменения на вашем ТВ, чтобы применить их.</string>
     <string name="web_status_changes_applied">Изменения применены</string>
     <string name="web_status_msg_addon_updated">Ваша конфигурация аддонов была обновлена на ТВ.</string>
-    <string name="web_status_msg_repo_updated">Ваша конфигурация репозиториев была обновлена на ТВ.</string>
     <string name="web_status_changes_rejected">Изменения отклонены</string>
     <string name="web_status_msg_changes_rejected">Изменения были отклонены на ТВ. Ваш список был возвращен в исходное состояние.</string>
     <string name="web_status_error">Что-то пошло не так</string>
@@ -35,12 +34,6 @@
     <string name="web_status_timeout">Время ожидания истекло</string>
     <string name="web_status_msg_timeout">Нет ответа от ТВ. Пожалуйста, попробуйте еще раз.</string>
     <string name="web_status_msg_connection_lost">Сервер ТВ больше не доступен. Изменения могли быть применены.</string>
-    <string name="web_manage_repos_title">Управление репозиториями</string>
-    <string name="web_manage_repos_subtitle">Управляйте вашими репозиториями</string>
-    <string name="web_add_repo_url">Добавить репозиторий по URL</string>
-    <string name="web_installed">Установлено</string>
-    <string name="web_no_repos">Нет установленных репозиториев</string>
-    <string name="web_error_repo_exists">Этот репозиторий уже есть в списке</string>
     <string name="web_manage_collections_title">Управление папками главной</string>
     <string name="web_manage_collections_subtitle">Создавайте ряды папок на главном экране и управляйте ими</string>
     <string name="web_status_msg_collections_updated">Ваши папки главной были обновлены на ТВ.</string>

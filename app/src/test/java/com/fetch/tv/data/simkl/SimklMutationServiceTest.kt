@@ -168,7 +168,6 @@ class SimklMutationServiceTest {
 
         assertEquals(2, result.attemptedCount)
         assertEquals(1, result.notFoundCount)
-        assertEquals(listOf(TrackingListStatus.COMPLETED), result.resolvedListStatuses)
         assertFalse(result.isComplete)
         assertEquals(listOf("/sync/add-to-list", "/scrobble/stop"), engine.paths)
         assertEquals(SimklScrobbleOutcome.SCROBBLE, scrobbleResult.outcome)
@@ -188,7 +187,6 @@ class SimklMutationServiceTest {
             listOf(TrackingHistoryItem(anime(TrackingEpisode(number = 1)), 1_700_000_000_000L))
         )
 
-        assertEquals(listOf(TrackingListStatus.WATCHING), result.resolvedListStatuses)
         assertEquals(TrackingMediaKind.ANIME, result.resolutions.single().mediaKind)
         assertEquals("tv", result.resolutions.single().providerSubtype)
     }

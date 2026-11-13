@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">A módosítások alkalmazásához hagyd jóvá őket a TV-n.</string>
     <string name="web_status_changes_applied">Változtatások alkalmazva</string>
     <string name="web_status_msg_addon_updated">A bővítmény beállításai frissültek a TV-n.</string>
-    <string name="web_status_msg_repo_updated">A tároló beállításai frissültek a TV-n.</string>
     <string name="web_status_changes_rejected">Változtatások elutasítva</string>
     <string name="web_status_msg_changes_rejected">A TV-n elutasították a módosításokat. A lista visszaállt.</string>
     <string name="web_status_error">Hiba történt</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Időtúllépés</string>
     <string name="web_status_msg_timeout">Nincs válasz a TV-től. Kérlek, próbáld újra.</string>
     <string name="web_status_msg_connection_lost">A TV szervere már nem érhető el. Lehet, hogy a módosítások már érvénybe léptek.</string>
-    <string name="web_manage_repos_title">Tárolók kezelése</string>
-    <string name="web_manage_repos_subtitle">Tárolóid kezelése</string>
-    <string name="web_add_repo_url">Tároló hozzáadása URL-ből</string>
-    <string name="web_installed">Telepítve</string>
-    <string name="web_no_repos">Nincsenek telepített tárolók</string>
-    <string name="web_error_repo_exists">Ez a tároló már szerepel a listában</string>
     <string name="web_manage_collections_title">Kezdőlapi mappák kezelése</string>
     <string name="web_manage_collections_subtitle">A kezdőlapod mappasorainak létrehozása és kezelése</string>
     <string name="web_status_msg_collections_updated">A kezdőlapi mappák frissültek a TV-n.</string>

@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">.אישור השינויים בטלוויזיה יחיל אותם</string>
     <string name="web_status_changes_applied">השינויים הוחלו</string>
     <string name="web_status_msg_addon_updated">.הגדרות התוסף עודכנו בטלוויזיה</string>
-    <string name="web_status_msg_repo_updated">.הגדרות המאגר עודכנו בטלוויזיה</string>
     <string name="web_status_changes_rejected">השינויים נדחו</string>
     <string name="web_status_msg_changes_rejected">.השינויים נדחו בטלוויזיה. הרשימה שלך שוחזרה למצב הקודם</string>
     <string name="web_status_error">משהו השתבש</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">תם הזמן</string>
     <string name="web_status_msg_timeout">.אין תגובה מהטלוויזיה. כדאי לנסות שוב</string>
     <string name="web_status_msg_connection_lost">אין אפשרות להתחבר לשרת הטלוויזיה. ייתכן שהשינויים בכל זאת הוחלו</string>
-    <string name="web_manage_repos_title">ניהול מאגרים</string>
-    <string name="web_manage_repos_subtitle">ניהול המאגרים שלך</string>
-    <string name="web_add_repo_url">URL הוספת מאגר לפי כתובת</string>
-    <string name="web_installed">מותקן</string>
-    <string name="web_no_repos">אין מאגרים מותקנים</string>
-    <string name="web_error_repo_exists">מאגר זה כבר ברשימה</string>
     <string name="web_manage_collections_title">ניהול תיקיות הבית</string>
     <string name="web_manage_collections_subtitle">יצירה וניהול של שורות התיקיות במסך הבית</string>
     <string name="web_status_msg_collections_updated">תיקיות הבית שלך עודכנו בטלוויזיה.</string>

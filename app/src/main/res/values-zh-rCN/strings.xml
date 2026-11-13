@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">请在电视上确认更改以应用。</string>
     <string name="web_status_changes_applied">更改已应用</string>
     <string name="web_status_msg_addon_updated">扩展配置已在电视上更新。</string>
-    <string name="web_status_msg_repo_updated">仓库配置已在电视上更新。</string>
     <string name="web_status_changes_rejected">更改已拒绝</string>
     <string name="web_status_msg_changes_rejected">电视已拒绝此更改。您的列表已还原。</string>
     <string name="web_status_error">出错了</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">已超时</string>
     <string name="web_status_msg_timeout">电视无响应。请重试。</string>
     <string name="web_status_msg_connection_lost">无法连接到电视服务器。更改可能已应用。</string>
-    <string name="web_manage_repos_title">管理仓库</string>
-    <string name="web_manage_repos_subtitle">管理您的仓库</string>
-    <string name="web_add_repo_url">通过网址添加仓库</string>
-    <string name="web_installed">已安装</string>
-    <string name="web_no_repos">未安装仓库</string>
-    <string name="web_error_repo_exists">此仓库已在列表中</string>
     <string name="web_manage_collections_title">管理首页文件夹</string>
     <string name="web_manage_collections_subtitle">创建并管理首页上的文件夹行</string>
     <string name="web_status_msg_collections_updated">您的首页文件夹已在电视上更新。</string>

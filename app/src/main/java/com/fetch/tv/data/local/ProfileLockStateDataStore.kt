@@ -49,8 +49,9 @@ data class PinAttemptState(
 /**
  * Profile lock state, kept on the device.
  *
- * - `pin_enabled_map` mirrors which profiles have a PIN on the sync server (only filled when
- *   sync is configured and signed in).
+ * - `pin_enabled_map` mirrors which profiles have a PIN on the sync server. It is only written
+ *   while sync is configured and signed in, and is kept after sign-out, so a PIN the server
+ *   reported stays enforced until the server says otherwise or the profile is removed.
  * - `pin_hash_map` holds the local salted PIN hash per profile; it works without any server.
  * - `pin_attempts_map` holds failed attempts and lockout per profile.
  */
@@ -138,13 +139,6 @@ class ProfileLockStateDataStore internal constructor(
             val current = decodeBooleans(prefs[pinEnabledMapKey]).toMutableMap()
             current.remove(profileId)
             prefs[pinEnabledMapKey] = encodeBooleans(current)
-        }
-    }
-
-    /** Clears the sync-server mirror only; local PINs survive sign-out. */
-    suspend fun clearRemoteStates() {
-        dataStore.edit { prefs ->
-            prefs.remove(pinEnabledMapKey)
         }
     }
 

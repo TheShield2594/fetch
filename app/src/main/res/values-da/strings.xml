@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Bekræft venligst ændringerne på dit TV for at anvende dem.</string>
     <string name="web_status_changes_applied">Ændringer anvendt</string>
     <string name="web_status_msg_addon_updated">Din addon-konfiguration er blevet opdateret på TV\'et.</string>
-    <string name="web_status_msg_repo_updated">Din repository-konfiguration er blevet opdateret på TV\'et.</string>
     <string name="web_status_changes_rejected">Ændringer afvist</string>
     <string name="web_status_msg_changes_rejected">Ændringerne blev afvist på TV\'et. Din liste er blevet gendannet.</string>
     <string name="web_status_error">Noget gik galt</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Timeout</string>
     <string name="web_status_msg_timeout">Intet svar fra TV\'et. Prøv venligst igen.</string>
     <string name="web_status_msg_connection_lost">TV-serveren er ikke længere tilgængelig. Ændringerne er muligvis blevet anvendt.</string>
-    <string name="web_manage_repos_title">Administrer repositories</string>
-    <string name="web_manage_repos_subtitle">Administrer dine repositories</string>
-    <string name="web_add_repo_url">Tilføj repository via URL</string>
-    <string name="web_installed">Installeret</string>
-    <string name="web_no_repos">Ingen repositories installeret</string>
-    <string name="web_error_repo_exists">Dette repository er allerede på listen</string>
     <string name="web_manage_collections_title">Administrer Hjem-mapper</string>
     <string name="web_manage_collections_subtitle">Opret og administrer mapperækkerne på din startskærm</string>
     <string name="web_status_msg_collections_updated">Dine Hjem-mapper er blevet opdateret på TV\'et.</string>

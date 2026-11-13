@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Confirmez les modifications sur votre TV pour les appliquer.</string>
     <string name="web_status_changes_applied">Modifications appliquées</string>
     <string name="web_status_msg_addon_updated">La configuration de vos addons a été mise à jour sur la TV.</string>
-    <string name="web_status_msg_repo_updated">La configuration de vos dépôts a été mise à jour sur la TV.</string>
     <string name="web_status_changes_rejected">Modifications refusées</string>
     <string name="web_status_msg_changes_rejected">Les modifications ont été refusées sur la TV. Votre liste a été rétablie.</string>
     <string name="web_status_error">Un problème est survenu</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Délai dépassé</string>
     <string name="web_status_msg_timeout">Aucune réponse de la TV. Veuillez réessayer.</string>
     <string name="web_status_msg_connection_lost">Le serveur de la TV n’est plus joignable. Les modifications ont peut-être été appliquées.</string>
-    <string name="web_manage_repos_title">Gérer les dépôts</string>
-    <string name="web_manage_repos_subtitle">Gérer vos dépôts</string>
-    <string name="web_add_repo_url">Ajouter un dépôt par URL</string>
-    <string name="web_installed">Installé</string>
-    <string name="web_no_repos">Aucun dépôt installé</string>
-    <string name="web_error_repo_exists">Ce dépôt figure déjà dans la liste</string>
     <string name="web_manage_collections_title">Gérer les dossiers de l’accueil</string>
     <string name="web_manage_collections_subtitle">Créer et gérer les rangées de dossiers de votre écran d’accueil</string>
     <string name="web_status_msg_collections_updated">Vos dossiers de l’accueil ont été mis à jour sur la TV.</string>

@@ -69,17 +69,6 @@ class StreamBadgeSettingsDataStore @Inject constructor(
             badgePlacement = prefs[streamBadgePlacementKey].toStreamBadgePlacement()
         )
 
-    suspend fun setStreamBadgeRules(rules: StreamBadgeRules) {
-        store(profileManager.currentProfileId()).edit {
-            val normalized = rules.normalized()
-            if (normalized.hasImport) {
-                it[streamBadgeRulesKey] = json.encodeToString(normalized)
-            } else {
-                it.remove(streamBadgeRulesKey)
-            }
-        }
-    }
-
     suspend fun setShowFileSizeBadges(enabled: Boolean) {
         store(profileManager.currentProfileId()).edit { it[showFileSizeBadgesKey] = enabled }
     }

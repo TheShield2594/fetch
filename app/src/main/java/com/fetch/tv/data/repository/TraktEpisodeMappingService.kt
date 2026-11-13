@@ -145,17 +145,6 @@ class TraktEpisodeMappingService @Inject constructor(
         return addonPerSeason == traktPerSeason
     }
 
-    internal suspend fun getCachedEpisodeMapping(
-        contentId: String?,
-        contentType: String?,
-        videoId: String?,
-        season: Int?,
-        episode: Int?
-    ): EpisodeMappingEntry? {
-        val key = cacheKey(contentId, contentType, videoId, season, episode) ?: return null
-        return cacheMutex.withLock { mappingCache[key] }
-    }
-
     internal suspend fun resolveEpisodeMapping(
         contentId: String?,
         contentType: String?,

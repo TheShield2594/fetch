@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Vui lòng xác nhận thay đổi này trên TV để áp dụng.</string>
     <string name="web_status_changes_applied">Đã áp dụng thay đổi</string>
     <string name="web_status_msg_addon_updated">Cấu hình tiện ích của bạn đã được cập nhật trên TV.</string>
-    <string name="web_status_msg_repo_updated">Cấu hình kho lưu trữ của bạn đã được cập nhật trên TV.</string>
     <string name="web_status_changes_rejected">Thay đổi bị từ chối</string>
     <string name="web_status_msg_changes_rejected">Các thay đổi đã bị từ chối trên TV. Danh sách của bạn đã được hoàn nguyên.</string>
     <string name="web_status_error">Đã xảy ra lỗi</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Đã hết thời gian chờ</string>
     <string name="web_status_msg_timeout">Không nhận được phản hồi từ TV. Vui lòng thử lại.</string>
     <string name="web_status_msg_connection_lost">Không thể kết nối đến máy chủ TV. Các thay đổi có thể đã được áp dụng.</string>
-    <string name="web_manage_repos_title">Quản lý kho lưu trữ</string>
-    <string name="web_manage_repos_subtitle">Quản lý các kho lưu trữ của bạn</string>
-    <string name="web_add_repo_url">Thêm kho lưu trữ từ URL</string>
-    <string name="web_installed">Đã cài đặt</string>
-    <string name="web_no_repos">Không có kho lưu trữ nào đã cài đặt</string>
-    <string name="web_error_repo_exists">Kho lưu trữ này đã có trong danh sách</string>
     <string name="web_manage_collections_title">Quản lý Thư mục Trang chủ</string>
     <string name="web_manage_collections_subtitle">Tạo và quản lý các hàng thư mục trên màn hình Trang chủ của bạn</string>
     <string name="web_status_msg_collections_updated">Thư mục Trang chủ của bạn đã được cập nhật trên TV.</string>

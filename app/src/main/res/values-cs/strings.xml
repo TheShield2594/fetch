@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">Pro potvrzení změn je prosím potvrďte na vaší TV.</string>
     <string name="web_status_changes_applied">Změny aplikovány</string>
     <string name="web_status_msg_addon_updated">Vaše konfigurace doplňků byla na TV aktualizována.</string>
-    <string name="web_status_msg_repo_updated">Vaše konfigurace repozitářů byla na TV aktualizována.</string>
     <string name="web_status_changes_rejected">Změny zamítnuty</string>
     <string name="web_status_msg_changes_rejected">Změny byly na TV odmítnuty. Váš seznam byl vrácen zpět.</string>
     <string name="web_status_error">Něco se pokazilo</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">Časový limit vypršel</string>
     <string name="web_status_msg_timeout">Žádná odpověď od TV. Zkuste to prosím znovu.</string>
     <string name="web_status_msg_connection_lost">TV server již není dostupný. Změny mohly být aplikovány.</string>
-    <string name="web_manage_repos_title">Spravovat repozitáře</string>
-    <string name="web_manage_repos_subtitle">Spravovat vaše repozitáře</string>
-    <string name="web_add_repo_url">Přidat repozitář pomocí URL</string>
-    <string name="web_installed">Nainstalováno</string>
-    <string name="web_no_repos">Žádné nainstalované repozitáře</string>
-    <string name="web_error_repo_exists">Tento repozitář již v seznamu je</string>
     <string name="web_manage_collections_title">Spravovat domovské složky</string>
     <string name="web_manage_collections_subtitle">Vytvářet a spravovat řádky složek na domovské obrazovce</string>
     <string name="web_status_msg_collections_updated">Vaše domovské složky byly na TV aktualizovány.</string>

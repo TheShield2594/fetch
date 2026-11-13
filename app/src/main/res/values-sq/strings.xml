@@ -28,7 +28,6 @@
     <string name="web_status_msg_waiting_tv">Ju lutemi konfirmoni ndryshimet në televizorin tuaj për t’i zbatuar ato.</string>
     <string name="web_status_changes_applied">Ndryshimet u zbatuan</string>
     <string name="web_status_msg_addon_updated">Konfigurimi i shtesave është përditësuar në televizor.</string>
-    <string name="web_status_msg_repo_updated">Konfigurimi i depove është përditësuar në televizor.</string>
     <string name="web_status_changes_rejected">Ndryshimet u refuzuan</string>
     <string name="web_status_msg_changes_rejected">Ndryshimet u refuzuan në televizor. Lista juaj është rikthyer.</string>
     <string name="web_status_error">Diçka shkoi keq</string>
@@ -37,12 +36,6 @@
     <string name="web_status_timeout">Koha e pritjes përfundoi</string>
     <string name="web_status_msg_timeout">Nuk pati përgjigje nga televizori. Ju lutemi provoni përsëri.</string>
     <string name="web_status_msg_connection_lost">Serveri i televizorit nuk është më i arritshëm. Ndryshimet mund të jenë zbatuar.</string>
-    <string name="web_manage_repos_title">Menaxho depot</string>
-    <string name="web_manage_repos_subtitle">Menaxho depot e tua</string>
-    <string name="web_add_repo_url">Shto depo përmes URL-së</string>
-    <string name="web_installed">Instaluar</string>
-    <string name="web_no_repos">Nuk ka depo të instaluara</string>
-    <string name="web_error_repo_exists">Kjo depo është tashmë në listë</string>
     <string name="web_manage_collections_title">Menaxho dosjet e Faqes kryesore</string>
     <string name="web_manage_collections_subtitle">Krijo dhe menaxho rreshtat e dosjeve në Faqen kryesore</string>
     <string name="web_status_msg_collections_updated">Dosjet tuaja të Faqes kryesore janë përditësuar në televizor.</string>

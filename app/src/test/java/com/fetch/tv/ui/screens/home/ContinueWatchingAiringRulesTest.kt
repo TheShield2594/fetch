@@ -30,7 +30,6 @@ class ContinueWatchingAiringRulesTest {
             FullyWatchedNextUpAction.KEEP_WITH_BADGE,
             fullyWatchedNextUpAction(nextUpHasAired = false),
         )
-        assertFalse(shouldDropFullyWatchedNextUpFromContinueWatching(nextUpHasAired = false))
     }
 
     @Test
@@ -40,20 +39,6 @@ class ContinueWatchingAiringRulesTest {
             FullyWatchedNextUpAction.KEEP_AND_CLEAR_BADGE,
             fullyWatchedNextUpAction(nextUpHasAired = true),
         )
-        assertFalse(
-            "aired next-up must NOT drop fully-watched airing series from CW",
-            shouldDropFullyWatchedNextUpFromContinueWatching(nextUpHasAired = true),
-        )
-    }
-
-    @Test
-    fun `legacy buggy rule would drop on air day — documents the regression`() {
-        // 71e4fb6 / a58809 interaction: hasAired → drop.
-        assertTrue(legacyShouldDropFullyWatchedNextUp(nextUpHasAired = true))
-        assertFalse(legacyShouldDropFullyWatchedNextUp(nextUpHasAired = false))
-        // Current rule must disagree with legacy on the air-day case.
-        assertTrue(legacyShouldDropFullyWatchedNextUp(true))
-        assertFalse(shouldDropFullyWatchedNextUpFromContinueWatching(true))
     }
 
     @Test
@@ -66,7 +51,6 @@ class ContinueWatchingAiringRulesTest {
         // E6 airs. Next-up resolves as aired.
         val action = fullyWatchedNextUpAction(nextUpHasAired = true)
         assertEquals(FullyWatchedNextUpAction.KEEP_AND_CLEAR_BADGE, action)
-        assertFalse(shouldDropFullyWatchedNextUpFromContinueWatching(true))
 
         // Badge cache absorbs E6 so publishBadgeUpdate does not re-checkmark.
         val airedAfter = mergeAiredNextEpisodeIntoBadgeCache(airedBeforeDrop, nextSeason = 1, nextEpisode = 6)!!

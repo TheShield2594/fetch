@@ -29,7 +29,6 @@
     <string name="web_status_msg_waiting_tv">請在電視上確認變更以套用。</string>
     <string name="web_status_changes_applied">變更已套用</string>
     <string name="web_status_msg_addon_updated">擴充套件配置已在電視上更新。</string>
-    <string name="web_status_msg_repo_updated">倉庫配置已在電視上更新。</string>
     <string name="web_status_changes_rejected">變更已拒絕</string>
     <string name="web_status_msg_changes_rejected">電視已拒絕此變更。您的清單已還原。</string>
     <string name="web_status_error">發生錯誤</string>
@@ -38,12 +37,6 @@
     <string name="web_status_timeout">已逾時</string>
     <string name="web_status_msg_timeout">電視無回應。請重試。</string>
     <string name="web_status_msg_connection_lost">無法連線到電視伺服器。變更可能已套用。</string>
-    <string name="web_manage_repos_title">管理倉庫</string>
-    <string name="web_manage_repos_subtitle">管理您的倉庫</string>
-    <string name="web_add_repo_url">透過網址新增倉庫</string>
-    <string name="web_installed">已安裝</string>
-    <string name="web_no_repos">未安裝倉庫</string>
-    <string name="web_error_repo_exists">此倉庫已在清單中</string>
     <string name="web_manage_collections_title">管理首頁資料夾</string>
     <string name="web_manage_collections_subtitle">建立並管理首頁上的資料夾列</string>
     <string name="web_status_msg_collections_updated">您的首頁資料夾已在電視上更新。</string>

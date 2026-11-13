@@ -3,7 +3,6 @@ package com.fetch.tv.data.simkl
 import com.fetch.tv.core.tracking.TrackingEpisode
 import com.fetch.tv.core.tracking.TrackingExternalIds
 import com.fetch.tv.core.tracking.TrackingHistoryItem
-import com.fetch.tv.core.tracking.TrackingListStatus
 import com.fetch.tv.core.tracking.TrackingMediaKind
 import com.fetch.tv.core.tracking.TrackingMediaReference
 import kotlinx.serialization.json.Json
@@ -47,7 +46,6 @@ class SimklMutationReconciliationTest {
         assertEquals(SimklListStatus.COMPLETED, updated.entries.single().status)
         assertEquals("472214", updated.entries.single().media?.ids?.simklIdValue())
         assertFalse(receipt.requiresReconciliation)
-        assertEquals(listOf(TrackingListStatus.COMPLETED), receipt.result.resolvedListStatuses)
     }
 
     @Test

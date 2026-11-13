@@ -680,17 +680,6 @@
 
     <issue
         id="MissingTranslation"
-        message="&quot;web_status_msg_repo_updated&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_status_msg_repo_updated&quot;>Your repository configuration has been updated on the TV.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="32"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
         message="&quot;web_status_changes_rejected&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
         errorLine1="    &lt;string name=&quot;web_status_changes_rejected&quot;>Changes Rejected&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -774,72 +763,6 @@
         <location
             file="src/main/res/values/strings.xml"
             line="40"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;web_manage_repos_title&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_manage_repos_title&quot;>Manage Repositories&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="41"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;web_manage_repos_subtitle&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_manage_repos_subtitle&quot;>Manage your repositories&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="42"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;web_add_repo_url&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_add_repo_url&quot;>Add repository by URL&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="43"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;web_installed&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_installed&quot;>Installed&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="44"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;web_no_repos&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_no_repos&quot;>No repositories installed&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="45"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="MissingTranslation"
-        message="&quot;web_error_repo_exists&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;web_error_repo_exists&quot;>This repository is already in the list&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="46"
             column="13"/>
     </issue>
 

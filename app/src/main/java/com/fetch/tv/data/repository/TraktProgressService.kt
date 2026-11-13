@@ -657,22 +657,6 @@ class TraktProgressService @Inject constructor(
             .distinctUntilChanged()
     }
 
-    fun observeEpisodeProgressLoaded(contentId: String): Flow<Boolean> {
-        val cacheKey = canonicalLookupKey(contentId)
-        return episodeProgressState
-            .map { state -> state[cacheKey]?.hasCompletedSnapshot == true }
-            .distinctUntilChanged()
-    }
-
-    suspend fun getEpisodeProgressSnapshot(
-        contentId: String
-    ): Map<Pair<Int, Int>, WatchProgress> {
-        return ensureEpisodeProgressSnapshot(
-            contentId = contentId,
-            forceRefresh = false
-        )
-    }
-
     fun observeMovieWatched(contentId: String, videoId: String? = null): Flow<Boolean> {
         val rawKey = contentId.trim()
         val canonicalKey = canonicalLookupKey(rawKey)

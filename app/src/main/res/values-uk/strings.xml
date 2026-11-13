@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">Будь ласка, підтвердіть зміни на вашому ТВ, щоб застосувати їх.</string>
     <string name="web_status_changes_applied">Зміни застосовано</string>
     <string name="web_status_msg_addon_updated">Вашу конфігурацію адонів оновлено на ТВ.</string>
-    <string name="web_status_msg_repo_updated">Вашу конфігурацію репозиторіїв оновлено на ТВ.</string>
     <string name="web_status_changes_rejected">Зміни відхилено</string>
     <string name="web_status_msg_changes_rejected">Зміни було відхилено на ТВ. Ваш список повернуто до початкового стану.</string>
     <string name="web_status_error">Щось пішло не так</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">Час очікування вичерпано</string>
     <string name="web_status_msg_timeout">Немає відповіді від ТВ. Будь ласка, спробуйте ще раз.</string>
     <string name="web_status_msg_connection_lost">Сервер ТВ більше недоступний. Зміни могли бути застосовані.</string>
-    <string name="web_manage_repos_title">Керування репозиторіями</string>
-    <string name="web_manage_repos_subtitle">Керуйте вашими репозиторіями</string>
-    <string name="web_add_repo_url">Додати репозиторій за URL</string>
-    <string name="web_installed">Встановлено</string>
-    <string name="web_no_repos">Немає встановлених репозиторіїв</string>
-    <string name="web_error_repo_exists">Цей репозиторій вже є у списку</string>
     <string name="web_manage_collections_title">Керування папками головної</string>
     <string name="web_manage_collections_subtitle">Створюйте ряди папок на головному екрані та керуйте ними</string>
     <string name="web_status_msg_collections_updated">Ваші папки головної оновлено на ТВ.</string>

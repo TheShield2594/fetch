@@ -74,10 +74,6 @@ class TraktScrobbleService @Inject constructor(
         sendScrobble(action = "stop", item = item, progressPercent = progressPercent)
     }
 
-    suspend fun scrobblePause(item: TraktScrobbleItem, progressPercent: Float) {
-        sendScrobble(action = "pause", item = item, progressPercent = progressPercent)
-    }
-
     private suspend fun sendScrobble(
         action: String,
         item: TraktScrobbleItem,
@@ -196,9 +192,9 @@ class TraktScrobbleService @Inject constructor(
         val isSameItem = last.itemKey == itemKey
         val isNearProgress = abs(last.progress - progress) <= progressWindow
 
-        // Never skip a stop/pause if the last successful action was start —
+        // Never skip a stop if the last successful action was start —
         // Trakt needs to know playback ended regardless of timing.
-        if ((action == "stop" || action == "pause") && last.action == "start" && isSameItem && isSameProfile) {
+        if (action == "stop" && last.action == "start" && isSameItem && isSameProfile) {
             return false
         }
 

@@ -188,16 +188,6 @@ data class TraktHistoryAddNotFoundDto(
 )
 
 @JsonClass(generateAdapter = true)
-data class TraktHistoryItemDto(
-    @Json(name = "id") val id: Long? = null,
-    @Json(name = "watched_at") val watchedAt: String? = null,
-    @Json(name = "action") val action: String? = null,
-    @Json(name = "movie") val movie: TraktMovieDto? = null,
-    @Json(name = "show") val show: TraktShowDto? = null,
-    @Json(name = "episode") val episode: TraktEpisodeDto? = null
-)
-
-@JsonClass(generateAdapter = true)
 data class TraktHiddenItemDto(
     @Json(name = "hidden_at") val hiddenAt: String? = null,
     @Json(name = "type") val type: String? = null,

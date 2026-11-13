@@ -30,7 +30,6 @@
     <string name="web_status_msg_waiting_tv">Potvrdi promjene na TV-u kako bi se primijenile.</string>
     <string name="web_status_changes_applied">Promjene primijenjene</string>
     <string name="web_status_msg_addon_updated">Konfiguracija dodataka ažurirana je na TV-u.</string>
-    <string name="web_status_msg_repo_updated">Konfiguracija repozitorija ažurirana je na TV-u.</string>
     <string name="web_status_changes_rejected">Promjene odbijene</string>
     <string name="web_status_msg_changes_rejected">Promjene su odbijene na TV-u. Popis je vraćen na prethodno stanje.</string>
     <string name="web_status_error">Nešto je pošlo po zlu</string>
@@ -39,12 +38,6 @@
     <string name="web_status_timeout">Isteklo vrijeme</string>
     <string name="web_status_msg_timeout">TV ne odgovara. Pokušaj ponovno.</string>
     <string name="web_status_msg_connection_lost">TV poslužitelj više nije dostupan. Promjene su možda primijenjene.</string>
-    <string name="web_manage_repos_title">Upravljanje repozitorijima</string>
-    <string name="web_manage_repos_subtitle">Upravljaj svojim repozitorijima</string>
-    <string name="web_add_repo_url">Dodaj repozitorij putem URL-a</string>
-    <string name="web_installed">Instalirano</string>
-    <string name="web_no_repos">Nema instaliranih repozitorija</string>
-    <string name="web_error_repo_exists">Ovaj repozitorij je već na popisu</string>
     <string name="web_manage_collections_title">Upravljanje mapama na početnoj</string>
     <string name="web_manage_collections_subtitle">Stvori i upravljaj redovima mapa na početnom zaslonu</string>
     <string name="web_status_msg_collections_updated">Tvoje mape na početnoj ažurirane su na TV-u.</string>

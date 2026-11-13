@@ -215,46 +215,6 @@ class WatchProgressPreferencesStorageTest {
     }
 
     @Test
-    fun `empty remote replacement clears non-pending local progress`() = runTest {
-        val harness = harness(legacyEntries())
-        harness.preferences.getAllRawEntries(profileId = 1)
-        harness.resetUpdateCounts()
-
-        harness.preferences.replaceWithRemoteEntries(emptyMap(), profileId = 1)
-
-        assertTrue(harness.preferences.getAllRawEntries(profileId = 1).isEmpty())
-    }
-
-    @Test
-    fun `pending progress upsert survives an empty snapshot`() = runTest {
-        val harness = harness(mapOf("item" to progress("item", 100L)))
-        harness.preferences.getAllRawEntries(profileId = 1)
-
-        val preserved = harness.preferences.replaceWithRemoteEntries(
-            remoteEntries = emptyMap(),
-            pendingUpsertKeys = setOf("item"),
-            profileId = 1
-        )
-
-        assertTrue(preserved)
-        assertEquals(setOf("item"), harness.preferences.getAllRawEntries(profileId = 1).keys)
-    }
-
-    @Test
-    fun `pending progress delete suppresses a snapshot upsert`() = runTest {
-        val harness = harness(emptyMap())
-        val remote = progress("item", 100L)
-
-        harness.preferences.replaceWithRemoteEntries(
-            remoteEntries = mapOf("item" to remote),
-            pendingDeleteKeys = setOf("item"),
-            profileId = 1
-        )
-
-        assertTrue(harness.preferences.getAllRawEntries(profileId = 1).isEmpty())
-    }
-
-    @Test
     fun `remote delta delete cannot remove a pending progress upsert`() = runTest {
         val local = progress("item", 100L)
         val harness = harness(mapOf("item" to local))

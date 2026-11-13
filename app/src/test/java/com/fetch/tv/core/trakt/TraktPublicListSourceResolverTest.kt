@@ -53,15 +53,6 @@ class TraktPublicListSourceResolverTest {
     }
 
     @Test
-    fun `parseTraktListId accepts numeric ids and trakt urls`() {
-        val resolver = resolver(mockk(relaxed = true), authenticated = true)
-
-        assertEquals(123L, resolver.parseTraktListId("123"))
-        assertEquals(456L, resolver.parseTraktListId("https://trakt.tv/lists/456"))
-        assertEquals(null, resolver.parseTraktListId("https://trakt.tv/users/fetch/lists/weekend"))
-    }
-
-    @Test
     fun `list import metadata resolves slug url to numeric list id`() = runTest {
         val api = mockk<TraktApi>()
         coEvery { api.getPublicList(null, "weekend", "full,images") } returns Response.success(

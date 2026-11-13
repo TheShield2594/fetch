@@ -120,10 +120,10 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Metadata nuk u gjetën</string>
     <string name="error_meta_no_supported_addon">Asnjë shtesë e instaluar nuk mbështet metadata për \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Asnjë shtesë e instaluar nuk mundi të japë metadata për id=%1$s (lloji=%2$s).</string>
-    <string name="error_meta_tried_none">Shtesat meta të provuara: %1$s. Asnjëra prej tyre nuk dha metadata për id=%2$s (lloji=%3$s).</string>
-    <string name="error_meta_tried_generic">Shtesat meta të provuara: %1$s. Metadata nuk mundën të ngarkoheshin për id=%2$s (lloji=%3$s).</string>
-    <string name="error_meta_tried_issues">Shtesat meta të provuara: %1$s. Metadata nuk mundën të ngarkoheshin për id=%2$s (lloji=%3$s). Probleme: %4$s.</string>
+    <string name="error_meta_no_addon_for_id">Asnjë shtesë e instaluar nuk mundi të japë metadata për këtë titull.</string>
+    <string name="error_meta_tried_none">Shtesat meta të provuara: %1$s. Asnjëra prej tyre nuk dha metadata.</string>
+    <string name="error_meta_tried_generic">Shtesat meta të provuara: %1$s. Metadata nuk mundën të ngarkoheshin.</string>
+    <string name="error_meta_tried_issues">Shtesat meta të provuara: %1$s. Metadata nuk mundën të ngarkoheshin. Probleme: %2$s.</string>
     <string name="error_stream_no_supported_addon">Asnjë shtesë e instaluar nuk mbështet transmetime për \"%1$s\".</string>
     <string name="error_stream_tried_none">Shtesat e transmetimit të provuara: %1$s. Asnjëra prej tyre nuk ktheu transmetime.</string>
     <string name="error_stream_tried_generic">Shtesat e transmetimit të provuara: %1$s. Transmetimet nuk mundën të ngarkoheshin.</string>

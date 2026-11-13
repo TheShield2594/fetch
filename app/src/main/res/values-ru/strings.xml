@@ -90,10 +90,10 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Метаданные не найдены</string>
     <string name="error_meta_no_supported_addon">Нет установленных аддонов, поддерживающих метаданные для \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Ни один установленный аддон не смог предоставить метаданные для id=%1$s (тип=%2$s).</string>
-    <string name="error_meta_tried_none">Проверены аддоны: %1$s. Ни один из них не предоставил метаданные для id=%2$s (тип=%3$s).</string>
-    <string name="error_meta_tried_generic">Проверены аддоны: %1$s. Не удалось загрузить метаданные для id=%2$s (тип=%3$s).</string>
-    <string name="error_meta_tried_issues">Проверены аддоны: %1$s. Не удалось загрузить метаданные для id=%2$s (тип=%3$s). Проблемы: %4$s.</string>
+    <string name="error_meta_no_addon_for_id">Ни один установленный аддон не смог предоставить метаданные для этого тайтла.</string>
+    <string name="error_meta_tried_none">Проверены аддоны: %1$s. Ни один из них не предоставил метаданные.</string>
+    <string name="error_meta_tried_generic">Проверены аддоны: %1$s. Не удалось загрузить метаданные.</string>
+    <string name="error_meta_tried_issues">Проверены аддоны: %1$s. Не удалось загрузить метаданные. Проблемы: %2$s.</string>
     <string name="error_stream_no_supported_addon">Ни один установленный аддон не поддерживает потоки для \"%1$s\".</string>
     <string name="error_stream_tried_none">Проверены аддоны потоков: %1$s. Ни один из них не вернул потоки.</string>
     <string name="error_stream_tried_generic">Проверены аддоны потоков: %1$s. Не удалось загрузить потоки.</string>

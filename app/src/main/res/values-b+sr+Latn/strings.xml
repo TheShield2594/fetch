@@ -123,10 +123,10 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Meta podaci nisu pronađeni</string>
     <string name="error_meta_no_supported_addon">Nijedan instalirani dodatak ne podržava metapodatke za \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Nijedan instalirani dodatak nije mogao da obezbedi metapodatke za id=%1$s (type=%2$s).</string>
-    <string name="error_meta_tried_none">Pokušani meta dodaci: %1$s. Nijedan od njih nije obezbedio metapodatke za id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_generic">Pokušani meta dodaci: %1$s. Metapodaci nisu mogli biti učitani za id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_issues">Pokušani meta dodaci: %1$s. Metapodaci nisu mogli biti učitani za id=%2$s (type=%3$s). Problemi: %4$s.</string>
+    <string name="error_meta_no_addon_for_id">Nijedan instalirani dodatak nije mogao da obezbedi metapodatke za ovaj naslov.</string>
+    <string name="error_meta_tried_none">Pokušani meta dodaci: %1$s. Nijedan od njih nije obezbedio metapodatke.</string>
+    <string name="error_meta_tried_generic">Pokušani meta dodaci: %1$s. Metapodaci nisu mogli biti učitani.</string>
+    <string name="error_meta_tried_issues">Pokušani meta dodaci: %1$s. Metapodaci nisu mogli biti učitani. Problemi: %2$s.</string>
     <string name="error_stream_no_supported_addon">Nijedan instalirani dodatak ne podržava strimove za \"%1$s\".</string>
     <string name="error_stream_tried_none">Pokušani dodaci za strim: %1$s. Nijedan od njih nije vratio strimove.</string>
     <string name="error_stream_tried_generic">Pokušani dodaci za strim: %1$s. Strimovi nisu mogli biti učitani.</string>

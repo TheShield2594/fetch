@@ -129,17 +129,17 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Meta not found</string>
     <string name="error_meta_no_supported_addon">No installed addon supports metadata for \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">No installed addon could provide metadata for id=%1$s (type=%2$s).</string>
-    <string name="error_meta_tried_none">Tried meta addons: %1$s. None of them provided metadata for id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_generic">Tried meta addons: %1$s. Metadata could not be loaded for id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_issues">Tried meta addons: %1$s. Metadata could not be loaded for id=%2$s (type=%3$s). Issues: %4$s.</string>
+    <string name="error_meta_no_addon_for_id">No installed addon could provide metadata for this title.</string>
+    <string name="error_meta_tried_none">Tried meta addons: %1$s. None of them provided metadata for this title.</string>
+    <string name="error_meta_tried_generic">Tried meta addons: %1$s. Metadata could not be loaded.</string>
+    <string name="error_meta_tried_issues">Tried meta addons: %1$s. Metadata could not be loaded. Issues: %2$s.</string>
     <string name="error_stream_no_supported_addon">No installed addon supports streams for \"%1$s\".</string>
     <string name="error_stream_no_sources">No sources found</string>
     <string name="error_stream_no_sources_episode">No sources for S%1$d E%2$d</string>
-    <!-- Secondary text under error_stream_no_sources. %2$s (id) and %3$s (type) are passed but not shown. -->
+    <!-- Secondary text under error_stream_no_sources. %1$s is the comma-separated list of addons asked. -->
     <string name="error_stream_tried_none">Checked %1$s. None of them had a stream for this title.</string>
     <string name="error_stream_tried_generic">Checked %1$s. Streams could not be loaded.</string>
-    <!-- %4$s is one "Addon: reason" line per failed addon. -->
+    <!-- %2$s is one "Addon: reason" line per failed addon. -->
     <string name="error_stream_tried_issues">Checked %1$s.\n%2$s</string>
 
     <string name="continue_watching">Continue Watching</string>

@@ -123,10 +123,10 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Metadata niet gevonden</string>
     <string name="error_meta_no_supported_addon">Geen enkele geïnstalleerde add-on ondersteunt metadata voor \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Geen enkele geïnstalleerde add-on kon metadata leveren voor id=%1$s (type=%2$s).</string>
-    <string name="error_meta_tried_none">Geprobeerde meta-add-ons: %1$s. Geen enkele leverde metadata voor id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_generic">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen voor id=%2$s (type=%3$s).</string>
-    <string name="error_meta_tried_issues">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen voor id=%2$s (type=%3$s). Problemen: %4$s.</string>
+    <string name="error_meta_no_addon_for_id">Geen enkele geïnstalleerde add-on kon metadata leveren voor deze titel.</string>
+    <string name="error_meta_tried_none">Geprobeerde meta-add-ons: %1$s. Geen enkele leverde metadata.</string>
+    <string name="error_meta_tried_generic">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen.</string>
+    <string name="error_meta_tried_issues">Geprobeerde meta-add-ons: %1$s. Metadata kon niet worden geladen. Problemen: %2$s.</string>
     <string name="error_stream_no_supported_addon">Geen enkele geïnstalleerde add-on ondersteunt streams voor \"%1$s\".</string>
     <string name="error_stream_tried_none">Geprobeerde stream-add-ons: %1$s. Geen enkele leverde streams.</string>
     <string name="error_stream_tried_generic">Geprobeerde stream-add-ons: %1$s. Streams konden niet worden geladen.</string>

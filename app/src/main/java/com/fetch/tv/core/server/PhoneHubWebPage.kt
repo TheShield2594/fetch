@@ -3,12 +3,13 @@ package com.fetch.tv.core.server
 import android.content.res.Resources
 import androidx.annotation.StringRes
 import com.fetch.tv.R
+import com.fetch.tv.core.server.PhoneWebEscaping.escapeHtml
+import com.fetch.tv.core.server.PhoneWebEscaping.jsString
 import com.fetch.tv.core.streams.ranking.AudioFormat
 import com.fetch.tv.core.streams.ranking.ReleaseSource
 import com.fetch.tv.core.streams.ranking.StreamLanguage
 import com.fetch.tv.core.streams.ranking.StreamResolution
 import com.fetch.tv.core.streams.ranking.VideoCodec
-import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * Pages for [PhoneHubServer]. Plain HTML and JS so they work in any phone browser. Every string
@@ -713,21 +714,5 @@ class PhoneHubWebPage(private val resources: Resources) {
         /** The link back to the landing page that [PhoneHubServer] adds to the section pages. */
         fun backLink(label: String): String =
             """<a href="/" style="display:block;padding:12px 16px;color:#9ab;font:15px system-ui,sans-serif;text-decoration:none">&larr; ${escapeHtml(label)}</a>"""
-
-        internal fun escapeHtml(value: String): String = buildString(value.length) {
-            value.forEach { c ->
-                when (c) {
-                    '&' -> append("&amp;")
-                    '<' -> append("&lt;")
-                    '>' -> append("&gt;")
-                    '"' -> append("&quot;")
-                    '\'' -> append("&#39;")
-                    else -> append(c)
-                }
-            }
-        }
-
-        /** A JSON string literal that is also safe inside a `<script>` element. */
-        internal fun jsString(value: String): String = JsonPrimitive(value).toString().replace("</", "<\\/")
     }
 }

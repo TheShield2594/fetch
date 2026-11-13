@@ -3,6 +3,8 @@ package com.fetch.tv.core.server
 import android.content.Context
 import android.content.res.Configuration
 import com.fetch.tv.R
+import com.fetch.tv.core.server.PhoneWebEscaping.escapeHtml
+import com.fetch.tv.core.server.PhoneWebEscaping.jsString
 import com.fetch.tv.core.streams.STREAM_BADGE_IMPORT_LIMIT
 import java.util.Locale
 
@@ -57,7 +59,7 @@ object StreamBadgeWebPage {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>${appName.html()} - ${title.html()}</title>
+<title>${escapeHtml(appName)} - ${escapeHtml(title)}</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; color: #fff; min-height: 100vh; line-height: 1.5; }
@@ -104,29 +106,29 @@ object StreamBadgeWebPage {
 <body>
 <div class="page">
   <div class="header">
-    <img src="/logo.png" alt="${appName.html()}" class="header-logo">
-    <p>${title.html()}</p>
+    <img src="/logo.png" alt="${escapeHtml(appName)}" class="header-logo">
+    <p>${escapeHtml(title)}</p>
   </div>
   <div class="intro">
-    <div class="intro-title">${urlsTitle.html()}</div>
-    <div class="intro-copy">${description.html()}</div>
+    <div class="intro-title">${escapeHtml(urlsTitle)}</div>
+    <div class="intro-copy">${escapeHtml(description)}</div>
   </div>
   <div class="field">
-    <label for="badgeSource">${urlLabel.html()}</label>
+    <label for="badgeSource">${escapeHtml(urlLabel)}</label>
     <textarea id="badgeSource" spellcheck="false"></textarea>
   </div>
   <div class="actions">
-    <button class="btn" id="importBadges" type="button">${importAction.html()}</button>
+    <button class="btn" id="importBadges" type="button">${escapeHtml(importAction)}</button>
   </div>
   <div class="option-card">
-    <div class="option-title">${badgePositionTitle.html()}</div>
-    <div class="option-copy">${badgePositionDescription.html()}</div>
-    <div class="segmented" role="group" aria-label="${badgePositionTitle.html()}">
-      <button class="segment" id="badgePlacementBottom" type="button">${badgePositionBottom.html()}</button>
-      <button class="segment" id="badgePlacementTop" type="button">${badgePositionTop.html()}</button>
+    <div class="option-title">${escapeHtml(badgePositionTitle)}</div>
+    <div class="option-copy">${escapeHtml(badgePositionDescription)}</div>
+    <div class="segmented" role="group" aria-label="${escapeHtml(badgePositionTitle)}">
+      <button class="segment" id="badgePlacementBottom" type="button">${escapeHtml(badgePositionBottom)}</button>
+      <button class="segment" id="badgePlacementTop" type="button">${escapeHtml(badgePositionTop)}</button>
     </div>
   </div>
-  <div class="summary" id="badgeSummary">${closeEmpty.html()}</div>
+  <div class="summary" id="badgeSummary">${escapeHtml(closeEmpty)}</div>
   <div class="list" id="badgeImports"></div>
   <div class="preview" id="badgePreview"></div>
   <div class="status" id="status"></div>
@@ -144,26 +146,26 @@ const badgePlacementButtons = {
 let streamBadgeRules = {imports:[]};
 let badgePlacement = 'BOTTOM';
 const labels = {
-  empty: '${closeEmpty.js()}',
-  active: '${active.js()}',
-  inactive: '${inactive.js()}',
-  select: '${select.js()}',
-  preview: '${preview.js()}',
-  delete: '${delete.js()}',
-  previewTitle: '${previewTitle.js()}',
-  previewEmpty: '${previewEmpty.js()}',
-  otherBadges: '${otherBadges.js()}',
-  importing: '${importing.js()}',
-  imported: '${imported.js()}',
-  importError: '${importError.js()}',
-  saved: '${saved.js()}',
-  deleted: '${deleted.js()}',
-  saveError: '${saveError.js()}',
-  loadError: '${loadError.js()}',
-  summary: '${summaryTemplate.js()}',
-  groupTitle: '${groupTitleTemplate.js()}',
-  statusSummary: '${statusSummaryTemplate.js()}',
-  previewCount: '${previewCountTemplate.js()}'
+  empty: ${jsString(closeEmpty)},
+  active: ${jsString(active)},
+  inactive: ${jsString(inactive)},
+  select: ${jsString(select)},
+  preview: ${jsString(preview)},
+  delete: ${jsString(delete)},
+  previewTitle: ${jsString(previewTitle)},
+  previewEmpty: ${jsString(previewEmpty)},
+  otherBadges: ${jsString(otherBadges)},
+  importing: ${jsString(importing)},
+  imported: ${jsString(imported)},
+  importError: ${jsString(importError)},
+  saved: ${jsString(saved)},
+  deleted: ${jsString(deleted)},
+  saveError: ${jsString(saveError)},
+  loadError: ${jsString(loadError)},
+  summary: ${jsString(summaryTemplate)},
+  groupTitle: ${jsString(groupTitleTemplate)},
+  statusSummary: ${jsString(statusSummaryTemplate)},
+  previewCount: ${jsString(previewCountTemplate)}
 };
 function fmt(template){
   const args=arguments;
@@ -323,16 +325,4 @@ load().catch(()=>{statusBox.textContent=labels.loadError;statusBox.className='st
 </html>
 """.trimIndent()
     }
-
-    private fun String.html(): String =
-        replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#39;")
-
-    private fun String.js(): String =
-        replace("\\", "\\\\")
-            .replace("'", "\\'")
-            .replace("\n", "\\n")
 }

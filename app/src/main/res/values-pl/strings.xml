@@ -1158,6 +1158,17 @@
     <string name="search_error_no_catalogs">Nie znaleziono katalogów z możliwością wyszukiwania w zainstalowanych dodatkach</string>
     <string name="search_no_catalogs_title">Żaden z Twoich dodatków nie obsługuje wyszukiwania</string>
     <string name="search_no_catalogs_subtitle">Zainstaluj dodatek z katalogiem wyszukiwania i spróbuj ponownie.</string>
+    <string name="search_filter_all">Wszystko</string>
+    <string name="search_filter_movies">Filmy</string>
+    <string name="search_filter_series">Seriale</string>
+    <string name="search_filter_in_library">W mojej bibliotece</string>
+    <string name="search_filters_label">Filtruj wyniki</string>
+    <string name="search_top_result">Najlepszy wynik</string>
+    <string name="search_top_result_sources">Z %1$s</string>
+    <string name="search_top_result_sources_more">Z %1$s i %2$d innych</string>
+    <string name="search_results_other">Inne</string>
+    <string name="search_no_results_filter_title">Nic nie pasuje do tego filtra</string>
+    <string name="search_no_results_filter_subtitle">Spróbuj innego filtra lub Wszystko.</string>
 
     <string name="stream_episode_label">S%1$d E%2$d</string>
 

@@ -1128,6 +1128,17 @@
     <string name="search_error_no_catalogs">У встановлених адонах немає каталогів для пошуку</string>
     <string name="search_no_catalogs_title">Жоден із ваших адонів не підтримує пошук</string>
     <string name="search_no_catalogs_subtitle">Установіть адон із каталогом пошуку, а потім спробуйте ще раз.</string>
+    <string name="search_filter_all">Усі</string>
+    <string name="search_filter_movies">Фільми</string>
+    <string name="search_filter_series">Серіали</string>
+    <string name="search_filter_in_library">У моїй бібліотеці</string>
+    <string name="search_filters_label">Фільтрувати результати</string>
+    <string name="search_top_result">Найкращий результат</string>
+    <string name="search_top_result_sources">З %1$s</string>
+    <string name="search_top_result_sources_more">З %1$s і ще %2$d</string>
+    <string name="search_results_other">Інше</string>
+    <string name="search_no_results_filter_title">Нічого не відповідає цьому фільтру</string>
+    <string name="search_no_results_filter_subtitle">Спробуйте інший фільтр або «Усі».</string>
 
     <string name="library_title">Бібліотека</string>
     <string name="library_filter_list">Список</string>

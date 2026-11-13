@@ -1292,6 +1292,17 @@
     <string name="search_error_no_catalogs">Geen doorzoekbare catalogi gevonden in de geïnstalleerde add-ons</string>
     <string name="search_no_catalogs_title">Geen van je add-ons kan zoeken</string>
     <string name="search_no_catalogs_subtitle">Installeer een add-on met een zoekcatalogus en probeer het opnieuw.</string>
+    <string name="search_filter_all">Alles</string>
+    <string name="search_filter_movies">Films</string>
+    <string name="search_filter_series">Series</string>
+    <string name="search_filter_in_library">In mijn bibliotheek</string>
+    <string name="search_filters_label">Resultaten filteren</string>
+    <string name="search_top_result">Beste resultaat</string>
+    <string name="search_top_result_sources">Van %1$s</string>
+    <string name="search_top_result_sources_more">Van %1$s en %2$d meer</string>
+    <string name="search_results_other">Overig</string>
+    <string name="search_no_results_filter_title">Niets komt overeen met dit filter</string>
+    <string name="search_no_results_filter_subtitle">Probeer een ander filter, of Alles.</string>
 
     <string name="library_title">Bibliotheek</string>
     <string name="library_filter_list">Lijst</string>

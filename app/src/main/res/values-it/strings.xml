@@ -1288,6 +1288,17 @@
 <string name="search_error_no_catalogs">Nessun catalogo ricercabile trovato negli addon installati</string>
 <string name="search_no_catalogs_title">Nessuno dei tuoi addon supporta la ricerca</string>
 <string name="search_no_catalogs_subtitle">Installa un addon con un catalogo di ricerca, poi riprova.</string>
+    <string name="search_filter_all">Tutti</string>
+    <string name="search_filter_movies">Film</string>
+    <string name="search_filter_series">Serie</string>
+    <string name="search_filter_in_library">Nella mia libreria</string>
+    <string name="search_filters_label">Filtra risultati</string>
+    <string name="search_top_result">Risultato principale</string>
+    <string name="search_top_result_sources">Da %1$s</string>
+    <string name="search_top_result_sources_more">Da %1$s e altri %2$d</string>
+    <string name="search_results_other">Altro</string>
+    <string name="search_no_results_filter_title">Nessun risultato con questo filtro</string>
+    <string name="search_no_results_filter_subtitle">Prova un altro filtro, o Tutti.</string>
 
 <string name="library_title">Libreria</string>
 <string name="library_filter_list">Lista</string>

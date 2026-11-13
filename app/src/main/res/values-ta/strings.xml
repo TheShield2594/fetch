@@ -1273,6 +1273,17 @@
     <string name="search_error_no_catalogs">நிறுவப்பட்ட ஆட்ஒன்களில் தேடக்கூடிய கேட்டலாக்குகள் எதுவும் இல்லை</string>
     <string name="search_no_catalogs_title">உங்கள் ஆடான்கள் எதுவும் தேட முடியாது</string>
     <string name="search_no_catalogs_subtitle">தேடல் கேட்டலாக் உள்ள ஒரு ஆடானை நிறுவி, மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="search_filter_all">அனைத்தும்</string>
+    <string name="search_filter_movies">திரைப்படங்கள்</string>
+    <string name="search_filter_series">தொடர்கள்</string>
+    <string name="search_filter_in_library">எனது நூலகத்தில்</string>
+    <string name="search_filters_label">முடிவுகளை வடிகட்டு</string>
+    <string name="search_top_result">சிறந்த முடிவு</string>
+    <string name="search_top_result_sources">%1$s இலிருந்து</string>
+    <string name="search_top_result_sources_more">%1$s மற்றும் மேலும் %2$d இலிருந்து</string>
+    <string name="search_results_other">மற்றவை</string>
+    <string name="search_no_results_filter_title">இந்த வடிகட்டிக்கு எதுவும் பொருந்தவில்லை</string>
+    <string name="search_no_results_filter_subtitle">வேறு வடிகட்டியை அல்லது அனைத்தும் என்பதை முயலவும்.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">கேட்டலாக் ஆட்ஒன்கள் எதுவும் நிறுவப்படவில்லை</string>

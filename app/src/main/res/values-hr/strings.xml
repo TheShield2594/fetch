@@ -1406,6 +1406,17 @@
     <string name="search_error_no_catalogs">U instaliranim dodacima nisu pronađeni katalozi koji se mogu pretraživati</string>
     <string name="search_no_catalogs_title">Nijedan tvoj dodatak ne podržava pretraživanje</string>
     <string name="search_no_catalogs_subtitle">Instaliraj dodatak s katalogom za pretraživanje, a zatim pokušaj ponovno.</string>
+    <string name="search_filter_all">Sve</string>
+    <string name="search_filter_movies">Filmovi</string>
+    <string name="search_filter_series">Serije</string>
+    <string name="search_filter_in_library">U mojoj biblioteci</string>
+    <string name="search_filters_label">Filtriraj rezultate</string>
+    <string name="search_top_result">Najbolji rezultat</string>
+    <string name="search_top_result_sources">Iz %1$s</string>
+    <string name="search_top_result_sources_more">Iz %1$s i još %2$d</string>
+    <string name="search_results_other">Ostalo</string>
+    <string name="search_no_results_filter_title">Ništa ne odgovara ovom filtru</string>
+    <string name="search_no_results_filter_subtitle">Pokušajte drugi filtar ili Sve.</string>
 
     <string name="library_title">Biblioteka</string>
     <string name="library_filter_list">Popis</string>

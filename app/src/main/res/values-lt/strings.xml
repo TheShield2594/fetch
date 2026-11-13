@@ -630,6 +630,17 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="search_voice_unavailable">Balsinė paieška šiame įrenginyje neprieinama.</string>
     <string name="search_no_catalogs_title">Nė vienas jūsų priedas negali ieškoti</string>
     <string name="search_no_catalogs_subtitle">Įdiekite priedą su paieškos katalogu ir bandykite dar kartą.</string>
+    <string name="search_filter_all">Visi</string>
+    <string name="search_filter_movies">Filmai</string>
+    <string name="search_filter_series">Serialai</string>
+    <string name="search_filter_in_library">Mano bibliotekoje</string>
+    <string name="search_filters_label">Filtruoti rezultatus</string>
+    <string name="search_top_result">Geriausias rezultatas</string>
+    <string name="search_top_result_sources">Iš %1$s</string>
+    <string name="search_top_result_sources_more">Iš %1$s ir dar %2$d</string>
+    <string name="search_results_other">Kiti</string>
+    <string name="search_no_results_filter_title">Šiam filtrui nieko neatitinka</string>
+    <string name="search_no_results_filter_subtitle">Išbandykite kitą filtrą arba Visi.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">Biblioteka</string>

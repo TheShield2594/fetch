@@ -1428,6 +1428,17 @@
     <string name="search_error_no_catalogs">Nincsenek kereshető katalógusok a telepített bővítményekben</string>
     <string name="search_no_catalogs_title">Egyik bővítményed sem tud keresni</string>
     <string name="search_no_catalogs_subtitle">Telepíts egy keresési katalógussal rendelkező bővítményt, majd próbáld újra.</string>
+    <string name="search_filter_all">Összes</string>
+    <string name="search_filter_movies">Filmek</string>
+    <string name="search_filter_series">Sorozatok</string>
+    <string name="search_filter_in_library">A könyvtáramban</string>
+    <string name="search_filters_label">Találatok szűrése</string>
+    <string name="search_top_result">Legjobb találat</string>
+    <string name="search_top_result_sources">Forrás: %1$s</string>
+    <string name="search_top_result_sources_more">Forrás: %1$s és még %2$d</string>
+    <string name="search_results_other">Egyéb</string>
+    <string name="search_no_results_filter_title">Semmi sem felel meg ennek a szűrőnek</string>
+    <string name="search_no_results_filter_subtitle">Próbálj másik szűrőt, vagy az Összes lehetőséget.</string>
 
     <string name="library_title">Könyvtár</string>
     <string name="library_filter_list">Lista</string>

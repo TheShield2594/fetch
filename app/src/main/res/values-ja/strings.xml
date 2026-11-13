@@ -1131,6 +1131,17 @@
     <string name="search_error_no_catalogs">インストール済みアドオンに検索可能なカタログがありません</string>
     <string name="search_no_catalogs_title">検索できるアドオンがありません</string>
     <string name="search_no_catalogs_subtitle">検索カタログのあるアドオンをインストールしてから、もう一度お試しください。</string>
+    <string name="search_filter_all">すべて</string>
+    <string name="search_filter_movies">映画</string>
+    <string name="search_filter_series">シリーズ</string>
+    <string name="search_filter_in_library">ライブラリ内</string>
+    <string name="search_filters_label">結果を絞り込む</string>
+    <string name="search_top_result">トップの結果</string>
+    <string name="search_top_result_sources">%1$s から</string>
+    <string name="search_top_result_sources_more">%1$s 他 %2$d 件から</string>
+    <string name="search_results_other">その他</string>
+    <string name="search_no_results_filter_title">このフィルターに一致する項目はありません</string>
+    <string name="search_no_results_filter_subtitle">別のフィルターか「すべて」をお試しください。</string>
 
     <string name="library_title">ライブラリ</string>
     <string name="library_filter_list">リスト</string>

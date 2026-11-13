@@ -1149,6 +1149,17 @@
     <string name="search_error_no_catalogs">لم يتم العثور على قوائم قابلة للبحث في الإضافات المثبتة</string>
     <string name="search_no_catalogs_title">لا توجد إضافة لديك تدعم البحث</string>
     <string name="search_no_catalogs_subtitle">ثبّت إضافة تحتوي على فهرس للبحث، ثم حاول مجدداً.</string>
+    <string name="search_filter_all">الكل</string>
+    <string name="search_filter_movies">أفلام</string>
+    <string name="search_filter_series">مسلسلات</string>
+    <string name="search_filter_in_library">في مكتبتي</string>
+    <string name="search_filters_label">تصفية النتائج</string>
+    <string name="search_top_result">أفضل نتيجة</string>
+    <string name="search_top_result_sources">من %1$s</string>
+    <string name="search_top_result_sources_more">من %1$s و%2$d غيرها</string>
+    <string name="search_results_other">أخرى</string>
+    <string name="search_no_results_filter_title">لا شيء يطابق هذا الفلتر</string>
+    <string name="search_no_results_filter_subtitle">جرّب فلترًا آخر، أو الكل.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">المكتبة</string>

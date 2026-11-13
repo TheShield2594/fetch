@@ -1850,6 +1850,17 @@
     <string name="search_error_no_catalogs">Kurulu eklentilerde aranabilir katalog bulunamadı</string>
     <string name="search_no_catalogs_title">Eklentilerinizin hiçbiri arama yapamıyor</string>
     <string name="search_no_catalogs_subtitle">Arama kataloğu olan bir eklenti yükleyin, ardından tekrar deneyin.</string>
+    <string name="search_filter_all">Tümü</string>
+    <string name="search_filter_movies">Filmler</string>
+    <string name="search_filter_series">Diziler</string>
+    <string name="search_filter_in_library">Kitaplığımda</string>
+    <string name="search_filters_label">Sonuçları filtrele</string>
+    <string name="search_top_result">En iyi sonuç</string>
+    <string name="search_top_result_sources">Kaynak: %1$s</string>
+    <string name="search_top_result_sources_more">Kaynak: %1$s ve %2$d diğer</string>
+    <string name="search_results_other">Diğer</string>
+    <string name="search_no_results_filter_title">Bu filtreyle eşleşen bir şey yok</string>
+    <string name="search_no_results_filter_subtitle">Başka bir filtre ya da Tümü\'nü deneyin.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Kurulu katalog eklentisi yok</string>

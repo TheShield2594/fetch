@@ -1136,6 +1136,17 @@
     <string name="search_error_no_catalogs">Не са намерени търсими каталози в инсталираните добавки</string>
     <string name="search_no_catalogs_title">Нито една от добавките ти не може да търси</string>
     <string name="search_no_catalogs_subtitle">Инсталирай добавка с каталог за търсене, след което опитай отново.</string>
+    <string name="search_filter_all">Всички</string>
+    <string name="search_filter_movies">Филми</string>
+    <string name="search_filter_series">Сериали</string>
+    <string name="search_filter_in_library">В моята библиотека</string>
+    <string name="search_filters_label">Филтриране на резултатите</string>
+    <string name="search_top_result">Най-добър резултат</string>
+    <string name="search_top_result_sources">От %1$s</string>
+    <string name="search_top_result_sources_more">От %1$s и още %2$d</string>
+    <string name="search_results_other">Други</string>
+    <string name="search_no_results_filter_title">Нищо не отговаря на този филтър</string>
+    <string name="search_no_results_filter_subtitle">Опитайте друг филтър или Всички.</string>
 
     <string name="library_title">Библиотека</string>
     <string name="library_filter_list">Списък</string>

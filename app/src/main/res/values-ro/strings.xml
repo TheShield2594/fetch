@@ -515,6 +515,17 @@
     <string name="search_recent_clear_confirm_subtitle">Toate căutările recente vor fi eliminate. Acțiunea nu poate fi anulată.</string>
     <string name="search_no_catalogs_title">Niciuna dintre extensiile tale nu poate căuta</string>
     <string name="search_no_catalogs_subtitle">Instalează o extensie cu un catalog de căutare, apoi încearcă din nou.</string>
+    <string name="search_filter_all">Toate</string>
+    <string name="search_filter_movies">Filme</string>
+    <string name="search_filter_series">Seriale</string>
+    <string name="search_filter_in_library">În biblioteca mea</string>
+    <string name="search_filters_label">Filtrează rezultatele</string>
+    <string name="search_top_result">Cel mai bun rezultat</string>
+    <string name="search_top_result_sources">De la %1$s</string>
+    <string name="search_top_result_sources_more">De la %1$s și încă %2$d</string>
+    <string name="search_results_other">Altele</string>
+    <string name="search_no_results_filter_title">Nimic nu corespunde acestui filtru</string>
+    <string name="search_no_results_filter_subtitle">Încearcă alt filtru sau Toate.</string>
 
     !-- LibraryScreen -->
     <string name="library_title">Bibliotecă</string>

@@ -632,6 +632,17 @@
     <string name="search_voice_unavailable">इस डिवाइस पर वॉइस सर्च उपलब्ध नहीं है।</string>
     <string name="search_no_catalogs_title">आपका कोई भी ऐडऑन खोज नहीं कर सकता</string>
     <string name="search_no_catalogs_subtitle">खोज कैटलॉग वाला कोई ऐडऑन इंस्टॉल करें, फिर दोबारा कोशिश करें।</string>
+    <string name="search_filter_all">सभी</string>
+    <string name="search_filter_movies">फ़िल्में</string>
+    <string name="search_filter_series">सीरीज़</string>
+    <string name="search_filter_in_library">मेरी लाइब्रेरी में</string>
+    <string name="search_filters_label">परिणाम फ़िल्टर करें</string>
+    <string name="search_top_result">शीर्ष परिणाम</string>
+    <string name="search_top_result_sources">%1$s से</string>
+    <string name="search_top_result_sources_more">%1$s और %2$d अन्य से</string>
+    <string name="search_results_other">अन्य</string>
+    <string name="search_no_results_filter_title">इस फ़िल्टर से कुछ भी मेल नहीं खाता</string>
+    <string name="search_no_results_filter_subtitle">कोई दूसरा फ़िल्टर या सभी आज़माएँ।</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">लाइब्रेरी</string>

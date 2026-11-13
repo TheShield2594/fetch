@@ -999,6 +999,17 @@
     <string name="search_error_no_catalogs">Nisu pronađeni pretraživi katalozi u instaliranim addonima</string>
     <string name="search_no_catalogs_title">Nijedan tvoj addon ne može pretraživati</string>
     <string name="search_no_catalogs_subtitle">Instaliraj addon sa katalogom za pretragu, pa pokušaj ponovo.</string>
+    <string name="search_filter_all">Sve</string>
+    <string name="search_filter_movies">Filmovi</string>
+    <string name="search_filter_series">Serije</string>
+    <string name="search_filter_in_library">U mojoj biblioteci</string>
+    <string name="search_filters_label">Filtriraj rezultate</string>
+    <string name="search_top_result">Najbolji rezultat</string>
+    <string name="search_top_result_sources">Iz %1$s</string>
+    <string name="search_top_result_sources_more">Iz %1$s i još %2$d</string>
+    <string name="search_results_other">Ostalo</string>
+    <string name="search_no_results_filter_title">Ništa ne odgovara ovom filteru</string>
+    <string name="search_no_results_filter_subtitle">Probajte drugi filter ili Sve.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Nema instaliranih katalog addona</string>

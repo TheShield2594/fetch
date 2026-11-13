@@ -1371,6 +1371,17 @@
     <string name="search_error_no_catalogs">No se encontraron catálogos con búsqueda en los complementos instalados</string>
     <string name="search_no_catalogs_title">Ninguno de tus complementos permite buscar</string>
     <string name="search_no_catalogs_subtitle">Instala un complemento con un catálogo de búsqueda e inténtalo de nuevo.</string>
+    <string name="search_filter_all">Todo</string>
+    <string name="search_filter_movies">Películas</string>
+    <string name="search_filter_series">Series</string>
+    <string name="search_filter_in_library">En mi biblioteca</string>
+    <string name="search_filters_label">Filtrar resultados</string>
+    <string name="search_top_result">Mejor resultado</string>
+    <string name="search_top_result_sources">De %1$s</string>
+    <string name="search_top_result_sources_more">De %1$s y %2$d más</string>
+    <string name="search_results_other">Otros</string>
+    <string name="search_no_results_filter_title">Nada coincide con este filtro</string>
+    <string name="search_no_results_filter_subtitle">Prueba otro filtro, o Todo.</string>
 
     <string name="library_title">Biblioteca</string>
     <string name="library_filter_list">Lista</string>

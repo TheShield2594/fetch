@@ -1,5 +1,6 @@
 package com.fetch.tv.core.image
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
 import android.util.Log
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
@@ -145,7 +146,7 @@ class StaleWhileRevalidateCacheStrategy(
                         }
                         StaleRevalidationResult.Unchanged -> {
                             if (response.code != 304 && response.code !in 200..299) {
-                                Log.w(TAG, "Revalidation ${response.code}: ${url.take(80)}")
+                                Log.w(TAG, "Revalidation ${response.code}: ${url.hostOnlyUrlForLog()}")
                             }
                         }
                     }
@@ -154,7 +155,7 @@ class StaleWhileRevalidateCacheStrategy(
                 }
             } catch (e: Exception) {
                 if (e !is kotlinx.coroutines.CancellationException) {
-                    Log.w(TAG, "Revalidation error: ${url.take(80)} - ${e.message}")
+                    Log.w(TAG, "Revalidation error: ${url.hostOnlyUrlForLog()} - ${e.message}")
                 }
             } finally {
                 revalidatingUrls.remove(url)

@@ -27,6 +27,28 @@ fun String?.urlForLog(): String {
     return if (cut < 0) value else "${value.substring(0, cut)}?…"
 }
 
+/**
+ * Reduces a URL that may carry a credential anywhere (addon, stream, subtitle and poster URLs often
+ * embed a debrid or provider API key in the path or the query) to its scheme and host plus a
+ * [rawForLog] fingerprint of the whole URL, e.g. `https://addon.example/…[len=87#1a2b3c4d]`. The
+ * fingerprint still lets the same URL be matched across log lines.
+ */
+fun String?.hostOnlyUrlForLog(): String {
+    val value = this ?: return "(null)"
+    if (value.isEmpty()) return "(empty)"
+    val schemeEnd = value.indexOf("://")
+    val origin = if (schemeEnd > 0) {
+        val authorityStart = schemeEnd + 3
+        val authorityEnd = value.indexOfAny(charArrayOf('/', '?', '#'), authorityStart).let { if (it < 0) value.length else it }
+        // Drop any user-info (user:password@) from the authority.
+        val host = value.substring(authorityStart, authorityEnd).substringAfterLast('@')
+        "${value.substring(0, schemeEnd)}://$host"
+    } else {
+        "(no host)"
+    }
+    return "$origin/…[${value.rawForLog()}]"
+}
+
 fun String?.bodySnippetForLog(maxLength: Int = Int.MAX_VALUE): String {
     val value = this ?: return "(null)"
     if (value.isBlank()) return value

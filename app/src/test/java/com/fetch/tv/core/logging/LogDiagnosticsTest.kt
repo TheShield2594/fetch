@@ -44,4 +44,22 @@ class LogDiagnosticsTest {
         assertEquals("https://fetch.example/rest/v1/rpc", "https://fetch.example/rest/v1/rpc".urlForLog())
         assertEquals("(null)", (null as String?).urlForLog())
     }
+
+    @Test
+    fun `hostOnlyUrlForLog keeps only scheme and host`() {
+        val url = "https://torrentio.example/realdebrid=SECRETKEY/manifest.json?token=abc"
+        val logged = url.hostOnlyUrlForLog()
+        assertTrue(logged, logged.startsWith("https://torrentio.example/…[len="))
+        assertFalse(logged.contains("SECRETKEY"))
+        assertFalse(logged.contains("abc"))
+        assertEquals(logged, url.hostOnlyUrlForLog())
+
+        val withUserInfo = "http://user:pass@192.168.1.2:7000/addon".hostOnlyUrlForLog()
+        assertTrue(withUserInfo, withUserInfo.startsWith("http://192.168.1.2:7000/…"))
+        assertFalse(withUserInfo.contains("pass"))
+
+        assertTrue("SECRET/path".hostOnlyUrlForLog().startsWith("(no host)/…"))
+        assertEquals("(null)", (null as String?).hostOnlyUrlForLog())
+        assertEquals("(empty)", "".hostOnlyUrlForLog())
+    }
 }

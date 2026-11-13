@@ -2,6 +2,7 @@
 
 package com.fetch.tv.core.player
 
+import com.fetch.tv.core.logging.hostOnlyUrlForLog
 import android.app.Activity
 import android.content.Context
 import android.media.MediaExtractor
@@ -1330,7 +1331,7 @@ object FrameRateUtils {
             }
         } catch (e: Exception) {
             call.cancel()
-            Log.w(TAG, "fetchHttpRangeToFile failed for url=$url range=$rangeHeader: ${e.message}")
+            Log.w(TAG, "fetchHttpRangeToFile failed for url=${url.hostOnlyUrlForLog()} range=$rangeHeader: ${e.message}")
             HttpRangeFetchResult(success = false)
         }
     }

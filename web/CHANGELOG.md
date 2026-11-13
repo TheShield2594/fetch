@@ -21,6 +21,14 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 - **A display rank, and the Fetch typeface in every theme.** A new display tier (44–64px, fluid, extra-bold and tight) is used for one element per page: the Discover feature, the Shelf's lead card and a title's own header, which had shared 34px with "Settings". Schibsted Grotesk, the TV app's face, is now the interface face in all five themes rather than Fetch and Light only, so changing colours no longer changes the typeface. Section kickers and eyebrows are sentence case instead of uppercase, landscape card titles take two lines before an ellipsis, and stat figures are larger with lining tabular numerals ([#534](https://github.com/TheShield2594/fetch/issues/534)).
 
+- **A smaller cold start.** The first visit no longer downloads profile-editing code: a shared constant had pulled the profile sheet into the entry. Icons used across pages share one chunk, so `index.html` preloads four files instead of thirty-odd, and CI fails the build if the entry or the cold start grows past a budget ([#531](https://github.com/TheShield2594/fetch/issues/531)).
+
+### Security
+
+- **Parental limits can't be undone by a request racing a grown-up.** `PATCH /profiles/:id` and a TV's profile push now write parental fields only if the limits are still the ones they were checked against, as the import already did. On a persistent conflict the PATCH answers `409 parental_limits_changed` and the TV push skips the parental fields but still syncs the name and picture ([#553](https://github.com/TheShield2594/fetch/issues/553)).
+
+- **The API sends a Content-Security-Policy, and the security docs match the code.** API responses carry `default-src 'none'; frame-ancestors 'none'`. The README no longer claims `API_TOKEN` never reaches a browser (the first-run wizard sends it), and `SECURITY.md` says what travels in cleartext when the site is served over plain HTTP ([#549](https://github.com/TheShield2594/fetch/issues/549)).
+
 ## [0.5.0] - 2026-11-12
 
 **Action needed for one setup:** the website's sign-in is now a cookie, so a page that calls its API on a different site (for example the page at a LAN address with `VITE_API_BASE` on a public domain) no longer stays signed in. Serve both from one host or use the same-origin proxy described in the README. PIN profiles enter their PIN once after updating. A migration adds the kids-rules fields; `migrate` applies it as usual.

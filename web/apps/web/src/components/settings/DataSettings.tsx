@@ -6,6 +6,7 @@ import { Loader2, Check, AlertCircle, Download, Eraser, Upload } from "lucide-re
 import { SelectField } from "../SelectField";
 import { ConfirmReview } from "../ConfirmReview";
 import { downloadProfileExport } from "../../utils/exportDownload";
+import { StremioImportSection } from "./StremioImportSection";
 
 /** The version of the Fetch export this site writes and the server reads back. */
 const EXPORT_VERSION = 1;
@@ -476,6 +477,10 @@ export function DataSettings() {
         {previewPanel("external")}
         {externalResult && <p className="flex items-center gap-2 text-sm text-success"><Check size={16} /> {externalResult}</p>}
         {externalError && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><AlertCircle size={16} /> {externalError}</p>}
+      </div>
+
+      <div className="pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+        <StremioImportSection profileName={profileName} />
       </div>
 
       {/* Short of deleting the profile, the only way to start a profile's

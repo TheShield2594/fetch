@@ -431,6 +431,7 @@ internal fun fetchWebsiteWatchBody(item: TrackingHistoryItem): JsonObject? {
         }
         putFetchWebsiteTitle(item.media.title, item.media.posterUrl)
         item.watchedAtEpochMs?.let { put("watchedAt", Instant.ofEpochMilli(it).toString()) }
+        if (item.dateUnknown) put("dateUnknown", true)
     }
 }
 

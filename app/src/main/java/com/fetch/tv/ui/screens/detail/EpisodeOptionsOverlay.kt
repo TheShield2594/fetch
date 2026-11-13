@@ -102,6 +102,8 @@ internal fun EpisodeOptionsOverlay(
     onPlayManually: () -> Unit = {},
     showPlayManually: Boolean = false,
     onToggleWatched: () -> Unit,
+    /** "Mark as watched on…", beside plain "Mark as watched" while the episode is unwatched. */
+    onMarkWatchedOn: () -> Unit = {},
     onMarkSeasonWatched: () -> Unit = {},
     onMarkSeasonUnwatched: () -> Unit = {},
     onMarkPreviousEpisodesWatched: () -> Unit = {},
@@ -121,6 +123,9 @@ internal fun EpisodeOptionsOverlay(
     val primaryFocusRequester = remember { FocusRequester() }
     val detailsFocusRequester = remember { FocusRequester() }
     val detailsScrollState = rememberScrollState()
+    // Up to eight actions with "Mark as watched on…"; on a short screen the last ones scroll
+    // into view as focus reaches them rather than sitting below the edge.
+    val actionsScrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val strEpisode = stringResource(R.string.episodes_episode)
     // With the spoiler option on, an unwatched episode's title and overview stay hidden here too.
@@ -217,6 +222,15 @@ internal fun EpisodeOptionsOverlay(
                     onClick = onToggleWatched
                 )
             )
+            if (!isWatched) {
+                add(
+                    EpisodeOverlayAction(
+                        label = stringResource(R.string.episodes_mark_watched_on),
+                        enabled = !isPending,
+                        onClick = onMarkWatchedOn
+                    )
+                )
+            }
             add(
                 EpisodeOverlayAction(
                     label = if (isSeasonFullyWatched) {
@@ -496,6 +510,7 @@ internal fun EpisodeOptionsOverlay(
                 Column(
                     modifier = Modifier
                         .width(actionsWidth)
+                        .verticalScroll(actionsScrollState)
                         .onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown || onNavigateEpisode == null) {
                                 return@onPreviewKeyEvent false

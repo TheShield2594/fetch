@@ -119,6 +119,17 @@ class SimklClientTest {
     }
 
     @Test
+    fun `history at a given time names it`() = runBlocking {
+        val at = java.time.Instant.parse("2019-03-01T12:00:00Z").toEpochMilli()
+        val fake = FakeHttp.always(201)
+        client(fake).addToHistory(testTokens, TrackedItem("tt2", "series", 3, 4, title = "Show"), watchedAtMs = at)
+        assertEquals(
+            json("""{"shows":[{"title":"Show","ids":{"imdb":"tt2"},"seasons":[{"number":3,"episodes":[{"number":4,"watched_at":"2019-03-01T12:00:00Z"}]}]}]}"""),
+            json(fake.sent.single().body)
+        )
+    }
+
+    @Test
     fun `watchlist toggles use add-to-list and history remove`() = runBlocking {
         val fake = FakeHttp.always(201)
         client(fake).setWatchlisted(testTokens, TrackedItem("tt1", "movie", title = "A"), on = true)

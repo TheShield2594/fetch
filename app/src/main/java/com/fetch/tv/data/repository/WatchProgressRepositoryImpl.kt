@@ -819,6 +819,15 @@ class WatchProgressRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markAsCompletedBatch(progressList: List<WatchProgress>) {
+        val now = System.currentTimeMillis()
+        markAsCompletedAt(progressList, watchedAt = { now })
+    }
+
+    override suspend fun markAsCompletedAt(
+        progressList: List<WatchProgress>,
+        watchedAt: (WatchProgress) -> Long,
+        dateUnknown: Boolean
+    ) {
         if (progressList.isEmpty()) return
         val profileId = profileManager.activeProfileId.value
         val firstProgress = progressList.first()
@@ -826,7 +835,6 @@ class WatchProgressRepositoryImpl @Inject constructor(
             firstProgress.contentType.equals("tv", ignoreCase = true)) {
             traktSettingsDataStore.removeDismissedNextUpKeysForContent(firstProgress.contentId, profileId)
         }
-        val now = System.currentTimeMillis()
         val rawEntries = watchProgressPreferences.getAllRawEntries(profileId)
 
         val completedList = progressList.map { progress ->
@@ -837,7 +845,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
                 position = duration,
                 duration = duration,
                 progressPercent = 100f,
-                lastWatched = now
+                lastWatched = watchedAt(progress)
             )
         }
 
@@ -850,9 +858,9 @@ class WatchProgressRepositoryImpl @Inject constructor(
             }
         }
         watchProgressPreferences.saveProgressBatch(completedList, profileId = profileId)
-        val watchedItems = completedList.map { progress -> progress.toWatchedItem(watchedAt = now) }
+        val watchedItems = completedList.map { progress -> progress.toWatchedItem(watchedAt = progress.lastWatched) }
         watchedItemsPreferences.markAsWatchedBatch(watchedItems, profileId = profileId)
-        broadcastHistoryAdd(profileId, completedList.map { it.toTrackingHistoryItem(now) })
+        broadcastHistoryAdd(profileId, completedList.map { it.toTrackingHistoryItem(it.lastWatched, dateUnknown) })
         syncServerWatched(completedList.map { it.toServerWatchMark() }, played = true, profileId = profileId)
     }
 
@@ -887,7 +895,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
             watchedAt = watchedAt
         )
 
-    private fun WatchProgress.toTrackingHistoryItem(watchedAt: Long): TrackingHistoryItem =
+    private fun WatchProgress.toTrackingHistoryItem(watchedAt: Long, dateUnknown: Boolean = false): TrackingHistoryItem =
         TrackingHistoryItem(
             media = buildTrackingMediaReference(
                 contentType = contentType,
@@ -898,7 +906,8 @@ class WatchProgressRepositoryImpl @Inject constructor(
                 episodeNumber = episode,
                 episodeTitle = episodeTitle
             ),
-            watchedAtEpochMs = watchedAt
+            watchedAtEpochMs = watchedAt,
+            dateUnknown = dateUnknown
         )
 
     private suspend fun broadcastHistoryAdd(

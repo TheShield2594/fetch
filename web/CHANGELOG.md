@@ -11,6 +11,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-13
+
 ### Added
 
 - **Choose when you watched something.** Logging a watch, ticking an episode, marking a season watched and the Shelf and Discover "Mark watched" buttons now ask when: Now watching (checks in), Just now, Release date (a season can use each episode's air date), Other date with a time, or Unknown date. Ticking an episode used to log it as watched right now, which put anything seen in the past under today.
@@ -596,7 +598,8 @@ name.
 - The addon's mutation-token check no longer assumes the incoming token is a string — a repeated query param (`?token=a&token=b`) would have thrown instead of being rejected cleanly.
 - `dockerpublish.yml` reads the git ref type/name from the runner's `GITHUB_REF_TYPE`/`GITHUB_REF_NAME` environment variables instead of interpolating `github.ref_type`/`github.ref_name` into a shell script.
 
-[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.5.0...HEAD
+[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.6.0...HEAD
+[0.6.0]: https://github.com/TheShield2594/fetch/compare/web-v0.5.0...web-v0.6.0
 [0.5.0]: https://github.com/TheShield2594/fetch/compare/web-v0.4.0...web-v0.5.0
 [0.4.0]: https://github.com/TheShield2594/fetch/compare/web-v0.3.0...web-v0.4.0
 [0.3.0]: https://github.com/TheShield2594/fetch/compare/web-v0.2.0...web-v0.3.0

@@ -131,16 +131,29 @@ class TraktClient(
         return RemoteWatched(movies, episodes)
     }
 
-    /** Marks a movie or one episode watched now (POST sync/history). A series without an episode is ignored. */
-    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = false)
+    /**
+     * Marks a movie or one episode watched (POST sync/history), at [watchedAtMs] or, without it,
+     * now. A series without an episode is ignored.
+     */
+    suspend fun addToHistory(tokens: TrackingTokens, item: TrackedItem, watchedAtMs: Long? = null) =
+        changeHistory(tokens, item, remove = false, watchedAtMs = watchedAtMs)
 
     /** Takes a movie or one episode out of the watched history (POST sync/history/remove). */
     suspend fun removeFromHistory(tokens: TrackingTokens, item: TrackedItem) = changeHistory(tokens, item, remove = true)
 
-    private suspend fun changeHistory(tokens: TrackingTokens, item: TrackedItem, remove: Boolean) {
+    private suspend fun changeHistory(tokens: TrackingTokens, item: TrackedItem, remove: Boolean, watchedAtMs: Long? = null) {
+        // The service's own default is now; only an add at another time names one.
+        val watchedAt = watchedAtMs?.takeIf { !remove }?.let { java.time.Instant.ofEpochMilli(it).toString() }
         val imdb = item.imdbId.imdbOrNull() ?: return
         val body = when {
-            item.isMovie -> buildJsonObject { putJsonArray("movies") { add(idsObject(imdb)) } }
+            item.isMovie -> buildJsonObject {
+                putJsonArray("movies") {
+                    add(buildJsonObject {
+                        put("ids", idsOnly(imdb))
+                        watchedAt?.let { put("watched_at", it) }
+                    })
+                }
+            }
             item.isEpisode -> buildJsonObject {
                 putJsonArray("shows") {
                     add(buildJsonObject {
@@ -148,7 +161,12 @@ class TraktClient(
                         putJsonArray("seasons") {
                             add(buildJsonObject {
                                 put("number", item.season)
-                                putJsonArray("episodes") { add(buildJsonObject { put("number", item.episode) }) }
+                                putJsonArray("episodes") {
+                                    add(buildJsonObject {
+                                        put("number", item.episode)
+                                        watchedAt?.let { put("watched_at", it) }
+                                    })
+                                }
                             })
                         }
                     })

@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.core.util.WatchedWhen
+import com.fetch.tv.core.util.releaseWatchedAt
 import androidx.core.graphics.createBitmap
 import com.fetch.tv.ui.components.focusRequesterFor
 import com.fetch.tv.ui.theme.cardCornerRadius
@@ -995,6 +997,9 @@ fun MetaDetailsScreen(
                     onMarkPreviousSeasonsWatched = { season ->
                         viewModel.onEvent(MetaDetailsEvent.OnMarkPreviousSeasonsWatched(season))
                     },
+                    onMarkWatchedOn = { target, whenWatched ->
+                        viewModel.onEvent(MetaDetailsEvent.OnMarkWatchedOn(target, whenWatched))
+                    },
                     isSeasonFullyWatched = { season ->
                         viewModel.isSeasonFullyWatched(season)
                     },
@@ -1287,6 +1292,7 @@ private fun MetaDetailsContent(
     onMarkSeasonUnwatched: (Int) -> Unit,
     onMarkPreviousEpisodesWatched: (Video) -> Unit,
     onMarkPreviousSeasonsWatched: (Int) -> Unit,
+    onMarkWatchedOn: (WatchedOnTarget, WatchedWhen) -> Unit,
     isSeasonFullyWatched: (Int) -> Boolean,
     trailerUrl: String?,
     trailerAudioUrl: String?,
@@ -1959,6 +1965,8 @@ private fun MetaDetailsContent(
         index + peopleRows.size
     }
     var seasonOptionsDialogSeason by remember { mutableStateOf<Int?>(null) }
+    // What "Mark watched on…" is open for, if anything.
+    var watchedOnTarget by remember { mutableStateOf<WatchedOnTarget?>(null) }
     // Tracks whether the initial auto-scroll to the "next to play" episode has fired.
     // Once it fires, no more auto-scrolls happen for the lifetime of this detail screen.
     var initialEpisodeScrollDone by remember(meta.id) { mutableStateOf(false) }
@@ -2443,6 +2451,7 @@ private fun MetaDetailsContent(
                         isMovieWatched = isMovieWatched,
                         isMovieWatchedPending = isMovieWatchedPending,
                         onToggleMovieWatched = onToggleMovieWatched,
+                        onMovieWatchedLongPress = { watchedOnTarget = WatchedOnTarget.Movie },
                         mdbListRatings = visibleMdbListRatings,
                         mdbListRatingOrder = mdbListRatingOrder,
                         hideMetaInfoImdb = !showStandardOverallRatings,
@@ -2542,6 +2551,7 @@ private fun MetaDetailsContent(
                             },
                             showManualPlayOption = showManualPlayOption,
                             onToggleEpisodeWatched = onToggleEpisodeWatched,
+                            onMarkEpisodeWatchedOn = { video -> watchedOnTarget = WatchedOnTarget.Episode(video) },
                             onMarkSeasonWatched = onMarkSeasonWatched,
                             onMarkSeasonUnwatched = onMarkSeasonUnwatched,
                             isSeasonFullyWatched = isSeasonFullyWatched(selectedSeason),
@@ -2906,6 +2916,10 @@ private fun MetaDetailsContent(
                     onMarkSeasonWatched(season)
                     seasonOptionsDialogSeason = null
                 },
+                onMarkSeasonWatchedOn = {
+                    watchedOnTarget = WatchedOnTarget.Season(season)
+                    seasonOptionsDialogSeason = null
+                },
                 onMarkSeasonUnwatched = {
                     onMarkSeasonUnwatched(season)
                     seasonOptionsDialogSeason = null
@@ -2913,6 +2927,32 @@ private fun MetaDetailsContent(
                 onMarkPreviousSeasonsWatched = {
                     onMarkPreviousSeasonsWatched(season)
                     seasonOptionsDialogSeason = null
+                }
+            )
+        }
+
+        watchedOnTarget?.let { target ->
+            val now = System.currentTimeMillis()
+            MarkWatchedOnDialog(
+                title = when (target) {
+                    WatchedOnTarget.Movie -> stringResource(R.string.watched_on_title_movie, meta.name)
+                    is WatchedOnTarget.Episode -> stringResource(
+                        R.string.watched_on_title_episode,
+                        target.video.season ?: 0,
+                        target.video.episode ?: 0
+                    )
+                    is WatchedOnTarget.Season -> stringResource(R.string.watched_on_title_season, target.season)
+                },
+                releaseDateAvailable = when (target) {
+                    WatchedOnTarget.Movie -> releaseWatchedAt(meta.released, now) != null
+                    is WatchedOnTarget.Episode -> releaseWatchedAt(target.video.released, now) != null
+                    is WatchedOnTarget.Season -> true
+                },
+                isSeason = target is WatchedOnTarget.Season,
+                onDismiss = { watchedOnTarget = null },
+                onConfirm = { whenWatched ->
+                    onMarkWatchedOn(target, whenWatched)
+                    watchedOnTarget = null
                 }
             )
         }

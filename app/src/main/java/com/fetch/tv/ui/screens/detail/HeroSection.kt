@@ -144,6 +144,8 @@ fun HeroContentSection(
     isMovieWatched: Boolean,
     isMovieWatchedPending: Boolean,
     onToggleMovieWatched: () -> Unit,
+    /** Holding the watched button on an unwatched film: "Mark as watched on…". */
+    onMovieWatchedLongPress: () -> Unit = {},
     trailerAvailable: Boolean = false,
     onTrailerClick: () -> Unit = {},
     showRandomEpisodeButton: Boolean = false,
@@ -448,6 +450,7 @@ fun HeroContentSection(
                                     stringResource(R.string.hero_mark_watched)
                                 },
                                 onClick = onToggleMovieWatched,
+                                onLongPress = if (isMovieWatched) null else onMovieWatchedLongPress,
                                 enabled = !isMovieWatchedPending,
                                 selected = isMovieWatched,
                                 onFocused = onHeroActionFocused,

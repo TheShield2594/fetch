@@ -1,5 +1,6 @@
 package com.fetch.desktop.website
 
+import com.fetch.desktop.WatchTime
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -90,9 +91,10 @@ object FetchWebsiteBodies {
         put("progress", percent.toDouble().coerceIn(0.0, 100.0))
     }
 
-    fun watch(title: WebsiteTitle, watchedAtMs: Long?): JsonObject = buildJsonObject {
+    fun watch(title: WebsiteTitle, watchedAtMs: Long?, dateUnknown: Boolean = false): JsonObject = buildJsonObject {
         describe(title)
         watchedAtMs?.let { put("watchedAt", Instant.ofEpochMilli(it).toString()) }
+        if (dateUnknown) put("dateUnknown", true)
     }
 
     /** A resume point for `PUT /playback`, in whole seconds (the TV's `fetchWebsitePlaybackBody`). */
@@ -416,12 +418,13 @@ class FetchWebsiteTracker(
         if (action != ScrobbleAction.START) invalidate()
     }
 
-    /** Marks [target] (a film or one episode) watched or unwatched on the website. */
-    suspend fun setWatched(target: PlaybackTarget, watched: Boolean) {
+    /** Marks [target] (a film or one episode) watched or unwatched on the website, watched at [time] or now. */
+    suspend fun setWatched(target: PlaybackTarget, watched: Boolean, time: WatchTime? = null) {
         val title = WebsiteTitle.of(target) ?: return
         if (watched) {
-            val at = now()
-            quietly { asProfile { id, token -> recordWatch(id, token, FetchWebsiteBodies.watch(title, at)) } } ?: return
+            val at = time?.atMs ?: now()
+            val unknown = time?.dateUnknown == true
+            quietly { asProfile { id, token -> recordWatch(id, token, FetchWebsiteBodies.watch(title, at, unknown)) } } ?: return
             mutate { it.withWatched(title, target.name, target.poster, at) }
         } else {
             // The website unmarks episodes of numbered seasons only.

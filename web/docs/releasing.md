@@ -62,9 +62,12 @@ Everything happens on `main`, after the work being released is merged.
    git push origin web-v0.2.0
    ```
 
-5. **Write the GitHub release** against the tag, with the changelog section for
-   that version as the body. This is the page people land on from the repo, and
-   it is what makes the tag discoverable at all.
+5. **The GitHub release is written for you.** Once the tag's images are
+   published, `web-dockerpublish.yml` creates the release for the tag with that
+   version's changelog section as the body (or refreshes the notes of one that
+   already exists). This is the page people land on from the repo, and it is
+   what makes the tag discoverable at all. It is never marked "Latest": that
+   stays with the app's `vX.Y.Z` releases, which the apps check for updates.
 
 ## What the tag push does
 

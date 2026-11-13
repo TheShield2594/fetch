@@ -123,3 +123,42 @@ jobs:
             ${{ steps.vars.outputs.version && format('{0}-web:{1}', env.IMAGE_PREFIX, steps.vars.outputs.version) }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # The release page for a `web-vX.Y.Z` tag, with that version's section of
+  # web/CHANGELOG.md as its body (docs/releasing.md step 5). After the images,
+  # so a page never points at a version whose images failed to publish. A page
+  # that already exists (written by hand, or a re-run) has its notes refreshed.
+  github-release:
+    if: startsWith(github.ref, 'refs/tags/web-v')
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create or update the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          version="${tag#web-v}"
+          # The lines under "## [X.Y.Z] - date", up to the next version heading
+          # or the link definitions at the foot of the file, trimmed of blank
+          # lines at either end.
+          awk -v v="$version" '
+            index($0, "## [" v "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[[^]]+\]: / { exit }
+            on { print }
+          ' web/CHANGELOG.md | sed -e '/./,$!d' | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}' > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::web/CHANGELOG.md has no [$version] section to use as the release notes"
+            exit 1
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --notes-file notes.md
+          else
+            gh release create "$tag" --verify-tag --title "Fetch website v$version" --notes-file notes.md --latest=false
+          fi

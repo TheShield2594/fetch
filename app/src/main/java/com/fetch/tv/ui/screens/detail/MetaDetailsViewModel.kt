@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.detail
 
+import com.fetch.tv.core.util.WatchedWhen
+import com.fetch.tv.core.util.watchedAtFor
 import androidx.core.net.toUri
 import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import android.util.Log
@@ -391,6 +393,11 @@ class MetaDetailsViewModel @Inject constructor(
             is MetaDetailsEvent.OnMarkSeasonUnwatched -> markSeasonUnwatched(event.season)
             is MetaDetailsEvent.OnMarkPreviousEpisodesWatched -> markPreviousEpisodesWatched(event.video)
             is MetaDetailsEvent.OnMarkPreviousSeasonsWatched -> markPreviousSeasonsWatched(event.season)
+            is MetaDetailsEvent.OnMarkWatchedOn -> when (val target = event.target) {
+                WatchedOnTarget.Movie -> toggleMovieWatched(event.whenWatched)
+                is WatchedOnTarget.Episode -> toggleEpisodeWatched(target.video, event.whenWatched)
+                is WatchedOnTarget.Season -> markSeasonWatched(target.season, event.whenWatched)
+            }
             MetaDetailsEvent.OnLibraryLongPress -> openListPicker()
             is MetaDetailsEvent.OnPickerMembershipToggled -> togglePickerMembership(event.listKey)
             MetaDetailsEvent.OnPickerSave -> savePickerMembership()
@@ -2472,10 +2479,34 @@ class MetaDetailsViewModel @Inject constructor(
         showMessage(localizedContext.getString(R.string.detail_lists_updated))
     }
 
-    private fun toggleMovieWatched() {
+    /**
+     * Marks [items] completed — now, or at [whenWatched] for "Mark watched on…", each item at its
+     * own time where that is its release date (the string beside it).
+     */
+    private suspend fun markCompleted(items: List<Pair<WatchProgress, String?>>, whenWatched: WatchedWhen?) {
+        if (whenWatched == null) {
+            if (items.size == 1) {
+                watchProgressRepository.markAsCompleted(items.single().first)
+            } else {
+                watchProgressRepository.markAsCompletedBatch(items.map { it.first })
+            }
+            return
+        }
+        val now = System.currentTimeMillis()
+        val times = items.associate { (progress, released) -> progress to watchedAtFor(whenWatched, released, now) }
+        watchProgressRepository.markAsCompletedAt(
+            progressList = items.map { it.first },
+            watchedAt = { progress -> times[progress] ?: now },
+            dateUnknown = whenWatched == WatchedWhen.Unknown
+        )
+    }
+
+    /** [whenWatched] is "Mark watched on…", which only ever marks: on a watched film it does nothing. */
+    private fun toggleMovieWatched(whenWatched: WatchedWhen? = null) {
         val meta = _uiState.value.meta ?: return
         if (meta.apiType != "movie") return
         if (_uiState.value.isMovieWatchedPending) return
+        if (whenWatched != null && _uiState.value.isMovieWatched) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(isMovieWatchedPending = true) }
@@ -2484,7 +2515,7 @@ class MetaDetailsViewModel @Inject constructor(
                     watchProgressRepository.removeFromHistory(_effectiveContentId.value, videoId = resolveFallbackVideoId())
                     showMessage(localizedContext.getString(R.string.detail_movie_marked_unwatched))
                 } else {
-                    watchProgressRepository.markAsCompleted(buildCompletedMovieProgress(meta))
+                    markCompleted(listOf(buildCompletedMovieProgress(meta) to meta.released), whenWatched)
                     showMessage(localizedContext.getString(R.string.detail_movie_marked_watched))
                 }
             }.onFailure { error ->
@@ -2497,7 +2528,8 @@ class MetaDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun toggleEpisodeWatched(video: Video) {
+    /** [whenWatched] is "Mark watched on…", which only ever marks: on a watched episode it does nothing. */
+    private fun toggleEpisodeWatched(video: Video, whenWatched: WatchedWhen? = null) {
         val meta = _uiState.value.meta ?: return
         val season = video.season ?: return
         val episode = video.episode ?: return
@@ -2511,6 +2543,10 @@ class MetaDetailsViewModel @Inject constructor(
 
             val isWatched = _uiState.value.episodeProgressMap[season to episode]?.isCompleted() == true
                 || _uiState.value.watchedEpisodes.contains(season to episode)
+            if (whenWatched != null && isWatched) {
+                _uiState.update { it.copy(episodeWatchedPendingKeys = it.episodeWatchedPendingKeys - pendingKey) }
+                return@launch
+            }
             runCatching {
                 if (isWatched) {
                     _optimisticMarks -= season to episode
@@ -2520,7 +2556,7 @@ class MetaDetailsViewModel @Inject constructor(
                 } else {
                     _optimisticUnmarks -= season to episode
                     _optimisticMarks += season to episode
-                    watchProgressRepository.markAsCompleted(buildCompletedEpisodeProgress(meta, video))
+                    markCompleted(listOf(buildCompletedEpisodeProgress(meta, video) to video.released), whenWatched)
                     showMessage(localizedContext.getString(R.string.detail_episode_marked_watched))
                 }
             }.onFailure { error ->
@@ -2555,7 +2591,7 @@ class MetaDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun markSeasonWatched(season: Int) {
+    private fun markSeasonWatched(season: Int, whenWatched: WatchedWhen? = null) {
         val meta = _uiState.value.meta ?: return
         suppressSeasonAutoSwitch = true
         viewModelScope.launch {
@@ -2586,8 +2622,7 @@ class MetaDetailsViewModel @Inject constructor(
             }
 
             val result = runCatching {
-                val progressList = unwatched.map { buildCompletedEpisodeProgress(meta, it) }
-                watchProgressRepository.markAsCompletedBatch(progressList)
+                markCompleted(unwatched.map { buildCompletedEpisodeProgress(meta, it) to it.released }, whenWatched)
             }
 
             finishBatchWatchedWrite(

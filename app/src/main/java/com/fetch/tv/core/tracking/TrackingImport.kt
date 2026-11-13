@@ -314,8 +314,19 @@ internal class ProfileBoundImportEndpoint(
     override suspend fun writeWatched(items: List<WatchedItem>): TrackingImportWriteResult =
         if (stillBound()) delegate.writeWatched(items) else TrackingImportWriteResult(0, items.size)
 
-    override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult =
-        if (stillBound()) delegate.writeProgress(items) else TrackingImportWriteResult(0, items.size)
+    /**
+     * One resume point at a time, each checked: provider targets write them through scrobbles
+     * that pick the active profile per call, so a batch-level check would let a switch partway
+     * through send the rest to the other profile.
+     */
+    override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult {
+        var written = 0
+        items.forEach { item ->
+            if (!stillBound()) return TrackingImportWriteResult(written, items.size - written)
+            written += delegate.writeProgress(listOf(item)).written.coerceIn(0, 1)
+        }
+        return TrackingImportWriteResult(written, items.size - written)
+    }
 
     override suspend fun finish() {
         if (stillBound()) delegate.finish()

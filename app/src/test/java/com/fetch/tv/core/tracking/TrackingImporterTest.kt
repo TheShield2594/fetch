@@ -305,6 +305,32 @@ class TrackingImporterTest {
     }
 
     @Test
+    fun `a switch during one resume point stops the rest of the batch`() = runTest {
+        var active = 1
+        val written = mutableListOf<String>()
+        // A provider-style target: each resume point is its own call, and the viewer switches
+        // profile while the first one is being written.
+        val target = object : TrackingImportEndpoint {
+            override val source = WatchProgressSource.FETCH_WEBSITE
+            override val capabilities = ALL
+            override suspend fun read() = TrackingImportSnapshot()
+            override suspend fun writeWatched(items: List<WatchedItem>) = TrackingImportWriteResult(items.size)
+            override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult {
+                written += items.map { it.contentId }
+                active = 2
+                return TrackingImportWriteResult(items.size)
+            }
+        }
+        val bound = ProfileBoundImportEndpoint(target, profileId = 1) { active }
+
+        val result = bound.writeProgress(listOf(progress("tt1", 100L, percent = 50f), progress("tt2", 100L, percent = 50f)))
+
+        assertEquals(listOf("tt1"), written)
+        assertEquals(TrackingImportWriteResult(1, 1), result)
+        assertTrue(bound.profileChanged)
+    }
+
+    @Test
     fun `an import into an unchanged profile writes through`() = runTest {
         val source = FakeEndpoint(WatchProgressSource.SIMKL, TrackingImportSnapshot(watched = listOf(movie("tt1", 1L))))
         val target = FakeEndpoint(WatchProgressSource.FETCH_WEBSITE)

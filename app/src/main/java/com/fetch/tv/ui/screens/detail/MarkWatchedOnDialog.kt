@@ -19,6 +19,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
@@ -29,7 +30,6 @@ import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchTheme
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.util.Locale
 
 /** How far back the date picker goes. */
 private const val PICKER_YEARS_BACK = 80L
@@ -93,7 +93,8 @@ internal fun MarkWatchedOnDialog(
             fun set(next: LocalDate) {
                 date = next.coerceIn(earliest, today).toEpochDay()
             }
-            val locale = Locale.getDefault()
+            // Read from the configuration, so the month names follow a language change.
+            val locale = LocalConfiguration.current.locales[0]
 
             DateStepperRow(
                 label = stringResource(R.string.watched_on_day),

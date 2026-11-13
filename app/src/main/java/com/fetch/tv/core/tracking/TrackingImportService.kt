@@ -10,6 +10,8 @@ import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.util.runSuspendCatching
 import com.fetch.tv.data.anilist.AniListApi
 import com.fetch.tv.data.anilist.AniListAuthStore
+import com.fetch.tv.data.mal.MalApi
+import com.fetch.tv.data.mal.MalAuthStore
 import com.fetch.tv.data.stremio.StremioAccountApi
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.repository.MetaRepository
@@ -69,7 +71,9 @@ class TrackingImportService @Inject constructor(
     private val stremioApi: StremioAccountApi,
     private val metaRepository: MetaRepository,
     private val aniListAuth: AniListAuthStore,
-    private val aniListApi: AniListApi
+    private val aniListApi: AniListApi,
+    private val malAuth: MalAuthStore,
+    private val malApi: MalApi
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val importer = TrackingImporter()
@@ -146,6 +150,19 @@ class TrackingImportService @Inject constructor(
             val token = state.accessToken?.takeIf { state.isAuthenticated() }
             val userId = state.userId
             if (token == null || userId == null) null else AniListImportReader(token, userId)
+        }
+    }
+
+    /** Imports the connected MyAnimeList account's anime into the source of truth. */
+    fun startMal() {
+        run(TrackingImportOrigin.MyAnimeList) { profileId ->
+            malAuth.validToken(profileId)?.let { token ->
+                object : TrackingImportReader {
+                    override val origin = TrackingImportOrigin.MyAnimeList
+                    override val capabilities = setOf(TrackingCapability.WATCHED_READ)
+                    override suspend fun read() = buildAnimeListSnapshot(malApi.animeList(token))
+                }
+            }
         }
     }
 
@@ -313,7 +330,7 @@ class TrackingImportService @Inject constructor(
         override val origin = TrackingImportOrigin.AniList
         override val capabilities = setOf(TrackingCapability.WATCHED_READ)
 
-        override suspend fun read(): TrackingImportSnapshot = buildAniListSnapshot(aniListApi.animeLists(token, userId))
+        override suspend fun read(): TrackingImportSnapshot = buildAnimeListSnapshot(aniListApi.animeLists(token, userId))
     }
 
     /** Fetch Sync: this TV's own watch state for the profile. */

@@ -2,6 +2,9 @@ package com.fetch.tv.data.anilist
 
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.util.runSuspendCatching
+import com.fetch.tv.data.anime.AnimeEntry
+import com.fetch.tv.data.anime.AnimeListEntry
+import com.fetch.tv.data.anime.AnimeListStatus
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,33 +19,9 @@ import org.json.JSONObject
 
 data class AniListViewer(val id: Long, val name: String)
 
-/** A user's list entry for one anime, with what Fetch needs to move it forward. */
-data class AniListEntry(
-    val mediaId: Long,
-    val status: AniListStatus?,
-    val progress: Int,
-    /** The anime's episode count; null while it is still airing with no count announced. */
-    val episodes: Int?
-)
-
-enum class AniListStatus { CURRENT, PLANNING, COMPLETED, DROPPED, PAUSED, REPEATING }
-
-/** One anime on a user's lists, for the history import. */
-data class AniListListEntry(
-    val mediaId: Long,
-    val malId: Long?,
-    val title: String,
-    val isMovie: Boolean,
-    val status: AniListStatus?,
-    val progress: Int,
-    /** Epoch seconds of the last change; 0 when unknown. */
-    val updatedAt: Long,
-    val coverUrl: String?
-)
-
 class AniListApiException(message: String, val unauthorized: Boolean = false) : IOException(message)
 
-/** The AniList GraphQL calls Fetch makes. Every call needs the client id to be configured. */
+/** The AniList GraphQL calls Fetch makes. Signing in needs [clientId]; public id lookups don't. */
 @Singleton
 class AniListApi @Inject constructor(
     private val client: OkHttpClient
@@ -71,7 +50,18 @@ class AniListApi @Inject constructor(
         return data.optJSONObject("Media")?.optLong("id")?.takeIf { it > 0L }
     }
 
-    suspend fun entry(token: String, mediaId: Long): AniListEntry? {
+    /** The MyAnimeList id of AniList anime [mediaId]. A public lookup: no sign-in or client id needed. */
+    suspend fun malIdForMedia(mediaId: Long): Long? {
+        val data = query(
+            null,
+            "query (\$id: Int) { Media(id: \$id, type: ANIME) { idMal } }",
+            JSONObject().put("id", mediaId),
+            notFoundIsNull = true
+        ) ?: return null
+        return data.optJSONObject("Media")?.optLong("idMal")?.takeIf { it > 0L }
+    }
+
+    suspend fun entry(token: String, mediaId: Long): AnimeEntry? {
         val data = query(
             token,
             "query (\$id: Int) { Media(id: \$id, type: ANIME) { id episodes mediaListEntry { status progress } } }",
@@ -80,15 +70,14 @@ class AniListApi @Inject constructor(
         ) ?: return null
         val media = data.optJSONObject("Media") ?: return null
         val entry = media.optJSONObject("mediaListEntry")
-        return AniListEntry(
-            mediaId = media.optLong("id"),
+        return AnimeEntry(
             status = entry?.optString("status")?.let(::statusOf),
             progress = entry?.optInt("progress") ?: 0,
             episodes = media.optIntOrNull("episodes")
         )
     }
 
-    suspend fun saveProgress(token: String, mediaId: Long, progress: Int, status: AniListStatus) {
+    suspend fun saveProgress(token: String, mediaId: Long, progress: Int, status: AnimeListStatus) {
         query(
             token,
             "mutation (\$mediaId: Int, \$progress: Int, \$status: MediaListStatus) { " +
@@ -97,7 +86,7 @@ class AniListApi @Inject constructor(
         )
     }
 
-    suspend fun animeLists(token: String, userId: Long): List<AniListListEntry> {
+    suspend fun animeLists(token: String, userId: Long): List<AnimeListEntry> {
         val data = query(
             token,
             "query (\$userId: Int) { MediaListCollection(userId: \$userId, type: ANIME) { lists { entries { " +
@@ -114,7 +103,7 @@ class AniListApi @Inject constructor(
         variables: JSONObject = JSONObject(),
         notFoundIsNull: Boolean = false
     ): JSONObject? = withContext(Dispatchers.IO) {
-        if (!isConfigured) throw AniListApiException("AniList isn't configured in this build")
+        // Public lookups (ids only) work without a client id; signed-in calls need one to get a token.
         val request = Request.Builder()
             .url(ENDPOINT)
             .header("Accept", "application/json")
@@ -148,7 +137,7 @@ class AniListApi @Inject constructor(
     }
 }
 
-internal fun parseAniListEntries(lists: JSONArray): List<AniListListEntry> = buildList {
+internal fun parseAniListEntries(lists: JSONArray): List<AnimeListEntry> = buildList {
     for (i in 0 until lists.length()) {
         val entries = lists.optJSONObject(i)?.optJSONArray("entries") ?: continue
         for (j in 0 until entries.length()) {
@@ -156,8 +145,8 @@ internal fun parseAniListEntries(lists: JSONArray): List<AniListListEntry> = bui
             val media = entry.optJSONObject("media") ?: continue
             val id = media.optLong("id").takeIf { it > 0L } ?: continue
             add(
-                AniListListEntry(
-                    mediaId = id,
+                AnimeListEntry(
+                    aniListId = id,
                     malId = media.optLong("idMal").takeIf { it > 0L },
                     title = media.optJSONObject("title")?.optString("userPreferred").orEmpty(),
                     isMovie = media.optString("format") == "MOVIE",
@@ -169,10 +158,10 @@ internal fun parseAniListEntries(lists: JSONArray): List<AniListListEntry> = bui
             )
         }
     }
-}.distinctBy { it.mediaId } // An entry can sit in a custom list as well as its status list.
+}.distinctBy { it.aniListId } // An entry can sit in a custom list as well as its status list.
 
-internal fun statusOf(value: String?): AniListStatus? =
-    AniListStatus.entries.firstOrNull { it.name == value }
+internal fun statusOf(value: String?): AnimeListStatus? =
+    AnimeListStatus.entries.firstOrNull { it.name == value }
 
 private fun JSONObject.optIntOrNull(name: String): Int? =
     if (isNull(name) || !has(name)) null else optInt(name).takeIf { it > 0 }

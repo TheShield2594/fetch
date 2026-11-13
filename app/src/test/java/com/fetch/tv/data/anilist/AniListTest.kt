@@ -1,7 +1,14 @@
 package com.fetch.tv.data.anilist
 
 import com.fetch.tv.core.tracking.TrackingImportSnapshot
-import com.fetch.tv.core.tracking.buildAniListSnapshot
+import com.fetch.tv.data.anime.AnimeEntry
+import com.fetch.tv.data.anime.AnimeListEntry
+import com.fetch.tv.data.anime.AnimeListStatus
+import com.fetch.tv.data.anime.AnimeProgressUpdate
+import com.fetch.tv.data.anime.FlatAnimeEpisode
+import com.fetch.tv.data.anime.flatAnimeEpisode
+import com.fetch.tv.data.anime.nextAnimeProgress
+import com.fetch.tv.core.tracking.buildAnimeListSnapshot
 import com.fetch.tv.core.tracking.buildTrackingMediaReference
 import com.fetch.tv.core.tracking.planTrackingImport
 import org.json.JSONArray
@@ -14,41 +21,41 @@ class AniListTest {
     @Test
     fun `progress moves forward and completes on the last episode`() {
         assertEquals(
-            AniListProgressUpdate(1, AniListStatus.CURRENT),
-            nextAniListProgress(entry = null, episode = 1)
+            AnimeProgressUpdate(1, AnimeListStatus.CURRENT),
+            nextAnimeProgress(entry = null, episode = 1)
         )
         assertEquals(
-            AniListProgressUpdate(5, AniListStatus.CURRENT),
-            nextAniListProgress(entry(AniListStatus.CURRENT, progress = 3, episodes = 12), episode = 5)
+            AnimeProgressUpdate(5, AnimeListStatus.CURRENT),
+            nextAnimeProgress(entry(AnimeListStatus.CURRENT, progress = 3, episodes = 12), episode = 5)
         )
         assertEquals(
-            AniListProgressUpdate(12, AniListStatus.COMPLETED),
-            nextAniListProgress(entry(AniListStatus.CURRENT, progress = 11, episodes = 12), episode = 12)
+            AnimeProgressUpdate(12, AnimeListStatus.COMPLETED),
+            nextAnimeProgress(entry(AnimeListStatus.CURRENT, progress = 11, episodes = 12), episode = 12)
         )
         // Planned or paused shows start being watched.
         assertEquals(
-            AniListProgressUpdate(1, AniListStatus.CURRENT),
-            nextAniListProgress(entry(AniListStatus.PLANNING, progress = 0, episodes = 12), episode = 1)
+            AnimeProgressUpdate(1, AnimeListStatus.CURRENT),
+            nextAnimeProgress(entry(AnimeListStatus.PLANNING, progress = 0, episodes = 12), episode = 1)
         )
         assertEquals(
-            AniListProgressUpdate(4, AniListStatus.REPEATING),
-            nextAniListProgress(entry(AniListStatus.REPEATING, progress = 3, episodes = 12), episode = 4)
+            AnimeProgressUpdate(4, AnimeListStatus.REPEATING),
+            nextAnimeProgress(entry(AnimeListStatus.REPEATING, progress = 3, episodes = 12), episode = 4)
         )
     }
 
     @Test
     fun `an earlier episode, a completed entry or a bad number changes nothing`() {
-        assertNull(nextAniListProgress(entry(AniListStatus.CURRENT, progress = 6, episodes = 12), episode = 4))
-        assertNull(nextAniListProgress(entry(AniListStatus.CURRENT, progress = 6, episodes = 12), episode = 6))
-        assertNull(nextAniListProgress(entry(AniListStatus.COMPLETED, progress = 12, episodes = 12), episode = 3))
-        assertNull(nextAniListProgress(null, episode = 0))
+        assertNull(nextAnimeProgress(entry(AnimeListStatus.CURRENT, progress = 6, episodes = 12), episode = 4))
+        assertNull(nextAnimeProgress(entry(AnimeListStatus.CURRENT, progress = 6, episodes = 12), episode = 6))
+        assertNull(nextAnimeProgress(entry(AnimeListStatus.COMPLETED, progress = 12, episodes = 12), episode = 3))
+        assertNull(nextAnimeProgress(null, episode = 0))
     }
 
     @Test
     fun `an episode past the announced count is capped at it`() {
         assertEquals(
-            AniListProgressUpdate(12, AniListStatus.COMPLETED),
-            nextAniListProgress(entry(AniListStatus.CURRENT, progress = 10, episodes = 12), episode = 13)
+            AnimeProgressUpdate(12, AnimeListStatus.COMPLETED),
+            nextAnimeProgress(entry(AnimeListStatus.CURRENT, progress = 10, episodes = 12), episode = 13)
         )
     }
 
@@ -85,21 +92,21 @@ class AniListTest {
 
         val entries = parseAniListEntries(lists)
 
-        assertEquals(listOf(21L, 199L), entries.map { it.mediaId })
+        assertEquals(listOf(21L, 199L), entries.map { it.aniListId })
         assertEquals(21L, entries[0].malId)
         assertNull(entries[1].malId)
         assertEquals(true, entries[1].isMovie)
-        assertEquals(AniListStatus.COMPLETED, entries[1].status)
+        assertEquals(AnimeListStatus.COMPLETED, entries[1].status)
     }
 
     @Test
     fun `import marks every episode up to the entry's progress`() {
-        val snapshot = buildAniListSnapshot(
+        val snapshot = buildAnimeListSnapshot(
             listOf(
                 listEntry(21, mal = 21, progress = 3, updatedAt = 1_700_000_000L),
-                listEntry(199, mal = null, progress = 1, isMovie = true, status = AniListStatus.COMPLETED),
-                listEntry(5, mal = 5, progress = 0, status = AniListStatus.PLANNING),
-                listEntry(6, mal = 6, progress = 2, status = AniListStatus.PLANNING)
+                listEntry(199, mal = null, progress = 1, isMovie = true, status = AnimeListStatus.COMPLETED),
+                listEntry(5, mal = 5, progress = 0, status = AnimeListStatus.PLANNING),
+                listEntry(6, mal = 6, progress = 2, status = AnimeListStatus.PLANNING)
             )
         )
 
@@ -113,7 +120,7 @@ class AniListTest {
 
     @Test
     fun `imported episodes are not whole-series marks, so the plan keeps them`() {
-        val snapshot = buildAniListSnapshot(listOf(listEntry(21, mal = 21, progress = 2)))
+        val snapshot = buildAnimeListSnapshot(listOf(listEntry(21, mal = 21, progress = 2)))
 
         val plan = planTrackingImport(snapshot, TrackingImportSnapshot())
 
@@ -121,18 +128,18 @@ class AniListTest {
         assertEquals(0, plan.watchedSkipped)
     }
 
-    private fun entry(status: AniListStatus?, progress: Int, episodes: Int?) =
-        AniListEntry(mediaId = 1, status = status, progress = progress, episodes = episodes)
+    private fun entry(status: AnimeListStatus?, progress: Int, episodes: Int?) =
+        AnimeEntry(status = status, progress = progress, episodes = episodes)
 
     private fun listEntry(
         id: Long,
         mal: Long?,
         progress: Int,
         isMovie: Boolean = false,
-        status: AniListStatus = AniListStatus.CURRENT,
+        status: AnimeListStatus = AnimeListStatus.CURRENT,
         updatedAt: Long = 0L
-    ) = AniListListEntry(
-        mediaId = id,
+    ) = AnimeListEntry(
+        aniListId = id,
         malId = mal,
         title = "Title $id",
         isMovie = isMovie,

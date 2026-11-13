@@ -216,6 +216,16 @@ class PhoneHubWebPage(private val resources: Resources) {
               <div id="aniListStatus" class="status" role="status"></div>
             </div>
 
+            <div id="mal" hidden>
+              <h2>${h(R.string.phone_web_mal_heading)}</h2>
+              <p class="hint">${h(R.string.phone_web_mal_steps)}</p>
+              <div class="row"><a id="malOpen" class="button" target="_blank" rel="noopener">${h(R.string.phone_web_mal_open)}</a></div>
+              <label for="malCode">${h(R.string.phone_web_mal_code)}</label>
+              <input id="malCode" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <div class="row"><button id="saveMal">${h(R.string.phone_web_anilist_save)}</button></div>
+              <div id="malStatus" class="status" role="status"></div>
+            </div>
+
             <h2>${h(R.string.phone_web_server_heading)}</h2>
             <label for="serverProvider">${h(R.string.phone_web_server_type)}</label>
             <select id="serverProvider"></select>
@@ -247,6 +257,14 @@ class PhoneHubWebPage(private val resources: Resources) {
                     ? fmt(${j(R.string.phone_web_anilist_connected)}, s.aniList.username || '')
                     : ${j(R.string.phone_web_anilist_disconnected)});
                 }
+                const mal = document.getElementById('mal');
+                mal.hidden = !s.mal;
+                if (s.mal) {
+                  document.getElementById('malOpen').href = s.mal.authorizeUrl;
+                  show('malStatus', s.mal.connected
+                    ? fmt(${j(R.string.phone_web_mal_connected)}, s.mal.username || '')
+                    : ${j(R.string.phone_web_anilist_disconnected)});
+                }
                 const select = document.getElementById('serverProvider');
                 if (!select.options.length) {
                   s.mediaServerProviders.forEach(function (p) {
@@ -271,6 +289,13 @@ class PhoneHubWebPage(private val resources: Resources) {
               post('/api/accounts/anilist', { token: field.value.trim() })
                 .then(function (d) { field.value = ''; show('aniListStatus', d.message || ${j(R.string.phone_web_saved)}); refresh(); })
                 .catch(function (e) { show('aniListStatus', e.message, true); });
+            });
+            document.getElementById('saveMal').addEventListener('click', function () {
+              const field = document.getElementById('malCode');
+              show('malStatus', ${j(R.string.phone_web_checking)});
+              post('/api/accounts/mal', { code: field.value.trim() })
+                .then(function (d) { field.value = ''; show('malStatus', d.message || ${j(R.string.phone_web_saved)}); refresh(); })
+                .catch(function (e) { show('malStatus', e.message, true); });
             });
             function startTracker(tracker) {
               show('trackerStatus', ${j(R.string.phone_web_starting)});

@@ -151,29 +151,41 @@ internal fun TraktAccountDialog(
     }
 }
 
+/** The anime list services, signed in from the phone hub. */
+internal enum class AnimeService(
+    @androidx.annotation.StringRes val nameRes: Int,
+    @androidx.annotation.StringRes val descriptionRes: Int,
+    @androidx.annotation.StringRes val connectedDescriptionRes: Int,
+    @androidx.annotation.StringRes val signInHintRes: Int
+) {
+    ANILIST(R.string.anilist_name, R.string.anilist_description, R.string.anilist_connected_description, R.string.anilist_sign_in_from_phone),
+    MAL(R.string.mal_name, R.string.mal_description, R.string.mal_connected_description, R.string.mal_sign_in_from_phone)
+}
+
 /**
- * AniList on the TV: signed in from the phone hub (AniList has no TV sign-in), so this only says
- * how, or shows the account and signs it out.
+ * AniList or MyAnimeList on the TV: signed in from the phone hub (neither has a TV sign-in), so
+ * this only says how, or shows the account and signs it out.
  */
 @Composable
-internal fun AniListAccountDialog(
-    state: AniListAccountUiState,
+internal fun AnimeAccountDialog(
+    service: AnimeService,
+    state: AnimeAccountUiState,
     onDisconnect: () -> Unit,
     onDismiss: () -> Unit
 ) {
     FetchDialog(
         onDismiss = onDismiss,
-        title = stringResource(R.string.anilist_name),
+        title = stringResource(service.nameRes),
         suppressFirstKeyUp = false
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
             val lines = if (state.connected) {
                 listOf(
                     stringResource(R.string.anilist_connected_as, state.username.orEmpty()),
-                    stringResource(R.string.anilist_connected_description)
+                    stringResource(service.connectedDescriptionRes)
                 )
             } else {
-                listOf(stringResource(R.string.anilist_description), stringResource(R.string.anilist_sign_in_from_phone))
+                listOf(stringResource(service.descriptionRes), stringResource(service.signInHintRes))
             }
             lines.forEach { line ->
                 Text(text = line, style = MaterialTheme.typography.bodyMedium, color = FetchTheme.colors.TextSecondary)

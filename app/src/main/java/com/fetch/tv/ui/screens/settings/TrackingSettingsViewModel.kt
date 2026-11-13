@@ -15,6 +15,8 @@ import com.fetch.tv.core.tracking.effectiveTrackingSourceSelection
 import com.fetch.tv.data.anilist.AniListApi
 import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.local.TraktAuthDataStore
+import com.fetch.tv.data.mal.MalApi
+import com.fetch.tv.data.mal.MalAuthStore
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressSource
 import com.fetch.tv.data.simkl.SimklAnimeIdPreference
@@ -53,8 +55,8 @@ data class TrackingSettingsUiState(
         get() = availableWatchProgressSources.filter { it != watchProgressSource }
 }
 
-/** AniList is signed in from the phone hub; the TV only shows it and signs it out. */
-data class AniListAccountUiState(
+/** AniList and MyAnimeList are signed in from the phone hub; the TV only shows them and signs them out. */
+data class AnimeAccountUiState(
     val configured: Boolean = false,
     val connected: Boolean = false,
     val username: String? = null
@@ -72,21 +74,32 @@ class TrackingSettingsViewModel @Inject constructor(
     websiteStore: FetchWebsiteStore,
     profiles: ProfileManager,
     private val aniListAuth: AniListAuthStore,
-    aniListApi: AniListApi
+    aniListApi: AniListApi,
+    private val malAuth: MalAuthStore,
+    malApi: MalApi
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TrackingSettingsUiState())
     val uiState: StateFlow<TrackingSettingsUiState> = _uiState.asStateFlow()
     val importStatus: StateFlow<TrackingImportStatus> = importService.status
     val stremioLink: StateFlow<StremioLinkState> = importService.stremioLink
-    val aniList: StateFlow<AniListAccountUiState> = aniListAuth.state
+    val aniList: StateFlow<AnimeAccountUiState> = aniListAuth.state
         .map { state ->
-            AniListAccountUiState(
+            AnimeAccountUiState(
                 configured = aniListApi.isConfigured,
                 connected = state.isAuthenticated(),
                 username = state.username?.takeIf { state.isAuthenticated() }
             )
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AniListAccountUiState(configured = aniListApi.isConfigured))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnimeAccountUiState(configured = aniListApi.isConfigured))
+    val mal: StateFlow<AnimeAccountUiState> = malAuth.state
+        .map { state ->
+            AnimeAccountUiState(
+                configured = malApi.isConfigured,
+                connected = state.isAuthenticated,
+                username = state.username?.takeIf { state.isAuthenticated }
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AnimeAccountUiState(configured = malApi.isConfigured))
 
     init {
         viewModelScope.launch {
@@ -169,5 +182,13 @@ class TrackingSettingsViewModel @Inject constructor(
 
     fun disconnectAniList() {
         viewModelScope.launch { aniListAuth.clear() }
+    }
+
+    fun importFromMal() {
+        if (_uiState.value.isReady && mal.value.connected) importService.startMal()
+    }
+
+    fun disconnectMal() {
+        viewModelScope.launch { malAuth.clear() }
     }
 }

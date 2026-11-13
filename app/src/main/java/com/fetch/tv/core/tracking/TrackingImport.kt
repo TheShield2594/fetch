@@ -31,6 +31,9 @@ sealed interface TrackingImportOrigin {
 
     /** The AniList account connected for scrobbling. */
     data object AniList : TrackingImportOrigin
+
+    /** The MyAnimeList account connected for scrobbling. */
+    data object MyAnimeList : TrackingImportOrigin
 }
 
 data class TrackingImportWriteResult(

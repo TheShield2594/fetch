@@ -1,23 +1,25 @@
 package com.fetch.tv.core.tracking
 
-import com.fetch.tv.data.anilist.AniListListEntry
-import com.fetch.tv.data.anilist.AniListStatus
+import com.fetch.tv.data.anime.AnimeListEntry
+import com.fetch.tv.data.anime.AnimeListStatus
 import com.fetch.tv.domain.model.WatchedItem
 
 /**
- * An AniList account's anime as watched marks. AniList only knows how far into each entry you
- * are, so an entry at progress 7 marks its episodes 1 to 7. Each entry is its own title with
- * flat episode numbers, keyed by its MyAnimeList id where it has one (what anime catalogs use)
- * and its AniList id otherwise. AniList has no resume points.
+ * An AniList or MyAnimeList account's anime as watched marks. Both only know how far into each
+ * entry you are, so an entry at progress 7 marks its episodes 1 to 7. Each entry is its own
+ * title with flat episode numbers, keyed by its MyAnimeList id where it has one (what anime
+ * catalogs use) and its AniList id otherwise. Neither has resume points.
  */
-fun buildAniListSnapshot(entries: List<AniListListEntry>): TrackingImportSnapshot {
+fun buildAnimeListSnapshot(entries: List<AnimeListEntry>): TrackingImportSnapshot {
     val watched = buildList {
         entries.forEach { entry ->
-            if (entry.status == AniListStatus.PLANNING) return@forEach
-            val contentId = entry.malId?.let { "mal:$it" } ?: "anilist:${entry.mediaId}"
+            if (entry.status == AnimeListStatus.PLANNING) return@forEach
+            val contentId = entry.malId?.let { "mal:$it" }
+                ?: entry.aniListId?.let { "anilist:$it" }
+                ?: return@forEach
             val updatedAt = entry.updatedAt * 1_000L
             if (entry.isMovie) {
-                if (entry.progress >= 1 || entry.status == AniListStatus.COMPLETED) {
+                if (entry.progress >= 1 || entry.status == AnimeListStatus.COMPLETED) {
                     add(
                         WatchedItem(
                             contentId = contentId,

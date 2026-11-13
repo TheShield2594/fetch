@@ -17,4 +17,18 @@
     <string name="phone_web_anilist_disconnected">Not connected.</string>
     <string name="phone_web_anilist_rejected">AniList didn’t accept that token. Sign in again and copy the whole token.</string>
     <string name="phone_web_anilist_unavailable">Couldn’t reach AniList. Try again.</string>
+
+    <!-- MyAnimeList: the same as AniList, signed in from the phone hub through Fetch's callback page -->
+    <string name="mal_name" translatable="false">MyAnimeList</string>
+    <string name="mal_description">Update your MyAnimeList progress as you finish anime episodes.</string>
+    <string name="mal_connected_description">Finishing an anime episode moves its MyAnimeList entry forward. To bring your MyAnimeList history into Fetch, use Import from another source.</string>
+    <string name="mal_sign_in_from_phone">Sign in from your phone: Settings → Configure from phone, scan the code, then open Accounts → MyAnimeList.</string>
+
+    <string name="phone_web_mal_heading">MyAnimeList</string>
+    <string name="phone_web_mal_steps">Sign in to MyAnimeList and allow Fetch. You land on a Fetch page showing a sign-in code: copy it, come back here and paste it below within a few minutes.</string>
+    <string name="phone_web_mal_open">Sign in to MyAnimeList</string>
+    <string name="phone_web_mal_code">Code from the sign-in page</string>
+    <string name="phone_web_mal_connected">Connected as %1$s.</string>
+    <string name="phone_web_mal_rejected">MyAnimeList didn’t accept that code. Tap Sign in again and paste the new code straight away.</string>
+    <string name="phone_web_mal_unavailable">Couldn’t reach MyAnimeList. Try again.</string>
 </resources>

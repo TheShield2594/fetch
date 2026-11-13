@@ -115,6 +115,8 @@ android {
         buildConfigField("String", "SIMKL_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "SIMKL_CLIENT_ID")))
         buildConfigField("String", "SIMKL_APP_NAME", buildConfigString(resolveProperty(devProperties, localProperties, "SIMKL_APP_NAME", "fetch")))
         buildConfigField("String", "ANILIST_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "ANILIST_CLIENT_ID")))
+        buildConfigField("String", "MAL_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "MAL_CLIENT_ID")))
+        buildConfigField("String", "MAL_REDIRECT_URI", buildConfigString(resolveProperty(devProperties, localProperties, "MAL_REDIRECT_URI", "https://theshield2594.github.io/fetch/mal-callback.html")))
         buildConfigField("String", "MDBLIST_CLIENT_ID", buildConfigString(resolveProperty(devProperties, localProperties, "MDBLIST_CLIENT_ID")))
         buildConfigField("String", "TMDB_API_KEY", buildConfigString(resolveProperty(devProperties, localProperties, "TMDB_API_KEY")))
         buildConfigField("boolean", "DOVI_NATIVE_ENABLED", enableDoviNative.toString())

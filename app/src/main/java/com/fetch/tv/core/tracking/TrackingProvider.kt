@@ -9,7 +9,8 @@ enum class TrackingProviderId(val storageId: String) {
     SIMKL("simkl"),
     MDBLIST("mdblist"),
     FETCH_WEBSITE("fetch_website"),
-    ANILIST("anilist");
+    ANILIST("anilist"),
+    MAL("mal");
 
     companion object {
         fun fromStorage(value: String?): TrackingProviderId? {

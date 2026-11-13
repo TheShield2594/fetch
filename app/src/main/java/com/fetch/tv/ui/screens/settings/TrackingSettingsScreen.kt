@@ -62,12 +62,14 @@ fun TrackingSettingsContent(
     val importStatus by trackingViewModel.importStatus.collectAsStateWithLifecycle()
     val stremioLink by trackingViewModel.stremioLink.collectAsStateWithLifecycle()
     val aniList by trackingViewModel.aniList.collectAsStateWithLifecycle()
-    var showAniListDialog by remember { mutableStateOf(false) }
+    val mal by trackingViewModel.mal.collectAsStateWithLifecycle()
+    var animeDialog by remember { mutableStateOf<AnimeService?>(null) }
     val ownTraktFocusRequester = remember { FocusRequester() }
     val traktFocusRequester = initialFocusRequester ?: ownTraktFocusRequester
     val simklFocusRequester = remember { FocusRequester() }
     val mdbListFocusRequester = remember { FocusRequester() }
     val aniListFocusRequester = remember { FocusRequester() }
+    val malFocusRequester = remember { FocusRequester() }
     val libraryFocusRequester = remember { FocusRequester() }
     val watchProgressFocusRequester = remember { FocusRequester() }
     val importFocusRequester = remember { FocusRequester() }
@@ -92,7 +94,7 @@ fun TrackingSettingsContent(
         showWatchProgressDialog ||
         showImportDialog ||
         stremioLink !is StremioLinkState.Idle ||
-        showAniListDialog ||
+        animeDialog != null ||
         importStatus is TrackingImportStatus.Done ||
         importStatus is TrackingImportStatus.Failed ||
         showDaysCapDialog ||
@@ -112,7 +114,7 @@ fun TrackingSettingsContent(
             TrackingProviderId.SIMKL -> simklState.mode == SimklConnectionMode.CONNECTED
             TrackingProviderId.MDBLIST -> mdbListState.isConnected
             // Signed in by pairing under Settings → Account, never from here.
-            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, null -> false
+            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL, null -> false
         }
         if (activeProvider == dismissOnConnected && connected) {
             activeProvider = null
@@ -129,6 +131,7 @@ fun TrackingSettingsContent(
             TrackingFocusTarget.SIMKL -> simklFocusRequester
             TrackingFocusTarget.MDBLIST -> mdbListFocusRequester
             TrackingFocusTarget.ANILIST -> aniListFocusRequester
+            TrackingFocusTarget.MAL -> malFocusRequester
             TrackingFocusTarget.LIBRARY -> libraryFocusRequester
             TrackingFocusTarget.WATCH_PROGRESS -> watchProgressFocusRequester
             TrackingFocusTarget.IMPORT -> importFocusRequester
@@ -145,7 +148,7 @@ fun TrackingSettingsContent(
             TrackingProviderId.SIMKL -> TrackingFocusTarget.SIMKL
             TrackingProviderId.MDBLIST -> TrackingFocusTarget.MDBLIST
             // Paired under Settings → Account; it has no account dialog here.
-            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> return@openProvider
+            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL -> return@openProvider
         }
         activeProvider = provider
         disconnectProvider = null
@@ -179,7 +182,7 @@ fun TrackingSettingsContent(
                     mdbListViewModel.onConnect()
                 }
             }
-            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> Unit
+            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL -> Unit
         }
     }
 
@@ -189,7 +192,13 @@ fun TrackingSettingsContent(
         aniListFocusRequester = aniListFocusRequester,
         onAniListClick = {
             restoreFocusTarget = TrackingFocusTarget.ANILIST
-            showAniListDialog = true
+            animeDialog = AnimeService.ANILIST
+        },
+        mal = mal,
+        malFocusRequester = malFocusRequester,
+        onMalClick = {
+            restoreFocusTarget = TrackingFocusTarget.MAL
+            animeDialog = AnimeService.MAL
         },
         traktState = traktState,
         simklState = simklState,
@@ -296,7 +305,7 @@ fun TrackingSettingsContent(
                 }
             )
         }
-        TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, null -> Unit
+        TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL, null -> Unit
     }
 
     disconnectProvider?.let { provider ->
@@ -311,7 +320,7 @@ fun TrackingSettingsContent(
                     TrackingProviderId.SIMKL -> R.string.simkl_disconnect_title
                     TrackingProviderId.MDBLIST -> R.string.mdblist_disconnect_title
                     // Signed out under Settings → Account; this dialog never opens for it.
-                    TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> error("Signed out elsewhere; this dialog never opens for it")
+                    TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL -> error("Signed out elsewhere; this dialog never opens for it")
                 }
             ),
             subtitle = stringResource(
@@ -320,7 +329,7 @@ fun TrackingSettingsContent(
                     TrackingProviderId.SIMKL -> R.string.simkl_disconnect_subtitle
                     TrackingProviderId.MDBLIST -> R.string.mdblist_disconnect_subtitle
                     // Signed out under Settings → Account; this dialog never opens for it.
-                    TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> error("Signed out elsewhere; this dialog never opens for it")
+                    TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL -> error("Signed out elsewhere; this dialog never opens for it")
                 }
             ),
             width = FetchTheme.components.dialog.width,
@@ -342,7 +351,7 @@ fun TrackingSettingsContent(
                             TrackingProviderId.TRAKT -> traktViewModel.onDisconnectClick()
                             TrackingProviderId.SIMKL -> simklViewModel.onDisconnect()
                             TrackingProviderId.MDBLIST -> mdbListViewModel.onDisconnect()
-                            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST -> Unit
+                            TrackingProviderId.FETCH_WEBSITE, TrackingProviderId.ANILIST, TrackingProviderId.MAL -> Unit
                         }
                     },
                     destructive = true
@@ -403,6 +412,10 @@ fun TrackingSettingsContent(
                     stringResource(R.string.anilist_name)
                 ).takeIf { aniList.connected },
                 SettingsPickerOption<TrackingImportOrigin?>(
+                    TrackingImportOrigin.MyAnimeList,
+                    stringResource(R.string.mal_name)
+                ).takeIf { mal.connected },
+                SettingsPickerOption<TrackingImportOrigin?>(
                     TrackingImportOrigin.Stremio,
                     stringResource(R.string.tracking_import_stremio_option)
                 )
@@ -413,6 +426,7 @@ fun TrackingSettingsContent(
                     is TrackingImportOrigin.Connected -> trackingViewModel.importFrom(origin.source)
                     TrackingImportOrigin.Stremio -> trackingViewModel.startStremioImport()
                     TrackingImportOrigin.AniList -> trackingViewModel.importFromAniList()
+                    TrackingImportOrigin.MyAnimeList -> trackingViewModel.importFromMal()
                     null -> Unit
                 }
                 showImportDialog = false
@@ -421,14 +435,18 @@ fun TrackingSettingsContent(
         )
     }
 
-    if (showAniListDialog) {
-        AniListAccountDialog(
-            state = aniList,
+    animeDialog?.let { service ->
+        AnimeAccountDialog(
+            service = service,
+            state = if (service == AnimeService.ANILIST) aniList else mal,
             onDisconnect = {
-                trackingViewModel.disconnectAniList()
-                showAniListDialog = false
+                when (service) {
+                    AnimeService.ANILIST -> trackingViewModel.disconnectAniList()
+                    AnimeService.MAL -> trackingViewModel.disconnectMal()
+                }
+                animeDialog = null
             },
-            onDismiss = { showAniListDialog = false }
+            onDismiss = { animeDialog = null }
         )
     }
 
@@ -465,9 +483,9 @@ fun TrackingSettingsContent(
                         R.string.tracking_import_stremio_failed_subtitle,
                         watchProgressSourceLabel(status.target)
                     )
-                    TrackingImportOrigin.AniList -> stringResource(
+                    TrackingImportOrigin.AniList, TrackingImportOrigin.MyAnimeList -> stringResource(
                         R.string.tracking_import_failed_subtitle,
-                        stringResource(R.string.anilist_name),
+                        importOriginLabel(origin),
                         watchProgressSourceLabel(status.target)
                     )
                 }
@@ -582,9 +600,12 @@ fun TrackingSettingsContent(
 
 @Composable
 internal fun TrackingSettingsOverview(
-    aniList: AniListAccountUiState = AniListAccountUiState(),
+    aniList: AnimeAccountUiState = AnimeAccountUiState(),
     aniListFocusRequester: FocusRequester = remember { FocusRequester() },
     onAniListClick: () -> Unit = {},
+    mal: AnimeAccountUiState = AnimeAccountUiState(),
+    malFocusRequester: FocusRequester = remember { FocusRequester() },
+    onMalClick: () -> Unit = {},
     traktState: TraktUiState,
     simklState: SimklSettingsUiState,
     mdbListState: MdbListTrackerUiState,
@@ -696,6 +717,24 @@ internal fun TrackingSettingsOverview(
                                 modifier = Modifier
                                     .focusRequester(aniListFocusRequester)
                                     .testTag(TrackingSettingsTestTags.ANILIST_PROVIDER)
+                            )
+                        }
+                        if (mal.configured) {
+                            SettingsActionRow(
+                                title = stringResource(R.string.mal_name),
+                                subtitle = if (mal.connected) {
+                                    stringResource(R.string.anilist_connected_as, mal.username.orEmpty())
+                                } else {
+                                    stringResource(R.string.mal_description)
+                                },
+                                value = stringResource(
+                                    if (mal.connected) R.string.tracking_status_connected else R.string.tracking_status_disconnected
+                                ),
+                                valueColor = if (mal.connected) FetchTheme.colors.Success else FetchTheme.colors.TextSecondary,
+                                onClick = onMalClick,
+                                modifier = Modifier
+                                    .focusRequester(malFocusRequester)
+                                    .testTag(TrackingSettingsTestTags.MAL_PROVIDER)
                             )
                         }
                     }
@@ -927,6 +966,7 @@ private fun importOriginLabel(origin: TrackingImportOrigin): String = when (orig
     is TrackingImportOrigin.Connected -> watchProgressSourceLabel(origin.source)
     TrackingImportOrigin.Stremio -> stringResource(R.string.stremio_name)
     TrackingImportOrigin.AniList -> stringResource(R.string.anilist_name)
+    TrackingImportOrigin.MyAnimeList -> stringResource(R.string.mal_name)
 }
 
 @Composable
@@ -967,6 +1007,7 @@ private enum class TrackingFocusTarget {
     SIMKL,
     MDBLIST,
     ANILIST,
+    MAL,
     LIBRARY,
     WATCH_PROGRESS,
     IMPORT,
@@ -980,6 +1021,7 @@ internal object TrackingSettingsTestTags {
     const val SIMKL_PROVIDER = "tracking_provider_simkl"
     const val MDBLIST_PROVIDER = "tracking_provider_mdblist"
     const val ANILIST_PROVIDER = "tracking_provider_anilist"
+    const val MAL_PROVIDER = "tracking_provider_mal"
     const val MDBLIST_LIBRARY_LISTS = "tracking_mdblist_library_lists"
     const val LIBRARY_SOURCE = "tracking_source_library"
     const val WATCH_PROGRESS_SOURCE = "tracking_source_watch_progress"

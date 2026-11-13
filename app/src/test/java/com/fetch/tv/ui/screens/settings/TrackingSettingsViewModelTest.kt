@@ -9,6 +9,9 @@ import com.fetch.tv.data.anilist.AniListApi
 import com.fetch.tv.data.anilist.AniListAuthState
 import com.fetch.tv.data.anilist.AniListAuthStore
 import com.fetch.tv.data.local.TraktAuthDataStore
+import com.fetch.tv.data.mal.MalApi
+import com.fetch.tv.data.mal.MalAuthState
+import com.fetch.tv.data.mal.MalAuthStore
 import com.fetch.tv.data.local.TraktAuthState
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressSource
@@ -62,9 +65,11 @@ class TrackingSettingsViewModelTest {
         val website = mockk<FetchWebsiteStore> { every { session } returns MutableStateFlow(null) }
         val aniListAuth = mockk<AniListAuthStore> { every { state } returns flowOf(AniListAuthState()) }
         val aniListApi = mockk<AniListApi> { every { isConfigured } returns false }
+        val malAuth = mockk<MalAuthStore> { every { state } returns flowOf(MalAuthState()) }
+        val malApi = mockk<MalApi> { every { isConfigured } returns false }
         val viewModel = TrackingSettingsViewModel(
             controller, settings, mockk(), mockk(relaxed = true), trakt, simkl, harness.store, website, profiles,
-            aniListAuth, aniListApi
+            aniListAuth, aniListApi, malAuth, malApi
         )
         runCurrent()
         assertEquals(setOf(TrackingProviderId.MDBLIST), viewModel.uiState.value.connectedProviderIds)

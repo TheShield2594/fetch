@@ -8,6 +8,9 @@ import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.core.tracking.TrackingScrobbleAction
 import com.fetch.tv.core.tracking.TrackingScrobbleEvent
 import com.fetch.tv.core.tracking.TrackingScrobbler
+import com.fetch.tv.data.anime.ANIME_WATCHED_PERCENT
+import com.fetch.tv.data.anime.AnimeEntryResolver
+import com.fetch.tv.data.anime.nextAnimeProgress
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.StateFlow
@@ -35,47 +38,23 @@ class AniListTrackingProvider @Inject constructor(
 class AniListScrobbler @Inject constructor(
     private val auth: AniListAuthStore,
     private val api: AniListApi,
-    private val resolver: AniListEntryResolver
+    private val resolver: AnimeEntryResolver
 ) : TrackingScrobbler {
     override val providerId = TrackingProviderId.ANILIST
 
     override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
-        if (action != TrackingScrobbleAction.STOP || event.progressPercent < WATCHED_PERCENT) return
+        if (action != TrackingScrobbleAction.STOP || event.progressPercent < ANIME_WATCHED_PERCENT) return
         // Captured before any network call so a profile switch can't move another profile's list.
         val state = auth.current(auth.activeProfileId())
         val token = state.accessToken?.takeIf { state.isAuthenticated() } ?: return
-        val target = resolver.resolve(event.media, token) ?: return
-        val entry = api.entry(token, target.mediaId)
-        val update = nextAniListProgress(entry, target.episode) ?: return
-        api.saveProgress(token, target.mediaId, update.progress, update.status)
-        Log.d(TAG, "AniList ${target.mediaId} progress ${update.progress} (${update.status})")
+        val target = resolver.forAniList(event.media, token) ?: return
+        val mediaId = target.aniListId ?: return
+        val update = nextAnimeProgress(api.entry(token, mediaId), target.episode) ?: return
+        api.saveProgress(token, mediaId, update.progress, update.status)
+        Log.d(TAG, "AniList $mediaId progress ${update.progress} (${update.status})")
     }
 
     private companion object {
         const val TAG = "AniListScrobble"
-
-        /** Trakt's rule for a play that counts as watched; Fetch scrobbles every service the same way. */
-        const val WATCHED_PERCENT = 80.0
     }
-}
-
-data class AniListProgressUpdate(val progress: Int, val status: AniListStatus)
-
-/**
- * What a finished [episode] does to an AniList entry: progress only moves forward, the entry is
- * completed on its last episode, and a completed entry being rewatched outside a repeat is left
- * alone. Null means nothing to change.
- */
-fun nextAniListProgress(entry: AniListEntry?, episode: Int): AniListProgressUpdate? {
-    if (episode <= 0) return null
-    val total = entry?.episodes
-    val progress = total?.let { episode.coerceAtMost(it) } ?: episode
-    val current = entry?.progress ?: 0
-    if (entry?.status == AniListStatus.COMPLETED || progress <= current) return null
-    val status = when {
-        total != null && progress >= total -> AniListStatus.COMPLETED
-        entry?.status == AniListStatus.REPEATING -> AniListStatus.REPEATING
-        else -> AniListStatus.CURRENT
-    }
-    return AniListProgressUpdate(progress, status)
 }

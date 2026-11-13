@@ -20,10 +20,22 @@ const EVENT_LABELS: Record<string, string> = {
   username_changed: "Username changed",
   admin_granted: "Became the admin",
   admin_transferred: "Handed admin on",
+  addon_url_rotated: "Stremio addon URL replaced",
+  totp_enabled: "Two-factor sign-in turned on",
+  totp_disabled: "Two-factor sign-in turned off",
+  totp_failed: "Wrong two-factor code",
+  recovery_code_used: "Recovery code used",
 };
 
 /** Events worth a second look: someone else tried, or did, something to the account. */
-const NOTABLE = new Set(["sign_in_failed", "password_reset", "pin_cleared"]);
+const NOTABLE = new Set([
+  "sign_in_failed",
+  "password_reset",
+  "pin_cleared",
+  "totp_failed",
+  "totp_disabled",
+  "recovery_code_used",
+]);
 
 export const describeEvent = (event: AccountEvent): string => EVENT_LABELS[event.kind] ?? event.kind;
 

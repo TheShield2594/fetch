@@ -93,7 +93,8 @@ model AccountEvent {
   // A short code: sign_in, sign_in_failed, password_changed, password_reset,
   // pin_changed, pin_removed, pin_cleared, tv_paired, tv_signed_out,
   // session_revoked, signed_out_everywhere, username_changed, admin_granted,
-  // admin_transferred.
+  // admin_transferred, addon_url_rotated, totp_enabled, totp_disabled,
+  // totp_failed, recovery_code_used.
   kind      String
   // A few words of context: a profile or TV name, who reset a password.
   detail    String?
@@ -165,6 +166,11 @@ model Profile {
   // not here: each TV counts its own. See lib/kids-rules.ts.
   kidsRules           Json?
   kidsRulesUpdatedAt  DateTime? @db.Timestamptz(6)
+  // Which generation of the profile's Stremio key its addon URLs carry
+  // (`deriveStremioProfileKey` in @fetch/shared). Replacing the URL from
+  // Settings adds one; 0 is the original derivation, so URLs installed before
+  // this existed keep working until someone replaces them.
+  stremioKeyGeneration Int @default(0)
   updatedAt           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   createdAt           DateTime @default(now()) @db.Timestamptz(6)
 

@@ -102,7 +102,7 @@ const findProfileById = async (id: string): Promise<CachedProfile | null> => {
   const profiles = await readThrough(id, async () => {
     const profile = await prisma.profile.findUnique({
       where: { id },
-      select: { id: true, pinHash: true, accountId: true },
+      select: { id: true, pinHash: true, accountId: true, stremioKeyGeneration: true },
     });
     return profile ? [profile] : [];
   });
@@ -115,7 +115,7 @@ const findProfileCandidates = async (request: FastifyRequest): Promise<CachedPro
   return readThrough(`${PROFILE_PROBE_KEY}:${scope ?? "all"}`, () =>
     prisma.profile.findMany({
       where: scope ? { accountId: scope } : {},
-      select: { id: true, pinHash: true, accountId: true },
+      select: { id: true, pinHash: true, accountId: true, stremioKeyGeneration: true },
       take: 2,
     })
   );
@@ -165,11 +165,15 @@ export const hasValidProfileToken = (
  * is serving came in on that profile's signed URL. An unsigned `/p/<uuid>` URL
  * carries no key, so it still stops at the PIN.
  */
-export const isSignedAddonRequestFor = (request: FastifyRequest, profileId: string): boolean => {
+export const isSignedAddonRequestFor = (
+  request: FastifyRequest,
+  profile: { id: string; stremioKeyGeneration: number }
+): boolean => {
   if (!isServiceRequest(request)) return false;
   const headerValue = request.headers[STREMIO_PROFILE_KEY_HEADER];
   const key = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-  return matchesStremioProfileKey(key, process.env.API_TOKEN, profileId);
+  // Only the current generation: a URL replaced from Settings stops here too.
+  return matchesStremioProfileKey(key, process.env.API_TOKEN, profile.id, profile.stremioKeyGeneration);
 };
 
 export const PROFILE_LOCKED_RESPONSE = {
@@ -363,7 +367,7 @@ export const resolveProfile = async (request: FastifyRequest, reply: FastifyRepl
     if (
       profile.pinHash &&
       !hasValidProfileToken(request, profile) &&
-      !isSignedAddonRequestFor(request, profile.id)
+      !isSignedAddonRequestFor(request, profile)
     ) {
       return reply.code(401).send(PROFILE_LOCKED_RESPONSE);
     }

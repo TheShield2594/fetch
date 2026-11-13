@@ -4,9 +4,10 @@ import {
   matchesStremioProfileKey,
   parseAuthStatusResponse,
   parseProfilesResponse,
+  parseStremioKeyGenerationResponse,
   UUID_V4_PATTERN,
 } from "@fetch/shared";
-import { type ApiProfile, apiGet, NO_PROFILE } from "./api-client.js";
+import { type ApiProfile, apiGet, apiHeaders, apiUrl, fetchWithTimeout, NO_PROFILE } from "./api-client.js";
 import { FETCH_API_TOKEN, SIGNED_URL_MODE } from "./config.js";
 
 /**
@@ -37,15 +38,68 @@ export const PROFILE_ROUTE_PREFIX = "/p/:profileId";
  * service could read that profile's lists and record watches as it. The key is
  * an HMAC of the profile id under `API_TOKEN` (`deriveStremioProfileKey`), so it
  * can only have come from someone signed in as that profile — Settings shows
- * it — and is checked here with no lookup. These are the URLs that are safe to
+ * it — and is checked here against the profile's current key generation. These are the URLs that are safe to
  * put on the internet. `ADDON_REQUIRE_SIGNED_URLS` turns the other two off, and
  * by default they are off as soon as the install has a second account.
  */
 export const SIGNED_PROFILE_ROUTE_PREFIX = "/u/:profileId/:profileKey";
+// The key also mixes in the profile's key generation (see below), so one
+// profile's URL can be replaced without touching `API_TOKEN`.
 
-/** The signed prefix for `profileId`, for URLs this service mints. Null with no API token. */
-export const signedProfilePath = (profileId: string): string | null =>
-  FETCH_API_TOKEN ? `/u/${profileId}/${deriveStremioProfileKey(FETCH_API_TOKEN, profileId)}` : null;
+// ─── Key generations ───
+//
+// A profile's key also depends on its `stremioKeyGeneration`, which goes up
+// each time someone replaces the profile's addon URL in Settings (#565). The
+// API holds it, so a signed URL is checked against the generation the API
+// reports *now*: a replaced URL has to stop working right away, here as well
+// as at the API, and this service caches whole responses that would otherwise
+// carry on answering it.
+//
+// The last generation seen per profile is kept, for two things only: answering
+// while the API is briefly unreachable (as the default-profile lookup does),
+// and the rate limiter, which has to decide synchronously. A profile the API
+// says does not exist is forgotten.
+const knownGenerations = new Map<string, number>();
+
+/** The generation last confirmed for a profile, if any. */
+export const knownStremioKeyGeneration = (profileId: string): number | undefined => knownGenerations.get(profileId);
+
+// Stremio opens a handful of catalogs at once, all on the same URL: one lookup
+// answers all of them.
+const generationLookups = new Map<string, Promise<number | null>>();
+
+const lookupGeneration = async (profileId: string, logger: FastifyBaseLogger): Promise<number | null> => {
+  try {
+    const response = await fetchWithTimeout(apiUrl(`/profiles/${profileId}/addon-url/generation`), {
+      headers: apiHeaders(NO_PROFILE),
+    });
+    if (response.status === 404) {
+      knownGenerations.delete(profileId);
+      return null;
+    }
+    if (!response.ok) throw new Error(`API addon-url/generation returned ${response.status}`);
+    const { generation } = parseStremioKeyGenerationResponse(await response.json());
+    knownGenerations.set(profileId, generation);
+    return generation;
+  } catch (error) {
+    const known = knownGenerations.get(profileId);
+    logger.warn(error, "Failed to check a profile's addon key; using the last one seen, if any");
+    return known ?? null;
+  }
+};
+
+/** The profile's current key generation, or null for a profile the API doesn't know. */
+const currentGeneration = (profileId: string, logger: FastifyBaseLogger): Promise<number | null> => {
+  const inFlight = generationLookups.get(profileId);
+  if (inFlight) return inFlight;
+  const lookup = lookupGeneration(profileId, logger).finally(() => generationLookups.delete(profileId));
+  generationLookups.set(profileId, lookup);
+  return lookup;
+};
+
+/** The signed prefix for `profileId` at a key generation. Null with no API token. */
+export const signedProfilePath = (profileId: string, generation = 0): string | null =>
+  FETCH_API_TOKEN ? `/u/${profileId}/${deriveStremioProfileKey(FETCH_API_TOKEN, profileId, generation)}` : null;
 
 /**
  * `profileId: null` means "no profile bound" — the header is omitted and the
@@ -118,7 +172,10 @@ export const resolveProfileScope = async (request: FastifyRequest): Promise<Prof
   if (key !== undefined) {
     // A wrong key answers exactly as an unknown profile does.
     if (raw === undefined || !UUID_V4_PATTERN.test(raw)) return { ok: false };
-    if (typeof key !== "string" || !matchesStremioProfileKey(key, FETCH_API_TOKEN, raw)) return { ok: false };
+    // Shape first, so a malformed key costs no API call.
+    if (typeof key !== "string" || !/^[0-9a-f]{64}$/.test(key) || !FETCH_API_TOKEN) return { ok: false };
+    const generation = await currentGeneration(raw, request.log);
+    if (generation === null || !matchesStremioProfileKey(key, FETCH_API_TOKEN, raw, generation)) return { ok: false };
     // The verified key travels on to the API, which accepts it (from this
     // service) in place of the profile's PIN token.
     return { ok: true, profileId: raw, profileKey: key };

@@ -82,7 +82,12 @@ export const searchLookups = new Map<string, Promise<MetadataPayload[]>>();
 // resolving an unknown profile ID is a 404 path, not a hot one.
 export const PROFILE_CACHE_TTL_MS = 30 * 1000;
 
-export type CachedProfile = { id: string; pinHash: string | null; accountId: string | null };
+export type CachedProfile = {
+  id: string;
+  pinHash: string | null;
+  accountId: string | null;
+  stremioKeyGeneration: number;
+};
 
 export const profileCache = new LRUCache<string, CachedProfile[]>({
   max: 100,

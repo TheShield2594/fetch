@@ -16,7 +16,7 @@ import {
   getCustomListMetas,
 } from "../lib/stremio-helpers.js";
 import { upsertMetadata } from "../lib/metadata.js";
-import { deriveStremioSecret, resolveProfileFromStremioSecret } from "../lib/stremio-secret.js";
+import { resolveProfileFromStremioSecret, stremioManifestFor } from "../lib/stremio-secret.js";
 import {
   getDefaultProfileId,
   ownsProfile,
@@ -163,7 +163,7 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
   // enable it for everyone else on the install.
   app.get("/addon/config", { preHandler: resolveProfile }, async (request): Promise<AddonConfigResponse> => {
     const profileId = request.profileId as string;
-    const [config, aiConfigured, userLists] = await Promise.all([
+    const [config, aiConfigured, userLists, keyRow] = await Promise.all([
       getAddonConfig(profileId),
       isAiConfiguredForProfile(profileId),
       prisma.list.findMany({
@@ -171,11 +171,12 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
         select: { id: true, name: true },
         orderBy: { createdAt: "asc" },
       }),
+      prisma.profile.findUnique({ where: { id: profileId }, select: { stremioKeyGeneration: true } }),
     ]);
+    const generation = keyRow?.stremioKeyGeneration ?? 0;
     // The manifest URL carries this profile's addon secret, so it can only be
     // handed out from a route that already knows who is asking.
-    const secret = deriveStremioSecret(profileId);
-    const manifestPath = secret ? `/addon/stremio/${secret}/manifest.json` : null;
+    const urls = stremioManifestFor(profileId, generation, FETCH_API_PUBLIC);
     return {
       config,
       // Labelled here rather than in the Settings picker: a fourth copy of the
@@ -190,12 +191,10 @@ const stremioRoutes: FastifyPluginAsync = async (app) => {
       // drop the AI catalogs when there is no AI provider for the same reason
       // the manifest below does.
       aiConfigured,
-      stremioManifestPath: manifestPath,
-      stremioManifestUrl:
-        manifestPath && FETCH_API_PUBLIC ? `${FETCH_API_PUBLIC}${manifestPath}` : null,
-      // The same key, for the addon service's install URL. Only ever returned
-      // for the caller's own profile: resolveProfile picked it.
-      stremioProfileKey: secret,
+      // `stremioProfileKey` is the same key, for the addon service's install
+      // URL. Only ever returned for the caller's own profile: resolveProfile
+      // picked it.
+      ...urls,
     };
   });
 

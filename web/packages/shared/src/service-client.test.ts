@@ -19,6 +19,27 @@ describe("deriveStremioProfileKey", () => {
   });
 });
 
+describe("deriveStremioProfileKey generations", () => {
+  it("keeps generation 0 identical to the original derivation", async () => {
+    const { createHmac } = await import("node:crypto");
+    const original = createHmac("sha256", TOKEN).update(`fetch-stremio-addon:${PROFILE}`).digest("hex");
+    expect(deriveStremioProfileKey(TOKEN, PROFILE, 0)).toBe(original);
+    expect(deriveStremioProfileKey(TOKEN, PROFILE)).toBe(original);
+  });
+
+  it("gives each generation its own key", () => {
+    const keys = [0, 1, 2].map((g) => deriveStremioProfileKey(TOKEN, PROFILE, g));
+    expect(new Set(keys).size).toBe(3);
+  });
+
+  it("matches only the current generation", () => {
+    const old = deriveStremioProfileKey(TOKEN, PROFILE, 0);
+    const current = deriveStremioProfileKey(TOKEN, PROFILE, 1);
+    expect(matchesStremioProfileKey(old, TOKEN, PROFILE, 1)).toBe(false);
+    expect(matchesStremioProfileKey(current, TOKEN, PROFILE, 1)).toBe(true);
+  });
+});
+
 describe("matchesStremioProfileKey", () => {
   const key = deriveStremioProfileKey(TOKEN, PROFILE);
 

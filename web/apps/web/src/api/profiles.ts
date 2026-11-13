@@ -61,6 +61,19 @@ export const profilesApi = {
       body: JSON.stringify({ password }),
     });
   },
+  /**
+   * Replaces the profile's Stremio addon URL. The old one stops working at
+   * once; Stremio needs the new one installed to keep syncing.
+   */
+  rotateAddonUrl(profileId: string, currentPin?: string) {
+    return request<{ stremioManifestPath: string | null; stremioManifestUrl: string | null; stremioProfileKey: string | null }>(
+      `/profiles/${encodeURIComponent(profileId)}/addon-url/rotate`,
+      {
+        method: "POST",
+        body: JSON.stringify(currentPin ? { currentPin } : {}),
+      }
+    );
+  },
   deleteProfile(profileId: string, currentPin?: string) {
     return request<void>(`/profiles/${encodeURIComponent(profileId)}`, {
       method: "DELETE",

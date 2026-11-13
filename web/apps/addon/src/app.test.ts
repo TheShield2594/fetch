@@ -14,8 +14,10 @@ const OTHER_PROFILE_ID = "22222222-2222-4222-8222-222222222222";
 
 const MUTATION_TOKEN = createHmac("sha256", API_TOKEN).update("fetch-addon-mutation").digest("hex");
 /** A profile's Stremio key, as Settings hands it out: the same HMAC the API's own addon uses. */
-const profileKey = (profileId: string) =>
-  createHmac("sha256", API_TOKEN).update(`fetch-stremio-addon:${profileId}`).digest("hex");
+const profileKey = (profileId: string, generation = 0) =>
+  createHmac("sha256", API_TOKEN)
+    .update(generation > 0 ? `fetch-stremio-addon:${profileId}:${generation}` : `fetch-stremio-addon:${profileId}`)
+    .digest("hex");
 const signedPrefix = (profileId: string) => `/u/${profileId}/${profileKey(profileId)}`;
 
 process.env.FETCH_API_TOKEN = API_TOKEN;
@@ -37,6 +39,8 @@ let lists: { id: string; name: string; kind: string }[];
 let genresBody: unknown;
 /** What `GET /auth/status` says to the API token: a status, or the field's value. */
 let multipleAccounts: boolean | "error" = false;
+/** Each profile's Stremio key generation, as the API reports it; unknown ids 404. */
+let keyGenerations: Record<string, number>;
 
 const jsonResponse = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -56,6 +60,11 @@ const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
   if (pathname === "/auth/status") {
     if (multipleAccounts === "error") return jsonResponse({ error: "boom" }, 500);
     return jsonResponse({ setupRequired: false, multipleAccounts });
+  }
+  const generationMatch = /^\/profiles\/([^/]+)\/addon-url\/generation$/.exec(pathname);
+  if (generationMatch) {
+    const generation = keyGenerations[generationMatch[1]!];
+    return generation === undefined ? jsonResponse({ error: "Not found" }, 404) : jsonResponse({ generation });
   }
   if (pathname === "/profiles") {
     return jsonResponse({ profiles: [{ id: DEFAULT_PROFILE_ID }, { id: OTHER_PROFILE_ID }] });
@@ -114,6 +123,7 @@ beforeEach(async () => {
   lists = [{ id: WATCHLIST_ID, name: "Watchlist", kind: "watchlist" }];
   genresBody = { genres: ["Drama"] };
   multipleAccounts = false;
+  keyGenerations = { [DEFAULT_PROFILE_ID]: 0, [OTHER_PROFILE_ID]: 0 };
   fetchMock.mockClear();
   vi.stubGlobal("fetch", fetchMock);
   app = await buildApp();
@@ -606,6 +616,27 @@ describe("signed addon URLs", () => {
 
     expect(wrong.statusCode).toBe(404);
     expect(borrowed.statusCode).toBe(404);
+  });
+
+  it("turns a replaced URL away at once and serves the new one", async () => {
+    const oldUrl = `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json`;
+    expect((await app.inject({ method: "GET", url: oldUrl })).statusCode).toBe(200);
+
+    // Settings → "Change this profile's addon URL" bumps the generation.
+    keyGenerations[OTHER_PROFILE_ID] = 1;
+
+    expect((await app.inject({ method: "GET", url: oldUrl })).statusCode).toBe(404);
+    const fresh = await app.inject({
+      method: "GET",
+      url: `/u/${OTHER_PROFILE_ID}/${profileKey(OTHER_PROFILE_ID, 1)}/manifest.json`,
+    });
+    expect(fresh.statusCode).toBe(200);
+  });
+
+  it("answers a profile the API doesn't know as unknown", async () => {
+    delete keyGenerations[OTHER_PROFILE_ID];
+    const response = await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+    expect(response.statusCode).toBe(404);
   });
 
   describe("on a PIN-protected profile", () => {

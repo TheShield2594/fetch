@@ -46,8 +46,21 @@ const STREMIO_PROFILE_SECRET_LABEL = "fetch-stremio-addon";
  * One key per profile, used by both the API's own catalog addon
  * (`/addon/stremio/<key>/…`) and the addon service (`/u/<profileId>/<key>/…`).
  */
-export const deriveStremioProfileKey = (apiToken: string, profileId: string): string =>
-  createHmac("sha256", apiToken).update(`${STREMIO_PROFILE_SECRET_LABEL}:${profileId}`).digest("hex");
+/**
+ * `generation` is the profile's `stremioKeyGeneration`: replacing a profile's
+ * URL (Settings → Stremio addon) bumps it, which changes this profile's key and
+ * no one else's. Generation 0 is the original derivation, unchanged, so URLs
+ * installed before the counter existed keep working until someone replaces
+ * them.
+ */
+export const deriveStremioProfileKey = (apiToken: string, profileId: string, generation = 0): string =>
+  createHmac("sha256", apiToken)
+    .update(
+      generation > 0
+        ? `${STREMIO_PROFILE_SECRET_LABEL}:${profileId}:${generation}`
+        : `${STREMIO_PROFILE_SECRET_LABEL}:${profileId}`
+    )
+    .digest("hex");
 
 /**
  * Header the addon service uses to pass the API the profile key from a signed
@@ -68,7 +81,12 @@ const STREMIO_PROFILE_KEY_PATTERN = /^[0-9a-f]{64}$/;
  * because timingSafeEqual throws on buffers of different byte lengths, and 64
  * characters of anything but ASCII is more than 64 bytes.
  */
-export const matchesStremioProfileKey = (candidate: unknown, apiToken: string | undefined, profileId: string): boolean => {
+export const matchesStremioProfileKey = (
+  candidate: unknown,
+  apiToken: string | undefined,
+  profileId: string,
+  generation = 0
+): boolean => {
   if (!apiToken || typeof candidate !== "string" || !STREMIO_PROFILE_KEY_PATTERN.test(candidate)) return false;
-  return timingSafeEqual(Buffer.from(candidate), Buffer.from(deriveStremioProfileKey(apiToken, profileId)));
+  return timingSafeEqual(Buffer.from(candidate), Buffer.from(deriveStremioProfileKey(apiToken, profileId, generation)));
 };

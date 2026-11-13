@@ -25,6 +25,9 @@ import { deleteProfileConnectionState } from "../lib/profile-connections.js";
 import { resetTraktClient } from "../lib/trakt-client.js";
 import { recordAccountEvent } from "../lib/account-events.js";
 import { clearProfilePin } from "../lib/account-admin.js";
+import { isServiceRequest } from "../lib/service-request.js";
+import { stremioManifestFor } from "../lib/stremio-secret.js";
+import type { AddonUrlRotateResponse, StremioKeyGenerationResponse } from "@fetch/shared";
 
 const pinAttemptKey = (profileId: string) => `pinattempts:${profileId}`;
 const getPinLockout = (profileId: string) => getLockout(pinAttemptKey(profileId));
@@ -401,6 +404,64 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       return { profile: toProfileView(updated) };
     }
   );
+
+  // Replaces a profile's Stremio addon URL (#565). The URL's key is the only
+  // credential Stremio has, so one that leaked stays good until it is replaced;
+  // this retires it for this profile alone, rather than rotating `API_TOKEN`
+  // and with it every profile's URL and every other credential. The old URL
+  // answers 404 from the API and the addon service as soon as this returns.
+  //
+  // A PIN-protected profile needs its profile token or its PIN, like any other
+  // change to it.
+  app.post<{ Params: { id: string }; Body: unknown }>(
+    "/profiles/:id/addon-url/rotate",
+    { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } },
+    async (request, reply) => {
+      if (!UUID_V4_PATTERN.test(request.params.id)) {
+        return reply.code(400).send({ error: "id must be a valid UUID" });
+      }
+      const profile = await findOwnedProfileRow(request, request.params.id);
+      if (!profile) return reply.code(404).send({ error: "Profile not found" });
+
+      if (profile.pinHash && !hasValidProfileToken(request, profile)) {
+        const body = (request.body ?? {}) as { currentPin?: unknown };
+        const proof = await verifyCurrentPin(profile.id, profile.pinHash, body.currentPin);
+        if (proof === "locked_out") return reply.code(429).send(await lockedOutBody(profile.id));
+        if (proof === "missing") return reply.code(401).send(TARGET_PROFILE_LOCKED_RESPONSE);
+        if (proof === "wrong") return reply.code(401).send({ error: "Incorrect current PIN" });
+      }
+
+      const updated = await prisma.profile.update({
+        where: { id: profile.id },
+        data: { stremioKeyGeneration: { increment: 1 } },
+        select: { id: true, name: true, accountId: true, stremioKeyGeneration: true },
+      });
+      // The profile cache carries the generation the signed-request check reads.
+      invalidateProfileCache();
+      if (updated.accountId) {
+        await recordAccountEvent(updated.accountId, "addon_url_rotated", { request, detail: updated.name });
+      }
+      const urls: AddonUrlRotateResponse = stremioManifestFor(updated.id, updated.stremioKeyGeneration);
+      return urls;
+    }
+  );
+
+  // Which generation of a profile's Stremio key is current, for the addon
+  // service: it checks signed `/u/<profileId>/<key>/` URLs itself, and needs
+  // this to turn a replaced URL away. To anything else this route does not
+  // exist — the generation is half of what derives the key.
+  app.get<{ Params: { id: string } }>("/profiles/:id/addon-url/generation", async (request, reply) => {
+    if (!isServiceRequest(request) || !UUID_V4_PATTERN.test(request.params.id)) {
+      return reply.code(404).send({ error: "Not found" });
+    }
+    const profile = await prisma.profile.findUnique({
+      where: { id: request.params.id },
+      select: { stremioKeyGeneration: true },
+    });
+    if (!profile) return reply.code(404).send({ error: "Profile not found" });
+    const body: StremioKeyGenerationResponse = { generation: profile.stremioKeyGeneration };
+    return body;
+  });
 
   // What deleting a profile takes with it, so the confirmation can say so in
   // numbers rather than "all of its data".

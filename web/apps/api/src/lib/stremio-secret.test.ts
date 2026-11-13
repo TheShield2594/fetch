@@ -26,35 +26,49 @@ describe("stremio addon secret", () => {
   it("derives a stable, profile-specific secret", async () => {
     const { deriveStremioSecret } = await import("./stremio-secret.js");
 
-    const secret = deriveStremioSecret(PROFILE_ID);
+    const secret = deriveStremioSecret(PROFILE_ID, 0);
 
     expect(secret).toMatch(/^[0-9a-f]{64}$/);
-    expect(deriveStremioSecret(PROFILE_ID)).toBe(secret);
-    expect(deriveStremioSecret(OTHER_PROFILE_ID)).not.toBe(secret);
+    expect(deriveStremioSecret(PROFILE_ID, 0)).toBe(secret);
+    expect(deriveStremioSecret(OTHER_PROFILE_ID, 0)).not.toBe(secret);
   });
 
   it("changes every secret when API_TOKEN is rotated, and derives none without one", async () => {
     const { deriveStremioSecret } = await import("./stremio-secret.js");
-    const before = deriveStremioSecret(PROFILE_ID);
+    const before = deriveStremioSecret(PROFILE_ID, 0);
 
     process.env.API_TOKEN = "rotated-api-token";
-    expect(deriveStremioSecret(PROFILE_ID)).not.toBe(before);
+    expect(deriveStremioSecret(PROFILE_ID, 0)).not.toBe(before);
 
     delete process.env.API_TOKEN;
-    expect(deriveStremioSecret(PROFILE_ID)).toBeNull();
+    expect(deriveStremioSecret(PROFILE_ID, 0)).toBeNull();
   });
 
   it("resolves a secret back to the profile it was derived for", async () => {
     const { deriveStremioSecret, resolveProfileFromStremioSecret } = await import("./stremio-secret.js");
 
-    await expect(resolveProfileFromStremioSecret(deriveStremioSecret(OTHER_PROFILE_ID))).resolves.toBe(
+    await expect(resolveProfileFromStremioSecret(deriveStremioSecret(OTHER_PROFILE_ID, 0))).resolves.toBe(
       OTHER_PROFILE_ID
     );
   });
 
+  it("retires a profile's old secret once its generation moves on, and no one else's", async () => {
+    const { deriveStremioSecret, resolveProfileFromStremioSecret } = await import("./stremio-secret.js");
+    const oldSecret = deriveStremioSecret(PROFILE_ID, 0);
+    const otherSecret = deriveStremioSecret(OTHER_PROFILE_ID, 0);
+    prismaMock.profile.findMany.mockResolvedValue([
+      { id: PROFILE_ID, stremioKeyGeneration: 1 },
+      { id: OTHER_PROFILE_ID, stremioKeyGeneration: 0 },
+    ]);
+
+    await expect(resolveProfileFromStremioSecret(oldSecret)).resolves.toBeNull();
+    await expect(resolveProfileFromStremioSecret(deriveStremioSecret(PROFILE_ID, 1))).resolves.toBe(PROFILE_ID);
+    await expect(resolveProfileFromStremioSecret(otherSecret)).resolves.toBe(OTHER_PROFILE_ID);
+  });
+
   it("rejects an unknown secret, and one minted under a different API_TOKEN", async () => {
     const { deriveStremioSecret, resolveProfileFromStremioSecret } = await import("./stremio-secret.js");
-    const staleSecret = deriveStremioSecret(PROFILE_ID);
+    const staleSecret = deriveStremioSecret(PROFILE_ID, 0);
 
     await expect(resolveProfileFromStremioSecret("f".repeat(64))).resolves.toBeNull();
 

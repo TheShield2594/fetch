@@ -23,7 +23,12 @@ export type AccountEventKind =
   | "signed_out_everywhere"
   | "username_changed"
   | "admin_granted"
-  | "admin_transferred";
+  | "admin_transferred"
+  | "addon_url_rotated"
+  | "totp_enabled"
+  | "totp_disabled"
+  | "totp_failed"
+  | "recovery_code_used";
 
 /** How long an event is kept. */
 export const ACCOUNT_EVENT_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;

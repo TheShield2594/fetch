@@ -268,6 +268,30 @@ export const parseAddonConfigResponse = (value: unknown): AddonManifestConfig =>
   };
 };
 
+/**
+ * `POST /profiles/:id/addon-url/rotate`: the profile's new addon URLs. The old
+ * ones stop working as soon as this answers.
+ */
+export type AddonUrlRotateResponse = {
+  stremioManifestPath: string | null;
+  stremioManifestUrl: string | null;
+  stremioProfileKey: string | null;
+};
+
+/**
+ * `GET /profiles/:id/addon-url/generation`, for the addon service only: which
+ * generation of the profile's Stremio key is current, so the service can check
+ * a signed `/u/<profileId>/<key>/` URL against it.
+ */
+export type StremioKeyGenerationResponse = { generation: number };
+
+export const parseStremioKeyGenerationResponse = (value: unknown): StremioKeyGenerationResponse => {
+  const body = asObject(value, "response");
+  const generation = asNumber(body.generation, "generation");
+  if (!Number.isInteger(generation) || generation < 0) throw new Error("generation must be a non-negative integer");
+  return { generation };
+};
+
 // ─── RPDB ───
 
 export type RpdbConfigResponse = { enabled: boolean; apiKey: string | null };

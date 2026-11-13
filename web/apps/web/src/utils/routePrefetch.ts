@@ -197,7 +197,10 @@ function onIdle(run: () => void): void {
 // Discover has finished its own work. Settings is deliberately absent: it
 // is the largest chunk by a wide margin and the least-visited page, so it earns
 // its download on hover/touch rather than on every session.
-const IDLE_PREFETCH: Loader[] = [
+export const IDLE_PREFETCH: readonly Loader[] = [
+  // First, because a title tap is the most common first action on a cold load
+  // and nothing warns before it — without this the first tap waits on a ~15 kB
+  // (gzip) chunk and looks like it did nothing.
   loadDetailPanel,
   // ⌘K expects to be instant, and there is no hover to warm it on.
   loadCommandPalette,

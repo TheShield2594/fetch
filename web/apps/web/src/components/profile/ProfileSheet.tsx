@@ -4,7 +4,6 @@ import { isValidPinFormat, MAX_PIN_LENGTH, MIN_PIN_LENGTH, PIN_FORMAT_ERROR } fr
 import {
   api,
   ApiError,
-  RATING_LEVELS,
   type KidsRules,
   type Profile,
   type ProfileParental,
@@ -12,6 +11,7 @@ import {
   type ProfileSummary,
   type RatingLevel,
 } from "../../api";
+import { RATING_LEVELS } from "../../api/ratingLevels";
 import { useProfile } from "../../hooks/useProfile";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useExitAnimation } from "../../hooks/useExitAnimation";

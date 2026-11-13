@@ -142,6 +142,23 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            // Left to itself the bundler gives every lucide icon that two
+            // chunks share a file of its own, so pages fetched runs of
+            // sub-kilobyte requests (`pencil`, `trash`, `heart`, …). Shared
+            // icons go in one chunk instead; an icon only one chunk uses stays
+            // in that chunk, so the cold start doesn't pay for icons that only
+            // Settings draws. Tree-shaking still runs per icon.
+            { name: "icons", test: /[\\/]node_modules[\\/]lucide-react[\\/]/, minShareCount: 2 },
+          ],
+        },
+      },
+    },
+  },
   server: {
     host: "0.0.0.0",
     port: 7002,

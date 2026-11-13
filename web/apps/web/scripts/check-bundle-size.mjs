@@ -32,7 +32,9 @@ const BUDGET_KB = {
 // the size budgets are for (it added 29 files and ~15 kB).
 const FORBIDDEN = /^(SettingsPage|ProfilePage|ProfileSheet|[A-Za-z]+Settings)-/;
 
-const distDir = resolve(process.argv[2] ?? "dist");
+const args = process.argv.slice(2);
+const report = args.includes("--report");
+const distDir = resolve(args.find((arg) => !arg.startsWith("--")) ?? "dist");
 const html = readFileSync(join(distDir, "index.html"), "utf8");
 
 const entryMatch = html.match(/<script[^>]+type="module"[^>]+src="\/?([^"]+)"/);
@@ -68,7 +70,7 @@ console.log(`cold start, ${files.length} files: ${fmt(initialKb)} gzip (budget $
 for (const file of preloads) console.log(`  preload ${base(file)}: ${fmt(gzipKb(file))}`);
 
 // Every chunk, largest first, so a CI log answers "what grew" without a rebuild.
-if (process.env.BUNDLE_REPORT) {
+if (report) {
   const all = readdirSync(join(distDir, "assets"))
     .filter((f) => f.endsWith(".js"))
     .map((f) => [f, gzipKb(join("assets", f))])

@@ -48,6 +48,18 @@ class PairingGuardTest {
     }
 
     @Test
+    fun `the post-pairing redirect stays on this server`() {
+        listOf("//evil.example", "/\\evil.example", "http://evil.example/", "evil", "", "/a\r\nSet-Cookie: x=1")
+            .forEach { assertEquals(it, "/", PairingGuard.safeRedirectPath(it)) }
+        listOf("/", "/addons", "/api/remote")
+            .forEach { assertEquals(it, PairingGuard.safeRedirectPath(it)) }
+
+        val guard = PairingGuard()
+        val paired = guard.decide("192.168.1.20", "//evil.example", guard.pairingToken, null)
+        assertEquals("/", (paired as PairingGuard.Decision.Paired).location)
+    }
+
+    @Test
     fun `devices outside the local network are refused even with the token`() {
         val guard = PairingGuard()
         val decision = guard.decide("203.0.113.9", "/", guard.pairingToken, null)

@@ -46,7 +46,7 @@ import { aiApi } from "./api/ai";
 import { collectionsApi } from "./api/collections";
 import { authApi } from "./api/auth";
 import { dataApi } from "./api/data";
-export type { ExternalImportFormat } from "./api/data";
+export type { ExternalImportFormat, StremioImportState } from "./api/data";
 import { devicesApi } from "./api/devices";
 import { discoverApi } from "./api/discover";
 import { integrationsApi } from "./api/integrations";

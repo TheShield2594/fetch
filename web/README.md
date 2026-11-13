@@ -377,7 +377,7 @@ Fetch records what you've watched from whichever of these you set up — none is
 | **Emby** | Webhook, as it happens |
 | **The web app** | Marking watched by hand, check-ins, the scrobble API |
 | **Trakt** | Optional — see [Trakt is optional](#trakt-is-optional) |
-| **Other trackers** | One-off CSV/JSON imports (Letterboxd, IMDb, Simkl) — see [Export / import your data](#export--import-your-data) |
+| **Other trackers** | One-off imports from a Stremio account and from Letterboxd, IMDb and Simkl exports — see [Export / import your data](#export--import-your-data) |
 
 ### Simkl
 
@@ -540,6 +540,8 @@ Settings → Data also supports importing directly from other trackers' CSV expo
 - **Simkl**: `simkl`.
 
 Letterboxd exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis; unmatched rows are skipped and reported in the import summary. A file that isn't the export the format names gets a `400` saying so, with two exceptions, pairs of exports that have the same columns, so picking the wrong one of the pair can't be caught and brings its titles in the other way: Letterboxd's `watched.csv` and `watchlist.csv` (plays instead of watchlist entries, or the reverse), and an IMDb watchlist and an IMDb list (the watchlist instead of the named list, or the reverse).
+
+Settings → Data → **Import from a Stremio account** brings a Stremio library's history into the profile, as the TV's Settings → Tracking does. The page shows Stremio's link code; approve it at the link on any device signed in to Stremio, and the server reads the library once (`api.strem.io`, through `link.stremio.com` for the code) and signs that session out. It imports watched films, the watched episodes of each series and resume points. Stremio keeps watched episodes as one bit per episode in its own episode order, so the server reads each series' episode list from Cinemeta (`v3-cinemeta.strem.io`), the catalog a Stremio library's IMDb ids come from, sending the series' IMDb id. Plays Stremio keeps no date for are only added when the profile has no play of that title or episode; resume points only move forward, and one for something watched since is skipped. Titles without an IMDb id (addon-only catalogs, channels) are skipped and counted. Nothing about the Stremio account is stored.
 
 Imports are sent as a single request body, capped at `MAX_BODY_SIZE_MB` (32 MB by default — roughly 200k watch events). A larger file is rejected with a 413 that names the limit; raise the variable and restart the API to accept it.
 

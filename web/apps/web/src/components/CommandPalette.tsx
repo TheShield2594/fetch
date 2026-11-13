@@ -173,12 +173,13 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     { id: "nav-lists", label: "Go to Lists", icon: List, run: () => { requestClose(); navigate("/lists"); } },
     { id: "nav-history", label: "Go to History", icon: History, run: () => { requestClose(); navigate("/history"); } },
     { id: "nav-appearance", label: "Go to Appearance", icon: Palette, run: () => { requestClose(); navigate("/settings?section=appearance"); } },
-    { id: "nav-home-folders", label: "Go to Home folders", icon: FolderTree, run: () => { requestClose(); navigate("/settings?section=home-folders"); } },
+    { id: "nav-tv", label: "Go to TV", icon: Tv, run: () => { requestClose(); navigate("/tv"); } },
+    { id: "nav-home-folders", label: "Go to Home folders", icon: FolderTree, run: () => { requestClose(); navigate("/tv?section=home-folders"); } },
     { id: "nav-profile", label: "Go to your profile", icon: UserRound, run: () => { requestClose(); navigate("/profile"); } },
     { id: "nav-profiles", label: "Go to Profiles", icon: Users, run: () => { requestClose(); navigate("/settings?section=profile"); } },
   ];
   // A kids profile is kept out of Settings (see KidsGate), so none of the ways in.
-  const settingsActions = new Set(["nav-settings", "nav-appearance", "nav-home-folders", "nav-profiles"]);
+  const settingsActions = new Set(["nav-settings", "nav-appearance", "nav-tv", "nav-home-folders", "nav-profiles"]);
   const actions = isKids ? allActions.filter((a) => !settingsActions.has(a.id)) : allActions;
 
   const visibleActions = query.trim()

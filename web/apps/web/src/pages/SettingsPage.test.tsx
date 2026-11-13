@@ -1,8 +1,8 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router";
-import { SETTINGS_SECTIONS, SettingsPage, boardTiles, matchesSearch, visibleSections } from "./SettingsPage";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
+import { MOVED_TO_TV, SETTINGS_SECTIONS, SettingsPage, boardTiles, matchesSearch, visibleSections } from "./SettingsPage";
 import { setExtrasEnabled } from "../hooks/useExtras";
 
 // Each section's body is its own component's business, and most of them fetch
@@ -10,7 +10,6 @@ import { setExtrasEnabled } from "../hooks/useExtras";
 // shows, which is decided entirely by the section list and the search box.
 vi.mock("../components/settings/PreferencesSettings", () => ({ PreferencesSettings: () => <p>preferences body</p> }));
 vi.mock("../components/settings/ProfileSettings", () => ({ ProfileSettings: () => <p>profile body</p> }));
-vi.mock("../components/settings/DevicesSettings", () => ({ DevicesSettings: () => <p>devices body</p> }));
 vi.mock("../components/settings/PushSettings", () => ({ PushSettings: () => <p>notifications body</p> }));
 vi.mock("../components/settings/JobStatusSettings", () => ({ JobStatusSettings: () => <p>sync status body</p> }));
 vi.mock("../components/settings/AccountSettings", () => ({ AccountSettings: () => <p>account body</p> }));
@@ -22,11 +21,6 @@ vi.mock("../components/settings/RpdbSettings", () => ({ RpdbSettings: () => <p>r
 vi.mock("../components/settings/MdbListRatingsSettings", () => ({ MdbListRatingsSettings: () => <p>mdblist ratings body</p> }));
 vi.mock("../components/settings/AiSettings", () => ({ AiSettings: () => <p>ai body</p> }));
 vi.mock("../components/settings/DataSettings", () => ({ DataSettings: () => <p>data body</p> }));
-vi.mock("../components/tv/TvOverview", () => ({ TvOverview: () => <p>tv overview body</p> }));
-vi.mock("../components/tv/TvAddonsSettings", () => ({ TvAddonsSettings: () => <p>tv addons body</p> }));
-vi.mock("../components/tv/HomeLayoutSettings", () => ({ HomeLayoutSettings: () => <p>home rows body</p> }));
-vi.mock("../components/tv/TvSettingsForm", () => ({ TvSettingsForm: () => <p>tv settings body</p> }));
-vi.mock("../components/tv/HomeFoldersSettings", () => ({ HomeFoldersSettings: () => <p>home folders body</p> }));
 
 // Health is six status requests and its own mapping rules, both tested
 // elsewhere (hooks/useSettingsHealth, components/settings/health.test.ts). Held
@@ -70,9 +64,9 @@ describe("settings sections", () => {
     for (const title of titles) expect(title).not.toMatch(/integration| metadata$| posters$|plex, jellyfin/i);
   });
 
-  it("keeps everything about the TV's Home screen in one group", () => {
-    const tv = SETTINGS_SECTIONS.filter((s) => s.group === "tv").map((s) => s.id);
-    expect(tv).toEqual(expect.arrayContaining(["tv-home", "home-folders", "devices"]));
+  // #527: everything about the TV is on its own page.
+  it("leaves the TV to the TV page", () => {
+    for (const id of MOVED_TO_TV) expect(SETTINGS_SECTIONS.map((s) => s.id)).not.toContain(id);
   });
 
   it("matches everything when the query is empty or blank", () => {
@@ -88,7 +82,6 @@ describe("settings sections", () => {
     expect(find("sign out everywhere")).toEqual(["account"]);
     // Your own password is in Account; a member's temporary one is the admin's, in Invites.
     expect(find("password")).toEqual(["account", "invites"]);
-    expect(find("collections")).toEqual(["home-folders"]);
   });
 
   it("narrows on each extra term rather than widening", () => {
@@ -117,6 +110,11 @@ describe("settings sections", () => {
     expect(tiles.unknown.map((s) => s.id)).toContain("tmdb");
   });
 });
+
+function LocationProbe() {
+  const location = useLocation();
+  return <p data-testid="location">{`${location.pathname}${location.search}`}</p>;
+}
 
 const renderAt = (url = "/settings") =>
   render(
@@ -195,7 +193,7 @@ describe("SettingsPage", () => {
   it("groups the sections by what they are for", () => {
     renderAt();
 
-    for (const group of ["Sources", "Metadata", "TV", "This profile", "Your account", "This server (admin)", "About"]) {
+    for (const group of ["Sources", "Metadata", "This profile", "Your account", "This server (admin)", "About"]) {
       expect(within(nav()).getAllByText(group).length).toBeGreaterThan(0);
     }
   });
@@ -291,10 +289,21 @@ describe("SettingsPage", () => {
     expect(within(nav()).getByRole("link", { name: "AI recommendations" })).toBeInTheDocument();
   });
 
-  it("reaches Home folders beside Home rows", () => {
-    renderAt("/settings?section=home-folders");
+  it.each([
+    ["/settings?section=home-folders", "/tv?section=home-folders"],
+    ["/settings?section=tv-settings", "/tv?section=tv-settings"],
+    ["/settings?section=devices", "/tv"],
+  ])("sends %s, an old TV link, to %s", (from, to) => {
+    render(
+      <MemoryRouter initialEntries={[from]}>
+        <Routes>
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/tv" element={<LocationProbe />} />
+        </Routes>
+      </MemoryRouter>
+    );
 
-    expect(screen.getByRole("region", { name: "Home folders" })).toHaveTextContent("home folders body");
+    expect(screen.getByTestId("location")).toHaveTextContent(to);
   });
 });
 

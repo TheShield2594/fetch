@@ -58,7 +58,7 @@ export function TicketTile({
           in a row, and proportional figures put each value's digits at a
           different width, so the row reads as five differently-sized numbers
           rather than as one measurement taken five ways. */}
-      <span className="truncate text-2xl font-bold leading-none tabular-nums" style={{ color: "var(--text)" }}>
+      <span className="truncate text-[2rem] font-extrabold leading-none tracking-[-0.02em] tabular-nums lining-nums" style={{ color: "var(--text)" }}>
         {typeof value === "number" ? value.toLocaleString() : value}
       </span>
       {bars && bars.length > 0 ? (

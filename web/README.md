@@ -256,7 +256,7 @@ The Stremio app is the way to use Fetch on a TV. The web app is built for touch 
 
 ### Signing in a TV: a code, no address
 
-On the TV (setup wizard, or **Settings → Account → Fetch website**) Fetch shows a code and a QR code straight away. Open your Fetch website on any phone or computer, go to **Settings → TVs & Devices** and type the code, or scan the QR code with your phone. The TV signs in on its own a few seconds later. It doesn't matter where the website runs (your LAN, a VPS, behind a domain): nobody types its address on the TV.
+On the TV (setup wizard, or **Settings → Account → Fetch website**) Fetch shows a code and a QR code straight away. Open your Fetch website on any phone or computer, go to **TV** (in the sidebar, or under More on a phone) and type the code, or scan the QR code with your phone. The TV signs in on its own a few seconds later. It doesn't matter where the website runs (your LAN, a VPS, behind a domain): nobody types its address on the TV.
 
 That works through the **pairing hub at `watchfetch.tv`**, the way a TV signs in to a hosted service:
 

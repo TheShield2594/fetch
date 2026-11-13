@@ -16,12 +16,25 @@ vi.mock("../api", async (importOriginal) => {
       getTmdbStatus: vi.fn(),
       setTmdbKey: vi.fn(),
       removeTmdbKey: vi.fn(),
+      getProfiles: vi.fn(),
+      updateProfile: vi.fn(),
+      verifyProfile: vi.fn(),
+      getTraktStatus: vi.fn(),
+      getSimklStatus: vi.fn(),
+      getMdbListStatus: vi.fn(),
+      getMediaServers: vi.fn(),
+      confirmPairing: vi.fn(),
     },
   };
 });
 
-// Talks to the server and opens an OAuth flow; the wizard only places it.
+// Each talks to the server and opens a sign-in flow; the wizard only places them.
 vi.mock("../components/settings/TraktSettings", () => ({ TraktSettings: () => <p>trakt settings</p> }));
+vi.mock("../components/settings/TrackerSignInSettings", () => ({
+  SimklSettings: () => <p>simkl settings</p>,
+  MdbListSettings: () => <p>mdblist settings</p>,
+}));
+vi.mock("../components/settings/MediaServersSettings", () => ({ MediaServersSettings: () => <p>media server settings</p> }));
 
 const { api } = await import("../api");
 const getAuthStatus = vi.mocked(api.getAuthStatus);
@@ -31,6 +44,16 @@ const register = vi.mocked(api.register);
 const changePassword = vi.mocked(api.changePassword);
 const getTmdbStatus = vi.mocked(api.getTmdbStatus);
 const setTmdbKey = vi.mocked(api.setTmdbKey);
+const getProfiles = vi.mocked(api.getProfiles);
+const updateProfile = vi.mocked(api.updateProfile);
+const verifyProfile = vi.mocked(api.verifyProfile);
+const getTraktStatus = vi.mocked(api.getTraktStatus);
+const getSimklStatus = vi.mocked(api.getSimklStatus);
+const getMdbListStatus = vi.mocked(api.getMdbListStatus);
+const getMediaServers = vi.mocked(api.getMediaServers);
+const confirmPairing = vi.mocked(api.confirmPairing);
+
+const DEFAULT_PROFILE = { id: "p1", name: "Default", hasPin: false };
 
 const ADMIN = { id: "a1", username: "owner", isAdmin: true };
 const FRIEND = { id: "a2", username: "friend", isAdmin: false };
@@ -43,6 +66,21 @@ beforeEach(() => {
   changePassword.mockReset().mockResolvedValue(undefined);
   getTmdbStatus.mockReset().mockResolvedValue({ configured: true, source: "env" });
   setTmdbKey.mockReset().mockResolvedValue({ configured: true, source: "db" });
+  getProfiles.mockReset().mockResolvedValue({ profiles: [DEFAULT_PROFILE] });
+  updateProfile.mockReset().mockImplementation((id, payload) =>
+    Promise.resolve({ profile: { ...DEFAULT_PROFILE, id, name: payload.name ?? DEFAULT_PROFILE.name } })
+  );
+  verifyProfile.mockReset().mockImplementation((id) => Promise.resolve({ id, name: "Owner" }));
+  // A server with Simkl's client id and Plex/Jellyfin, but none for Trakt or MDBList.
+  getTraktStatus.mockReset().mockResolvedValue({ connected: false, configured: false, expiresAt: null, redirectUri: "" });
+  getSimklStatus.mockReset().mockResolvedValue({ configured: true, connected: false, lastSyncedAt: null } as never);
+  getMdbListStatus.mockReset().mockResolvedValue({ configured: false, connected: false, lastSyncedAt: null } as never);
+  getMediaServers.mockReset().mockResolvedValue({
+    providers: [{ id: "plex", name: "Plex", signIn: "link" }],
+    servers: [],
+    plexLink: null,
+  } as never);
+  confirmPairing.mockReset().mockResolvedValue({ deviceName: "Living room" } as never);
 });
 
 afterEach(() => {
@@ -57,12 +95,19 @@ async function fillNewAccount(user: User, password = "a-good-password", confirm 
   await user.type(screen.getByLabelText("Confirm password"), confirm);
 }
 
-/** Creates the admin and lands on the tmdb step. */
+/** Creates the admin and lands on the profile step. */
 async function createAdmin(user: User) {
   await user.type(await screen.findByLabelText("API token"), "secret-token");
   await fillNewAccount(user);
   await user.click(screen.getByRole("button", { name: /create account/i }));
-  expect(await screen.findByText(/tmdb metadata/i)).toBeInTheDocument();
+  expect(await screen.findByRole("heading", { name: "Who's watching?" })).toBeInTheDocument();
+}
+
+/** Keeps the suggested name and lands on the TMDB step. */
+async function nameProfile(user: User) {
+  await screen.findByDisplayValue("owner");
+  await user.click(screen.getByRole("button", { name: /continue/i }));
+  expect(await screen.findByRole("heading", { name: "Artwork and search" })).toBeInTheDocument();
 }
 
 describe("previousStep", () => {
@@ -71,7 +116,7 @@ describe("previousStep", () => {
   });
 
   it("walks back one step at a time", () => {
-    expect(WIZARD_STEPS.map(previousStep)).toEqual([null, "account", "tmdb", "trakt"]);
+    expect(WIZARD_STEPS.map(previousStep)).toEqual([null, "account", "profile", "tmdb", "history", "tv"]);
   });
 });
 
@@ -141,6 +186,7 @@ describe("SetupWizard, first run", () => {
     const user = userEvent.setup();
     render(<SetupWizard onComplete={vi.fn()} />);
     await createAdmin(user);
+    await nameProfile(user);
 
     await user.type(await screen.findByLabelText("TMDB API key"), "tmdb-key");
     await user.click(screen.getByRole("button", { name: /save tmdb key/i }));
@@ -165,27 +211,122 @@ describe("SetupWizard, first run", () => {
 
     expect(await screen.findByText(/signed in as/i)).toHaveTextContent("owner");
     await user.click(screen.getByRole("button", { name: /continue/i }));
-    expect(await screen.findByText(/tmdb metadata/i)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Who's watching?" })).toBeInTheDocument();
   });
 
   it("walks back through every step after the first", async () => {
     const user = userEvent.setup();
     render(<SetupWizard onComplete={vi.fn()} />);
     await createAdmin(user);
+    await nameProfile(user);
 
-    await user.click(screen.getByRole("button", { name: /continue/i }));
-    expect(await screen.findByText(/connect trakt/i)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /continue/i }));
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+    expect(await screen.findByRole("heading", { name: "Bring your history" })).toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+    expect(await screen.findByRole("heading", { name: /have a fetch tv/i })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /skip/i }));
     expect(await screen.findByText(/you're all set/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /back/i }));
-    expect(await screen.findByText(/connect trakt/i)).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: /back/i }));
-    expect(await screen.findByText(/tmdb metadata/i)).toBeInTheDocument();
+    for (const heading of [/have a fetch tv/i, /bring your history/i, /artwork and search/i, /who's watching/i]) {
+      await user.click(screen.getByRole("button", { name: /back/i }));
+      expect(await screen.findByRole("heading", { name: heading })).toBeInTheDocument();
+    }
 
     await user.click(screen.getByRole("button", { name: /back/i }));
     await waitFor(() => expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "1"));
+  });
+
+  // #533: nobody was asked their name; the first profile was "Default".
+  it("names the first profile after the person, and opens it", async () => {
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+
+    const name = await screen.findByLabelText("Your name");
+    expect(name).toHaveValue("owner");
+    await user.clear(name);
+    await user.type(name, "Sam");
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    await screen.findByRole("heading", { name: "Artwork and search" });
+    expect(updateProfile).toHaveBeenCalledWith("p1", { name: "Sam", avatarId: null, avatarColorHex: null });
+    expect(verifyProfile).toHaveBeenCalledWith("p1");
+  });
+
+  it("says what is lost before going on without a TMDB key", async () => {
+    getTmdbStatus.mockResolvedValue({ configured: false, source: null });
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+    await nameProfile(user);
+
+    await user.click(await screen.findByRole("button", { name: /skip for now/i }));
+    expect(screen.getByRole("alert")).toHaveTextContent(/search finds nothing/i);
+    await user.click(screen.getByRole("button", { name: /go on without artwork/i }));
+
+    expect(await screen.findByRole("heading", { name: "Bring your history" })).toBeInTheDocument();
+  });
+
+  // No step offers what the server can't do.
+  it("lists only the history sources this server can offer", async () => {
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+    await nameProfile(user);
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByRole("button", { name: /simkl/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /plex, jellyfin or emby/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /trakt/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /mdblist/i })).toBeNull();
+
+    await user.click(screen.getByRole("button", { name: /simkl/i }));
+    expect(screen.getByText("simkl settings")).toBeInTheDocument();
+  });
+
+  it("leaves a profile with a PIN as it is, rather than editing it without the PIN", async () => {
+    getProfiles.mockResolvedValue({ profiles: [{ ...DEFAULT_PROFILE, name: "Sam", hasPin: true }] });
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+
+    expect(await screen.findByText(/has a PIN/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByRole("heading", { name: "Artwork and search" })).toBeInTheDocument();
+    expect(updateProfile).not.toHaveBeenCalled();
+  });
+
+  it("says a source check failed, rather than that the server offers none, and retries", async () => {
+    getSimklStatus.mockRejectedValueOnce(new Error("timeout"));
+    getMediaServers.mockRejectedValueOnce(new Error("timeout"));
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+    await nameProfile(user);
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByText(/couldn't check every source/i)).toBeInTheDocument();
+    expect(screen.queryByText(/isn't set up for any history sources/i)).toBeNull();
+    await user.click(screen.getByRole("button", { name: /try again/i }));
+
+    expect(await screen.findByRole("button", { name: /simkl/i })).toBeInTheDocument();
+    expect(screen.queryByText(/couldn't check every source/i)).toBeNull();
+  });
+
+  it("signs in a TV during setup", async () => {
+    const user = userEvent.setup();
+    render(<SetupWizard onComplete={vi.fn()} />);
+    await createAdmin(user);
+    await nameProfile(user);
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+    await user.click(await screen.findByRole("button", { name: /continue/i }));
+
+    await user.type(await screen.findByLabelText("Code shown on the TV"), "abcdefgh");
+    await user.click(screen.getByRole("button", { name: /sign in tv/i }));
+
+    expect(await screen.findByText("Living room is signed in.")).toBeInTheDocument();
+    expect(confirmPairing).toHaveBeenCalledWith("ABCD-EFGH", undefined);
   });
 });
 

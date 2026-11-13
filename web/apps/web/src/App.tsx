@@ -37,6 +37,7 @@ import {
   loadCommandPalette,
   loadPairPage,
   loadLinkPage,
+  loadTvPage,
   schedulePrefetchOnIdle,
 } from "./utils/routePrefetch";
 import { paletteShortcutHint } from "./utils/shortcut";
@@ -72,6 +73,7 @@ const StatsPage = lazy(() => loadStatsPage().then((m) => ({ default: m.StatsPage
 const ProfilePage = lazy(() => loadProfilePage().then((m) => ({ default: m.ProfilePage })));
 const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
 const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
+const TvPage = lazy(() => loadTvPage().then((m) => ({ default: m.TvPage })));
 
 const LoadingFallback = ({ label = "Loading…" }: { label?: string }) => (
   <FetchLoader label={label} className="items-center py-24" />
@@ -99,6 +101,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/stats": "Stats",
   "/settings": "Settings",
   "/profile": "Profile",
+  "/tv": "TV",
   "/pair": "Sign in a TV",
   "/link": "Sign in a TV",
 };
@@ -557,9 +560,13 @@ function AppShell({
                     data and device pairing; see KidsGate. */}
                 <Route path="/settings" element={<KidsGate title="Settings" reason="Settings are"><SettingsPage /></KidsGate>} />
                 <Route path="/profile" element={<ProfilePage />} />
-                {/* Collections became Home folders, a section of Settings beside
-                    Home rows. Old links and bookmarks land there. */}
-                <Route path="/collections" element={<Navigate to="/settings?section=home-folders" replace />} />
+                {/* Everything about the TV: the TVs signed in, and what each
+                    profile has on them. Pairing and the account's TVs are kept
+                    from a kids profile as Settings is. */}
+                <Route path="/tv" element={<KidsGate title="TV" reason="Managing the TV is"><TvPage /></KidsGate>} />
+                {/* Collections became Home folders, on the TV page beside Home
+                    rows. Old links and bookmarks land there. */}
+                <Route path="/collections" element={<Navigate to="/tv?section=home-folders" replace />} />
                 {/* One place to manage profiles: Settings → Profile. */}
                 <Route path="/profiles" element={<Navigate to="/settings?section=profile" replace />} />
                 <Route path="/pair" element={<KidsGate title="Sign in a TV" reason="Signing in a TV is"><PairPage /></KidsGate>} />

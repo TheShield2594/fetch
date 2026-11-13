@@ -33,6 +33,7 @@ export const loadSettingsPage = () => import("../pages/SettingsPage");
 export const loadProfilePage = () => import("../pages/ProfilePage");
 export const loadPairPage = () => import("../pages/PairPage");
 export const loadLinkPage = () => import("../pages/LinkPage");
+export const loadTvPage = () => import("../pages/TvPage");
 export const loadNotFoundPage = () => import("../pages/NotFoundPage");
 export const loadProfileSwitcher = () => import("../pages/ProfileSwitcher");
 export const loadSetupWizard = () => import("../pages/SetupWizard");
@@ -110,6 +111,7 @@ const ROUTE_LOADERS: Record<string, Loader> = {
   "/stats": loadStatsPage,
   "/settings": loadSettingsPage,
   "/profile": loadProfilePage,
+  "/tv": loadTvPage,
 };
 
 const started = new Set<Loader>();

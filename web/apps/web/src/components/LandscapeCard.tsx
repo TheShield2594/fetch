@@ -2,6 +2,7 @@ import { useRef, type ReactNode } from "react";
 import { Check, Play, RotateCw, X } from "lucide-react";
 import { Poster } from "./Poster";
 import { openWithTransition } from "../utils/viewTransition";
+import { DISPLAY_TITLE } from "./typography";
 
 /**
  * The landscape card: the other half of the card system, beside `PosterCard`.
@@ -112,8 +113,12 @@ export function LandscapeCard({
               {eyebrow}
             </p>
           )}
+          {/* Two lines before an ellipsis: "The Lord of the Rings: The Rings of
+              Po…" was cut on one line where a second would fit. The lead is
+              the Shelf's one display-rank element, capped from `lg` where it
+              shares the row with the rail. */}
           <p
-            className={`truncate font-bold text-white ${lead ? "mt-1 text-[1.5rem] leading-tight" : "mt-0.5 text-[0.9375rem]"}`}
+            className={`line-clamp-2 text-white ${lead ? `mt-1 ${DISPLAY_TITLE} lg:text-[2.75rem]` : "mt-0.5 text-[0.9375rem] font-bold leading-snug"}`}
           >
             {title}
           </p>

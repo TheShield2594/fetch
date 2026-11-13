@@ -143,7 +143,7 @@ It prints a temporary password, signs the account out of every browser and asks
 for a new password at the next sign-in; until then that sign-in can do nothing
 else. Paired TVs stay signed in: if the account may have been used by someone
 else, sign its TVs out too, from Settings → Account → Where you're signed in
-once signed in again (or Settings → TVs & devices → Sign out all TVs). Add `--password '<new password>'` to choose
+once signed in again (or TV → Sign out all TVs). Add `--password '<new password>'` to choose
 it yourself. `docker compose exec api fetch accounts` lists the accounts and
 their profiles if you're not sure of a username.
 

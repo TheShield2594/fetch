@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   Search,
   Settings,
+  Tv,
   type LucideIcon,
 } from "lucide-react";
 import { prefetchRoute } from "../utils/routePrefetch";
@@ -30,7 +31,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean };
 // Search was a circle of its own beside the pill for a while, which left the
 // pill five tabs in a narrower space — at 375px "Discover" and "Calendar" ran
 // together — and gave its slot to Stats, a page most people open now and then.
-// Calendar, Stats and History are a tap further, in More.
+// Calendar, Stats, History, the TV and Settings are a tap further, in More.
 export const PRIMARY_NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Shelf", icon: Library, end: true },
   { to: "/discover", label: "Discover", icon: Compass },
@@ -42,8 +43,12 @@ export const MORE_NAV_ITEMS: NavItem[] = [
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/stats", label: "Stats", icon: BarChart3 },
   { to: "/history", label: "History", icon: History },
+  { to: "/tv", label: "TV", icon: Tv },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
+
+/** Kept from a kids profile, as KidsGate keeps the routes. */
+const ADULT_ONLY = new Set(["/tv", "/settings"]);
 
 const isItemActive = (item: NavItem, pathname: string) =>
   item.end ? pathname === item.to : pathname.startsWith(item.to);
@@ -226,7 +231,7 @@ function MoreSheet({ pathname, onClose }: { pathname: string; onClose: () => voi
           style={{ background: "var(--border-strong)" }}
         />
         <ul>
-          {(isKids ? MORE_NAV_ITEMS.filter((item) => item.to !== "/settings") : MORE_NAV_ITEMS).map((item, index) => {
+          {(isKids ? MORE_NAV_ITEMS.filter((item) => !ADULT_ONLY.has(item.to)) : MORE_NAV_ITEMS).map((item, index) => {
             const Icon = item.icon;
             const isActive = isItemActive(item, pathname);
             return (

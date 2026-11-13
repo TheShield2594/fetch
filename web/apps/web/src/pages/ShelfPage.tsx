@@ -19,6 +19,7 @@ import { SegmentedControl, type SegmentedOption } from "../components/SegmentedC
 import { SelectField } from "../components/SelectField";
 import { SECTION_TITLE } from "../components/typography";
 import { EmptyState } from "../components/EmptyState";
+import { ShelfStarter } from "../components/ShelfStarter";
 import { PageFrame, PageHeader } from "../components/PageFrame";
 import { useCachedState } from "../hooks/useCachedState";
 import { useToast } from "../hooks/useToast";
@@ -603,22 +604,43 @@ export function ShelfPage() {
       ) : loading && shelf.length === 0 && inProgress.length === 0 && continueWatching.length === 0 ? (
         <ShelfSkeleton />
       ) : nothingAtAll ? (
-        <EmptyState
-          title="Nothing on the shelf yet"
-          action={
-            <>
-              <Link to="/search" className="btn-primary btn-sm">
-                Search
-              </Link>
-              <Link to="/settings?tab=integrations" className="btn-secondary btn-sm">
-                Connect a source
-              </Link>
-            </>
+        // Artwork first: this week's trending titles, each one tap from the
+        // watchlist. Without a TMDB key there is none to show, and the plain
+        // empty state says what to do instead.
+        <ShelfStarter
+          onDone={() => void load()}
+          fallback={
+            <EmptyState
+              title="Nothing on the shelf yet"
+              action={
+                <>
+                  <Link to="/search" className="btn-primary btn-sm">
+                    Search
+                  </Link>
+                  <Link to="/settings" className="btn-secondary btn-sm">
+                    Connect a source
+                  </Link>
+                </>
+              }
+            >
+              Search for a show or a film to add it to a list, or connect a source in Settings and let
+              your history fill this in on its own.
+            </EmptyState>
           }
-        >
-          Search for a show or a film to add it to a list, or connect a source in Settings and let
-          your history fill this in on its own.
-        </EmptyState>
+          footer={
+            <p className="text-sm" style={{ color: "var(--text-mute)" }}>
+              Already track somewhere else?{" "}
+              <Link to="/settings" className="font-medium text-accent-text underline underline-offset-2">
+                Connect a source
+              </Link>{" "}
+              and your history fills this in on its own, or{" "}
+              <Link to="/search" className="font-medium text-accent-text underline underline-offset-2">
+                search
+              </Link>{" "}
+              for something in particular.
+            </p>
+          }
+        />
       ) : (
         // Fades in over the ghost it replaces rather than cutting to it.
         <div className="content-in mt-6 flex flex-col gap-7">

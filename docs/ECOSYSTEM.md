@@ -68,9 +68,9 @@ sync too. The columns are still called `imdbId`.
 | Watch progress (tracking provider) | `/playback`, `/scrobble/*` (resume points) | None — while paired the website is a tracking provider (`data/website/FetchWebsiteTracking.kt`): scrobbles and resume points go to it, and Continue Watching reads from it when chosen as the watch progress source |
 | Watched marks (tracking provider) | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
 | Library (tracking provider) | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
-| `AddonSyncService` | `/profiles/:id/addons`, Settings → TV → TV Addons | None — the TV uses it when paired |
-| `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, Settings → TV → TV Playback Settings | None — the TV uses it when paired |
-| `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, Settings → TV → Home Rows | None — the TV uses it when paired |
+| `AddonSyncService` | `/profiles/:id/addons`, TV → Addons | None — the TV uses it when paired |
+| `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, TV → Playback | None — the TV uses it when paired |
+| `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, TV → Home rows | None — the TV uses it when paired |
 | `CollectionSyncService` | `/collections`, plus a `fetch` source for the website's own lists | None — the TV uses it when paired (#95) |
 | Provider credentials | Trakt, TMDB, OMDb, RPDB keys | Not synced; they stay on the device |
 | Episode queue (#48) | Rides in the settings blob (`EpisodeQueueStore.FEATURE`), so `/profiles/:id/settings/tv` | None |
@@ -91,7 +91,7 @@ always prefers over a cookie), that can be revoked on its own:
 1. Settings → Account → Sync → Fetch website on the TV (or the first-run Server
    step) opens on a **code from the pairing hub** at `watchfetch.tv`
    (`/hub/pair/*`, `web/apps/api/src/lib/pairing-hub.ts`), so no address is
-   typed. Confirming that code on any Fetch website (Settings → TVs & Devices,
+   typed. Confirming that code on any Fetch website (the TV page,
    or the hub's `/link` page that the TV's QR code opens, which goes on to your
    website's `/pair`) makes the website *claim* it at the hub with its own API
    address. The TV learns the address from the hub and collects its token from
@@ -115,7 +115,7 @@ always prefers over a cookie), that can be revoked on its own:
 2. The TV shows a short code, plus a QR code for the website's `/pair` page. The
    QR code is built from the website address that worked, falling back to the
    API's `FETCH_WEB_PUBLIC`. Signed in on the website, you scan it, or type the
-   code under Settings → TVs & Devices.
+   code on the TV page.
 3. The API issues that TV its own token, listed and revocable on the website. A
    revoked TV gets a bearer 401 on its next request and says it was signed out.
 
@@ -166,7 +166,7 @@ Each phase ships on its own and leaves both halves working.
    paired TV now reads them through the **Fetch website** library source (#108),
    so the first-run Server step doesn't offer the addon.
 3. **Device pairing** *(done, #91)*. `POST /devices/pair/start` and friends on
-   the API, Settings → TVs & Devices on the website, the QR flow on the TV.
+   the API, the TV page on the website, the QR flow on the TV.
 4. **A sync interface on the TV** *(done, #203)*. The per-domain services go
    through `SyncBackend`, and the backend is picked in Settings → Account.
 5. **Fetch website backend, watch state first** *(done, #108)*. The website is a

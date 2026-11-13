@@ -207,6 +207,25 @@ describe("the wider settings catalogue", () => {
     expect(readField(doc, skip)).toEqual(["intro", "recap"]);
   });
 
+  it("reads the TV's older int threshold keys when the v2 ones are absent, and writes v2", () => {
+    const minutes = settingsField("player_settings", "next_episode_threshold_minutes_before_end_v2");
+    const percent = settingsField("player_settings", "next_episode_threshold_percent_v2");
+    const legacy: TvSettingsDocument = {
+      features: {
+        player_settings: {
+          next_episode_threshold_minutes_before_end: { type: "int", value: 1 },
+          next_episode_threshold_percent: { type: "int", value: 98 },
+        },
+      },
+    };
+    expect(readField(legacy, minutes)).toBe(1);
+    expect(readField(legacy, percent)).toBe(98);
+    expect(readField({}, minutes)).toBe(2);
+    const edited = withField(legacy, minutes, 3);
+    expect(edited.features?.player_settings?.next_episode_threshold_minutes_before_end_v2).toEqual({ type: "float", value: 3 });
+    expect(readField(edited, minutes)).toBe(3);
+  });
+
   it("removes a nullable language for None rather than storing an empty one", () => {
     const secondary = settingsField("player_settings", "subtitle_secondary_language");
     const set = withField(TV_DOCUMENT, secondary, "fr");

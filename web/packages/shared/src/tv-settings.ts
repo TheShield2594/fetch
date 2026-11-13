@@ -103,6 +103,11 @@ export type TvSettingField =
       unit?: string;
       /** How the TV stores it; int unless said otherwise. */
       numberType?: "int" | "float";
+      /**
+       * An older key, in the same feature, the TV reads when this one is absent
+       * (before its default). Edits still go to `key`.
+       */
+      legacyKey?: string;
       defaultValue: number;
     })
   /** An ARGB colour stored as a signed 32-bit int, as Compose's `Color.toArgb()` gives it. */
@@ -651,6 +656,7 @@ export const TV_SETTING_GROUPS: TvSettingGroup[] = [
         max: 3.5,
         step: 0.5,
         numberType: "float",
+        legacyKey: "next_episode_threshold_minutes_before_end",
         defaultValue: 2,
         advanced: true,
         visibleWhen: { key: "next_episode_threshold_mode", oneOf: ["MINUTES_BEFORE_END"] },
@@ -665,6 +671,7 @@ export const TV_SETTING_GROUPS: TvSettingGroup[] = [
         max: 100,
         step: 0.5,
         numberType: "float",
+        legacyKey: "next_episode_threshold_percent",
         defaultValue: 99,
         advanced: true,
         visibleWhen: { key: "next_episode_threshold_mode", oneOf: ["PERCENTAGE"] },
@@ -980,7 +987,12 @@ export const readField = <F extends TvSettingField>(document: TvSettingsDocument
   if (field.kind === "multi") {
     return (Array.isArray(value) && value.every((entry) => typeof entry === "string") ? value : field.defaultValue) as F["defaultValue"];
   }
-  return typeof value === typeof field.defaultValue ? (value as F["defaultValue"]) : field.defaultValue;
+  if (typeof value === typeof field.defaultValue) return value as F["defaultValue"];
+  if (field.kind === "number" && field.legacyKey) {
+    const legacy = readTvValue(document, field.feature, field.legacyKey);
+    if (typeof legacy === "number") return legacy as F["defaultValue"];
+  }
+  return field.defaultValue;
 };
 
 /**

@@ -126,7 +126,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">İçerik bilgisi bulunamadı</string>
     <string name="error_meta_no_supported_addon">\"%1$s\" hakkında bilgi verecek yüklü bir eklenti yok.</string>
-    <string name="error_meta_no_addon_for_id">Şu içerik için detayları sağlayabilen bir eklenti bulunamadı: id=%1$s (tür=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Bu içerik için detayları sağlayabilen bir eklenti bulunamadı.</string>
     <string name="error_meta_tried_none">Şu eklentiler denendi: %1$s. Hiçbiri bu içerik için bilgi sağlamadı.</string>
     <string name="error_meta_tried_generic">Şu eklentiler denendi: %1$s. Bu içerik için gerekli bilgiler yüklenemedi.</string>
     <string name="error_meta_tried_issues">Şu eklentiler denendi: %1$s. Bu içerik için gerekli bilgiler yüklenemedi. Karşılaşılan sorunlar: %2$s.</string>

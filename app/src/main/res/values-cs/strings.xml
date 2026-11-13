@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Meta nenalezeno</string>
     <string name="error_meta_no_supported_addon">Žádný nainstalovaný doplněk nepodporuje metadata pro \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Žádný nainstalovaný doplněk nemohl poskytnout metadata pro id=%1$s (typ=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Žádný nainstalovaný doplněk nemohl poskytnout metadata pro tento titul.</string>
     <string name="error_meta_tried_none">Vyzkoušené meta doplňky: %1$s. Žádný z nich neposkytl metadata.</string>
     <string name="error_meta_tried_generic">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena.</string>
     <string name="error_meta_tried_issues">Vyzkoušené meta doplňky: %1$s. Metadata nemohla být načtena. Problémy: %2$s.</string>

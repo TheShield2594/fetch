@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Meta podaci nisu pronađeni</string>
     <string name="error_meta_no_supported_addon">Nijedan instalirani dodatak ne podržava metapodatke za \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Nijedan instalirani dodatak nije mogao da obezbedi metapodatke za id=%1$s (type=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Nijedan instalirani dodatak nije mogao da obezbedi metapodatke za ovaj naslov.</string>
     <string name="error_meta_tried_none">Pokušani meta dodaci: %1$s. Nijedan od njih nije obezbedio metapodatke.</string>
     <string name="error_meta_tried_generic">Pokušani meta dodaci: %1$s. Metapodaci nisu mogli biti učitani.</string>
     <string name="error_meta_tried_issues">Pokušani meta dodaci: %1$s. Metapodaci nisu mogli biti učitani. Problemi: %2$s.</string>

@@ -126,7 +126,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Metadáta nenájdené</string>
     <string name="error_meta_no_supported_addon">Žiadny nainštalovaný doplnok nepodporuje metadáta pre „%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Žiadny nainštalovaný doplnok nemohol poskytnúť metadáta pre id=%1$s (typ=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Žiadny nainštalovaný doplnok nemohol poskytnúť metadáta pre tento titul.</string>
     <string name="error_meta_tried_none">Vyskúšané meta doplnky: %1$s. Žiadny z nich neposkytol metadáta.</string>
     <string name="error_meta_tried_generic">Vyskúšané meta doplnky: %1$s. Metadáta sa nepodarilo načítať.</string>
     <string name="error_meta_tried_issues">Vyskúšané meta doplnky: %1$s. Metadáta sa nepodarilo načítať. Problémy: %2$s.</string>

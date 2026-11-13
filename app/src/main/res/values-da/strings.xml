@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Meta ikke fundet</string>
     <string name="error_meta_no_supported_addon">Ingen installeret addon understøtter metadata for \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Ingen installeret addon kunne levere metadata for id=%1$s (type=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Ingen installeret addon kunne levere metadata for denne titel.</string>
     <string name="error_meta_tried_none">Afprøvede meta-addons: %1$s. Ingen af dem leverede metadata.</string>
     <string name="error_meta_tried_generic">Afprøvede meta-addons: %1$s. Metadata kunne ikke indlæses.</string>
     <string name="error_meta_tried_issues">Afprøvede meta-addons: %1$s. Metadata kunne ikke indlæses. Problemer: %2$s.</string>

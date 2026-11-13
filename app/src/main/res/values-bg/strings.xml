@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Метаданните не са намерени</string>
     <string name="error_meta_no_supported_addon">Нито една инсталирана добавка не поддържа метаданни за „%1$s“.</string>
-    <string name="error_meta_no_addon_for_id">Нито една инсталирана добавка не може да предостави метаданни за id=%1$s (type=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Нито една инсталирана добавка не може да предостави метаданни за това заглавие.</string>
     <string name="error_meta_tried_none">Опитани мета добавки: %1$s. Нито една не предостави метаданни.</string>
     <string name="error_meta_tried_generic">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени.</string>
     <string name="error_meta_tried_issues">Опитани мета добавки: %1$s. Метаданните не могат да бъдат заредени. Проблеми: %2$s.</string>

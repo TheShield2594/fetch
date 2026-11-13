@@ -123,7 +123,7 @@
 <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
 <string name="error_meta_not_found">Metadati non trovati</string>
 <string name="error_meta_no_supported_addon">Nessun addon installato supporta i metadati per \"%1$s\".</string>
-<string name="error_meta_no_addon_for_id">Nessun addon installato può fornire metadati per id=%1$s (tipo=%2$s).</string>
+<string name="error_meta_no_addon_for_id">Nessun addon installato può fornire metadati per questo titolo.</string>
 <string name="error_meta_tried_none">Addon meta provati: %1$s. Nessuno ha fornito metadati.</string>
 <string name="error_meta_tried_generic">Addon meta provati: %1$s. Impossibile caricare i metadati.</string>
 <string name="error_meta_tried_issues">Addon meta provati: %1$s. Impossibile caricare i metadati. Problemi: %2$s.</string>

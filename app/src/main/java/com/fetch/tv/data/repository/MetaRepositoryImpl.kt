@@ -421,8 +421,6 @@ class MetaRepositoryImpl @Inject constructor(
                 context.getString(R.string.error_meta_no_supported_addon, requestedType)
             } else {
                 buildAggregateFailureMessage(
-                    type = requestedType,
-                    id = id,
                     attemptedAddonNames = attemptedAddonNames.toList(),
                     failures = attemptedFailures
                 )
@@ -539,8 +537,6 @@ class MetaRepositoryImpl @Inject constructor(
                 emit(
                     NetworkResult.Error(
                         buildAggregateFailureMessage(
-                            type = requestedType,
-                            id = id,
                             attemptedAddonNames = lookupResult.attemptedAddonNames,
                             failures = lookupResult.failures
                         ),
@@ -622,8 +618,6 @@ class MetaRepositoryImpl @Inject constructor(
             emit(NetworkResult.Success(meta))
         } else {
             emit(NetworkResult.Error(buildAggregateFailureMessage(
-                type = requestedType,
-                id = id,
                 attemptedAddonNames = listOf(addon.displayName),
                 failures = listOf(buildMissingMetaFailure(addon))
             )))
@@ -773,13 +767,11 @@ class MetaRepositoryImpl @Inject constructor(
     }
 
     private fun buildAggregateFailureMessage(
-        type: String,
-        id: String,
         attemptedAddonNames: List<String>,
         failures: List<MetaAttemptFailure>
     ): String {
         if (attemptedAddonNames.isEmpty()) {
-            return context.getString(R.string.error_meta_no_addon_for_id, id, type)
+            return context.getString(R.string.error_meta_no_addon_for_id)
         }
 
         val triedAddons = attemptedAddonNames.joinToString(", ")

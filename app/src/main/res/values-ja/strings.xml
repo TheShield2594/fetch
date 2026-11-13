@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s。</string>
     <string name="error_meta_not_found">メタデータが見つかりません</string>
     <string name="error_meta_no_supported_addon">「%1$s」のメタデータに対応したインストール済みアドオンがありません</string>
-    <string name="error_meta_no_addon_for_id">id=%1$s (type=%2$s) のメタデータを提供できるインストール済みアドオンがありません</string>
+    <string name="error_meta_no_addon_for_id">このタイトルのメタデータを提供できるインストール済みアドオンがありません</string>
     <string name="error_meta_tried_none">試したメタアドオン: %1$s。メタデータを提供したものはありませんでした</string>
     <string name="error_meta_tried_generic">試したメタアドオン: %1$s。メタデータを読み込めませんでした</string>
     <string name="error_meta_tried_issues">試したメタアドオン: %1$s。メタデータを読み込めませんでした。問題: %2$s。</string>

@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s&#160;: %2$s.</string>
     <string name="error_meta_not_found">Métadonnées introuvables</string>
     <string name="error_meta_no_supported_addon">Aucun addon installé ne fournit de métadonnées pour «&#160;%1$s&#160;».</string>
-    <string name="error_meta_no_addon_for_id">Aucun addon installé n’a pu fournir de métadonnées pour l’ID=%1$s (type=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Aucun addon installé n’a pu fournir de métadonnées pour ce titre.</string>
     <string name="error_meta_tried_none">Addons de métadonnées essayés&#160;: %1$s. Aucun n’a fourni de métadonnées.</string>
     <string name="error_meta_tried_generic">Addons de métadonnées essayés&#160;: %1$s. Impossible de charger les métadonnées.</string>
     <string name="error_meta_tried_issues">Addons de métadonnées essayés&#160;: %1$s. Impossible de charger les métadonnées. Problèmes&#160;: %2$s.</string>

@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s: %2$s.</string>
     <string name="error_meta_not_found">Không tìm thấy siêu dữ liệu</string>
     <string name="error_meta_no_supported_addon">Không có tiện ích đã cài đặt nào hỗ trợ siêu dữ liệu cho \"%1$s\".</string>
-    <string name="error_meta_no_addon_for_id">Không có tiện ích đã cài đặt nào có thể cung cấp siêu dữ liệu cho id=%1$s (type=%2$s).</string>
+    <string name="error_meta_no_addon_for_id">Không có tiện ích đã cài đặt nào có thể cung cấp siêu dữ liệu cho tựa này.</string>
     <string name="error_meta_tried_none">Đã thử tiện ích siêu dữ liệu: %1$s. Không có tiện ích nào cung cấp siêu dữ liệu.</string>
     <string name="error_meta_tried_generic">Đã thử tiện ích siêu dữ liệu: %1$s. Không thể tải siêu dữ liệu.</string>
     <string name="error_meta_tried_issues">Đã thử tiện ích siêu dữ liệu: %1$s. Không thể tải siêu dữ liệu. Lỗi: %2$s.</string>

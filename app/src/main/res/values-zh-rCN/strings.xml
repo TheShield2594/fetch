@@ -123,7 +123,7 @@
     <string name="error_state_addon_issue_template">%1$s：%2$s。</string>
     <string name="error_meta_not_found">找不到元数据</string>
     <string name="error_meta_no_supported_addon">没有已安装的扩展支持「%1$s」的元数据。</string>
-    <string name="error_meta_no_addon_for_id">没有已安装的扩展可为 id=%1$s (类型=%2$s) 提供元数据。</string>
+    <string name="error_meta_no_addon_for_id">没有已安装的扩展可为此标题提供元数据。</string>
     <string name="error_meta_tried_none">已尝试的元数据扩展：%1$s。皆未提供元数据。</string>
     <string name="error_meta_tried_generic">已尝试的元数据扩展：%1$s。无法加载元数据。</string>
     <string name="error_meta_tried_issues">已尝试的元数据扩展：%1$s。无法加载元数据。问题：%2$s。</string>

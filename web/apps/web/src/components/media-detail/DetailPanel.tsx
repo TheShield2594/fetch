@@ -27,6 +27,7 @@ import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useExitAnimation } from "../../hooks/useExitAnimation";
 import type { ShowToast } from "../../hooks/useToast";
 import { relogWatchEvent } from "../../utils/watchEvents";
+import { loadEpisodeAirDate } from "../../utils/releaseDates";
 import { invalidateDetailBundle, type PanelDetail } from "./useDetailPanel";
 import { DISPLAY_TITLE, KICKER, MICRO_LABEL } from "../typography";
 
@@ -333,26 +334,10 @@ export function DetailPanel({
     } catch { /* best-effort */ }
   };
 
-  /*
-   * An episode's air date, for the watch dialog's "Release date". A season's
-   * episode list is asked for once and kept while the panel is open, since
-   * stepping through the episode picker asks again for each one.
-   */
-  const seasonEpisodesCache = useRef(new Map<string, Promise<{ episodeNumber: number; airDate?: string | null }[]>>());
-  const loadAirDate = useCallback(
-    async (season: number, episode: number, signal: AbortSignal) => {
-      const key = `${item.imdbId}:${season}`;
-      let pending = seasonEpisodesCache.current.get(key);
-      if (!pending) {
-        // Not tied to `signal`: the list outlives the pick that asked for it.
-        pending = api.getSeasonEpisodes(item.imdbId, season).then((r) => r.episodes);
-        seasonEpisodesCache.current.set(key, pending);
-        pending.catch(() => seasonEpisodesCache.current.delete(key));
-      }
-      const episodes = await pending;
-      if (signal.aborted) return null;
-      return episodes.find((e) => e.episodeNumber === episode)?.airDate ?? null;
-    },
+  // An episode's air date, for the watch dialog's "Release date".
+  const loadReleaseDate = useCallback(
+    async (episode: { season: number; episode: number } | undefined) =>
+      episode ? loadEpisodeAirDate(item.imdbId, episode.season, episode.episode) : null,
     [item.imdbId]
   );
 
@@ -806,7 +791,7 @@ export function DetailPanel({
               ? undefined
               : (episode) => handleCheckin(episode?.season, episode?.episode)
           }
-          loadAirDate={item.type === "series" ? loadAirDate : undefined}
+          loadReleaseDate={item.type === "series" ? loadReleaseDate : undefined}
           onClose={() => setWatchTarget(null)}
         />
       )}

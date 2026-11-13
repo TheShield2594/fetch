@@ -13,7 +13,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
-- **Choose when you watched something.** Logging a watch, ticking an episode and marking a season watched now ask when: Now watching (checks in), Just now, Release date (a season can use each episode's air date), Other date with a time, or Unknown date. Ticking an episode used to log it as watched right now, which put anything seen in the past under today.
+- **Choose when you watched something.** Logging a watch, ticking an episode, marking a season watched and the Shelf and Discover "Mark watched" buttons now ask when: Now watching (checks in), Just now, Release date (a season can use each episode's air date), Other date with a time, or Unknown date. Ticking an episode used to log it as watched right now, which put anything seen in the past under today.
 
 - **Import from a Stremio account.** Settings → Data shows Stremio's link code; approve it on stremio.com and the library's watched films, watched episodes and resume points come into the profile, read once with the session signed out afterwards. Series episodes are matched through Cinemeta, the catalog Stremio itself uses.
 

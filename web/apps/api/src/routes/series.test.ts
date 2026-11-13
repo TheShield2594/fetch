@@ -329,6 +329,25 @@ describe("manual marks carry when the watch happened", () => {
     expect(watchEventLibMock.recordWatchEvent).not.toHaveBeenCalled();
   });
 
+  it("marks the next episode at the time it was given", async () => {
+    prismaMock.seriesProgress.findUnique.mockResolvedValue({ seriesImdbId: "tt-office", lastSeason: 2, lastEpisode: 4 });
+    prismaMock.metadata.findUnique.mockResolvedValue({ tmdbId: 2316, totalEpisodes: null });
+    nextEpisodeMock.computeNextEpisode.mockResolvedValue({ season: 2, episode: 5 });
+    prismaMock.watchEvent.create.mockResolvedValue({});
+
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/watch-next",
+      payload: { watchedAt: "2022-08-01T19:00:00.000Z", dateUnknown: false },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(prismaMock.watchEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ season: 2, episode: 5, watchedAt: new Date("2022-08-01T19:00:00.000Z"), dateUnknown: false }),
+    });
+  });
+
   it("marks a season with each episode on its own day where given", async () => {
     prismaMock.watchEvent.findMany.mockResolvedValue([]);
     const app = await buildApp();

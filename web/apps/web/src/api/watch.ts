@@ -77,10 +77,11 @@ export const watchApi = {
    * Answers with the episode the server marked. An API from before it did
    * answers 204, which arrives as `undefined`.
    */
-  markNextEpisodeWatched(imdbId: string) {
-    return request<{ season: number; episode: number } | undefined>(`/series/${encodeURIComponent(imdbId)}/watch-next`, {
-      method: "POST"
-    });
+  markNextEpisodeWatched(imdbId: string, when?: WatchTime) {
+    return request<{ season: number; episode: number } | undefined>(
+      `/series/${encodeURIComponent(imdbId)}/watch-next`,
+      when ? { method: "POST", body: JSON.stringify(when) } : { method: "POST" }
+    );
   },
   getDetailedStats(signal?: AbortSignal) {
     return request<DetailedWatchStats>("/watch/stats/detailed", { signal });

@@ -288,7 +288,10 @@ export function DiscoverPage() {
   }, [setProgress]);
 
   // The same mark, toast and Undo as the Shelf's Up next.
-  const { markNext, isMarking } = useMarkNextEpisode(refreshProgress);
+  const { markNext, isMarking, markDialog } = useMarkNextEpisode(refreshProgress, {
+    canCheckIn: !activeCheckin,
+    onCheckedIn: setActiveCheckin,
+  });
 
   // The panel can mark episodes watched and change lists, which moves the rows
   // on this page.
@@ -498,7 +501,7 @@ export function DiscoverPage() {
       action: {
         icon: "play",
         label: `Mark S${s.nextSeason}:E${s.nextEpisode} of ${s.name} watched`,
-        onClick: () => void markNext(s),
+        onClick: () => markNext(s),
         busy: isMarking(s.imdbId),
       },
     };
@@ -707,6 +710,7 @@ export function DiscoverPage() {
         marker={aiMarker}
         onSelect={(i) => openMeta({ ...i, type: "series" })}
       />
+      {markDialog}
     </PageFrame>
   );
 }

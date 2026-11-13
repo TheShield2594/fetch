@@ -61,19 +61,19 @@ describe("the watch dialog's options", () => {
   it("looks up the air date of the episode in the pickers", async () => {
     const user = userEvent.setup();
     const onLog = vi.fn().mockResolvedValue(undefined);
-    const loadAirDate = vi.fn().mockResolvedValue("2020-02-02");
+    const loadReleaseDate = vi.fn().mockResolvedValue("2020-02-02");
     render(
       <WatchDateModal
         target={{ kind: "episode", seriesImdbId: "tt1", season: 1, episode: 3 }}
         onLog={onLog}
-        loadAirDate={loadAirDate}
+        loadReleaseDate={loadReleaseDate}
         onClose={vi.fn()}
       />
     );
 
     const release = screen.getByRole("button", { name: "Release date" });
     await waitFor(() => expect(release).toBeEnabled());
-    expect(loadAirDate).toHaveBeenCalledWith(1, 3, expect.any(AbortSignal));
+    expect(loadReleaseDate).toHaveBeenCalledWith({ season: 1, episode: 3 }, expect.any(AbortSignal));
     await user.click(release);
     expect(onLog).toHaveBeenCalledWith({ watchedAt: "2020-02-02T12:00:00.000Z" }, { season: 1, episode: 3 });
   });

@@ -42,7 +42,7 @@ export function WatchDateModal({
   seasons = NO_SEASONS,
   onLog,
   onWatchNow,
-  loadAirDate,
+  loadReleaseDate,
   onClose,
 }: {
   target: WatchLogTarget;
@@ -56,10 +56,13 @@ export function WatchDateModal({
    */
   onWatchNow?: ((episode?: { season: number; episode: number }) => Promise<void>) | undefined;
   /**
-   * The air date of an episode chosen in the pickers, for "Release date". The
-   * dialog only knows the date of a fixed episode it was handed.
+   * Looks up the release date when the target doesn't carry one: the air date
+   * of the episode in the pickers (or of a fixed episode handed over without
+   * one), or a film's release date when that was left `undefined`.
    */
-  loadAirDate?: ((season: number, episode: number, signal: AbortSignal) => Promise<string | null | undefined>) | undefined;
+  loadReleaseDate?:
+    | ((episode: { season: number; episode: number } | undefined, signal: AbortSignal) => Promise<string | null | undefined>)
+    | undefined;
   onClose: () => void;
 }) {
   // When the dialog opened: the latest a watch can be, and the day a release
@@ -87,25 +90,29 @@ export function WatchDateModal({
   const pickable = target.kind === "episode" && !target.fixed;
   const picked = pickable ? clampEpisode(seasons, chosen) : chosen;
 
-  // The air date of the episode in the pickers, looked up as the pick changes.
-  // Keyed by the pick it answers, so a stale answer reads as "still looking".
+  // The release date when the target didn't come with one, looked up (again,
+  // as the pick changes). Keyed by the pick it answers, so a stale answer reads
+  // as "still looking".
+  const knownDate =
+    target.kind === "movie" ? target.releaseDate
+      : target.kind === "episode" && target.fixed ? target.airDate
+        : target.kind === "season" ? null
+          : undefined;
+  const lookup = knownDate === undefined && loadReleaseDate ? loadReleaseDate : undefined;
+  const isEpisode = target.kind === "episode";
   const pickKey = `${picked.season}:${picked.episode}`;
-  const [airDateAnswer, setAirDateAnswer] = useState<{ key: string; date: string | null } | null>(null);
+  const [lookedUp, setLookedUp] = useState<{ key: string; date: string | null } | null>(null);
   useEffect(() => {
-    if (!pickable || !loadAirDate) return;
+    if (!lookup) return;
     const controller = new AbortController();
     const key = `${picked.season}:${picked.episode}`;
-    loadAirDate(picked.season, picked.episode, controller.signal)
-      .then((date) => { if (!controller.signal.aborted) setAirDateAnswer({ key, date: date ?? null }); })
-      .catch(() => { if (!controller.signal.aborted) setAirDateAnswer({ key, date: null }); });
+    lookup(isEpisode ? { season: picked.season, episode: picked.episode } : undefined, controller.signal)
+      .then((date) => { if (!controller.signal.aborted) setLookedUp({ key, date: date ?? null }); })
+      .catch(() => { if (!controller.signal.aborted) setLookedUp({ key, date: null }); });
     return () => controller.abort();
-  }, [pickable, loadAirDate, picked.season, picked.episode]);
-  const pickedAirDate = airDateAnswer?.key === pickKey ? airDateAnswer.date : undefined;
-
-  const releaseDate =
-    target.kind === "movie" ? target.releaseDate
-      : target.kind === "episode" ? (target.fixed ? target.airDate : pickedAirDate)
-        : null;
+  }, [lookup, isEpisode, picked.season, picked.episode]);
+  const lookedUpDate = lookedUp?.key === pickKey ? lookedUp.date : undefined;
+  const releaseDate = knownDate !== undefined ? knownDate : lookedUpDate;
   // A release still to come is not a date anyone watched it on.
   const releaseIso = releaseDate && hasAired(releaseDate, openedAt) ? utcNoonIsoFromIsoDate(releaseDate) : null;
 
@@ -232,7 +239,7 @@ export function WatchDateModal({
                 title={
                   releaseIso
                     ? `Logs it on ${localDateFromIsoDate(releaseDate!)?.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`
-                    : pickable && loadAirDate && pickedAirDate === undefined
+                    : lookup && lookedUpDate === undefined
                       ? "Looking up the release date…"
                       : "No release date to log it on"
                 }

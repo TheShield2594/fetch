@@ -238,11 +238,13 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post<{ Params: { imdbId: string } }>(
+  app.post<{ Params: { imdbId: string }; Body: unknown }>(
     "/series/:imdbId/watch-next",
     async (request, reply) => {
       const { imdbId } = request.params;
       const profileId = request.profileId!;
+      const time = readWatchTime(request.body);
+      if ("error" in time) return reply.code(400).send({ error: time.error });
 
       const row = await prisma.seriesProgress.findUnique({
         where: { profileId_seriesImdbId: { profileId, seriesImdbId: imdbId } },
@@ -270,7 +272,7 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
 
       const nextSeason = next.season;
       const nextEpisode = next.episode;
-      const watchedAt = new Date();
+      const { watchedAt, dateUnknown } = time;
 
       try {
         await prisma.watchEvent.create({
@@ -281,6 +283,7 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
             season: nextSeason,
             episode: nextEpisode,
             watchedAt,
+            dateUnknown,
             plays: 1,
             profileId,
           },

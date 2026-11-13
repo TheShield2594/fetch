@@ -35,7 +35,7 @@ class RawUrlLogGuardTest {
     fun `release log calls do not print raw urls`() {
         assertTrue("run from the app module", sourceRoot.isDirectory)
         val offenders = sourceRoot.walkTopDown().filter { it.isFile && it.extension == "kt" }.flatMap { file ->
-            rawUrlLogs(file.readText()).map { (line, template) -> "${'$'}{file.path}:${'$'}line: ${'$'}template" }
+            rawUrlLogs(file.readText()).map { (line, template) -> "${file.path}:$line: $template" }
         }.toList()
         if (offenders.isNotEmpty()) {
             fail(
@@ -78,7 +78,7 @@ class RawUrlLogGuardTest {
 
     /**
      * Text from [start] up to the parenthesis that closes the call. Parentheses inside string and
-     * char literals and comments are skipped; `${'$'}{…}` templates inside strings are read as code.
+     * char literals and comments are skipped; `${…}` templates inside strings are read as code.
      */
     private fun callArguments(text: String, start: Int): String {
         val end = skipCode(text, start)

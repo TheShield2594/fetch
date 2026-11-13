@@ -24,6 +24,9 @@ import { PageFrame, PageHeader } from "../components/PageFrame";
 import { useCachedState } from "../hooks/useCachedState";
 import { useToast } from "../hooks/useToast";
 import { useMarkNextEpisode } from "../hooks/useMarkNextEpisode";
+import { WatchDateModal } from "../components/media-detail/WatchDateModal";
+import type { WatchWhen } from "../components/media-detail/detailPanelUtils";
+import { loadEpisodeAirDate, loadMovieReleaseDate } from "../utils/releaseDates";
 import { loadErrorMessage } from "../utils/loadError";
 import { timeAgo } from "../utils/timeAgo";
 import {
@@ -304,7 +307,10 @@ export function ShelfPage() {
 
   // The same mark, toast and Undo as Discover's pick-up strip: the mark and
   // one progress read, two requests in all.
-  const { markNext, isMarking } = useMarkNextEpisode(refreshProgress);
+  const { markNext, isMarking, markDialog } = useMarkNextEpisode(refreshProgress, {
+    canCheckIn: !checkin,
+    onCheckedIn: setCheckin,
+  });
 
   // The panel can mark episodes watched and change lists, which moves the rows
   // on this page — and rate things, which moves the Library under "My rating".
@@ -418,7 +424,7 @@ export function ShelfPage() {
    * or before the watch, and a watch stamped a minute "earlier" than the pause
    * would leave the card standing.
    */
-  const finishPlayback = async (p: PlaybackProgress, title: string) => {
+  const finishPlayback = async (p: PlaybackProgress, title: string, when: WatchWhen) => {
     setPlaybackBusyId(p.id);
     const label = p.season != null && p.episode != null ? `S${p.season}:E${p.episode} of ${title}` : title;
     try {
@@ -429,7 +435,8 @@ export function ShelfPage() {
           seriesImdbId: p.type === "episode" ? p.imdbId : undefined,
           season: p.season ?? undefined,
           episode: p.episode ?? undefined,
-          watchedAt: new Date().toISOString(),
+          watchedAt: when.watchedAt,
+          dateUnknown: when.dateUnknown,
         });
       } catch (err) {
         if (!(err instanceof OfflineWriteQueuedError)) throw err;
@@ -454,6 +461,18 @@ export function ShelfPage() {
       setPlaybackBusyId(null);
     }
   };
+
+  /** The paused title the watch dialog is open for, from its "Mark watched". */
+  const [finishing, setFinishing] = useState<{ p: PlaybackProgress; title: string } | null>(null);
+  const loadPlaybackReleaseDate = useCallback(
+    async (episode: { season: number; episode: number } | undefined) => {
+      if (!finishing) return null;
+      return episode
+        ? loadEpisodeAirDate(finishing.p.imdbId, episode.season, episode.episode)
+        : loadMovieReleaseDate(finishing.p.imdbId);
+    },
+    [finishing]
+  );
 
   /**
    * Takes a title off Continue Watching without logging anything — the "I'm
@@ -511,7 +530,7 @@ export function ShelfPage() {
             action: {
               icon: "check",
               label: `Mark ${what} watched`,
-              onClick: () => void finishPlayback(p, entry.title),
+              onClick: () => setFinishing({ p, title: entry.title }),
               busy: playbackBusyId === p.id,
             },
             dismiss: { label: `Remove ${what} from Up next`, onClick: () => void dismissPlayback(p, entry.title) },
@@ -527,7 +546,7 @@ export function ShelfPage() {
               ? {
                   icon: "play",
                   label: `Mark S${series.nextSeason}:E${series.nextEpisode} of ${entry.title} watched`,
-                  onClick: () => void markNext(series),
+                  onClick: () => markNext(series),
                   busy: isMarking(series.imdbId),
                 }
               : undefined,
@@ -790,6 +809,27 @@ export function ShelfPage() {
             )}
           </section>
         </div>
+      )}
+      {markDialog}
+      {finishing && (
+        <WatchDateModal
+          target={
+            finishing.p.type === "episode" && finishing.p.season != null && finishing.p.episode != null
+              ? {
+                  kind: "episode",
+                  seriesImdbId: finishing.p.imdbId,
+                  season: finishing.p.season,
+                  episode: finishing.p.episode,
+                  fixed: true,
+                  airDate: undefined,
+                  name: finishing.title,
+                }
+              : { kind: "movie", imdbId: finishing.p.imdbId, releaseDate: undefined }
+          }
+          onLog={(when) => finishPlayback(finishing.p, finishing.title, when)}
+          loadReleaseDate={loadPlaybackReleaseDate}
+          onClose={() => setFinishing(null)}
+        />
       )}
     </PageFrame>
   );

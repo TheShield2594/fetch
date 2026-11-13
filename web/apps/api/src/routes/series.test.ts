@@ -285,3 +285,114 @@ describe("GET /series/progress — season-level counts", () => {
     expect(progress.seasonWatchedEpisodes).toBe(0);
   });
 });
+
+describe("manual marks carry when the watch happened", () => {
+  beforeEach(() => {
+    resetMocks();
+    watchEventLibMock.recordWatchEvent.mockResolvedValue({ watchEvent: {}, wasCreated: true });
+  });
+
+  it("logs an episode at the time it was given", async () => {
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/season/2/episode/5/watch",
+      payload: { watchedAt: "2024-03-09T20:30:00.000Z" },
+    });
+
+    expect(response.statusCode).toBe(204);
+    expect(watchEventLibMock.recordWatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ season: 2, episode: 5, watchedAt: new Date("2024-03-09T20:30:00.000Z"), dateUnknown: false })
+    );
+  });
+
+  it("logs an episode with no body at now", async () => {
+    const before = Date.now();
+    const app = await buildApp();
+    const response = await app.inject({ method: "POST", url: "/series/tt-office/season/2/episode/5/watch" });
+
+    expect(response.statusCode).toBe(204);
+    const call = watchEventLibMock.recordWatchEvent.mock.calls[0]![0] as { watchedAt: Date; dateUnknown: boolean };
+    expect(call.watchedAt.getTime()).toBeGreaterThanOrEqual(before);
+    expect(call.dateUnknown).toBe(false);
+  });
+
+  it("refuses a date it cannot read", async () => {
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/season/2/episode/5/watch",
+      payload: { watchedAt: "last tuesday" },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(watchEventLibMock.recordWatchEvent).not.toHaveBeenCalled();
+  });
+
+  it("marks the next episode at the time it was given", async () => {
+    prismaMock.seriesProgress.findUnique.mockResolvedValue({ seriesImdbId: "tt-office", lastSeason: 2, lastEpisode: 4 });
+    prismaMock.metadata.findUnique.mockResolvedValue({ tmdbId: 2316, totalEpisodes: null });
+    nextEpisodeMock.computeNextEpisode.mockResolvedValue({ season: 2, episode: 5 });
+    prismaMock.watchEvent.create.mockResolvedValue({});
+
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/watch-next",
+      payload: { watchedAt: "2022-08-01T19:00:00.000Z", dateUnknown: false },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(prismaMock.watchEvent.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ season: 2, episode: 5, watchedAt: new Date("2022-08-01T19:00:00.000Z"), dateUnknown: false }),
+    });
+  });
+
+  it("marks a season with each episode on its own day where given", async () => {
+    prismaMock.watchEvent.findMany.mockResolvedValue([]);
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/season/1/watch-all",
+      payload: {
+        episodeNumbers: [1, 2],
+        watchedAt: "2026-01-01T00:00:00.000Z",
+        watchedAtByEpisode: { 1: "2005-03-24T12:00:00.000Z" },
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(watchEventLibMock.recordWatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ episode: 1, watchedAt: new Date("2005-03-24T12:00:00.000Z") })
+    );
+    expect(watchEventLibMock.recordWatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ episode: 2, watchedAt: new Date("2026-01-01T00:00:00.000Z") })
+    );
+  });
+
+  it("refuses per-episode times it cannot read", async () => {
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/season/1/watch-all",
+      payload: { episodeNumbers: [1], watchedAtByEpisode: { 1: "soon" } },
+    });
+    expect(response.statusCode).toBe(400);
+  });
+
+  it("marks a season with an unknown date", async () => {
+    prismaMock.watchEvent.findMany.mockResolvedValue([]);
+    const app = await buildApp();
+    const response = await app.inject({
+      method: "POST",
+      url: "/series/tt-office/season/1/watch-all",
+      payload: { episodeNumbers: [1, 2], watchedAt: "2020-01-01T12:00:00.000Z", dateUnknown: true },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(watchEventLibMock.recordWatchEvent).toHaveBeenCalledTimes(2);
+    expect(watchEventLibMock.recordWatchEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ episode: 2, watchedAt: new Date("2020-01-01T12:00:00.000Z"), dateUnknown: true })
+    );
+  });
+});

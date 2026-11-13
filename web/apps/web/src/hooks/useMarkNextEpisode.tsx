@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, runtimeConfig, type SeriesProgress } from "../api";
+import { api, runtimeConfig, type CheckIn, type SeriesProgress } from "../api";
 import { useToast } from "./useToast";
+import { WatchDateModal } from "../components/media-detail/WatchDateModal";
+import type { WatchWhen } from "../components/media-detail/detailPanelUtils";
+import { loadEpisodeAirDate } from "../utils/releaseDates";
 
 /**
  * "Mark the next episode watched" — the one implementation of it.
@@ -12,12 +15,22 @@ import { useToast } from "./useToast";
  * toast, naming the episode, with an Undo that takes exactly that episode back
  * off.
  *
+ * The tap opens the watch dialog first — when was it watched: now, on its air
+ * date, some other time, or not known — and the mark goes in from there. The
+ * page renders `markDialog` wherever it likes; it is null while closed.
+ *
  * `onChanged` is how the page refetches once the mark (or its undo) lands. It
  * is skipped once the page has gone: the request can outlive the screen that
  * made it, and a refetch for a page nobody is looking at writes its answer
  * into whichever profile's cache is current by the time it lands.
+ *
+ * `checkIn` is the dialog's "Now watching": `onCheckedIn` hears the check-in it
+ * starts, and `canCheckIn: false` (one is already running) leaves it out.
  */
-export function useMarkNextEpisode(onChanged: () => unknown) {
+export function useMarkNextEpisode(
+  onChanged: () => unknown,
+  checkIn: { canCheckIn: boolean; onCheckedIn: (checkin: CheckIn) => void } = { canCheckIn: false, onCheckedIn: () => {} }
+) {
   const { showToast } = useToast();
   const [marking, setMarking] = useState<ReadonlySet<string>>(() => new Set());
 
@@ -40,8 +53,8 @@ export function useMarkNextEpisode(onChanged: () => unknown) {
     if (mountedRef.current) await onChangedRef.current();
   }, []);
 
-  const markNext = useCallback(
-    async (s: SeriesProgress) => {
+  const logNext = useCallback(
+    async (s: SeriesProgress, when: WatchWhen) => {
       const { imdbId, name } = s;
       // The profile the mark is recorded against. The toast outlives the page
       // and survives a profile switch, and the Undo's DELETE would otherwise go
@@ -54,7 +67,10 @@ export function useMarkNextEpisode(onChanged: () => unknown) {
         // before the answer had a body (204) can't say, so that toast names no
         // episode and offers no Undo — one aimed at the card's guess could take
         // back the wrong episode.
-        const marked = await api.markNextEpisodeWatched(imdbId);
+        const marked = await api.markNextEpisodeWatched(imdbId, {
+          watchedAt: when.watchedAt,
+          dateUnknown: when.dateUnknown,
+        });
         if (!marked) {
           showToast(`Marked the next episode of ${name}`, "success");
         } else {
@@ -102,5 +118,46 @@ export function useMarkNextEpisode(onChanged: () => unknown) {
 
   const isMarking = useCallback((imdbId: string) => marking.has(imdbId), [marking]);
 
-  return { markNext, isMarking };
+  /** The show the dialog is open for. */
+  const [asking, setAsking] = useState<SeriesProgress | null>(null);
+  const markNext = useCallback((s: SeriesProgress) => setAsking(s), []);
+
+  const loadReleaseDate = useCallback(
+    async (episode: { season: number; episode: number } | undefined) =>
+      asking && episode ? loadEpisodeAirDate(asking.imdbId, episode.season, episode.episode) : null,
+    [asking]
+  );
+
+  const markDialog = asking ? (
+    <WatchDateModal
+      target={{
+        kind: "episode",
+        seriesImdbId: asking.imdbId,
+        season: asking.nextSeason,
+        episode: asking.nextEpisode,
+        fixed: true,
+        // Not known here — looked up, below.
+        airDate: undefined,
+        name: asking.name,
+      }}
+      onLog={(when) => logNext(asking, when)}
+      onWatchNow={!checkIn.canCheckIn ? undefined : async () => {
+        const res = await api.startCheckin({
+          type: "episode",
+          imdbId: asking.imdbId,
+          seriesImdbId: asking.imdbId,
+          name: asking.name,
+          poster: asking.poster,
+          season: asking.nextSeason,
+          episode: asking.nextEpisode,
+        });
+        if (mountedRef.current) checkIn.onCheckedIn(res.checkin);
+        showToast(`Checked in to S${asking.nextSeason}:E${asking.nextEpisode} of ${asking.name}`, "info");
+      }}
+      loadReleaseDate={loadReleaseDate}
+      onClose={() => setAsking(null)}
+    />
+  ) : null;
+
+  return { markNext, isMarking, markDialog };
 }

@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Choose when you watched something.** Logging a watch, ticking an episode, marking a season watched and the Shelf and Discover "Mark watched" buttons now ask when: Now watching (checks in), Just now, Release date (a season can use each episode's air date), Other date with a time, or Unknown date. Ticking an episode used to log it as watched right now, which put anything seen in the past under today.
+
 - **Import from a Stremio account.** Settings → Data shows Stremio's link code; approve it on stremio.com and the library's watched films, watched episodes and resume points come into the profile, read once with the session signed out afterwards. Series episodes are matched through Cinemeta, the catalog Stremio itself uses.
 
 - **More of your other trackers' exports.** Settings → Data → Import from another tracker now reads Letterboxd's `watched.csv` (films marked watched but never logged) and `watchlist.csv`, and IMDb watchlists and lists (a list goes into a custom list you name). Import the Letterboxd diary before `watched.csv`, or a film can end up with two plays. A file that isn't the export you picked is now refused with a message instead of failing, except for files that look the same: swapping Letterboxd's `watched.csv` and `watchlist.csv`, or an IMDb watchlist and an IMDb list, can't be caught.

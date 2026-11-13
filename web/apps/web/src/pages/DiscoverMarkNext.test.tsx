@@ -91,6 +91,12 @@ beforeEach(() => {
 
 const markButton = () => screen.findByRole("button", { name: "Mark S1:E4 of Severance watched" });
 
+/** The card's button, then "Just now" in the dialog it opens. */
+const markNow = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(await markButton());
+  await user.click(await screen.findByRole("button", { name: "Just now" }));
+};
+
 describe("Discover's pick-up strip", () => {
   it("draws an in-progress show with the Shelf's ruler: a tick per episode of the season", async () => {
     getSeriesProgress.mockResolvedValue([
@@ -107,14 +113,28 @@ describe("Discover's pick-up strip", () => {
     expect(screen.queryByText("Up next")).toBeNull();
   });
 
+  it("asks when it was watched before marking anything", async () => {
+    const user = userEvent.setup();
+    renderDiscover();
+
+    await user.click(await markButton());
+
+    expect(await screen.findByRole("heading", { name: "When did you watch S1 E4?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Now watching/ })).toBeInTheDocument();
+    expect(markNextEpisodeWatched).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: /Unknown date/ }));
+    expect(markNextEpisodeWatched).toHaveBeenCalledWith("tt11280740", { watchedAt: expect.any(String), dateUnknown: true });
+  });
+
   it("marks the next episode with a toast naming it, and refetches", async () => {
     const user = userEvent.setup();
     renderDiscover();
     const before = getSeriesProgress.mock.calls.length;
 
-    await user.click(await markButton());
+    await markNow(user);
 
-    expect(markNextEpisodeWatched).toHaveBeenCalledWith("tt11280740");
+    expect(markNextEpisodeWatched).toHaveBeenCalledWith("tt11280740", { watchedAt: expect.any(String) });
     expect(await screen.findByText("Marked S1:E4 of Severance")).toBeInTheDocument();
     expect(getSeriesProgress.mock.calls.length).toBeGreaterThan(before);
   });
@@ -122,7 +142,7 @@ describe("Discover's pick-up strip", () => {
   it("takes exactly that episode back off when Undo is pressed", async () => {
     const user = userEvent.setup();
     renderDiscover();
-    await user.click(await markButton());
+    await markNow(user);
 
     await user.click(await screen.findByRole("button", { name: "Undo" }));
 
@@ -134,7 +154,7 @@ describe("Discover's pick-up strip", () => {
     markNextEpisodeWatched.mockResolvedValue({ season: 1, episode: 5 } as never);
     const user = userEvent.setup();
     renderDiscover();
-    await user.click(await markButton());
+    await markNow(user);
 
     expect(await screen.findByText("Marked S1:E5 of Severance")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Undo" }));
@@ -145,7 +165,7 @@ describe("Discover's pick-up strip", () => {
     markNextEpisodeWatched.mockResolvedValue(undefined as never);
     const user = userEvent.setup();
     renderDiscover();
-    await user.click(await markButton());
+    await markNow(user);
 
     expect(await screen.findByText("Marked the next episode of Severance")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Undo" })).toBeNull();
@@ -154,7 +174,7 @@ describe("Discover's pick-up strip", () => {
   it("refuses an Undo once a different profile is active", async () => {
     const user = userEvent.setup();
     renderDiscover();
-    await user.click(await markButton());
+    await markNow(user);
     await screen.findByText("Marked S1:E4 of Severance");
     vi.mocked(api.unmarkEpisodeWatched).mockClear();
 
@@ -173,7 +193,7 @@ describe("Discover's pick-up strip", () => {
 
     const { unmount } = renderDiscover();
     const user = userEvent.setup();
-    await user.click(await markButton());
+    await markNow(user);
 
     const beforeUnmount = getSeriesProgress.mock.calls.length;
     unmount();
@@ -190,7 +210,7 @@ describe("Discover's pick-up strip", () => {
 
     const { unmount } = renderDiscover();
     const user = userEvent.setup();
-    await user.click(await markButton());
+    await markNow(user);
 
     const beforeUnmount = getSeriesProgress.mock.calls.length;
     unmount();

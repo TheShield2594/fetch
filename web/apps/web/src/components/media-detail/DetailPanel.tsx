@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   Check, Film, Play, Star, X,
 } from "lucide-react";
@@ -19,7 +19,7 @@ import { WatchHistorySection } from "./WatchHistorySection";
 import { MoreActionsMenu } from "./MoreActionsMenu";
 import { RecommendationsSection } from "./RecommendationsSection";
 import { SectionError } from "../SectionError";
-import { buildMetaLine, formatRuntime, nextEpisodeUp, statusColor, type WatchLogTarget } from "./detailPanelUtils";
+import { buildMetaLine, formatRuntime, nextEpisodeUp, statusColor, type WatchLogTarget, type WatchWhen } from "./detailPanelUtils";
 import { formatRating, ratingLabel, RATING_MAX } from "../../utils/rating";
 import { useFocusTrap } from "../../hooks/useFocusTrap";
 import { useScrollLock } from "../../hooks/useScrollLock";
@@ -27,6 +27,7 @@ import { useEscapeKey } from "../../hooks/useEscapeKey";
 import { useExitAnimation } from "../../hooks/useExitAnimation";
 import type { ShowToast } from "../../hooks/useToast";
 import { relogWatchEvent } from "../../utils/watchEvents";
+import { loadEpisodeAirDate } from "../../utils/releaseDates";
 import { invalidateDetailBundle, type PanelDetail } from "./useDetailPanel";
 import { DISPLAY_TITLE, KICKER, MICRO_LABEL } from "../typography";
 
@@ -300,11 +301,11 @@ export function DetailPanel({
     }
   };
 
-  const handleLog = async (dateIso: string, episodeInfo?: { season: number; episode: number }, dateUnknown?: boolean) => {
-    if (!watchTarget) return;
+  const handleLog = async (when: WatchWhen, episodeInfo?: { season: number; episode: number }) => {
+    if (!watchTarget || watchTarget.kind === "season") return;
     try {
       if (watchTarget.kind === "movie") {
-        await api.logWatch({ type: "movie", imdbId: watchTarget.imdbId, watchedAt: dateIso, dateUnknown });
+        await api.logWatch({ type: "movie", imdbId: watchTarget.imdbId, watchedAt: when.watchedAt, dateUnknown: when.dateUnknown });
       } else {
         await api.logWatch({
           type: "episode",
@@ -312,8 +313,8 @@ export function DetailPanel({
           seriesImdbId: watchTarget.seriesImdbId,
           season: episodeInfo?.season ?? watchTarget.season,
           episode: episodeInfo?.episode ?? watchTarget.episode,
-          watchedAt: dateIso,
-          dateUnknown,
+          watchedAt: when.watchedAt,
+          dateUnknown: when.dateUnknown,
         });
       }
     } catch (err) {
@@ -332,6 +333,13 @@ export function DetailPanel({
       onHistoryChange(updated);
     } catch { /* best-effort */ }
   };
+
+  // An episode's air date, for the watch dialog's "Release date".
+  const loadReleaseDate = useCallback(
+    async (episode: { season: number; episode: number } | undefined) =>
+      episode ? loadEpisodeAirDate(item.imdbId, episode.season, episode.episode) : null,
+    [item.imdbId]
+  );
 
   const handleSelectRecommendation = (rec: TrendingMeta) => {
     onSelectItem({
@@ -708,6 +716,10 @@ export function DetailPanel({
                   loading={sectionsLoading}
                   onError={(msg) => onShowToast(msg, "error")}
                   onToast={(msg, type) => onShowToast(msg, type)}
+                  onWatchNow={activeCheckin || checkinLoading ? undefined : (season, episode) => handleCheckin(season, episode)}
+                  onWatched={() => {
+                    void api.getWatchHistory(50, 0, { imdbId: item.imdbId }).then(onHistoryChange).catch(() => undefined);
+                  }}
                 />
               </div>
             )}
@@ -774,6 +786,12 @@ export function DetailPanel({
           target={watchTarget}
           seasons={seasons}
           onLog={handleLog}
+          onWatchNow={
+            activeCheckin || checkinLoading
+              ? undefined
+              : (episode) => handleCheckin(episode?.season, episode?.episode)
+          }
+          loadReleaseDate={item.type === "series" ? loadReleaseDate : undefined}
           onClose={() => setWatchTarget(null)}
         />
       )}

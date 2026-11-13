@@ -60,9 +60,41 @@ export function buildMetaLine(item: {
   ].filter((part): part is string => Boolean(part));
 }
 
+/**
+ * What the watch dialog is logging.
+ *
+ * An episode is either chosen in the dialog (the panel's primary action, which
+ * offers the next one up) or `fixed` — the row in the season list it was
+ * ticked from — in which case the dialog names it rather than offering pickers.
+ * A season logs every episode in it at once.
+ */
 export type WatchLogTarget =
   | { kind: "movie"; imdbId: string; releaseDate: string | null | undefined }
-  | { kind: "episode"; seriesImdbId: string; season: number; episode: number };
+  | {
+      kind: "episode";
+      seriesImdbId: string;
+      season: number;
+      episode: number;
+      fixed?: boolean | undefined;
+      /** The episode's air date (YYYY-MM-DD), when the caller already has it. */
+      airDate?: string | null | undefined;
+      /** Its name, shown when the episode is fixed. */
+      name?: string | null | undefined;
+    }
+  | { kind: "season"; seriesImdbId: string; season: number; name: string };
+
+/**
+ * When the watch happened, as the dialog's options put it.
+ *
+ * `releaseDates` is the season dialog's "Air dates": each episode on the day it
+ * aired, which only the caller holding the episode list can work out.
+ * `watchedAt` is then the fallback for an episode with no air date.
+ */
+export interface WatchWhen {
+  watchedAt: string;
+  dateUnknown?: boolean | undefined;
+  releaseDates?: boolean | undefined;
+}
 
 /**
  * The episode the panel's primary action offers — "Continue · S2 E5".

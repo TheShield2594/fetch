@@ -291,8 +291,9 @@ describe("ShelfPage", () => {
     renderShelf();
 
     await user.click(await screen.findByRole("button", { name: /Mark S3:E4 of The Long Shore watched/i }));
+      await user.click(await screen.findByRole("button", { name: "Just now" }));
 
-    await waitFor(() => expect(markNextEpisodeWatched).toHaveBeenCalledWith("tt9"));
+    await waitFor(() => expect(markNextEpisodeWatched).toHaveBeenCalledWith("tt9", { watchedAt: expect.any(String) }));
     await waitFor(() => expect(getSeriesProgress).toHaveBeenCalledTimes(2));
     // Nothing else the page opened with is asked again.
     for (const fn of [getLists, getAllListItems, getCheckin, getWatchHistory, getPlayback]) {
@@ -507,6 +508,7 @@ describe("ShelfPage", () => {
       renderShelf();
 
       await user.click(await screen.findByRole("button", { name: "Mark S2:E7 of The Long Shore watched" }));
+      await user.click(await screen.findByRole("button", { name: "Just now" }));
 
       await waitFor(() =>
         expect(logWatch).toHaveBeenCalledWith(
@@ -529,6 +531,7 @@ describe("ShelfPage", () => {
       renderShelf();
 
       await user.click(await screen.findByRole("button", { name: "Mark Understudy watched" }));
+      await user.click(await screen.findByRole("button", { name: "Just now" }));
 
       await waitFor(() => expect(screen.queryByRole("region", { name: "Up next" })).not.toBeInTheDocument());
       expect(await screen.findByText(/Saved offline/)).toBeInTheDocument();

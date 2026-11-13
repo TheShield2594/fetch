@@ -16,6 +16,13 @@ import type {
   YearInReviewStats,
 } from "./types";
 
+/** When a manual mark says the watch happened. */
+export interface WatchTime {
+  /** ISO 8601. */
+  watchedAt: string;
+  dateUnknown?: boolean | undefined;
+}
+
 export const watchApi = {
   async getSeriesProgress(signal?: AbortSignal) {
     const res = await request<unknown>("/series/progress", { signal });
@@ -70,10 +77,11 @@ export const watchApi = {
    * Answers with the episode the server marked. An API from before it did
    * answers 204, which arrives as `undefined`.
    */
-  markNextEpisodeWatched(imdbId: string) {
-    return request<{ season: number; episode: number } | undefined>(`/series/${encodeURIComponent(imdbId)}/watch-next`, {
-      method: "POST"
-    });
+  markNextEpisodeWatched(imdbId: string, when?: WatchTime) {
+    return request<{ season: number; episode: number } | undefined>(
+      `/series/${encodeURIComponent(imdbId)}/watch-next`,
+      when ? { method: "POST", body: JSON.stringify(when) } : { method: "POST" }
+    );
   },
   getDetailedStats(signal?: AbortSignal) {
     return request<DetailedWatchStats>("/watch/stats/detailed", { signal });
@@ -91,10 +99,11 @@ export const watchApi = {
       `/series/${encodeURIComponent(imdbId)}/watched-episodes`, { signal }
     );
   },
-  markEpisodeWatched(imdbId: string, seasonNumber: number, episodeNumber: number) {
+  /** Without `when`, the watch is now. */
+  markEpisodeWatched(imdbId: string, seasonNumber: number, episodeNumber: number, when?: WatchTime) {
     return request<void>(
       `/series/${encodeURIComponent(imdbId)}/season/${seasonNumber}/episode/${episodeNumber}/watch`,
-      { method: "POST" }
+      when ? { method: "POST", body: JSON.stringify(when) } : { method: "POST" }
     );
   },
   unmarkEpisodeWatched(imdbId: string, seasonNumber: number, episodeNumber: number) {
@@ -103,10 +112,21 @@ export const watchApi = {
       { method: "DELETE" }
     );
   },
-  markSeasonWatched(imdbId: string, seasonNumber: number, episodeNumbers: number[]) {
+  /**
+   * `when` is the time every episode is logged at — now, without it — and
+   * `watchedAtByEpisode` overrides it for the episodes it names (their air
+   * dates, for "Release dates").
+   */
+  markSeasonWatched(
+    imdbId: string,
+    seasonNumber: number,
+    episodeNumbers: number[],
+    when?: WatchTime,
+    watchedAtByEpisode?: Record<number, string>
+  ) {
     return request<{ marked: number; total: number }>(
       `/series/${encodeURIComponent(imdbId)}/season/${seasonNumber}/watch-all`,
-      { method: "POST", body: JSON.stringify({ episodeNumbers }) }
+      { method: "POST", body: JSON.stringify({ episodeNumbers, ...when, ...(watchedAtByEpisode ? { watchedAtByEpisode } : {}) }) }
     );
   },
   dropShow(imdbId: string) {

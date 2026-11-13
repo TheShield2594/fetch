@@ -13,6 +13,23 @@ import { recordWatchEvent } from "../lib/watch-event.js";
 
 const DROPPED_KEY = droppedSeriesKey;
 
+/**
+ * When a manual mark says the watch happened: `watchedAt` (ISO 8601) and
+ * `dateUnknown`, both optional, the same pair `POST /watch` takes. Without
+ * them the watch is now, which is all these routes used to be able to say.
+ */
+function readWatchTime(body: unknown): { watchedAt: Date; dateUnknown: boolean } | { error: string } {
+  const b = (body && typeof body === "object" ? body : {}) as { watchedAt?: unknown; dateUnknown?: unknown };
+  if (b.dateUnknown !== undefined && typeof b.dateUnknown !== "boolean") {
+    return { error: "dateUnknown must be a boolean when provided" };
+  }
+  if (b.watchedAt === undefined) return { watchedAt: new Date(), dateUnknown: b.dateUnknown === true };
+  if (typeof b.watchedAt !== "string") return { error: "watchedAt must be an ISO 8601 string" };
+  const watchedAt = new Date(b.watchedAt);
+  if (Number.isNaN(watchedAt.getTime())) return { error: "watchedAt must be a valid ISO 8601 date" };
+  return { watchedAt, dateUnknown: b.dateUnknown === true };
+}
+
 const seriesRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", resolveProfile);
 
@@ -221,11 +238,13 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
     };
   });
 
-  app.post<{ Params: { imdbId: string } }>(
+  app.post<{ Params: { imdbId: string }; Body: unknown }>(
     "/series/:imdbId/watch-next",
     async (request, reply) => {
       const { imdbId } = request.params;
       const profileId = request.profileId!;
+      const time = readWatchTime(request.body);
+      if ("error" in time) return reply.code(400).send({ error: time.error });
 
       const row = await prisma.seriesProgress.findUnique({
         where: { profileId_seriesImdbId: { profileId, seriesImdbId: imdbId } },
@@ -253,7 +272,7 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
 
       const nextSeason = next.season;
       const nextEpisode = next.episode;
-      const watchedAt = new Date();
+      const { watchedAt, dateUnknown } = time;
 
       try {
         await prisma.watchEvent.create({
@@ -264,6 +283,7 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
             season: nextSeason,
             episode: nextEpisode,
             watchedAt,
+            dateUnknown,
             plays: 1,
             profileId,
           },
@@ -304,7 +324,7 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
     return { episodes: events.map((e) => ({ season: e.season!, episode: e.episode! })) };
   });
 
-  app.post<{ Params: { imdbId: string; seasonNumber: string; episodeNumber: string } }>(
+  app.post<{ Params: { imdbId: string; seasonNumber: string; episodeNumber: string }; Body: unknown }>(
     "/series/:imdbId/season/:seasonNumber/episode/:episodeNumber/watch",
     async (request, reply) => {
       const { imdbId } = request.params;
@@ -313,6 +333,8 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
       if (!Number.isInteger(seasonNumber) || seasonNumber < 1 || !Number.isInteger(episodeNumber) || episodeNumber < 1) {
         return reply.code(400).send({ error: "season and episode must be positive integers" });
       }
+      const time = readWatchTime(request.body);
+      if ("error" in time) return reply.code(400).send({ error: time.error });
 
       await recordWatchEvent({
         type: "episode",
@@ -320,7 +342,8 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
         seriesImdbId: imdbId,
         season: seasonNumber,
         episode: episodeNumber,
-        watchedAt: new Date(),
+        watchedAt: time.watchedAt,
+        dateUnknown: time.dateUnknown,
         source: "manual",
         profileId: request.profileId!,
         log: request.log,
@@ -402,6 +425,26 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
       ) {
         return reply.code(400).send({ error: "episodeNumbers must be a non-empty array of positive integers" });
       }
+      const time = readWatchTime(request.body);
+      if ("error" in time) return reply.code(400).send({ error: time.error });
+
+      // Per-episode times ("each episode on the day it aired"), overriding the
+      // shared one for the episodes they name.
+      const byEpisode = new Map<number, Date>();
+      const rawByEpisode = (request.body as { watchedAtByEpisode?: unknown }).watchedAtByEpisode;
+      if (rawByEpisode !== undefined) {
+        if (!rawByEpisode || typeof rawByEpisode !== "object" || Array.isArray(rawByEpisode)) {
+          return reply.code(400).send({ error: "watchedAtByEpisode must be an object of episode number to ISO 8601 date" });
+        }
+        for (const [key, value] of Object.entries(rawByEpisode)) {
+          const n = Number(key);
+          const at = typeof value === "string" ? new Date(value) : null;
+          if (!Number.isInteger(n) || n < 1 || !at || Number.isNaN(at.getTime())) {
+            return reply.code(400).send({ error: "watchedAtByEpisode must be an object of episode number to ISO 8601 date" });
+          }
+          byEpisode.set(n, at);
+        }
+      }
 
       const profileId = request.profileId!;
       const episodeNumbers = [...new Set(body.episodeNumbers as number[])];
@@ -419,7 +462,7 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
       const alreadyWatched = new Set(existing.map((e) => e.episode));
       const toMark = episodeNumbers.filter((n) => !alreadyWatched.has(n));
 
-      const watchedAt = new Date();
+      const { watchedAt, dateUnknown } = time;
       await Promise.all(
         toMark.map((episode) =>
           recordWatchEvent({
@@ -428,7 +471,8 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
             seriesImdbId: imdbId,
             season: seasonNumber,
             episode,
-            watchedAt,
+            watchedAt: byEpisode.get(episode) ?? watchedAt,
+            dateUnknown: byEpisode.has(episode) ? false : dateUnknown,
             source: "manual",
             profileId,
             log: request.log,
@@ -445,7 +489,9 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
         await upsertSeriesProgressIfNewer(profileId, imdbId, {
           lastSeason: seasonNumber,
           lastEpisode: Math.max(...episodeNumbers),
-          lastWatchedAt: watchedAt,
+          lastWatchedAt: new Date(
+            Math.max(...toMark.map((episode) => (byEpisode.get(episode) ?? watchedAt).getTime()))
+          ),
         });
       }
 

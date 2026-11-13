@@ -54,6 +54,16 @@ does, a fix on `main` and a `### Security` entry in
 someone running it. You'll be credited in the advisory and the changelog unless
 you'd rather not be.
 
+## Plain HTTP
+
+Fetch does not terminate TLS; that is left to the reverse proxy, and so is
+HSTS — neither container sends a `Strict-Transport-Security` header. If you
+serve the site or the API over plain HTTP, everything secret travels in
+cleartext: passwords at sign-in, `API_TOKEN` when the admin pastes it into the
+first-run setup wizard, the session and PIN-profile cookies, and the bearer
+tokens paired TVs send. Anyone who can watch that network can take them. On a
+LAN you trust that may be acceptable; anywhere else, put TLS in front.
+
 ## Threat model
 
 Fetch is built for self-hosting on a trusted local network, **not** for

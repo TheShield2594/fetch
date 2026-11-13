@@ -1133,6 +1133,17 @@
     <string name="search_error_no_catalogs">Ingen søgbare kataloger fundet i installerede addons</string>
     <string name="search_no_catalogs_title">Ingen af dine addons kan søge</string>
     <string name="search_no_catalogs_subtitle">Installer en addon med et søgekatalog, og prøv derefter igen.</string>
+    <string name="search_filter_all">Alle</string>
+    <string name="search_filter_movies">Film</string>
+    <string name="search_filter_series">Serier</string>
+    <string name="search_filter_in_library">I mit bibliotek</string>
+    <string name="search_filters_label">Filtrer resultater</string>
+    <string name="search_top_result">Bedste resultat</string>
+    <string name="search_top_result_sources">Fra %1$s</string>
+    <string name="search_top_result_sources_more">Fra %1$s og %2$d mere</string>
+    <string name="search_results_other">Andet</string>
+    <string name="search_no_results_filter_title">Intet matcher dette filter</string>
+    <string name="search_no_results_filter_subtitle">Prøv et andet filter, eller Alle.</string>
 
     <string name="library_title">Bibliotek</string>
     <string name="library_filter_list">Liste</string>

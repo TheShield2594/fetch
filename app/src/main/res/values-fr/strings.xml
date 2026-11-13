@@ -1454,6 +1454,17 @@
     <string name="search_error_no_catalogs">Aucun catalogue pouvant faire l’objet d’une recherche n’a été trouvé dans les addons installés</string>
     <string name="search_no_catalogs_title">Aucun de vos addons ne permet la recherche</string>
     <string name="search_no_catalogs_subtitle">Installez un addon doté d’un catalogue de recherche, puis réessayez.</string>
+    <string name="search_filter_all">Tout</string>
+    <string name="search_filter_movies">Films</string>
+    <string name="search_filter_series">Séries</string>
+    <string name="search_filter_in_library">Dans ma bibliothèque</string>
+    <string name="search_filters_label">Filtrer les résultats</string>
+    <string name="search_top_result">Meilleur résultat</string>
+    <string name="search_top_result_sources">De %1$s</string>
+    <string name="search_top_result_sources_more">De %1$s et %2$d autres</string>
+    <string name="search_results_other">Autres</string>
+    <string name="search_no_results_filter_title">Aucun résultat pour ce filtre</string>
+    <string name="search_no_results_filter_subtitle">Essayez un autre filtre, ou Tout.</string>
 
     <string name="library_title">Bibliothèque</string>
     <string name="library_filter_list">Liste</string>

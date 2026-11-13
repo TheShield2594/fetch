@@ -1200,6 +1200,17 @@
 	<string name="search_error_no_catalogs">V nameščenih dodatkih ni iskalnih katalogov</string>
 	<string name="search_no_catalogs_title">Noben od vaših dodatkov ne omogoča iskanja</string>
 	<string name="search_no_catalogs_subtitle">Namestite dodatek s katalogom za iskanje in poskusite znova.</string>																								 
+    <string name="search_filter_all">Vse</string>
+    <string name="search_filter_movies">Filmi</string>
+    <string name="search_filter_series">Serije</string>
+    <string name="search_filter_in_library">V moji knjižnici</string>
+    <string name="search_filters_label">Filtriraj rezultate</string>
+    <string name="search_top_result">Najboljši zadetek</string>
+    <string name="search_top_result_sources">Iz %1$s</string>
+    <string name="search_top_result_sources_more">Iz %1$s in še %2$d</string>
+    <string name="search_results_other">Drugo</string>
+    <string name="search_no_results_filter_title">Temu filtru nič ne ustreza</string>
+    <string name="search_no_results_filter_subtitle">Poskusite drug filter ali Vse.</string>
 	<!-- Home errors -->					
     <string name="home_error_no_catalog_addons">Ni nameščenih dodatkov s katalogi</string>																
     <!-- Player errors -->					  

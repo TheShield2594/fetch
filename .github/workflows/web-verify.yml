@@ -114,3 +114,10 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      # The cold start's download size: the entry chunk and everything
+      # index.html preloads, gzipped, against budgets in the script. A static
+      # import that drags a lazy page into the entry graph shows up here as a
+      # jump of tens of kB long before anyone notices a slower first paint.
+      - name: Check the web bundle's cold-start size
+        run: node apps/web/scripts/check-bundle-size.mjs apps/web/dist

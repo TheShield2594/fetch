@@ -1304,6 +1304,17 @@
     <string name="search_error_no_catalogs">Tidak ada katalog yang bisa dicari ditemukan di addon terpasang</string>
     <string name="search_no_catalogs_title">Tidak ada addon Anda yang bisa mencari</string>
     <string name="search_no_catalogs_subtitle">Pasang addon dengan katalog pencarian, lalu coba lagi.</string>
+    <string name="search_filter_all">Semua</string>
+    <string name="search_filter_movies">Film</string>
+    <string name="search_filter_series">Serial</string>
+    <string name="search_filter_in_library">Di pustaka saya</string>
+    <string name="search_filters_label">Filter hasil</string>
+    <string name="search_top_result">Hasil teratas</string>
+    <string name="search_top_result_sources">Dari %1$s</string>
+    <string name="search_top_result_sources_more">Dari %1$s dan %2$d lainnya</string>
+    <string name="search_results_other">Lainnya</string>
+    <string name="search_no_results_filter_title">Tidak ada yang cocok dengan filter ini</string>
+    <string name="search_no_results_filter_subtitle">Coba filter lain, atau Semua.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Tidak ada addon katalog terpasang</string>

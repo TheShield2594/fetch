@@ -1351,6 +1351,17 @@
     <string name="search_error_no_catalogs">在已安装的扩展中找不到可搜索的目录</string>
     <string name="search_no_catalogs_title">您的扩展均不支持搜索</string>
     <string name="search_no_catalogs_subtitle">请安装带有搜索目录的扩展，然后重试。</string>
+    <string name="search_filter_all">全部</string>
+    <string name="search_filter_movies">电影</string>
+    <string name="search_filter_series">剧集</string>
+    <string name="search_filter_in_library">在我的片库中</string>
+    <string name="search_filters_label">筛选结果</string>
+    <string name="search_top_result">最佳结果</string>
+    <string name="search_top_result_sources">来自 %1$s</string>
+    <string name="search_top_result_sources_more">来自 %1$s 及另外 %2$d 个</string>
+    <string name="search_results_other">其他</string>
+    <string name="search_no_results_filter_title">没有符合此筛选条件的内容</string>
+    <string name="search_no_results_filter_subtitle">请尝试其他筛选条件，或选择“全部”。</string>
 
     <string name="library_title">媒体库</string>
     <string name="library_filter_list">列表</string>

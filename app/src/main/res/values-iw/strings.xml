@@ -1452,6 +1452,17 @@
     <string name="search_error_no_catalogs">אף אחד מהתוספים המותקנים לא תומך בחיפוש.</string>
     <string name="search_no_catalogs_title">אף אחד מהתוספים שלך לא תומך בחיפוש</string>
     <string name="search_no_catalogs_subtitle">יש להתקין תוסף עם קטלוג חיפוש ולנסות שוב.</string>
+    <string name="search_filter_all">הכול</string>
+    <string name="search_filter_movies">סרטים</string>
+    <string name="search_filter_series">סדרות</string>
+    <string name="search_filter_in_library">בספרייה שלי</string>
+    <string name="search_filters_label">סינון תוצאות</string>
+    <string name="search_top_result">התוצאה המובילה</string>
+    <string name="search_top_result_sources">מ-%1$s</string>
+    <string name="search_top_result_sources_more">מ-%1$s ועוד %2$d</string>
+    <string name="search_results_other">אחר</string>
+    <string name="search_no_results_filter_title">אין התאמות למסנן הזה</string>
+    <string name="search_no_results_filter_subtitle">נסו מסנן אחר, או הכול.</string>
 
     <string name="library_title">ספרייה</string>
     <string name="library_filter_list">רשימה</string>

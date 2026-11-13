@@ -1,13 +1,8 @@
 import { ListItemType, ListKind, MetadataType, Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
-import {
-  hasParentalAuthority,
-  invalidateProfileCache,
-  loosensParentalLimits,
-  resolveProfile,
-  withoutLoosenedLimits,
-} from "../lib/profile.js";
+import { hasParentalAuthority, invalidateProfileCache, resolveProfile } from "../lib/profile.js";
+import { writeProfileGuarded } from "../lib/parental-write.js";
 import { parseProfileAttributes, PROFILE_VIEW_SELECT, type ProfileAttributeUpdate } from "../lib/profile-view.js";
 import { type CollectionJson, validateCollections } from "../lib/collections.js";
 import { batchUpsertSeriesProgressIfNewer } from "../lib/series-progress.js";
@@ -173,71 +168,6 @@ const remapListSources = (collection: unknown, restoredListIds: Map<string, stri
       };
     }),
   };
-};
-
-
-const PARENTAL_FIELDS = ["isKidsProfile", "maxRating", "allowUnrated"] as const;
-/** How often a restore re-reads the limits after a concurrent change before giving up on them. */
-const PARENTAL_WRITE_ATTEMPTS = 3;
-
-/**
- * Writes imported profile settings, leaving out any parental field that would
- * loosen the stored limits when the request has no parental authority.
- *
- * The check and the write are one step: a write that carries a parental field
- * only lands if the limits are still the ones it was checked against, so a
- * grown-up tightening them mid-import can't be undone by a value that was
- * fine a moment earlier. On a conflict the limits are read and checked again;
- * if they keep changing, the parental fields are skipped and the rest is
- * written.
- */
-const restoreProfileSettings = async (
-  profileId: string,
-  settings: ProfileAttributeUpdate,
-  checkAuthority: () => Promise<boolean>
-): Promise<{ written: boolean; skipped: string[] }> => {
-  let authority: boolean | undefined;
-  for (let attempt = 0; attempt < PARENTAL_WRITE_ATTEMPTS; attempt += 1) {
-    const current = await prisma.profile.findUnique({
-      where: { id: profileId },
-      select: { isKidsProfile: true, maxRating: true, allowUnrated: true },
-    });
-    if (!current) return { written: false, skipped: [] };
-
-    let data = settings;
-    let skipped: string[] = [];
-    if (loosensParentalLimits(current, data) && !(authority ??= await checkAuthority())) {
-      const trimmed = withoutLoosenedLimits(current, data);
-      data = trimmed.data;
-      skipped = trimmed.dropped;
-    }
-    if (Object.keys(data).length === 0) return { written: false, skipped };
-
-    const touchesLimits = PARENTAL_FIELDS.some((key) => data[key] !== undefined);
-    if (!touchesLimits) {
-      await prisma.profile.update({ where: { id: profileId }, data });
-      return { written: true, skipped };
-    }
-    const { count } = await prisma.profile.updateMany({
-      where: {
-        id: profileId,
-        isKidsProfile: current.isKidsProfile,
-        maxRating: current.maxRating,
-        allowUnrated: current.allowUnrated,
-      },
-      data,
-    });
-    if (count > 0) return { written: true, skipped };
-  }
-
-  // The limits kept changing under this request: restore everything else and
-  // leave them as whoever is changing them set them.
-  const data = { ...settings };
-  const skipped = PARENTAL_FIELDS.filter((key) => data[key] !== undefined);
-  for (const key of skipped) delete data[key];
-  if (Object.keys(data).length === 0) return { written: false, skipped };
-  await prisma.profile.update({ where: { id: profileId }, data });
-  return { written: true, skipped };
 };
 
 const exportRoutes: FastifyPluginAsync = async (app) => {
@@ -586,10 +516,16 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     const settings = parseProfileAttributes(isRecord(body.profile) ? body.profile.settings : undefined);
     const settingsData: ProfileAttributeUpdate = settings.ok ? settings.data : {};
     if (Object.keys(settingsData).length > 0) {
-      const restored = await restoreProfileSettings(profileId, settingsData, () => hasParentalAuthority(request));
-      summary.profileSettings = restored.written;
-      summary.parentalLimitsSkipped = restored.skipped;
-      if (restored.written) invalidateProfileCache();
+      // The check and the write are one step (lib/parental-write.ts), so a
+      // grown-up tightening the limits mid-import can't be undone by it.
+      const restored = await writeProfileGuarded(profileId, settingsData, {
+        checkAuthority: () => hasParentalAuthority(request),
+      });
+      if (restored.status === "ok") {
+        summary.profileSettings = restored.profile !== undefined;
+        summary.parentalLimitsSkipped = restored.skipped;
+        if (restored.profile) invalidateProfileCache();
+      }
     }
 
     summary.collections = await importCollections(profileId, body.collections, restoredListIds);

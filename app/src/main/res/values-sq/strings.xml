@@ -1146,6 +1146,17 @@
     <string name="search_error_no_catalogs">Nuk u gjetën katalogë të kërkueshëm në shtesat e instaluara</string>
     <string name="search_no_catalogs_title">Asnjë nga shtesat e tua nuk mund të kërkojë</string>
     <string name="search_no_catalogs_subtitle">Instalo një shtesë me katalog kërkimi, pastaj provo përsëri.</string>
+    <string name="search_filter_all">Të gjitha</string>
+    <string name="search_filter_movies">Filma</string>
+    <string name="search_filter_series">Seriale</string>
+    <string name="search_filter_in_library">Në bibliotekën time</string>
+    <string name="search_filters_label">Filtro rezultatet</string>
+    <string name="search_top_result">Rezultati kryesor</string>
+    <string name="search_top_result_sources">Nga %1$s</string>
+    <string name="search_top_result_sources_more">Nga %1$s dhe %2$d të tjera</string>
+    <string name="search_results_other">Të tjera</string>
+    <string name="search_no_results_filter_title">Asgjë nuk përputhet me këtë filtër</string>
+    <string name="search_no_results_filter_subtitle">Provo një filtër tjetër, ose Të gjitha.</string>
     <string name="library_title">Biblioteka</string>
     <string name="library_filter_list">Lista</string>
     <string name="library_filter_type">Lloji</string>

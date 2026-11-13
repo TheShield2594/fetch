@@ -8,6 +8,8 @@
  * `api/lists.ts`, `api/watch.ts` and the rest.
  */
 
+import type { RATING_LEVELS } from "./ratingLevels";
+
 /**
  * The three response shapes this client validates rather than asserts, defined
  * once in `@fetch/shared` and annotated onto the API's own handlers — see
@@ -306,8 +308,7 @@ export type ItemListMembership = {
   addedAt: string;
 };
 
-/** The TV's age ladder, strictest first. Movie and TV ratings share it. */
-export const RATING_LEVELS = ["ALL_AGES", "OLDER_KIDS", "PARENTAL_GUIDANCE", "TEENS", "MATURE", "ADULTS_ONLY"] as const;
+/** A step on the TV's age ladder; see `RATING_LEVELS` in `./ratingLevels`. */
 export type RatingLevel = (typeof RATING_LEVELS)[number];
 
 /** A title a kids profile may watch in "approved titles only" mode. */

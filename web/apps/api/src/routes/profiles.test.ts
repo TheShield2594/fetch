@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 import { at } from "../lib/test-fixtures/present.js";
+import { recordNotFound } from "../lib/test-fixtures/prisma-errors.js";
 import { mintProfileToken } from "../lib/profile-token.js";
 import type { AuthPrincipal } from "../lib/request-auth.js";
 
@@ -990,6 +991,63 @@ describe("profiles routes", () => {
       const response = await patchKids(app, {}, { isKidsProfile: false });
 
       expect(response.statusCode).toBe(200);
+    });
+
+    // #553: the check and the write are one step, so a grown-up tightening
+    // the limits between them can't be undone by a value that was fine a
+    // moment earlier.
+    describe("a tightening that lands mid-request", () => {
+      /** The stored limits start at TEENS; the first guarded write finds a parent has just set ALL_AGES. */
+      const tightenedMidRequest = () => {
+        household(null);
+        const stored = { ...kids, maxRating: "TEENS" };
+        let tightened = false;
+        prismaMock.profile.findUnique.mockImplementation(async ({ where }: { where: { id: string } }) =>
+          where.id === KIDS_ID ? { ...stored } : where.id === PARENT_ID ? { ...kids, id: PARENT_ID } : null
+        );
+        prismaMock.profile.update.mockImplementation(
+          async ({ where, data }: { where: Record<string, unknown>; data: object }) => {
+            if (!tightened) {
+              tightened = true;
+              stored.maxRating = "ALL_AGES";
+            }
+            if ("maxRating" in where && where.maxRating !== stored.maxRating) throw recordNotFound();
+            return Object.assign(stored, data);
+          }
+        );
+        return stored;
+      };
+
+      it("re-checks against the tightened limits and refuses what is now a loosening", async () => {
+        const stored = tightenedMidRequest();
+        const app = await buildApp(SESSION);
+
+        const response = await patchKids(app, { "x-profile-id": KIDS_ID }, { maxRating: "TEENS" });
+
+        expect(response.statusCode).toBe(403);
+        expect(response.json().code).toBe("parental_authority_required");
+        expect(stored.maxRating).toBe("ALL_AGES");
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({ where: expect.objectContaining({ id: KIDS_ID, maxRating: "TEENS" }) })
+        );
+      });
+
+      it("answers 409 and writes nothing when the limits keep changing", async () => {
+        household(null);
+        prismaMock.profile.update.mockRejectedValue(recordNotFound());
+        const app = await buildApp(SESSION);
+
+        const response = await app.inject({
+          method: "PATCH",
+          url: `/profiles/${KIDS_ID}`,
+          headers: { "x-profile-id": PARENT_ID },
+          payload: { name: "Kiddo", parental: { maxRating: "TEENS" } },
+        });
+
+        expect(response.statusCode).toBe(409);
+        expect(response.json().code).toBe("parental_limits_changed");
+        expect(prismaMock.profile.update).toHaveBeenCalledTimes(3);
+      });
     });
 
     it("refuses a kids profile adding a profile, and lets a parent add one", async () => {

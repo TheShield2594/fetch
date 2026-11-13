@@ -1342,6 +1342,17 @@
     <string name="search_error_no_catalogs">ইনস্টল করা অ্যাডনগুলোতে কোনো সার্চযোগ্য ক্যাটালগ পাওয়া যায়নি</string>
     <string name="search_no_catalogs_title">আপনার কোনো অ্যাডন সার্চ করতে পারে না</string>
     <string name="search_no_catalogs_subtitle">সার্চ ক্যাটালগ আছে এমন একটি অ্যাডন ইনস্টল করুন, তারপর আবার চেষ্টা করুন।</string>
+    <string name="search_filter_all">সব</string>
+    <string name="search_filter_movies">মুভি</string>
+    <string name="search_filter_series">সিরিজ</string>
+    <string name="search_filter_in_library">আমার লাইব্রেরিতে</string>
+    <string name="search_filters_label">ফলাফল ফিল্টার করুন</string>
+    <string name="search_top_result">সেরা ফলাফল</string>
+    <string name="search_top_result_sources">%1$s থেকে</string>
+    <string name="search_top_result_sources_more">%1$s এবং আরও %2$dটি থেকে</string>
+    <string name="search_results_other">অন্যান্য</string>
+    <string name="search_no_results_filter_title">এই ফিল্টারের সাথে কিছুই মেলেনি</string>
+    <string name="search_no_results_filter_subtitle">অন্য ফিল্টার বা সব চেষ্টা করুন।</string>
     <string name="library_title">লাইব্রেরি</string>
     <string name="library_filter_list">তালিকা</string>
     <string name="library_filter_type">প্রকার</string>

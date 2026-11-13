@@ -1351,6 +1351,17 @@
     <string name="search_error_no_catalogs">在已安裝的擴充套件中找不到可搜尋的目錄</string>
     <string name="search_no_catalogs_title">您的擴充套件都不支援搜尋</string>
     <string name="search_no_catalogs_subtitle">請安裝含有搜尋目錄的擴充套件，然後重試。</string>
+    <string name="search_filter_all">全部</string>
+    <string name="search_filter_movies">電影</string>
+    <string name="search_filter_series">影集</string>
+    <string name="search_filter_in_library">在我的片庫中</string>
+    <string name="search_filters_label">篩選結果</string>
+    <string name="search_top_result">最佳結果</string>
+    <string name="search_top_result_sources">來自 %1$s</string>
+    <string name="search_top_result_sources_more">來自 %1$s 及另外 %2$d 個</string>
+    <string name="search_results_other">其他</string>
+    <string name="search_no_results_filter_title">沒有符合此篩選條件的內容</string>
+    <string name="search_no_results_filter_subtitle">請嘗試其他篩選條件，或選擇「全部」。</string>
 
     <string name="library_title">媒體庫</string>
     <string name="library_filter_list">清單</string>

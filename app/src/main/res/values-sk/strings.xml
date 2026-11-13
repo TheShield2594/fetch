@@ -1316,6 +1316,17 @@
     <string name="search_error_no_catalogs">V nainštalovaných doplnkoch sa nenašli žiadne prehľadávateľné katalógy</string>
     <string name="search_no_catalogs_title">Žiadny z vašich doplnkov nevie vyhľadávať</string>
     <string name="search_no_catalogs_subtitle">Nainštalujte doplnok s vyhľadávacím katalógom a skúste to znova.</string>
+    <string name="search_filter_all">Všetko</string>
+    <string name="search_filter_movies">Filmy</string>
+    <string name="search_filter_series">Seriály</string>
+    <string name="search_filter_in_library">V mojej knižnici</string>
+    <string name="search_filters_label">Filtrovať výsledky</string>
+    <string name="search_top_result">Najlepší výsledok</string>
+    <string name="search_top_result_sources">Z %1$s</string>
+    <string name="search_top_result_sources_more">Z %1$s a %2$d ďalších</string>
+    <string name="search_results_other">Ostatné</string>
+    <string name="search_no_results_filter_title">Tomuto filtru nič nezodpovedá</string>
+    <string name="search_no_results_filter_subtitle">Skúste iný filter alebo Všetko.</string>
 
     
     <string name="home_error_no_catalog_addons">Žiadne katalógové doplnky nie sú nainštalované</string>

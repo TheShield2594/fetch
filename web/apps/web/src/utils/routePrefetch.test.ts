@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { EAGER_ROUTES, ROUTE_LOADERS, prefetchRoute, resetPrefetchStateForTests } from "./routePrefetch";
+import {
+  EAGER_ROUTES,
+  IDLE_PREFETCH,
+  ROUTE_LOADERS,
+  loadDetailPanel,
+  prefetchRoute,
+  resetPrefetchStateForTests,
+} from "./routePrefetch";
 import { readCache, resetDataCacheForTests } from "./dataCache";
 import { PAGE_SIZE } from "../pages/history-paging";
 import { MORE_NAV_ITEMS, PRIMARY_NAV_ITEMS } from "../components/MobileTabBar";
@@ -46,6 +53,12 @@ describe("route prefetch coverage", () => {
     for (const item of SIDEBAR_NAV_ITEMS) {
       expect(isCovered(item.to), `no prefetch loader for ${item.to}`).toBe(true);
     }
+  });
+
+  // A title tap has no hover to warn of it, so the panel's chunk is only warm
+  // before the first tap if the idle pass fetches it.
+  it("warms the title panel on idle", () => {
+    expect(IDLE_PREFETCH).toContain(loadDetailPanel);
   });
 
   it("has a loader for every mobile tab destination, including the ones behind More", () => {

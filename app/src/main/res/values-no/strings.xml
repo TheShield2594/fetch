@@ -705,6 +705,17 @@
     <string name="search_voice_unavailable">Røstsøk er utilgjengelig på denne enheten.</string>
     <string name="search_no_catalogs_title">Ingen av tilleggene dine kan søke</string>
     <string name="search_no_catalogs_subtitle">Installer et tillegg med en søkekatalog, og prøv igjen.</string>
+    <string name="search_filter_all">Alle</string>
+    <string name="search_filter_movies">Filmer</string>
+    <string name="search_filter_series">Serier</string>
+    <string name="search_filter_in_library">I biblioteket mitt</string>
+    <string name="search_filters_label">Filtrer resultater</string>
+    <string name="search_top_result">Beste treff</string>
+    <string name="search_top_result_sources">Fra %1$s</string>
+    <string name="search_top_result_sources_more">Fra %1$s og %2$d til</string>
+    <string name="search_results_other">Annet</string>
+    <string name="search_no_results_filter_title">Ingenting samsvarer med dette filteret</string>
+    <string name="search_no_results_filter_subtitle">Prøv et annet filter, eller Alle.</string>
 
     <!-- LibraryScreen -->
     <string name="library_title">Bibliotek</string>

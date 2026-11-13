@@ -2,11 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 import { MAX_IMPORT_ROWS } from "../lib/import-validation.js";
+import { recordNotFound } from "../lib/test-fixtures/prisma-errors.js";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 
 const prismaMock = {
-  profile: { findUnique: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
+  profile: { findUnique: vi.fn(), update: vi.fn() },
   profileCollections: { findUnique: vi.fn(), upsert: vi.fn() },
   list: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
   watchEvent: { findMany: vi.fn(), update: vi.fn(), createMany: vi.fn() },
@@ -66,7 +67,6 @@ const resetMocks = () => {
   prismaMock.profileCollections.findUnique.mockResolvedValue(null);
   prismaMock.profileCollections.upsert.mockResolvedValue({});
   prismaMock.profile.update.mockResolvedValue({});
-  prismaMock.profile.updateMany.mockResolvedValue({ count: 1 });
   playbackLibMock.importPlaybackProgress.mockImplementation(async (_profileId: string, rows: unknown[]) => rows.length);
   profileLibMock.hasParentalAuthority.mockResolvedValue(true);
 };
@@ -385,7 +385,7 @@ describe("export routes", () => {
       });
 
       expect(response.json()).toMatchObject({ summary: { collections: 1, profileSettings: true } });
-      expect(prismaMock.profile.updateMany).toHaveBeenCalledWith(
+      expect(prismaMock.profile.update).toHaveBeenCalledWith(
         expect.objectContaining({ data: { avatarId: "fetch:panda", maxRating: "TEENS" } })
       );
       const saved = prismaMock.profileCollections.upsert.mock.calls[0]![0].create.collections;
@@ -441,7 +441,7 @@ describe("export routes", () => {
         const response = await importSettings({ maxRating: "ALL_AGES", allowUnrated: true });
 
         expect(response.json().summary.parentalLimitsSkipped).toEqual(["allowUnrated"]);
-        expect(prismaMock.profile.updateMany).toHaveBeenCalledWith(
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
           expect.objectContaining({ data: { maxRating: "ALL_AGES" } })
         );
       });
@@ -453,7 +453,7 @@ describe("export routes", () => {
         const response = await importSettings({ isKidsProfile: false, maxRating: null });
 
         expect(response.json().summary.parentalLimitsSkipped).toEqual([]);
-        expect(prismaMock.profile.updateMany).toHaveBeenCalledWith(
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
           expect.objectContaining({ data: { isKidsProfile: false, maxRating: null } })
         );
       });
@@ -465,10 +465,12 @@ describe("export routes", () => {
 
         await importSettings({ maxRating: "TEENS" });
 
-        expect(prismaMock.profile.updateMany).toHaveBeenCalledWith({
-          where: { id: PROFILE_ID, isKidsProfile: true, maxRating: "TEENS", allowUnrated: false },
-          data: { maxRating: "TEENS" },
-        });
+        expect(prismaMock.profile.update).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { id: PROFILE_ID, isKidsProfile: true, maxRating: "TEENS", allowUnrated: false },
+            data: { maxRating: "TEENS" },
+          })
+        );
       });
 
       it("re-checks after a grown-up tightens the limits mid-import, so the import can't undo it", async () => {
@@ -477,7 +479,7 @@ describe("export routes", () => {
         prismaMock.profile.findUnique
           .mockResolvedValueOnce({ ...KIDS, maxRating: "TEENS" })
           .mockResolvedValueOnce({ ...KIDS, maxRating: "ALL_AGES" });
-        prismaMock.profile.updateMany.mockResolvedValueOnce({ count: 0 });
+        prismaMock.profile.update.mockRejectedValueOnce(recordNotFound());
         profileLibMock.hasParentalAuthority.mockResolvedValue(false);
 
         const response = await importSettings({ avatarId: "fetch:panda", maxRating: "TEENS" });
@@ -490,12 +492,16 @@ describe("export routes", () => {
 
       it("gives up on the limits, not the rest, when they keep changing", async () => {
         prismaMock.profile.findUnique.mockResolvedValue(KIDS);
-        prismaMock.profile.updateMany.mockResolvedValue({ count: 0 });
+        // Every guarded write misses; the unguarded one for the rest lands.
+        prismaMock.profile.update.mockImplementation(async ({ where }: { where: Record<string, unknown> }) => {
+          if ("maxRating" in where) throw recordNotFound();
+          return {};
+        });
         profileLibMock.hasParentalAuthority.mockResolvedValue(true);
 
         const response = await importSettings({ avatarId: "fetch:panda", maxRating: "TEENS" });
 
-        expect(prismaMock.profile.updateMany).toHaveBeenCalledTimes(3);
+        expect(prismaMock.profile.update).toHaveBeenCalledTimes(4);
         expect(response.json().summary).toMatchObject({ profileSettings: true, parentalLimitsSkipped: ["maxRating"] });
         expect(prismaMock.profile.update).toHaveBeenCalledWith(
           expect.objectContaining({ data: { avatarId: "fetch:panda" } })

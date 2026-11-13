@@ -1291,6 +1291,17 @@
     <string name="search_error_no_catalogs">Keine durchsuchbaren Kataloge in installieren Add-Ons gefunden</string>
     <string name="search_no_catalogs_title">Keines Ihrer Add-ons kann suchen</string>
     <string name="search_no_catalogs_subtitle">Installieren Sie ein Add-on mit einem Suchkatalog und versuchen Sie es dann erneut.</string>
+    <string name="search_filter_all">Alle</string>
+    <string name="search_filter_movies">Filme</string>
+    <string name="search_filter_series">Serien</string>
+    <string name="search_filter_in_library">In meiner Mediathek</string>
+    <string name="search_filters_label">Ergebnisse filtern</string>
+    <string name="search_top_result">Bestes Ergebnis</string>
+    <string name="search_top_result_sources">Von %1$s</string>
+    <string name="search_top_result_sources_more">Von %1$s und %2$d weiteren</string>
+    <string name="search_results_other">Weitere</string>
+    <string name="search_no_results_filter_title">Nichts passt zu diesem Filter</string>
+    <string name="search_no_results_filter_subtitle">Versuchen Sie einen anderen Filter oder „Alle“.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Keine Katalog-Add-Ons installiert</string>

@@ -1149,6 +1149,17 @@
     <string name="search_error_no_catalogs">V nainstalovaných doplňcích nebyly nalezeny žádné prohledávatelné katalogy</string>
     <string name="search_no_catalogs_title">Žádný z vašich doplňků neumí vyhledávat</string>
     <string name="search_no_catalogs_subtitle">Nainstalujte doplněk s vyhledávacím katalogem a zkuste to znovu.</string>
+    <string name="search_filter_all">Vše</string>
+    <string name="search_filter_movies">Filmy</string>
+    <string name="search_filter_series">Seriály</string>
+    <string name="search_filter_in_library">V mé knihovně</string>
+    <string name="search_filters_label">Filtrovat výsledky</string>
+    <string name="search_top_result">Nejlepší výsledek</string>
+    <string name="search_top_result_sources">Z %1$s</string>
+    <string name="search_top_result_sources_more">Z %1$s a %2$d dalších</string>
+    <string name="search_results_other">Ostatní</string>
+    <string name="search_no_results_filter_title">Tomuto filtru nic neodpovídá</string>
+    <string name="search_no_results_filter_subtitle">Zkuste jiný filtr nebo Vše.</string>
 
     <string name="library_title">Knihovna</string>
     <string name="library_filter_list">Seznam</string>

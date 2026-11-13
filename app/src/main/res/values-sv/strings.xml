@@ -1098,6 +1098,17 @@
     <string name="search_error_no_catalogs">Inga sökbara kataloger hittades i installerade tillägg</string>
     <string name="search_no_catalogs_title">Inget av dina tillägg kan söka</string>
     <string name="search_no_catalogs_subtitle">Installera ett tillägg med en sökkatalog och försök sedan igen.</string>
+    <string name="search_filter_all">Alla</string>
+    <string name="search_filter_movies">Filmer</string>
+    <string name="search_filter_series">Serier</string>
+    <string name="search_filter_in_library">I mitt bibliotek</string>
+    <string name="search_filters_label">Filtrera resultat</string>
+    <string name="search_top_result">Bästa träff</string>
+    <string name="search_top_result_sources">Från %1$s</string>
+    <string name="search_top_result_sources_more">Från %1$s och %2$d till</string>
+    <string name="search_results_other">Övrigt</string>
+    <string name="search_no_results_filter_title">Inget matchar det här filtret</string>
+    <string name="search_no_results_filter_subtitle">Prova ett annat filter, eller Alla.</string>
 
     <!-- Home errors -->
     <string name="home_error_no_catalog_addons">Inga katalogtillägg installerade</string>

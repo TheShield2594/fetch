@@ -1571,6 +1571,17 @@
   <string name="search_error_no_catalogs">Δεν βρέθηκαν κατάλογοι με δυνατότητα αναζήτησης στα εγκατεστημένα πρόσθετα</string>
   <string name="search_no_catalogs_title">Κανένα από τα πρόσθετά σας δεν υποστηρίζει αναζήτηση</string>
   <string name="search_no_catalogs_subtitle">Εγκαταστήστε ένα πρόσθετο με κατάλογο αναζήτησης και δοκιμάστε ξανά.</string>
+    <string name="search_filter_all">Όλα</string>
+    <string name="search_filter_movies">Ταινίες</string>
+    <string name="search_filter_series">Σειρές</string>
+    <string name="search_filter_in_library">Στη βιβλιοθήκη μου</string>
+    <string name="search_filters_label">Φιλτράρισμα αποτελεσμάτων</string>
+    <string name="search_top_result">Κορυφαίο αποτέλεσμα</string>
+    <string name="search_top_result_sources">Από %1$s</string>
+    <string name="search_top_result_sources_more">Από %1$s και %2$d ακόμα</string>
+    <string name="search_results_other">Άλλα</string>
+    <string name="search_no_results_filter_title">Τίποτα δεν ταιριάζει με αυτό το φίλτρο</string>
+    <string name="search_no_results_filter_subtitle">Δοκιμάστε άλλο φίλτρο ή Όλα.</string>
   <!-- Home errors -->
   <string name="home_error_no_catalog_addons">Δεν υπάρχουν εγκατεστημένα πρόσθετα καταλόγου</string>
   <!-- Player errors -->

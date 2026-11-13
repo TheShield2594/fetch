@@ -4,6 +4,7 @@ import { resolveKidsRulesWrite } from "../lib/kids-rules.js";
 import { accountScope } from "../lib/request-auth.js";
 import { findAdminAccountId } from "../lib/sessions.js";
 import { prisma } from "../lib/prisma.js";
+import { writeProfileGuarded } from "../lib/parental-write.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { mintProfileToken, PROFILE_TOKEN_TTL_MS } from "../lib/profile-token.js";
 import { clearAuthCookies, isWebClient, PROFILE_COOKIE, setProfileCookie } from "../lib/session-cookie.js";
@@ -322,7 +323,23 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       if (proof === "wrong") return reply.code(401).send({ error: "Incorrect current PIN" });
     }
 
-    const updated = await prisma.profile.update({ where: { id: profile.id }, data, select: PROFILE_VIEW_SELECT });
+    // The parental check above and this write are one step: a parental field
+    // only lands if the limits are still the ones it was checked against, so
+    // a grown-up tightening them meanwhile can't be undone by this request.
+    const written = await writeProfileGuarded(profile.id, data, {
+      checkAuthority: () => hasParentalAuthority(request),
+      strict: true,
+      initial: profile,
+    });
+    if (written.status === "missing") return reply.code(404).send({ error: "Profile not found" });
+    if (written.status === "forbidden") return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
+    if (written.status === "conflict") {
+      return reply
+        .code(409)
+        .send({ error: "This profile's parental limits changed while saving. Try again.", code: "parental_limits_changed" });
+    }
+    // Strict mode writes all of `data` or nothing, and `data` isn't empty.
+    const updated = written.profile!;
     invalidateProfileCache();
 
     // The PIN just changed (or was removed) — any outstanding lockout/attempt

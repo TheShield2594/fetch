@@ -204,6 +204,13 @@ app.addHook("onRequest", async (request, reply) => {
   reply.header("X-Content-Type-Options", "nosniff");
   reply.header("X-Frame-Options", "DENY");
   reply.header("Referrer-Policy", "same-origin");
+  // The API answers with JSON almost everywhere; the only HTML it serves is the
+  // Trakt OAuth landing page, which needs nothing but its own inline `style`
+  // attributes. So nothing may load, run, frame it or be submitted from it.
+  reply.header(
+    "Content-Security-Policy",
+    "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+  );
   if (request.method === "OPTIONS") return reply.code(204).send();
 });
 

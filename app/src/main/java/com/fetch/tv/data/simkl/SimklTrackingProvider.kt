@@ -44,6 +44,16 @@ class SimklTrackingScrobbler @Inject constructor(
             )
             return
         }
+        // Simkl only holds the active profile's sign-in: another profile's playback is dropped
+        // rather than recorded on this account, and the request is pinned to this sign-in.
+        val scope = authRepository.currentScope()
+        if (event.profileId != null && scope.profileId != event.profileId) {
+            Log.d(
+                TRACKING_SCROBBLE_DIAGNOSTIC_TAG,
+                "simkl adapter skipped action=${action.wireValue} reason=other_profile"
+            )
+            return
+        }
         syncRepository.ensureLoaded()
         val enrichedEvent = event.copy(
             media = syncRepository.state.value.snapshot
@@ -56,7 +66,8 @@ class SimklTrackingScrobbler @Inject constructor(
         )
         val result = mutationService.scrobble(
             action = action,
-            event = enrichedEvent
+            event = enrichedEvent,
+            expectedAuthScope = scope
         )
         if (action != TrackingScrobbleAction.START) {
             syncRepository.commitScrobble(result)

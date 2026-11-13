@@ -130,6 +130,8 @@ class TraktAuthService @Inject constructor(
 
     suspend fun getCurrentAuthState(): TraktAuthState = traktAuthDataStore.getCurrentState()
 
+    suspend fun getCurrentAuthState(profileId: Int): TraktAuthState = traktAuthDataStore.getCurrentState(profileId)
+
     private suspend fun authState(profileId: Int): TraktAuthState =
         traktAuthDataStore.getCurrentState(profileId)
 
@@ -512,6 +514,12 @@ class TraktAuthService @Inject constructor(
 
     suspend fun <T> executeAuthorizedWriteRequest(
         call: suspend (authorizationHeader: String) -> Response<T>
+    ): Response<T>? = executeAuthorizedWriteRequest(traktAuthDataStore.activeProfileId(), call)
+
+    /** A write with [profileId]'s token, whichever profile is active when it runs. */
+    suspend fun <T> executeAuthorizedWriteRequest(
+        profileId: Int,
+        call: suspend (authorizationHeader: String) -> Response<T>
     ): Response<T>? {
         writeRequestMutex.withLock {
             val now = System.currentTimeMillis()
@@ -519,7 +527,7 @@ class TraktAuthService @Inject constructor(
             if (waitMs > 0L) delay(waitMs)
             lastWriteRequestAtMs = System.currentTimeMillis()
         }
-        return executeAuthorizedRequest(call)
+        return executeAuthorizedRequest(profileId, call)
     }
 
     private suspend fun getValidAccessToken(profileId: Int): String? {

@@ -50,7 +50,11 @@ class MdbListTrackingScrobbler @Inject constructor(
     override val providerId = TrackingProviderId.MDBLIST
 
     override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
-        service.scrobble(sync.currentScope(), action, event)
+        val scope = sync.currentScope()
+        // MDBList only holds the active profile's sign-in; another profile's playback is dropped,
+        // as the history writer does, rather than recorded on this account.
+        if (event.profileId != null && scope.profileId != event.profileId) return
+        service.scrobble(scope, action, event)
     }
 }
 

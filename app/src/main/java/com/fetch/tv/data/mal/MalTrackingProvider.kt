@@ -48,8 +48,8 @@ class MalScrobbler @Inject constructor(
 
     override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
         if (action != TrackingScrobbleAction.STOP || event.progressPercent < ANIME_WATCHED_PERCENT) return
-        // Captured before any network call so a profile switch can't move another profile's list.
-        val token = auth.validToken(auth.activeProfileId()) ?: return
+        // The profile that watched, not whichever is active by the time this runs.
+        val token = auth.validToken(event.profileId ?: auth.activeProfileId()) ?: return
         val target = resolver.forMal(event.media) ?: return
         val malId = target.malId ?: return
         updateLock.withLock {

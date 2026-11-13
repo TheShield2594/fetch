@@ -1352,11 +1352,11 @@ class ExternalPlaybackTracker @Inject constructor(
                 if (scrobbleItem != null) {
                     trackingScrobbleCoordinator.scrobble(
                         TrackingScrobbleAction.START,
-                        TrackingScrobbleEvent(scrobbleItem, 0.0)
+                        TrackingScrobbleEvent(scrobbleItem, 0.0, metadata.profileId)
                     )
                     trackingScrobbleCoordinator.scrobble(
                         TrackingScrobbleAction.STOP,
-                        TrackingScrobbleEvent(scrobbleItem, progressPercent.toDouble())
+                        TrackingScrobbleEvent(scrobbleItem, progressPercent.toDouble(), metadata.profileId)
                     )
                 }
             }

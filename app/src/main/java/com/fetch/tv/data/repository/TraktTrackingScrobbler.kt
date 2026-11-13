@@ -25,9 +25,9 @@ class TraktTrackingScrobbler @Inject constructor(
     ) {
         val item = event.media.toTraktScrobbleItem() ?: return
         when (action) {
-            TrackingScrobbleAction.START -> service.scrobbleStart(item, event.progressPercent.toFloat())
-            TrackingScrobbleAction.PAUSE -> service.scrobbleStop(item, event.progressPercent.toFloat())
-            TrackingScrobbleAction.STOP -> service.scrobbleStop(item, event.progressPercent.toFloat())
+            TrackingScrobbleAction.START -> service.scrobbleStart(item, event.progressPercent.toFloat(), event.profileId)
+            TrackingScrobbleAction.PAUSE -> service.scrobbleStop(item, event.progressPercent.toFloat(), event.profileId)
+            TrackingScrobbleAction.STOP -> service.scrobbleStop(item, event.progressPercent.toFloat(), event.profileId)
         }
     }
 

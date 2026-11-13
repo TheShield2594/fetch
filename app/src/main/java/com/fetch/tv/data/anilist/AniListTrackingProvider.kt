@@ -49,8 +49,8 @@ class AniListScrobbler @Inject constructor(
 
     override suspend fun scrobble(action: TrackingScrobbleAction, event: TrackingScrobbleEvent) {
         if (action != TrackingScrobbleAction.STOP || event.progressPercent < ANIME_WATCHED_PERCENT) return
-        // Captured before any network call so a profile switch can't move another profile's list.
-        val state = auth.current(auth.activeProfileId())
+        // The profile that watched, not whichever is active by the time this runs.
+        val state = auth.current(event.profileId ?: auth.activeProfileId())
         val token = state.accessToken?.takeIf { state.isAuthenticated() } ?: return
         val target = resolver.forAniList(event.media, token) ?: return
         val mediaId = target.aniListId ?: return

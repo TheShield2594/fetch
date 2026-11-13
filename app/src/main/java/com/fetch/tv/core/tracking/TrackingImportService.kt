@@ -283,7 +283,7 @@ class TrackingImportService @Inject constructor(
                     // A pause leaves a resume point at this percentage, as it does from the player.
                     scrobbler.scrobble(
                         TrackingScrobbleAction.PAUSE,
-                        TrackingScrobbleEvent(item.toTrackingMediaReference(), item.progressPercentage * 100.0)
+                        TrackingScrobbleEvent(item.toTrackingMediaReference(), item.progressPercentage * 100.0, profileId)
                     )
                     written++
                 } catch (error: CancellationException) {

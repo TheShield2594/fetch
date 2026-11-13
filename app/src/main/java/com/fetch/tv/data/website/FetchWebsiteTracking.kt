@@ -127,7 +127,9 @@ class FetchWebsiteTrackingScrobbler @Inject constructor(
             Log.d(TRACKING_SCROBBLE_DIAGNOSTIC_TAG, "fetch_website adapter skipped action=${action.wireValue} reason=no_website_id ${event.scrobbleDiagnosticSummary()}")
             return
         }
-        repository.asProfile(repository.activeSlot()) { profileId, token -> client.scrobble(profileId, token, action.wireValue, body) }
+        // The event's own profile, so a switch since playback can't send it to another one.
+        val slot = event.profileId ?: repository.activeSlot()
+        repository.asProfile(slot) { profileId, token -> client.scrobble(profileId, token, action.wireValue, body) }
         // A pause or stop moved a resume point, or recorded a watch: read it back.
         if (action != TrackingScrobbleAction.START) repository.invalidate()
     }

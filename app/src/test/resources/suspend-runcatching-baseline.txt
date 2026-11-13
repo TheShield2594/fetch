@@ -16,7 +16,6 @@ com/fetch/tv/data/mdblist/MdbListLibraryWriter.kt|1
 com/fetch/tv/data/mdblist/MdbListSyncRepository.kt|2
 com/fetch/tv/data/mediaserver/ServerMatcher.kt|2
 com/fetch/tv/data/mediaserver/ServerRepository.kt|1
-com/fetch/tv/data/simkl/SimklSyncRepository.kt|1
 com/fetch/tv/data/trailer/TrailerService.kt|3
 com/fetch/tv/data/youtube/ReturnYouTubeDislikeService.kt|1
 com/fetch/tv/data/youtube/SponsorBlockService.kt|2

@@ -69,7 +69,7 @@ sync too. The columns are still called `imdbId`.
 | Watched marks (tracking provider) | `/watch`, `/watch/state`, `/series/progress` | None — watched marks go to the website, and badges and Next Up read `/watch/state` |
 | Library (tracking provider) | `/lists` (watchlist, collection, custom) | None — the **Fetch website** library source shows and edits the website's lists |
 | `AddonSyncService` | `/profiles/:id/addons`, TV → Addons | None — the TV uses it when paired |
-| `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, TV → Playback | None — the TV uses it when paired |
+| `ProfileSettingsSyncService` | `/profiles/:id/settings/tv`, TV → Appearance, Layout, Playback, Subtitles, Streams, Content and metadata | None — the TV uses it when paired |
 | `HomeCatalogSettingsSyncService` | `/profiles/:id/home-layout`, TV → Home rows | None — the TV uses it when paired |
 | `CollectionSyncService` | `/collections`, plus a `fetch` source for the website's own lists | None — the TV uses it when paired (#95) |
 | Provider credentials | Trakt, TMDB, OMDb, RPDB keys | Not synced; they stay on the device |

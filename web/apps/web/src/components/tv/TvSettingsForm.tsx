@@ -1,19 +1,25 @@
 import { useEffect, useId, useState } from "react";
 import { AlertCircle, Check, Loader2, RotateCcw } from "lucide-react";
 import {
+  EXPERIENCE_FEATURE,
   STREAM_LANGUAGES,
   STREAM_RESOLUTIONS,
   TV_SETTING_GROUPS,
   VIDEO_CODECS,
   argbAlpha,
   argbToHex,
+  encodePalette,
   hexToArgb,
+  isFieldVisible,
   readField,
+  readPalette,
   readRankingRules,
+  readTvValue,
   withField,
   withRankingRules,
   type RankingRules,
   type TvSettingField,
+  type TvSettingSectionId,
   type TvSettingsDocument,
 } from "@fetch/shared/tv-settings";
 import { api } from "../../api";
@@ -88,6 +94,15 @@ function DraftNumberInput({
   );
 }
 
+function FieldHelp({ text }: { text?: string | undefined }) {
+  if (!text) return null;
+  return (
+    <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
+      {text}
+    </p>
+  );
+}
+
 function FieldControl({
   field,
   document,
@@ -95,13 +110,16 @@ function FieldControl({
 }: {
   field: TvSettingField;
   document: TvSettingsDocument;
-  onChange: (value: string | boolean | number) => void;
+  onChange: (value: string | boolean | number | string[]) => void;
 }) {
   const id = useId();
   const value = readField(document, field);
 
   switch (field.kind) {
     case "select":
+    case "choice": {
+      const current = String(value);
+      const known = field.options.some((option) => String(option.value) === current);
       return (
         <div>
           <label htmlFor={id} className={labelClass} style={labelStyle}>
@@ -109,42 +127,48 @@ function FieldControl({
           </label>
           <SelectField
             id={id}
-            value={value as string}
-            onChange={(e) => onChange(e.target.value)}
+            value={current}
+            onChange={(e) => onChange(field.kind === "choice" ? Number(e.target.value) : e.target.value)}
             className="w-full rounded-xl px-4 py-2.5 text-sm"
             wrapperClassName="w-full"
             chevronSize={16}
           >
             {/* A value this build doesn't offer (set on a newer TV) stays selectable rather than silently changing. */}
-            {!field.options.some((option) => option.value === value) && <option value={value as string}>{value as string}</option>}
+            {!known && <option value={current}>{current}</option>}
             {field.options.map((option) => (
-              <option key={option.value} value={option.value}>
+              <option key={String(option.value)} value={String(option.value)}>
                 {option.label}
               </option>
             ))}
           </SelectField>
-          {field.help && (
-            <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
-              {field.help}
-            </p>
-          )}
+          <FieldHelp text={field.help} />
         </div>
       );
+    }
     case "toggle":
       return (
-        <label htmlFor={id} className={switchRow}>
-          <span className="text-sm" style={{ color: "var(--text)" }}>
-            {field.label}
-          </span>
-          <input
-            id={id}
-            type="checkbox"
-            role="switch"
-            className="switch-control"
-            checked={value as boolean}
-            onChange={(e) => onChange(e.target.checked)}
-          />
-        </label>
+        <div>
+          <label htmlFor={id} className={`${switchRow} h-full`}>
+            <span className="min-w-0">
+              <span className="block text-sm" style={{ color: "var(--text)" }}>
+                {field.label}
+              </span>
+              {field.help && (
+                <span className="mt-0.5 block text-xs" style={{ color: "var(--text-mute)" }}>
+                  {field.help}
+                </span>
+              )}
+            </span>
+            <input
+              id={id}
+              type="checkbox"
+              role="switch"
+              className="switch-control flex-none"
+              checked={value as boolean}
+              onChange={(e) => onChange(e.target.checked)}
+            />
+          </label>
+        </div>
       );
     case "number":
       return (
@@ -159,11 +183,14 @@ function FieldControl({
             min={field.min}
             max={field.max}
             step={field.step}
-            integer
+            integer={field.numberType !== "float"}
             onCommit={(next) => {
-              if (next !== null) onChange(next);
+              if (next === null) return;
+              // Floats land on the TV's steps (0.5 for the next-episode thresholds).
+              onChange(field.numberType === "float" ? Math.round(next / field.step) * field.step : next);
             }}
           />
+          <FieldHelp text={field.help} />
         </div>
       );
     case "color": {
@@ -193,7 +220,82 @@ function FieldControl({
               Transparent
             </label>
           </div>
+          <FieldHelp text={field.help} />
         </div>
+      );
+    }
+    case "multi": {
+      const selected = value as string[];
+      return (
+        <fieldset className="sm:col-span-2">
+          <legend className={labelClass} style={labelStyle}>
+            {field.label}
+          </legend>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {field.options.map((option) => (
+              <label key={option.value} className="flex items-center gap-2 text-sm" style={{ color: "var(--text)" }}>
+                <input
+                  type="checkbox"
+                  checked={selected.includes(option.value)}
+                  onChange={(e) =>
+                    onChange(e.target.checked ? [...selected, option.value] : selected.filter((v) => v !== option.value))
+                  }
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
+          <FieldHelp text={field.help} />
+        </fieldset>
+      );
+    }
+    case "text":
+      return (
+        <div className="sm:col-span-2">
+          <label htmlFor={id} className={labelClass} style={labelStyle}>
+            {field.label}
+          </label>
+          <input
+            id={id}
+            type="text"
+            value={value as string}
+            placeholder={field.placeholder}
+            spellCheck={false}
+            autoCapitalize="off"
+            onChange={(e) => onChange(e.target.value)}
+            className={`${inputClass} font-mono`}
+            style={inputStyle}
+          />
+          <FieldHelp text={field.help} />
+        </div>
+      );
+    case "palette": {
+      const colors = readPalette(value as string, field.count);
+      return (
+        <fieldset>
+          <legend className={labelClass} style={labelStyle}>
+            {field.label}
+          </legend>
+          <div className="flex items-center gap-3">
+            {colors.map((color, index) => (
+              <input
+                key={index}
+                type="color"
+                aria-label={`${field.label}: colour ${index + 1}`}
+                value={color}
+                onChange={(e) => onChange(encodePalette(colors.map((c, i) => (i === index ? e.target.value : c))))}
+                className="h-9 w-14 cursor-pointer rounded-lg border"
+                style={{ borderColor: "var(--border-strong)", background: "var(--bg-1)" }}
+              />
+            ))}
+            <span
+              aria-hidden="true"
+              className="h-9 flex-1 rounded-lg"
+              style={{ background: `linear-gradient(90deg, ${colors.join(", ")})` }}
+            />
+          </div>
+          <FieldHelp text={field.help} />
+        </fieldset>
       );
     }
   }
@@ -380,13 +482,29 @@ function RankingRulesFields({ rules, onChange }: { rules: RankingRules; onChange
   );
 }
 
+/** What each page of TV settings says it covers, under its title. */
+const SECTION_INTRO: Record<TvSettingSectionId, string> = {
+  appearance: "The TV's colours, font and settings mode.",
+  layout: "How Home, posters, Continue Watching and detail pages look on the TV.",
+  playback: "Auto-play, the next episode, the player's controls and audio.",
+  subtitles: "Which subtitles the TV picks, and how they look.",
+  streams: "How the TV ranks streams and what the stream list shows.",
+  content: "Where the TV gets extra details and recommendations from.",
+};
+
 /**
- * The TV's settings for one profile, as forms. Only settings that mean the same
- * on every TV are here — the ones the TV syncs — and only the ones the phone hub
- * also edits; everything else in the document is carried through a save as it
- * was, so a newer TV's settings survive an edit from here.
+ * One page of the TV's settings for one profile, as forms. Only settings that
+ * mean the same on every TV are here — the ones the TV syncs; the TV applies
+ * them as soon as it next syncs, without a restart. Everything else in the
+ * document is carried through a save as it was, so a newer TV's settings
+ * survive an edit from here.
+ *
+ * Fields the TV only shows in Advanced mode are hidden here too until "Show
+ * advanced settings" is on, which starts on when the profile's TV is in
+ * Advanced mode; fields that only matter while another is set (pure-black
+ * surfaces without AMOLED) appear with it.
  */
-export function TvSettingsForm() {
+export function TvSettingsForm({ section = "playback" }: { section?: TvSettingSectionId }) {
   const { profile } = useProfile();
   const profileId = profile?.id ?? null;
 
@@ -400,6 +518,9 @@ export function TvSettingsForm() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [conflict, setConflict] = useState(false);
   const [saved, setSaved] = useState(false);
+  /** Null until the person picks: then it follows the TV's mode. */
+  const [showAdvancedChoice, setShowAdvancedChoice] = useState<boolean | null>(null);
+  const advancedId = useId();
 
   // Inline rather than a shared `load()`, and setting state only once the
   // request settles, so mounting starts the request without an extra render;
@@ -464,6 +585,22 @@ export function TvSettingsForm() {
     }
   };
 
+  const tvMode = readTvValue(document, EXPERIENCE_FEATURE, "mode");
+  const showAdvanced = showAdvancedChoice ?? tvMode === "ADVANCED";
+  const sectionGroups = TV_SETTING_GROUPS.filter((group) => group.section === section);
+  const hasAdvanced = sectionGroups.some((group) => group.fields.some((field) => field.advanced));
+  const visibleByGroup = sectionGroups.map((group) => ({
+    group,
+    fields: group.fields.filter((field) => isFieldVisible(document, field)),
+  }));
+  const hiddenCount = showAdvanced
+    ? 0
+    : visibleByGroup.reduce((count, { fields }) => count + fields.filter((field) => field.advanced).length, 0);
+  const groups = visibleByGroup.map(({ group, fields }) => ({
+    group,
+    fields: showAdvanced ? fields : fields.filter((field) => !field.advanced),
+  }));
+
   if (!profileId) {
     return (
       <p className="text-sm" style={{ color: "var(--text-dim)" }}>
@@ -491,44 +628,81 @@ export function TvSettingsForm() {
   return (
     <div className="space-y-6">
       <p className="text-sm leading-relaxed" style={{ color: "var(--text-dim)" }}>
-        Settings that follow {profile?.name ? `${profile.name}` : "this profile"} to every TV. Ones that depend on the
-        TV itself, like refresh-rate matching and audio passthrough, stay on each TV.
+        {SECTION_INTRO[section]} These follow {profile?.name ? `${profile.name}` : "this profile"} to every TV. Ones
+        that depend on the TV itself, like refresh-rate matching and audio passthrough, stay on each TV.
         {version === 0 && " Nothing has been synced from a TV yet, so these show the TV's defaults."}
       </p>
 
-      {TV_SETTING_GROUPS.map((group) => (
-        <section key={group.id} className="space-y-3" aria-labelledby={`tv-settings-${group.id}`}>
-          <h4 id={`tv-settings-${group.id}`} className={groupHeading} style={{ color: "var(--text-mute)" }}>
-            {group.title}
+      {hasAdvanced && (
+        <label htmlFor={advancedId} className={switchRow}>
+          <span className="min-w-0">
+            <span className="block text-sm font-medium" style={{ color: "var(--text)" }}>
+              Show advanced settings
+            </span>
+            <span className="mt-0.5 block text-xs" style={{ color: "var(--text-mute)" }}>
+              {hiddenCount > 0
+                ? `${hiddenCount} more ${hiddenCount === 1 ? "setting" : "settings"} the TV shows in Advanced mode.`
+                : "Every setting on this page is showing."}
+            </span>
+          </span>
+          <input
+            id={advancedId}
+            type="checkbox"
+            role="switch"
+            className="switch-control flex-none"
+            checked={showAdvanced}
+            onChange={(e) => setShowAdvancedChoice(e.target.checked)}
+          />
+        </label>
+      )}
+
+      {groups.map(({ group, fields }) =>
+        fields.length === 0 ? null : (
+          <section key={group.id} className="space-y-3" aria-labelledby={`tv-settings-${group.id}`}>
+            <div>
+              <h4 id={`tv-settings-${group.id}`} className={groupHeading} style={{ color: "var(--text-mute)" }}>
+                {group.title}
+              </h4>
+              {group.help && (
+                <p className="mt-1 text-xs" style={{ color: "var(--text-mute)" }}>
+                  {group.help}
+                </p>
+              )}
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {fields.map((field) => (
+                <FieldControl
+                  key={`${field.feature}.${field.key}`}
+                  field={field}
+                  document={document}
+                  onChange={(value) => change(withField(document, field, value))}
+                />
+              ))}
+            </div>
+          </section>
+        )
+      )}
+
+      {section === "streams" && (
+        <section className="space-y-3" aria-labelledby="tv-settings-ranking">
+          <h4 id="tv-settings-ranking" className={groupHeading} style={{ color: "var(--text-mute)" }}>
+            Best match ranking
           </h4>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {group.fields.map((field) => (
-              <FieldControl
-                key={`${field.feature}.${field.key}`}
-                field={field}
-                document={document}
-                onChange={(value) => change(withField(document, field, value))}
-              />
-            ))}
-          </div>
+          <p className="text-xs" style={{ color: "var(--text-mute)" }}>
+            How the TV picks a stream when auto-play is set to the best match.
+          </p>
+          <RankingRulesFields
+            key={loadedAt}
+            rules={readRankingRules(document)}
+            onChange={(rules) => change(withRankingRules(document, rules))}
+          />
         </section>
-      ))}
+      )}
 
-      <section className="space-y-3" aria-labelledby="tv-settings-ranking">
-        <h4 id="tv-settings-ranking" className={groupHeading} style={{ color: "var(--text-mute)" }}>
-          Best match ranking
-        </h4>
-        <p className="text-xs" style={{ color: "var(--text-mute)" }}>
-          How the TV picks a stream when auto-play is set to the best match.
-        </p>
-        <RankingRulesFields
-          key={loadedAt}
-          rules={readRankingRules(document)}
-          onChange={(rules) => change(withRankingRules(document, rules))}
-        />
-      </section>
-
-      <div className="flex flex-wrap items-center gap-2">
+      <div
+        className={`flex flex-wrap items-center gap-2 ${dirty ? "sticky bottom-3 z-10 rounded-2xl border p-3 shadow-e1" : ""}`}
+        style={dirty ? { borderColor: "var(--border-strong)", background: "var(--surface-strong)" } : undefined}
+      >
         <button type="button" onClick={() => void save()} disabled={saving || !dirty} className="btn-primary disabled:opacity-50">
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Save settings
         </button>

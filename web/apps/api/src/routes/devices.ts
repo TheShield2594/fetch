@@ -28,9 +28,8 @@ import {
   invalidateProfileCache,
   mayEditProfile,
   PARENTAL_AUTHORITY_RESPONSE,
-  loosensParentalLimits,
-  withoutLoosenedLimits,
 } from "../lib/profile.js";
+import { writeProfileGuarded } from "../lib/parental-write.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { recordAccountEvent } from "../lib/account-events.js";
 import {
@@ -461,13 +460,6 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
         if (!mayEditProfile(request, current)) {
           return { profile: toSlottedView({ slot, profile: current }) };
         }
-        // A loosening this request has no authority for is left out the same
-        // way. (The TV only ever tightens on a pull, so it keeps its own
-        // setting; the website is where a grown-up lifts a limit.)
-        const data =
-          loosensParentalLimits(current, attributes.data) && !(await hasParentalAuthority(request))
-            ? withoutLoosenedLimits(current, attributes.data).data
-            : attributes.data;
         // Kids rules settle by when they changed: a TV that was offline while
         // they were changed elsewhere sends older ones, which are kept out.
         // Like a loosened limit, they're left out when the profile in use on
@@ -478,11 +470,19 @@ const devicesRoutes: FastifyPluginAsync = async (app) => {
           if (!kidsRules.ok) return reply.code(400).send({ error: kidsRules.error });
           kidsRulesData = kidsRules.data ?? {};
         }
-        const profile = await prisma.profile.update({
-          where: { id: current.id },
-          data: { ...data, ...kidsRulesData, ...(name ? { name } : {}) },
-          select: PROFILE_VIEW_SELECT,
-        });
+        // A loosening this request has no authority for is left out the same
+        // way. (The TV only ever tightens on a pull, so it keeps its own
+        // setting; the website is where a grown-up lifts a limit.) The check
+        // and the write are one step, so a grown-up tightening the limits
+        // meanwhile can't be undone by the push; if they keep changing, the
+        // parental fields are skipped and the name and picture still sync.
+        const written = await writeProfileGuarded(
+          current.id,
+          { ...attributes.data, ...kidsRulesData, ...(name ? { name } : {}) },
+          { checkAuthority: () => hasParentalAuthority(request), initial: current }
+        );
+        if (written.status !== "ok") return reply.code(404).send({ error: "Profile not found" });
+        const profile = written.profile ?? current;
         invalidateProfileCache();
         return { profile: toSlottedView({ slot, profile }) };
       }

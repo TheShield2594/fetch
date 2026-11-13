@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance, FastifyPluginAsync } from "fastify";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
+import { recordNotFound } from "../lib/test-fixtures/prisma-errors.js";
 import type { AuthPrincipal } from "../lib/request-auth.js";
 import { createHash } from "node:crypto";
 
@@ -600,7 +601,52 @@ describe("device routes", () => {
       expect(response.statusCode).toBe(200);
       // allowUnrated: false is no loosening, so it stays in.
       expect(prismaMock.profile.update).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: PROFILE_ID }, data: { allowUnrated: false, name: "Alicia" } })
+        expect.objectContaining({
+          where: { id: PROFILE_ID, isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false },
+          data: { allowUnrated: false, name: "Alicia" },
+        })
+      );
+    });
+
+    it("can't undo a tightening that lands mid-push; the parental field is skipped and the name still syncs", async () => {
+      // #553: read as TEENS, so the TV's TEENS is no loosening; a parent sets
+      // ALL_AGES before the write, which the guarded write notices.
+      prismaMock.deviceProfileSlot.findUnique.mockResolvedValue({ deviceId: DEVICE_ID, slot: 2, profileId: PROFILE_ID });
+      const stored = {
+        ...profileRow(PROFILE_ID, "Alice", "2026-01-01T00:00:00Z"),
+        isKidsProfile: true,
+        maxRating: "TEENS",
+        allowUnrated: false,
+      };
+      let tightened = false;
+      prismaMock.profile.findUnique.mockImplementation(async () => {
+        const row = { ...stored };
+        if (!tightened) {
+          tightened = true;
+          stored.maxRating = "ALL_AGES";
+        }
+        return row;
+      });
+      prismaMock.profile.findMany.mockResolvedValue([{ id: PROFILE_ID }, { id: SECOND_PROFILE_ID }]);
+      prismaMock.profile.update.mockImplementation(
+        async ({ where, data }: { where: Record<string, unknown>; data: object }) => {
+          if ("maxRating" in where && where.maxRating !== stored.maxRating) throw recordNotFound();
+          return Object.assign(stored, data);
+        }
+      );
+      const app = await buildApp({ kind: "device", deviceId: DEVICE_ID, accountId: "acc-1" });
+
+      const response = await app.inject({
+        method: "PUT",
+        url: "/devices/me/profiles/2",
+        headers: asDevice,
+        payload: { name: "Alicia", parental: { maxRating: "TEENS" } },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(stored).toMatchObject({ name: "Alicia", maxRating: "ALL_AGES" });
+      expect(prismaMock.profile.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({ where: { id: PROFILE_ID }, data: { name: "Alicia" } })
       );
     });
 
@@ -674,8 +720,9 @@ describe("device routes", () => {
           });
 
         // The changed profile's token alone unlocks it but lifts nothing.
-        await put({ "x-target-profile-token": mintProfileToken(PROFILE_ID, "scrypt$kid") });
-        expect(prismaMock.profile.update).toHaveBeenLastCalledWith(expect.objectContaining({ data: {} }));
+        const unlocked = await put({ "x-target-profile-token": mintProfileToken(PROFILE_ID, "scrypt$kid") });
+        expect(unlocked.statusCode).toBe(200);
+        expect(prismaMock.profile.update).not.toHaveBeenCalled();
 
         await put({
           "x-profile-token": mintProfileToken(SECOND_PROFILE_ID, "scrypt$parent"),

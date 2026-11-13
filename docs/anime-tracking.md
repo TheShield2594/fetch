@@ -162,8 +162,10 @@ Advanced mode.
 
 What each service receives is in [PRIVACY.md](../PRIVACY.md). In short: the sign-in token or
 code is pasted on your phone and sent only to your TV; the TV talks to AniList and MyAnimeList
-directly; the MyAnimeList callback page sends the code nowhere; and IMDb-listed shows are
-looked up by IMDb ID with Simkl's public ID service.
+directly; MyAnimeList sends your browser to the callback page with the one-time code in its
+address, so GitHub Pages, which serves the page, receives that code with the request, but the
+page itself sends it nowhere else, and the code alone can't sign anyone in; and IMDb-listed
+shows are looked up by IMDb ID with Simkl's public ID service.
 
 ## For developers
 

@@ -70,7 +70,7 @@ class SimklTrackingScrobbler @Inject constructor(
             expectedAuthScope = scope
         )
         if (action != TrackingScrobbleAction.START) {
-            syncRepository.commitScrobble(result)
+            syncRepository.commitScrobble(result, expectedProfileId = scope.profileId)
         }
         Log.d(
             TRACKING_SCROBBLE_DIAGNOSTIC_TAG,

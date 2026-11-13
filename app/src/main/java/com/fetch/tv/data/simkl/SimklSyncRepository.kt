@@ -123,11 +123,19 @@ class SimklSyncRepository @Inject constructor(
         }
     }
 
-    internal suspend fun commitScrobble(result: SimklScrobbleResult) = withContext(Dispatchers.IO) {
+    /**
+     * [expectedProfileId] is the profile the scrobble was sent for: when another one is active
+     * by the time the answer arrives, the result belongs to neither and is dropped.
+     */
+    internal suspend fun commitScrobble(
+        result: SimklScrobbleResult,
+        expectedProfileId: Int? = null
+    ) = withContext(Dispatchers.IO) {
         ensureLoaded()
         val profileId = profileManager.activeProfileId.value
         val generation = profileGeneration
         snapshotMutex.withLock {
+            if (expectedProfileId != null && profileId != expectedProfileId) return@withLock
             if (!isCurrent(profileId, generation)) return@withLock
             val current = _state.value
             val snapshot = current.snapshot.applyScrobbleResult(

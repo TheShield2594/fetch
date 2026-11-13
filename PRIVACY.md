@@ -23,7 +23,9 @@ Fetch connects to services you add or turn on yourself:
 - **MyAnimeList** (`myanimelist.net` and `api.myanimelist.net`), only when you sign in to it
   from the phone page, and used the same way as AniList. Signing in ends on a small page this
   project publishes on GitHub Pages (`theshield2594.github.io`) that shows the one-time sign-in
-  code for you to copy; the page sends the code nowhere. The code alone can't sign anyone in:
+  code for you to copy. MyAnimeList sends your browser to that page with the code in its
+  address, so GitHub, which serves the page, receives the code with the request; the page
+  itself sends it nowhere else. The code alone can't sign anyone in:
   using it also takes a one-time secret the TV makes for each sign-in. MyAnimeList only supports
   the "plain" form of this check, so that secret travels in the sign-in link your phone opens at
   MyAnimeList; it never reaches the callback page. To match a MyAnimeList entry to an AniList one, Fetch asks

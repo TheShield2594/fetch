@@ -323,7 +323,14 @@ internal class ProfileBoundImportEndpoint(
         var written = 0
         items.forEach { item ->
             if (!stillBound()) return TrackingImportWriteResult(written, items.size - written)
-            written += delegate.writeProgress(listOf(item)).written.coerceIn(0, 1)
+            // One failing resume point doesn't lose the count of those already written.
+            written += try {
+                delegate.writeProgress(listOf(item)).written.coerceIn(0, 1)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                0
+            }
         }
         return TrackingImportWriteResult(written, items.size - written)
     }

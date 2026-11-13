@@ -539,7 +539,7 @@ Settings → Data also supports importing directly from other trackers' CSV expo
 - **IMDb**: `imdb-ratings`, `imdb-watchlist` (into the watchlist) and `imdb-list` (into the custom list named by `listName`, created when there is none; importing again fills it rather than making another).
 - **Simkl**: `simkl`.
 
-Letterboxd exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis; unmatched rows are skipped and reported in the import summary. A file that isn't the export the format names gets a `400` saying so, with one exception: Letterboxd's `watched.csv` and `watchlist.csv` have the same columns, so picking the wrong one of those two can't be caught and brings its films in the other way (as plays instead of watchlist entries, or the reverse).
+Letterboxd exports don't include IMDb IDs, so titles are resolved against TMDB on a best-effort basis; unmatched rows are skipped and reported in the import summary. A file that isn't the export the format names gets a `400` saying so, with two exceptions, pairs of exports that have the same columns, so picking the wrong one of the pair can't be caught and brings its titles in the other way: Letterboxd's `watched.csv` and `watchlist.csv` (plays instead of watchlist entries, or the reverse), and an IMDb watchlist and an IMDb list (the watchlist instead of the named list, or the reverse).
 
 Imports are sent as a single request body, capped at `MAX_BODY_SIZE_MB` (32 MB by default — roughly 200k watch events). A larger file is rejected with a 413 that names the limit; raise the variable and restart the API to accept it.
 

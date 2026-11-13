@@ -331,6 +331,27 @@ class TrackingImporterTest {
     }
 
     @Test
+    fun `a failing resume point keeps the count of the ones already written`() = runTest {
+        val target = object : TrackingImportEndpoint {
+            override val source = WatchProgressSource.FETCH_WEBSITE
+            override val capabilities = ALL
+            override suspend fun read() = TrackingImportSnapshot()
+            override suspend fun writeWatched(items: List<WatchedItem>) = TrackingImportWriteResult(items.size)
+            override suspend fun writeProgress(items: List<WatchProgress>): TrackingImportWriteResult {
+                if (items.single().contentId == "tt2") error("the service refused it")
+                return TrackingImportWriteResult(items.size)
+            }
+        }
+        val bound = ProfileBoundImportEndpoint(target, profileId = 1) { 1 }
+
+        val result = bound.writeProgress(
+            listOf(progress("tt1", 100L, percent = 50f), progress("tt2", 100L, percent = 50f), progress("tt3", 100L, percent = 50f))
+        )
+
+        assertEquals(TrackingImportWriteResult(2, 1), result)
+    }
+
+    @Test
     fun `an import into an unchanged profile writes through`() = runTest {
         val source = FakeEndpoint(WatchProgressSource.SIMKL, TrackingImportSnapshot(watched = listOf(movie("tt1", 1L))))
         val target = FakeEndpoint(WatchProgressSource.FETCH_WEBSITE)

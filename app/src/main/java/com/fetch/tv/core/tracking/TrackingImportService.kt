@@ -254,18 +254,24 @@ class TrackingImportService @Inject constructor(
 
         override suspend fun read(): TrackingImportSnapshot {
             val progress = progress ?: return TrackingImportSnapshot()
+            // The provider's flows follow the active profile: each read is checked, so a switch
+            // (even one switched back before the writes) can't put another profile's history here.
+            suspend fun <T> bound(read: suspend () -> T): T = read().also { checkStillProfile() }
+            checkStillProfile()
             progress.refresh(TrackingRefreshIntent.USER_INITIATED)
             withTimeoutOrNull(READ_TIMEOUT_MS) { progress.remoteProgressLoaded.first { it } }
-            val all = progress.allProgress.first()
+            val all = bound { progress.allProgress.first() }
+            val items = bound { progress.watchedItems.first() }
+            val movieIds = bound { progress.watchedMovieIds.first() }
+            val episodes = bound { progress.watchedShowEpisodes() }
             return TrackingImportSnapshot(
-                watched = collectWatched(
-                    items = progress.watchedItems.first(),
-                    progress = all,
-                    movieIds = progress.watchedMovieIds.first(),
-                    episodes = progress.watchedShowEpisodes()
-                ),
+                watched = collectWatched(items = items, progress = all, movieIds = movieIds, episodes = episodes),
                 inProgress = all.filter { it.isInProgress() }
             )
+        }
+
+        private fun checkStillProfile() {
+            check(profileManager.activeProfileId.value == profileId) { "The profile changed during the import" }
         }
 
         override suspend fun writeWatched(items: List<WatchedItem>): TrackingImportWriteResult {

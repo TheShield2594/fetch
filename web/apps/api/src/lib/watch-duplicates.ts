@@ -95,7 +95,11 @@ const fitsTrakt = (cluster: DuplicateCandidate[], row: DuplicateCandidate): bool
  * Rows marked "date unknown" join the title's first group, or form one of their
  * own when the title has nothing dated.
  */
-export const findDuplicateGroups = <T extends DuplicateCandidate>(rows: T[]): T[][] => {
+export const findDuplicateGroups = <T extends DuplicateCandidate>(rows: T[]): T[][] => scanDuplicates(rows).groups;
+
+/** `findDuplicateGroups`, and whether any group was cut down to `MAX_DUPLICATE_GROUP_SIZE`. */
+export const scanDuplicates = <T extends DuplicateCandidate>(rows: T[]): { groups: T[][]; capped: boolean } => {
+  let capped = false;
   const byTitle = new Map<string, T[]>();
   for (const row of rows) {
     const key = titleKey(row);
@@ -141,12 +145,14 @@ export const findDuplicateGroups = <T extends DuplicateCandidate>(rows: T[]): T[
       if (cluster.length < 2) continue;
       // The survivor first, so a capped group still holds the row a merge keeps.
       const survivor = pickSurvivor(cluster);
+      if (cluster.length > MAX_DUPLICATE_GROUP_SIZE) capped = true;
       groups.push([survivor, ...cluster.filter((row) => row !== survivor)].slice(0, MAX_DUPLICATE_GROUP_SIZE));
     }
   }
 
   // Most recent first: what someone has just imported is what they came to fix.
-  return groups.sort((a, b) => pickSurvivor(b).watchedAt.getTime() - pickSurvivor(a).watchedAt.getTime());
+  groups.sort((a, b) => pickSurvivor(b).watchedAt.getTime() - pickSurvivor(a).watchedAt.getTime());
+  return { groups, capped };
 };
 
 const CANDIDATE_SELECT = {
@@ -183,10 +189,8 @@ export type DuplicateGroupView = {
 /** The profile's likely duplicates, ready to show: titles attached, the row a merge would keep named. */
 export const listDuplicateGroups = async (profileId: string): Promise<{ groups: DuplicateGroupView[]; truncated: boolean }> => {
   const rows = await prisma.watchEvent.findMany({ where: { profileId }, select: CANDIDATE_SELECT });
-  const all = findDuplicateGroups(rows);
+  const { groups: all, capped } = scanDuplicates(rows);
   const groups = all.slice(0, MAX_DUPLICATE_GROUPS);
-  const titleCounts = new Map<string, number>();
-  for (const row of rows) titleCounts.set(titleKey(row), (titleCounts.get(titleKey(row)) ?? 0) + 1);
 
   const titleIds = (type: WatchEventType) => [
     ...new Set(
@@ -206,9 +210,7 @@ export const listDuplicateGroups = async (profileId: string): Promise<{ groups: 
 
   return {
     // More to find on the next scan: groups past the cap, or a group capped at its size.
-    truncated:
-      all.length > groups.length ||
-      groups.some((group) => group.length === MAX_DUPLICATE_GROUP_SIZE && (titleCounts.get(titleKey(group[0]!)) ?? 0) > group.length),
+    truncated: all.length > groups.length || capped,
     groups: groups.map((group) => {
       const first = group[0]!;
       const imdbId = first.type === WatchEventType.episode ? (first.seriesImdbId ?? first.imdbId) : first.imdbId;

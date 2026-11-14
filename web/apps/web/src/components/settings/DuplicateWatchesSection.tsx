@@ -122,7 +122,7 @@ export function DuplicateWatchesSection({ profileName }: { profileName: string }
         <div className="space-y-3">
           <p className="text-sm" style={{ color: "var(--text-dim)" }}>
             {plural(groups.length, "possible duplicate", "possible duplicates")}
-            {truncated ? " (the first 500; merge these, then look again for the rest)" : ""}. Untick any that were
+            {truncated ? " (not all of them; merge these, then look again for the rest)" : ""}. Untick any that were
             really watched twice.
           </p>
           <ul className="space-y-2" aria-label="Possible duplicate watches">

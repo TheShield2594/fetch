@@ -130,13 +130,17 @@ describe("watch duplicates", () => {
     // What a merge does to a row it folds away: lock it, then delete it. The
     // transaction is held open so the play below reads the row, then blocks on it.
     let release = () => {};
+    let locked: (pid: number) => void = () => {};
     const held = new Promise<void>((resolve) => (release = resolve));
+    const hasLocked = new Promise<number>((resolve) => (locked = resolve));
     const merge = prisma.$transaction(async (tx) => {
+      const [self] = await tx.$queryRaw<{ pid: number }[]>`SELECT pg_backend_pid() AS pid`;
       await tx.$executeRaw`SELECT id FROM "WatchEvent" WHERE id = ${doomed.id}::uuid FOR UPDATE`;
       await tx.watchEvent.delete({ where: { id: doomed.id } });
+      locked(self!.pid);
       await held;
     });
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    const mergePid = await hasLocked;
 
     const play = recordWatchEvent({
       type: "movie",
@@ -146,7 +150,16 @@ describe("watch duplicates", () => {
       profileId: profile.id,
       log: silentLogger,
     });
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // Released only once a backend is blocked by this merge transaction itself,
+    // which only the play's update can be.
+    for (let waited = 0; ; waited += 25) {
+      const [row] = await prisma.$queryRaw<{ waiting: bigint }[]>`
+        SELECT count(*) AS waiting FROM pg_stat_activity
+        WHERE ${mergePid}::int = ANY(pg_blocking_pids(pid))`;
+      if ((row?.waiting ?? 0n) > 0n) break;
+      if (waited > 10_000) throw new Error("the play never blocked on the merge's lock");
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
     release();
     await merge;
     await play;

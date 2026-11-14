@@ -76,4 +76,23 @@ describe("DuplicateWatchesSection", () => {
     await user.click(screen.getByRole("button", { name: /find duplicates/i }));
     expect(await screen.findByText(/no duplicate watches found/i)).toBeInTheDocument();
   });
+
+  it("closes an open review when a new scan starts", async () => {
+    const user = userEvent.setup();
+    render(<DuplicateWatchesSection profileName="Alex" />);
+    await user.click(screen.getByRole("button", { name: /find duplicates/i }));
+    await screen.findByText("The Shawshank Redemption");
+    await user.click(screen.getByRole("button", { name: /merge 2 selected/i }));
+    expect(screen.getByRole("button", { name: "Merge" })).toBeInTheDocument();
+
+    let finish: (value: { groups: DuplicateWatchGroup[]; truncated: boolean }) => void = () => {};
+    vi.mocked(api.findDuplicateWatches).mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    await user.click(screen.getByRole("button", { name: /look again/i }));
+    expect(screen.queryByRole("button", { name: "Merge" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /merge 2 selected/i })).toBeDisabled();
+
+    finish({ groups: [film, episode], truncated: false });
+    await waitFor(() => expect(screen.getByRole("button", { name: /merge 2 selected/i })).toBeEnabled());
+    expect(api.mergeDuplicateWatches).not.toHaveBeenCalled();
+  });
 });

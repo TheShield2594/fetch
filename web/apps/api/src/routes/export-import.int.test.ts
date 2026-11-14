@@ -305,6 +305,29 @@ describe("GET /export then POST /import", () => {
     expect(movies[0]?.plays).toBe(3);
   });
 
+  it("compares a day's plays with every stored row of that day, Trakt rows included", async () => {
+    // Two Trakt history rows on one day sit outside the dedup index. Re-importing
+    // an export that carries the day as two plays must not raise either row.
+    const restored = await createProfile("Restored");
+    for (const [hour, id] of [["18", 1n], ["21", 2n]] as const) {
+      await prisma.watchEvent.create({
+        data: {
+          profileId: restored.id,
+          type: "movie",
+          imdbId: GODFATHER,
+          watchedAt: new Date(`2026-06-01T${hour}:00:00.000Z`),
+          plays: 1,
+          traktHistoryId: id,
+        },
+      });
+    }
+    const exported = await exportFor(restored.id);
+    await importInto(restored.id, exported);
+
+    const rows = await prisma.watchEvent.findMany({ where: { profileId: restored.id, imdbId: GODFATHER } });
+    expect(rows.reduce((total, row) => total + row.plays, 0)).toBe(2);
+  });
+
   it("imports into the requesting profile and leaves the source alone", async () => {
     const source = await seedLibrary("Ada");
     const exported = await exportFor(source.id);

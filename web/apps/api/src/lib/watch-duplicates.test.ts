@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { findDuplicateGroups, pickSurvivor, type DuplicateCandidate } from "./watch-duplicates.js";
+import {
+  findDuplicateGroups,
+  MAX_DUPLICATE_GROUP_SIZE,
+  pickSurvivor,
+  type DuplicateCandidate,
+} from "./watch-duplicates.js";
 
 // The grouping rule is pure; the module only needs a client to load.
 vi.mock("./prisma.js", () => ({ prisma: {} }));
@@ -77,5 +82,26 @@ describe("findDuplicateGroups", () => {
     const groups = findDuplicateGroups([local, trakt]);
     expect(groups).toHaveLength(1);
     expect(pickSurvivor(groups[0]!).id).toBe(trakt.id);
+  });
+
+  it("keeps undated rows with different Trakt ids in different groups", () => {
+    const groups = findDuplicateGroups([
+      row({ watchedAt: "2026-01-01T00:00:00Z", dateUnknown: true, traktHistoryId: 1n }),
+      row({ watchedAt: "2026-01-02T00:00:00Z", dateUnknown: true, traktHistoryId: 2n }),
+      row({ watchedAt: "2026-01-03T00:00:00Z", dateUnknown: true }),
+    ]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0]!.filter((r) => r.traktHistoryId != null)).toHaveLength(1);
+  });
+
+  it("caps a group at the size a merge accepts, survivor included", () => {
+    const dated = row({ watchedAt: "2025-01-01T20:00:00Z" });
+    const undated = Array.from({ length: MAX_DUPLICATE_GROUP_SIZE + 5 }, (_, i) =>
+      row({ watchedAt: `2026-01-01T${String(i % 24).padStart(2, "0")}:00:00Z`, dateUnknown: true })
+    );
+    const groups = findDuplicateGroups([...undated, dated]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0]).toHaveLength(MAX_DUPLICATE_GROUP_SIZE);
+    expect(groups[0]![0]).toBe(dated);
   });
 });

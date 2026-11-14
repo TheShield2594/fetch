@@ -95,7 +95,18 @@ export const importTrackerItems = async (
             episode: watch.episode,
             watchedAt: watch.watchedAt,
           });
-    if (await prisma.watchEvent.findFirst({ where, select: { id: true } })) continue;
+    const existing = await prisma.watchEvent.findFirst({ where, select: { id: true, dateUnknown: true } });
+    if (existing) {
+      // A dated play landing on a row that was only "watched, date unknown"
+      // gives that row its date, rather than being dropped as already there.
+      if (existing.dateUnknown && !watch.undated) {
+        await prisma.watchEvent.updateMany({
+          where: { id: existing.id, dateUnknown: true },
+          data: { watchedAt: watch.watchedAt, dateUnknown: false },
+        });
+      }
+      continue;
+    }
 
     // Flagged, so it reads as "watched, date unknown" rather than as a watch on
     // the day of the sync — in history, in this week's stats, and to the

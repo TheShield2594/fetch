@@ -193,7 +193,7 @@ describe("export routes", () => {
       expect(response.statusCode).toBe(200);
       expect(prismaMock.watchEvent.createMany).not.toHaveBeenCalled();
       expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
-        where: { id: "existing-1", plays: { lt: 2 } },
+        where: { id: "existing-1", plays: 1 },
         data: { plays: 2 },
       });
     });

@@ -40,6 +40,9 @@ export function DuplicateWatchesSection({ profileName }: { profileName: string }
   const [error, setError] = useState<string | null>(null);
 
   const scan = async () => {
+    // A new scan replaces the list and selects every group again, so a review
+    // still open for the old selection must not survive it.
+    setConfirming(false);
     setScanning(true);
     setError(null);
     setResult(null);
@@ -171,6 +174,7 @@ export function DuplicateWatchesSection({ profileName }: { profileName: string }
               icon={<Merge size={14} />}
               tone="primary"
               onConfirm={() => void merge()}
+              disabled={scanning}
               onCancel={() => setConfirming(false)}
               busy={merging}
               error={error}
@@ -184,7 +188,7 @@ export function DuplicateWatchesSection({ profileName }: { profileName: string }
                 setError(null);
                 setConfirming(true);
               }}
-              disabled={selectedCount === 0}
+              disabled={selectedCount === 0 || scanning}
               className="btn-primary"
             >
               <Merge size={16} /> Merge {plural(selectedCount, "selected", "selected")}

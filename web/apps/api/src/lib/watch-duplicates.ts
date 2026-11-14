@@ -29,6 +29,13 @@ const DUPLICATE_WINDOW_MS = DUPLICATE_WINDOW_HOURS * 60 * 60 * 1000;
 /** The most groups one scan returns; a person reviews these, and can scan again. */
 export const MAX_DUPLICATE_GROUPS = 500;
 
+/**
+ * The most rows one group may hold, in a scan and in a merge. A title with more
+ * copies than this is offered this many at a time; the rest come up again on the
+ * next scan, beside the row the first merge kept.
+ */
+export const MAX_DUPLICATE_GROUP_SIZE = 50;
+
 export type DuplicateCandidate = {
   id: string;
   type: WatchEventType;
@@ -69,6 +76,13 @@ export const pickSurvivor = <T extends DuplicateCandidate>(rows: T[]): T => {
 const traktIds = (rows: DuplicateCandidate[]) =>
   new Set(rows.flatMap((row) => (row.traktHistoryId != null ? [row.traktHistoryId.toString()] : [])));
 
+/** Whether `row` can join `cluster` without the group holding two different Trakt plays. */
+const fitsTrakt = (cluster: DuplicateCandidate[], row: DuplicateCandidate): boolean => {
+  if (row.traktHistoryId == null) return true;
+  const ids = traktIds(cluster);
+  return ids.size === 0 || ids.has(row.traktHistoryId.toString());
+};
+
 /**
  * The groups of rows that look like one watch, each of two or more rows of one
  * title. Pure, so the rule can be tested without a database.
@@ -100,11 +114,7 @@ export const findDuplicateGroups = <T extends DuplicateCandidate>(rows: T[]): T[
     let current: T[] = [];
     for (const row of dated) {
       const first = current[0];
-      const fits =
-        first !== undefined &&
-        row.watchedAt.getTime() - first.watchedAt.getTime() <= DUPLICATE_WINDOW_MS &&
-        !(row.traktHistoryId != null && traktIds(current).size > 0 && !traktIds(current).has(row.traktHistoryId.toString()));
-      if (fits) {
+      if (first && row.watchedAt.getTime() - first.watchedAt.getTime() <= DUPLICATE_WINDOW_MS && fitsTrakt(current, row)) {
         current.push(row);
       } else {
         if (current.length > 0) clusters.push(current);
@@ -113,21 +123,26 @@ export const findDuplicateGroups = <T extends DuplicateCandidate>(rows: T[]): T[
     }
     if (current.length > 0) clusters.push(current);
 
-    if (undated.length > 0) {
+    // Undated rows join the title's first group where their Trakt ids allow;
+    // the rest group among themselves under the same rule.
+    const leftover: T[] = [];
+    for (const row of undated) {
       const target = clusters[0];
-      if (target) {
-        // An undated row with its own Trakt id can't join a group holding another.
-        for (const row of undated) {
-          const ids = traktIds(target);
-          if (row.traktHistoryId != null && ids.size > 0 && !ids.has(row.traktHistoryId.toString())) continue;
-          target.push(row);
-        }
-      } else {
-        clusters.push(undated);
-      }
+      if (target && fitsTrakt(target, row)) target.push(row);
+      else leftover.push(row);
+    }
+    for (const row of leftover) {
+      const home = clusters.find((cluster) => cluster.every((member) => member.dateUnknown) && fitsTrakt(cluster, row));
+      if (home) home.push(row);
+      else clusters.push([row]);
     }
 
-    for (const cluster of clusters) if (cluster.length > 1) groups.push(cluster);
+    for (const cluster of clusters) {
+      if (cluster.length < 2) continue;
+      // The survivor first, so a capped group still holds the row a merge keeps.
+      const survivor = pickSurvivor(cluster);
+      groups.push([survivor, ...cluster.filter((row) => row !== survivor)].slice(0, MAX_DUPLICATE_GROUP_SIZE));
+    }
   }
 
   // Most recent first: what someone has just imported is what they came to fix.
@@ -170,6 +185,8 @@ export const listDuplicateGroups = async (profileId: string): Promise<{ groups: 
   const rows = await prisma.watchEvent.findMany({ where: { profileId }, select: CANDIDATE_SELECT });
   const all = findDuplicateGroups(rows);
   const groups = all.slice(0, MAX_DUPLICATE_GROUPS);
+  const titleCounts = new Map<string, number>();
+  for (const row of rows) titleCounts.set(titleKey(row), (titleCounts.get(titleKey(row)) ?? 0) + 1);
 
   const titleIds = (type: WatchEventType) => [
     ...new Set(
@@ -188,7 +205,10 @@ export const listDuplicateGroups = async (profileId: string): Promise<{ groups: 
   const titles = new Map(items.map((item) => [`${item.type}:${item.imdbId}`, item.title]));
 
   return {
-    truncated: all.length > groups.length,
+    // More to find on the next scan: groups past the cap, or a group capped at its size.
+    truncated:
+      all.length > groups.length ||
+      groups.some((group) => group.length === MAX_DUPLICATE_GROUP_SIZE && (titleCounts.get(titleKey(group[0]!)) ?? 0) > group.length),
     groups: groups.map((group) => {
       const first = group[0]!;
       const imdbId = first.type === WatchEventType.episode ? (first.seriesImdbId ?? first.imdbId) : first.imdbId;
@@ -272,6 +292,11 @@ export const mergeDuplicateGroups = async (
   if (new Set(ids).size !== ids.length) throw new DuplicateMergeError("An event appears in more than one group");
 
   return prisma.$transaction(async (tx) => {
+    // Locked in id order before they are read, so a play recorded on one of them
+    // meanwhile waits for the merge and lands on the row kept, instead of being
+    // overwritten by a count read before it; the order keeps two merges from
+    // deadlocking on each other.
+    await tx.$executeRaw`SELECT id FROM "WatchEvent" WHERE "profileId" = ${profileId}::uuid AND id = ANY(${ids}::uuid[]) ORDER BY id FOR UPDATE`;
     const rows = await tx.watchEvent.findMany({ where: { profileId, id: { in: ids } }, select: CANDIDATE_SELECT });
     if (rows.length !== ids.length) throw new DuplicateMergeError("Some of those watch events were not found");
     const byId = new Map(rows.map((row) => [row.id, row]));

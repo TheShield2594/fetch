@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { prisma } from "./prisma.js";
 import { createProfile } from "./test-fixtures/int-db.js";
-import { DuplicateMergeError, listDuplicateGroups, mergeDuplicateGroups } from "./watch-duplicates.js";
+import {
+  DuplicateMergeError,
+  listDuplicateGroups,
+  MAX_DUPLICATE_GROUP_SIZE,
+  mergeDuplicateGroups,
+} from "./watch-duplicates.js";
 
 const SHAWSHANK = "tt0111161";
 const SOPRANOS = "tt0141842";
@@ -87,5 +92,18 @@ describe("watch duplicates", () => {
     const a = await movie(profile.id, "2026-01-01T20:00:00Z");
     const b = await episode(profile.id, "2026-01-01T21:00:00Z", 1);
     await expect(mergeDuplicateGroups(profile.id, [[a.id, b.id]])).rejects.toBeInstanceOf(DuplicateMergeError);
+  });
+
+  it("says there is more to find when a title has more copies than one group holds", async () => {
+    const profile = await createProfile();
+    await movie(profile.id, "2025-01-01T20:00:00Z");
+    for (let i = 0; i < MAX_DUPLICATE_GROUP_SIZE + 2; i += 1) {
+      await movie(profile.id, `2026-0${1 + (i % 9)}-${String(1 + Math.floor(i / 9)).padStart(2, "0")}T10:00:00Z`, {
+        dateUnknown: true,
+      });
+    }
+    const { groups, truncated } = await listDuplicateGroups(profile.id);
+    expect(groups[0]?.events).toHaveLength(MAX_DUPLICATE_GROUP_SIZE);
+    expect(truncated).toBe(true);
   });
 });

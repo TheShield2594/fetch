@@ -94,7 +94,11 @@ export async function batchUpsertWatchEvents(
     note: string | null;
     profileId: string;
   }[] = [];
-  const updates = new Map<string, number>();
+  // Per stored row the batch matched: the plays the batch carries for that title
+  // and day, and the plays every stored row of that title and day already holds.
+  // More than one stored row per day happens where Trakt history rows (outside
+  // the dedup index) sit beside each other or beside another writer's.
+  const updates = new Map<string, { batch: number; storedDay: number }>();
   let imported = 0;
 
   for (const input of inputs) {
@@ -111,7 +115,15 @@ export async function batchUpsertWatchEvents(
       pending.plays += weight;
     } else if (match) {
       // Summed across the batch, then compared with what is stored, not added to it.
-      updates.set(match.id, (updates.get(match.id) ?? 0) + weight);
+      const current = updates.get(match.id);
+      if (current) {
+        current.batch += weight;
+      } else {
+        const storedDay = candidates
+          .filter((c) => !c.id.startsWith("new:") && c.watchedAt >= start && c.watchedAt <= end)
+          .reduce((total, c) => total + (storedPlays.get(c.id) ?? 0), 0);
+        updates.set(match.id, { batch: weight, storedDay });
+      }
     } else {
       const newId = `new:${creates.length}`;
       creates.push({
@@ -147,13 +159,15 @@ export async function batchUpsertWatchEvents(
       );
     }
   }
-  // Only rows the batch carries more plays for than they already hold need a write;
-  // `lt` keeps a concurrent increment from being overwritten with a smaller count.
-  const raises = [...updates.entries()].filter(([id, plays]) => plays > (storedPlays.get(id) ?? 0));
+  // Only a day the batch carries more plays for than is already stored needs a
+  // write, and only the difference is added. The `plays` guard keeps a concurrent
+  // increment from being counted twice.
+  const raises = [...updates.entries()].filter(([, { batch, storedDay }]) => batch > storedDay);
   if (raises.length > 0) {
-    await mapWithConcurrency(raises, UPDATE_CONCURRENCY, ([id, plays]) =>
-      prisma.watchEvent.updateMany({ where: { id, plays: { lt: plays } }, data: { plays } })
-    );
+    await mapWithConcurrency(raises, UPDATE_CONCURRENCY, ([id, { batch, storedDay }]) => {
+      const plays = storedPlays.get(id) ?? 0;
+      return prisma.watchEvent.updateMany({ where: { id, plays }, data: { plays: plays + batch - storedDay } });
+    });
   }
 
   return imported;

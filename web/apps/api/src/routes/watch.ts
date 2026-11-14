@@ -10,13 +10,11 @@ import { rememberClientMetadata } from "../lib/metadata.js";
 import {
   DuplicateMergeError,
   listDuplicateGroups,
+  MAX_DUPLICATE_GROUP_SIZE,
   MAX_DUPLICATE_GROUPS,
   mergeDuplicateGroups,
   recomputeSeriesProgress,
 } from "../lib/watch-duplicates.js";
-
-/** The most rows one merge group may name; a real group is two or three. */
-const MAX_DUPLICATE_GROUP_SIZE = 50;
 
 /**
  * A note is a sentence or two about a watch, and `note` is a `text` column, so

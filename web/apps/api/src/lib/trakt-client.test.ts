@@ -19,7 +19,7 @@ const prismaMock = {
   kV: { findUnique: vi.fn(), upsert: vi.fn() },
   item: { upsert: vi.fn() },
   listItem: { findMany: vi.fn(), create: vi.fn(), delete: vi.fn() },
-  watchEvent: { update: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn() },
+  watchEvent: { update: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn() },
   playbackProgress: { findMany: vi.fn(), upsert: vi.fn() },
   $transaction: vi.fn(async (operations: unknown[]) => Promise.all(operations)),
 };
@@ -43,6 +43,7 @@ describe("trakt-client", () => {
 
   beforeEach(() => {
     resetMocks();
+    prismaMock.watchEvent.updateMany.mockResolvedValue({ count: 1 });
     process.env.TRAKT_CLIENT_ID = "client-id";
   });
 
@@ -814,7 +815,76 @@ describe("trakt-client", () => {
         where: expect.objectContaining({ imdbId: "tt5", traktHistoryId: null }),
       });
       expect(prismaMock.watchEvent.create).not.toHaveBeenCalled();
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith({ where: { id: "plex-1" }, data: { traktHistoryId: 555n } });
+      expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
+        where: { id: "plex-1", traktHistoryId: null },
+        data: { traktHistoryId: 555n },
+      });
+    });
+
+    it("stores the entry as its own row when a concurrent poll stamped the same-day row first", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      prismaMock.kV.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: "plex-1", traktHistoryId: null, plays: 1 });
+      // Between the read and the write, another poll linked the row to its own entry.
+      prismaMock.watchEvent.updateMany.mockResolvedValue({ count: 0 });
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation(async (url: URL) => {
+          if (url.toString().includes("/sync/history/movies")) {
+            return {
+              ok: true,
+              status: 200,
+              headers: new Headers(),
+              json: async () => [
+                { id: 556, watched_at: "2024-01-01T18:00:00Z", movie: { title: "Qux", ids: { imdb: "tt5" } } },
+              ],
+            };
+          }
+          return { ok: true, status: 200, headers: new Headers(), json: async () => [] };
+        })
+      );
+
+      const { pollTraktHistory } = await import("./trakt-client.js");
+      await pollTraktHistory(makeLogger(), "profile-1");
+
+      expect(prismaMock.watchEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ imdbId: "tt5", traktHistoryId: 556n }) })
+      );
+    });
+
+    it("never matches an entry by timestamp to a row linked to a different entry", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      prismaMock.kV.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findFirst.mockResolvedValue(null);
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation(async (url: URL) => {
+          if (url.toString().includes("/sync/history/movies")) {
+            return {
+              ok: true,
+              status: 200,
+              headers: new Headers(),
+              json: async () => [
+                { id: 557, watched_at: "2024-01-01T18:00:00Z", movie: { title: "Qux", ids: { imdb: "tt5" } } },
+              ],
+            };
+          }
+          return { ok: true, status: 200, headers: new Headers(), json: async () => [] };
+        })
+      );
+
+      const { pollTraktHistory } = await import("./trakt-client.js");
+      await pollTraktHistory(makeLogger(), "profile-1");
+
+      expect(prismaMock.watchEvent.findFirst).toHaveBeenNthCalledWith(1, {
+        where: expect.objectContaining({ watchedAt: new Date("2024-01-01T18:00:00Z"), traktHistoryId: null }),
+      });
     });
 
     it("backfills a legacy event (matched by date, no traktHistoryId) instead of duplicating it", async () => {
@@ -843,8 +913,8 @@ describe("trakt-client", () => {
       await pollTraktHistory(makeLogger(), "profile-1");
 
       expect(prismaMock.watchEvent.create).not.toHaveBeenCalled();
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith({
-        where: { id: "legacy-1" },
+      expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
+        where: { id: "legacy-1", traktHistoryId: null },
         data: { traktHistoryId: 777n },
       });
     });
@@ -996,8 +1066,8 @@ describe("trakt-client", () => {
       const { pollTraktHistory } = await import("./trakt-client.js");
       await pollTraktHistory(makeLogger(), "profile-1");
 
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith({
-        where: { id: "legacy-1" },
+      expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
+        where: { id: "legacy-1", traktHistoryId: null },
         data: { traktHistoryId: 42n, plays: 1 },
       });
     });
@@ -1015,8 +1085,8 @@ describe("trakt-client", () => {
       const { pollTraktHistory } = await import("./trakt-client.js");
       await pollTraktHistory(makeLogger(), "profile-1");
 
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith({
-        where: { id: "legacy-1" },
+      expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
+        where: { id: "legacy-1", traktHistoryId: null },
         data: { traktHistoryId: 42n },
       });
     });
@@ -1045,8 +1115,8 @@ describe("trakt-client", () => {
       const { pollTraktHistory } = await import("./trakt-client.js");
       await pollTraktHistory(makeLogger(), "profile-1");
 
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith({
-        where: { id: "legacy-1" },
+      expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
+        where: { id: "legacy-1", traktHistoryId: null },
         data: { traktHistoryId: 42n },
       });
     });

@@ -10,7 +10,7 @@ const prismaMock = {
   profile: { findUnique: vi.fn(), update: vi.fn() },
   profileCollections: { findUnique: vi.fn(), upsert: vi.fn() },
   list: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
-  watchEvent: { findMany: vi.fn(), update: vi.fn(), createMany: vi.fn() },
+  watchEvent: { findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn(), createMany: vi.fn() },
   seriesProgress: { findMany: vi.fn() },
   rating: { findMany: vi.fn(), createMany: vi.fn(), updateMany: vi.fn() },
   listItem: { createMany: vi.fn() },
@@ -166,7 +166,7 @@ describe("export routes", () => {
       expect(response.json().summary.watchEvents).toBe(2);
     });
 
-    it("increments plays for a duplicate watch event instead of creating a new row", async () => {
+    it("raises plays on a matching watch event to the file's count instead of creating a new row", async () => {
       prismaMock.watchEvent.findMany.mockResolvedValue([
         {
           id: "existing-1",
@@ -176,6 +176,7 @@ describe("export routes", () => {
           season: null,
           episode: null,
           watchedAt: new Date("2024-01-01T00:00:00Z"),
+          plays: 1,
         },
       ]);
       const app = await buildApp();
@@ -191,9 +192,10 @@ describe("export routes", () => {
 
       expect(response.statusCode).toBe(200);
       expect(prismaMock.watchEvent.createMany).not.toHaveBeenCalled();
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: "existing-1" }, data: { plays: { increment: 2 } } })
-      );
+      expect(prismaMock.watchEvent.updateMany).toHaveBeenCalledWith({
+        where: { id: "existing-1", plays: { lt: 2 } },
+        data: { plays: 2 },
+      });
     });
 
     it("skips a watch event entry with an invalid date", async () => {
@@ -300,7 +302,7 @@ describe("export routes", () => {
       expect(response.json().summary).toEqual({ imported: 1, skipped: 0 });
     });
 
-    it("sets seriesImdbId for episode rows and increments plays on a duplicate", async () => {
+    it("leaves a matching episode row alone when the CSV carries the same watch again", async () => {
       prismaMock.watchEvent.findMany.mockResolvedValue([
         {
           id: "existing-ep",
@@ -310,6 +312,7 @@ describe("export routes", () => {
           season: 1,
           episode: 2,
           watchedAt: new Date("2024-01-01T00:00:00Z"),
+          plays: 1,
         },
       ]);
       const app = await buildApp();
@@ -318,9 +321,9 @@ describe("export routes", () => {
       const response = await app.inject({ method: "POST", url: "/import/csv", payload: { csv } });
 
       expect(response.statusCode).toBe(200);
-      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: "existing-ep" }, data: { plays: { increment: 1 } } })
-      );
+      // Importing the same watch twice is not a rewatch.
+      expect(prismaMock.watchEvent.createMany).not.toHaveBeenCalled();
+      expect(prismaMock.watchEvent.updateMany).not.toHaveBeenCalled();
     });
 
     it("returns 200 with an empty summary when the CSV has only a header row", async () => {

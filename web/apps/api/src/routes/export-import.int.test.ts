@@ -265,14 +265,10 @@ describe("GET /export then POST /import", () => {
     expect(await prisma.playbackProgress.count({ where: { profileId: restored.id } })).toBe(2);
   });
 
-  it("adds to the play counts on a second import rather than replacing them", async () => {
-    // Import merges, it does not restore: `batchUpsertWatchEvents` increments
-    // `plays` on a row it matches, which is what a Letterboxd or Trakt import
-    // wants ("add these watches to what I have"). Applied to a full backup of
-    // the same profile it means re-importing counts every play again — three
-    // plays become six. Pinned here because it is a real consequence of the
-    // merge semantics, not because it is obviously the right answer for a
-    // restore.
+  it("leaves the play counts alone on a second import of the same file", async () => {
+    // A row the profile already has is the same watch arriving again, so a
+    // repeated import keeps the larger count rather than adding the file's on
+    // top: three plays stay three, not six.
     const source = await seedLibrary("Ada");
     const exported = await exportFor(source.id);
 
@@ -283,7 +279,30 @@ describe("GET /export then POST /import", () => {
     const movie = await prisma.watchEvent.findFirst({
       where: { profileId: restored.id, type: "movie", imdbId: SHAWSHANK },
     });
-    expect(movie?.plays).toBe(6);
+    expect(movie?.plays).toBe(3);
+  });
+
+  it("raises a stored play count when the file carries more plays for that day", async () => {
+    const source = await seedLibrary("Ada");
+    const exported = await exportFor(source.id);
+
+    const restored = await createProfile("Restored");
+    await prisma.watchEvent.create({
+      data: {
+        profileId: restored.id,
+        type: "movie",
+        imdbId: SHAWSHANK,
+        watchedAt: new Date("2026-05-01T08:00:00.000Z"),
+        plays: 1,
+      },
+    });
+    await importInto(restored.id, exported);
+
+    const movies = await prisma.watchEvent.findMany({
+      where: { profileId: restored.id, type: "movie", imdbId: SHAWSHANK },
+    });
+    expect(movies).toHaveLength(1);
+    expect(movies[0]?.plays).toBe(3);
   });
 
   it("imports into the requesting profile and leaves the source alone", async () => {

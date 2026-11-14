@@ -781,6 +781,42 @@ describe("trakt-client", () => {
       );
     });
 
+    it("adopts another writer's same-day copy of the play instead of adding a second row", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      prismaMock.kV.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findUnique.mockResolvedValue(null);
+      // Nothing at the exact timestamp; a Plex webhook's row from that evening.
+      prismaMock.watchEvent.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: "plex-1", traktHistoryId: null, plays: 1 });
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockImplementation(async (url: URL) => {
+          if (url.toString().includes("/sync/history/movies")) {
+            return {
+              ok: true,
+              status: 200,
+              headers: new Headers(),
+              json: async () => [
+                { id: 555, watched_at: "2024-01-01T21:00:00Z", movie: { title: "Qux", ids: { imdb: "tt5" } } },
+              ],
+            };
+          }
+          return { ok: true, status: 200, headers: new Headers(), json: async () => [] };
+        })
+      );
+
+      const { pollTraktHistory } = await import("./trakt-client.js");
+      await pollTraktHistory(makeLogger(), "profile-1");
+
+      expect(prismaMock.watchEvent.findFirst).toHaveBeenLastCalledWith({
+        where: expect.objectContaining({ imdbId: "tt5", traktHistoryId: null }),
+      });
+      expect(prismaMock.watchEvent.create).not.toHaveBeenCalled();
+      expect(prismaMock.watchEvent.update).toHaveBeenCalledWith({ where: { id: "plex-1" }, data: { traktHistoryId: 555n } });
+    });
+
     it("backfills a legacy event (matched by date, no traktHistoryId) instead of duplicating it", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
       prismaMock.kV.findUnique.mockResolvedValue(null);

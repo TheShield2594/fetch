@@ -97,11 +97,16 @@ export const importTrackerItems = async (
           });
     if (await prisma.watchEvent.findFirst({ where, select: { id: true } })) continue;
 
+    // Flagged, so it reads as "watched, date unknown" rather than as a watch on
+    // the day of the sync — in history, in this week's stats, and to the
+    // duplicate finder, which pairs it with the dated play when one arrives.
+    const dateUnknown = watch.undated === true;
+
     try {
       await prisma.watchEvent.create({
         data:
           watch.type === "movie"
-            ? { type: WatchEventType.movie, imdbId, watchedAt: watch.watchedAt, plays: 1, profileId }
+            ? { type: WatchEventType.movie, imdbId, watchedAt: watch.watchedAt, dateUnknown, plays: 1, profileId }
             : {
                 type: WatchEventType.episode,
                 imdbId,
@@ -109,6 +114,7 @@ export const importTrackerItems = async (
                 season: watch.season,
                 episode: watch.episode,
                 watchedAt: watch.watchedAt,
+                dateUnknown,
                 plays: 1,
                 profileId,
               },

@@ -547,6 +547,16 @@ export const pollTraktHistory = async (
     }
   };
 
+  // The last place a history entry can already be stored: a row another writer
+  // recorded for the same title on the same UTC day — a Plex webhook, a TV's
+  // mark-watched, a Letterboxd import — that has no Trakt id yet. That is the
+  // same watch, and creating a second row for it is how one evening used to show
+  // up twice in history once Trakt was connected. Only rows without an id are
+  // adopted, so a second Trakt entry on the same day (a real rewatch) still
+  // finds nothing here and imports as its own play.
+  const findSameDayUnlinked = (historyId: bigint | null, key: WatchEventDedupKey) =>
+    historyId ? prisma.watchEvent.findFirst({ where: { ...watchEventDedupWhere(key), traktHistoryId: null } }) : null;
+
   for (const entry of movieHistory) {
     const imdbId = entry.movie?.ids?.imdb;
     const watchedAt = entry.watched_at;
@@ -572,7 +582,8 @@ export const pollTraktHistory = async (
     // duplicated.
     const existingEvent =
       (historyId ? await prisma.watchEvent.findUnique({ where: { traktHistoryId: historyId } }) : null) ??
-      (await prisma.watchEvent.findFirst({ where: { profileId, type: "movie", imdbId, watchedAt: watchedAtDate } }));
+      (await prisma.watchEvent.findFirst({ where: { profileId, type: "movie", imdbId, watchedAt: watchedAtDate } })) ??
+      (await findSameDayUnlinked(historyId, { profileId, type: "movie", imdbId, watchedAt: watchedAtDate }));
 
     if (existingEvent) {
       await reconcileExistingEvent(existingEvent, historyId, `movie:${imdbId}`);
@@ -618,6 +629,14 @@ export const pollTraktHistory = async (
       (historyId ? await prisma.watchEvent.findUnique({ where: { traktHistoryId: historyId } }) : null) ??
       (await prisma.watchEvent.findFirst({
         where: { profileId, type: "episode", seriesImdbId, season, episode, watchedAt: watchedAtDate },
+      })) ??
+      (await findSameDayUnlinked(historyId, {
+        profileId,
+        type: "episode",
+        imdbId: seriesImdbId,
+        season,
+        episode,
+        watchedAt: watchedAtDate,
       }));
 
     if (existingEvent) {

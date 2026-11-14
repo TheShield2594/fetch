@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router";
 import { Search } from "lucide-react";
 import { api, inviteCodeFromPath, type Profile, runtimeConfig } from "./api";
 import { useCommandPalette } from "./hooks/useCommandPalette";
@@ -37,6 +37,7 @@ import {
   loadCommandPalette,
   loadPairPage,
   loadLinkPage,
+  loadLandingPage,
   loadTvPage,
   schedulePrefetchOnIdle,
 } from "./utils/routePrefetch";
@@ -74,6 +75,24 @@ const ProfilePage = lazy(() => loadProfilePage().then((m) => ({ default: m.Profi
 const PairPage = lazy(() => loadPairPage().then((m) => ({ default: m.PairPage })));
 const LinkPage = lazy(() => loadLinkPage().then((m) => ({ default: m.LinkPage })));
 const TvPage = lazy(() => loadTvPage().then((m) => ({ default: m.TvPage })));
+// What a signed-out visitor sees at `/`. Its own chunk (and stylesheet), so
+// nobody signed in pays for it.
+const LandingPage = lazy(() => loadLandingPage().then((m) => ({ default: m.LandingPage })));
+
+/** Where sign-in lives, now that `/` is the landing page for signed-out visitors. */
+export const LOGIN_PATH = "/login";
+
+/**
+ * Where to go after signing in: the `?next=` a signed-out deep link was sent to
+ * /login with, or the Shelf. Only a path on this site, so a crafted link can't
+ * use the sign-in page to bounce someone elsewhere.
+ */
+export function afterLoginPath(search: string): string {
+  const next = new URLSearchParams(search).get("next");
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return "/";
+  if (next === LOGIN_PATH || next.startsWith(`${LOGIN_PATH}?`)) return "/";
+  return next;
+}
 
 const LoadingFallback = ({ label = "Loading…" }: { label?: string }) => (
   <FetchLoader label={label} className="items-center py-24" />
@@ -104,6 +123,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/tv": "TV",
   "/pair": "Sign in a TV",
   "/link": "Sign in a TV",
+  "/login": "Sign in",
 };
 
 const APP_NAME = "Fetch";
@@ -126,6 +146,7 @@ const ProfileSwitcherFallback = () => (
 
 export function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   // Signed in means a session (an HttpOnly cookie, recorded here by its id).
   // A browser from before accounts existed stored the API token instead: it
   // goes back through the wizard, which offers that token for creating the
@@ -202,12 +223,34 @@ export function App() {
   }
 
   if (needsSetup) {
+    // An invite link opens the wizard where it is, as it always has.
+    const invite = inviteCodeFromPath(location.pathname) !== null;
+    const landing = runtimeConfig.landingEnabled();
+    // Signed out at `/`: what Fetch is, and the downloads. Sign-in is a click
+    // away at /login.
+    if (!invite && landing && location.pathname === "/") {
+      return (
+        <Suspense fallback={<LoadingFallback />}>
+          <LandingPage />
+        </Suspense>
+      );
+    }
+    // Signed out anywhere else (a bookmark, a TV's /pair QR code, or a session
+    // that just expired): sign in first, then carry on to where they were going.
+    // With the landing page off, `/` keeps showing the sign-in itself.
+    if (!invite && location.pathname !== LOGIN_PATH && !(location.pathname === "/" && !landing)) {
+      const next = location.pathname === "/" ? "" : `?next=${encodeURIComponent(location.pathname + location.search)}`;
+      return <Navigate to={`${LOGIN_PATH}${next}`} replace />;
+    }
     return (
       <Suspense fallback={<LoadingFallback />}>
         <SetupWizard
           onComplete={() => {
             setNeedsSetup(false);
             setNeedsProfile(!runtimeConfig.getProfileId());
+            if (location.pathname === LOGIN_PATH) {
+              navigate(afterLoginPath(location.search), { replace: true });
+            }
           }}
         />
       </Suspense>
@@ -550,6 +593,9 @@ function AppShell({
             <Suspense fallback={<LoadingFallback />}>
               <Routes key={profile?.id ?? runtimeConfig.getProfileId() ?? "default"}>
                 <Route path="/" element={<ShelfPage />} />
+                {/* Already signed in: the sign-in page has nothing to offer,
+                    so it's the Shelf (or wherever ?next= points). */}
+                <Route path={LOGIN_PATH} element={<Navigate to={afterLoginPath(location.search)} replace />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/discover" element={<DiscoverPage />} />
                 <Route path="/lists" element={<ListsPage />} />

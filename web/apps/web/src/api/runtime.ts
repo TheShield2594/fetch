@@ -15,6 +15,8 @@ declare global {
   interface Window {
     __FETCH_API_BASE__?: string | undefined;
     __FETCH_ADDON_BASE__?: string | undefined;
+    /** `false` when FETCH_LANDING_PAGE=off: `/` goes straight to sign-in. */
+    __FETCH_LANDING__?: boolean | undefined;
   }
 }
 
@@ -100,6 +102,14 @@ export const runtimeConfig = {
   },
   getAddonBase() {
     return ADDON_BASE_DEFAULT;
+  },
+  /**
+   * Whether a signed-out visit to `/` gets the landing page (what Fetch is, the
+   * downloads) rather than the sign-in. On unless the container was started
+   * with FETCH_LANDING_PAGE=off, for an install that only friends ever open.
+   */
+  landingEnabled() {
+    return window.__FETCH_LANDING__ !== false;
   },
   /** The signed-in session's (non-secret) id, or "" when signed out. */
   getSessionId() {

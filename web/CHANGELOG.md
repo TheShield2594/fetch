@@ -11,6 +11,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **A landing page at `/`, and sign-in at `/login`.** Someone who isn't signed in now sees what Fetch is, real screenshots and the Android TV and Linux downloads (the latest release's APK, read from GitHub), instead of a bare sign-in form. Signed in, `/` is still the Shelf and `/login` goes there; a signed-out link to any other page goes through `/login` and back. `FETCH_LANDING_PAGE=off` keeps the old behaviour for installs only friends use.
+
 ## [0.6.0] - 2026-11-13
 
 ### Added

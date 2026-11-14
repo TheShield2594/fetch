@@ -79,7 +79,9 @@ export default defineConfig({
         // would just push ~2.5 MB at every install for no benefit. The install
         // screenshots are the same bargain: Chrome fetches them while showing
         // the install dialog, which is before there is a service worker at all.
-        globIgnores: ["config.js", "splash/**", "screenshots/**"]
+        // The landing page's video, screenshots and fonts are only for
+        // signed-out visitors, who are the people without the app installed.
+        globIgnores: ["config.js", "splash/**", "screenshots/**", "landing/**"]
       },
       includeAssets: [
         "favicon.ico",

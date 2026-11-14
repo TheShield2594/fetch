@@ -18,6 +18,7 @@ import { IMAGE_CDN_ORIGINS } from "../src/image-cdn-hosts.mjs";
 // VITE_API_BASE/VITE_ADDON_BASE keeps working.
 const DEFAULT_API_BASE = "http://localhost:7000";
 const DEFAULT_ADDON_BASE = "http://localhost:7001";
+export const GITHUB_API_ORIGIN = "https://api.github.com";
 
 const CONNECT_SRC_PLACEHOLDER = "__CONNECT_SRC__";
 const SCRIPT_SRC_PLACEHOLDER = "__SCRIPT_SRC__";
@@ -39,7 +40,7 @@ const originOf = (value) => {
  * @param {{ apiBase?: string, addonBase?: string, sentryDsn?: string, extra?: string }} env
  * @returns {string} the `connect-src` value, always including `'self'`
  */
-export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra } = {}) => {
+export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra, landing = false } = {}) => {
   const sources = ["'self'"];
   const add = (source) => {
     if (source && !sources.includes(source)) sources.push(source);
@@ -54,6 +55,9 @@ export const buildConnectSrc = ({ apiBase, addonBase, sentryDsn, extra } = {}) =
   // and a request a service worker answers is re-issued as a fetch from the
   // worker. See src/image-cdn-hosts.mjs.
   for (const origin of IMAGE_CDN_ORIGINS) add(origin);
+  // The landing page asks GitHub for the latest release, to link its APK and
+  // show its version. Only while the page is on (FETCH_LANDING_PAGE).
+  if (landing) add(GITHUB_API_ORIGIN);
 
   // Escape hatch for anything else this deployment's browser must reach that
   // the container's own configuration doesn't name.

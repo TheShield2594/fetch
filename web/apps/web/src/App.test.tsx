@@ -1,8 +1,8 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router";
-import { App } from "./App";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter, useLocation } from "react-router";
+import { afterLoginPath, App } from "./App";
 import { api, runtimeConfig } from "./api";
 import { first } from "./test/present";
 
@@ -294,3 +294,88 @@ describe("the kids gate before the profile is known", () => {
   });
 });
 
+
+/*
+ * `/` is the landing page for signed-out visitors, and sign-in lives at
+ * /login. Signed in, `/` is the Shelf and /login has nothing to show.
+ */
+describe("signed out", () => {
+  function LocationProbe() {
+    const location = useLocation();
+    return <output data-testid="location">{location.pathname + location.search}</output>;
+  }
+
+  function renderSignedOutAt(path: string) {
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <App />
+        <LocationProbe />
+      </MemoryRouter>
+    );
+  }
+
+  beforeEach(() => {
+    window.localStorage.removeItem(runtimeConfig.sessionIdKey);
+    window.localStorage.removeItem(runtimeConfig.profileIdKey);
+    vi.spyOn(api, "getAuthStatus").mockResolvedValue({ setupRequired: false } as never);
+  });
+
+  afterEach(() => {
+    delete window.__FETCH_LANDING__;
+    vi.restoreAllMocks();
+  });
+
+  it("shows the landing page at /, with the way in", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("offline"));
+    renderSignedOutAt("/");
+
+    expect(await screen.findByRole("heading", { level: 1, name: /everything you watch/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Download for Android TV" })).toBeInTheDocument();
+    expect(first(screen.getAllByRole("link", { name: "Sign in" }), "a Sign in link")).toHaveAttribute("href", "/login");
+    expect(screen.queryByRole("heading", { name: "Sign in" })).not.toBeInTheDocument();
+  });
+
+  it("signs in at /login", async () => {
+    renderSignedOutAt("/login");
+
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
+  });
+
+  it("sends a signed-out deep link to /login and remembers where it was going", async () => {
+    renderSignedOutAt("/pair?code=ABCD-EFGH");
+
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.getByTestId("location")).toHaveTextContent("/login?next=%2Fpair%3Fcode%3DABCD-EFGH");
+  });
+
+  it("keeps the sign-in at / when the landing page is switched off", async () => {
+    window.__FETCH_LANDING__ = false;
+    renderSignedOutAt("/");
+
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.getByTestId("location")).toHaveTextContent(/^\/$/);
+  });
+});
+
+describe("signed in", () => {
+  it("skips /login and goes straight to the Shelf", async () => {
+    renderAt("/login");
+
+    expect(await screen.findByText("shelf")).toBeInTheDocument();
+  });
+});
+
+describe("afterLoginPath", () => {
+  it("returns to a path on this site", () => {
+    expect(afterLoginPath("?next=%2Fhistory")).toBe("/history");
+    expect(afterLoginPath("?next=%2Fpair%3Fcode%3DAB")).toBe("/pair?code=AB");
+  });
+
+  it("goes to the Shelf for anything else", () => {
+    expect(afterLoginPath("")).toBe("/");
+    expect(afterLoginPath("?next=https%3A%2F%2Fevil.example")).toBe("/");
+    expect(afterLoginPath("?next=%2F%2Fevil.example")).toBe("/");
+    expect(afterLoginPath("?next=%2F%5Cevil.example")).toBe("/");
+    expect(afterLoginPath("?next=%2Flogin")).toBe("/");
+  });
+});

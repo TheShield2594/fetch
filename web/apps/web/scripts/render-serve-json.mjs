@@ -26,6 +26,8 @@ const connectSrc = buildConnectSrc({
   addonBase: process.env.VITE_ADDON_BASE,
   sentryDsn: process.env.SENTRY_DSN,
   extra: process.env.CSP_CONNECT_SRC_EXTRA,
+  // Same reading as docker-entrypoint.sh's.
+  landing: !["off", "false", "0"].includes(process.env.FETCH_LANDING_PAGE ?? "on"),
 });
 
 // A missing index.html is not worth refusing to start over: the container would

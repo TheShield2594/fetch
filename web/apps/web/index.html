@@ -70,7 +70,24 @@
     <link rel="apple-touch-startup-image" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="/splash/apple-splash-2732x2048.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="/splash/apple-splash-2064x2752.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 1032px) and (device-height: 1376px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)" href="/splash/apple-splash-2752x2064.png" />
-    <title>Fetch</title>
+    <title>Fetch · Everything you watch, one place</title>
+    <!-- For search results and link previews. One set for the whole app, since
+         this is the only HTML there is; it describes Fetch rather than a page.
+         og:image is absolute because most link-preview crawlers ignore a
+         relative one. -->
+    <meta name="description" content="Fetch is a free Android TV app that plays from your add-ons, Plex, Jellyfin and local files, picks the best link on its own, and remembers where you stopped. Watchlists and history sync with the web." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fetch" />
+    <meta property="og:title" content="Fetch · Everything you watch, one place" />
+    <meta property="og:description" content="A TV app I built for my friends, so nobody has to ask which app has what. Android TV, Linux and the web." />
+    <meta property="og:image" content="https://watchfetch.tv/landing/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The FETCH dot-matrix wordmark and the line: Everything you watch, one place." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Fetch · Everything you watch, one place" />
+    <meta name="twitter:description" content="A TV app I built for my friends. Android TV, Linux and the web." />
+    <meta name="twitter:image" content="https://watchfetch.tv/landing/og.jpg" />
     <script src="/config.js"></script>
     <script src="/theme-init.js"></script>
     <!-- Starts the Shelf's opening requests during HTML parse, before the app

@@ -293,6 +293,9 @@ services:
       # Content-Security-Policy). Only needed when some browsers reach the API
       # at a different address — e.g. one set per-browser in Settings.
       CSP_CONNECT_SRC_EXTRA: ${CSP_CONNECT_SRC_EXTRA:-}
+      # What a signed-out visitor sees at `/`: the landing page (what Fetch is,
+      # the downloads), or "off" for the sign-in straight away, as before.
+      FETCH_LANDING_PAGE: ${FETCH_LANDING_PAGE:-on}
       SENTRY_DSN: ${SENTRY_DSN}
     ports:
       - "7002:7002"

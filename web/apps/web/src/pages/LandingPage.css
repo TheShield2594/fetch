@@ -1,0 +1,559 @@
+/*
+ * The landing page. Scoped under .lp and loaded with its chunk, so nothing here
+ * reaches the app. It always wears the TV app's own look (the Fetch theme:
+ * #0a0a0b ground, #151517 cards, Fetch red, white focus), whatever theme this
+ * browser last used inside the app.
+ *
+ * Type: Schibsted Grotesk, as everywhere else, and Doto (OFL) for the wordmark
+ * and the big step numbers only, with round dots at weight 900 as on the TV.
+ * Like the TV, never below 24px.
+ */
+
+@font-face {
+  font-family: "Fetch Doto";
+  src: url("/landing/doto.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+.lp {
+  --lp-bg: #0a0a0b;
+  --lp-bg-1: #151517;
+  --lp-line: rgba(255, 255, 255, 0.09);
+  --lp-text: #ffffff;
+  --lp-dim: #b4b7bd;
+  --lp-mute: #9a9ea6;
+  --lp-red: #dc2b33;
+  --lp-red-hover: #b01e26;
+  --lp-red-text: #ff5a5f;
+  --lp-gutter: clamp(1rem, 4.5vw, 4.5rem);
+  --lp-max: 1320px;
+
+  color-scheme: dark;
+  min-height: 100vh;
+  background: var(--lp-bg);
+  color: var(--lp-text);
+  font-family: "Schibsted Grotesk", ui-sans-serif, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+.lp a {
+  color: inherit;
+}
+
+.lp :focus-visible {
+  outline: 2px solid #f5f5f5;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.lp h1,
+.lp h2 {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.lp p {
+  margin: 0;
+}
+
+.lp-skip {
+  position: absolute;
+  left: -9999px;
+  top: 0.75rem;
+  z-index: 20;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #000 !important;
+  font-weight: 700;
+  text-decoration: none;
+}
+.lp-skip:focus {
+  left: 0.75rem;
+}
+
+.lp-wordmark {
+  font-family: "Fetch Doto", "Schibsted Grotesk", sans-serif;
+  font-weight: 900;
+  font-variation-settings: "ROND" 100, "wght" 900;
+  font-size: 2.25rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.lp-wordmark-sm {
+  font-size: 1.75rem;
+}
+
+/* ---- Hero ---------------------------------------------------------------- */
+
+.lp-hero {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: min(100svh, 960px);
+  padding: 0 var(--lp-gutter) clamp(2.5rem, 7vh, 5rem);
+  isolation: isolate;
+}
+
+.lp-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: #120c0a;
+}
+.lp-hero-media video,
+.lp-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Keep the TV in frame on a tall phone screen. */
+  object-position: 62% 40%;
+}
+/* Dark where the words are, open where the TV is, and a floor that runs into
+   the page. */
+.lp-hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(10, 10, 11, 0.9) 0%, rgba(10, 10, 11, 0.62) 38%, rgba(10, 10, 11, 0.12) 72%),
+    linear-gradient(0deg, var(--lp-bg) 0%, rgba(10, 10, 11, 0) 34%);
+}
+
+.lp-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+}
+.lp-topbar-signin {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: background-color 150ms ease;
+}
+.lp-topbar-signin:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.lp-hero-copy {
+  align-self: end;
+  max-width: 44rem;
+}
+.lp-hero h1 {
+  font-size: clamp(2.75rem, 7.2vw, 6rem);
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+.lp-lede {
+  margin-top: 1.25rem !important;
+  max-width: 32rem;
+  font-size: clamp(1.0625rem, 1.6vw, 1.25rem);
+  color: var(--lp-dim);
+}
+
+.lp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.lp-btn-primary {
+  background: var(--lp-red);
+  color: #fff;
+}
+.lp-btn-primary:hover {
+  background: var(--lp-red-hover);
+}
+.lp-btn-secondary {
+  background: rgba(255, 255, 255, 0.14);
+}
+.lp-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.lp-btn-ghost {
+  padding: 0 0.75rem;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+}
+.lp-btn-ghost:hover {
+  text-decoration-color: #fff;
+}
+.lp-fineprint {
+  margin-top: 1rem !important;
+  font-size: 0.875rem;
+  color: var(--lp-mute);
+}
+
+/* ---- Shared ---------------------------------------------------------------- */
+
+.lp main > section {
+  max-width: var(--lp-max);
+  margin: 0 auto;
+  padding: 0 var(--lp-gutter);
+}
+.lp-kicker {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--lp-red-text);
+  margin-bottom: 1rem !important;
+}
+.lp h2 {
+  font-size: clamp(2rem, 4.4vw, 3.5rem);
+}
+.lp figure {
+  margin: 0;
+}
+.lp figcaption {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--lp-mute);
+}
+.lp-tv {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  background: var(--lp-bg-1);
+}
+
+/* ---- How it works: narrow copy, a wide picture running off the edge -------- */
+
+.lp-how {
+  display: grid;
+  gap: 2.5rem;
+  padding-top: clamp(4rem, 10vw, 8rem) !important;
+}
+.lp-steps {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+.lp-steps li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+}
+.lp-step-n {
+  font-family: "Fetch Doto", "Schibsted Grotesk", sans-serif;
+  font-variation-settings: "ROND" 100, "wght" 900;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--lp-red);
+}
+.lp-steps p {
+  color: var(--lp-dim);
+}
+
+/* ---- Features: a heading beside a picture, then a two-column spec list ---- */
+
+.lp-features {
+  padding-top: clamp(5rem, 12vw, 10rem) !important;
+}
+.lp-features-head {
+  display: grid;
+  gap: 2rem;
+  align-items: end;
+}
+.lp-features-head h2 {
+  max-width: 14ch;
+}
+.lp-feature-list {
+  margin: 3rem 0 0;
+  display: grid;
+  gap: 0;
+}
+.lp-feature {
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--lp-line);
+}
+.lp-feature dt {
+  font-weight: 700;
+  font-size: 1.1875rem;
+  letter-spacing: -0.01em;
+}
+.lp-feature dd {
+  margin: 0.4rem 0 0;
+  color: var(--lp-dim);
+  max-width: 34rem;
+}
+
+/* ---- Tracking: a lighter band, posters bleeding off the right ------------- */
+
+.lp main > .lp-tracking {
+  max-width: none;
+  margin-top: clamp(5rem, 12vw, 10rem);
+  padding: 0;
+  background: var(--lp-bg-1);
+  border-block: 1px solid var(--lp-line);
+}
+.lp-tracking-inner {
+  max-width: var(--lp-max);
+  margin: 0 auto;
+  padding: clamp(3.5rem, 8vw, 6rem) var(--lp-gutter);
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+.lp-tracking-copy p {
+  margin-top: 1.25rem !important;
+  color: var(--lp-dim);
+  max-width: 32rem;
+}
+.lp-tracking-copy .lp-tracking-note {
+  font-size: 0.9375rem;
+  color: var(--lp-mute);
+}
+.lp-textlink {
+  display: inline-block;
+  margin-top: 1.5rem;
+  font-weight: 700;
+  color: var(--lp-red-text) !important;
+  text-decoration: none;
+}
+.lp-textlink:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.lp-poster-strip {
+  list-style: none;
+  margin: 0 calc(var(--lp-gutter) * -1) 0 0;
+  padding: 0;
+  display: flex;
+  gap: 0.75rem;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, #000 70%, transparent);
+}
+.lp-poster-strip li {
+  flex: 0 0 clamp(7rem, 16vw, 10.5rem);
+}
+.lp-poster-strip img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+}
+
+/* ---- Screenshots: one big, one smaller and lower ------------------------- */
+
+.lp-shots {
+  padding-top: clamp(5rem, 12vw, 10rem) !important;
+  display: grid;
+  gap: 2.5rem;
+}
+.lp-shots-note {
+  font-size: 0.875rem;
+  color: var(--lp-mute);
+  max-width: 34rem;
+}
+
+/* ---- FAQ ------------------------------------------------------------------- */
+
+.lp-faq {
+  padding-top: clamp(5rem, 12vw, 10rem) !important;
+  padding-bottom: clamp(4rem, 10vw, 8rem) !important;
+  display: grid;
+  gap: 2rem;
+}
+.lp-faq-list details {
+  border-top: 1px solid var(--lp-line);
+}
+.lp-faq-list details:last-child {
+  border-bottom: 1px solid var(--lp-line);
+}
+.lp-faq-list summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.125rem;
+  list-style: none;
+}
+.lp-faq-list summary::-webkit-details-marker {
+  display: none;
+}
+.lp-faq-list summary::after {
+  content: "+";
+  color: var(--lp-mute);
+  font-weight: 400;
+}
+.lp-faq-list details[open] summary::after {
+  content: "\2212";
+}
+.lp-faq-a {
+  padding: 0 0 1.5rem;
+  color: var(--lp-dim);
+  max-width: 40rem;
+}
+.lp-faq-a a {
+  color: var(--lp-text);
+  text-underline-offset: 0.2em;
+}
+.lp-faq-a code {
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Footer ---------------------------------------------------------------- */
+
+.lp-footer {
+  max-width: var(--lp-max);
+  margin: 0 auto;
+  padding: 2.5rem var(--lp-gutter) 3rem;
+  border-top: 1px solid var(--lp-line);
+  display: grid;
+  gap: 1.25rem;
+}
+.lp-footer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--lp-mute);
+}
+.lp-footer-meta a {
+  color: var(--lp-dim);
+  text-decoration: none;
+}
+.lp-footer-meta a:hover {
+  color: var(--lp-text);
+}
+.lp-footer-thanks {
+  font-size: 0.875rem;
+  color: var(--lp-mute);
+}
+
+/* ---- Phones ---------------------------------------------------------------- */
+
+@media (max-width: 599px) {
+  .lp-hero-media::after {
+    background:
+      linear-gradient(0deg, var(--lp-bg) 4%, rgba(10, 10, 11, 0.78) 52%, rgba(10, 10, 11, 0.25) 100%);
+  }
+  .lp-actions .lp-btn-primary,
+  .lp-actions .lp-btn-secondary {
+    flex: 1 1 100%;
+  }
+  .lp-actions .lp-btn-ghost {
+    width: 100%;
+  }
+}
+
+/* ---- Desktop: where the asymmetry comes in -------------------------------- */
+
+@media (min-width: 960px) {
+  .lp-how {
+    grid-template-columns: 5fr 7fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  /* The picture runs off the right edge of the page. */
+  .lp .lp-how-shot {
+    margin-right: calc(var(--lp-gutter) * -1 - max(0px, (100vw - var(--lp-max)) / 2));
+  }
+
+  .lp-features-head {
+    grid-template-columns: 6fr 7fr;
+    gap: 4rem;
+  }
+  .lp-features-head h2 {
+    padding-bottom: 2rem;
+  }
+  .lp-feature-list {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 4rem;
+  }
+  /* The first one leads, across both columns. */
+  .lp-feature:first-child {
+    grid-column: 1 / -1;
+  }
+  .lp-feature:first-child dt {
+    font-size: 1.5rem;
+  }
+
+  .lp-tracking-inner {
+    grid-template-columns: 5fr 7fr;
+    gap: 4rem;
+  }
+
+  .lp-shots {
+    grid-template-columns: repeat(12, 1fr);
+    column-gap: 2rem;
+    row-gap: 0;
+  }
+  .lp-shots-title {
+    grid-column: 1 / 6;
+    margin-bottom: 2.5rem !important;
+  }
+  .lp-shot-a {
+    grid-column: 1 / 9;
+  }
+  .lp .lp-shot-b {
+    grid-column: 7 / 13;
+    grid-row: 3;
+    margin-top: -6rem;
+    position: relative;
+  }
+  /* In the space left of the second picture, level with its bottom. */
+  .lp-shots-note {
+    grid-column: 1 / 6;
+    grid-row: 3;
+    align-self: end;
+    padding-bottom: 2.5rem;
+  }
+
+  .lp-faq {
+    grid-template-columns: 4fr 8fr;
+    gap: 4rem;
+  }
+
+  .lp-footer {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+  }
+  .lp-footer-meta {
+    justify-content: flex-end;
+  }
+  .lp-footer-thanks {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp * {
+    transition: none !important;
+  }
+}

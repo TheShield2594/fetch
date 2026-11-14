@@ -53,6 +53,14 @@ describe("connect-src", () => {
     }
   });
 
+  it("lets the landing page reach GitHub's API only while it is on", () => {
+    const off = buildConnectSrc({ apiBase: "https://fetch.example.com" });
+    const on = buildConnectSrc({ apiBase: "https://fetch.example.com", landing: true });
+
+    expect(off.split(" ")).not.toContain("https://api.github.com");
+    expect(on.split(" ")).toContain("https://api.github.com");
+  });
+
   it("never widens to whole schemes — the wildcard this replaced allowed any host", () => {
     const connectSrc = buildConnectSrc({ apiBase: "http://192.168.1.25:7000" });
 

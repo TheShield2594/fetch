@@ -887,6 +887,75 @@ describe("trakt-client", () => {
       });
     });
 
+    // One unlinked local row at 18:00; Trakt has two plays that day, 21:00 then
+    // 18:00. The first adopts the row, which keeps its 18:00 timestamp. The
+    // second must not then match it by timestamp: it is a play of its own.
+    describe.each([
+      {
+        kind: "movies",
+        path: "/sync/history/movies",
+        entry: (id: number, at: string) => ({ id, watched_at: at, movie: { title: "Qux", ids: { imdb: "tt5" } } }),
+      },
+      {
+        kind: "episodes",
+        path: "/sync/history/episodes",
+        entry: (id: number, at: string) => ({
+          id,
+          watched_at: at,
+          show: { title: "Show", ids: { imdb: "tt6" } },
+          episode: { season: 1, number: 2 },
+        }),
+      },
+    ])("two same-day Trakt plays beside one local row ($kind)", ({ path, entry }) => {
+      it("adopts the row for the first and records the second as its own row", async () => {
+        prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+        prismaMock.kV.findUnique.mockResolvedValue(null);
+        prismaMock.watchEvent.findUnique.mockResolvedValue(null);
+
+        // The one stored row, filtered the way Postgres would filter it.
+        const local = { id: "local-1", traktHistoryId: null as bigint | null, plays: 1, watchedAt: new Date("2024-01-01T18:00:00Z") };
+        prismaMock.watchEvent.findFirst.mockImplementation(
+          async ({ where }: { where: { traktHistoryId?: null; watchedAt: Date | { gte: Date; lte: Date } } }) => {
+            if ("traktHistoryId" in where && local.traktHistoryId != null) return null;
+            const at = local.watchedAt.getTime();
+            const fits =
+              where.watchedAt instanceof Date
+                ? where.watchedAt.getTime() === at
+                : where.watchedAt.gte.getTime() <= at && at <= where.watchedAt.lte.getTime();
+            return fits ? { ...local } : null;
+          }
+        );
+        prismaMock.watchEvent.updateMany.mockImplementation(async ({ data }: { data: { traktHistoryId?: bigint } }) => {
+          if (data.traktHistoryId != null) local.traktHistoryId = data.traktHistoryId;
+          return { count: 1 };
+        });
+
+        vi.stubGlobal(
+          "fetch",
+          vi.fn().mockImplementation(async (url: URL) => {
+            if (url.toString().includes(path)) {
+              return {
+                ok: true,
+                status: 200,
+                headers: new Headers(),
+                json: async () => [entry(901, "2024-01-01T21:00:00Z"), entry(902, "2024-01-01T18:00:00Z")],
+              };
+            }
+            return { ok: true, status: 200, headers: new Headers(), json: async () => [] };
+          })
+        );
+
+        const { pollTraktHistory } = await import("./trakt-client.js");
+        await pollTraktHistory(makeLogger(), "profile-1");
+
+        expect(local.traktHistoryId).toBe(901n);
+        expect(prismaMock.watchEvent.create).toHaveBeenCalledTimes(1);
+        expect(prismaMock.watchEvent.create).toHaveBeenCalledWith(
+          expect.objectContaining({ data: expect.objectContaining({ traktHistoryId: 902n }) })
+        );
+      });
+    });
+
     it("backfills a legacy event (matched by date, no traktHistoryId) instead of duplicating it", async () => {
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
       prismaMock.kV.findUnique.mockResolvedValue(null);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { prisma } from "./prisma.js";
-import { createProfile } from "./test-fixtures/int-db.js";
+import { createProfile, silentLogger } from "./test-fixtures/int-db.js";
+import { recordWatchEvent } from "./watch-event.js";
 import {
   DuplicateMergeError,
   listDuplicateGroups,
@@ -120,5 +121,38 @@ describe("watch duplicates", () => {
     const { groups, truncated } = await listDuplicateGroups(profile.id);
     expect(groups[0]?.events).toHaveLength(MAX_DUPLICATE_GROUP_SIZE);
     expect(truncated).toBe(false);
+  });
+
+  it("keeps a play recorded on a row a merge removes while the play waits on its lock", async () => {
+    const profile = await createProfile();
+    const doomed = await movie(profile.id, "2026-05-02T20:00:00Z");
+
+    // What a merge does to a row it folds away: lock it, then delete it. The
+    // transaction is held open so the play below reads the row, then blocks on it.
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const merge = prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT id FROM "WatchEvent" WHERE id = ${doomed.id}::uuid FOR UPDATE`;
+      await tx.watchEvent.delete({ where: { id: doomed.id } });
+      await held;
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const play = recordWatchEvent({
+      type: "movie",
+      imdbId: SHAWSHANK,
+      watchedAt: new Date("2026-05-02T22:00:00Z"),
+      source: "test",
+      profileId: profile.id,
+      log: silentLogger,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    release();
+    await merge;
+    await play;
+
+    const rows = await prisma.watchEvent.findMany({ where: { profileId: profile.id } });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.plays).toBe(1);
   });
 });

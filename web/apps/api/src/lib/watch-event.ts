@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "./prisma.js";
 import { isUniqueConstraintError } from "./prisma-tolerant.js";
 import { upsertSeriesProgressIfNewer } from "./series-progress.js";
@@ -18,12 +19,20 @@ import type { RecordWatchParams } from "./types.js";
  * against the row the winner wrote — which is what the caller wanted in the first
  * place. Once rather than in a loop: a second P2002 means the conflict is not the
  * one this exists to absorb, and swallowing it would hide a real fault.
+ *
+ * The same goes for the row disappearing between the read and the increment
+ * (P2025): a duplicate merge (lib/watch-duplicates.ts) removing it while this
+ * waited on its lock. Re-running finds the row that merge kept when it is on the
+ * same day, or records the play as a row of its own, so the play is not lost.
  */
+const isRecordNotFoundError = (error: unknown): boolean =>
+  error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025";
+
 const withDedupRetry = async <T>(run: () => Promise<T>): Promise<T> => {
   try {
     return await run();
   } catch (error) {
-    if (!isUniqueConstraintError(error)) throw error;
+    if (!isUniqueConstraintError(error) && !isRecordNotFoundError(error)) throw error;
     return await run();
   }
 };

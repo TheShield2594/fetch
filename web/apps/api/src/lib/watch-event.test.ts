@@ -263,6 +263,33 @@ describe("recordWatchEvent", () => {
       expect(result.watchEvent).toMatchObject({ id: "we-ep-winner" });
     });
 
+    it("re-runs when a duplicate merge removed the row before the increment landed", async () => {
+      txMock.watchEvent.findFirst
+        .mockResolvedValueOnce({ id: "we-merged-away", plays: 1 })
+        .mockResolvedValueOnce({ id: "we-kept", plays: 1 });
+      txMock.watchEvent.update
+        .mockRejectedValueOnce(
+          new Prisma.PrismaClientKnownRequestError("No record was found for an update.", {
+            code: "P2025",
+            clientVersion: "test",
+          })
+        )
+        .mockResolvedValue({ id: "we-kept", plays: 2, traktHistoryId: null });
+
+      const { recordWatchEvent } = await import("./watch-event.js");
+      const result = await recordWatchEvent({
+        type: "movie",
+        imdbId: "tt-merged",
+        watchedAt: new Date("2024-05-01T09:00:00Z"),
+        source: "test",
+        profileId: "profile-1",
+        log: makeLog(),
+      });
+
+      expect(result.watchEvent).toMatchObject({ id: "we-kept", plays: 2 });
+      expect(txMock.watchEvent.update).toHaveBeenLastCalledWith(expect.objectContaining({ where: { id: "we-kept" } }));
+    });
+
     // Retrying once absorbs the race. A second P2002 is a different conflict, and
     // retrying forever would hide it.
     it("gives up if the retry hits the constraint too", async () => {

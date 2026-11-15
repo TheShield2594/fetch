@@ -7,6 +7,7 @@ import { SelectField } from "../SelectField";
 import { ConfirmReview } from "../ConfirmReview";
 import { downloadProfileExport } from "../../utils/exportDownload";
 import { StremioImportSection } from "./StremioImportSection";
+import { DuplicateWatchesSection } from "./DuplicateWatchesSection";
 
 /** The version of the Fetch export this site writes and the server reads back. */
 const EXPORT_VERSION = 1;
@@ -481,6 +482,10 @@ export function DataSettings() {
 
       <div className="pt-5" style={{ borderTop: "1px solid var(--border)" }}>
         <StremioImportSection profileName={profileName} />
+      </div>
+
+      <div className="pt-5" style={{ borderTop: "1px solid var(--border)" }}>
+        <DuplicateWatchesSection profileName={profileName} />
       </div>
 
       {/* Short of deleting the profile, the only way to start a profile's

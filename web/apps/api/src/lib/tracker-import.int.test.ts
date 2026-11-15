@@ -37,6 +37,21 @@ describe("importTrackerItems", () => {
     expect(await prisma.watchEvent.count({ where: { profileId: profile.id } })).toBe(1);
   });
 
+  it("marks an undated play date-unknown, and dates it when the dated play arrives that day", async () => {
+    const profile = await createProfile("Sam");
+    const syncedAt = new Date("2026-01-02T08:00:00Z");
+    await importTrackerItems(profile.id, [{ type: "movie", imdbId: "tt0113277", watchedAt: syncedAt, undated: true }], []);
+    const undated = await prisma.watchEvent.findFirstOrThrow({ where: { profileId: profile.id } });
+    expect(undated.dateUnknown).toBe(true);
+
+    await importTrackerItems(profile.id, [
+      { type: "movie", imdbId: "tt0113277", watchedAt: new Date("2026-01-02T20:00:00Z") },
+    ], []);
+    const rows = await prisma.watchEvent.findMany({ where: { profileId: profile.id } });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ dateUnknown: false, watchedAt: new Date("2026-01-02T20:00:00Z") });
+  });
+
   it("skips ids that aren't IMDb ids", async () => {
     const profile = await createProfile("Sam");
     const summary = await importTrackerItems(profile.id, [{ type: "movie", imdbId: "simkl:123", watchedAt: new Date() }], [

@@ -23,13 +23,20 @@ const dedupKey =(type: WatchEventType, matchId: string, season: number | null, e
   `${type}:${matchId}:${season ?? "null"}:${episode ?? "null"}`;
 
 /**
- * Bulk equivalent of recordWatchEvent's per-row dedup-then-create/increment logic, for
- * CSV/export imports that can carry thousands of rows. Instead of one findFirst + one
- * create/update round trip per row, this pre-fetches every WatchEvent the batch could
- * possibly match in a single query, resolves creates/increments in memory (preserving
- * the same "later rows in the batch merge into earlier ones on the same day" behavior
- * the sequential version had), then flushes with one createMany and one batch of
- * concurrent updates.
+ * Bulk dedup-then-create for CSV/export imports that can carry thousands of rows.
+ * Instead of one findFirst + one create/update round trip per row, this pre-fetches
+ * every WatchEvent the batch could possibly match in a single query, resolves the
+ * batch in memory, then flushes with one createMany and one batch of concurrent
+ * updates.
+ *
+ * Rows in the batch that land on the same title and UTC day merge into one row whose
+ * `plays` is their sum: a diary with two entries on one day is two plays.
+ *
+ * A row that matches one the profile already has is the same watch arriving again —
+ * the same file imported twice, or Letterboxd and a Plex webhook both recording one
+ * evening — so it does not add to that row's `plays`. The stored row keeps the larger
+ * of its own count and the batch's. That is what makes an import safe to repeat:
+ * a second pass over the same file changes nothing.
  */
 export async function batchUpsertWatchEvents(
   profileId: string,
@@ -53,8 +60,18 @@ export async function batchUpsertWatchEvents(
         ...(seriesIds.size > 0 ? [{ type: WatchEventType.episode, seriesImdbId: { in: [...seriesIds] } }] : []),
       ],
     },
-    select: { id: true, type: true, imdbId: true, seriesImdbId: true, season: true, episode: true, watchedAt: true },
+    select: {
+      id: true,
+      type: true,
+      imdbId: true,
+      seriesImdbId: true,
+      season: true,
+      episode: true,
+      watchedAt: true,
+      plays: true,
+    },
   });
+  const storedPlays = new Map(existing.map((row) => [row.id, row.plays]));
 
   type Candidate = { id: string; watchedAt: Date };
   const bucket = new Map<string, Candidate[]>();
@@ -77,7 +94,11 @@ export async function batchUpsertWatchEvents(
     note: string | null;
     profileId: string;
   }[] = [];
-  const updates = new Map<string, number>();
+  // Per stored row the batch matched: the plays the batch carries for that title
+  // and day, and the plays every stored row of that title and day already holds.
+  // More than one stored row per day happens where Trakt history rows (outside
+  // the dedup index) sit beside each other or beside another writer's.
+  const updates = new Map<string, { batch: number; storedDay: number }>();
   let imported = 0;
 
   for (const input of inputs) {
@@ -93,7 +114,16 @@ export async function batchUpsertWatchEvents(
     if (pending) {
       pending.plays += weight;
     } else if (match) {
-      updates.set(match.id, (updates.get(match.id) ?? 0) + weight);
+      // Summed across the batch, then compared with what is stored, not added to it.
+      const current = updates.get(match.id);
+      if (current) {
+        current.batch += weight;
+      } else {
+        const storedDay = candidates
+          .filter((c) => !c.id.startsWith("new:") && c.watchedAt >= start && c.watchedAt <= end)
+          .reduce((total, c) => total + (storedPlays.get(c.id) ?? 0), 0);
+        updates.set(match.id, { batch: weight, storedDay });
+      }
     } else {
       const newId = `new:${creates.length}`;
       creates.push({
@@ -129,10 +159,15 @@ export async function batchUpsertWatchEvents(
       );
     }
   }
-  if (updates.size > 0) {
-    await mapWithConcurrency([...updates.entries()], UPDATE_CONCURRENCY, ([id, increment]) =>
-      prisma.watchEvent.update({ where: { id }, data: { plays: { increment } } })
-    );
+  // Only a day the batch carries more plays for than is already stored needs a
+  // write, and only the difference is added. The `plays` guard keeps a concurrent
+  // increment from being counted twice.
+  const raises = [...updates.entries()].filter(([, { batch, storedDay }]) => batch > storedDay);
+  if (raises.length > 0) {
+    await mapWithConcurrency(raises, UPDATE_CONCURRENCY, ([id, { batch, storedDay }]) => {
+      const plays = storedPlays.get(id) ?? 0;
+      return prisma.watchEvent.updateMany({ where: { id, plays }, data: { plays: plays + batch - storedDay } });
+    });
   }
 
   return imported;

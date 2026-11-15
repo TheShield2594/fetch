@@ -513,8 +513,25 @@ export const pollTraktHistory = async (
     ) {
       data.plays = 1;
     }
-    if (Object.keys(data).length === 0) return;
-    await prisma.watchEvent.update({ where: { id: existingEvent.id }, data });
+    if (Object.keys(data).length === 0) return "stored" as const;
+    // Stamping an id is conditional on the row still having none. Two polls of
+    // one profile can overlap (a "Sync now" beside the scheduled one), and both
+    // can pick the same unlinked same-day row for different history entries; an
+    // unconditional write would let the second overwrite the first's id and
+    // drop that entry for good. The loser is told, and stores its entry itself.
+    try {
+      const { count } = await prisma.watchEvent.updateMany({
+        where: data.traktHistoryId ? { id: existingEvent.id, traktHistoryId: null } : { id: existingEvent.id },
+        data,
+      });
+      // The row was stamped (or removed) since it was read.
+      if (count === 0) return "taken" as const;
+    } catch (error) {
+      // This entry's id landed on another row meanwhile: it is stored.
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return "stored" as const;
+      throw error;
+    }
+    return "stored" as const;
   };
 
   // The create the two loops below reach when the lookup found nothing, guarded
@@ -547,6 +564,21 @@ export const pollTraktHistory = async (
     }
   };
 
+  // The last place a history entry can already be stored: a row another writer
+  // recorded for the same title on the same UTC day — a Plex webhook, a TV's
+  // mark-watched, a Letterboxd import — that has no Trakt id yet. That is the
+  // same watch, and creating a second row for it is how one evening used to show
+  // up twice in history once Trakt was connected. Only rows without an id are
+  // adopted, so a second Trakt entry on the same day (a real rewatch) still
+  // finds nothing here and imports as its own play.
+  // A row already linked to a different history entry is that entry's play,
+  // never this one's — even at the same timestamp, which it can have once it was
+  // adopted above. (Its own id was looked up first, by `findUnique`.)
+  const unlinkedIf = (historyId: bigint | null) => (historyId ? { traktHistoryId: null } : {});
+
+  const findSameDayUnlinked = (historyId: bigint | null, key: WatchEventDedupKey) =>
+    historyId ? prisma.watchEvent.findFirst({ where: { ...watchEventDedupWhere(key), traktHistoryId: null } }) : null;
+
   for (const entry of movieHistory) {
     const imdbId = entry.movie?.ids?.imdb;
     const watchedAt = entry.watched_at;
@@ -572,11 +604,12 @@ export const pollTraktHistory = async (
     // duplicated.
     const existingEvent =
       (historyId ? await prisma.watchEvent.findUnique({ where: { traktHistoryId: historyId } }) : null) ??
-      (await prisma.watchEvent.findFirst({ where: { profileId, type: "movie", imdbId, watchedAt: watchedAtDate } }));
+      (await prisma.watchEvent.findFirst({
+        where: { profileId, type: "movie", imdbId, watchedAt: watchedAtDate, ...unlinkedIf(historyId) },
+      })) ??
+      (await findSameDayUnlinked(historyId, { profileId, type: "movie", imdbId, watchedAt: watchedAtDate }));
 
-    if (existingEvent) {
-      await reconcileExistingEvent(existingEvent, historyId, `movie:${imdbId}`);
-    } else {
+    if (!existingEvent || (await reconcileExistingEvent(existingEvent, historyId, `movie:${imdbId}`)) === "taken") {
       await createOrReconcileEvent(
         { type: "movie", imdbId, watchedAt: watchedAtDate, plays: 1, traktHistoryId: historyId, profileId },
         historyId,
@@ -617,12 +650,22 @@ export const pollTraktHistory = async (
     const existingEvent =
       (historyId ? await prisma.watchEvent.findUnique({ where: { traktHistoryId: historyId } }) : null) ??
       (await prisma.watchEvent.findFirst({
-        where: { profileId, type: "episode", seriesImdbId, season, episode, watchedAt: watchedAtDate },
+        where: { profileId, type: "episode", seriesImdbId, season, episode, watchedAt: watchedAtDate, ...unlinkedIf(historyId) },
+      })) ??
+      (await findSameDayUnlinked(historyId, {
+        profileId,
+        type: "episode",
+        imdbId: seriesImdbId,
+        season,
+        episode,
+        watchedAt: watchedAtDate,
       }));
 
-    if (existingEvent) {
-      await reconcileExistingEvent(existingEvent, historyId, `episode:${seriesImdbId}:${season}:${episode}`);
-    } else {
+    if (
+      !existingEvent ||
+      (await reconcileExistingEvent(existingEvent, historyId, `episode:${seriesImdbId}:${season}:${episode}`)) ===
+        "taken"
+    ) {
       await createOrReconcileEvent(
         {
           type: "episode",

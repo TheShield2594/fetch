@@ -11,6 +11,15 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+### Added
+
+- **Find and merge duplicate watches.** Settings → Data → Duplicate watches lists watches that look like one watch recorded twice: the same title within 36 hours (two sources dating one evening to different UTC days), or a "date unknown" mark next to the dated play. Untick any real rewatches and merge the rest; each keeps one row with the largest play count, its note and any Trakt id.
+
+### Fixed
+
+- **Importing the same file twice no longer adds the plays again.** A Fetch export, a history CSV or a Letterboxd or IMDb file that matches watches already in the profile now leaves their play counts as they are, instead of adding the file's on top (three plays used to become six).
+- **Trakt no longer adds a second row for a watch another source already recorded that day.** A Trakt history entry now takes over a same-day row from Plex, Jellyfin, Emby, a TV or an import that has no Trakt id yet. Watches that Letterboxd's `watched.csv`, a Stremio import or a media server bring in without a date are now marked "date unknown" rather than dated to the import.
+
 ## [0.6.0] - 2026-11-13
 
 ### Added

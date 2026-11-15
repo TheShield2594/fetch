@@ -30,7 +30,37 @@ export type ExternalImportFormat =
   | "imdb-list"
   | "simkl";
 
+/** Watches that look like one watch recorded more than once, as `GET /watch/duplicates` returns them. */
+export type DuplicateWatchGroup = {
+  type: "movie" | "episode";
+  imdbId: string;
+  season: number | null;
+  episode: number | null;
+  title: string | null;
+  /** The row a merge keeps. */
+  keepId: string;
+  events: {
+    id: string;
+    watchedAt: string;
+    dateUnknown: boolean;
+    plays: number;
+    note: string | null;
+    fromTrakt: boolean;
+  }[];
+};
+
 export const dataApi = {
+  findDuplicateWatches() {
+    return request<{ groups: DuplicateWatchGroup[]; truncated: boolean }>("/watch/duplicates", { timeoutMs: 60000 });
+  },
+  /** Each inner array is one group's event ids, folded into one watch. */
+  mergeDuplicateWatches(groups: string[][]) {
+    return request<{ merged: number; removed: number }>("/watch/duplicates/merge", {
+      method: "POST",
+      body: JSON.stringify({ groups }),
+      timeoutMs: 60000,
+    });
+  },
   // Data export / import
   exportData() {
     return request<ExportPayload>("/export", { timeoutMs: 60000 });

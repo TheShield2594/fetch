@@ -7,6 +7,14 @@ import { getDroppedSeriesIds } from "../lib/dropped-shows.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 import { CONTENT_ID_ERROR, normalizeContentId } from "../lib/content-id.js";
 import { rememberClientMetadata } from "../lib/metadata.js";
+import {
+  DuplicateMergeError,
+  listDuplicateGroups,
+  MAX_DUPLICATE_GROUP_SIZE,
+  MAX_DUPLICATE_GROUPS,
+  mergeDuplicateGroups,
+  recomputeSeriesProgress,
+} from "../lib/watch-duplicates.js";
 
 /**
  * A note is a sentence or two about a watch, and `note` is a `text` column, so
@@ -213,40 +221,7 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
         await tx.watchEvent.delete({ where: { id: eventId } });
 
         if (event.type === "episode" && event.seriesImdbId) {
-          const latest = await tx.watchEvent.findFirst({
-            where: {
-              profileId,
-              seriesImdbId: event.seriesImdbId,
-              type: "episode",
-              season: { not: null },
-              episode: { not: null },
-            },
-            orderBy: { watchedAt: "desc" },
-          });
-
-          if (latest && latest.season != null && latest.episode != null) {
-            await tx.seriesProgress.upsert({
-              where: { profileId_seriesImdbId: { profileId, seriesImdbId: event.seriesImdbId } },
-              update: {
-                lastSeason: latest.season,
-                lastEpisode: latest.episode,
-                lastWatchedAt: latest.watchedAt,
-                updatedAt: new Date(),
-              },
-              create: {
-                profileId,
-                seriesImdbId: event.seriesImdbId,
-                lastSeason: latest.season,
-                lastEpisode: latest.episode,
-                lastWatchedAt: latest.watchedAt,
-                updatedAt: new Date(),
-              },
-            });
-          } else {
-            await tx.seriesProgress.deleteMany({
-              where: { profileId, seriesImdbId: event.seriesImdbId },
-            });
-          }
+          await recomputeSeriesProgress(tx, profileId, event.seriesImdbId);
         }
       });
       return reply.code(204).send();
@@ -255,6 +230,40 @@ const watchRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(404).send({ error: "Watch event not found" });
       }
       throw err;
+    }
+  });
+
+  // Watches that look like one watch recorded more than once — the same
+  // evening on two UTC days, an undated mark next to the dated play, a Trakt
+  // row next to a webhook's. Same-day copies can't exist (the dedup index), so
+  // these are only ever suggestions for the person to confirm.
+  app.get("/watch/duplicates", async (request) => listDuplicateGroups(request.profileId!));
+
+  // Merges the groups the person confirmed: `{ groups: [[id, id, …], …] }`.
+  app.post<{ Body: unknown }>("/watch/duplicates/merge", async (request, reply) => {
+    const body = request.body as { groups?: unknown } | null;
+    const groups = body?.groups;
+    if (
+      !Array.isArray(groups) ||
+      groups.length === 0 ||
+      groups.length > MAX_DUPLICATE_GROUPS ||
+      !groups.every(
+        (group) =>
+          Array.isArray(group) &&
+          group.length >= 2 &&
+          group.length <= MAX_DUPLICATE_GROUP_SIZE &&
+          group.every((id) => typeof id === "string" && UUID_V4_PATTERN.test(id))
+      )
+    ) {
+      return reply.code(400).send({
+        error: `groups must be 1 to ${MAX_DUPLICATE_GROUPS} arrays of 2 to ${MAX_DUPLICATE_GROUP_SIZE} watch event ids`,
+      });
+    }
+    try {
+      return await mergeDuplicateGroups(request.profileId!, groups as string[][]);
+    } catch (error) {
+      if (error instanceof DuplicateMergeError) return reply.code(409).send({ error: error.message });
+      throw error;
     }
   });
 

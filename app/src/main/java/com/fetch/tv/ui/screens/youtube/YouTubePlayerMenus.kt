@@ -156,7 +156,7 @@ internal fun qualityLabel(quality: Int?, defaultQuality: Int): String =
     if (quality == null) {
         stringResource(R.string.youtube_quality_auto, defaultQuality)
     } else {
-        stringResource(R.string.youtube_quality_value, quality)
+        stringResource(R.string.youtube_quality_height, quality)
     }
 
 /**

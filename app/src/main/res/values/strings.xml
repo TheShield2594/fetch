@@ -3306,7 +3306,7 @@
     <string name="youtube_search_clear_recent">Clear recent searches</string>
     <string name="youtube_options_quality">Quality</string>
     <string name="youtube_quality_auto">Auto (up to %1$dp)</string>
-    <string name="youtube_quality_value">%1$dp</string>
+    <string name="youtube_quality_height" translatable="false">%1$dp</string>
     <string name="youtube_quality_failed">That quality isn\'t available for this video</string>
     <string name="youtube_options_details">About this video</string>
     <string name="youtube_details_loading">Loading…</string>

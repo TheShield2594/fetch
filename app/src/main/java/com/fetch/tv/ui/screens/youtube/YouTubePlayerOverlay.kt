@@ -70,6 +70,7 @@ import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeChapter
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
+import com.fetch.tv.data.youtube.YouTubeResume
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.YouTubeVideoActions
 import com.fetch.tv.data.youtube.cueAt
@@ -107,7 +108,12 @@ fun YouTubePlayerOverlay(
     onCreatePlaylist: (title: String, privacy: YouTubePlaylistPrivacy) -> Unit,
     playbackSpeed: Float = 1f,
     onSetSpeed: (Float) -> Unit = {},
-    onResumed: (positionMs: Long) -> Unit = {}
+    onResumed: (positionMs: Long) -> Unit = {},
+    /** The player stopped on an error; the overlay then offers Retry. */
+    onPlaybackError: () -> Unit = {},
+    onSetQuality: (Int?) -> Unit = {},
+    onLoadDetails: () -> Unit = {},
+    onLoadMoreComments: () -> Unit = {}
 ) {
     val video = playback.video
     var isPaused by remember(video.videoId) { mutableStateOf(false) }
@@ -116,6 +122,8 @@ fun YouTubePlayerOverlay(
     var seekToken by remember(video.videoId) { mutableIntStateOf(0) }
     var seekDeltaMs by remember(video.videoId) { mutableLongStateOf(0L) }
     var resumed by remember(video.videoId) { mutableStateOf(false) }
+    // A quality change restarts the stream: it carries on where it was, once, per new link.
+    var continued by remember(playback.videoUrl) { mutableStateOf(false) }
     var skipped by remember(video.videoId) { mutableStateOf(emptySet<YouTubeSkipSegment>()) }
     var skipNoticeToken by remember(video.videoId) { mutableIntStateOf(0) }
     var skipNoticeVisible by remember(video.videoId) { mutableStateOf(false) }
@@ -128,6 +136,7 @@ fun YouTubePlayerOverlay(
     val currentSegments by rememberUpdatedState(playback.skipSegments)
     val currentModes by rememberUpdatedState(playback.sponsorBlockModes)
     val currentResumeFrom by rememberUpdatedState(playback.resumeFromMs)
+    val currentContinueFrom by rememberUpdatedState(playback.continueFromMs)
     // Down's menu: its first page, or one of captions, speed and chapters.
     var optionsPage by remember(video.videoId) { mutableStateOf<PlaybackOptionsPage?>(null) }
     val captionMenuOpen = optionsPage != null
@@ -308,6 +317,7 @@ fun YouTubePlayerOverlay(
                     trailerUrl = playback.videoUrl,
                     trailerAudioUrl = playback.audioUrl,
                     isPlaying = true,
+                    onError = { onPlaybackError() },
                     isPaused = isPaused,
                     playbackSpeed = playbackSpeed,
                     seekRequestToken = seekToken,
@@ -317,10 +327,19 @@ fun YouTubePlayerOverlay(
                         seekState.positionMs = position
                         seekState.durationMs = duration
                         if (duration <= 0L) return@progress
+                        val continueFrom = currentContinueFrom
+                        if (!continued && continueFrom != null && resumed) {
+                            continued = true
+                            seekBy(continueFrom - position)
+                            return@progress
+                        }
                         if (!resumed) {
                             resumed = true
-                            // Fetch's own exact place first, then YouTube's percent from the tile.
-                            val target = currentResumeFrom?.let { resumableMs(it, duration) }
+                            // Fetch's own exact place first, then YouTube's percent from the tile. YouTube's
+                            // wins when it's clearly further on (watched on another device since).
+                            val target = currentResumeFrom
+                                ?.takeUnless { YouTubeResume.youTubeIsAhead(it, duration, video.watchedPercent) }
+                                ?.let { resumableMs(it, duration) }
                                 ?: resumePositionMs(video.watchedPercent, duration)
                             target?.let {
                                 seekBy(it - position)
@@ -528,9 +547,31 @@ fun YouTubePlayerOverlay(
                         playback.selectedCaption?.let { captionLabel(it) } ?: stringResource(R.string.youtube_captions_off)
                     },
                     speed = playbackSpeed,
+                    qualityLabel = qualityLabel(playback.quality, playback.defaultQuality),
                     currentChapter = chapterAt(playback.chapters, positionMs)?.title,
                     hasChapters = playback.chapters.isNotEmpty(),
-                    onOpen = { optionsPage = it },
+                    onOpen = { page ->
+                        if (page == PlaybackOptionsPage.DETAILS) onLoadDetails()
+                        optionsPage = page
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                PlaybackOptionsPage.QUALITY -> QualityMenu(
+                    quality = playback.quality,
+                    defaultQuality = playback.defaultQuality,
+                    loading = playback.qualityLoading,
+                    onSelect = { quality ->
+                        onSetQuality(quality)
+                        closeMenus()
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+                PlaybackOptionsPage.DETAILS -> VideoDetailsPanel(
+                    details = playback.details,
+                    loading = playback.detailsLoading,
+                    failed = playback.detailsFailed,
+                    loadingMore = playback.commentsLoadingMore,
+                    onNearEnd = onLoadMoreComments,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
                 PlaybackOptionsPage.CAPTIONS -> CaptionMenu(

@@ -1,6 +1,7 @@
 package com.fetch.desktop.youtube
 
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
+import com.fetch.tv.data.youtube.YouTubeApiClient
 import com.fetch.tv.data.youtube.YouTubeFeed
 import com.fetch.tv.data.youtube.YouTubeInnerTube
 import com.fetch.tv.data.youtube.YouTubeLinkKind
@@ -10,6 +11,7 @@ import com.fetch.tv.data.youtube.YouTubeSignedOutException
 import com.fetch.tv.data.youtube.YouTubeToken
 import com.fetch.tv.data.youtube.YouTubeTokenPollResult
 import com.fetch.tv.data.youtube.YouTubeWatchSession
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -263,6 +265,84 @@ class YouTubeClientTest {
         assertEquals(0L, auth.load().accessTokenExpiresAt)
     }
 
+    @Test
+    fun `a 401 refreshes the token and asks once more`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = YouTubeFakeHttp { req ->
+            when {
+                req.path == "/tv" -> 404 to ""
+                req.path == "/o/oauth2/token" -> 200 to """{"access_token":"AT2","expires_in":3600}"""
+                // The old token is refused (the computer slept past its end); the new one works.
+                req.request.header("Authorization") == "Bearer AT" -> 401 to "{}"
+                else -> 200 to subscriptionsJson()
+            }
+        }
+        val page = client(http, auth).loadFeed(YouTubeFeed.SUBSCRIPTIONS)
+        assertTrue(page.shelves.isNotEmpty())
+        assertEquals(listOf("Bearer AT", "Bearer AT2"), http.innertube("browse").map { it.request.header("Authorization") })
+        assertEquals("AT2", auth.load().accessToken)
+    }
+
+    @Test
+    fun `a refresh that answers after a sign-out doesn't sign back in`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn.copy(accessTokenExpiresAt = 0L))
+        val http = YouTubeFakeHttp { req ->
+            when {
+                req.path == "/tv" -> 404 to ""
+                req.path == "/o/oauth2/token" -> {
+                    // Signed out while the refresh was on its way.
+                    auth.save(YouTubeAuth())
+                    200 to """{"access_token":"AT2","expires_in":3600}"""
+                }
+                else -> 200 to subscriptionsJson()
+            }
+        }
+        client(http, auth).loadFeed(YouTubeFeed.SUBSCRIPTIONS)
+        assertFalse(auth.load().isSignedIn)
+        assertNull(auth.load().accessToken)
+    }
+
+    @Test
+    fun `a refresh that answers after a channel switch keeps the new channel`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn.copy(accessTokenExpiresAt = 0L))
+        val http = YouTubeFakeHttp { req ->
+            when {
+                req.path == "/tv" -> 404 to ""
+                req.path == "/o/oauth2/token" -> {
+                    auth.update { it.copy(pageId = "PAGE2", accountName = "Brand") }
+                    200 to """{"access_token":"AT2","expires_in":3600}"""
+                }
+                else -> 200 to subscriptionsJson()
+            }
+        }
+        client(http, auth).loadFeed(YouTubeFeed.SUBSCRIPTIONS)
+        assertEquals("PAGE2", auth.load().pageId)
+        assertEquals("AT2", auth.load().accessToken)
+    }
+
+    @Test
+    fun `a cancelled load cancels its request`() = runBlocking {
+        val started = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val release = java.util.concurrent.CountDownLatch(1)
+        val http = YouTubeFakeHttp { req ->
+            if (req.path.startsWith("/youtubei/")) {
+                started.complete(Unit)
+                release.await(5, java.util.concurrent.TimeUnit.SECONDS)
+            }
+            if (req.path == "/tv") 404 to "" else 200 to subscriptionsJson()
+        }
+        val youtube = client(http)
+        val result = kotlinx.coroutines.withTimeoutOrNull(2_000) {
+            val load = async { youtube.loadFeed(YouTubeFeed.SUBSCRIPTIONS) }
+            started.await()
+            load.cancel()
+            "cancelled"
+        }
+        release.countDown()
+        // The wait returned as soon as it was cancelled, rather than when the request answered.
+        assertEquals("cancelled", result)
+    }
+
     // --- Actions ---
 
     @Test
@@ -355,7 +435,7 @@ class YouTubeClientTest {
         assertEquals(YouTubeInnerTube.ACTIVATION_URL, youtube.parseDeviceCode(json("""{"device_code":"d","user_code":"C"}"""))?.verificationUrl)
         assertNull(youtube.parseDeviceCode(json("""{"error":"invalid_client"}""")))
         assertEquals(YouTubeToken("new", null, 3600), youtube.parseToken(json("""{"access_token":"new","expires_in":3600}""")))
-        assertTrue((youtube.parseTokenPoll(json("""{"error":"server_error"}""")) as YouTubeClient.TokenPoll.Status).status is YouTubeTokenPollResult.Failed)
+        assertTrue((youtube.parseTokenPoll(json("""{"error":"server_error"}""")) as YouTubeApiClient.TokenPoll.Status).status is YouTubeTokenPollResult.Failed)
     }
 
     @Test

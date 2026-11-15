@@ -1,0 +1,151 @@
+{
+ "onResponseReceivedEndpoints": [
+  {
+   "reloadContinuationItemsCommand": {
+    "targetId": "comments-section",
+    "continuationItems": [
+     {
+      "commentsHeaderRenderer": {
+       "countText": {
+        "runs": [
+         {
+          "text": "10,644,286"
+         },
+         {
+          "text": " Comments"
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "reloadContinuationItemsCommand": {
+    "targetId": "comments-section",
+    "continuationItems": [
+     {
+      "commentThreadRenderer": {
+       "commentViewModel": {
+        "commentViewModel": {
+         "commentKey": "EhpVZ3p1QzN6enBSWmtqYzVRenNkNEFhQUJBZyAoKAE%3D",
+         "pinnedText": "Pinned by @jawed",
+         "commentId": "UgzuC3zzpRZkjc5Qzsd4AaABAg"
+        }
+       }
+      }
+     },
+     {
+      "commentThreadRenderer": {
+       "commentViewModel": {
+        "commentViewModel": {
+         "commentKey": "EhpVZ3dKb3BSWWZDb3FoUmExM09GNEFhQUJBZyAoKAE%3D",
+         "commentId": "UgwJopRYfCoqhRa13OF4AaABAg"
+        }
+       }
+      }
+     },
+     {
+      "commentThreadRenderer": {
+       "commentViewModel": {
+        "commentViewModel": {
+         "commentKey": "EhpVZ3hucDl3czBkZXhqRTlMNVVCNEFhQUJBZyAoKAE%3D",
+         "commentId": "Ugxnp9ws0dexjE9L5UB4AaABAg"
+        }
+       }
+      }
+     },
+     {
+      "continuationItemRenderer": {
+       "continuationEndpoint": {
+        "continuationCommand": {
+         "token": "Eg0SC2pOUVhBQzlJVlJ3GAYyggMK2AJnZXRfcmFua2VkX3N0cmVhbXMtLUNxY0JDSUFFRlJlMzBUZ2FuQUVLbHdFSTJGOFFnQVFZQnlLTUFadUFabFM0WFVVWF9BeXdzMk9paktzZ0IwN1RNNlJsRHVuWHEwa21pcWoxWTVHNldtR05nTVlfVnkwWlJIcC1YQXRHMHVYUnRpejNSWml0dTNnUDJoRjQwSndlbjhaWjVXZ09pQ1FnTGtHUk9fcUZyY3BzSFNVd2lhQ3ljakQ2dlVUcGExcE1yTzZZc3A1NVVfQzJhN241RHFmRk1RSUw0Vjd4ZmlQei1yOUQ5NUw3ajB5WUJkMlZSZWtERUJRU0J3aUZJQkFGR0FFU0JRakFJQmdBRWdVSXFDQVlBQklGQ0lnZ0dBQVNCUWlHSUJnQUVnY0loeUFRQVJnQUVnY0loQ0FRRHhnQkVnVUlpU0FZQUJJRkNMc2dHQUJRQUZnQiIRIgtqTlFYQUM5SVZSdzAAeAEoFEIQY29tbWVudHMtc2VjdGlvbg%3D%3D",
+         "request": "CONTINUATION_REQUEST_TYPE_WATCH_NEXT"
+        }
+       }
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "frameworkUpdates": {
+  "entityBatchUpdate": {
+   "mutations": [
+    {
+     "entityKey": "EhpVZ3p1QzN6enBSWmtqYzVRenNkNEFhQUJBZyAoKAE%3D",
+     "payload": {
+      "commentEntityPayload": {
+       "key": "EhpVZ3p1QzN6enBSWmtqYzVRenNkNEFhQUJBZyAoKAE%3D",
+       "properties": {
+        "commentId": "UgzuC3zzpRZkjc5Qzsd4AaABAg",
+        "content": {
+         "content": "We're so honored that the first ever YouTube video was filmed here!"
+        },
+        "publishedTime": "6 years ago"
+       },
+       "author": {
+        "displayName": "@viewer1",
+        "avatarThumbnailUrl": "https://yt3.ggpht.com/avatar1=s88",
+        "isCreator": false
+       },
+       "toolbar": {
+        "likeCountNotliked": "4.8M",
+        "replyCount": "986"
+       }
+      }
+     }
+    },
+    {
+     "entityKey": "EhpVZ3dKb3BSWWZDb3FoUmExM09GNEFhQUJBZyAoKAE%3D",
+     "payload": {
+      "commentEntityPayload": {
+       "key": "EhpVZ3dKb3BSWWZDb3FoUmExM09GNEFhQUJBZyAoKAE%3D",
+       "properties": {
+        "commentId": "UgwJopRYfCoqhRa13OF4AaABAg",
+        "content": {
+         "content": "Second comment, with \"quotes\"."
+        },
+        "publishedTime": "6 years ago"
+       },
+       "author": {
+        "displayName": "@viewer2",
+        "avatarThumbnailUrl": "https://yt3.ggpht.com/avatar2=s88",
+        "isCreator": false
+       },
+       "toolbar": {
+        "likeCountNotliked": "421K",
+        "replyCount": "851"
+       }
+      }
+     }
+    },
+    {
+     "entityKey": "EhpVZ3hucDl3czBkZXhqRTlMNVVCNEFhQUJBZyAoKAE%3D",
+     "payload": {
+      "commentEntityPayload": {
+       "key": "EhpVZ3hucDl3czBkZXhqRTlMNVVCNEFhQUJBZyAoKAE%3D",
+       "properties": {
+        "commentId": "Ugxnp9ws0dexjE9L5UB4AaABAg",
+        "content": {
+         "content": "Hello"
+        },
+        "publishedTime": "6 months ago"
+       },
+       "author": {
+        "displayName": "@uploader",
+        "avatarThumbnailUrl": "https://yt3.ggpht.com/avatar3=s88",
+        "isCreator": true
+       },
+       "toolbar": {
+        "likeCountNotliked": "314K",
+        "replyCount": "995"
+       }
+      }
+     }
+    }
+   ]
+  }
+ }
+}

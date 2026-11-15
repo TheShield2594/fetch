@@ -131,6 +131,15 @@ class EmbeddedMpv private constructor(
 
     // The file being followed: position listener and how it ended.
     @Volatile private var onPosition: ((Double) -> Unit)? = null
+    private val followLock = Any()
+
+    /**
+     * mpv's value of each option a load has set, from before Fetch first changed it. Options are
+     * global in libmpv, so one a file needed (YouTube's `sid=no`, its browser cookies) is put back
+     * for the next file that doesn't set it, as a fresh mpv window would have it.
+     */
+    private val optionDefaults = HashMap<String, String?>()
+    private var lastLoadOptions: Set<String> = emptySet()
     @Volatile private var ending: CompletableDeferred<Boolean>? = null
     /** Set by [load] until mpv starts the new file, so the old file's end isn't taken for it. */
     @Volatile private var awaitingStart = false
@@ -240,6 +249,12 @@ class EmbeddedMpv private constructor(
         error = null
         buffering = true
         val subtitles = mutableListOf<String>()
+        val setNow = HashSet<String>()
+        fun setOption(name: String, value: String) {
+            if (name !in optionDefaults) optionDefaults[name] = getString(name)
+            setNow += name
+            set(name, value)
+        }
         options.forEach { option ->
             val body = option.removePrefix("--")
             val name = body.substringBefore('=')
@@ -249,7 +264,7 @@ class EmbeddedMpv private constructor(
                 "sub-file" -> subtitles += value
                 // Decoded frames go straight to the GPU only with an X11 display for VA-API;
                 // otherwise (and for the software renderer) they come back to memory.
-                "hwdec" -> set(
+                "hwdec" -> setOption(
                     "hwdec",
                     when {
                         value == "no" -> "no"
@@ -257,9 +272,11 @@ class EmbeddedMpv private constructor(
                         else -> "auto-copy-safe"
                     }
                 )
-                else -> set(name, value)
+                else -> setOption(name, value)
             }
         }
+        (lastLoadOptions - setNow).forEach { name -> set(name, optionDefaults[name] ?: "") }
+        lastLoadOptions = setNow
         pendingSubtitles = subtitles
         set("force-media-title", title)
         set("start", start ?: "none")
@@ -327,7 +344,10 @@ class EmbeddedMpv private constructor(
         val done = ending ?: return MpvProgress.Ending(null, false)
         var lastEmit = 0L
         var last: MpvProgress.Sample? = null
-        this.onPosition = { pos ->
+        lateinit var handler: (Double) -> Unit
+        handler = handler@{ pos ->
+            // A newer file has loaded: its own follow takes its positions, not this one.
+            if (ending !== done) return@handler
             onPosition(pos)?.let { seek ->
                 seekTo(seek.toSec)
                 showText(seek.message)
@@ -343,10 +363,12 @@ class EmbeddedMpv private constructor(
                 }
             }
         }
+        this.onPosition = handler
         val reachedEnd = try {
             done.await()
         } finally {
-            this.onPosition = null
+            // Only this follow's own handler: the next file's follow may have put its own in already.
+            synchronized(followLock) { if (this.onPosition === handler) this.onPosition = null }
         }
         return MpvProgress.Ending(last?.also(onSample), reachedEnd)
     }

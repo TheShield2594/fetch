@@ -18,7 +18,13 @@ object ExternalPlayer {
          * [player] is the program's name, for the confirmation message. [process] and
          * [ipcSocket] are set when it is mpv, so the caller can follow the playback position.
          */
-        data class Started(val player: String, val process: Process? = null, val ipcSocket: File? = null) : Result
+        data class Started(
+            val player: String,
+            val process: Process? = null,
+            val ipcSocket: File? = null,
+            /** mpv's output (and yt-dlp's, through it), owner-readable, for [failureReason]. */
+            val outputLog: File? = null
+        ) : Result
         data class Failed(val message: String) : Result
     }
 
@@ -73,20 +79,52 @@ object ExternalPlayer {
 
     private fun start(command: List<String>, ipcSocket: File?): Result {
         return try {
+            val isMpv = command.first() != "xdg-open"
+            // mpv's output is kept (in a file only its owner can read) so a link mpv or yt-dlp
+            // couldn't open can say why, instead of the window just closing.
+            val log = if (isMpv) runCatching { java.nio.file.Files.createTempFile("fetch-mpv-", ".log").toFile() }.getOrNull() else null
             val process = ProcessBuilder(command)
                 .redirectErrorStream(true)
-                .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                .redirectOutput(log?.let { ProcessBuilder.Redirect.to(it) } ?: ProcessBuilder.Redirect.DISCARD)
                 .start()
-            val isMpv = command.first() != "xdg-open"
+            log?.deleteOnExit()
             Result.Started(
                 player = File(command.first()).name,
                 process = process.takeIf { isMpv },
-                ipcSocket = ipcSocket.takeIf { isMpv }
+                ipcSocket = ipcSocket.takeIf { isMpv },
+                outputLog = log
             )
         } catch (e: Exception) {
             Result.Failed("Couldn't start ${command.first()}: ${e.message}. Install mpv to play streams.")
         }
     }
+
+    /**
+     * Why mpv couldn't play, from its output: the last error it or yt-dlp printed ("ERROR: Sign
+     * in to confirm your age", "could not find cookies database"). Null when it printed none.
+     * The log is deleted after reading.
+     */
+    fun failureReason(log: File?): String? {
+        if (log == null) return null
+        return try {
+            log.readLines().takeLast(200).lastOrNull { line ->
+                line.contains("ERROR", ignoreCase = false) || line.contains("Failed to recognize file format") ||
+                    line.contains("could not find", ignoreCase = true)
+            }?.let(::cleanErrorLine)
+        } catch (_: Exception) {
+            null
+        } finally {
+            log.delete()
+        }
+    }
+
+    /** "[ytdl_hook] ERROR: [youtube] abc: Sign in…" → "Sign in…". */
+    internal fun cleanErrorLine(line: String): String =
+        line.replace(Regex("""^\s*(\[[^\]]+]\s*)+"""), "")
+            .replace(Regex("""^ERROR:\s*"""), "")
+            .replace(Regex("""^\[[^\]]+]\s*[\w-]+:\s*"""), "")
+            .trim()
+            .take(200)
 
     /** A fresh socket path in the user's runtime directory (or the temp directory). */
     private fun newIpcSocket(): File {

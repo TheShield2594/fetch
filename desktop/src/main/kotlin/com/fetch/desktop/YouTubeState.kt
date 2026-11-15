@@ -52,6 +52,7 @@ import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeSignedOutException
 import com.fetch.tv.data.youtube.YouTubeStoryboard
 import com.fetch.tv.data.youtube.YouTubeTokenPollResult
+import com.fetch.tv.data.youtube.YouTubeSearchFilter
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.YouTubeVideoActions
 import com.fetch.tv.data.youtube.YouTubeWatchNext
@@ -98,7 +99,24 @@ data class YouTubeFeedState(
     val failed: Boolean = false,
     val loaded: Boolean = false,
     /** Rows loading more of themselves, by index. */
-    val loadingShelves: Set<Int> = emptySet()
+    val loadingShelves: Set<Int> = emptySet(),
+    /** When it last loaded; a tab older than [YOUTUBE_FEED_STALE_MS] loads again as it shows. */
+    val loadedAtMs: Long = 0L
+)
+
+/**
+ * How long a tab's feed stays as loaded: going back to it later loads it again, so Home's
+ * recommendations and the subscriptions keep up (as on TV).
+ */
+const val YOUTUBE_FEED_STALE_MS = 15 * 60 * 1000L
+
+/** "About this video": the video, its description and comments once loaded. */
+data class YouTubeAboutVideo(
+    val video: YouTubeVideo,
+    val details: com.fetch.tv.data.youtube.YouTubeVideoDetails? = null,
+    val loading: Boolean = false,
+    val failed: Boolean = false,
+    val loadingMore: Boolean = false
 )
 
 /** A feed tab, or a channel, playlist or "View all" page opened from one. */
@@ -215,17 +233,21 @@ class YouTubeState(
         pendingCode = null
     }
 
+    /** Signs out at once; telling Google to drop the sign-in carries on in the background. */
     fun signOut() {
-        scope.launch {
-            client.signOut()
-            signedIn = false
-            accountName = null
-            accounts = null
-            resetFeeds()
-            homeRow = emptyList()
-            homeRowFetchedAt = 0L
-            host.message("Signed out of YouTube")
-        }
+        signInJob?.cancel()
+        homeRowJob?.cancel()
+        pendingCode = null
+        signedIn = false
+        signedOut = false
+        accountName = null
+        accounts = null
+        resetFeeds()
+        homeRow = emptyList()
+        homeRowFetchedAt = 0L
+        // The saved sign-in is dropped before this first suspends, so nothing loads with it after.
+        scope.launch { client.signOut() }
+        host.message("Signed out of YouTube")
     }
 
     private fun onSignedIn() {
@@ -272,10 +294,23 @@ class YouTubeState(
     val pages = mutableStateMapOf<YouTubeFeedKey, YouTubeFeedState>()
     private val loadJobs = mutableMapOf<YouTubeFeedKey, Job>()
 
+    /** Shows [feed]'s tab, loading it when it hasn't loaded yet or is older than [YOUTUBE_FEED_STALE_MS]. */
     fun selectFeed(feed: YouTubeFeed) {
         selectedFeed = feed
         val key = YouTubeFeedKey.Tab(feed)
-        if (feed != YouTubeFeed.SEARCH && pages[key]?.loaded != true && pages[key]?.loading != true) load(key)
+        val state = pages[key]
+        if (feed != YouTubeFeed.SEARCH && state?.loading != true && (state?.loaded != true || isStale(state))) load(key)
+    }
+
+    private fun isStale(state: YouTubeFeedState): Boolean =
+        state.loaded && !state.failed && now() - state.loadedAtMs >= YOUTUBE_FEED_STALE_MS
+
+    /** After watching, Home's recommendations and the history have moved on; the other tabs load again when next shown. */
+    private fun markFeedsStaleAfterWatching() {
+        listOf(YouTubeFeed.HOME, YouTubeFeed.HISTORY).filter { it != selectedFeed }.forEach { feed ->
+            val key = YouTubeFeedKey.Tab(feed)
+            pages[key]?.let { pages[key] = it.copy(loadedAtMs = 0L) }
+        }
     }
 
     /** Loads [key] if it hasn't been yet (a page opening). */
@@ -295,15 +330,16 @@ class YouTubeState(
     private fun load(key: YouTubeFeedKey) {
         loadJobs[key]?.cancel()
         val query = searchQuery
+        val filter = searchFilter
         pages[key] = (pages[key] ?: YouTubeFeedState()).copy(loading = true, failed = false)
         loadJobs[key] = scope.launch {
             try {
                 val first = when (key) {
-                    is YouTubeFeedKey.Tab -> client.loadFeed(key.feed, query)
+                    is YouTubeFeedKey.Tab -> client.loadFeed(key.feed, query, filter)
                     is YouTubeFeedKey.Browse -> client.loadBrowse(key.target)
                 }
                 val page = visiblePage(key, first) { it.continuation }
-                pages[key] = YouTubeFeedState(shelves = page.shelves, continuation = page.continuation, loaded = true)
+                pages[key] = YouTubeFeedState(shelves = page.shelves, continuation = page.continuation, loaded = true, loadedAtMs = now())
                 brand(page.shelves.flatMap { it.videos })
             } catch (e: CancellationException) {
                 throw e
@@ -463,6 +499,18 @@ class YouTubeState(
 
     fun clearRecentSearches() = saveLocal(localData.copy(recentSearches = emptyList()))
 
+    /** YouTube's search filters (sort, upload date, type, length), applied to each search. */
+    var searchFilter by mutableStateOf(YouTubeSearchFilter())
+        private set
+
+    /** Changes the search filters; a search already made runs again with them. */
+    fun applySearchFilter(filter: YouTubeSearchFilter) {
+        if (filter == searchFilter) return
+        searchFilter = filter
+        val key = YouTubeFeedKey.Tab(YouTubeFeed.SEARCH)
+        if (searchQuery.isNotBlank() && pages[key]?.loaded == true) load(key)
+    }
+
     private fun saveLocal(data: YouTubeLocalData) {
         localData = data
         runCatching { dataStore.save(data) }
@@ -554,6 +602,44 @@ class YouTubeState(
 
     fun closePlaylistPicker() {
         playlistPicker = null
+    }
+
+    // --- About this video ---
+
+    /** The video whose description and comments show ("About this video"), and what's loaded of them. */
+    var aboutVideo: YouTubeAboutVideo? by mutableStateOf(null)
+        private set
+
+    fun openAbout(video: YouTubeVideo) {
+        aboutVideo = YouTubeAboutVideo(video, loading = true)
+        scope.launch {
+            val details = client.loadVideoDetails(video.videoId)
+            if (aboutVideo?.video?.videoId != video.videoId) return@launch
+            aboutVideo = YouTubeAboutVideo(video, details, loading = false, failed = details == null)
+        }
+    }
+
+    fun loadMoreComments() {
+        val about = aboutVideo ?: return
+        val token = about.details?.commentsContinuation ?: return
+        if (about.loadingMore) return
+        aboutVideo = about.copy(loadingMore = true)
+        scope.launch {
+            val page = client.loadComments(token)
+            val current = aboutVideo ?: return@launch
+            val details = current.details?.takeIf { it.commentsContinuation == token } ?: return@launch
+            aboutVideo = current.copy(
+                loadingMore = false,
+                details = if (page == null) details else details.copy(
+                    comments = (details.comments + page.comments).distinctBy { it.id },
+                    commentsContinuation = page.continuation
+                )
+            )
+        }
+    }
+
+    fun closeAbout() {
+        aboutVideo = null
     }
 
     fun togglePlaylist(option: YouTubePlaylistOption) {
@@ -669,22 +755,21 @@ class YouTubeState(
             nowPlaying = YouTubeNowPlaying(video)
 
             // This playback's own skips, history and position, so a video started meanwhile can't mix them up.
-            var planner: SkipPlanner? = null
-            var history: YouTubeWatchSession? = null
-            var lastSample: MpvProgress.Sample? = null
+            // Set here and read on mpv's threads, so kept where every thread sees the latest.
+            val live = PlaybackLive()
             var lastResumeSave = 0L
             var lastReport = 0L
             var extras: YouTubePlayerExtras? = null
             val osd = MpvOsdNote()
             val onPosition: (Double) -> MpvProgress.Seek? = { position ->
-                planner?.at(position)?.let { segment ->
+                live.planner?.at(position)?.let { segment ->
                     // The built-in player offers to go back and watch it (the TV's "undo skip").
                     extras?.let { e -> scope.launch { e.skipNotice = YouTubeSkipNotice(segment.displayLabel, segment.startSec, now()) } }
                     MpvProgress.Seek(segment.endSec, "Skipped ${segment.displayLabel}")
                 }
             }
             val onSample: (MpvProgress.Sample) -> Unit = { sample ->
-                lastSample = sample
+                live.lastSample = sample
                 val t = now()
                 if (t - lastResumeSave >= RESUME_SAVE_INTERVAL_MS) {
                     lastResumeSave = t
@@ -692,7 +777,7 @@ class YouTubeState(
                 }
                 if (t - lastReport >= HISTORY_REPORT_INTERVAL_MS) {
                     lastReport = t
-                    history?.let { session -> scope.launch { client.reportWatchTime(session, sample.positionSec.toFloat(), sample.durationSec.toFloat()) } }
+                    live.history?.let { session -> scope.launch { client.reportWatchTime(session, sample.positionSec.toFloat(), sample.durationSec.toFloat()) } }
                 }
             }
 
@@ -700,6 +785,7 @@ class YouTubeState(
             val session = if (useBuiltIn) host.openBuiltInPlayer() else null
             var load = 0
             val follow: suspend () -> MpvProgress.Ending
+            var mpvLog: java.io.File? = null
             if (session != null) {
                 session.title = video.title
                 session.target = null
@@ -727,6 +813,7 @@ class YouTubeState(
                             nowPlaying = null
                             return@launch
                         }
+                        mpvLog = result.outputLog
                         follow = { MpvProgress.followToEnd(socket, process, onPosition = onPosition, onConnected = osd::attach, onSample = onSample) }
                     }
                     is ExternalPlayer.Result.Failed -> {
@@ -741,7 +828,7 @@ class YouTubeState(
             launch {
                 val fetched = segments.await()
                 val skips: List<Segment> = YouTubePlayback.skipSegments(fetched, modes)
-                planner = SkipPlanner(skips, emptySet()).takeUnless { it.isEmpty }
+                live.planner = SkipPlanner(skips, emptySet()).takeUnless { it.isEmpty }
                 if (current()) {
                     session?.segments = skips
                     extras?.marks = YouTubePlayback.seekBarMarks(fetched, modes)
@@ -751,7 +838,7 @@ class YouTubeState(
                 val info = playerInfo.await()
                 // When playback already resumed, history starts from there rather than from 0.
                 if (yt.watchHistoryEnabled) {
-                    history = client.newWatchSession(video.videoId, info, startPositionSec = (lastSample?.positionSec ?: 0.0).toFloat())
+                    live.history = client.newWatchSession(video.videoId, info, startPositionSec = (live.lastSample?.positionSec ?: 0.0).toFloat())
                 }
                 val e = extras?.takeIf { current() } ?: return@launch
                 e.storyboard = YouTubeStoryboard.parse(info?.storyboardSpec)
@@ -790,11 +877,15 @@ class YouTubeState(
             }
 
             val ending = withContext(Dispatchers.IO) { follow() }
-            val last = ending.last ?: lastSample
+            val last = ending.last ?: live.lastSample
+            // mpv's window closed before playing anything: say why, rather than nothing at all.
+            val reason = withContext(Dispatchers.IO) { ExternalPlayer.failureReason(mpvLog) }
+            if (session == null && last == null && reason != null) host.message("mpv couldn't play this video: $reason")
             if (last != null) {
                 saveResume(video.videoId, last)
                 markProgress(video.videoId, last)
-                history?.let { session -> scope.launch { client.reportWatchTime(session, last.positionSec.toFloat(), last.durationSec.toFloat()) } }
+                markFeedsStaleAfterWatching()
+                live.history?.let { session -> scope.launch { client.reportWatchTime(session, last.positionSec.toFloat(), last.durationSec.toFloat()) } }
             }
             // Another video started meanwhile (in the same player or another window): it carries on.
             if (plays != play) return@launch
@@ -1064,4 +1155,11 @@ class YouTubeState(
         const val HISTORY_REPORT_INTERVAL_MS = 30_000L
         const val RESUME_SAVE_INTERVAL_MS = 15_000L
     }
+}
+
+/** One playback's skips, history session and last position: set on one thread, read on mpv's. */
+private class PlaybackLive {
+    @Volatile var planner: SkipPlanner? = null
+    @Volatile var history: YouTubeWatchSession? = null
+    @Volatile var lastSample: MpvProgress.Sample? = null
 }

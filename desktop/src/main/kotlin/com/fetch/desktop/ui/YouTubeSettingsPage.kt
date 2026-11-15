@@ -47,7 +47,8 @@ fun YouTubeSettingsPage(state: AppState) {
         "YouTube",
         subtitle = "Sign in to watch your YouTube home feed, subscriptions and history. YouTube appears in the sidebar while you're signed in."
     )
-    val ytDlp = remember { findOnPath("yt-dlp") ?: findOnPath("youtube-dl") }
+    // Only yt-dlp: youtube-dl lacks the options Fetch passes (write-auto-subs, cookies-from-browser).
+    val ytDlp = remember { findOnPath("yt-dlp") }
     if (ytDlp == null) {
         SettingsSection(null) {
             SettingsRow(

@@ -1,0 +1,95 @@
+{
+ "contents": {
+  "twoColumnWatchNextResults": {
+   "results": {
+    "results": {
+     "contents": [
+      {
+       "videoPrimaryInfoRenderer": {
+        "title": {
+         "runs": [
+          {
+           "text": "Me at the zoo"
+          }
+         ]
+        },
+        "viewCount": {
+         "videoViewCountRenderer": {
+          "viewCount": {
+           "simpleText": "448,566,342 views"
+          },
+          "shortViewCount": {
+           "simpleText": "448M views"
+          },
+          "originalViewCount": "0"
+         }
+        },
+        "dateText": {
+         "simpleText": "Apr 23, 2005"
+        }
+       }
+      },
+      {
+       "videoSecondaryInfoRenderer": {
+        "owner": {
+         "videoOwnerRenderer": {
+          "title": {
+           "runs": [
+            {
+             "text": "jawed",
+             "navigationEndpoint": {
+              "clickTrackingParams": "COABEOE5IhMI66G0tOaImAMVCYUKCB0_mgC2ygEE0xQSpw==",
+              "commandMetadata": {
+               "webCommandMetadata": {
+                "url": "/@jawed",
+                "webPageType": "WEB_PAGE_TYPE_CHANNEL",
+                "rootVe": 3611,
+                "apiUrl": "/youtubei/v1/browse"
+               }
+              },
+              "browseEndpoint": {
+               "browseId": "UC4QobU6STFB0P71PMvOGN5A",
+               "canonicalBaseUrl": "/@jawed"
+              }
+             }
+            }
+           ]
+          },
+          "subscriberCountText": {
+           "accessibility": {
+            "accessibilityData": {
+             "label": "6.74 million subscribers"
+            }
+           },
+           "simpleText": "6.74M subscribers"
+          }
+         }
+        },
+        "attributedDescription": {
+         "content": "All right, so here we are in front of the elephants.\nThe cool thing about these guys is that they have really, really, really long trunks."
+        }
+       }
+      },
+      {
+       "itemSectionRenderer": {
+        "sectionIdentifier": "comment-item-section",
+        "contents": [
+         {
+          "continuationItemRenderer": {
+           "continuationEndpoint": {
+            "continuationCommand": {
+             "token": "Eg0SC2pOUVhBQzlJVlJ3GAYyJSIRIgtqTlFYQUM5SVZSdzAAeAJCEGNvbW1lbnRzLXNlY3Rpb24%3D",
+             "request": "CONTINUATION_REQUEST_TYPE_WATCH_NEXT"
+            }
+           }
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  }
+ }
+}

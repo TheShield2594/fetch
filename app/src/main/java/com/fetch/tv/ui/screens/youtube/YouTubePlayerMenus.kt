@@ -238,7 +238,7 @@ internal fun VideoDetailsPanel(
             )
             else -> {
                 val paragraphs = remember(details.description) {
-                    details.description.split(Regex("\n\s*\n")).map { it.trim() }.filter { it.isNotEmpty() }
+                    details.description.split(Regex("\n\\s*\n")).map { it.trim() }.filter { it.isNotEmpty() }
                 }
                 val listState = rememberLazyListState()
                 val total = 1 + paragraphs.size + 1 + details.comments.size

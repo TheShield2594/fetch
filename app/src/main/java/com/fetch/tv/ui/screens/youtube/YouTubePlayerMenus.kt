@@ -1,7 +1,9 @@
 package com.fetch.tv.ui.screens.youtube
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -15,14 +17,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
@@ -310,15 +314,14 @@ private fun DetailsBlock(
     /** [secondary] is the comment's author line, shown above the text. */
     heading: Boolean = false
 ) {
-    androidx.tv.material3.Card(
-        onClick = {},
-        modifier = modifier.fillMaxWidth(),
-        shape = androidx.tv.material3.CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.sm)),
-        colors = androidx.tv.material3.CardDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = Color.White.copy(alpha = 0.12f)
-        ),
-        scale = androidx.tv.material3.CardDefaults.scale(focusedScale = 1f)
+    var focused by remember { mutableStateOf(false) }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(FetchTheme.radii.sm))
+            .background(if (focused) FetchTheme.colors.Player.Control else Color.Transparent)
+            .onFocusChanged { focused = it.isFocused }
+            .focusable()
     ) {
         Column(
             modifier = Modifier.padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
@@ -335,8 +338,9 @@ private fun DetailsBlock(
     }
 }
 
-private val DETAILS_PANEL_WIDTH = 560.dp
-private val DETAILS_PANEL_MAX_HEIGHT = 520.dp
+/** Wide enough for a paragraph; the list scrolls past a panel as tall as it is wide. */
+private val DETAILS_PANEL_WIDTH = CAPTION_MENU_WIDTH * 1.5f
+private val DETAILS_PANEL_MAX_HEIGHT = DETAILS_PANEL_WIDTH
 
 @Composable
 internal fun ChapterMenu(

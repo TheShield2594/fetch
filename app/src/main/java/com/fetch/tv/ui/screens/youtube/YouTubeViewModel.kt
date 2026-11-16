@@ -536,6 +536,10 @@ class YouTubeViewModel @Inject constructor(
         playbackJob?.cancel()
         captionJob?.cancel()
         playingPlaylistsJob?.cancel()
+        // Retry of the video that just failed: carry on from where it stopped, rather than wait on
+        // the resume point it saved in the background.
+        val retryFromMs = _uiState.value.playback?.takeIf { it.video.videoId == video.videoId }
+            ?.let { _ -> lastPositionMs.takeIf { it > 0L } }
         finishWatchSession()
         resumedAtMs = null
         lastResumeSaveAtMs = 0L
@@ -559,7 +563,7 @@ class YouTubeViewModel @Inject constructor(
             val maxHeight = setting(YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT) { settings.maxVideoHeight.first() }
             // Read before the stream, so the player can start from it on its first frame.
             val resumePoint = orNull { resumeStore.get(video.videoId) }
-            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = resumePoint?.positionMs, defaultQuality = maxHeight) }
+            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = retryFromMs ?: resumePoint?.positionMs, defaultQuality = maxHeight) }
             val source = try {
                 extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = maxHeight)
             } catch (e: CancellationException) {

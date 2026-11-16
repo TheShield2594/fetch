@@ -397,6 +397,42 @@ class YouTubeClientTest {
     }
 
     @Test
+    fun `cancelling while the account name loads undoes the approval`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore()
+        lateinit var youtube: YouTubeClient
+        val http = routes(
+            innertube = { endpoint, _ ->
+                if (endpoint == "account/accounts_list") youtube.cancelSignIn()
+                if (endpoint == "account/accounts_list") ACCOUNTS_JSON else "{}"
+            },
+            token = { 200 to """{"access_token":"AT1","refresh_token":"RT1","expires_in":3600}""" }
+        )
+        youtube = client(http, auth)
+        val code = youtube.startDeviceAuth()
+        assertEquals(YouTubeTokenPollResult.Denied, youtube.pollDeviceToken(code))
+        assertFalse(auth.load().isSignedIn)
+    }
+
+    @Test
+    fun `a sign-out that can't reach the disk says so`() {
+        val dir = java.nio.file.Files.createTempDirectory("yt-auth").toFile()
+        try {
+            // The sign-in's path is a directory with something in it: it can be neither rewritten nor deleted.
+            val path = java.io.File(dir, "youtube-auth.json").apply { mkdirs(); java.io.File(this, "x").writeText("x") }
+            val store = YouTubeAuthFile(path)
+            store.save(signedIn) // a failed write of a sign-in stays quiet, as before
+            try {
+                store.save(YouTubeAuth())
+                fail("expected the sign-out to report the stuck file")
+            } catch (e: java.io.IOException) {
+                assertTrue(e.message!!.contains("youtube-auth.json"))
+            }
+        } finally {
+            dir.deleteRecursively()
+        }
+    }
+
+    @Test
     fun `signing out locally clears the sign-in before anything is sent`() {
         val auth = InMemoryYouTubeAuthStore(signedIn)
         val http = routes()

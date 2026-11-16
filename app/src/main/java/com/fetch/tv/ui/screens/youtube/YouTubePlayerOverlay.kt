@@ -119,8 +119,9 @@ fun YouTubePlayerOverlay(
     var isPaused by remember(video.videoId) { mutableStateOf(false) }
     var controlsVisible by remember(video.videoId) { mutableStateOf(false) }
     val seekState = remember(video.videoId) { TrailerSeekOverlayState() }
-    var seekToken by remember(video.videoId) { mutableIntStateOf(0) }
-    var seekDeltaMs by remember(video.videoId) { mutableLongStateOf(0L) }
+    // Per attempt: a Retry's new player must not replay the last attempt's seek.
+    var seekToken by remember(video.videoId, playback.attempt) { mutableIntStateOf(0) }
+    var seekDeltaMs by remember(video.videoId, playback.attempt) { mutableLongStateOf(0L) }
     // Per attempt, not per video: Retry's fresh stream resumes from the saved place again.
     var resumed by remember(video.videoId, playback.attempt) { mutableStateOf(false) }
     // A quality change restarts the stream: it carries on where it was, once, per new link.

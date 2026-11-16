@@ -38,6 +38,10 @@ class YouTubeClient(
     @Volatile
     private var attempt = 0L
 
+    /** The refresh token an attempt saved before it finished (while it reads the account name). */
+    @Volatile
+    private var unfinished: String? = null
+
     override fun libraryShortcutTitle(kind: YouTubeLinkKind): String? = when (kind) {
         YouTubeLinkKind.WATCH_LATER -> "Watch later"
         YouTubeLinkKind.LIKED -> "Liked videos"
@@ -66,6 +70,7 @@ class YouTubeClient(
                 auth.update { current ->
                     if (attempt != started) return@update current
                     saved = true
+                    unfinished = token.refreshToken
                     YouTubeAuth(clientId = code.clientId, clientSecret = code.clientSecret).withToken(token, now())
                 }
                 // Signed out or cancelled while Google answered: the approval is dropped.
@@ -84,6 +89,14 @@ class YouTubeClient(
                         if (current.refreshToken == token.refreshToken && current.pageId == null) current.withAccount(a) else current
                     }
                 }
+                // Finished: a cancel from here on no longer undoes it. A cancel meanwhile already did.
+                var kept = false
+                auth.update { current ->
+                    if (unfinished == token.refreshToken) unfinished = null
+                    kept = attempt == started && current.refreshToken == token.refreshToken
+                    current
+                }
+                if (!kept) return@withContext YouTubeTokenPollResult.Denied
                 YouTubeTokenPollResult.Approved(account?.name)
             }
             is YouTubeApiClient.TokenPoll.Status -> result.status
@@ -103,6 +116,7 @@ class YouTubeClient(
         var token: String? = null
         auth.update { current ->
             attempt++
+            unfinished = null
             token = current.refreshToken
             YouTubeAuth()
         }
@@ -111,7 +125,13 @@ class YouTubeClient(
 
     /** Stops a sign-in waiting for approval from saving it, should the approval still arrive. */
     fun cancelSignIn() {
-        auth.update { current -> attempt++; current }
+        auth.update { current ->
+            attempt++
+            // An approval saved while the account name was still loading is undone too.
+            val saved = unfinished
+            unfinished = null
+            if (saved != null && current.refreshToken == saved) YouTubeAuth() else current
+        }
     }
 
     /** Tells Google to drop [refreshToken]'s sign-in. */

@@ -247,7 +247,13 @@ class YouTubeState(
         homeRow = emptyList()
         homeRowFetchedAt = 0L
         // The saved sign-in is dropped here and now; only telling Google waits in the background.
-        client.signOutLocally()?.let { token -> scope.launch { client.revokeSignIn(token) } }
+        val token = try {
+            client.signOutLocally()
+        } catch (e: java.io.IOException) {
+            host.message("Signed out, but the YouTube sign-in file couldn't be removed: ${e.message}")
+            return
+        }
+        token?.let { scope.launch { client.revokeSignIn(it) } }
         host.message("Signed out of YouTube")
     }
 

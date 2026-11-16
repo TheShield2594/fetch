@@ -410,7 +410,18 @@ class YouTubeClientTest {
         youtube = client(http, auth)
         val code = youtube.startDeviceAuth()
         assertEquals(YouTubeTokenPollResult.Denied, youtube.pollDeviceToken(code))
-        assertFalse(auth.load().isSignedIn)
+        // The whole record goes, not just the refresh token.
+        assertEquals(YouTubeAuth(), auth.load())
+    }
+
+    @Test
+    fun `an approval without a refresh token isn't saved`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore()
+        val http = routes(token = { 200 to """{"access_token":"AT1","expires_in":3600}""" })
+        val youtube = client(http, auth)
+        val result = youtube.pollDeviceToken(youtube.startDeviceAuth())
+        assertTrue(result is YouTubeTokenPollResult.Failed)
+        assertEquals(YouTubeAuth(), auth.load())
     }
 
     @Test
@@ -556,6 +567,46 @@ class YouTubeClientTest {
         val session = youtube.newWatchSession("vid", youtube.loadPlayerInfo("vid")!!, startPositionSec = 0f)!!
         // Another account signed in while the video played.
         auth.save(signedIn.copy(accessToken = "AT-B", refreshToken = "RT-B"))
+        youtube.reportWatchTime(session, positionSec = 30f, lengthSec = 600f)
+        assertTrue(http.sent.none { it.host == "s.youtube.com" })
+    }
+
+    @Test
+    fun `history still goes out after Google rotates the refresh token`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = routes(
+            innertube = { endpoint, _ ->
+                if (endpoint == "player") """{"playbackTracking":{
+                    "videostatsPlaybackUrl":{"baseUrl":"https://s.youtube.com/api/stats/playback?ei=E"},
+                    "videostatsWatchtimeUrl":{"baseUrl":"https://s.youtube.com/api/stats/watchtime?ei=E"}}}""" else "{}"
+            },
+            token = { 200 to """{"access_token":"AT2","refresh_token":"RT2","expires_in":3600}""" }
+        )
+        val youtube = client(http, auth)
+        val session = youtube.newWatchSession("vid", youtube.loadPlayerInfo("vid")!!, startPositionSec = 0f)!!
+        // The access token runs out mid-video; its refresh hands back a new refresh token.
+        clock += 2 * 3_600_000L
+        youtube.reportWatchTime(session, positionSec = 30f, lengthSec = 600f)
+        assertEquals("RT2", auth.load().refreshToken)
+        assertEquals(listOf("Bearer AT2", "Bearer AT2"), http.sent.filter { it.host == "s.youtube.com" }.map { it.request.header("Authorization") })
+    }
+
+    @Test
+    fun `history isn't sent when the profile switched during the player request`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = routes(innertube = { endpoint, _ ->
+            if (endpoint == "player") {
+                // Another account signs in while YouTube answers the first one's player request.
+                auth.save(signedIn.copy(accessToken = "AT-B", refreshToken = "RT-B"))
+                """{"playbackTracking":{
+                    "videostatsPlaybackUrl":{"baseUrl":"https://s.youtube.com/api/stats/playback?ei=E"},
+                    "videostatsWatchtimeUrl":{"baseUrl":"https://s.youtube.com/api/stats/watchtime?ei=E"}}}"""
+            } else {
+                "{}"
+            }
+        })
+        val youtube = client(http, auth)
+        val session = youtube.newWatchSession("vid", youtube.loadPlayerInfo("vid")!!, startPositionSec = 0f)!!
         youtube.reportWatchTime(session, positionSec = 30f, lengthSec = 600f)
         assertTrue(http.sent.none { it.host == "s.youtube.com" })
     }

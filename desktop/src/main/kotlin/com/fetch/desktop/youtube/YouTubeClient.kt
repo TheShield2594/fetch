@@ -66,6 +66,11 @@ class YouTubeClient(
         when (result) {
             is YouTubeApiClient.TokenPoll.Token -> {
                 val token = result.token
+                // A device sign-in always comes with a refresh token; one without couldn't stay
+                // signed in, and couldn't be told apart to undo on cancel.
+                if (token.refreshToken.isNullOrBlank()) {
+                    return@withContext YouTubeTokenPollResult.Failed("Google didn't return a sign-in that lasts")
+                }
                 var saved = false
                 auth.update { current ->
                     if (attempt != started) return@update current

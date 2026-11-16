@@ -107,6 +107,24 @@ open class YouTubeApiClient(
     private val json = Json { ignoreUnknownKeys = true }
     private val jsonMediaType = "application/json".toMediaType()
     private val refreshMutex = Mutex()
+
+    /**
+     * Refresh tokens Google has replaced, old to new. A rotation keeps the same sign-in, so an
+     * identity read before it still matches one read after ([sameSignIn]).
+     */
+    private val rotatedRefreshTokens = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    /** Whether [earlier] and [later] are the same sign-in and channel, across refresh-token rotations. */
+    private fun sameSignIn(earlier: YouTubeSignInId, later: YouTubeSignInId): Boolean {
+        if (earlier.location != later.location || earlier.pageId != later.pageId) return false
+        var token = earlier.refreshToken
+        // Bounded walk: each rotation is one step, and a cycle can't make this loop forever.
+        repeat(rotatedRefreshTokens.size + 1) {
+            if (token == later.refreshToken) return true
+            token = token?.let { rotatedRefreshTokens[it] } ?: return false
+        }
+        return token == later.refreshToken
+    }
     private val tvAppMutex = Mutex()
     // One history report at a time, so the periodic one and the one sent on closing never cross.
     private val historyMutex = Mutex()
@@ -476,7 +494,7 @@ open class YouTubeApiClient(
         historyMutex.withLock {
             try {
                 val (accessToken, signIn) = validSignIn()
-                if (session.signIn == null || session.signIn != signIn.identity) {
+                if (session.signIn == null || !sameSignIn(session.signIn, signIn.identity)) {
                     // Signed out, into another account or onto another channel since it started, or
                     // it's unknown whose links these are: they mustn't go out with another's token.
                     log("Skipped a YouTube history report: the sign-in changed")
@@ -672,7 +690,7 @@ open class YouTubeApiClient(
             // A retry goes out as the account the request started as, or not at all.
             signIn?.second?.identity?.let { identity ->
                 if (first == null) first = identity
-                else if (identity != first) throw IllegalStateException("The YouTube sign-in changed during $endpoint")
+                else if (!sameSignIn(first!!, identity)) throw IllegalStateException("The YouTube sign-in changed during $endpoint")
             }
             // The channel comes from the same read as the token, so the two always belong together.
             val pageId = if (actAsSelectedChannel) signIn?.second?.pageId else null
@@ -780,6 +798,9 @@ open class YouTubeApiClient(
         }
         val nowMs = now()
         storage.saveRefreshedToken(state, token, nowMs)
+        val old = state.refreshToken
+        val new = token.refreshToken?.takeIf { it.isNotBlank() }
+        if (old != null && new != null && new != old) rotatedRefreshTokens[old] = new
         // The snapshot of what's now stored, so a 401 on the new token can expire it in turn.
         return token.accessToken to state.copy(
             accessToken = token.accessToken,

@@ -73,6 +73,8 @@ data class YouTubeFeedState(
 
 data class YouTubePlaybackState(
     val video: YouTubeVideo,
+    /** Counts plays of the same video in a row (a Retry), so each starts its resume afresh. */
+    val attempt: Int = 0,
     val videoUrl: String? = null,
     val audioUrl: String? = null,
     val isLoading: Boolean = true,
@@ -457,7 +459,9 @@ class YouTubeViewModel @Inject constructor(
     fun setSearchFilter(filter: YouTubeSearchFilter) {
         if (filter == _uiState.value.searchFilter) return
         _uiState.update { it.copy(searchFilter = filter) }
-        if (_uiState.value.searchQuery.isNotBlank() && _uiState.value.feeds[YouTubeFeed.SEARCH]?.loaded == true) {
+        // A search still loading is replaced too, so its results match the filters shown.
+        val search = _uiState.value.feeds[YouTubeFeed.SEARCH]
+        if (_uiState.value.searchQuery.isNotBlank() && (search?.loaded == true || search?.isLoading == true)) {
             load(FeedKey.Tab(YouTubeFeed.SEARCH))
         }
     }
@@ -535,7 +539,11 @@ class YouTubeViewModel @Inject constructor(
         finishWatchSession()
         resumedAtMs = null
         lastResumeSaveAtMs = 0L
-        _uiState.update { it.copy(playback = YouTubePlaybackState(video)) }
+        _uiState.update { state ->
+            // Playing the same video again (Retry) is a new attempt: it resumes from the saved place.
+            val attempt = state.playback?.takeIf { it.video.videoId == video.videoId }?.attempt?.plus(1) ?: 0
+            state.copy(playback = YouTubePlaybackState(video, attempt = attempt))
+        }
         playbackJob = viewModelScope.launch {
             val modes = setting(YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES) { settings.sponsorBlockModes.first() }
             val segments = async {
@@ -678,7 +686,6 @@ class YouTubeViewModel @Inject constructor(
         val playback = _uiState.value.playback ?: return
         if (playback.quality == height || playback.videoUrl.isNullOrBlank()) return
         val video = playback.video
-        val position = lastPositionMs
         qualityJob?.cancel()
         updatePlayback(video) { it.copy(qualityLoading = true) }
         qualityJob = viewModelScope.launch {
@@ -700,7 +707,8 @@ class YouTubeViewModel @Inject constructor(
                     videoUrl = source.videoUrl,
                     audioUrl = source.audioUrl,
                     quality = height,
-                    continueFromMs = position,
+                    // Where playback is as the new stream arrives; it kept playing meanwhile.
+                    continueFromMs = lastPositionMs,
                     qualityLoading = false
                 )
             }

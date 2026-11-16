@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import com.fetch.tv.core.profile.ProfileManager
+import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.data.youtube.YouTubeToken
 import io.mockk.every
 import io.mockk.mockk
@@ -79,6 +80,19 @@ class YouTubeAuthStorageTest {
         authStore.storage.expireAccessToken(read)
         authStore.storage.clearRevokedSignIn(read)
         assertEquals(YouTubeTokens("B1", "S1", 9L), tokens[1])
+    }
+
+    @Test
+    fun `an account looked up for a sign-in that's since been replaced is not saved`() = runBlocking {
+        tokens[1] = YouTubeTokens("A1", "R1", 0L)
+        val read = authStore.storage.read()
+        tokens[1] = YouTubeTokens("B1", "S1", 9L)
+        authStore.saveAccountIf(1, YouTubeAccount(name = "Old", handle = null, photoUrl = null, pageId = null, isSelected = true), read.identity)
+        assertNull(authStore.stateOf(1).accountName)
+
+        val current = authStore.storage.read()
+        authStore.saveAccountIf(1, YouTubeAccount(name = "New", handle = null, photoUrl = null, pageId = null, isSelected = true), current.identity)
+        assertEquals("New", authStore.stateOf(1).accountName)
     }
 
     @Test

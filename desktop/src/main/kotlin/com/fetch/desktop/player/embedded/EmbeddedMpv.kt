@@ -251,7 +251,8 @@ class EmbeddedMpv private constructor(
         val subtitles = mutableListOf<String>()
         val setNow = HashSet<String>()
         fun setOption(name: String, value: String) {
-            if (name !in optionDefaults) optionDefaults[name] = getString(name)
+            // The configured value (options/), not the live property, which reflects the playing file.
+            if (name !in optionDefaults) optionDefaults[name] = getString("options/$name")
             setNow += name
             set(name, value)
         }
@@ -363,7 +364,8 @@ class EmbeddedMpv private constructor(
                 }
             }
         }
-        this.onPosition = handler
+        // Installed under the same lock as the cleanup below, so an older follow's cleanup can't drop it.
+        synchronized(followLock) { this.onPosition = handler }
         val reachedEnd = try {
             done.await()
         } finally {

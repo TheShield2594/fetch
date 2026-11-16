@@ -242,7 +242,8 @@ internal fun VideoDetailsPanel(
             )
             else -> {
                 val paragraphs = remember(details.description) {
-                    details.description.split(Regex("\n\\s*\n")).map { it.trim() }.filter { it.isNotEmpty() }
+                    // Line by line: each is a focus stop, so no part of a long paragraph is skipped over.
+                    details.description.split(Regex("\n+")).map { it.trim() }.filter { it.isNotEmpty() }
                 }
                 val listState = rememberLazyListState()
                 val total = 1 + paragraphs.size + 1 + details.comments.size
@@ -251,7 +252,8 @@ internal fun VideoDetailsPanel(
                         (listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= total - 3
                     }
                 }
-                LaunchedEffect(nearEnd, total) { if (nearEnd) onNearEnd() }
+                // The continuation too: a page that added nothing new still moves it on.
+                LaunchedEffect(nearEnd, total, details.commentsContinuation) { if (nearEnd) onNearEnd() }
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.heightIn(max = DETAILS_PANEL_MAX_HEIGHT),

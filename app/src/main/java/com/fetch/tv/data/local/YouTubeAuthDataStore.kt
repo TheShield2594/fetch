@@ -8,16 +8,19 @@ import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.data.youtube.YouTubeAuthStorage
 import com.fetch.tv.data.youtube.YouTubeDeviceCode
+import com.fetch.tv.data.youtube.YouTubeSignInId
 import com.fetch.tv.data.youtube.YouTubeStoredAuth
 import com.fetch.tv.data.youtube.YouTubeToken
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -59,6 +62,8 @@ class YouTubeAuthDataStore @Inject constructor(
 ) {
     companion object {
         private const val FEATURE = "youtube_auth_store"
+        private const val STATE_RETRY_BASE_MS = 1_000L
+        private const val STATE_RETRY_MAX_MS = 30_000L
     }
 
     private val tokenRevisionKey = longPreferencesKey("token_revision")
@@ -81,16 +86,32 @@ class YouTubeAuthDataStore @Inject constructor(
         factory.get(profileId, FEATURE)
 
     val state: Flow<YouTubeAuthState> = profileManager.activeProfileId.flatMapLatest { profileId ->
-        store(profileId).data.map { preferences -> stateOf(profileId, preferences) }
-    }.catch { error ->
-        // The encrypted tokens couldn't be read (a keystore fault): show signed out rather than
-        // crash whatever collects this, start-up's sidebar check among them.
-        android.util.Log.w("YouTubeAuthDataStore", "Could not read the YouTube sign-in", error)
-        emit(YouTubeAuthState())
+        store(profileId).data
+            .map { preferences -> stateOf(profileId, preferences) }
+            .retryWhen { error, attempt ->
+                // The profile's file couldn't be read: signed out for now, and its sign-in is
+                // watched again shortly, so a later sign-in or fix still shows up.
+                if (error is CancellationException) return@retryWhen false
+                android.util.Log.w("YouTubeAuthDataStore", "Could not read the YouTube sign-in", error)
+                emit(YouTubeAuthState())
+                delay(minOf(STATE_RETRY_BASE_MS shl attempt.coerceAtMost(5L).toInt(), STATE_RETRY_MAX_MS))
+                true
+            }
     }
 
     private suspend fun stateOf(profileId: Int, preferences: androidx.datastore.preferences.core.Preferences): YouTubeAuthState {
-        val tokens = withContext(Dispatchers.IO) { credentials.read(profileId) }
+        val tokens = withContext(Dispatchers.IO) {
+            try {
+                credentials.read(profileId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // The encrypted tokens couldn't be read (a keystore fault): signed out for this
+                // read, rather than crash whatever collects this, start-up's sidebar check among them.
+                android.util.Log.w("YouTubeAuthDataStore", "Could not read the YouTube tokens", e)
+                YouTubeTokens()
+            }
+        }
         return YouTubeAuthState(
             accessToken = tokens.accessToken,
             refreshToken = tokens.refreshToken,
@@ -193,17 +214,34 @@ class YouTubeAuthDataStore @Inject constructor(
 
         override suspend fun clearRevokedSignIn(from: YouTubeStoredAuth) {
             val profileId = from.location as? Int ?: return
-            val cleared = tokenMutex.withLock {
-                withContext(Dispatchers.IO) {
+            // One lock section, so a sign-in written meanwhile is never half cleared.
+            tokenMutex.withLock {
+                val cleared = withContext(Dispatchers.IO) {
                     val current = credentials.read(profileId)
                     (current.refreshToken == from.refreshToken).also { if (it) credentials.write(profileId, null) }
                 }
+                if (cleared) store(profileId).edit { preferences -> preferences.clear() }
             }
-            if (cleared) store(profileId).edit { preferences -> preferences.clear() }
         }
     }
 
     suspend fun saveAccount(account: YouTubeAccount, profileId: Int = profileManager.currentProfileId()) {
+        tokenMutex.withLock { writeAccount(profileId, account) }
+    }
+
+    /**
+     * Saves [account] to [profileId] only while it still holds the sign-in and channel [read] names,
+     * so a lookup that answers after a sign-out, a new sign-in or a channel switch steps aside.
+     */
+    suspend fun saveAccountIf(profileId: Int, account: YouTubeAccount, read: YouTubeSignInId) {
+        tokenMutex.withLock {
+            val refreshToken = withContext(Dispatchers.IO) { credentials.read(profileId).refreshToken }
+            val pageId = store(profileId).data.first()[pageIdKey]
+            if (refreshToken == read.refreshToken && pageId == read.pageId) writeAccount(profileId, account)
+        }
+    }
+
+    private suspend fun writeAccount(profileId: Int, account: YouTubeAccount) {
         store(profileId).edit { preferences ->
             account.pageId?.let { preferences[pageIdKey] = it } ?: preferences.remove(pageIdKey)
             account.name?.let { preferences[accountNameKey] = it } ?: preferences.remove(accountNameKey)
@@ -218,14 +256,16 @@ class YouTubeAuthDataStore @Inject constructor(
         clientSecret: String,
         nowMillis: Long = System.currentTimeMillis()
     ) {
-        store(profileManager.currentProfileId()).edit { preferences ->
-            preferences[clientIdKey] = clientId
-            preferences[clientSecretKey] = clientSecret
-            preferences[deviceCodeKey] = code.deviceCode
-            preferences[userCodeKey] = code.userCode
-            preferences[verificationUrlKey] = code.verificationUrl
-            preferences[deviceCodeExpiresAtKey] = nowMillis + code.expiresInSeconds * 1000L
-            preferences[pollIntervalKey] = code.intervalSeconds
+        tokenMutex.withLock {
+            store(profileManager.currentProfileId()).edit { preferences ->
+                preferences[clientIdKey] = clientId
+                preferences[clientSecretKey] = clientSecret
+                preferences[deviceCodeKey] = code.deviceCode
+                preferences[userCodeKey] = code.userCode
+                preferences[verificationUrlKey] = code.verificationUrl
+                preferences[deviceCodeExpiresAtKey] = nowMillis + code.expiresInSeconds * 1000L
+                preferences[pollIntervalKey] = code.intervalSeconds
+            }
         }
     }
 
@@ -245,7 +285,9 @@ class YouTubeAuthDataStore @Inject constructor(
 
     suspend fun clearAuth() {
         val profileId = profileManager.activeProfileId.value
-        tokenMutex.withLock { withContext(Dispatchers.IO) { credentials.write(profileId, null) } }
-        store(profileId).edit { preferences -> preferences.clear() }
+        tokenMutex.withLock {
+            withContext(Dispatchers.IO) { credentials.write(profileId, null) }
+            store(profileId).edit { preferences -> preferences.clear() }
+        }
     }
 }

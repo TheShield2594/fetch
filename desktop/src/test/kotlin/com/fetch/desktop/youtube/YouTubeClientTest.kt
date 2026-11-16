@@ -321,6 +321,91 @@ class YouTubeClientTest {
     }
 
     @Test
+    fun `a new token refused with 401 is itself expired`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn.copy(accessTokenExpiresAt = 0L))
+        val http = YouTubeFakeHttp { req ->
+            when {
+                req.path == "/tv" -> 404 to ""
+                req.path == "/o/oauth2/token" -> 200 to """{"access_token":"AT2","expires_in":3600}"""
+                else -> 401 to "{}"
+            }
+        }
+        try {
+            client(http, auth).loadFeed(YouTubeFeed.SUBSCRIPTIONS)
+            fail("expected a failure")
+        } catch (e: IllegalStateException) {
+            assertTrue(e.message!!.contains("401"))
+        }
+        // The refreshed token was refused too: the next request refreshes again rather than resend it.
+        assertEquals(0L, auth.load().accessTokenExpiresAt)
+        assertEquals(listOf("Bearer AT2", "Bearer AT2"), http.innertube("browse").map { it.request.header("Authorization") })
+    }
+
+    @Test
+    fun `a 401 retry isn't sent as a channel picked meanwhile`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = YouTubeFakeHttp { req ->
+            when {
+                req.path == "/tv" -> 404 to ""
+                req.path == "/o/oauth2/token" -> 200 to """{"access_token":"AT2","expires_in":3600}"""
+                req.request.header("Authorization") == "Bearer AT" -> {
+                    auth.update { it.copy(pageId = "PAGE2") }
+                    401 to "{}"
+                }
+                else -> 200 to subscriptionsJson()
+            }
+        }
+        try {
+            client(http, auth).loadFeed(YouTubeFeed.SUBSCRIPTIONS)
+            fail("expected a failure")
+        } catch (e: IllegalStateException) {
+            assertTrue(e.message!!.contains("changed"))
+        }
+        assertEquals(1, http.innertube("browse").size)
+        assertEquals("PAGE2", auth.load().pageId)
+    }
+
+    @Test
+    fun `an account looked up before a channel switch doesn't undo it`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = routes(innertube = { endpoint, _ ->
+            if (endpoint == "account/accounts_list") {
+                auth.update { it.copy(pageId = "PAGE2", accountName = "Brand") }
+                ACCOUNTS_JSON
+            } else {
+                "{}"
+            }
+        })
+        client(http, auth).refreshAccount()
+        assertEquals("PAGE2", auth.load().pageId)
+        assertEquals("Brand", auth.load().accountName)
+    }
+
+    @Test
+    fun `an approval that answers after a sign-out isn't saved`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore()
+        lateinit var youtube: YouTubeClient
+        val http = routes(token = {
+            // Signed out while Google was answering.
+            youtube.signOutLocally()
+            200 to """{"access_token":"AT1","refresh_token":"RT1","expires_in":3600}"""
+        })
+        youtube = client(http, auth)
+        val code = youtube.startDeviceAuth()
+        assertEquals(YouTubeTokenPollResult.Denied, youtube.pollDeviceToken(code))
+        assertFalse(auth.load().isSignedIn)
+    }
+
+    @Test
+    fun `signing out locally clears the sign-in before anything is sent`() {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = routes()
+        assertEquals("RT", client(http, auth).signOutLocally())
+        assertFalse(auth.load().isSignedIn)
+        assertTrue(http.sent.isEmpty())
+    }
+
+    @Test
     fun `a cancelled load cancels its request`() = runBlocking {
         val started = kotlinx.coroutines.CompletableDeferred<Unit>()
         val release = java.util.concurrent.CountDownLatch(1)
@@ -414,6 +499,22 @@ class YouTubeClientTest {
         val last = http.sent.filter { it.host == "s.youtube.com" }.drop(2)
         assertEquals(listOf("/api/stats/playback", "/api/stats/watchtime"), last.map { it.path })
         assertEquals("1", last[1].request.url.queryParameter("final"))
+    }
+
+    @Test
+    fun `history isn't sent with another account's token`() = runBlocking {
+        val auth = InMemoryYouTubeAuthStore(signedIn)
+        val http = routes(innertube = { endpoint, _ ->
+            if (endpoint == "player") """{"playbackTracking":{
+                "videostatsPlaybackUrl":{"baseUrl":"https://s.youtube.com/api/stats/playback?ei=E"},
+                "videostatsWatchtimeUrl":{"baseUrl":"https://s.youtube.com/api/stats/watchtime?ei=E"}}}""" else "{}"
+        })
+        val youtube = client(http, auth)
+        val session = youtube.newWatchSession("vid", youtube.loadPlayerInfo("vid")!!, startPositionSec = 0f)!!
+        // Another account signed in while the video played.
+        auth.save(signedIn.copy(accessToken = "AT-B", refreshToken = "RT-B"))
+        youtube.reportWatchTime(session, positionSec = 30f, lengthSec = 600f)
+        assertTrue(http.sent.none { it.host == "s.youtube.com" })
     }
 
     @Test

@@ -50,8 +50,9 @@ class YouTubeService @Inject constructor(
 
     /** One poll of the profile's pending sign-in; on approval its tokens and account are saved to that profile. */
     suspend fun pollDeviceToken(): YouTubeTokenPollResult = withContext(Dispatchers.IO) {
-        val state = authDataStore.getCurrentState()
+        // The profile first, then its flow: every write below goes back to the profile that asked.
         val profileId = authDataStore.storage.read().location as Int
+        val state = authDataStore.stateOf(profileId)
         val deviceCode = state.deviceCode ?: return@withContext YouTubeTokenPollResult.Expired
         val result = try {
             exchangeDeviceCode(
@@ -75,7 +76,10 @@ class YouTubeService @Inject constructor(
                 } catch (e: Exception) {
                     null
                 }
-                account?.let { authDataStore.saveAccount(it, profileId) }
+                // Only onto this sign-in: a sign-out or channel pick meanwhile stays as it is.
+                account?.let {
+                    authDataStore.saveAccountIf(profileId, it, YouTubeSignInId(profileId, result.token.refreshToken, state.pageId))
+                }
                 YouTubeTokenPollResult.Approved(account?.name)
             }
             is YouTubeApiClient.TokenPoll.Status -> {
@@ -105,8 +109,9 @@ class YouTubeService @Inject constructor(
 
     /** Fetches the account name again, for profiles that signed in while it couldn't be read. */
     suspend fun refreshAccount() {
-        val profileId = authDataStore.storage.read().location as Int
-        currentAccount()?.let { authDataStore.saveAccount(it, profileId) }
+        val (signIn, account) = currentAccount() ?: return
+        val profileId = signIn.location as? Int ?: return
+        authDataStore.saveAccountIf(profileId, account, signIn.identity)
     }
 }
 

@@ -58,13 +58,23 @@ object ExternalPlayer {
         }
     }
 
-    /** [options] are extra mpv options from the player settings ([MpvArgs]). */
-    fun play(stream: Stream, title: String, start: String? = null, options: List<String> = emptyList()): Result {
+    /**
+     * [options] are extra mpv options from the player settings ([MpvArgs]). With [captureOutput],
+     * mpv's output goes to [Result.Started.outputLog], which the caller hands to [failureReason]
+     * (that deletes it); otherwise it's discarded.
+     */
+    fun play(
+        stream: Stream,
+        title: String,
+        start: String? = null,
+        options: List<String> = emptyList(),
+        captureOutput: Boolean = false
+    ): Result {
         val mpv = findMpv()
         val socket = mpv?.let { newIpcSocket() }
         val command = command(stream, title, mpv, startSeconds = null, ipcSocket = socket, options = options, start = start)
             ?: return Result.Failed("This source has no playable link. Fetch plays direct and debrid links only.")
-        return start(command, socket)
+        return start(command, socket, captureOutput)
     }
 
     /** Plays a plain link, such as a YouTube trailer (mpv resolves it through yt-dlp). */
@@ -77,12 +87,12 @@ object ExternalPlayer {
         return start(command, ipcSocket = null)
     }
 
-    private fun start(command: List<String>, ipcSocket: File?): Result {
+    private fun start(command: List<String>, ipcSocket: File?, captureOutput: Boolean = false): Result {
         return try {
             val isMpv = command.first() != "xdg-open"
             // mpv's output is kept (in a file only its owner can read) so a link mpv or yt-dlp
             // couldn't open can say why, instead of the window just closing.
-            val log = if (isMpv) runCatching { java.nio.file.Files.createTempFile("fetch-mpv-", ".log").toFile() }.getOrNull() else null
+            val log = if (isMpv && captureOutput) runCatching { java.nio.file.Files.createTempFile("fetch-mpv-", ".log").toFile() }.getOrNull() else null
             val process = ProcessBuilder(command)
                 .redirectErrorStream(true)
                 .redirectOutput(log?.let { ProcessBuilder.Redirect.to(it) } ?: ProcessBuilder.Redirect.DISCARD)
@@ -107,7 +117,15 @@ object ExternalPlayer {
     fun failureReason(log: File?): String? {
         if (log == null) return null
         return try {
-            log.readLines().takeLast(200).lastOrNull { line ->
+            // Only the tail is kept while reading: the log grows with the whole playback.
+            val tail = ArrayDeque<String>(FAILURE_TAIL_LINES)
+            log.useLines { lines ->
+                lines.forEach { line ->
+                    if (tail.size == FAILURE_TAIL_LINES) tail.removeFirst()
+                    tail.addLast(line)
+                }
+            }
+            tail.lastOrNull { line ->
                 line.contains("ERROR", ignoreCase = false) || line.contains("Failed to recognize file format") ||
                     line.contains("could not find", ignoreCase = true)
             }?.let(::cleanErrorLine)
@@ -117,6 +135,8 @@ object ExternalPlayer {
             log.delete()
         }
     }
+
+    private const val FAILURE_TAIL_LINES = 200
 
     /** "[ytdl_hook] ERROR: [youtube] abc: Sign in…" → "Sign in…". */
     internal fun cleanErrorLine(line: String): String =

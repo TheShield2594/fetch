@@ -59,7 +59,13 @@ data class YouTubeStoredAuth(
     val clientSecret: String?,
     /** The brand account requests act as; null for the Google account's own channel. */
     val pageId: String?
-)
+) {
+    /** Which sign-in and channel this is, without the tokens that change on every refresh. */
+    val identity: YouTubeSignInId get() = YouTubeSignInId(location, refreshToken, pageId)
+}
+
+/** A sign-in and the channel it acts as; two reads with the same identity are the same account. */
+data class YouTubeSignInId(val location: Any?, val refreshToken: String?, val pageId: String?)
 
 /**
  * Where [YouTubeApiClient] keeps the sign-in. Each write names the sign-in it was worked out from
@@ -175,10 +181,14 @@ open class YouTubeApiClient(
             ?: accounts.firstOrNull()
     }
 
-    /** The account the sign-in acts as now, read again; null when it can't be read. */
-    protected suspend fun currentAccount(): YouTubeAccount? = withContext(Dispatchers.IO) {
+    /**
+     * The account the sign-in acts as now, read again, with the sign-in it was read for; null when
+     * it can't be read. Save it only while the stored sign-in still has that identity.
+     */
+    protected suspend fun currentAccount(): Pair<YouTubeStoredAuth, YouTubeAccount>? = withContext(Dispatchers.IO) {
         try {
-            fetchAccount(pageId = storage.read().pageId)
+            val (accessToken, signIn) = validSignIn()
+            fetchAccount(accessToken, signIn.pageId)?.let { signIn to it }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -417,6 +427,14 @@ open class YouTubeApiClient(
      */
     suspend fun loadPlayerInfo(videoId: String): YouTubePlayerInfo? = withContext(Dispatchers.IO) {
         try {
+            // Tracking links belong to the account that asked for them; history goes back to it alone.
+            val signIn = try {
+                storage.read().identity
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
             val response = innertube("player") { put("videoId", videoId) }
             val storyboard = YouTubeResponseParser.parseStoryboardSpec(response)
                 ?: try {
@@ -428,6 +446,7 @@ open class YouTubeApiClient(
                 }
             YouTubePlayerInfo(
                 trackingLinks = parseWatchTracking(response),
+                signIn = signIn,
                 captions = (response as? JsonObject)?.get("captions"),
                 storyboardSpec = storyboard
             )
@@ -447,6 +466,7 @@ open class YouTubeApiClient(
             playbackUrl = playbackUrl,
             watchtimeUrl = watchtimeUrl,
             clientPlaybackNonce = newClientPlaybackNonce(),
+            signIn = info.signIn,
             // Like SmartTube, a start in the first three minutes counts from the beginning.
             lastPositionSec = if (startPositionSec < YouTubeInnerTube.HISTORY_START_THRESHOLD_SEC) 0f else startPositionSec
         )
@@ -461,7 +481,13 @@ open class YouTubeApiClient(
         if (lengthSec <= 0f) return@withContext
         historyMutex.withLock {
             try {
-                val (accessToken, _) = validSignIn()
+                val (accessToken, signIn) = validSignIn()
+                if (session.signIn != null && session.signIn != signIn.identity) {
+                    // Signed out, into another account or onto another channel since it started:
+                    // this account's links mustn't go out with another's token.
+                    log("Skipped a YouTube history report: the sign-in changed")
+                    return@withLock
+                }
                 val almostWatched = lengthSec - positionSec < lengthSec * 0.05f
                 val from = if (almostWatched) lengthSec else session.lastPositionSec
                 val to = if (almostWatched) lengthSec else positionSec
@@ -633,11 +659,17 @@ open class YouTubeApiClient(
         val userAgent = if (webClient) YouTubeInnerTube.WEB_USER_AGENT else YouTubeInnerTube.TV_USER_AGENT
         val body = requestBody(webClient, userAgent, visitorData, params).toString()
         var retried = false
+        var first: YouTubeSignInId? = null
         while (true) {
             val signIn: Pair<String, YouTubeStoredAuth?>? = when (auth) {
                 Auth.Stored -> validSignIn()
                 is Auth.Explicit -> auth.accessToken to null
                 Auth.SignedOut -> null
+            }
+            // A retry goes out as the account the request started as, or not at all.
+            signIn?.second?.identity?.let { identity ->
+                if (first == null) first = identity
+                else if (identity != first) throw IllegalStateException("The YouTube sign-in changed during $endpoint")
             }
             // The channel comes from the same read as the token, so the two always belong together.
             val pageId = if (actAsSelectedChannel) signIn?.second?.pageId else null
@@ -743,8 +775,14 @@ open class YouTubeApiClient(
             }
             throw IllegalStateException(errorText(response) ?: "Could not refresh YouTube sign-in ($status)")
         }
-        storage.saveRefreshedToken(state, token, now())
-        return token.accessToken to state
+        val nowMs = now()
+        storage.saveRefreshedToken(state, token, nowMs)
+        // The snapshot of what's now stored, so a 401 on the new token can expire it in turn.
+        return token.accessToken to state.copy(
+            accessToken = token.accessToken,
+            refreshToken = token.refreshToken?.takeIf { it.isNotBlank() } ?: state.refreshToken,
+            accessTokenExpiresAt = nowMs + token.expiresInSeconds * 1000L
+        )
     }
 
     /**

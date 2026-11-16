@@ -230,6 +230,7 @@ class YouTubeState(
 
     fun cancelSignIn() {
         signInJob?.cancel()
+        client.cancelSignIn()
         pendingCode = null
     }
 
@@ -245,8 +246,8 @@ class YouTubeState(
         resetFeeds()
         homeRow = emptyList()
         homeRowFetchedAt = 0L
-        // The saved sign-in is dropped before this first suspends, so nothing loads with it after.
-        scope.launch { client.signOut() }
+        // The saved sign-in is dropped here and now; only telling Google waits in the background.
+        client.signOutLocally()?.let { token -> scope.launch { client.revokeSignIn(token) } }
         host.message("Signed out of YouTube")
     }
 
@@ -508,7 +509,9 @@ class YouTubeState(
         if (filter == searchFilter) return
         searchFilter = filter
         val key = YouTubeFeedKey.Tab(YouTubeFeed.SEARCH)
-        if (searchQuery.isNotBlank() && pages[key]?.loaded == true) load(key)
+        // A search loading now is replaced too, so its results match the filters shown.
+        val search = pages[key]
+        if (searchQuery.isNotBlank() && (search?.loaded == true || search?.loading == true)) load(key)
     }
 
     private fun saveLocal(data: YouTubeLocalData) {
@@ -804,7 +807,7 @@ class YouTubeState(
                 follow = { session.mpv.follow(onPosition = onPosition, onSample = onSample) }
             } else {
                 host.closePlayer()
-                when (val result = ExternalPlayer.play(stream, video.title, start = start, options = options)) {
+                when (val result = ExternalPlayer.play(stream, video.title, start = start, options = options, captureOutput = true)) {
                     is ExternalPlayer.Result.Started -> {
                         host.message(if (start != null) "Resuming in ${result.player}" else "Opening in ${result.player}")
                         val process = result.process

@@ -31,6 +31,13 @@ class YouTubeClient(
 
     val signedIn: Boolean get() = auth.load().isSignedIn
 
+    /**
+     * Counts sign-in attempts. A sign-out or a cancelled sign-in moves it on (under the store's
+     * lock), so an approval that answers after either is never saved.
+     */
+    @Volatile
+    private var attempt = 0L
+
     override fun libraryShortcutTitle(kind: YouTubeLinkKind): String? = when (kind) {
         YouTubeLinkKind.WATCH_LATER -> "Watch later"
         YouTubeLinkKind.LIKED -> "Liked videos"
@@ -44,6 +51,7 @@ class YouTubeClient(
 
     /** One poll of the pending sign-in; on approval the tokens and the account name are saved. */
     suspend fun pollDeviceToken(code: YouTubeDeviceCode): YouTubeTokenPollResult = withContext(Dispatchers.IO) {
+        val started = attempt
         val result = try {
             exchangeDeviceCode(code.deviceCode, code.clientId, code.clientSecret)
         } catch (e: CancellationException) {
@@ -54,9 +62,14 @@ class YouTubeClient(
         when (result) {
             is YouTubeApiClient.TokenPoll.Token -> {
                 val token = result.token
-                auth.update {
+                var saved = false
+                auth.update { current ->
+                    if (attempt != started) return@update current
+                    saved = true
                     YouTubeAuth(clientId = code.clientId, clientSecret = code.clientSecret).withToken(token, now())
                 }
+                // Signed out or cancelled while Google answered: the approval is dropped.
+                if (!saved) return@withContext YouTubeTokenPollResult.Denied
                 val account = try {
                     fetchAccount(token.accessToken)
                 } catch (e: CancellationException) {
@@ -65,7 +78,12 @@ class YouTubeClient(
                     null
                 }
                 // Only onto this sign-in: a sign-out meanwhile stays signed out.
-                account?.let { a -> auth.update { current -> if (current.refreshToken == token.refreshToken) current.withAccount(a) else current } }
+                // Only onto this sign-in and its own channel: a sign-out or channel pick meanwhile stays.
+                account?.let { a ->
+                    auth.update { current ->
+                        if (current.refreshToken == token.refreshToken && current.pageId == null) current.withAccount(a) else current
+                    }
+                }
                 YouTubeTokenPollResult.Approved(account?.name)
             }
             is YouTubeApiClient.TokenPoll.Status -> result.status
@@ -73,11 +91,31 @@ class YouTubeClient(
     }
 
     /** Signs this profile out, and tells Google to drop the sign-in. */
-    suspend fun signOut() = withContext(Dispatchers.IO) {
-        var token: String? = null
-        auth.update { current -> token = current.refreshToken; YouTubeAuth() }
-        token?.takeIf { it.isNotBlank() }?.let { revoke(it) }
+    suspend fun signOut() {
+        signOutLocally()?.let { revokeSignIn(it) }
     }
+
+    /**
+     * Drops the saved sign-in at once, and any sign-in still waiting for approval; returns the
+     * refresh token to hand to [revokeSignIn], or null when there was none.
+     */
+    fun signOutLocally(): String? {
+        var token: String? = null
+        auth.update { current ->
+            attempt++
+            token = current.refreshToken
+            YouTubeAuth()
+        }
+        return token?.takeIf { it.isNotBlank() }
+    }
+
+    /** Stops a sign-in waiting for approval from saving it, should the approval still arrive. */
+    fun cancelSignIn() {
+        auth.update { current -> attempt++; current }
+    }
+
+    /** Tells Google to drop [refreshToken]'s sign-in. */
+    suspend fun revokeSignIn(refreshToken: String) = withContext(Dispatchers.IO) { revoke(refreshToken) }
 
     /** Acts as [account] from now on: feeds, history and search all come from that channel. */
     fun selectAccount(account: YouTubeAccount) {
@@ -86,9 +124,10 @@ class YouTubeClient(
 
     /** Fetches the account name again, for a sign-in made while it couldn't be read. */
     suspend fun refreshAccount() {
-        val refreshToken = auth.load().refreshToken
-        currentAccount()?.let { account ->
-            auth.update { current -> if (current.refreshToken == refreshToken) current.withAccount(account) else current }
+        val (signIn, account) = currentAccount() ?: return
+        // Only while the same sign-in still acts as the same channel it was looked up for.
+        auth.update { current ->
+            if (current.refreshToken == signIn.refreshToken && current.pageId == signIn.pageId) current.withAccount(account) else current
         }
     }
 }

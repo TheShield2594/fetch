@@ -247,10 +247,15 @@ class YouTubeState(
         homeRow = emptyList()
         homeRowFetchedAt = 0L
         // The saved sign-in is dropped here and now; only telling Google waits in the background.
+        val stored = authStore.load().refreshToken
         val token = try {
             client.signOutLocally()
         } catch (e: java.io.IOException) {
-            host.message("Signed out, but the YouTube sign-in file couldn't be removed: ${e.message}")
+            // Still revoked with Google, so the token left on disk no longer works; the sign-in
+            // stays loaded, so signing out again (or the next refusal) retries the clean-up.
+            signedIn = true
+            stored?.takeIf { it.isNotBlank() }?.let { scope.launch { client.revokeSignIn(it) } }
+            host.message("Couldn't remove the YouTube sign-in file: ${e.message}. It was revoked with Google; try signing out again.")
             return
         }
         token?.let { scope.launch { client.revokeSignIn(it) } }

@@ -563,7 +563,7 @@ class YouTubeViewModel @Inject constructor(
             val maxHeight = setting(YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT) { settings.maxVideoHeight.first() }
             // Read before the stream, so the player can start from it on its first frame.
             val resumePoint = orNull { resumeStore.get(video.videoId) }
-            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = retryFromMs ?: resumePoint?.positionMs, defaultQuality = maxHeight) }
+            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = resumePoint?.positionMs, continueFromMs = retryFromMs, defaultQuality = maxHeight) }
             val source = try {
                 extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = maxHeight)
             } catch (e: CancellationException) {

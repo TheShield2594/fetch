@@ -139,16 +139,17 @@ class YouTubeAuthFile(private val file: File) : YouTubeAuthStore {
 
     @Synchronized
     override fun save(auth: YouTubeAuth) {
-        cached = auth
         val written = runCatching {
             // Owner-only (600), written then renamed so a crash never leaves half a file.
             PrivateFiles.writeText(file, json.encodeToString(YouTubeAuth.serializer(), auth))
         }.isSuccess
         // A sign-out must not leave the old tokens on disk: drop the file if it couldn't be
-        // rewritten, and say so if even that fails.
+        // rewritten, and say so if even that fails. The old sign-in then stays what's loaded, so
+        // the next sign-out (or Google refusing the revoked token) tries the clean-up again.
         if (!written && !auth.isSignedIn && file.exists() && !file.delete()) {
             throw java.io.IOException("Couldn't remove the YouTube sign-in from ${file.path}")
         }
+        cached = auth
     }
 }
 

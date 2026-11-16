@@ -420,13 +420,20 @@ class YouTubeClientTest {
             // The sign-in's path is a directory with something in it: it can be neither rewritten nor deleted.
             val path = java.io.File(dir, "youtube-auth.json").apply { mkdirs(); java.io.File(this, "x").writeText("x") }
             val store = YouTubeAuthFile(path)
-            store.save(signedIn) // a failed write of a sign-in stays quiet, as before
+            store.save(signedIn) // a failed write of a sign-in stays quiet, as before (and is what's loaded)
             try {
                 store.save(YouTubeAuth())
                 fail("expected the sign-out to report the stuck file")
             } catch (e: java.io.IOException) {
                 assertTrue(e.message!!.contains("youtube-auth.json"))
             }
+            // Still loaded as signed in, so the clean-up can be tried again...
+            assertEquals("RT", store.load().refreshToken)
+            // ...and once the disk is fixed, signing out again clears it.
+            path.deleteRecursively()
+            store.save(YouTubeAuth())
+            assertFalse(store.load().isSignedIn)
+            assertFalse(YouTubeAuthFile(path).load().isSignedIn)
         } finally {
             dir.deleteRecursively()
         }

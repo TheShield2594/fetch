@@ -337,9 +337,12 @@ fun YouTubePlayerOverlay(
                         }
                         if (!resumed) {
                             resumed = true
-                            // Fetch's own exact place first, then YouTube's percent from the tile. YouTube's
-                            // wins when it's clearly further on (watched on another device since).
-                            val target = currentResumeFrom
+                            // A Retry carries on exactly where the failed attempt stopped, wherever that was.
+                            val retryFrom = continueFrom?.takeIf { !continued }
+                            if (retryFrom != null) continued = true
+                            // Otherwise Fetch's own exact place first, then YouTube's percent from the tile.
+                            // YouTube's wins when it's clearly further on (watched on another device since).
+                            val target = retryFrom ?: currentResumeFrom
                                 ?.takeUnless { YouTubeResume.youTubeIsAhead(it, duration, video.watchedPercent) }
                                 ?.let { resumableMs(it, duration) }
                                 ?: resumePositionMs(video.watchedPercent, duration)

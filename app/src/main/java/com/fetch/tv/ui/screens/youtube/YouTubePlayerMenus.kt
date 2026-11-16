@@ -242,8 +242,9 @@ internal fun VideoDetailsPanel(
             )
             else -> {
                 val paragraphs = remember(details.description) {
-                    // Line by line: each is a focus stop, so no part of a long paragraph is skipped over.
-                    details.description.split(Regex("\n+")).map { it.trim() }.filter { it.isNotEmpty() }
+                    // Line by line, and long lines in pieces: each is a focus stop no taller than the panel,
+                    // so the remote never skips over part of the text.
+                    descriptionBlocks(details.description)
                 }
                 val listState = rememberLazyListState()
                 val total = 1 + paragraphs.size + 1 + details.comments.size
@@ -307,6 +308,28 @@ internal fun VideoDetailsPanel(
     LaunchedEffect(details == null) { firstFocus.requestFocusAfterFrames() }
 }
 
+/**
+ * [description] as the details panel's focus stops: one per line, and a line longer than
+ * [maxChars] in pieces broken after a sentence where one falls late enough, else at a space.
+ * At the panel's width a piece of [maxChars] stays well under the panel's height.
+ */
+internal fun descriptionBlocks(description: String, maxChars: Int = DESCRIPTION_BLOCK_MAX_CHARS): List<String> =
+    description.split(Regex("\n+")).map { it.trim() }.filter { it.isNotEmpty() }.flatMap { line ->
+        val pieces = mutableListOf<String>()
+        var rest = line
+        while (rest.length > maxChars) {
+            val window = rest.substring(0, maxChars + 1)
+            val sentence = Regex("[.!?]\\s").findAll(window).lastOrNull()?.range?.first?.plus(1)
+            val cut = sentence?.takeIf { it >= maxChars / 2 }
+                ?: window.lastIndexOf(' ').takeIf { it >= maxChars / 2 }
+                ?: maxChars
+            pieces += rest.substring(0, cut).trim()
+            rest = rest.substring(cut).trim()
+        }
+        if (rest.isNotEmpty()) pieces += rest
+        pieces
+    }
+
 /** A focusable block of text in [VideoDetailsPanel], so the remote can move through it. */
 @Composable
 private fun DetailsBlock(
@@ -343,6 +366,9 @@ private fun DetailsBlock(
 /** Wide enough for a paragraph; the list scrolls past a panel as tall as it is wide. */
 private val DETAILS_PANEL_WIDTH = CAPTION_MENU_WIDTH * 1.5f
 private val DETAILS_PANEL_MAX_HEIGHT = DETAILS_PANEL_WIDTH
+
+/** About eight lines at the panel's width: a third of its height, so a piece always fits. */
+private const val DESCRIPTION_BLOCK_MAX_CHARS = 480
 
 @Composable
 internal fun ChapterMenu(

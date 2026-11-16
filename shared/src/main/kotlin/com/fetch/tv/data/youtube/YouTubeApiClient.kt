@@ -427,15 +427,9 @@ open class YouTubeApiClient(
      */
     suspend fun loadPlayerInfo(videoId: String): YouTubePlayerInfo? = withContext(Dispatchers.IO) {
         try {
-            // Tracking links belong to the account that asked for them; history goes back to it alone.
-            val signIn = try {
-                storage.read().identity
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                null
-            }
-            val response = innertube("player") { put("videoId", videoId) }
+            // Tracking links belong to the account that asked for them: the identity is the one this
+            // very request went out with, and history goes back to that account alone.
+            val (response, signIn) = innertubeAs("player") { put("videoId", videoId) }
             val storyboard = YouTubeResponseParser.parseStoryboardSpec(response)
                 ?: try {
                     YouTubeResponseParser.parseStoryboardSpec(innertube("player", Auth.SignedOut, webClient = true) { put("videoId", videoId) })
@@ -482,9 +476,9 @@ open class YouTubeApiClient(
         historyMutex.withLock {
             try {
                 val (accessToken, signIn) = validSignIn()
-                if (session.signIn != null && session.signIn != signIn.identity) {
-                    // Signed out, into another account or onto another channel since it started:
-                    // this account's links mustn't go out with another's token.
+                if (session.signIn == null || session.signIn != signIn.identity) {
+                    // Signed out, into another account or onto another channel since it started, or
+                    // it's unknown whose links these are: they mustn't go out with another's token.
                     log("Skipped a YouTube history report: the sign-in changed")
                     return@withLock
                 }
@@ -648,7 +642,16 @@ open class YouTubeApiClient(
         /** Sends the web client's context instead of the TV app's, for calls SmartTube makes as web. */
         webClient: Boolean = false,
         params: JsonObjectBuilder.() -> Unit
-    ): JsonElement {
+    ): JsonElement = innertubeAs(endpoint, auth, actAsSelectedChannel, webClient, params).first
+
+    /** [innertube], with the identity of the stored sign-in the answered request went out as (null when none). */
+    private suspend fun innertubeAs(
+        endpoint: String,
+        auth: Auth = Auth.Stored,
+        actAsSelectedChannel: Boolean = true,
+        webClient: Boolean = false,
+        params: JsonObjectBuilder.() -> Unit
+    ): Pair<JsonElement, YouTubeSignInId?> {
         val visitorData = try {
             tvAppConfig().visitorData
         } catch (e: CancellationException) {
@@ -700,7 +703,7 @@ open class YouTubeApiClient(
                 throw IllegalStateException("YouTube refused the sign-in (401)")
             }
             if (code !in 200..299) throw IllegalStateException("YouTube $endpoint failed ($code)")
-            return json.parseToJsonElement(text)
+            return json.parseToJsonElement(text) to signIn?.second?.identity
         }
     }
 

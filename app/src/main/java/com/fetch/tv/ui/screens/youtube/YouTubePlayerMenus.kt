@@ -309,26 +309,46 @@ internal fun VideoDetailsPanel(
 }
 
 /**
- * [description] as the details panel's focus stops: one per line, and a line longer than
+ * [description] as the details panel's focus stops: one per line, and a line wider than
  * [maxChars] in pieces broken after a sentence where one falls late enough, else at a space.
- * At the panel's width a piece of [maxChars] stays well under the panel's height.
+ * Width counts a wide (CJK, full-width) character as two, so a piece of [maxChars] stays well
+ * under the panel's height in any script, even with the system font enlarged.
  */
 internal fun descriptionBlocks(description: String, maxChars: Int = DESCRIPTION_BLOCK_MAX_CHARS): List<String> =
     description.split(Regex("\n+")).map { it.trim() }.filter { it.isNotEmpty() }.flatMap { line ->
         val pieces = mutableListOf<String>()
         var rest = line
-        while (rest.length > maxChars) {
-            val window = rest.substring(0, maxChars + 1)
-            val sentence = Regex("[.!?]\\s").findAll(window).lastOrNull()?.range?.first?.plus(1)
-            val cut = sentence?.takeIf { it >= maxChars / 2 }
-                ?: window.lastIndexOf(' ').takeIf { it >= maxChars / 2 }
-                ?: maxChars
+        while (displayWidth(rest) > maxChars) {
+            // The longest prefix no wider than the limit (at least one character).
+            var end = 0
+            var width = 0
+            while (end < rest.length) {
+                val w = displayWidth(rest[end])
+                if (width + w > maxChars && end > 0) break
+                width += w
+                end++
+            }
+            val window = rest.substring(0, minOf(end + 1, rest.length))
+            val sentence = Regex("[.!?]\\s|[。！？]").findAll(window).lastOrNull()?.range?.first?.plus(1)
+            val cut = (sentence?.takeIf { it >= end / 2 && it <= end }
+                ?: window.lastIndexOf(' ').takeIf { it >= end / 2 && it <= end }
+                ?: end).coerceAtLeast(1)
             pieces += rest.substring(0, cut).trim()
             rest = rest.substring(cut).trim()
         }
         if (rest.isNotEmpty()) pieces += rest
         pieces
     }
+
+private fun displayWidth(c: Char): Int = when (Character.UnicodeBlock.of(c)) {
+    Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS, Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A,
+    Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS, Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION,
+    Character.UnicodeBlock.HIRAGANA, Character.UnicodeBlock.KATAKANA, Character.UnicodeBlock.HANGUL_SYLLABLES,
+    Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS -> 2
+    else -> 1
+}
+
+private fun displayWidth(text: String): Int = text.sumOf { displayWidth(it) }
 
 /** A focusable block of text in [VideoDetailsPanel], so the remote can move through it. */
 @Composable
@@ -367,8 +387,11 @@ private fun DetailsBlock(
 private val DETAILS_PANEL_WIDTH = CAPTION_MENU_WIDTH * 1.5f
 private val DETAILS_PANEL_MAX_HEIGHT = DETAILS_PANEL_WIDTH
 
-/** About eight lines at the panel's width: a third of its height, so a piece always fits. */
-private const val DESCRIPTION_BLOCK_MAX_CHARS = 480
+/**
+ * About six lines of Latin text at the panel's width: under a quarter of its height, so a piece
+ * fits even at the largest system font size.
+ */
+private const val DESCRIPTION_BLOCK_MAX_CHARS = 360
 
 @Composable
 internal fun ChapterMenu(

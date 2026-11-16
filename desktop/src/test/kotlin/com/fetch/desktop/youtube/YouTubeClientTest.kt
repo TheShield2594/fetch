@@ -554,6 +554,15 @@ class YouTubeClientTest {
     }
 
     @Test
+    fun `history isn't sent when it's unknown whose links they are`() = runBlocking {
+        val http = routes()
+        val youtube = client(http)
+        val session = youtube.newWatchSession("vid", YouTubePlayerInfo("https://s.youtube.com/a" to "https://s.youtube.com/b"), 0f)!!
+        youtube.reportWatchTime(session, positionSec = 30f, lengthSec = 600f)
+        assertTrue(http.sent.none { it.host == "s.youtube.com" })
+    }
+
+    @Test
     fun `a start past three minutes is where history counts from`() {
         val youtube = client(routes())
         val info = YouTubePlayerInfo("https://s.youtube.com/a" to "https://s.youtube.com/b")

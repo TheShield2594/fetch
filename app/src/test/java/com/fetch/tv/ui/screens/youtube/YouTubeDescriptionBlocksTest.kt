@@ -29,4 +29,12 @@ class YouTubeDescriptionBlocksTest {
         val link = "x".repeat(130)
         assertEquals(listOf("x".repeat(50), "x".repeat(50), "x".repeat(30)), descriptionBlocks(link, maxChars = 50))
     }
+
+    @Test
+    fun `wide characters count double, so a CJK line is cut shorter`() {
+        val line = "字".repeat(300)
+        val blocks = descriptionBlocks(line, maxChars = 100)
+        assertTrue(blocks.all { it.length <= 50 })
+        assertEquals(line, blocks.joinToString(""))
+    }
 }

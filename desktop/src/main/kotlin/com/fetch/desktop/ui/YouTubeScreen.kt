@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -98,6 +99,7 @@ import com.fetch.tv.data.youtube.YouTubeLink
 import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
 import com.fetch.tv.data.youtube.YouTubeShelf
+import com.fetch.tv.data.youtube.YouTubeSearchFilter
 import com.fetch.tv.data.youtube.YouTubeVideo
 import kotlinx.coroutines.launch
 
@@ -153,6 +155,7 @@ fun YouTubeScreen(state: AppState) {
         }
     }
     YouTubePlaylistDialog(yt)
+    YouTubeAboutDialog(yt)
 }
 
 /** A channel, a playlist or all of a row, opened from the YouTube page. */
@@ -185,6 +188,7 @@ fun YouTubeBrowseScreen(state: AppState, target: YouTubeBrowseTarget) {
         YouTubeFeedView(state, key, Modifier.fillMaxSize())
     }
     YouTubePlaylistDialog(yt)
+    YouTubeAboutDialog(yt)
 }
 
 private fun browseTitle(target: YouTubeBrowseTarget): String = when (target.browseId) {
@@ -300,6 +304,81 @@ private fun YouTubeSearchBar(yt: YouTubeState) {
                             .pointerHoverIcon(PointerIcon.Hand).padding(start = 8.dp)
                     )
                 }
+            }
+        }
+        YouTubeSearchFilters(yt.searchFilter, yt::applySearchFilter)
+    }
+}
+
+/** YouTube's search filters, as its own Filters menu offers them; a search runs again with each change. */
+@Composable
+private fun YouTubeSearchFilters(filter: YouTubeSearchFilter, onChange: (YouTubeSearchFilter) -> Unit) {
+    @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+    androidx.compose.foundation.layout.FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.widthIn(max = 900.dp)
+    ) {
+        FilterMenu(tr("Sort"), filter.sort, searchSortLabels) { onChange(filter.copy(sort = it)) }
+        FilterMenu(tr("Uploaded"), filter.uploadDate, searchDateLabels) { onChange(filter.copy(uploadDate = it)) }
+        FilterMenu(tr("Type"), filter.type, searchTypeLabels) { onChange(filter.copy(type = it)) }
+        FilterMenu(tr("Length"), filter.duration, searchDurationLabels) { onChange(filter.copy(duration = it)) }
+        if (!filter.isDefault) {
+            Text(
+                tr("Clear filters"),
+                color = FetchPalette.TextSecondary,
+                fontSize = 13.sp,
+                modifier = Modifier.align(Alignment.CenterVertically).clickable { onChange(YouTubeSearchFilter()) }
+                    .pointerHoverIcon(PointerIcon.Hand).padding(start = 8.dp)
+            )
+        }
+    }
+}
+
+private val searchSortLabels = listOf(
+    YouTubeSearchFilter.Sort.RELEVANCE to "Relevance",
+    YouTubeSearchFilter.Sort.UPLOAD_DATE to "Newest",
+    YouTubeSearchFilter.Sort.VIEW_COUNT to "Most viewed",
+    YouTubeSearchFilter.Sort.RATING to "Rating"
+)
+private val searchDateLabels = listOf(
+    YouTubeSearchFilter.UploadDate.ANY to "Any time",
+    YouTubeSearchFilter.UploadDate.LAST_HOUR to "Last hour",
+    YouTubeSearchFilter.UploadDate.TODAY to "Today",
+    YouTubeSearchFilter.UploadDate.THIS_WEEK to "This week",
+    YouTubeSearchFilter.UploadDate.THIS_MONTH to "This month",
+    YouTubeSearchFilter.UploadDate.THIS_YEAR to "This year"
+)
+private val searchTypeLabels = listOf(
+    YouTubeSearchFilter.Type.ANY to "Any",
+    YouTubeSearchFilter.Type.VIDEO to "Videos",
+    YouTubeSearchFilter.Type.CHANNEL to "Channels",
+    YouTubeSearchFilter.Type.PLAYLIST to "Playlists",
+    YouTubeSearchFilter.Type.MOVIE to "Movies"
+)
+private val searchDurationLabels = listOf(
+    YouTubeSearchFilter.Duration.ANY to "Any",
+    YouTubeSearchFilter.Duration.UNDER_4_MINUTES to "Under 4 minutes",
+    YouTubeSearchFilter.Duration.FOUR_TO_20_MINUTES to "4–20 minutes",
+    YouTubeSearchFilter.Duration.OVER_20_MINUTES to "Over 20 minutes"
+)
+
+/** A pill opening a menu of [options], the current one highlighted. Labels are English, shown through [tr]. */
+@Composable
+private fun <T> FilterMenu(label: String, selected: T, options: List<Pair<T, String>>, onPick: (T) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    val current = options.firstOrNull { it.first == selected }?.second.orEmpty()
+    Box {
+        TabChip("$label: ${tr(current)}", selected = selected != options.first().first, onClick = { open = true })
+        androidx.compose.material3.DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = FetchPalette.SurfaceRaised) {
+            options.forEach { (value, text) ->
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(tr(text), color = if (value == selected) FetchPalette.Accent else Color.White) },
+                    onClick = {
+                        open = false
+                        onPick(value)
+                    }
+                )
             }
         }
     }
@@ -626,7 +705,79 @@ private fun videoMenu(state: AppState, video: YouTubeVideo, key: YouTubeFeedKey?
     add(ContextMenuItem(tr("Save to playlist…")) { yt.openPlaylistPicker(video) })
     video.removeFromHistoryToken?.let { add(ContextMenuItem(tr("Remove from watch history")) { yt.removeFromHistory(video) }) }
     video.notInterestedToken?.let { add(ContextMenuItem(tr("Not interested")) { yt.markNotInterested(video) }) }
+    add(ContextMenuItem(tr("About this video")) { yt.openAbout(video) })
     add(ContextMenuItem(tr("Open on YouTube")) { state.openInBrowser(video.watchUrl) })
+}
+
+/** "About this video": views, date and channel, the description, then the comments, loading more as they scroll. */
+@Composable
+fun YouTubeAboutDialog(yt: YouTubeState) {
+    val about = yt.aboutVideo ?: return
+    AlertDialog(
+        onDismissRequest = yt::closeAbout,
+        containerColor = FetchPalette.SurfaceRaised,
+        title = { Text(about.video.title, color = Color.White, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        text = {
+            val details = about.details
+            when {
+                details == null && about.loading -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp)
+                    Text(tr("Loading…"), color = FetchPalette.TextMuted)
+                }
+                details == null -> Text(tr("Couldn't load the description. Try again later."), color = FetchPalette.TextMuted)
+                else -> {
+                    val listState = rememberLazyListState()
+                    val nearEnd by remember(details.comments.size) {
+                        androidx.compose.runtime.derivedStateOf {
+                            (listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= listState.layoutInfo.totalItemsCount - 3
+                        }
+                    }
+                    LaunchedEffect(nearEnd, details.comments.size) { if (nearEnd) yt.loadMoreComments() }
+                    androidx.compose.foundation.lazy.LazyColumn(
+                        state = listState,
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.widthIn(min = 420.dp, max = 640.dp).heightIn(max = 560.dp)
+                    ) {
+                        item {
+                            val numbers = listOfNotNull(details.viewCount, details.published).joinToString(" · ")
+                            if (numbers.isNotBlank()) Text(numbers, color = FetchPalette.TextSecondary, fontSize = 13.sp)
+                            val channel = listOfNotNull(details.channelName, details.subscriberCount).joinToString(" · ")
+                            if (channel.isNotBlank()) Text(channel, color = FetchPalette.TextSecondary, fontSize = 13.sp)
+                        }
+                        if (details.description.isNotBlank()) {
+                            item { androidx.compose.foundation.text.selection.SelectionContainer { Text(details.description, color = Color.White, fontSize = 14.sp) } }
+                        }
+                        item {
+                            Text(
+                                details.commentCount?.let { tr("%1\$s comments", it) } ?: tr("Comments"),
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                        items(details.comments, key = { it.id }) { comment ->
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                val meta = listOfNotNull(
+                                    comment.author.ifBlank { null },
+                                    comment.published,
+                                    comment.likeCount?.let { tr("%1\$s likes", it) },
+                                    tr("Pinned").takeIf { comment.isPinned }
+                                ).joinToString(" · ")
+                                Text(meta, color = FetchPalette.TextMuted, fontSize = 12.sp)
+                                Text(comment.text, color = Color.White, fontSize = 14.sp)
+                            }
+                        }
+                        if (about.loadingMore) {
+                            item { CircularProgressIndicator(Modifier.size(18.dp), color = FetchPalette.Accent, strokeWidth = 2.dp) }
+                        } else if (details.comments.isEmpty()) {
+                            item { Text(tr("No comments"), color = FetchPalette.TextMuted) }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { SecondaryButton("Close", onClick = yt::closeAbout) }
+    )
 }
 
 /** "Save to playlist": the channel's playlists with a mark on those holding the video, and New playlist. */
@@ -709,4 +860,6 @@ fun YouTubeHomeRow(state: AppState) {
         },
         menu = { videoMenu(state, it, null) }
     )
+    YouTubePlaylistDialog(yt)
+    YouTubeAboutDialog(yt)
 }

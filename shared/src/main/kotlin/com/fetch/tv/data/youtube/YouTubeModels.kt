@@ -239,7 +239,9 @@ data class YouTubePlayerInfo(
     val trackingLinks: Pair<String, String>?,
     val captions: kotlinx.serialization.json.JsonElement? = null,
     /** The `playerStoryboardSpecRenderer` spec, for thumbnails while seeking. */
-    val storyboardSpec: String? = null
+    val storyboardSpec: String? = null,
+    /** The sign-in the tracking links were issued to. */
+    val signIn: YouTubeSignInId? = null
 )
 
 /** One playback that YouTube is told about, so it shows in the account's history. */
@@ -248,7 +250,9 @@ class YouTubeWatchSession(
     val playbackUrl: String,
     val watchtimeUrl: String,
     val clientPlaybackNonce: String,
-    @Volatile var lastPositionSec: Float
+    @Volatile var lastPositionSec: Float,
+    /** The sign-in its links were issued to; reports are skipped once another is stored. Null: any. */
+    val signIn: YouTubeSignInId? = null
 ) {
     /** A report has been sent; set by the client that sends it. */
     @Volatile

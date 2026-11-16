@@ -230,11 +230,15 @@ These are the main profile's. Every other profile keeps its own copies in `profi
 - **YouTube** (Settings › YouTube): sign in as YouTube's TV app does, with a code at
   youtube.com/activate, and pick which of the account's channels to act as. While signed in (and
   not on a profile with limits) YouTube is in the sidebar, as on TV, with Home, Subscriptions,
-  History, Library (Watch later, Liked videos, your playlists) and Search (YouTube's suggestions
-  and your recent searches); channels, playlists and "View all" open as pages. Right-click a
+  History, Library (Watch later, Liked videos, your playlists) and Search (YouTube's suggestions,
+  your recent searches, and YouTube's filters: sort, upload date, type and length); channels,
+  playlists and "View all" open as pages. A tab older than 15 minutes loads again when you go
+  back to it, and after watching, Home and History load again when next shown. Right-click a
   video for the TV's menu: Go to channel, Save to Watch later, Save to playlist (or a new one),
-  Remove from watch history, Not interested. Videos play in mpv (the built-in player or its
-  window) through yt-dlp, capped at the quality you pick, resuming where you stopped, added to
+  Remove from watch history, Not interested, and About this video (the description, views and
+  upload date, and the comments). Videos play in mpv (the built-in player or its
+  window) through yt-dlp, capped at the quality you pick, resuming where you stopped (or where
+  YouTube says you got to, when that's clearly further on, from another device), added to
   your YouTube history, skipping SponsorBlock segments by category (Skip jumps, and the
   built-in player then offers "Skipped sponsor · Watch it" for a few seconds; Ask shows the
   built-in player's Skip button; Show plays through), and, when a video ends, the TV's end card:

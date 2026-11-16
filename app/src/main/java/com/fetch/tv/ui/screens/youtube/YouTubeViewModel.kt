@@ -23,6 +23,7 @@ import com.fetch.tv.data.youtube.YouTubeCaptionCue
 import com.fetch.tv.data.youtube.YouTubeCaptionService
 import com.fetch.tv.data.youtube.YouTubeCaptionTrack
 import com.fetch.tv.data.youtube.pickDefaultCaptionTrack
+import com.fetch.tv.core.di.YouTubeSectionExtractor
 import com.fetch.tv.data.trailer.InAppYouTubeExtractor
 import com.fetch.tv.data.youtube.SponsorBlockService
 import com.fetch.tv.data.youtube.YouTubeBrowseTarget
@@ -39,7 +40,9 @@ import com.fetch.tv.data.youtube.YouTubeShelf
 import com.fetch.tv.data.youtube.YouTubeSignedOutException
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
 import com.fetch.tv.data.youtube.YouTubeVideoActions
+import com.fetch.tv.data.youtube.YouTubeSearchFilter
 import com.fetch.tv.data.youtube.YouTubeVideo
+import com.fetch.tv.data.youtube.YouTubeVideoDetails
 import com.fetch.tv.data.youtube.YouTubeWatchSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -63,11 +66,15 @@ data class YouTubeFeedState(
     val isLoadingMore: Boolean = false,
     val loadingShelves: Set<Int> = emptySet(),
     val failed: Boolean = false,
-    val loaded: Boolean = false
+    val loaded: Boolean = false,
+    /** When it last loaded; a tab older than [YouTubeViewModel.FEED_STALE_MS] loads again as it shows. */
+    val loadedAtMs: Long = 0L
 )
 
 data class YouTubePlaybackState(
     val video: YouTubeVideo,
+    /** Counts plays of the same video in a row (a Retry), so each starts its resume afresh. */
+    val attempt: Int = 0,
     val videoUrl: String? = null,
     val audioUrl: String? = null,
     val isLoading: Boolean = true,
@@ -105,7 +112,20 @@ data class YouTubePlaybackState(
     /** The playlist the video plays in; Up Next is its next video. */
     val playlist: YouTubePlaylistContext? = null,
     /** From Return YouTube Dislike, when the profile turned it on. */
-    val votes: YouTubeVoteCounts? = null
+    val votes: YouTubeVoteCounts? = null,
+    /** The quality picked for this video, as the tallest height; null follows Settings' cap. */
+    val quality: Int? = null,
+    /** Settings' cap, which Auto uses. */
+    val defaultQuality: Int = YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT,
+    /** Where to carry on after a quality change, exactly; the stream restarts there. */
+    val continueFromMs: Long? = null,
+    /** A quality change is fetching its stream. */
+    val qualityLoading: Boolean = false,
+    /** What's under the player: the description, numbers and comments. Null until asked for. */
+    val details: YouTubeVideoDetails? = null,
+    val detailsLoading: Boolean = false,
+    val detailsFailed: Boolean = false,
+    val commentsLoadingMore: Boolean = false
 )
 
 /**
@@ -155,6 +175,8 @@ sealed interface YouTubeNotice {
     data class Subscribed(val channel: String?) : YouTubeNotice
     data class Unsubscribed(val channel: String?) : YouTubeNotice
     data object Failed : YouTubeNotice
+    /** No stream came back at the quality picked; the video carries on as it was. */
+    data object QualityFailed : YouTubeNotice
 }
 
 /** A page opened over the tabs: a channel, a playlist, or all of a row. Back closes it. */
@@ -177,6 +199,8 @@ data class YouTubeUiState(
     val searchSuggestions: List<String> = emptyList(),
     /** The profile's last searches, newest first, for when the query is empty. */
     val recentSearches: List<String> = emptyList(),
+    /** YouTube's search filters (sort, upload date, type, length), applied to each search. */
+    val searchFilter: YouTubeSearchFilter = YouTubeSearchFilter(),
     /** How fast videos play; kept from one video to the next, as on YouTube. */
     val playbackSpeed: Float = 1f
 ) {
@@ -200,7 +224,7 @@ private sealed interface FeedKey {
 @HiltViewModel
 class YouTubeViewModel @Inject constructor(
     private val youTubeService: YouTubeService,
-    private val extractor: InAppYouTubeExtractor,
+    @YouTubeSectionExtractor private val extractor: InAppYouTubeExtractor,
     private val sponsorBlock: SponsorBlockService,
     private val settings: YouTubeSettingsDataStore,
     private val captionService: YouTubeCaptionService,
@@ -212,6 +236,15 @@ class YouTubeViewModel @Inject constructor(
     authDataStore: YouTubeAuthDataStore
 ) : ViewModel() {
     internal companion object {
+        /**
+         * How long a tab's feed stays as loaded. Coming back to a tab later than this (or to the
+         * screen) loads it again, so Home's recommendations and the subscriptions keep up.
+         */
+        const val FEED_STALE_MS = 15 * 60 * 1000L
+
+        /** Waits before each try at a feed's next page; the first goes at once. */
+        val LOAD_MORE_RETRY_DELAYS_MS = listOf(0L, 2_000L, 5_000L)
+
         /** How often a playing video's position is sent to YouTube history. */
         const val HISTORY_REPORT_INTERVAL_MS = 30_000L
 
@@ -245,6 +278,8 @@ class YouTubeViewModel @Inject constructor(
     /** Where the playing video resumed, once it has; the history session starts there. */
     private var resumedAtMs: Long? = null
     private var suggestJob: Job? = null
+    private var qualityJob: Job? = null
+    private var detailsJob: Job? = null
     private var deArrowEnabled = YouTubeSettingsDataStore.DEFAULT_DEARROW_ENABLED
     private val brandingJobs = mutableListOf<Job>()
     private var lastIdentity: Pair<String?, String?>? = null
@@ -314,15 +349,51 @@ class YouTubeViewModel @Inject constructor(
         brandingJobs.clear()
     }
 
+    /**
+     * Shows [feed]'s tab. Its feed loads when it hasn't yet, failed, or is older than
+     * [FEED_STALE_MS]; picking the tab that's already showing loads it again (the TV's refresh).
+     */
     fun selectFeed(feed: YouTubeFeed) {
+        val before = _uiState.value
+        val reselected = before.selectedFeed == feed && before.browse.isEmpty()
         // A tab closes the pages opened over the tabs.
         loadJobs.keys.filterIsInstance<FeedKey.Browse>().forEach { loadJobs.remove(it)?.cancel() }
         _uiState.update { it.copy(selectedFeed = feed, browse = emptyList()) }
         val state = _uiState.value.feeds[feed]
-        if (feed != YouTubeFeed.SEARCH && (state == null || state.failed)) load(FeedKey.Tab(feed))
+        val reload = when {
+            feed == YouTubeFeed.SEARCH -> reselected && state?.loaded == true && _uiState.value.searchQuery.isNotBlank()
+            state == null || state.failed -> true
+            state.isLoading -> false
+            else -> reselected || isStale(state)
+        }
+        if (reload) load(FeedKey.Tab(feed))
     }
 
     fun refresh() = load(currentKey())
+
+    /** The screen is showing again (back from elsewhere in the app, or the TV woke): a stale tab loads again. */
+    fun onScreenResumed() {
+        val state = _uiState.value
+        if (state.signedOut || state.browse.isNotEmpty() || state.playback != null || state.selectedFeed == YouTubeFeed.SEARCH) return
+        val feed = state.feeds[state.selectedFeed] ?: return
+        if (!feed.isLoading && isStale(feed)) load(currentKey())
+    }
+
+    private fun isStale(feed: YouTubeFeedState): Boolean =
+        feed.loaded && !feed.failed && System.currentTimeMillis() - feed.loadedAtMs >= FEED_STALE_MS
+
+    /**
+     * After watching, Home's recommendations and the history have moved on: the tabs not showing
+     * load again when next picked. The one showing stays put, so focus stays on the video watched.
+     */
+    private fun markFeedsStaleAfterWatching() {
+        val showing = _uiState.value.selectedFeed
+        _uiState.update { state ->
+            state.copy(feeds = state.feeds.mapValues { (feed, feedState) ->
+                if (feed != showing && (feed == YouTubeFeed.HOME || feed == YouTubeFeed.HISTORY)) feedState.copy(loadedAtMs = 0L) else feedState
+            })
+        }
+    }
 
     /** Opens [target] over the tabs: a channel, a playlist, or all of a row. */
     fun openBrowse(target: YouTubeBrowseTarget) {
@@ -382,6 +453,17 @@ class YouTubeViewModel @Inject constructor(
     fun searchFor(query: String) {
         _uiState.update { it.copy(searchQuery = query) }
         submitSearch()
+    }
+
+    /** Changes the search filters; a search already made runs again with them. */
+    fun setSearchFilter(filter: YouTubeSearchFilter) {
+        if (filter == _uiState.value.searchFilter) return
+        _uiState.update { it.copy(searchFilter = filter) }
+        // A search still loading is replaced too, so its results match the filters shown.
+        val search = _uiState.value.feeds[YouTubeFeed.SEARCH]
+        if (_uiState.value.searchQuery.isNotBlank() && (search?.loaded == true || search?.isLoading == true)) {
+            load(FeedKey.Tab(YouTubeFeed.SEARCH))
+        }
     }
 
     fun clearRecentSearches() {
@@ -449,13 +531,23 @@ class YouTubeViewModel @Inject constructor(
     }
 
     fun play(video: YouTubeVideo) {
+        qualityJob?.cancel()
+        detailsJob?.cancel()
         playbackJob?.cancel()
         captionJob?.cancel()
         playingPlaylistsJob?.cancel()
+        // Retry of the video that just failed: carry on from where it stopped, rather than wait on
+        // the resume point it saved in the background.
+        val retryFromMs = _uiState.value.playback?.takeIf { it.video.videoId == video.videoId }
+            ?.let { _ -> lastPositionMs.takeIf { it > 0L } }
         finishWatchSession()
         resumedAtMs = null
         lastResumeSaveAtMs = 0L
-        _uiState.update { it.copy(playback = YouTubePlaybackState(video)) }
+        _uiState.update { state ->
+            // Playing the same video again (Retry) is a new attempt: it resumes from the saved place.
+            val attempt = state.playback?.takeIf { it.video.videoId == video.videoId }?.attempt?.plus(1) ?: 0
+            state.copy(playback = YouTubePlaybackState(video, attempt = attempt))
+        }
         playbackJob = viewModelScope.launch {
             val modes = setting(YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES) { settings.sponsorBlockModes.first() }
             val segments = async {
@@ -471,7 +563,7 @@ class YouTubeViewModel @Inject constructor(
             val maxHeight = setting(YouTubeSettingsDataStore.DEFAULT_MAX_VIDEO_HEIGHT) { settings.maxVideoHeight.first() }
             // Read before the stream, so the player can start from it on its first frame.
             val resumePoint = orNull { resumeStore.get(video.videoId) }
-            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = resumePoint?.positionMs) }
+            updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = resumePoint?.positionMs, continueFromMs = retryFromMs, defaultQuality = maxHeight) }
             val source = try {
                 extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = maxHeight)
             } catch (e: CancellationException) {
@@ -589,17 +681,107 @@ class YouTubeViewModel @Inject constructor(
         resumeStore.saveInBackground(video.videoId, lastPositionMs, lastDurationMs)
     }
 
+    /**
+     * Plays the video at another quality: [height] is the tallest stream wanted, or null for
+     * Settings' cap. The stream is fetched again at that cap and carries on where it was. When
+     * no stream comes back, the current one keeps playing.
+     */
+    fun setQuality(height: Int?) {
+        val playback = _uiState.value.playback ?: return
+        if (playback.quality == height || playback.videoUrl.isNullOrBlank()) return
+        val video = playback.video
+        qualityJob?.cancel()
+        updatePlayback(video) { it.copy(qualityLoading = true) }
+        qualityJob = viewModelScope.launch {
+            val cap = height ?: playback.defaultQuality
+            val source = try {
+                extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = cap)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
+            if (source == null || source.videoUrl.isBlank()) {
+                updatePlayback(video) { it.copy(qualityLoading = false) }
+                notify(YouTubeNotice.QualityFailed)
+                return@launch
+            }
+            updatePlayback(video) {
+                it.copy(
+                    videoUrl = source.videoUrl,
+                    audioUrl = source.audioUrl,
+                    quality = height,
+                    // Where playback is as the new stream arrives; it kept playing meanwhile.
+                    continueFromMs = lastPositionMs,
+                    qualityLoading = false
+                )
+            }
+        }
+    }
+
+    /** Loads what's under the player (description, numbers, first comments) the first time it's opened. */
+    fun loadDetails() {
+        val playback = _uiState.value.playback ?: return
+        if (playback.details != null || playback.detailsLoading) return
+        val video = playback.video
+        updatePlayback(video) { it.copy(detailsLoading = true, detailsFailed = false) }
+        detailsJob?.cancel()
+        detailsJob = viewModelScope.launch {
+            val details = youTubeService.loadVideoDetails(video.videoId)
+            updatePlayback(video) { it.copy(details = details, detailsLoading = false, detailsFailed = details == null) }
+        }
+    }
+
+    /** The next page of comments, as the list nears its end. */
+    fun loadMoreComments() {
+        val playback = _uiState.value.playback ?: return
+        val details = playback.details ?: return
+        val token = details.commentsContinuation ?: return
+        if (playback.commentsLoadingMore) return
+        val video = playback.video
+        updatePlayback(video) { it.copy(commentsLoadingMore = true) }
+        detailsJob = viewModelScope.launch {
+            val page = youTubeService.loadComments(token)
+            updatePlayback(video) { current ->
+                val shown = current.details ?: return@updatePlayback current.copy(commentsLoadingMore = false)
+                if (shown.commentsContinuation != token) return@updatePlayback current.copy(commentsLoadingMore = false)
+                current.copy(
+                    commentsLoadingMore = false,
+                    details = if (page == null) shown else shown.copy(
+                        comments = (shown.comments + page.comments).distinctBy { it.id },
+                        commentsContinuation = page.continuation
+                    )
+                )
+            }
+        }
+    }
+
+    /**
+     * The player stopped on an error mid-video (the stream link expired or was refused, or the
+     * network dropped). Keeps the place, so Retry picks up there with a fresh link.
+     */
+    fun onPlaybackError() {
+        val video = _uiState.value.playback?.video ?: return
+        saveResumePoint()
+        reportHistory()
+        updatePlayback(video) { it.copy(isLoading = false, failed = true) }
+    }
+
     fun retryPlayback() {
         _uiState.value.playback?.video?.let(::play)
     }
 
     fun closePlayback() {
+        qualityJob?.cancel()
+        detailsJob?.cancel()
         playbackJob?.cancel()
         captionJob?.cancel()
         playingPlaylistsJob?.cancel()
         playbackJob = null
+        val watched = lastPositionMs > 0L
         markProgressOnCard()
         _uiState.update { it.copy(playback = null) }
+        if (watched) markFeedsStaleAfterWatching()
     }
 
     /** Plays [next] from the end card, keeping the finished video's progress on its card. */
@@ -926,15 +1108,25 @@ class YouTubeViewModel @Inject constructor(
         null
     }
 
-    private suspend fun fetchMore(feed: YouTubeFeed, token: String): YouTubePage? = try {
-        youTubeService.loadMore(feed, token)
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: YouTubeSignedOutException) {
-        _uiState.update { it.copy(signedOut = true) }
-        null
-    } catch (e: Exception) {
-        null
+    /**
+     * The page after [token]. A failure is tried again after a short wait, twice, since the screen
+     * only asks again once focus moves on: a network blip shouldn't end the feed for good.
+     */
+    private suspend fun fetchMore(feed: YouTubeFeed, token: String): YouTubePage? {
+        for ((attempt, wait) in LOAD_MORE_RETRY_DELAYS_MS.withIndex()) {
+            if (wait > 0) delay(wait)
+            try {
+                return youTubeService.loadMore(feed, token)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: YouTubeSignedOutException) {
+                _uiState.update { it.copy(signedOut = true) }
+                return null
+            } catch (e: Exception) {
+                if (attempt == LOAD_MORE_RETRY_DELAYS_MS.lastIndex) return null
+            }
+        }
+        return null
     }
 
     /**
@@ -994,16 +1186,22 @@ class YouTubeViewModel @Inject constructor(
     private fun load(key: FeedKey) {
         loadJobs[key]?.cancel()
         val query = _uiState.value.searchQuery
+        val filter = _uiState.value.searchFilter
         updateFeed(key) { it.copy(isLoading = true, failed = false) }
         loadJobs[key] = viewModelScope.launch {
             try {
                 val first = when (key) {
-                    is FeedKey.Tab -> youTubeService.loadFeed(key.feed, query)
+                    is FeedKey.Tab -> youTubeService.loadFeed(key.feed, query, filter)
                     is FeedKey.Browse -> youTubeService.loadBrowse(key.target)
                 }
                 val page = visiblePage(key, first) { it.continuation }
                 updateFeed(key) {
-                    YouTubeFeedState(shelves = page.shelves, continuation = page.continuation, loaded = true)
+                    YouTubeFeedState(
+                        shelves = page.shelves,
+                        continuation = page.continuation,
+                        loaded = true,
+                        loadedAtMs = System.currentTimeMillis()
+                    )
                 }
                 brandFeeds(page.shelves.flatMap { it.videos })
             } catch (e: CancellationException) {

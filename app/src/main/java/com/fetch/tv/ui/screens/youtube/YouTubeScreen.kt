@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.filled.VideoLibrary
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -81,6 +82,7 @@ import com.fetch.tv.data.youtube.YouTubeLink
 import com.fetch.tv.data.youtube.YouTubeLinkKind
 import com.fetch.tv.data.youtube.YouTubeService
 import com.fetch.tv.data.youtube.YouTubeShelf
+import com.fetch.tv.data.youtube.YouTubeSearchFilter
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
@@ -104,6 +106,11 @@ fun YouTubeScreen(
     onOpenSettings: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // Back on this screen after a while: a tab older than the stale time loads again.
+    LifecycleResumeEffect(viewModel) {
+        viewModel.onScreenResumed()
+        onPauseOrDispose { }
+    }
     val firstTabFocusRequester = remember { FocusRequester() }
     val openPage = state.browse.lastOrNull()
     val pageKey = pageKey(state, state.browse.size)
@@ -212,6 +219,7 @@ fun YouTubeScreen(
                     onClear = if (typed) null else viewModel::clearRecentSearches
                 )
             }
+            YouTubeSearchFilterChips(filter = state.searchFilter, onChange = viewModel::setSearchFilter)
         }
 
         // Each tab and opened page keeps its own scroll position, from [memory].
@@ -342,7 +350,11 @@ fun YouTubeScreen(
             onCreatePlaylist = { title, privacy -> viewModel.createPlaylist(YouTubeSaveList.PLAYER, title, privacy) },
             playbackSpeed = state.playbackSpeed,
             onSetSpeed = viewModel::setPlaybackSpeed,
-            onResumed = viewModel::onResumed
+            onResumed = viewModel::onResumed,
+            onPlaybackError = viewModel::onPlaybackError,
+            onSetQuality = viewModel::setQuality,
+            onLoadDetails = viewModel::loadDetails,
+            onLoadMoreComments = viewModel::loadMoreComments
         )
     }
 }
@@ -386,6 +398,7 @@ private fun noticeText(notice: YouTubeNotice): String = when (notice) {
     is YouTubeNotice.Unsubscribed -> notice.channel?.let { stringResource(R.string.youtube_notice_unsubscribed, it) }
         ?: stringResource(R.string.youtube_notice_unsubscribed_plain)
     YouTubeNotice.Failed -> stringResource(R.string.youtube_action_failed)
+    YouTubeNotice.QualityFailed -> stringResource(R.string.youtube_quality_failed)
 }
 
 /** The tab, or the page opened [depth] deep over the tabs, that [state] shows at that depth. */
@@ -1020,6 +1033,90 @@ private fun YouTubeSearchChips(
             }
         }
     }
+}
+
+/**
+ * YouTube's search filters as a row of chips. Each chip steps to its next choice when pressed,
+ * which suits a remote better than a menu per filter; the search runs again with each change.
+ */
+@Composable
+private fun YouTubeSearchFilterChips(filter: YouTubeSearchFilter, onChange: (YouTubeSearchFilter) -> Unit) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = FetchTheme.spacing.screen.horizontal),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        item(key = "sort") {
+            SettingsChoiceChip(
+                label = stringResource(R.string.youtube_filter_sort, stringResource(filter.sort.labelRes())),
+                selected = filter.sort != YouTubeSearchFilter.Sort.RELEVANCE,
+                onClick = { onChange(filter.copy(sort = filter.sort.next())) }
+            )
+        }
+        item(key = "date") {
+            SettingsChoiceChip(
+                label = stringResource(R.string.youtube_filter_upload_date, stringResource(filter.uploadDate.labelRes())),
+                selected = filter.uploadDate != YouTubeSearchFilter.UploadDate.ANY,
+                onClick = { onChange(filter.copy(uploadDate = filter.uploadDate.next())) }
+            )
+        }
+        item(key = "type") {
+            SettingsChoiceChip(
+                label = stringResource(R.string.youtube_filter_type, stringResource(filter.type.labelRes())),
+                selected = filter.type != YouTubeSearchFilter.Type.ANY,
+                onClick = { onChange(filter.copy(type = filter.type.next())) }
+            )
+        }
+        item(key = "duration") {
+            SettingsChoiceChip(
+                label = stringResource(R.string.youtube_filter_duration, stringResource(filter.duration.labelRes())),
+                selected = filter.duration != YouTubeSearchFilter.Duration.ANY,
+                onClick = { onChange(filter.copy(duration = filter.duration.next())) }
+            )
+        }
+        if (!filter.isDefault) {
+            item(key = "clear") {
+                SettingsChoiceChip(
+                    label = stringResource(R.string.youtube_filter_clear),
+                    selected = false,
+                    onClick = { onChange(YouTubeSearchFilter()) }
+                )
+            }
+        }
+    }
+}
+
+private inline fun <reified E : Enum<E>> E.next(): E = enumValues<E>().let { it[(ordinal + 1) % it.size] }
+
+private fun YouTubeSearchFilter.Sort.labelRes(): Int = when (this) {
+    YouTubeSearchFilter.Sort.RELEVANCE -> R.string.youtube_filter_sort_relevance
+    YouTubeSearchFilter.Sort.UPLOAD_DATE -> R.string.youtube_filter_sort_upload_date
+    YouTubeSearchFilter.Sort.VIEW_COUNT -> R.string.youtube_filter_sort_view_count
+    YouTubeSearchFilter.Sort.RATING -> R.string.youtube_filter_sort_rating
+}
+
+private fun YouTubeSearchFilter.UploadDate.labelRes(): Int = when (this) {
+    YouTubeSearchFilter.UploadDate.ANY -> R.string.youtube_filter_any
+    YouTubeSearchFilter.UploadDate.LAST_HOUR -> R.string.youtube_filter_date_hour
+    YouTubeSearchFilter.UploadDate.TODAY -> R.string.youtube_filter_date_today
+    YouTubeSearchFilter.UploadDate.THIS_WEEK -> R.string.youtube_filter_date_week
+    YouTubeSearchFilter.UploadDate.THIS_MONTH -> R.string.youtube_filter_date_month
+    YouTubeSearchFilter.UploadDate.THIS_YEAR -> R.string.youtube_filter_date_year
+}
+
+private fun YouTubeSearchFilter.Type.labelRes(): Int = when (this) {
+    YouTubeSearchFilter.Type.ANY -> R.string.youtube_filter_any
+    YouTubeSearchFilter.Type.VIDEO -> R.string.youtube_filter_type_video
+    YouTubeSearchFilter.Type.CHANNEL -> R.string.youtube_filter_type_channel
+    YouTubeSearchFilter.Type.PLAYLIST -> R.string.youtube_filter_type_playlist
+    YouTubeSearchFilter.Type.MOVIE -> R.string.youtube_filter_type_movie
+}
+
+private fun YouTubeSearchFilter.Duration.labelRes(): Int = when (this) {
+    YouTubeSearchFilter.Duration.ANY -> R.string.youtube_filter_any
+    YouTubeSearchFilter.Duration.UNDER_4_MINUTES -> R.string.youtube_filter_duration_short
+    YouTubeSearchFilter.Duration.FOUR_TO_20_MINUTES -> R.string.youtube_filter_duration_medium
+    YouTubeSearchFilter.Duration.OVER_20_MINUTES -> R.string.youtube_filter_duration_long
 }
 
 private fun YouTubeFeed.labelRes(): Int = when (this) {

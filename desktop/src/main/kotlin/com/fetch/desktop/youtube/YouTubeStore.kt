@@ -5,6 +5,7 @@ import com.fetch.desktop.data.PrivateFiles
 import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeAccount
+import com.fetch.tv.data.youtube.YouTubeResume
 import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -100,6 +101,13 @@ data class YouTubeAuth(
 interface YouTubeAuthStore {
     fun load(): YouTubeAuth
     fun save(auth: YouTubeAuth)
+
+    /** Reads, changes and saves the sign-in as one step, so two changes never overwrite each other. */
+    fun update(transform: (YouTubeAuth) -> YouTubeAuth) = synchronized(this) {
+        val current = load()
+        val next = transform(current)
+        if (next != current) save(next)
+    }
 }
 
 /** Keeps the sign-in in memory only (tests, or before a profile has a folder). */
@@ -131,11 +139,17 @@ class YouTubeAuthFile(private val file: File) : YouTubeAuthStore {
 
     @Synchronized
     override fun save(auth: YouTubeAuth) {
-        cached = auth
-        runCatching {
+        val written = runCatching {
             // Owner-only (600), written then renamed so a crash never leaves half a file.
             PrivateFiles.writeText(file, json.encodeToString(YouTubeAuth.serializer(), auth))
+        }.isSuccess
+        // A sign-out must not leave the old tokens on disk: drop the file if it couldn't be
+        // rewritten, and say so if even that fails. The old sign-in then stays what's loaded, so
+        // the next sign-out (or Google refusing the revoked token) tries the clean-up again.
+        if (!written && !auth.isSignedIn && file.exists() && !file.delete()) {
+            throw java.io.IOException("Couldn't remove the YouTube sign-in from ${file.path}")
         }
+        cached = auth
     }
 }
 
@@ -199,12 +213,13 @@ fun resumableMs(positionMs: Long, durationMs: Long): Long? {
 private const val MIN_RESUME_MS = 10_000L
 
 /**
- * Where mpv starts [video]: the exact place Fetch saved, else how far YouTube's own progress bar
- * says (as a percentage, since the length isn't known before mpv opens it). Nothing when barely
+ * Where mpv starts [video]: the exact place Fetch saved (unless YouTube's progress is clearly
+ * further on, from another device), else how far YouTube's own progress bar says (as a percentage, since the length isn't known before mpv opens it). Nothing when barely
  * started or nearly finished, as on TV.
  */
 fun youTubeResumeStart(saved: YouTubeResumePoint?, watchedPercent: Int?): String? {
-    saved?.let { point -> resumableMs(point.positionMs, point.durationMs)?.let { return "%.1f".format(java.util.Locale.ROOT, it / 1000.0) } }
+    saved?.takeUnless { YouTubeResume.youTubeIsAhead(it.positionMs, it.durationMs, watchedPercent) }
+        ?.let { point -> resumableMs(point.positionMs, point.durationMs)?.let { return "%.1f".format(java.util.Locale.ROOT, it / 1000.0) } }
     val percent = watchedPercent ?: return null
     if (percent < 3 || percent > 95) return null
     return "$percent%"

@@ -1,8 +1,11 @@
 package com.fetch.tv.ui.screens.youtube
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -12,11 +15,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.tv.material3.MaterialTheme
@@ -26,6 +34,7 @@ import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeChapter
 import com.fetch.tv.data.youtube.YouTubePlaylistContext
+import com.fetch.tv.data.youtube.YouTubeVideoDetails
 import com.fetch.tv.ui.screens.detail.formatPlaybackTime
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.theme.FetchTheme
@@ -34,7 +43,7 @@ import java.text.NumberFormat
 import java.util.Locale
 
 /** The pages of the player's Down menu. */
-internal enum class PlaybackOptionsPage { MAIN, CAPTIONS, SPEED, CHAPTERS }
+internal enum class PlaybackOptionsPage { MAIN, CAPTIONS, SPEED, QUALITY, CHAPTERS, DETAILS }
 
 /** A titled panel on the player's right, like the captions and actions menus. */
 @Composable
@@ -70,6 +79,7 @@ private fun PlayerMenuPanel(
 internal fun PlaybackOptionsMenu(
     captionLabel: String?,
     speed: Float,
+    qualityLabel: String,
     currentChapter: String?,
     hasChapters: Boolean,
     onOpen: (PlaybackOptionsPage) -> Unit,
@@ -93,6 +103,12 @@ internal fun PlaybackOptionsMenu(
             onClick = { onOpen(PlaybackOptionsPage.SPEED) },
             modifier = if (captionLabel == null) Modifier.focusRequester(firstFocus) else Modifier
         )
+        CaptionMenuRow(
+            label = stringResource(R.string.youtube_options_quality),
+            value = qualityLabel,
+            selected = false,
+            onClick = { onOpen(PlaybackOptionsPage.QUALITY) }
+        )
         if (hasChapters) {
             CaptionMenuRow(
                 label = stringResource(R.string.youtube_options_chapters),
@@ -101,6 +117,11 @@ internal fun PlaybackOptionsMenu(
                 onClick = { onOpen(PlaybackOptionsPage.CHAPTERS) }
             )
         }
+        CaptionMenuRow(
+            label = stringResource(R.string.youtube_options_details),
+            selected = false,
+            onClick = { onOpen(PlaybackOptionsPage.DETAILS) }
+        )
     }
     LaunchedEffect(Unit) { firstFocus.requestFocusAfterFrames() }
 }
@@ -130,6 +151,247 @@ internal fun SpeedMenu(
     }
     LaunchedEffect(Unit) { selectedFocus.requestFocusAfterFrames() }
 }
+
+/** The heights the player's Quality list offers, tallest first, after Auto. */
+internal val QUALITY_OPTIONS = listOf(2160, 1440, 1080, 720, 480, 360)
+
+@Composable
+internal fun qualityLabel(quality: Int?, defaultQuality: Int): String =
+    if (quality == null) {
+        stringResource(R.string.youtube_quality_auto, defaultQuality)
+    } else {
+        stringResource(R.string.youtube_quality_height, quality)
+    }
+
+/**
+ * The player's Quality list: Auto (Settings' cap) and each height. A pick fetches the stream again
+ * at that cap; the video carries on from where it was.
+ */
+@Composable
+internal fun QualityMenu(
+    quality: Int?,
+    defaultQuality: Int,
+    loading: Boolean,
+    onSelect: (Int?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val selectedFocus = remember { FocusRequester() }
+    val options: List<Int?> = listOf<Int?>(null) + QUALITY_OPTIONS
+    PlayerMenuPanel(title = stringResource(R.string.youtube_options_quality), modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier.heightIn(max = CAPTION_MENU_MAX_HEIGHT),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
+        ) {
+            itemsIndexed(options, key = { _, it -> it ?: 0 }) { _, option ->
+                val selected = option == quality
+                CaptionMenuRow(
+                    label = qualityLabel(option, defaultQuality),
+                    selected = selected && !loading,
+                    loading = selected && loading,
+                    onClick = { onSelect(option) },
+                    modifier = if (selected) Modifier.focusRequester(selectedFocus) else Modifier
+                )
+            }
+        }
+    }
+    LaunchedEffect(Unit) { selectedFocus.requestFocusAfterFrames() }
+}
+
+/**
+ * What's under the video on YouTube: views, upload date and channel, the description, and the
+ * comments, read from the watch page the first time this opens. Each paragraph and comment takes
+ * focus in turn, so the remote scrolls through them; more comments load near the end.
+ */
+@Composable
+internal fun VideoDetailsPanel(
+    details: YouTubeVideoDetails?,
+    loading: Boolean,
+    failed: Boolean,
+    loadingMore: Boolean,
+    onNearEnd: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val firstFocus = remember { FocusRequester() }
+    Column(
+        modifier = modifier
+            .padding(FetchTheme.spacing.xl)
+            .width(DETAILS_PANEL_WIDTH)
+            .clip(RoundedCornerShape(FetchTheme.radii.md))
+            .background(FetchTheme.colors.Player.ScrimStrong)
+            .padding(FetchTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Text(
+            text = stringResource(R.string.youtube_options_details),
+            style = MaterialTheme.typography.titleMedium,
+            color = FetchTheme.colors.Player.TextPrimary
+        )
+        when {
+            details == null && loading -> CaptionMenuRow(
+                label = stringResource(R.string.youtube_details_loading),
+                selected = false,
+                loading = true,
+                onClick = {},
+                modifier = Modifier.focusRequester(firstFocus)
+            )
+            details == null -> CaptionMenuRow(
+                label = stringResource(if (failed) R.string.youtube_details_failed else R.string.youtube_details_loading),
+                selected = false,
+                onClick = {},
+                modifier = Modifier.focusRequester(firstFocus)
+            )
+            else -> {
+                val paragraphs = remember(details.description) {
+                    // Line by line, and long lines in pieces: each is a focus stop no taller than the panel,
+                    // so the remote never skips over part of the text.
+                    descriptionBlocks(details.description)
+                }
+                val listState = rememberLazyListState()
+                val total = 1 + paragraphs.size + 1 + details.comments.size
+                val nearEnd by remember(total) {
+                    derivedStateOf {
+                        (listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) >= total - 3
+                    }
+                }
+                // The continuation too: a page that added nothing new still moves it on.
+                LaunchedEffect(nearEnd, total, details.commentsContinuation) { if (nearEnd) onNearEnd() }
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.heightIn(max = DETAILS_PANEL_MAX_HEIGHT),
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
+                ) {
+                    item(key = "numbers") {
+                        DetailsBlock(
+                            text = listOfNotNull(details.viewCount, details.published).joinToString(" · ")
+                                .ifBlank { details.channelName.orEmpty() },
+                            secondary = listOfNotNull(details.channelName, details.subscriberCount).joinToString(" · ").ifBlank { null },
+                            modifier = Modifier.focusRequester(firstFocus)
+                        )
+                    }
+                    itemsIndexed(paragraphs, key = { index, _ -> "p$index" }) { _, paragraph ->
+                        DetailsBlock(text = paragraph)
+                    }
+                    item(key = "comments") {
+                        Text(
+                            text = details.commentCount?.let { stringResource(R.string.youtube_comments_count, it) }
+                                ?: stringResource(R.string.youtube_comments),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = FetchTheme.colors.Player.TextPrimary,
+                            modifier = Modifier.padding(top = FetchTheme.spacing.sm)
+                        )
+                    }
+                    itemsIndexed(details.comments, key = { _, comment -> comment.id }) { _, comment ->
+                        DetailsBlock(
+                            text = comment.text,
+                            secondary = listOfNotNull(
+                                comment.author.ifBlank { null },
+                                comment.published,
+                                comment.likeCount?.let { stringResource(R.string.youtube_comment_likes, it) },
+                                stringResource(R.string.youtube_comment_pinned).takeIf { comment.isPinned }
+                            ).joinToString(" · "),
+                            heading = true
+                        )
+                    }
+                    if (loadingMore) {
+                        item(key = "more") {
+                            CaptionMenuRow(label = stringResource(R.string.youtube_details_loading), selected = false, loading = true, onClick = {})
+                        }
+                    } else if (details.comments.isEmpty()) {
+                        item(key = "none") {
+                            DetailsBlock(text = stringResource(R.string.youtube_comments_none))
+                        }
+                    }
+                }
+            }
+        }
+    }
+    LaunchedEffect(details == null) { firstFocus.requestFocusAfterFrames() }
+}
+
+/**
+ * [description] as the details panel's focus stops: one per line, and a line wider than
+ * [maxChars] in pieces broken after a sentence where one falls late enough, else at a space.
+ * Width counts a wide (CJK, full-width) character as two, so a piece of [maxChars] stays well
+ * under the panel's height in any script, even with the system font enlarged.
+ */
+internal fun descriptionBlocks(description: String, maxChars: Int = DESCRIPTION_BLOCK_MAX_CHARS): List<String> =
+    description.split(Regex("\n+")).map { it.trim() }.filter { it.isNotEmpty() }.flatMap { line ->
+        val pieces = mutableListOf<String>()
+        var rest = line
+        while (displayWidth(rest) > maxChars) {
+            // The longest prefix no wider than the limit (at least one character).
+            var end = 0
+            var width = 0
+            while (end < rest.length) {
+                val w = displayWidth(rest[end])
+                if (width + w > maxChars && end > 0) break
+                width += w
+                end++
+            }
+            val window = rest.substring(0, minOf(end + 1, rest.length))
+            val sentence = Regex("[.!?]\\s|[。！？]").findAll(window).lastOrNull()?.range?.first?.plus(1)
+            val cut = (sentence?.takeIf { it >= end / 2 && it <= end }
+                ?: window.lastIndexOf(' ').takeIf { it >= end / 2 && it <= end }
+                ?: end).coerceAtLeast(1)
+            pieces += rest.substring(0, cut).trim()
+            rest = rest.substring(cut).trim()
+        }
+        if (rest.isNotEmpty()) pieces += rest
+        pieces
+    }
+
+private fun displayWidth(c: Char): Int = when (Character.UnicodeBlock.of(c)) {
+    Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS, Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A,
+    Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS, Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION,
+    Character.UnicodeBlock.HIRAGANA, Character.UnicodeBlock.KATAKANA, Character.UnicodeBlock.HANGUL_SYLLABLES,
+    Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS -> 2
+    else -> 1
+}
+
+private fun displayWidth(text: String): Int = text.sumOf { displayWidth(it) }
+
+/** A focusable block of text in [VideoDetailsPanel], so the remote can move through it. */
+@Composable
+private fun DetailsBlock(
+    text: String,
+    modifier: Modifier = Modifier,
+    secondary: String? = null,
+    /** [secondary] is the comment's author line, shown above the text. */
+    heading: Boolean = false
+) {
+    var focused by remember { mutableStateOf(false) }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(FetchTheme.radii.sm))
+            .background(if (focused) FetchTheme.colors.Player.Control else Color.Transparent)
+            .onFocusChanged { focused = it.isFocused }
+            .focusable()
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
+            verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
+        ) {
+            if (heading && !secondary.isNullOrBlank()) {
+                Text(text = secondary, style = MaterialTheme.typography.labelMedium, color = FetchTheme.colors.Player.TextSecondary)
+            }
+            Text(text = text, style = MaterialTheme.typography.bodyMedium, color = FetchTheme.colors.Player.TextPrimary)
+            if (!heading && !secondary.isNullOrBlank()) {
+                Text(text = secondary, style = MaterialTheme.typography.labelMedium, color = FetchTheme.colors.Player.TextSecondary)
+            }
+        }
+    }
+}
+
+/** Wide enough for a paragraph; the list scrolls past a panel as tall as it is wide. */
+private val DETAILS_PANEL_WIDTH = CAPTION_MENU_WIDTH * 1.5f
+private val DETAILS_PANEL_MAX_HEIGHT = DETAILS_PANEL_WIDTH
+
+/**
+ * About six lines of Latin text at the panel's width: under a quarter of its height, so a piece
+ * fits even at the largest system font size.
+ */
+private const val DESCRIPTION_BLOCK_MAX_CHARS = 360
 
 @Composable
 internal fun ChapterMenu(

@@ -57,6 +57,8 @@ fun TrailerPlayer(
     playbackSpeed: Float = 1f,
     onEnded: () -> Unit,
     onFirstFrameRendered: () -> Unit = {},
+    /** Playback stopped on an error (an expired or refused link, the network gone). */
+    onError: (androidx.media3.common.PlaybackException) -> Unit = {},
     muted: Boolean = false,
     seekRequestToken: Int = 0,
     seekDeltaMs: Long = 0L,
@@ -83,6 +85,7 @@ fun TrailerPlayer(
     val currentTrailerAudioUrl by rememberUpdatedState(trailerAudioUrl)
     val currentOnEnded by rememberUpdatedState(onEnded)
     val currentOnFirstFrameRendered by rememberUpdatedState(onFirstFrameRendered)
+    val currentOnError by rememberUpdatedState(onError)
     val currentOnProgressChanged by rememberUpdatedState(onProgressChanged)
     val currentOnRemoteKey by rememberUpdatedState(onRemoteKey)
     val zoomScale = if (cropToFill) overscanZoom.coerceAtLeast(1f) else 1f
@@ -238,6 +241,10 @@ fun TrailerPlayer(
             override fun onRenderedFirstFrame() {
                 hasRenderedFirstFrame = true
                 currentOnFirstFrameRendered()
+            }
+
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                currentOnError(error)
             }
         }
         val observer = LifecycleEventObserver { _, event ->

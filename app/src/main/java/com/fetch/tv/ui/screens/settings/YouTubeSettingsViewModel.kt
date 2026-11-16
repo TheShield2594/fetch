@@ -58,6 +58,9 @@ data class YouTubeSettingsUiState(
     val homeRowEnabled: Boolean = YouTubeSettingsDataStore.DEFAULT_HOME_ROW_ENABLED
 )
 
+/** Failed polls in a row (not counting network blips between good ones) before sign-in gives up. */
+private const val MAX_POLL_FAILURES = 5
+
 @HiltViewModel
 class YouTubeSettingsViewModel @Inject constructor(
     private val youTubeService: YouTubeService,
@@ -259,6 +262,7 @@ class YouTubeSettingsViewModel @Inject constructor(
                     statusMessage = context.getString(R.string.youtube_waiting_approval)
                 )
             }
+            var failures = 0
             while (true) {
                 val expiresAt = _uiState.value.codeExpiresAtMillis
                 if (expiresAt != null && System.currentTimeMillis() >= expiresAt) {
@@ -267,7 +271,9 @@ class YouTubeSettingsViewModel @Inject constructor(
                     break
                 }
                 delay(_uiState.value.pollIntervalSeconds.coerceAtLeast(1) * 1000L)
-                when (val poll = youTubeService.pollDeviceToken()) {
+                val poll = youTubeService.pollDeviceToken()
+                if (poll !is YouTubeTokenPollResult.Failed) failures = 0
+                when (poll) {
                     YouTubeTokenPollResult.Pending -> Unit
                     is YouTubeTokenPollResult.SlowDown -> _uiState.update {
                         it.copy(pollIntervalSeconds = poll.intervalSeconds)
@@ -281,8 +287,13 @@ class YouTubeSettingsViewModel @Inject constructor(
                         break
                     }
                     is YouTubeTokenPollResult.Failed -> {
-                        stopPolling(error = poll.reason)
-                        break
+                        // A network blip while waiting: the code is still good, so keep polling.
+                        // Only a run of failures (Google itself refusing) ends it.
+                        failures++
+                        if (failures >= MAX_POLL_FAILURES) {
+                            stopPolling(error = poll.reason)
+                            break
+                        }
                     }
                     is YouTubeTokenPollResult.Approved -> {
                         _uiState.update {

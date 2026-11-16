@@ -20,7 +20,6 @@ com/fetch/tv/data/trailer/TrailerService.kt|3
 com/fetch/tv/data/youtube/ReturnYouTubeDislikeService.kt|1
 com/fetch/tv/data/youtube/SponsorBlockService.kt|2
 com/fetch/tv/data/youtube/YouTubeCaptions.kt|1
-com/fetch/tv/data/youtube/YouTubeService.kt|9
 com/fetch/tv/ui/components/posteroptions/PosterOptionsController.kt|9
 com/fetch/tv/ui/components/posteroptions/PosterOptionsViewModel.kt|2
 com/fetch/tv/ui/screens/account/FetchWebsiteViewModel.kt|1

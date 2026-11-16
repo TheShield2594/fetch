@@ -45,13 +45,13 @@ class YouTubeServiceParsingTest {
             json("""{"access_token": "at", "refresh_token": "rt", "expires_in": 3599, "token_type": "Bearer"}""")
         )
 
-        assertEquals(YouTubeService.TokenPoll.Token(YouTubeToken("at", "rt", 3599)), poll)
+        assertEquals(YouTubeApiClient.TokenPoll.Token(YouTubeToken("at", "rt", 3599)), poll)
     }
 
     @Test
     fun `poll errors map to their states`() {
         fun status(error: String) =
-            (service.parseTokenPoll(json("""{"error": "$error"}""")) as YouTubeService.TokenPoll.Status).status
+            (service.parseTokenPoll(json("""{"error": "$error"}""")) as YouTubeApiClient.TokenPoll.Status).status
 
         assertEquals(YouTubeTokenPollResult.Pending, status("authorization_pending"))
         assertEquals(YouTubeTokenPollResult.SlowDown(10), status("slow_down"))

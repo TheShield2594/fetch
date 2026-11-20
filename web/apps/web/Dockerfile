@@ -1,4 +1,4 @@
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS build
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS build
 
 WORKDIR /app
 RUN npm install -g corepack@latest && corepack enable
@@ -19,7 +19,7 @@ COPY packages/shared ./packages/shared
 RUN pnpm --filter @fetch/shared build
 RUN pnpm --filter @fetch/web build
 
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS runtime
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS runtime
 
 WORKDIR /app
 RUN apk add --no-cache wget && npm install -g serve@14

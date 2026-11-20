@@ -1,4 +1,4 @@
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS build
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS build
 
 WORKDIR /app
 RUN npm install -g corepack@latest && corepack enable
@@ -39,7 +39,7 @@ RUN pnpm deploy --filter @fetch/api --prod --legacy \
 # Applies pending migrations and exits. Built as its own image (build target
 # `migrate`) and run to completion before the service starts — see the `migrate`
 # service in docker-compose.yml.
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS migrate
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS migrate
 
 WORKDIR /app
 RUN apk add --no-cache openssl
@@ -53,7 +53,7 @@ ENV NODE_ENV=production
 
 CMD ["./node_modules/.bin/prisma", "migrate", "deploy"]
 
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS runtime
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS runtime
 
 WORKDIR /app
 RUN apk add --no-cache wget openssl

@@ -327,6 +327,12 @@ object StreamTitleParser {
         "^(.*)\\s-\\s([\\p{L}][\\p{L}\\p{N}_]{1,15})(?:\\s?\\[[^\\[\\]]{1,20}])?(?:\\.(?:mkv|mp4|avi))?\\s*$"
     )
 
+    // Sites and trackers whose tag sits where a group would (#202): see isUploader.
+    private val UPLOADERS = setOf(
+        "protonmovies", "hdo", "hdolimpo", "mkvcinemas", "mkvanime", "telly", "hurtom", "toloka",
+        "eztv", "eztvx", "tgx", "torrentgalaxy", "1337x"
+    )
+
     // Closing words that describe the file rather than name who made it.
     private val NOT_A_GROUP = setOf(
         "hdr", "sdr", "dv", "dovi", "atmos", "remux", "hybrid", "imax", "dual", "multi", "uncut",
@@ -347,16 +353,25 @@ object StreamTitleParser {
         val lines = text.lineSequence().map { it.trim() }.toList()
         lines.firstNotNullOfOrNull { line ->
             RELEASE_GROUP.find(line)?.let { match ->
-                match.groupValues[1].takeIf { isDashGroup(it) && !continuesAudioTag(line, match.range.first, it) }
+                match.groupValues[1].takeIf {
+                    isDashGroup(it) && !continuesAudioTag(line, match.range.first, it) && !isUploader(it)
+                }
             }
         }
             ?.let { return it }
         lines.mapNotNull { LEADING_GROUP.find(it)?.groupValues?.get(1)?.trim(' ', '.', '-', '_') }
-            .firstOrNull { group -> group.any(Char::isLetter) && !looksLikeQualityTag(group) }
+            .firstOrNull { group -> group.any(Char::isLetter) && !looksLikeQualityTag(group) && !isUploader(group) }
             ?.let { return it }
-        lines.firstNotNullOfOrNull(::closingWordGroup)?.let { return it }
-        return lines.firstNotNullOfOrNull(::trailingBracketGroup)
+        lines.firstNotNullOfOrNull { closingWordGroup(it)?.takeUnless(::isUploader) }?.let { return it }
+        return lines.firstNotNullOfOrNull { trailingBracketGroup(it)?.takeUnless(::isUploader) }
     }
+
+    /**
+     * A site or tracker that tags what it uploads ("[ProtonMovies]", "- mkvCinemas", "[HDO]"), not the
+     * group that made the release, so a release-group rule can't be steered by where it was posted.
+     * Groups that upload under their own name (YTS, RARBG, QxR) are groups and stay out of this list.
+     */
+    private fun isUploader(name: String): Boolean = name.lowercase() in UPLOADERS
 
     private fun isDashGroup(group: String): Boolean {
         val first = group.substringBefore('.').substringBefore(' ')

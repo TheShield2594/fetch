@@ -287,11 +287,18 @@ class ProfileRestrictionsDataStore internal constructor(
         decodeChangedAt(prefs[kidsRulesChangedAtKey])
     }
 
-    /** A parent changed the profile's kids rules or always-allowed titles on this TV at [atMs]. */
+    /**
+     * A parent changed the profile's kids rules or always-allowed titles on this TV at [atMs].
+     *
+     * The stamp is never at or before the one the rules had: a change is made on top of the copy
+     * this TV holds (often the website's, stamped with the website's clock), so it must count as
+     * newer than that copy even when this TV's clock runs behind. Otherwise the next sync would
+     * keep the older copy and quietly undo the parent's change (#622).
+     */
     suspend fun markKidsRulesChanged(profileId: Int, atMs: Long) {
         dataStore.edit { prefs ->
             val current = decodeChangedAt(prefs[kidsRulesChangedAtKey])
-            prefs[kidsRulesChangedAtKey] = encodeChangedAt(current + (profileId to atMs))
+            prefs[kidsRulesChangedAtKey] = encodeChangedAt(current + (profileId to nextKidsRulesStamp(current[profileId], atMs)))
         }
     }
 
@@ -405,3 +412,7 @@ class ProfileRestrictionsDataStore internal constructor(
         }.toMap()
     }
 }
+
+/** The stamp of a change made at [nowMs] on top of rules stamped [previousMs]: [nowMs], or just after [previousMs]. */
+internal fun nextKidsRulesStamp(previousMs: Long?, nowMs: Long): Long =
+    if (previousMs != null && nowMs <= previousMs) previousMs + 1 else nowMs

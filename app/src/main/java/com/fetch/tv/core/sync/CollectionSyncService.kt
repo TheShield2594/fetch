@@ -24,7 +24,8 @@ private const val TAG = "CollectionSyncService"
 class CollectionSyncService @Inject constructor(
     private val collectionsDataStore: CollectionsDataStore,
     private val profileManager: ProfileManager,
-    private val backends: SyncBackends
+    private val backends: SyncBackends,
+    private val pendingPushes: PendingPushTracker
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -41,9 +42,14 @@ class CollectionSyncService @Inject constructor(
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
         val backend = backends.active ?: return@withContext Result.success(Unit)
         val profileId = profileManager.activeProfileId.value
+        // Read before the local copy, so an edit made while this push is on its way stays pending.
+        val revision = pendingPushes.revision(PendingPushTracker.Domain.COLLECTIONS, profileId)
         val collections = runSuspendCatching { localCollectionsJson() }.getOrElse { return@withContext Result.failure(it) }
         backend.pushCollections(profileId, collections)
-            .onSuccess { Log.d(TAG, "Pushed ${collections.size} collections to ${backend.kind} for profile $profileId") }
+            .onSuccess {
+                pendingPushes.markSent(PendingPushTracker.Domain.COLLECTIONS, profileId, revision)
+                Log.d(TAG, "Pushed ${collections.size} collections to ${backend.kind} for profile $profileId")
+            }
             .onFailure { Log.e(TAG, "Failed to push collections to ${backend.kind}", it) }
     }
 
@@ -55,6 +61,11 @@ class CollectionSyncService @Inject constructor(
         val backend = backends.active ?: return@withContext Result.success(false)
         try {
             val profileId = profileManager.activeProfileId.value
+            // An edit not sent yet goes up first: pulling over it would lose it (#616). If it
+            // still can't be sent, the local copy is kept and the pull waits for the next pass.
+            if (pendingPushes.isDirty(PendingPushTracker.Domain.COLLECTIONS, profileId)) {
+                pushToRemote().getOrThrow()
+            }
             val remote = backend.pullCollections(profileId, localCollectionsJson()).getOrThrow()
             if (remote == null) {
                 Log.d(TAG, "No remote collections to apply for profile $profileId; keeping local")
@@ -92,10 +103,14 @@ class CollectionSyncService @Inject constructor(
     fun triggerPush() {
         if (isSyncingFromRemote) return
         if (!backends.canSync) return
+        val profileId = profileManager.activeProfileId.value
+        // Marked now, not after the debounce: the change must survive the app dying in between.
+        pendingPushes.markDirty(PendingPushTracker.Domain.COLLECTIONS, profileId)
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(500)
-            pushToRemote()
+            // After a profile switch the change stays pending for its own profile, pushed on its next sync.
+            if (profileManager.activeProfileId.value == profileId) pushToRemote()
         }
     }
 }

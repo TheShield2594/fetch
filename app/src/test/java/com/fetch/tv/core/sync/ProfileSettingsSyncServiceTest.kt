@@ -236,6 +236,54 @@ class ProfileSettingsSyncServiceTest {
         assertEquals("secret", harness.read(1, "mdblist_settings")[stringPreferencesKey("mdblist_api_key")])
     }
 
+    @Test
+    fun aStoreResetByCorruptionIsLeftOutUntilThePullRefillsIt() = runBlocking {
+        val backend = FakeBackend()
+        val harness = Harness(backend)
+        harness.edit(1, "theme_settings") { this[stringPreferencesKey("accent")] = "BLUE" }
+        harness.resets += 1 to "player_settings"
+
+        // Empty after the reset: exported, it would read as "every key removed" and wipe the copy
+        // on the website and every other TV (#615). Left out, the merge keeps the other side's.
+        val exported = harness.service.exportLocalSettings(1)
+        assertFalse("player_settings" in exported)
+        assertTrue("theme_settings" in exported)
+
+        backend.remote = blobOf(
+            "theme_settings" to buildJsonObject { put("accent", typed("string", "BLUE")) },
+            "player_settings" to buildJsonObject { put("subtitle_size", typed("string", "LARGE")) }
+        )
+        assertTrue(harness.service.pullCurrentProfileFromRemote().getOrThrow())
+
+        assertEquals("LARGE", harness.read(1, "player_settings")[stringPreferencesKey("subtitle_size")])
+        assertFalse(1 to "player_settings" in harness.resets)
+        assertTrue("player_settings" in harness.service.exportLocalSettings(1))
+    }
+
+    @Test
+    fun theMergedBlobIsCommittedOnlyOnceTheTvHoldsIt() = runBlocking {
+        val backend = FakeBackend()
+        val harness = Harness(backend)
+        harness.edit(1, "theme_settings") { this[stringPreferencesKey("accent")] = "BLUE" }
+        val merged = blobOf("theme_settings" to buildJsonObject { put("accent", typed("string", "GREEN")) })
+        backend.merged = merged
+        backend.onCommit = { harness.read(1, "theme_settings")[stringPreferencesKey("accent")] }
+
+        harness.service.pushCurrentProfileToRemote().getOrThrow()
+        // The merge base is recorded after the apply, never before (#621).
+        assertEquals(listOf<Any?>("GREEN"), backend.commits)
+
+        backend.remote = merged
+        harness.service.pullCurrentProfileFromRemote().getOrThrow()
+        assertEquals(2, backend.commits.size)
+
+        // An apply that fails leaves the old base, so the next merge takes the website's values again.
+        harness.failWrites = true
+        backend.remote = blobOf("theme_settings" to buildJsonObject { put("accent", typed("string", "RED")) })
+        assertTrue(harness.service.pullCurrentProfileFromRemote().isFailure)
+        assertEquals(2, backend.commits.size)
+    }
+
     private fun typed(type: String, value: String) = buildJsonObject {
         put("type", type)
         put("value", value)
@@ -250,6 +298,12 @@ class ProfileSettingsSyncServiceTest {
         var remote: JsonObject? = null
         var merged: JsonObject? = null
         val pushed = mutableListOf<JsonObject>()
+        var onCommit: suspend () -> Any? = { null }
+        val commits = mutableListOf<Any?>()
+
+        override suspend fun commitSettings(profileId: Int) {
+            commits += onCommit()
+        }
 
         override suspend fun pullSettings(profileId: Int, local: suspend () -> JsonObject): Result<JsonObject?> =
             Result.success(remote)
@@ -265,9 +319,20 @@ class ProfileSettingsSyncServiceTest {
         private val stores = ConcurrentHashMap<Pair<Int, String>, MemoryStore>()
         val opened: Set<Pair<Int, String>> get() = stores.keys
 
+        /** Stores reset to empty after corruption, as [ProfileDataStoreFactory] marks them. */
+        val resets: MutableSet<Pair<Int, String>> = ConcurrentHashMap.newKeySet()
+
+        /** Makes every store refuse writes, as a full or failing disk would. */
+        var failWrites = false
+
         private val factory = mockk<ProfileDataStoreFactory> {
             every { get(any(), any()) } answers { store(firstArg(), secondArg()) }
             every { corruptedFileNames } returns ConcurrentHashMap.newKeySet()
+            every { wasResetAfterCorruption(any(), any()) } answers { (firstArg<Int>() to secondArg<String>()) in resets }
+            every { clearCorruptionReset(any(), any()) } answers {
+                resets.remove(firstArg<Int>() to secondArg<String>())
+                Unit
+            }
         }
         private val profileManager = mockk<ProfileManager> {
             every { activeProfileId } returns MutableStateFlow(1)
@@ -284,7 +349,8 @@ class ProfileSettingsSyncServiceTest {
             profileManager, factory, mockk(relaxed = true), mockk(relaxed = true), mockk(relaxed = true), backends
         )
 
-        private fun store(profileId: Int, feature: String) = stores.getOrPut(profileId to feature) { MemoryStore() }
+        private fun store(profileId: Int, feature: String) =
+            stores.getOrPut(profileId to feature) { MemoryStore { failWrites } }
 
         suspend fun edit(profileId: Int, feature: String, block: MutablePreferencesScope.() -> Unit) {
             store(profileId, feature).edit { MutablePreferencesScope(it).block() }
@@ -293,13 +359,16 @@ class ProfileSettingsSyncServiceTest {
         suspend fun read(profileId: Int, feature: String): Preferences = store(profileId, feature).data.first()
     }
 
-    private class MemoryStore : DataStore<Preferences> {
+    private class MemoryStore(private val failWrites: () -> Boolean = { false }) : DataStore<Preferences> {
         private val state = MutableStateFlow(emptyPreferences())
         private val lock = Mutex()
         override val data: Flow<Preferences> = state
 
         override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences =
-            lock.withLock { transform(state.value).also { state.value = it } }
+            lock.withLock {
+                if (failWrites()) throw java.io.IOException("disk full")
+                transform(state.value).also { state.value = it }
+            }
     }
 
     /** Lets the value table above read as assignments. */

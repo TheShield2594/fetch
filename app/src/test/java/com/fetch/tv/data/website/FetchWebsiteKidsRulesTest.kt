@@ -239,4 +239,26 @@ class FetchWebsiteKidsRulesTest {
 
         assertTrue(store.kidsRulesChangedAt.first().isEmpty())
     }
+
+    @Test
+    fun `a change on a TV whose clock runs behind still beats the website copy it was made on`() = runTest {
+        val store = ProfileRestrictionsDataStore(TestPreferencesStore())
+        store.applyWebsiteKidsRules(
+            profileId = 2,
+            rules = KidsRules(dailyMinutes = 60),
+            allowed = emptyList(),
+            changedAtMs = changedAtMs,
+            expectedLocalChangedAtMs = null
+        )
+
+        // The parent sets a bedtime here; this TV's clock says an hour before the website's copy (#622).
+        store.markKidsRulesChanged(2, changedAtMs - 3_600_000)
+
+        val localChangedAt = store.kidsRulesChangedAt.first()[2]!!
+        assertTrue(localChangedAt > changedAtMs)
+        assertEquals(
+            KidsRulesSync.SendLocal,
+            FetchWebsiteMappings.decideKidsRules(remote("2025-11-12T11:00:00Z"), localChangedAt, localHasRules = true)
+        )
+    }
 }

@@ -125,7 +125,16 @@ class FetchWebsiteSyncService @Inject constructor(
             } else {
                 Result.success(Unit)
             }
-            if (initialPush.isSuccess) pullProfiles()
+            // Profile changes made here and not sent yet (offline, or the app closed first) go up
+            // before the pull, which would otherwise replace them (#617). Until they get through,
+            // the TV keeps its own profiles and limits; the rest of the pass still runs.
+            val pendingSent = if (initialPush.isSuccess) {
+                runSuspendCatching { sendPendingProfileChanges() }
+                    .onFailure { Log.w(TAG, "Couldn't send this TV's profile changes; keeping its profiles", it) }
+            } else {
+                initialPush
+            }
+            if (pendingSent.isSuccess) pullProfiles()
             val pulled = runSuspendCatching { pullActiveProfileState() }
             // Both can fail: the push is the one the website's report names, since it is what
             // keeps the TV's profiles off the account; the pull's error is in the log.
@@ -329,12 +338,14 @@ class FetchWebsiteSyncService @Inject constructor(
      * write the old profiles back over it.
      */
     suspend fun pushProfilesNow(): Result<Unit> {
+        store.markProfilesChanged()
         profilesPushJob?.cancel()
         return syncMutex.withLock { pushProfiles() }
     }
 
     /** Sends every profile on this TV to the website, creating the ones it doesn't have yet. */
     suspend fun pushProfiles(): Result<Unit> = runSuspendCatching {
+        val revision = store.profilesRevision
         // The website's profiles say which one is in use here and which have a PIN.
         // Without them the push would go unnamed and a locked profile's change be left out
         // unnoticed, so not being able to read them fails the push.
@@ -342,8 +353,19 @@ class FetchWebsiteSyncService @Inject constructor(
         putProfiles(profileManager.profiles.value, known) { updated ->
             remoteProfiles = (remoteProfiles.filter { r -> updated.none { it.slot == r.slot } } + updated).sortedBy { it.slot }
         }
+        store.markProfilesSent(revision)
         Unit
     }.onFailure { Log.w(TAG, "Failed to push profiles to the website", it) }
+
+    /**
+     * Profile deletes, then other profile changes, made on this TV and not on the website yet.
+     * Throws when one can't be sent, so the pull that follows doesn't put the website's older
+     * profiles back: a deleted profile returning, a new one vanishing, a tighter limit loosened.
+     */
+    private suspend fun sendPendingProfileChanges() {
+        store.pendingProfileDeletes.forEach { slot -> deleteProfile(slot).getOrThrow() }
+        if (store.profilesRevision != 0L) pushProfiles().getOrThrow()
+    }
 
     /**
      * After a change made only on this TV (a parental limit, say): sends the profiles shortly
@@ -352,6 +374,8 @@ class FetchWebsiteSyncService @Inject constructor(
      */
     fun triggerProfilesPush() {
         if (!store.isPaired) return
+        // Recorded now, not after the debounce: the change must survive the app closing first.
+        store.markProfilesChanged()
         profilesPushJob?.cancel()
         profilesPushJob = scope.launch {
             delay(500)
@@ -361,9 +385,18 @@ class FetchWebsiteSyncService @Inject constructor(
 
     /** Deletes the website profile in [slot], with everything it holds there. */
     suspend fun deleteProfile(slot: Int): Result<Unit> = runSuspendCatching {
-        val remote = remoteFor(slot) ?: return@runSuspendCatching
-        client.deleteProfile(remote.id, profileToken(remote.id))
-        remoteProfiles = remoteProfiles.filter { it.slot != slot }
+        // Recorded first, so a delete that can't reach the website is sent on the next sync
+        // instead of the pull bringing the profile back (#617).
+        store.addPendingProfileDelete(slot)
+        // Not remoteFor, which reads an unreachable website as "no such profile" and would drop
+        // the pending delete unsent: a failed lookup must fail the delete.
+        val remote = remoteProfiles.firstOrNull { it.slot == slot }
+            ?: client.profiles().also { remoteProfiles = it }.firstOrNull { it.slot == slot }
+        if (remote != null) {
+            client.deleteProfile(remote.id, profileToken(remote.id))
+            remoteProfiles = remoteProfiles.filter { it.slot != slot }
+        }
+        store.removePendingProfileDelete(slot)
     }.onFailure { Log.w(TAG, "Failed to delete profile $slot on the website", it) }
 
     /** The website profile behind the profile active on this TV, looked up when not known yet. */
@@ -428,6 +461,9 @@ class FetchWebsiteSyncService @Inject constructor(
      */
     suspend fun pullAddons() {
         val addonSync = addonSyncService.get()
+        // An addon change not sent yet goes up first: the pull below removes every local addon
+        // the account doesn't list (#616). If it still can't be sent, the local list is kept.
+        if (addonSync.hasPendingPush()) addonSync.pushToRemote().getOrThrow()
         val urls = addonSync.pullRemoteAddonUrls().getOrThrow() ?: run {
             addonSync.pushToRemote().getOrThrow()
             return
@@ -532,9 +568,26 @@ class FetchWebsiteSyncService @Inject constructor(
      * last agreed on (see [FetchWebsiteTvMappings.mergeSettings]), so a change on either side
      * survives the other's. Null when the profile is locked and not unlocked on this TV.
      */
+    /**
+     * The merged blob of the last [reconcileSettings] per slot, with the website profile it
+     * belongs to, waiting for [commitSettingsBase] (#621).
+     */
+    private val pendingSettingsBases = java.util.concurrent.ConcurrentHashMap<Int, Pair<String, String>>()
+
+    /**
+     * Records the blob the last [reconcileSettings] for [slot] returned as the copy both sides
+     * agree on. The caller does this only after applying it on the TV, so a process death in
+     * between leaves the old base and the next merge takes the website's values again.
+     */
+    fun commitSettingsBase(slot: Int) {
+        val (websiteProfileId, blob) = pendingSettingsBases.remove(slot) ?: return
+        store.saveSettingsBase(websiteProfileId, blob)
+    }
+
     suspend fun reconcileSettings(slot: Int, local: JsonObject): JsonObject? {
         val remote = remoteFor(slot) ?: return null
         val token = profileToken(remote.id)
+        pendingSettingsBases.remove(slot)
         repeat(2) { attempt ->
             val current = try {
                 client.tvSettings(remote.id, token)
@@ -550,12 +603,12 @@ class FetchWebsiteSyncService @Inject constructor(
                 isNotSynced = ::shouldExcludePreferenceFromProfileSettingsSync
             )
             if (merged == current.settings) {
-                store.saveSettingsBase(remote.id, merged.toString())
+                pendingSettingsBases[slot] = remote.id to merged.toString()
                 return merged
             }
             try {
                 val saved = client.putTvSettings(remote.id, token, merged, current.version)
-                store.saveSettingsBase(remote.id, saved.settings.toString())
+                pendingSettingsBases[slot] = remote.id to saved.settings.toString()
                 return saved.settings
             } catch (error: FetchWebsiteException) {
                 if (error.status != 412 || attempt == 1) throw error

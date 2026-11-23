@@ -97,6 +97,16 @@ class ProfileDataStoreFactory @Inject constructor(
          * store and its copy), and a burst of edits did so once per edit.
          */
         const val SHADOW_COPY_INTERVAL_MS = 30_000L
+
+        /**
+         * Left next to a store that was reset to empty after corruption, until sync has given it
+         * its data back, so the reset survives a restart (#615).
+         */
+        const val RESET_MARKER_SUFFIX = ".reset"
+
+        /** The store (file) name of [profileId]'s [featureName]: the primary profile has no suffix. */
+        fun storeFileName(profileId: Int, featureName: String): String =
+            if (profileId == 1) featureName else "${featureName}_p$profileId"
     }
 
     /** Runs the background flush of shadow copies; lives as long as this singleton. */
@@ -155,7 +165,7 @@ class ProfileDataStoreFactory @Inject constructor(
      * outside coroutines (and flows keyed on a profile that was just deleted) keep working.
      */
     fun get(profileId: Int, featureName: String): DataStore<Preferences> {
-        val fileName = if (profileId == 1) featureName else "${featureName}_p$profileId"
+        val fileName = storeFileName(profileId, featureName)
         synchronized(lock) {
             // Checked under the lock: clearProfile marks the id before it collects the cached
             // stores to close, so a store is either refused here or closed there.
@@ -203,6 +213,7 @@ class ProfileDataStoreFactory @Inject constructor(
             dataStoreDir.listFiles()?.forEach { file ->
                 if (file.name.endsWith(suffix) ||
                     file.name.endsWith("$suffix$SHADOW_COPY_SUFFIX") ||
+                    file.name.endsWith("$suffix$RESET_MARKER_SUFFIX") ||
                     file.name.endsWith("$suffix$SHADOW_COPY_SUFFIX$SHADOW_COPY_TEMP_SUFFIX")
                 ) {
                     file.delete()
@@ -231,6 +242,10 @@ class ProfileDataStoreFactory @Inject constructor(
         if (dataStoreDir.exists()) {
             synchronized(shadowCopyLock) {
                 dataStoreDir.listFiles()?.forEach { file ->
+                    if (file.name.endsWith(RESET_MARKER_SUFFIX)) {
+                        if (!file.delete() && file.exists()) failures += "delete ${file.name}"
+                        return@forEach
+                    }
                     // A temp file left by a copy that was interrupted counts as a shadow copy.
                     val name = file.name.removeSuffix(SHADOW_COPY_TEMP_SUFFIX)
                     val isShadowCopy = name.endsWith(SHADOW_COPY_SUFFIX)
@@ -248,6 +263,32 @@ class ProfileDataStoreFactory @Inject constructor(
             throw IOException("Profile-scoped data not fully cleared: ${failures.joinToString()}")
         }
     }
+
+    /**
+     * True when [profileId]'s [featureName] store was reset to empty this session because it was
+     * corrupted and had no usable shadow copy. Its emptiness then says nothing about what the
+     * user wants, so sync must not send it as "every key removed" (#615). Only meaningful once
+     * the store has been read, since DataStore detects corruption on the first read.
+     */
+    fun wasResetAfterCorruption(profileId: Int, featureName: String): Boolean {
+        val fileName = storeFileName(profileId, featureName)
+        if (fileName in corruptedFileNames) return true
+        // A reset from an earlier session that never got its data back: the store reads as a
+        // valid empty file now, so only the marker left on disk tells the two apart.
+        if (!resetMarkerFile(fileName).exists()) return false
+        corruptedFileNames.add(fileName)
+        return true
+    }
+
+    /** Forgets the corruption reset of [profileId]'s [featureName] store, once it holds real data again. */
+    fun clearCorruptionReset(profileId: Int, featureName: String) {
+        val fileName = storeFileName(profileId, featureName)
+        corruptedFileNames.remove(fileName)
+        resetMarkerFile(fileName).delete()
+    }
+
+    private fun resetMarkerFile(fileName: String): File =
+        File(File(context.filesDir, "datastore"), "$fileName$DATASTORE_FILE_SUFFIX$RESET_MARKER_SUFFIX")
 
     fun isProfileDeleted(profileId: Int): Boolean = profileId in deletedProfileIds
 
@@ -279,6 +320,11 @@ class ProfileDataStoreFactory @Inject constructor(
                 } else {
                     Log.e("ProfileDataStoreFactory", "DataStore shadow copy unavailable ($fileName) — resetting to empty preferences")
                     corruptedFileNames.add(fileName)
+                    try {
+                        resetMarkerFile(fileName).createNewFile()
+                    } catch (e: IOException) {
+                        Log.w("ProfileDataStoreFactory", "Couldn't record the reset of $fileName", e)
+                    }
                     emptyPreferences()
                 }
             },

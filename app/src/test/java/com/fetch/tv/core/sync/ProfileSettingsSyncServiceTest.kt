@@ -273,9 +273,11 @@ class ProfileSettingsSyncServiceTest {
             every { activeProfileId } returns MutableStateFlow(1)
             every { profiles } returns MutableStateFlow((1..4).map { UserProfile(it, "Profile $it", "#ffffff") })
         }
+        // canSync stays false: it only gates the debounced auto-push and importLocalSettings'
+        // push, so a slow setup edit can't race an explicit push or pull, which use `active`.
         private val backends = mockk<SyncBackends> {
             every { active } returns backend
-            every { canSync } returns (backend != null)
+            every { canSync } returns false
         }
 
         val service = ProfileSettingsSyncService(

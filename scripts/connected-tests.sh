@@ -16,11 +16,13 @@ attempt_timeout="${CONNECTED_TESTS_TIMEOUT:-15m}"
 log="$(mktemp)"
 trap 'rm -f "$log"' EXIT
 
-# Matches the Gradle output of a failed assertion or a crashed test, which must not be retried.
-test_failure='There were failing tests|Test run failed to complete|tests? completed, [0-9]+ failed'
-# Matches adb and device failures: the emulator going offline while installing or uninstalling,
-# or never answering.
-device_failure='device offline|device .* not found|no connected devices|AdbCommandRejectedException|ShellCommandUnresponsiveException|DeviceException|InstallException|EOF while reading|connection reset'
+# A test that ran and failed. It is never retried, whatever else the log shows: a second, green
+# attempt would hide it. "Test run failed to complete" is not in here: the instrumentation
+# reports that when the device drops mid-run, too.
+test_failure='There were failing tests|tests? completed, [1-9][0-9]* failed'
+# adb and device failures: the emulator going offline while installing or uninstalling, or
+# never answering.
+device_failure='device offline|device .* not found|no connected devices|AdbCommandRejectedException|ShellCommandUnresponsiveException|DeviceException|InstallException|EOF while reading|connection reset|Test run failed to complete'
 
 run() {
   timeout --kill-after=1m "$attempt_timeout" ./gradlew --no-daemon "${tasks[@]}" 2>&1 | tee "$log"
@@ -41,11 +43,12 @@ run
 status=$?
 [ $status -eq 0 ] && exit 0
 
-if [ $status -eq 124 ] || [ $status -eq 137 ]; then
-  reason="the run passed the $attempt_timeout limit"
-elif grep -Eq "$test_failure" "$log"; then
+if grep -Eq "$test_failure" "$log"; then
   echo "::error::Instrumented tests failed; not retrying a test failure."
   exit $status
+elif [ $status -eq 124 ] || [ $status -eq 137 ]; then
+  # A hang with no failed test: the emulator stopped answering (#490).
+  reason="the run passed the $attempt_timeout limit"
 elif grep -Eiq "$device_failure" "$log"; then
   reason="adb or the emulator failed: $(grep -Eio "$device_failure" "$log" | head -1)"
 else

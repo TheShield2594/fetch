@@ -1,7 +1,69 @@
-# The Android app (Gradle) is not covered here; these are the website's
-# dependencies under web/, plus the GitHub Actions every workflow uses.
+# The Android TV and desktop apps (Gradle, versions in gradle/libs.versions.toml), the
+# website's dependencies under web/, and the GitHub Actions every workflow uses.
 version: 2
 updates:
+  # Reads gradle/libs.versions.toml plus the few versions still written in build files
+  # (ffmpeg-decoder-downmix/, shared/, desktop/). The app's CI gates (unit tests, lint, the R8
+  # release build and the emulator tests in ci.yml) run on every pull request, these included.
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    # A dependency goes to the first group it matches, so the narrow groups come first.
+    groups:
+      # Kotlin, its Compose compiler and serialization plugins (all `kotlin` in the catalog)
+      # and KSP: KSP is built against a Kotlin release and rejects a newer one, so they move
+      # as one PR.
+      kotlin:
+        patterns:
+          # Not "org.jetbrains.kotlin*": that would also catch kotlinx (coroutines,
+          # serialization), which release on their own schedule.
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlin.*"
+          - "com.google.devtools.ksp*"
+      # The Android Gradle plugin; application, library and test share `agp`.
+      android-gradle-plugin:
+        patterns:
+          - "com.android.application"
+          - "com.android.library"
+          - "com.android.test"
+          - "com.android.tools.build*"
+      # The Hilt runtime, its compiler and its Gradle plugin share `hilt` and must match.
+      hilt:
+        patterns:
+          - "com.google.dagger*"
+      # The Compose BOM, the TV Compose libraries and Compose Multiplatform for the desktop.
+      compose:
+        patterns:
+          - "androidx.compose*"
+          - "androidx.tv*"
+          - "org.jetbrains.compose*"
+      # The runtime, compiler and ktx artifacts share `room`, and the compiler writes code
+      # the runtime of the same version reads.
+      room:
+        patterns:
+          - "androidx.room*"
+      androidx:
+        patterns:
+          - "androidx.*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Everything else, minor and patch only: a major version (OkHttp 5, checker-qual 4)
+      # gets a PR of its own.
+      gradle-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # The decoder AARs in app/libs/ (FFmpeg, AV1, IAMF, MPEG-H) are built from the Media3
+      # sources of the same release and call into Media3 internals, so a Media3 bump on its
+      # own builds but can crash in the decoders at run time. Media3 moves by hand, together
+      # with rebuilt AARs (app/libs/README.md).
+      - dependency-name: "androidx.media3:*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -24,6 +24,7 @@ datastore = "1.1.7"
 room = "2.8.4"
 lifecycleViewModelCompose = "2.9.4"
 ksp = "2.3.0"
+# Dependabot leaves this alone: it must match the decoder AARs in app/libs/ (README there).
 media3 = "1.8.0"
 gson = "2.13.2"
 markdownRenderer = "0.33.0"

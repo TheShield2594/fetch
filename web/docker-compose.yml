@@ -22,7 +22,7 @@ services:
     # Digest-pinned so a rebuild pulls the exact image this stack was tested
     # against; the tag is kept alongside it for readability. Dependabot bumps
     # the pair together (see .github/dependabot.yml).
-    image: postgres:16@sha256:33f923b05f64ca54ac4401c01126a6b92afe839a0aa0a52bc5aeb5cc958e5f20
+    image: postgres:18@sha256:eb63372c1e05c755f55fa30cbd07aecc443676fc6c0fa90b9002d01537841e1a
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-fetch}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}

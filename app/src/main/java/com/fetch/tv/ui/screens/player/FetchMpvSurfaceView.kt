@@ -288,7 +288,7 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         }
     }
 
-    fun applyDemuxerCacheLimits(limits: MpvDemuxerCachePolicy.Limits) {
+    internal fun applyDemuxerCacheLimits(limits: MpvDemuxerCachePolicy.Limits) {
         if (limits == demuxerCacheLimits) return
         demuxerCacheLimits = limits
         if (!initialized) return

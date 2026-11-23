@@ -189,7 +189,8 @@ jobs:
 
       # The emulator boots from a cached snapshot instead of cold-booting a fresh AVD each run, so
       # every run starts from the same known state (#490). The key names everything that shapes the
-      # AVD below; a change to any of them must change the key too. Bump the -v suffix to throw away
+      # AVD below; a change to any of them must change the key too. baseline-profile.yml shares the
+      # key and the snapshot, so change its settings with these. Bump the -v suffix to throw away
       # a bad snapshot. An emulator that can't load the snapshot (e.g. a newer emulator binary)
       # cold-boots instead, so a stale cache is slower, not broken.
       - name: AVD cache

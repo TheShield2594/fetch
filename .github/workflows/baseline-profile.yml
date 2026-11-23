@@ -47,7 +47,36 @@ jobs:
           ./gradlew --no-daemon :app:assembleNonMinifiedRelease :baselineprofile:assembleNonMinifiedRelease
           ./gradlew --stop
 
+      # The same AVD and cached snapshot as the CI emulator job (ci.yml, #490): the settings
+      # below match its, so they share one cache key. Change both together, or give this one
+      # its own key.
+      - name: AVD cache
+        id: avd-cache
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ runner.os }}-34-android-tv-x86-tv_1080p-4c-4096M-v1
+
+      - name: Create AVD snapshot
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 15
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: android-tv
+          arch: x86
+          profile: tv_1080p
+          cores: 4
+          ram-size: 4096M
+          force-avd-creation: false
+          disable-animations: false
+          emulator-options: -no-window -gpu swangle_indirect -noaudio -no-boot-anim -camera-back none
+          script: echo "Saved the AVD snapshot for the cache."
+
       # API 33+ records profiles without root. The build needs no private configuration.
+      # Boots the cached AVD and never saves over its snapshot (-no-snapshot-save).
       - name: Record profiles
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -57,6 +86,7 @@ jobs:
           profile: tv_1080p
           cores: 4
           ram-size: 4096M
+          force-avd-creation: false
           disable-animations: false
           emulator-options: -no-snapshot-save -no-window -gpu swangle_indirect -noaudio -no-boot-anim -camera-back none
           script: |

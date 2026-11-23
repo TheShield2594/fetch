@@ -295,6 +295,41 @@ class StreamTitleParserTest {
     }
 
     @Test
+    fun `reads a two word group and a group alone in the closing bracket`() {
+        fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
+        assertEquals("MeM GP", group("The Last Of Us S01 ITA ENG 2160p UHD BluRay x265-MeM GP"))
+        // A language or tag after the group is not part of it.
+        assertNull(group("Movie 2024 1080p BluRay x264-FGT EN"))
+        assertEquals("Prof", group("The Shawshank Redemption (1994) (2160p x265 10bit HDR UHD BD DTS-HD MA 5.1) [Prof]"))
+        assertEquals("PMR", group("Frieren - S01E01 (BD Remux 1080p AVC FLAC AAC) [Dual Audio] [PMR].mkv"))
+        assertEquals("QxR", group("The Last of Us (2023) S01 (1080p BluRay x265 10bit EAC3 Atmos 7.1 Ghost) [QxR]"))
+        assertEquals("SEV", group("Frieren - Episode 01 - The Journey's End 1080p BDRip x265 FLAC 2.0 Kira [SEV].mkv"))
+        // A closing bracket that describes the file, or a CRC, is not a group.
+        assertNull(group("Movie (2020) 2160p UHD Remux HEVC [Dual Audio]"))
+        assertNull(group("Movie (2020) [UHD Remux 2160p HEVC DV-HDR10 ES DD+ 5.1][ES-EN]"))
+        assertNull(group("Show S01 WEBRip 720p x264 AAC [EP01-04]"))
+        assertNull(group("Movie 2020 1080p BluRay x265 [HDR10]"))
+        assertNull(group("Movie 2020 1080p BluRay x265 [English]"))
+        assertNull(group("Show - 01 (1080p HEVC) [F02B9CEE].mkv"))
+        // Nor is a bracket on a name that gives no quality.
+        assertNull(group("Breaking Bad - S01E01 - Pilot [Extended].mkv"))
+        // Nor a release source, in a bracket or as the closing word.
+        assertNull(group("Movie 2024 1080p x265 [DVD]"))
+        assertNull(group("Movie 2024 1080p x265 [CAM]"))
+        assertNull(group("Movie (2024) (1080p x264 DVD)"))
+    }
+
+    @Test
+    fun `the rest of an audio tag is not a release group`() {
+        fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
+        assertNull(group("Movie 2024 1080p BluRay x264 DTS-HD MA"))
+        assertNull(group("Movie.2024.1080p.BluRay.x264.DTS-HD MA"))
+        // A group after an audio tag is still one.
+        assertEquals("FGT", group("Movie.2024.1080p.BluRay.DTS-FGT"))
+        assertEquals("FGT", group("Movie.2024.1080p.BluRay.x264.DTS-HD.MA.5.1-FGT.mkv"))
+    }
+
+    @Test
     fun `reads release groups in other scripts`() {
         assertEquals("Нечипорук", StreamTitleParser.parse("Dune.Part.Two.2024.2160p.UHD.BDREMUX.HDR.DV.HEVC-Нечипорук.mkv").releaseGroup)
     }

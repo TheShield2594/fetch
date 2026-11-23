@@ -308,10 +308,11 @@ object StreamTitleParser {
     private val SEEDERS = Regex("(?:👤|seeders?:?|seeds?:?|\\bS:)\\s?(\\d{1,6})", RegexOption.IGNORE_CASE)
     // "-FGT", "-FGT.mkv", and a group followed by the uploader's tag: "x264-TrollUHD [RiCK]",
     // "x265-Qman[UTR].mkv", "-Tsundere-Raws (CR).mkv". The group may be dotted ("MP4-BEN.THE.MEN",
-    // "x265-MeM.GP"), end in "-Raws" or hold an "&" ("-R&H") (#202).
+    // "x265-MeM.GP"), end in "-Raws" or hold an "&" ("-R&H"), and may carry a short all-caps
+    // second word ("x265-MeM GP"), checked by isDashGroup (#202).
     private val RELEASE_GROUP = Regex(
-        "-([\\p{L}\\p{N}][\\p{L}\\p{N}&]{1,14}(?:-Raws)?(?:\\.(?!(?:mkv|mp4|avi|ts|m2ts)\\b)\\p{L}{2,10}){0,3})" +
-            "(?:\\s?[\\[(][^\\[\\]()]{1,20}[\\])])?(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$"
+        "-([\\p{L}\\p{N}][\\p{L}\\p{N}&]{1,14}(?:-Raws)?(?:\\.(?!(?:mkv|mp4|avi|ts|m2ts)\\b)\\p{L}{2,10}){0,3}" +
+            "(?: \\p{Lu}{2,3})?)(?:\\s?[\\[(][^\\[\\]()]{1,20}[\\])])?(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$"
     )
 
     // A dotted match that is a web address ("DUAL-WWW.BLUDV.COM"), not a group.
@@ -333,24 +334,52 @@ object StreamTitleParser {
         "complete", "pilot", "final", "web", "bd", "uhd", "4k", "10bit", "8bit"
     )
 
+    // The group alone in a closing bracket: "(… DTS-HD MA 5.1) [Prof].mkv", "[Dual Audio] [PMR].mkv".
+    private val TRAILING_BRACKET_GROUP = Regex("^(.*)\\[([\\p{L}\\p{N}_]{2,15})](?:\\.(?:mkv|mp4|avi))?\\s*$")
+
+    // An anime release's CRC ("[F02B9CEE]"), not a group.
+    private val CRC = Regex("^[0-9A-Fa-f]{8}$")
+
     // Fansub and many Asian releases put the group first: "[SubsPlease] Show - 01 (1080p).mkv".
     private val LEADING_GROUP = Regex("^(?:📄\\s*)?\\[([A-Za-z0-9][A-Za-z0-9 ._-]{1,19})]")
 
     private fun parseReleaseGroup(text: String): String? {
         val lines = text.lineSequence().map { it.trim() }.toList()
-        lines.firstNotNullOfOrNull { line -> RELEASE_GROUP.find(line)?.groupValues?.get(1)?.takeIf(::isDashGroup) }
+        lines.firstNotNullOfOrNull { line ->
+            RELEASE_GROUP.find(line)?.let { match ->
+                match.groupValues[1].takeIf { isDashGroup(it) && !continuesAudioTag(line, match.range.first, it) }
+            }
+        }
             ?.let { return it }
         lines.mapNotNull { LEADING_GROUP.find(it)?.groupValues?.get(1)?.trim(' ', '.', '-', '_') }
             .firstOrNull { group -> group.any(Char::isLetter) && !looksLikeQualityTag(group) }
             ?.let { return it }
-        return lines.firstNotNullOfOrNull(::closingWordGroup)
+        lines.firstNotNullOfOrNull(::closingWordGroup)?.let { return it }
+        return lines.firstNotNullOfOrNull(::trailingBracketGroup)
     }
 
     private fun isDashGroup(group: String): Boolean {
-        val first = group.substringBefore('.')
+        val first = group.substringBefore('.').substringBefore(' ')
         if (first.equals("dl", true) || first.equals("rip", true) || group.all(Char::isDigit)) return false
+        // "MeM GP": the second word must not be a tag that merely follows the group ("-FGT EN").
+        group.substringAfter(' ', "").takeIf { it.isNotEmpty() }?.let { if (!isGroupWord(it)) return false }
         // Dotted groups are new (#202): keep them away from web addresses and tag runs.
         return '.' !in group || !(WEB_ADDRESS.containsMatchIn(group) || looksLikeQualityTag(group))
+    }
+
+    // The word right before a dash: "DTS" in "DTS-HD MA".
+    private val WORD_BEFORE = Regex("[\\p{L}\\p{N}]+$")
+
+    private val AUDIO_TAGS by lazy { listOf(TRUEHD, DTS_X, DTS_HD_MA, DTS, EAC3, AC3, FLAC, OPUS, AAC, MP3, ATMOS) }
+
+    /**
+     * True when the "group" is the rest of an audio tag: a name ending "DTS-HD MA" would otherwise
+     * read "HD MA" as its group. An audio tag that stops at the dash ("DTS-FGT") leaves the group.
+     */
+    private fun continuesAudioTag(line: String, dashAt: Int, group: String): Boolean {
+        val before = WORD_BEFORE.find(line.substring(0, dashAt))?.value ?: return false
+        val joined = "$before-$group"
+        return AUDIO_TAGS.any { tag -> tag.findAll(joined).any { it.range.last >= before.length } }
     }
 
     /**
@@ -363,10 +392,27 @@ object StreamTitleParser {
         val (before, word) = match.destructured
         val describesQuality = RES_HEIGHT.containsMatchIn(before) || RES_2160.containsMatchIn(before) ||
             parseCodec(before) != VideoCodec.UNKNOWN
-        return word.takeIf {
-            describesQuality && it.any(Char::isLetter) && it.lowercase() !in NOT_A_GROUP && !looksLikeQualityTag(it)
-        }
+        return word.takeIf { describesQuality && isGroupWord(it) }
     }
+
+    /**
+     * The group as the last bracket of a name that already gives its quality: "(… 5.1) [Prof].mkv",
+     * "x265 FLAC 2.0 Kira [SEV].mkv". The same place often holds a tag ("[Dual Audio]", "[ES-EN]",
+     * "[EP01-04]", "[9.3 GB]", a CRC), so only a single word that isn't one counts, and only after
+     * every other way of finding the group came up empty.
+     */
+    private fun trailingBracketGroup(line: String): String? {
+        val (before, word) = TRAILING_BRACKET_GROUP.find(line)?.destructured ?: return null
+        val describesQuality = RES_HEIGHT.containsMatchIn(before) || RES_2160.containsMatchIn(before) ||
+            parseCodec(before) != VideoCodec.UNKNOWN
+        return word.takeIf { describesQuality && !CRC.matches(it) && isGroupWord(it) }
+    }
+
+    /** A word that can name a group: not a quality, source, HDR, audio, language or subtitle tag. */
+    private fun isGroupWord(word: String): Boolean =
+        word.any(Char::isLetter) && word.lowercase() !in NOT_A_GROUP && !looksLikeQualityTag(word) &&
+            parseSource(word) == ReleaseSource.UNKNOWN && parseHdr(word).isEmpty() &&
+            StreamLanguage.fromCode(word) == null
 
     /** "[1080p]", "[BD]", "[Dual Audio]": a bracket that describes the file, not who made it. */
     private fun looksLikeQualityTag(tag: String): Boolean =

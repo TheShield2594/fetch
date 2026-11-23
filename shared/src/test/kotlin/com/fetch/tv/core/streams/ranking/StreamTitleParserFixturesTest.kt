@@ -47,7 +47,10 @@ class StreamTitleParserFixturesTest {
     @Test
     fun `fixtures are present for each captured addon`() {
         val addons = fixtures.map { it.addon }.toSet()
-        assertTrue("No stream fixtures found under ${resourceDir()}", "torrentio" in addons && "comet" in addons)
+        assertTrue(
+            "Missing stream fixtures under ${resourceDir()}: have $addons",
+            addons.containsAll(listOf("torrentio", "comet", "mediafusion"))
+        )
     }
 
     // ── Torrentio: the name's second line is the addon's own quality summary ─────
@@ -116,7 +119,55 @@ class StreamTitleParserFixturesTest {
         assertNoProblems(problems)
     }
 
-    // ── Both: sizes and seeders where the addon writes them ──────────────────────
+    // ── MediaFusion: emoji-tagged fields, "🌐 English + French" languages ────────
+
+    @Test
+    fun `mediafusion fields agree with the parsed descriptor`() {
+        val problems = fixtures.filter { it.addon == "mediafusion" }.mapNotNull { fixture ->
+            val parsed = StreamTitleParser.parse(fixture.stream)
+            val description = fixture.stream.description.orEmpty()
+            val name = fixture.stream.name.orEmpty().trim()
+            val hdr = description.mediaFusionField("🎨").lowercase().split('|').map { it.trim() }
+            val codec = description.mediaFusionField("🎞️").lowercase().trim()
+            val audio = description.mediaFusionField("🎵").lowercase().split('|').map { it.trim() }
+            val languages = description.lineSequence().firstOrNull { it.startsWith("🌐") }
+                ?.removePrefix("🌐")?.split('+')?.map { it.trim() }.orEmpty()
+            val size = Regex("📦 (\\d+(?:\\.\\d+)?) (GB|MB)").find(description)?.let { match ->
+                match.groupValues[1].toDouble() * if (match.groupValues[2] == "GB") 1_073_741_824.0 else 1_048_576.0
+            }
+            val resolution = when {
+                name.endsWith("2160p") || name.endsWith("4k", ignoreCase = true) -> StreamResolution.UHD_2160
+                name.endsWith("1080p") -> StreamResolution.FHD_1080
+                name.endsWith("720p") -> StreamResolution.HD_720
+                name.endsWith("480p") -> StreamResolution.SD_480
+                else -> null
+            }
+            buildList {
+                if (resolution != null && parsed.resolution != resolution) add("resolution ${parsed.resolution}, name says $resolution")
+                if ("dv" in hdr && !parsed.hasDolbyVision) add("no DV, MediaFusion says DV")
+                if ("hdr10+" in hdr && HdrFormat.HDR10_PLUS !in parsed.hdr) add("no HDR10+, MediaFusion says HDR10+")
+                if ("hdr" in hdr && HdrFormat.HDR10 !in parsed.hdr) add("no HDR10, MediaFusion says HDR")
+                if (codec == "hevc" && parsed.videoCodec != VideoCodec.HEVC) add("codec ${parsed.videoCodec}, MediaFusion says HEVC")
+                if (codec == "avc" && parsed.videoCodec != VideoCodec.AVC) add("codec ${parsed.videoCodec}, MediaFusion says AVC")
+                if (codec == "av1" && parsed.videoCodec != VideoCodec.AV1) add("codec ${parsed.videoCodec}, MediaFusion says AV1")
+                if ("atmos" in audio && !parsed.hasAtmos) add("no Atmos, MediaFusion says Atmos")
+                if ("truehd" in audio && AudioFormat.TRUEHD !in parsed.audio) add("no TrueHD, MediaFusion says TrueHD")
+                if ("dts lossless" in audio && parsed.audio.none { it.hasDtsCore }) add("audio ${parsed.audio}, MediaFusion says DTS Lossless")
+                // behaviorHints.videoSize is exact and wins; the badge is rounded to 10 MB.
+                val parsedSize = parsed.sizeBytes
+                if (size != null && (parsedSize == null || kotlin.math.abs(parsedSize - size) > size * 0.01 + 10_485_760)) {
+                    add("size $parsedSize, MediaFusion says ${size.toLong()}")
+                }
+                languages.mapNotNull { StreamLanguage.fromCode(it) }.filter { it !in parsed.languages }
+                    .takeIf { it.isNotEmpty() }?.let { add("missing languages $it") }
+                // 🧲 ⏳ marks a plain torrent: there is no debrid link to wait for.
+                if (fixture.stream.isTorrent() && parsed.isDebridUncached) add("bare torrent read as uncached debrid")
+            }.takeIf { it.isNotEmpty() }?.let { "${fixture.key}: ${it.joinToString("; ")}" }
+        }
+        assertNoProblems(problems)
+    }
+
+    // ── Every addon: sizes and seeders where the addon writes them ───────────────
 
     @Test
     fun `size and seeders badges are read`() {
@@ -218,6 +269,14 @@ class StreamTitleParserFixturesTest {
         // "📹 hevc • DV | 🔊 DTS Lossless • 5.1": a field runs to the next " | " or the line's end.
         lineSequence().firstOrNull { marker in it }?.substringAfter(marker)?.substringBefore(" | ").orEmpty()
 
+    // "🎨 DV|HDR 📺 BluRay REMUX 🎞️ hevc 🎵 Atmos": a field runs to the next marker or the line's end.
+    private fun String.mediaFusionField(marker: String): String {
+        val line = lineSequence().firstOrNull { marker in it } ?: return ""
+        val rest = line.substringAfter(marker)
+        val end = MEDIAFUSION_MARKERS.mapNotNull { m -> rest.indexOf(m).takeIf { it >= 0 } }.minOrNull() ?: rest.length
+        return rest.substring(0, end)
+    }
+
     private fun resourceDir(): File {
         val url = javaClass.classLoader.getResource("streams") ?: error("No streams fixtures on the test classpath")
         // Write updates back to the source tree, not the build output.
@@ -233,5 +292,6 @@ class StreamTitleParserFixturesTest {
             "stream", "resolution", "codec", "hdr", "dv", "audio", "size", "source", "bits",
             "cached", "seeders", "group", "languages"
         )
+        val MEDIAFUSION_MARKERS = listOf("🎨", "📺", "🎞️", "🎵", "🔊", "📦", "👤", "🌐", "🔗")
     }
 }

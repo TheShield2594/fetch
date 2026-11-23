@@ -1,0 +1,268 @@
+{
+ "streams": [
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "📺 BluRay 🎞️ av1 🎵 DTS Lossy 🔊 5.1\n📦 19.07 GB \n🔗 dmm_hashlist",
+   "infoHash": "f1f45a75f2088dbcc271b0c6538f39dcde4480f0",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ av1 🎵 DTS Lossy-2160P",
+    "filename": "Breaking.Bad.S01-2160P.(Upscale).BluRay.10.bit.Encode.AV1.DTS.5.1-R&H",
+    "videoSize": 20477158202
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "📺 BluRay 🎞️ hevc \n👤 152\n🔗 BT4G",
+   "infoHash": "a584351126afcf50d32be068f3c9a62550d41ecc",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ hevc-2160P",
+    "filename": "Breaking Bad. S01. 2008  2160P.Ai Upscaled.BluRay.60FPS.H265.BT709.AC3.5.1_Marjenbo"
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "📺 WEB-DL 🎞️ avc 🎵 DTS Lossless 🔊 5.1\n📦 50.81 GB 👤 52\n🌐 English + Russian + Ukrainian\n🔗 Torrentio",
+   "infoHash": "1b42b99b9fbc0e0416a379787f250eb73b7434e3",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 WEB-DL 🎞️ avc 🎵 DTS Lossless-2160P",
+    "filename": "Breaking.Bad.S01E01.2160p.WEBRip.DTS-HD.MA5.1.x264-TrollUHD.mkv",
+    "videoSize": 54556822077
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus 🔊 5.1\n📦 37.35 GB \n🌐 English\n🔗 dmm_hashlist",
+   "infoHash": "975e083614538b2429533b0d13742c3699524af9",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus-2160P",
+    "filename": "Breaking Bad (2008) S01 (2160p AMZN WEB-DL H265 SDR DDP 5.1 English - HONE)",
+    "videoSize": 40101527572
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus 🔊 5.1\n📦 37.35 GB \n🌐 English\n🔗 dmm_hashlist",
+   "infoHash": "b6342b827dbeb010c03180742f938af45ffd7947",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus-2160P",
+    "filename": "Breaking Bad (2008) S01 (2160p AMZN WEB-DL H265 SDR DDP 5.1 English - HONE)",
+    "videoSize": 40101527572
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus 🔊 5.1\n📦 30.59 GB \n🌐 English\n🔗 dmm_hashlist",
+   "infoHash": "ad48398daf51748a82d1c11714e765c27734ccfa",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus-2160P",
+    "filename": "Breaking Bad (2008) S01 (2160p NF WEB-DL H265 SDR DDP 5.1 English - HONE)",
+    "videoSize": 32848289297
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "📺 WEB-DL 🎞️ hevc \n📦 8.46 GB 👤 2\n🌐 English + Russian\n🔗 Torrentio",
+   "infoHash": "e027f8e720069a11d10f9040ad3c8eb12436091f",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 WEB-DL 🎞️ hevc-2160P",
+    "filename": "Breaking Bad (2008) S01E01 (2160p).mkv",
+    "videoSize": 9083855831
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus 🔊 5.1\n📦 6.27 GB 👤 84\n🌐 English\n🔗 Torrentio",
+   "infoHash": "f0fd1cad0e24b69ff6aaadb9df40c50286327188",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-🎨 SDR 📺 WEB-DL 🎞️ hevc 🎵 Dolby Digital Plus-2160P",
+    "filename": "Breaking Bad (2008) S01E01 (2160p AMZN WEB-DL H265 SDR DDP 5.1 English - HONE).mkv",
+    "videoSize": 6732361236
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "📺 WEB-DL 🎞️ avc 🎵 DTS Lossless 🔊 5.1\n🌐 Chinese + English + Russian + Ukrainian\n🔗 BT4G",
+   "infoHash": "f894c4af37b0d197acc36fe7c90d4b6a0c024749",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 WEB-DL 🎞️ avc 🎵 DTS Lossless-2160P",
+    "filename": "绝命毒师.Breaking.Bad.COMPLETE.S01-S05.2160p.WEB-DL.Rus.Ukr.Eng.DTS-HD.MA5.1.x264-TrollUHD [RiCK]"
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 2160p",
+   "description": "📺 WEB-DL 🎞️ avc 🎵 DTS Lossless 🔊 5.1\n🌐 Chinese + English + Russian + Ukrainian\n🔗 BT4G",
+   "infoHash": "8967f4623e02bdd363de3378d5e1ea58ee9c35ae",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 WEB-DL 🎞️ avc 🎵 DTS Lossless-2160P",
+    "filename": "绝命毒师.Breaking.Bad.COMPLETE.S01-S05.2160p.WEB-DL.Rus.Ukr.Eng.DTS-HD.MA5.1.x264-TrollUHD [RiCK]"
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay REMUX \n📦 119.17 GB 👤 11\n🌐 English + Hindi\n🔗 LimeTorrents",
+   "infoHash": "c6d960000329117d615b3bcf1f8f93e521d891ab",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay REMUX-1080P",
+    "filename": "Breaking Bad (2008) S01 S05 1080p BluRay REMUX Dual Audio [Hindi Eng]   RemuxDoc",
+    "videoSize": 127957811200
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BDRip \n📦 8.68 GB 👤 4\n🌐 English + Russian\n🔗 Torrentio",
+   "infoHash": "97a13de6bb8b741a099a446e755a8a09cfd3a493",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BDRip-1080P",
+    "filename": "Breaking.Bad.S01.E01.BDRip.1080p-SOFCJ.mkv",
+    "videoSize": 9320079032
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay 🎞️ hevc 🎵 AAC|Dolby Digital 🔊 2.0 5.1\n📦 4.77 GB \n🌐 English + Hindi\n🔗 dmm_hashlist",
+   "infoHash": "5126f074346ca549d32a8f3a23a5b761e4625a51",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ hevc 🎵 AAC|Dolby Digital-1080P",
+    "filename": "Breaking Bad S01 1080p 10bit BluRay x265 HEVC [Hindi TV-DL DD 2.0 + English AAC 5.1] ESubs",
+    "videoSize": 5123326916
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay 🎞️ avc \n📦 4.09 GB 👤 85\n🌐 English + Italian\n🔗 Torrentio",
+   "infoHash": "3c7a0d35b01b8d3b0abab10bb363cbe0b00ace3a",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ avc-1080P",
+    "filename": "Ep 01 - Pilot - Questione di Chimica.mkv",
+    "videoSize": 4391604060
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay 🎞️ hevc 🎵 Dolby Digital Plus 🔊 5.1\n📦 2.40 GB 👤 1\n🌐 English\n🔗 Torrentio",
+   "infoHash": "7156d736a37bd107abad24648868a1daf0fe5932",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ hevc 🎵 Dolby Digital Plus-1080P",
+    "filename": "Breaking.Bad.S01E01.1080p.10Bit.BluRay.English.DDP5.1.x265.HEVC-IONICBOY.mkv",
+    "videoSize": 2576980377
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay 🎞️ hevc 🎵 AAC|Dolby Digital Plus 🔊 2.0 5.1\n🌐 English + Hindi\n🔗 BT4G",
+   "infoHash": "1b9c4ed1a77fe6daa57d3b8e002af3846700ee9d",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ hevc 🎵 AAC|Dolby Digital Plus-1080P",
+    "filename": "Breaking Bad (2008) S01 1080p 10bit BluRay x265 HEVC [Org Zee Cafe Hindi DDP 2.0 ~ 224kbps + English AAC 5.1] ESub ~ Silence"
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BDRip \n📦 829.89 MB \n🌐 Chinese\n🔗 LimeTorrents",
+   "infoHash": "c1f8f37c7c583b1d68d2fb828e32cd973cf404f7",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BDRip-1080P",
+    "filename": "绝命毒师 Breaking Bad S01E01 中英字幕 BDrip 1080p 人人影视",
+    "videoSize": 870202752
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay REMUX \n📦 19.55 GB 👤 13\n🌐 Russian\n🔗 Torrentio",
+   "infoHash": "6cb44e28b6bf9868e1deacb5a0f431c10c967c52",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay REMUX-1080P",
+    "filename": "Breaking Bad (2008) Season 01. Episode 01. Full HD BD-Remux by Wild_Cat.mkv",
+    "videoSize": 20991652659
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BluRay REMUX \n📦 16.28 GB \n🌐 Russian\n🔗 Torrentio",
+   "infoHash": "f3f8be8d24da8b6adc30dde4201cd69187e245c2",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay REMUX-1080P",
+    "filename": "Breaking Bad.S01E01.Pilot.1080p.mkv",
+    "videoSize": 17480516894
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 1080p",
+   "description": "📺 BDRip \n📦 4.98 GB 👤 2\n🌐 Russian\n🔗 Torrentio",
+   "infoHash": "de485c28da8bc3d4fea24950803c6b3bc03954f3",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BDRip-1080P",
+    "filename": "Breaking.Bad_s01.e01.mkv",
+    "videoSize": 5347234283
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 720p",
+   "description": "📺 BluRay 🎞️ avc 🎵 DTS Lossy \n📦 21.61 GB \n🌐 English + Hungarian\n🔗 dmm_hashlist",
+   "infoHash": "515fb41e8f12badf47e7e85d44f638cc0fdd741d",
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ avc 🎵 DTS Lossy-720P",
+    "filename": "Breaking.Bad.S01.720p.BluRay.DTS.x264.HUN.ENG-prldm",
+    "videoSize": 23199260460
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 720p",
+   "description": "📺 BDRip \n📦 3.56 GB \n🌐 English + Russian\n🔗 Torrentio",
+   "infoHash": "0100cdee95a57c66341ec992475388a2c69e6014",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BDRip-720P",
+    "filename": "Breaking.Bad.s01e01.Pilot.mkv",
+    "videoSize": 3822520893
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 720p",
+   "description": "📺 BDRip \n📦 3.38 GB 👤 6\n🌐 English + Russian\n🔗 Torrentio",
+   "infoHash": "1531d4c9b1034d887f3a0e10dfc86280e2e779aa",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BDRip-720P",
+    "filename": "Breaking.Bad.S01E01.720p.BluRay.Goblin.Eng.AMC.mkv",
+    "videoSize": 3629247365
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 720p",
+   "description": "📺 BluRay 🎞️ avc 🎵 AAC 🔊 5.1\n📦 516.48 MB 👤 3\n🌐 English\n🔗 Torrentio",
+   "infoHash": "73f9e215ed0e137412da191a1d653994fc57fd96",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ avc 🎵 AAC-720P",
+    "filename": "Breaking Bad S01 E01 BluRay 720p English AAC 5.1 x264 ESub - mkvCinemas.mkv",
+    "videoSize": 541568532
+   }
+  },
+  {
+   "name": "MediaFusion 🧲  ⏳ 720p",
+   "description": "📺 BluRay 🎞️ hevc 🎵 AAC 🔊 5.1\n📦 414.64 MB \n🌐 English\n🔗 Torrentio",
+   "infoHash": "97422f3ce9c911af24b43f47a3bd90f5bf2b419c",
+   "fileIdx": 0,
+   "behaviorHints": {
+    "bingeGroup": "MediaFusion-📺 BluRay 🎞️ hevc 🎵 AAC-720P",
+    "filename": "Breaking.Bad.S01E01.720p.10bit.BluRay.6CH.x265-mkvAnime[Telly].mkv",
+    "videoSize": 434781552
+   }
+  }
+ ]
+}

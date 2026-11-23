@@ -9,17 +9,17 @@ addon's own way of marking cached results.
     scripts/stream_fixtures.py --out /tmp/streams   # write elsewhere
     scripts/stream_fixtures.py --only comet         # one addon
 
-Torrentio and Comet are captured from their public instances. MediaFusion, Jackettio and
-AIOStreams need a configured addon (and usually a debrid account), so they are only captured
-when their manifest URL is set:
+Torrentio, Comet and MediaFusion are captured from public instances that answer without
+configuration (MediaFusion's gives P2P results; ElfHosted's returns none unconfigured).
+Jackettio and AIOStreams need a configured addon (Jackettio always a debrid account), so they
+are only captured when their manifest URL is set:
 
-    MEDIAFUSION_URL=https://mediafusion.example/<config>/manifest.json \\
     JACKETTIO_URL=https://jackettio.example/<config>/manifest.json \\
     AIOSTREAMS_URL=https://aiostreams.example/stremio/<uuid>/<config>/manifest.json \\
         scripts/stream_fixtures.py
 
-Set TORRENTIO_URL or COMET_URL the same way to capture a debrid-configured instance, which is
-the only way to get cached ([RD+], ⚡) results.
+Set TORRENTIO_URL, COMET_URL or MEDIAFUSION_URL the same way to capture a debrid-configured
+instance, which is the only way to get cached ([RD+], ⚡) results.
 
 Nothing account-specific is kept: playable URLs are replaced by placeholders, tracker lists and
 proxy headers are dropped, and the configured addon path (where debrid keys live) is scrubbed
@@ -41,7 +41,7 @@ USER_AGENT = "Fetch-fixtures/1.0"
 ADDONS = {
     "torrentio": ("TORRENTIO_URL", "https://torrentio.strem.fun/manifest.json"),
     "comet": ("COMET_URL", "https://comet.feels.legal/manifest.json"),
-    "mediafusion": ("MEDIAFUSION_URL", None),
+    "mediafusion": ("MEDIAFUSION_URL", "https://mediafusion.forthewizards.uk/manifest.json"),
     "jackettio": ("JACKETTIO_URL", None),
     "aiostreams": ("AIOSTREAMS_URL", None),
 }

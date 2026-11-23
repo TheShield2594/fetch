@@ -158,8 +158,13 @@ class PhoneHubControllerTest {
     @Test
     fun anAniListTokenIsSavedToTheProfileActiveWhenItArrived() = runBlocking {
         every { aniListApi.isConfigured } returns true
-        every { aniListAuth.activeProfileId() } returnsMany listOf(2, 3)
-        coEvery { aniListApi.viewer("good") } returns AniListViewer(7, "Frieren")
+        // The profile switches while the token is being checked: it still goes to the one it arrived on.
+        var activeProfile = 2
+        every { aniListAuth.activeProfileId() } answers { activeProfile }
+        coEvery { aniListApi.viewer("good") } answers {
+            activeProfile = 3
+            AniListViewer(7, "Frieren")
+        }
         coEvery { aniListApi.viewer("expired") } throws AniListApiException("no viewer", unauthorized = true)
         coEvery { aniListApi.viewer("down") } throws AniListApiException("503")
 

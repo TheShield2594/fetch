@@ -355,9 +355,7 @@ internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: FetchMpvSu
         if (!idleActive) {
             val cacheSec = runCatching { view.demuxerCacheDurationSec() }.getOrDefault(0.0)
             cacheProgressing = MpvStartupWatchdogPolicy.cacheIsProgressing(mpvLastDemuxerCacheSec, cacheSec)
-            if (cacheSec > mpvLastDemuxerCacheSec) {
-                mpvLastDemuxerCacheSec = cacheSec
-            }
+            mpvLastDemuxerCacheSec = MpvStartupWatchdogPolicy.nextCacheBaselineSec(mpvLastDemuxerCacheSec, cacheSec)
         }
     }
 

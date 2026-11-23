@@ -29,6 +29,9 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
     private var requestedMediaUrl: String? = null
     private var pathAtMediaRequest: String? = null
     private var hardwareDecodeMode: MpvHardwareDecodeMode = MpvHardwareDecodeMode.AUTO_SAFE
+    // Replaced from the buffer settings and memory budget before each load (applyDemuxerCacheLimits).
+    private var demuxerCacheLimits: MpvDemuxerCachePolicy.Limits =
+        MpvDemuxerCachePolicy.limits(userTargetMb = null, playbackBudgetMb = MpvDemuxerCachePolicy.MIN_TOTAL_MB, allowAboveBudget = false)
     private var hi10pGnextSoftwareFallbackActive = false
     private var appliedHi10pGnextSoftwareFallback: Boolean? = null
     private var currentAspectMode: AspectMode = AspectMode.ORIGINAL
@@ -282,6 +285,18 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
             mpv.setPropertyString("aid", "auto")
         }.onFailure {
             Log.w(TAG, "Failed to set audio language preference: ${it.message}")
+        }
+    }
+
+    fun applyDemuxerCacheLimits(limits: MpvDemuxerCachePolicy.Limits) {
+        if (limits == demuxerCacheLimits) return
+        demuxerCacheLimits = limits
+        if (!initialized) return
+        runCatching {
+            mpv.setPropertyString("demuxer-max-bytes", limits.forwardBytes.toString())
+            mpv.setPropertyString("demuxer-max-back-bytes", limits.backBytes.toString())
+        }.onFailure {
+            Log.w(TAG, "Failed to apply mpv demuxer cache limits ($limits): ${it.message}")
         }
     }
 
@@ -696,8 +711,8 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         mpv.setOptionString("tls-verify", "yes")
         mpv.setOptionString("tls-ca-file", "${context.filesDir.path}/cacert.pem")
         mpv.setOptionString("input-default-bindings", "yes")
-        mpv.setOptionString("demuxer-max-bytes", "${64 * 1024 * 1024}")
-        mpv.setOptionString("demuxer-max-back-bytes", "${64 * 1024 * 1024}")
+        mpv.setOptionString("demuxer-max-bytes", demuxerCacheLimits.forwardBytes.toString())
+        mpv.setOptionString("demuxer-max-back-bytes", demuxerCacheLimits.backBytes.toString())
         mpv.setOptionString("keep-open", "yes")
         mpv.setOptionString("softvol", "yes")
         mpv.setOptionString("volume-max", MPV_MAX_VOLUME_PERCENT.toInt().toString())

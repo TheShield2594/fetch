@@ -372,6 +372,15 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
                 mediaSourceFactory.vodCacheSizeMb = settings.vodCacheSizeMb
             }
 
+            // Same rule as ExoPlayer's target (FetchExoPlayerPerformanceHelper.updateSettings).
+            mpvUserBufferTargetMbSetting =
+                if (settings.bufferEngineEnabled && !settings.bufferBudgetManaged) {
+                    settings.bufferSettings.targetBufferSizeMb.takeIf { it > 0 }
+                } else {
+                    null
+                }
+            mpvAllowBufferAboveBudgetSetting = settings.allowLargeTargetBuffer
+
             val previousMpvHardwareDecodeMode = mpvHardwareDecodeModeSetting
             mpvHardwareDecodeModeSetting = settings.mpvHardwareDecodeMode
             if (isUsingMpvEngine() && previousMpvHardwareDecodeMode != mpvHardwareDecodeModeSetting) {

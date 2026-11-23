@@ -29,6 +29,7 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
         performPendingMpvHardRestartIfNeeded(view)
         view.applyHi10pGnextSoftwareFallback(shouldUseMpvHi10pGnextSoftwareFallback())
         view.applyHardwareDecodeMode(mpvHardwareDecodeModeSetting)
+        view.applyDemuxerCacheLimits(mpvDemuxerCacheLimits())
         registerMpvEventRelay(view)
         view.setMedia(currentStreamUrl, currentHeaders)
         view.setPlaybackSpeed(_uiState.value.playbackSpeed)
@@ -90,6 +91,17 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
     }
 }
 
+/** mpv's demuxer cache for a load starting now: the user's buffer target within this session's memory budget. */
+internal fun PlayerRuntimeController.mpvDemuxerCacheLimits(): MpvDemuxerCachePolicy.Limits {
+    val budgetMb = runCatching { com.fetch.tv.ui.screens.settings.MemoryBudget.playbackBudgetMb(context) }
+        .getOrDefault(MpvDemuxerCachePolicy.MIN_TOTAL_MB)
+    return MpvDemuxerCachePolicy.limits(
+        userTargetMb = mpvUserBufferTargetMbSetting,
+        playbackBudgetMb = budgetMb,
+        allowAboveBudget = mpvAllowBufferAboveBudgetSetting
+    )
+}
+
 internal fun PlayerRuntimeController.initializeMpvPlayer(
     url: String,
     headers: Map<String, String>,
@@ -137,6 +149,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         performPendingMpvHardRestartIfNeeded(view)
         view.applyHi10pGnextSoftwareFallback(shouldUseMpvHi10pGnextSoftwareFallback())
         view.applyHardwareDecodeMode(mpvHardwareDecodeModeSetting)
+        view.applyDemuxerCacheLimits(mpvDemuxerCacheLimits())
         registerMpvEventRelay(view)
         val initialResumePosition = resolvePendingInitialResumePosition()
             .takeIf { it > 0L }
@@ -251,6 +264,7 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
         mpvView?.setPaused(true)
         emitPauseScrobbleForCurrentProgress()
         stopWatchProgressSaving()
+        saveWatchProgress()
         stopProgressUpdates()
         _uiState.update { it.copy(isPlaying = false) }
         return

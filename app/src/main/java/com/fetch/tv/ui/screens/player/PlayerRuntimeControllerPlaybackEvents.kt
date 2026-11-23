@@ -800,6 +800,12 @@ internal fun PlayerRuntimeController.emitSeekScrobbleRestart(progressPercent: Fl
     }
 }
 
+/** The position to carry into a source the user picks mid-playback, or null before anything has played. */
+internal fun PlayerRuntimeController.livePositionForSourceSwitch(): Long? {
+    if (!hasRenderedFirstFrame) return null
+    return currentPlaybackPositionMs()?.takeIf { it > 0L }
+}
+
 internal fun PlayerRuntimeController.flushPlaybackSnapshotForSwitchOrExit() {
     logScrobbleDiagnostic("flush_switch_or_exit")
     emitStopScrobbleForCurrentProgress()
@@ -1022,6 +1028,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     setPlaybackPaused(true)
                     stopProgressUpdates()
                     stopWatchProgressSaving()
+                    // Match ExoPlayer's onIsPlayingChanged: a paused app can be killed in the background.
+                    saveWatchProgress()
                     emitPauseScrobbleForCurrentProgress()
                     schedulePauseOverlay()
                 } else {
@@ -1466,7 +1474,13 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     device = com.fetch.tv.core.streams.ranking.DeviceDecodeCapabilities.current
                 )
             }
-            switchToSourceStream(event.stream)
+            // Start the new source where this one is now. Reloading the saved progress races the
+            // save that the switch itself fires, and can land on the last 30 s save point.
+            switchToSourceStream(
+                event.stream,
+                resumePositionMs = livePositionForSourceSwitch(),
+                userPicked = true
+            )
         }
         PlayerEvent.OnDismissTransientOverlay -> {
             _uiState.update {

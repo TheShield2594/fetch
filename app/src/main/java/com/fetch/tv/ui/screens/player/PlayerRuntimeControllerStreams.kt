@@ -685,11 +685,16 @@ private fun PlayerRuntimeController.openExternalStreamInBrowser(
 @androidx.annotation.OptIn(UnstableApi::class)
 internal fun PlayerRuntimeController.switchToSourceStream(
     stream: Stream,
-    /** Where to start, for a stream replacing one that failed mid-playback; else the saved progress. */
-    resumePositionMs: Long? = null
+    /**
+     * Where to start: the failed stream's position for a mid-playback replacement, or the live
+     * position for a source the user picks while watching. Null loads the saved progress.
+     */
+    resumePositionMs: Long? = null,
+    /** The user picked this source, so any mid-playback recovery ends. */
+    userPicked: Boolean = resumePositionMs == null
 ) {
     // A source the user picks ends any recovery; a replacement carries it on.
-    if (resumePositionMs == null) midPlaybackRecovery = null
+    if (userPicked) midPlaybackRecovery = null
     errorBeforeSourcesPanel = null
     sourceStreamsScope?.cancel()
     sourceStreamsScope = null
@@ -705,7 +710,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val prepared = prepareServerStream(stream)
             streamResolveJob = null
             if (prepared != null) {
-                switchToSourceStream(prepared, resumePositionMs)
+                switchToSourceStream(prepared, resumePositionMs, userPicked)
             } else {
                 _uiState.update { it.copy(isLoadingSourceStreams = false) }
             }
@@ -720,7 +725,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val resolved = resolveYouTubeStream(stream)
             streamResolveJob = null
             if (resolved != null) {
-                switchToSourceStream(resolved, resumePositionMs)
+                switchToSourceStream(resolved, resumePositionMs, userPicked)
             } else {
                 _uiState.update {
                     it.copy(

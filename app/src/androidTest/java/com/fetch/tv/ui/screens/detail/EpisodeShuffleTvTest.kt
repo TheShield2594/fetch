@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,6 +41,7 @@ import com.fetch.tv.ui.screens.home.ContinueWatchingItem
 import com.fetch.tv.ui.screens.home.NextUpInfo
 import com.fetch.tv.ui.theme.FetchTheme
 import java.io.File
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -353,10 +355,15 @@ class EpisodeShuffleTvTest {
         capture("shuffle-home-cards")
     }
 
+    // The dialog builds its episode picker on the composition's dispatcher here rather than on
+    // Dispatchers.Default, so every waitForIdle (and every onNode lookup) sees the picker for
+    // the latest metadata and history instead of racing it (#490).
     private fun setContent(content: @Composable () -> Unit) {
         compose.setContent {
-            FetchTheme {
-                Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) { content() }
+            CompositionLocalProvider(LocalEpisodePickerContext provides EmptyCoroutineContext) {
+                FetchTheme {
+                    Box(Modifier.fillMaxSize().background(FetchTheme.colors.Background)) { content() }
+                }
             }
         }
     }

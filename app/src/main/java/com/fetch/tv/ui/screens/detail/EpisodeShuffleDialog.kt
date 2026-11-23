@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,6 +26,16 @@ import com.fetch.tv.ui.components.FetchDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+
+/**
+ * Where [EpisodeShuffleDialog] builds its [RandomEpisodePicker]. Off the main thread in the app;
+ * UI tests provide [EmptyCoroutineContext] so the work stays on the composition's own dispatcher,
+ * which `waitForIdle` waits for. Work on [Dispatchers.Default] is invisible to it, so an assertion
+ * made right after a metadata or history change could see the previous picker (#490).
+ */
+internal val LocalEpisodePickerContext = staticCompositionLocalOf<CoroutineContext> { Dispatchers.Default }
 
 @Composable
 internal fun EpisodeShuffleDialog(
@@ -40,8 +51,9 @@ internal fun EpisodeShuffleDialog(
     onPlayManually: (Video) -> Unit = onPlay,
     onStartFromBeginning: (Video) -> Unit = onPlay
 ) {
+    val pickerContext = LocalEpisodePickerContext.current
     val picker by produceState<RandomEpisodePicker?>(null, meta.videos, watchedEpisodes, episodeProgress) {
-        val updated = withContext(Dispatchers.Default) { RandomEpisodePicker(meta, watchedEpisodes, episodeProgress) }
+        val updated = withContext(pickerContext) { RandomEpisodePicker(meta, watchedEpisodes, episodeProgress) }
         updated.inheritHistoryFrom(value)
         value = updated
     }

@@ -8,8 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.mutablePreferencesOf
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.UserProfile
 import com.squareup.moshi.Moshi
@@ -20,20 +22,24 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.profileDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "profile_settings",
-    corruptionHandler = ReplaceFileCorruptionHandler { ex ->
-        android.util.Log.e("ProfileDataStore", "DataStore corrupted: ${ex.message} — resetting to empty")
-        emptyPreferences()
-    }
-)
-
 @Singleton
 class ProfileDataStore @Inject constructor(
     @ApplicationContext private val context: Context,
     private val moshi: Moshi
 ) {
-    private val dataStore = context.profileDataStore
+    private val dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.create(
+        corruptionHandler = ReplaceFileCorruptionHandler { ex ->
+            android.util.Log.e("ProfileDataStore", "DataStore corrupted: ${ex.message} — recovering the profile list")
+            recoverAfterCorruption()
+        },
+        produceFile = { context.preferencesDataStoreFile(STORE_NAME) }
+    )
+
+    /**
+     * A copy of this store kept outside it, rewritten on every edit, so a corrupted store doesn't
+     * lose every profile and open the TV on the unrestricted main profile (#618).
+     */
+    private val backup by lazy { context.getSharedPreferences(BACKUP_NAME, Context.MODE_PRIVATE) }
 
     private val profilesJsonKey = stringPreferencesKey("profiles_json")
     private val activeProfileIdKey = intPreferencesKey("active_profile_id")
@@ -44,7 +50,15 @@ class ProfileDataStore @Inject constructor(
 
     private val profileListType = Types.newParameterizedType(List::class.java, ProfileJson::class.java)
 
+    private val backupSeeded = java.util.concurrent.atomic.AtomicBoolean(false)
+
     val profilesList: Flow<List<UserProfile>> = dataStore.data.map { prefs ->
+        // Installs from before the backup existed get one on the first read, not only on the next edit.
+        if (backupSeeded.compareAndSet(false, true) && prefs[profilesJsonKey] != null &&
+            !backup.contains(profilesJsonKey.name)
+        ) {
+            writeBackup(prefs)
+        }
         val json = prefs[profilesJsonKey]
         if (json != null) {
             parseProfiles(json)
@@ -74,32 +88,32 @@ class ProfileDataStore @Inject constructor(
     }
 
     suspend fun setActiveProfile(id: Int) {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             prefs[activeProfileIdKey] = id
             prefs[hasEverSelectedProfileKey] = true
         }
     }
 
     suspend fun setRememberLastProfileEnabled(enabled: Boolean) {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             prefs[rememberLastProfileEnabledKey] = enabled
         }
     }
 
     suspend fun setConfirmExitEnabled(enabled: Boolean) {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             prefs[confirmExitEnabledKey] = enabled
         }
     }
 
     suspend fun setStartupSplashEnabled(enabled: Boolean) {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             prefs[startupSplashEnabledKey] = enabled
         }
     }
 
     suspend fun upsertProfile(profile: UserProfile) {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             val current = parseProfiles(prefs[profilesJsonKey]).toMutableList()
             val index = current.indexOfFirst { it.id == profile.id }
             if (index >= 0) {
@@ -113,7 +127,7 @@ class ProfileDataStore @Inject constructor(
 
     suspend fun deleteProfile(id: Int) {
         if (id == 1) return
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             val current = parseProfiles(prefs[profilesJsonKey]).toMutableList()
             current.removeAll { it.id == id }
             prefs[profilesJsonKey] = serializeProfiles(current)
@@ -124,7 +138,7 @@ class ProfileDataStore @Inject constructor(
     }
 
     suspend fun replaceAllProfiles(profiles: List<UserProfile>) {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             val normalizedProfiles = normalizeProfiles(profiles)
             prefs[profilesJsonKey] = serializeProfiles(normalizedProfiles)
             val activeId = prefs[activeProfileIdKey] ?: 1
@@ -135,9 +149,60 @@ class ProfileDataStore @Inject constructor(
     }
 
     suspend fun clearAll() {
-        dataStore.edit { prefs ->
+        editAndBackUp { prefs ->
             prefs.clear()
         }
+    }
+
+    private suspend fun editAndBackUp(transform: suspend (MutablePreferences) -> Unit) {
+        val saved = dataStore.edit(transform)
+        writeBackup(saved)
+    }
+
+    private fun writeBackup(prefs: Preferences) {
+        backup.edit()
+            .clear()
+            .apply {
+                prefs[profilesJsonKey]?.let { putString(profilesJsonKey.name, it) }
+                prefs[activeProfileIdKey]?.let { putInt(activeProfileIdKey.name, it) }
+                prefs[hasEverSelectedProfileKey]?.let { putBoolean(hasEverSelectedProfileKey.name, it) }
+                prefs[rememberLastProfileEnabledKey]?.let { putBoolean(rememberLastProfileEnabledKey.name, it) }
+                prefs[confirmExitEnabledKey]?.let { putBoolean(confirmExitEnabledKey.name, it) }
+                prefs[startupSplashEnabledKey]?.let { putBoolean(startupSplashEnabledKey.name, it) }
+            }
+            .apply()
+    }
+
+    /**
+     * What a corrupted store is replaced with: the backup when there is one; otherwise a profile
+     * list rebuilt from the slots that still have files on disk, with no remembered choice, so the
+     * TV opens on the profile picker (where PINs apply) rather than on the main profile.
+     */
+    private fun recoverAfterCorruption(): Preferences {
+        val profilesJson = backup.getString(profilesJsonKey.name, null)
+        if (profilesJson != null) {
+            android.util.Log.i("ProfileDataStore", "Profile list restored from its backup")
+            return mutablePreferencesOf().apply {
+                this[profilesJsonKey] = profilesJson
+                if (backup.contains(activeProfileIdKey.name)) {
+                    this[activeProfileIdKey] = backup.getInt(activeProfileIdKey.name, 1)
+                }
+                listOf(
+                    hasEverSelectedProfileKey,
+                    rememberLastProfileEnabledKey,
+                    confirmExitEnabledKey,
+                    startupSplashEnabledKey
+                ).forEach { key ->
+                    if (backup.contains(key.name)) this[key] = backup.getBoolean(key.name, false)
+                }
+            }
+        }
+        val slots = profileSlotsOnDisk(java.io.File(context.filesDir, "datastore"))
+        android.util.Log.w("ProfileDataStore", "No profile list backup; rebuilt slots $slots from disk")
+        val profiles = listOf(defaultPrimaryProfile()) + slots.map { id ->
+            UserProfile(id = id, name = context.getString(R.string.profile_default_name, id), avatarColorHex = "#1E88E5")
+        }
+        return mutablePreferencesOf().apply { this[profilesJsonKey] = serializeProfiles(profiles) }
     }
 
     private fun defaultPrimaryProfile() = UserProfile(
@@ -168,6 +233,19 @@ class ProfileDataStore @Inject constructor(
         return adapter.toJson(profiles.map { ProfileJson.fromDomain(it) })
     }
 }
+
+private const val STORE_NAME = "profile_settings"
+private const val BACKUP_NAME = "profile_settings_backup"
+
+private val PROFILE_SLOT_FILE = Regex("_p(\\d+)\\.preferences_pb$")
+
+/** The secondary profile ids that have a profile-scoped store file in [dataStoreDir], ascending. */
+internal fun profileSlotsOnDisk(dataStoreDir: java.io.File): List<Int> =
+    dataStoreDir.listFiles().orEmpty()
+        .mapNotNull { PROFILE_SLOT_FILE.find(it.name)?.groupValues?.get(1)?.toIntOrNull() }
+        .filter { it > 1 }
+        .distinct()
+        .sorted()
 
 @com.squareup.moshi.JsonClass(generateAdapter = true)
 internal data class ProfileJson(

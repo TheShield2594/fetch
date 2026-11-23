@@ -18,7 +18,8 @@ private const val TAG = "AddonSyncService"
 class AddonSyncService @Inject constructor(
     private val addonPreferences: AddonPreferences,
     private val profileManager: ProfileManager,
-    private val backends: SyncBackends
+    private val backends: SyncBackends,
+    private val pendingPushes: PendingPushTracker
 ) {
     /** Whether there is anywhere to sync to. */
     val canSync: Boolean get() = backends.canSync
@@ -29,9 +30,23 @@ class AddonSyncService @Inject constructor(
         return if (active != null && !active.isPrimary && active.usesPrimaryAddons) 1 else profileManager.activeProfileId.value
     }
 
+    /**
+     * Records that the active profile's addons changed and the account doesn't have the change
+     * yet. Call it as the change is made: the push that follows can fail or never run (#616).
+     */
+    fun markPendingPush() {
+        pendingPushes.markDirty(PendingPushTracker.Domain.ADDONS, ownerProfileId())
+    }
+
+    /** Whether the active profile's addons have a change the account doesn't have yet. */
+    fun hasPendingPush(): Boolean = pendingPushes.isDirty(PendingPushTracker.Domain.ADDONS, ownerProfileId())
+
     /** Sends the active profile's addons, in order, with their on/off states and names. */
     suspend fun pushToRemote(): Result<Unit> = withContext(Dispatchers.IO) {
         val backend = backends.active ?: return@withContext Result.success(Unit)
+        val ownerProfileId = ownerProfileId()
+        // Read before the local copy, so an edit made while this push is on its way stays pending.
+        val revision = pendingPushes.revision(PendingPushTracker.Domain.ADDONS, ownerProfileId)
         val localUrls = addonPreferences.installedAddonUrls.first()
         val userSetNames = addonPreferences.userSetNames.first()
         val enabledStates = addonPreferences.addonEnabledStates.first()
@@ -43,8 +58,11 @@ class AddonSyncService @Inject constructor(
                 name = (userSetNames[canonicalUrl] ?: userSetNames[url])?.takeIf { it.isNotBlank() }
             )
         }
-        backend.pushAddons(ownerProfileId(), addons)
-            .onSuccess { Log.d(TAG, "Pushed ${addons.size} addons to ${backend.kind}") }
+        backend.pushAddons(ownerProfileId, addons)
+            .onSuccess {
+                pendingPushes.markSent(PendingPushTracker.Domain.ADDONS, ownerProfileId, revision)
+                Log.d(TAG, "Pushed ${addons.size} addons to ${backend.kind}")
+            }
             .onFailure { Log.e(TAG, "Failed to push addons to ${backend.kind}", it) }
     }
 

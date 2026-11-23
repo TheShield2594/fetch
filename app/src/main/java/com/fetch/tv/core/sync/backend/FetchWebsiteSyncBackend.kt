@@ -65,6 +65,10 @@ class FetchWebsiteSyncBackend @Inject constructor(
     override suspend fun pullSettings(profileId: Int, local: suspend () -> JsonObject): Result<JsonObject?> =
         call { website.get().reconcileSettings(profileId, local()) }
 
+    override suspend fun commitSettings(profileId: Int) {
+        website.get().commitSettingsBase(profileId)
+    }
+
     private suspend fun <T> call(block: suspend () -> T): Result<T> = withContext(Dispatchers.IO) {
         if (!isConnected) return@withContext Result.failure(SyncBackendNotConnectedException(kind))
         try {

@@ -32,4 +32,21 @@ class TraktTrackingScrobblerTest {
 
         coVerify(exactly = 1) { service.scrobbleStop(any(), 45f) }
     }
+
+    @Test
+    fun `a pause past 80 percent is a real pause, so Trakt records no play`() = runTest {
+        val service = mockk<TraktScrobbleService>(relaxed = true)
+        val scrobbler = TraktTrackingScrobbler(service = service, episodeMappingService = mockk(relaxed = true))
+
+        scrobbler.scrobble(
+            action = TrackingScrobbleAction.PAUSE,
+            event = TrackingScrobbleEvent(
+                media = TrackingMediaReference(kind = TrackingMediaKind.MOVIE, ids = TrackingExternalIds(imdb = "tt0111161")),
+                progressPercent = 85.0
+            )
+        )
+
+        coVerify(exactly = 1) { service.scrobblePause(any(), 85f) }
+        coVerify(exactly = 0) { service.scrobbleStop(any(), any()) }
+    }
 }

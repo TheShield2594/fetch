@@ -232,10 +232,13 @@ class ProfileSettingsSyncService @Inject constructor(
                 val localSignature = buildSettingsSignature(profileId)
                 if (remoteSignature == localSignature) {
                     Log.d(TAG, "Remote profile settings already match local for profile $profileId")
+                    backends.active?.commitSettings(profileId)
                     return@withLock Result.success(false)
                 }
 
                 applySettingsBlob(profileId, featuresJson, remoteSignature)
+                // Only now that the TV holds it does the merged blob become the agreed copy (#621).
+                backends.active?.commitSettings(profileId)
                 Log.d(TAG, "Applied remote profile settings blob for profile $profileId")
                 Result.success(true)
             } catch (e: Exception) {
@@ -322,6 +325,8 @@ class ProfileSettingsSyncService @Inject constructor(
         if (signature != buildSettingsSignature(localFeatures)) {
             applySettingsBlob(profileId, mergedFeatures, signature)
         }
+        // Only now that the TV holds it does the merged blob become the agreed copy (#621).
+        backend.commitSettings(profileId)
     }
 
     private suspend fun pullProfileFromRemote(profileId: Int): JsonObject? {
@@ -361,6 +366,10 @@ class ProfileSettingsSyncService @Inject constructor(
         val features = buildJsonObject {
             syncedFeatures.forEach { feature ->
                 val prefs = profileDataStoreFactory.get(profileId, feature).data.first()
+                // A store reset to empty after corruption (read just above, which is when DataStore
+                // notices) is left out: a missing feature keeps the other side's copy in the merge,
+                // where an empty one would read as "every key removed" and wipe it everywhere (#615).
+                if (profileDataStoreFactory.wasResetAfterCorruption(profileId, feature)) return@forEach
                 val serialized = buildJsonObject {
                     prefs.asMap().forEach { (key, rawValue) ->
                         if (shouldExcludePreferenceFromProfileSettingsSync(feature, key.name)) return@forEach
@@ -444,6 +453,8 @@ class ProfileSettingsSyncService @Inject constructor(
                         }
                     }
                 }
+                // The store holds the synced copy again, so it speaks for the user from now on.
+                profileDataStoreFactory.clearCorruptionReset(profileId, feature)
             }
         } finally {
             applyingRemoteBlob = false
@@ -473,10 +484,14 @@ class ProfileSettingsSyncService @Inject constructor(
                 .collect { (profileId, signature) ->
                     if (!canSync) return@collect
                     if (applyingRemoteBlob) return@collect
-                    if (profileDataStoreFactory.corruptedFileNames.isNotEmpty()) {
-                        Log.w(TAG, "DataStore corruption detected (${profileDataStoreFactory.corruptedFileNames}) — pulling from remote instead of pushing")
-                        profileDataStoreFactory.corruptedFileNames.clear()
-                        pullCurrentProfileFromRemote()
+                    if (hasCorruptionReset(profileId)) {
+                        // A synced store came back empty after corruption: get its data back from
+                        // the website instead of pushing. Exports leave reset stores out (#615),
+                        // so neither path can send the emptiness as a deletion.
+                        Log.w(TAG, "Settings store reset after corruption for profile $profileId — pulling from remote instead of pushing")
+                        if (profileId == profileManager.activeProfileId.value) {
+                            recoverAfterCorruptionReset(profileId)
+                        }
                         return@collect
                     }
                     if (signature == skipNextPushSignature) {
@@ -487,6 +502,22 @@ class ProfileSettingsSyncService @Inject constructor(
                     pushProfileSettingsToRemote(profileId)
                 }
         }
+    }
+
+    private fun hasCorruptionReset(profileId: Int): Boolean =
+        syncedFeatures.any { profileDataStoreFactory.wasResetAfterCorruption(profileId, it) }
+
+    /**
+     * Pulls [profileId]'s settings after one of its synced stores was reset by corruption. The
+     * pull refills every store the website has a copy of; once it has answered, a store it had
+     * nothing for is empty for real, so the reset is forgotten and the store syncs normally.
+     * On failure the reset is kept and the next local change tries again.
+     */
+    private suspend fun recoverAfterCorruptionReset(profileId: Int) {
+        if (pullCurrentProfileFromRemote().isFailure) return
+        syncedFeatures.forEach { profileDataStoreFactory.clearCorruptionReset(profileId, it) }
+        // The local change that brought us here was held back while the reset stood; send it now.
+        pushProfileSettingsToRemote(profileId)
     }
 
     private suspend fun buildSettingsSignature(profileId: Int): String {

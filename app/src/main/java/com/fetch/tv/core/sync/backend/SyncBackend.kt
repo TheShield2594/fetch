@@ -108,6 +108,14 @@ interface SyncBackend {
      * merges needs this TV's blob to do it and calls [local] for it.
      */
     suspend fun pullSettings(profileId: Int, local: suspend () -> JsonObject): Result<JsonObject?>
+
+    /**
+     * Called once the blob the last [pushSettings] or [pullSettings] returned for [profileId] is
+     * applied on this TV. A merging backend only then records it as the copy both sides agree on:
+     * recorded earlier, a crash before the apply would make the TV's old values look like fresh
+     * edits and push them back over the newer ones (#621).
+     */
+    suspend fun commitSettings(profileId: Int) {}
 }
 
 internal class SyncBackendNotConnectedException(kind: SyncBackendKind) :

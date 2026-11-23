@@ -38,6 +38,8 @@ class AddonRefreshService @Inject constructor(
                 if (addonSyncService.canSync) {
                     addonRepository.isSyncingFromRemote = true
                     try {
+                        // A change not sent yet goes up first, or the pull removes it again (#616).
+                        if (addonSyncService.hasPendingPush()) addonSyncService.pushToRemote().getOrThrow()
                         val remoteAddonUrls = addonSyncService.getRemoteAddonUrls().getOrThrow()
                         addonRepository.reconcileWithRemoteAddonUrls(
                             remoteUrls = remoteAddonUrls,

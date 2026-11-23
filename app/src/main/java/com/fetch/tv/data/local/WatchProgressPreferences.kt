@@ -2,6 +2,8 @@ package com.fetch.tv.data.local
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -112,12 +114,25 @@ class WatchProgressPreferences @Inject constructor(
             val legacyJson = legacyStores.map { store -> store to store.data.first()[watchProgressEntriesKey] }
             if (legacyJson.any { it.second != null }) {
                 val legacy = LinkedHashMap<String, WatchProgress>()
-                legacyJson.forEach { (_, json) -> json?.let { legacy.putAll(parseProgressMap(it)) } }
+                // A map with data that yields no entry at all is kept aside instead of deleted, so
+                // an upgrade that can't read an old format doesn't lose the history for good (#625).
+                val unreadable = mutableSetOf<DataStore<Preferences>>()
+                legacyJson.forEach { (store, json) ->
+                    if (json == null) return@forEach
+                    val parsed = parseProgressMap(json)
+                    if (parsed.isEmpty() && json.isNotBlank() && json.trim() != "{}") unreadable += store
+                    legacy.putAll(parsed)
+                }
                 val normalized = normalizeWatchProgressEntries(legacy)
                 entries.insertMissing(profileId, normalized.map { (key, progress) -> progress.toEntry(key) })
                 legacyJson.forEach { (store, json) ->
-                    if (json != null) store.edit { it.remove(watchProgressEntriesKey) }
+                    if (json == null) return@forEach
+                    store.edit { prefs ->
+                        if (store in unreadable) prefs[unreadableWatchProgressKey] = json
+                        prefs.remove(watchProgressEntriesKey)
+                    }
                 }
+                if (unreadable.isNotEmpty()) Log.w(TAG, "Kept ${unreadable.size} unreadable progress maps of profile $profileId aside")
                 Log.i(TAG, "Moved ${normalized.size} progress entries of profile $profileId to the database")
             }
             migratedProfiles += profileId

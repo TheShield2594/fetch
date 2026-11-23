@@ -11,6 +11,9 @@ internal const val WATCH_PROGRESS_STORAGE_VERSION = 1
 internal const val WATCH_PROGRESS_RECENT_LIMIT = 200
 
 internal val watchProgressEntriesKey = stringPreferencesKey("watch_progress_map")
+
+/** A legacy progress map the move to the database couldn't read a single entry of, kept rather than deleted (#625). */
+internal val unreadableWatchProgressKey = stringPreferencesKey("watch_progress_map_unreadable")
 internal val watchProgressStorageVersionKey = intPreferencesKey("watch_progress_storage_version")
 
 internal data class WatchProgressBuckets(

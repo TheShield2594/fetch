@@ -86,7 +86,8 @@ class FetchWebsitePairing @Inject constructor(
     private val store: FetchWebsiteStore,
     private val client: FetchWebsiteClient,
     private val sync: FetchWebsiteSyncService,
-    private val backends: SyncBackends
+    private val backends: SyncBackends,
+    private val pendingPushes: com.fetch.tv.core.sync.PendingPushTracker
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -155,6 +156,8 @@ class FetchWebsitePairing @Inject constructor(
 
     fun signOut() {
         store.clear()
+        // Changes this account never got must not be pushed into the next account paired.
+        pendingPushes.clearAll()
         reset()
     }
 

@@ -34,8 +34,9 @@ data class TvBackupRestoreResult(
 
 /**
  * A backup of the whole TV without a sync server: every profile [ProfileTransfer] can export, in
- * one file, for after a reset or on a new TV. Like a profile file it carries no sign-ins, API
- * keys, PINs or parental limits; profiles with a PIN are left out, as they are from a profile file.
+ * one file, for after a reset or on a new TV. Like a profile file it carries no sign-ins, API keys
+ * or PINs; it does carry parental limits, which a restore only applies to a profile without any
+ * (see [ProfileTransfer]). Profiles with a PIN are left out, as they are from a profile file.
  * Addon links are in it only when asked for ([export]), since they can hold account keys.
  *
  * Restoring merges the backed-up main profile into this TV's main profile, and each other one into
@@ -149,7 +150,8 @@ class TvBackup @Inject constructor(
 
     companion object {
         const val FORMAT = "fetch-backup"
-        const val VERSION = 1
+        /** 2: profiles carry collections, local lists and parental limits (#623); 1 is still read. */
+        const val VERSION = 2
         // Marks the TV's main profile in a backup; the main profile restores into this TV's main one.
         private const val PRIMARY_KEY = "primary"
         private const val ADDONS_KEY = "addons"

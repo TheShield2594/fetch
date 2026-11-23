@@ -65,7 +65,8 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     private val profileManager: ProfileManager,
     private val addonRepository: AddonRepository,
     private val collectionsDataStore: CollectionsDataStore,
-    private val backends: SyncBackends
+    private val backends: SyncBackends,
+    private val pendingPushes: PendingPushTracker
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -79,9 +80,12 @@ class HomeCatalogSettingsSyncService @Inject constructor(
             val profileId = profileManager.activeProfileId.value
             val backend = backends.active ?: return@withContext Result.success(Unit)
             currentScope(profileId) ?: return@withContext Result.success(Unit)
+            // Read before the local copy, so an edit made while this push is on its way stays pending.
+            val revision = pendingPushes.revision(PendingPushTracker.Domain.HOME_LAYOUT, profileId)
             val payload = loadLocalPayload()
             Log.d(TAG, "Push start backend=${backend.kind} profile=$profileId reason=$reason ${payload.summary()}")
             backend.pushHomeLayout(profileId, payload).getOrThrow()
+            pendingPushes.markSent(PendingPushTracker.Domain.HOME_LAYOUT, profileId, revision)
 
             Log.d(TAG, "Push success profile=$profileId reason=$reason")
             Result.success(Unit)
@@ -99,6 +103,11 @@ class HomeCatalogSettingsSyncService @Inject constructor(
             val backend = backends.active ?: return@withContext Result.success(false)
             val syncScope = currentScope(profileId)
                 ?: return@withContext Result.success(false)
+            // An edit not sent yet goes up first: pulling over it would lose it (#616). If it
+            // still can't be sent, the local copy is kept and the pull waits for the next pass.
+            if (pendingPushes.isDirty(PendingPushTracker.Domain.HOME_LAYOUT, profileId)) {
+                pushToRemote(reason = "pendingBeforePull").getOrThrow()
+            }
             val localState = layoutPreferenceDataStore.getHomeCatalogSettingsState()
             Log.d(TAG, "Pull start backend=${backend.kind} profile=$profileId ${localState.summary()}")
 
@@ -152,9 +161,14 @@ class HomeCatalogSettingsSyncService @Inject constructor(
     fun triggerPush() {
         if (isSyncingFromRemote) return
         if (!backends.canSync) return
+        val profileId = profileManager.activeProfileId.value
+        // Marked now, not after the debounce: the change must survive the app dying in between.
+        pendingPushes.markDirty(PendingPushTracker.Domain.HOME_LAYOUT, profileId)
         pushJob?.cancel()
         pushJob = scope.launch {
             delay(500)
+            // After a profile switch the change stays pending for its own profile, pushed on its next sync.
+            if (profileManager.activeProfileId.value != profileId) return@launch
             pushToRemote(reason = "triggerPush")
         }
     }

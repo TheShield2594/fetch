@@ -65,16 +65,53 @@ class FetchWebsiteStore internal constructor(
         prefs.edit { putBoolean(KEY_INITIAL_PROFILE_PUSH, false) }
     }
 
+    /**
+     * Grows with each profile change made on this TV (added, renamed, a parental limit) and is
+     * cleared once a push has carried it; 0 when the website has everything (#617). Kept on disk,
+     * so a change made offline or just before the app closed isn't pulled over on the next sync.
+     */
+    val profilesRevision: Long get() = prefs.getLong(KEY_PROFILES_REVISION, 0L)
+
+    @Synchronized
+    fun markProfilesChanged() {
+        prefs.edit(commit = true) { putLong(KEY_PROFILES_REVISION, profilesRevision + 1L) }
+    }
+
+    /** A push that read the profiles at [revision] got through; a later change stays pending. */
+    @Synchronized
+    fun markProfilesSent(revision: Long) {
+        if (revision != 0L && profilesRevision == revision) prefs.edit(commit = true) { remove(KEY_PROFILES_REVISION) }
+    }
+
+    /** Profiles deleted on this TV that the website still has, by slot (#617). */
+    val pendingProfileDeletes: Set<Int>
+        get() = prefs.getStringSet(KEY_PENDING_PROFILE_DELETES, emptySet()).orEmpty().mapNotNullTo(sortedSetOf()) { it.toIntOrNull() }
+
+    @Synchronized
+    fun addPendingProfileDelete(slot: Int) {
+        val slots = pendingProfileDeletes + slot
+        prefs.edit(commit = true) { putStringSet(KEY_PENDING_PROFILE_DELETES, slots.mapTo(HashSet()) { it.toString() }) }
+    }
+
+    @Synchronized
+    fun removePendingProfileDelete(slot: Int) {
+        val slots = pendingProfileDeletes - slot
+        prefs.edit(commit = true) { putStringSet(KEY_PENDING_PROFILE_DELETES, slots.mapTo(HashSet()) { it.toString() }) }
+    }
+
     /** Signing out on the TV: forget the token, keep the address for next time. */
     fun clear() {
-        prefs.edit { remove(KEY_TOKEN).remove(KEY_DEVICE_NAME) }
+        prefs.edit { remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).remove(KEY_PROFILES_REVISION).remove(KEY_PENDING_PROFILE_DELETES) }
         clearSettingsBases()
         _session.value = null
     }
 
     /** The website revoked this TV. Same as [clear], but remembered so the TV can say why. */
     fun markSignedOutByWebsite() {
-        prefs.edit { remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).putBoolean(KEY_SIGNED_OUT, true) }
+        prefs.edit {
+            remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).remove(KEY_PROFILES_REVISION).remove(KEY_PENDING_PROFILE_DELETES)
+                .putBoolean(KEY_SIGNED_OUT, true)
+        }
         clearSettingsBases()
         _signedOutByWebsite.value = true
         _session.value = null
@@ -116,5 +153,7 @@ class FetchWebsiteStore internal constructor(
         const val KEY_SIGNED_OUT = "signed_out_by_website"
         const val KEY_INITIAL_PROFILE_PUSH = "initial_profile_push"
         const val KEY_SETTINGS_BASE_PREFIX = "settings_base_"
+        const val KEY_PROFILES_REVISION = "profiles_revision"
+        const val KEY_PENDING_PROFILE_DELETES = "pending_profile_deletes"
     }
 }

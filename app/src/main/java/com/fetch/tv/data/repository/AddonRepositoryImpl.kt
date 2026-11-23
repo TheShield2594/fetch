@@ -121,6 +121,8 @@ class AddonRepositoryImpl(
             Log.d(TAG, "triggerRemoteSync: skipped (no sync backend connected)")
             return
         }
+        // Marked now, not after the debounce: the change must survive the app dying in between (#616).
+        addonSyncService.markPendingPush()
         Log.d(TAG, "triggerRemoteSync: scheduling push in 500ms")
         syncJob?.cancel()
         syncJob = syncScope.launch {

@@ -313,6 +313,20 @@ class StreamTitleParserTest {
         assertNull(group("Show - 01 (1080p HEVC) [F02B9CEE].mkv"))
         // Nor is a bracket on a name that gives no quality.
         assertNull(group("Breaking Bad - S01E01 - Pilot [Extended].mkv"))
+        // Nor a release source, in a bracket or as the closing word.
+        assertNull(group("Movie 2024 1080p x265 [DVD]"))
+        assertNull(group("Movie 2024 1080p x265 [CAM]"))
+        assertNull(group("Movie (2024) (1080p x264 DVD)"))
+    }
+
+    @Test
+    fun `the rest of an audio tag is not a release group`() {
+        fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
+        assertNull(group("Movie 2024 1080p BluRay x264 DTS-HD MA"))
+        assertNull(group("Movie.2024.1080p.BluRay.x264.DTS-HD MA"))
+        // A group after an audio tag is still one.
+        assertEquals("FGT", group("Movie.2024.1080p.BluRay.DTS-FGT"))
+        assertEquals("FGT", group("Movie.2024.1080p.BluRay.x264.DTS-HD.MA.5.1-FGT.mkv"))
     }
 
     @Test

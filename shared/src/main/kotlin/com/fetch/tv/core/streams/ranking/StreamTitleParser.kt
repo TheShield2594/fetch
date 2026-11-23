@@ -345,7 +345,11 @@ object StreamTitleParser {
 
     private fun parseReleaseGroup(text: String): String? {
         val lines = text.lineSequence().map { it.trim() }.toList()
-        lines.firstNotNullOfOrNull { line -> RELEASE_GROUP.find(line)?.groupValues?.get(1)?.takeIf(::isDashGroup) }
+        lines.firstNotNullOfOrNull { line ->
+            RELEASE_GROUP.find(line)?.let { match ->
+                match.groupValues[1].takeIf { isDashGroup(it) && !continuesAudioTag(line, match.range.first, it) }
+            }
+        }
             ?.let { return it }
         lines.mapNotNull { LEADING_GROUP.find(it)?.groupValues?.get(1)?.trim(' ', '.', '-', '_') }
             .firstOrNull { group -> group.any(Char::isLetter) && !looksLikeQualityTag(group) }
@@ -361,6 +365,21 @@ object StreamTitleParser {
         group.substringAfter(' ', "").takeIf { it.isNotEmpty() }?.let { if (!isGroupWord(it)) return false }
         // Dotted groups are new (#202): keep them away from web addresses and tag runs.
         return '.' !in group || !(WEB_ADDRESS.containsMatchIn(group) || looksLikeQualityTag(group))
+    }
+
+    // The word right before a dash: "DTS" in "DTS-HD MA".
+    private val WORD_BEFORE = Regex("[\\p{L}\\p{N}]+$")
+
+    private val AUDIO_TAGS by lazy { listOf(TRUEHD, DTS_X, DTS_HD_MA, DTS, EAC3, AC3, FLAC, OPUS, AAC, MP3, ATMOS) }
+
+    /**
+     * True when the "group" is the rest of an audio tag: a name ending "DTS-HD MA" would otherwise
+     * read "HD MA" as its group. An audio tag that stops at the dash ("DTS-FGT") leaves the group.
+     */
+    private fun continuesAudioTag(line: String, dashAt: Int, group: String): Boolean {
+        val before = WORD_BEFORE.find(line.substring(0, dashAt))?.value ?: return false
+        val joined = "$before-$group"
+        return AUDIO_TAGS.any { tag -> tag.findAll(joined).any { it.range.last >= before.length } }
     }
 
     /**
@@ -389,10 +408,11 @@ object StreamTitleParser {
         return word.takeIf { describesQuality && !CRC.matches(it) && isGroupWord(it) }
     }
 
-    /** A word that can name a group: not a quality, HDR, audio, language or subtitle tag. */
+    /** A word that can name a group: not a quality, source, HDR, audio, language or subtitle tag. */
     private fun isGroupWord(word: String): Boolean =
         word.any(Char::isLetter) && word.lowercase() !in NOT_A_GROUP && !looksLikeQualityTag(word) &&
-            parseHdr(word).isEmpty() && StreamLanguage.fromCode(word) == null
+            parseSource(word) == ReleaseSource.UNKNOWN && parseHdr(word).isEmpty() &&
+            StreamLanguage.fromCode(word) == null
 
     /** "[1080p]", "[BD]", "[Dual Audio]": a bracket that describes the file, not who made it. */
     private fun looksLikeQualityTag(tag: String): Boolean =

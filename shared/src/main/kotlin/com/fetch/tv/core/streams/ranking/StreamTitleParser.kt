@@ -41,10 +41,13 @@ object StreamTitleParser {
                 false -> false
                 null -> parsed.isDebridCached
             },
+            // A bare torrent (an info hash and no playable link) is not a debrid link at all, so a
+            // marker can't make it one waiting for a download: MediaFusion puts ⏳ on every P2P
+            // result (#202), which would otherwise sink each one below Torrentio's same torrents.
             isDebridUncached = when (stream.clientResolve?.isCached) {
                 true -> false
                 false -> true
-                null -> parsed.isDebridUncached
+                null -> parsed.isDebridUncached && !stream.isTorrent()
             }
         )
     }
@@ -303,7 +306,10 @@ object StreamTitleParser {
         RegexOption.IGNORE_CASE
     )
     private val SEEDERS = Regex("(?:👤|seeders?:?|seeds?:?|\\bS:)\\s?(\\d{1,6})", RegexOption.IGNORE_CASE)
-    private val RELEASE_GROUP = Regex("-([\\p{L}\\p{N}]{2,15})(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$")
+    // "-FGT", "-FGT.mkv", and a group followed by the uploader's tag: "x264-TrollUHD [RiCK]",
+    // "x265-Qman[UTR].mkv" (#202).
+    private val RELEASE_GROUP =
+        Regex("-([\\p{L}\\p{N}]{2,15})(?:\\s?\\[[^\\[\\]]{1,20}])?(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$")
 
     // Fansub and many Asian releases put the group first: "[SubsPlease] Show - 01 (1080p).mkv".
     private val LEADING_GROUP = Regex("^(?:📄\\s*)?\\[([A-Za-z0-9][A-Za-z0-9 ._-]{1,19})]")

@@ -39,6 +39,29 @@ class StreamTitleParserTest {
     }
 
     @Test
+    fun `an uncached marker on a bare torrent is not an uncached debrid link`() {
+        fun stream(url: String?) = com.fetch.tv.domain.model.Stream(
+            name = "MediaFusion 🧲  ⏳ 2160p",
+            title = null,
+            description = "🎨 DV|HDR 📺 BluRay REMUX 🎞️ hevc \n📦 85.37 GB 👤 20",
+            url = url,
+            ytId = null,
+            infoHash = "a5d76d0c2f99b0119863e7da21803ff637d4d1d0",
+            fileIdx = null,
+            externalUrl = null,
+            behaviorHints = null,
+            addonName = "MediaFusion",
+            addonLogo = null
+        )
+        // The P2P result has no debrid link to wait for (#202).
+        assertFalse(StreamTitleParser.parse(stream(url = null)).isDebridUncached)
+        // The same marker on a debrid link still means it has to download first.
+        assertTrue(StreamTitleParser.parse(stream(url = "https://example.invalid/playback/1")).isDebridUncached)
+        // Text alone, with no stream to tell, keeps reading the marker.
+        assertTrue(StreamTitleParser.parse("MediaFusion ⏳ 2160p").isDebridUncached)
+    }
+
+    @Test
     fun `parses torrentio style multi line title`() {
         val d = StreamTitleParser.parse(
             "Torrentio\n4k DV | HDR\n" +
@@ -231,6 +254,14 @@ class StreamTitleParserTest {
         assertFalse(StreamLanguage.MULTI in StreamTitleParser.parse("Frieren - 01 [WebRip 2160p HEVC OPUS Multi-Subs]").languages)
         assertTrue(StreamLanguage.MULTI in StreamTitleParser.parse("Frieren.S01E01.2160p.WEB-DL.Multi.AUDIO.x265.Multi.Subs").languages)
         assertTrue(StreamLanguage.JAPANESE in StreamTitleParser.parse("[RUS(int) JAP+Sub] [2023 WEB-DL] [1080p]").languages)
+    }
+
+    @Test
+    fun `reads a release group followed by the uploader's tag`() {
+        assertEquals("TrollUHD", StreamTitleParser.parse("Breaking.Bad.S01E01.2160p.WEB-DL.DTS-HD.MA5.1.x264-TrollUHD [RiCK]").releaseGroup)
+        assertEquals("Qman", StreamTitleParser.parse("The.Shawshank.Redemption.1994.BluRay.720p.x265.HEVC-Qman[UTR].mkv").releaseGroup)
+        // A bracket straight after the dash is the tag itself, not a group.
+        assertNull(StreamTitleParser.parse("Movie.2024.1080p.BluRay.x264.AAC5.1-[YTS.MX].mp4").releaseGroup)
     }
 
     @Test

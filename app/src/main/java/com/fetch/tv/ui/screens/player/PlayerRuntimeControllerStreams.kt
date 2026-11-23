@@ -855,7 +855,8 @@ internal fun PlayerRuntimeController.switchToSourceStream(
  * position once it is ready. A recovery keeps the failed stream's position.
  */
 private fun PlayerRuntimeController.resumePositionAfterResolve(captured: Long?, userPicked: Boolean): Long? {
-    if (!userPicked || captured == null) return captured
+    // Read even when nothing was captured: the current stream may have started meanwhile.
+    if (!userPicked) return captured
     return livePositionForSourceSwitch() ?: captured
 }
 

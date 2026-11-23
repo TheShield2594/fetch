@@ -26,14 +26,14 @@
     "fastify": "^5.12.8",
     "lru-cache": "^11.5.3",
     "pg": "^8.23.1",
-    "undici": "^8.12.4",
-    "web-push": "^3.6.7"
+    "undici": "^8.13.0",
+    "web-push": "^4.0.0"
   },
   "devDependencies": {
     "@types/pg": "^8.23.1",
     "@types/web-push": "^3.6.4",
     "prisma": "^7.10.1",
     "tsx": "^4.23.15",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }

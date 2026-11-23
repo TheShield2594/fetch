@@ -1,4 +1,4 @@
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS build
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS build
 
 WORKDIR /app
 RUN npm install -g corepack@latest && corepack enable
@@ -27,10 +27,18 @@ RUN pnpm --filter @fetch/addon build
 RUN pnpm deploy --filter @fetch/addon --prod --legacy \
       --config.confirmModulesPurge=false /deploy
 
-FROM node:26-alpine@sha256:233761595746769ebfdb6090f44fc7cdf818ae0ce62d2b37e0367723b9823e36 AS runtime
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5 AS runtime
 
 WORKDIR /app
-RUN apk add --no-cache wget
+# Alpine packages are upgraded past whatever the pinned base shipped with
+# (musl, zlib, OpenSSL fixes land between node image rebuilds), and the
+# package managers the base image bundles are removed: the services only run
+# `node`, and npm's own vendored tar and brace-expansion are what image scanners
+# flag in these containers.
+RUN apk upgrade --no-cache && apk add --no-cache wget \
+ && rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+      /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+      /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-*
 RUN addgroup -S app && adduser -S app -G app
 
 COPY --from=build --chown=app:app /deploy ./

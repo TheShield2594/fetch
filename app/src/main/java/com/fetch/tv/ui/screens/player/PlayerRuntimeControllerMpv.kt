@@ -91,6 +91,17 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
     }
 }
 
+/** The user's buffer settings for mpv's demuxer cache, by the same rule as ExoPlayer's target. */
+internal fun PlayerRuntimeController.applyMpvBufferSettings(settings: com.fetch.tv.data.local.PlayerSettings) {
+    mpvUserBufferTargetMbSetting =
+        if (settings.bufferEngineEnabled && !settings.bufferBudgetManaged) {
+            settings.bufferSettings.targetBufferSizeMb.takeIf { it > 0 }
+        } else {
+            null
+        }
+    mpvAllowBufferAboveBudgetSetting = settings.allowLargeTargetBuffer
+}
+
 /** mpv's demuxer cache for a load starting now: the user's buffer target within this session's memory budget. */
 internal fun PlayerRuntimeController.mpvDemuxerCacheLimits(): MpvDemuxerCachePolicy.Limits {
     val budgetMb = runCatching { com.fetch.tv.ui.screens.settings.MemoryBudget.playbackBudgetMb(context) }

@@ -800,10 +800,13 @@ internal fun PlayerRuntimeController.emitSeekScrobbleRestart(progressPercent: Fl
     }
 }
 
-/** The position to carry into a source the user picks mid-playback, or null before anything has played. */
+/**
+ * The position to carry into a source the user picks mid-playback, or null before anything has
+ * played. Zero is kept: a user back at the start should not be sent to older saved progress.
+ */
 internal fun PlayerRuntimeController.livePositionForSourceSwitch(): Long? {
     if (!hasRenderedFirstFrame) return null
-    return currentPlaybackPositionMs()?.takeIf { it > 0L }
+    return currentPlaybackPositionMs()?.coerceAtLeast(0L)
 }
 
 internal fun PlayerRuntimeController.flushPlaybackSnapshotForSwitchOrExit() {

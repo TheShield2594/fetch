@@ -710,7 +710,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val prepared = prepareServerStream(stream)
             streamResolveJob = null
             if (prepared != null) {
-                switchToSourceStream(prepared, resumePositionMs, userPicked)
+                switchToSourceStream(prepared, resumePositionAfterResolve(resumePositionMs, userPicked), userPicked)
             } else {
                 _uiState.update { it.copy(isLoadingSourceStreams = false) }
             }
@@ -725,7 +725,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val resolved = resolveYouTubeStream(stream)
             streamResolveJob = null
             if (resolved != null) {
-                switchToSourceStream(resolved, resumePositionMs, userPicked)
+                switchToSourceStream(resolved, resumePositionAfterResolve(resumePositionMs, userPicked), userPicked)
             } else {
                 _uiState.update {
                     it.copy(
@@ -797,7 +797,12 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             isLoadingSourceStreams = false,
             sourceStreamsError = null,
             showErrorRecoveryActions = false,
-            pendingSeekPosition = resumePositionMs?.takeIf { position -> position > 0L } ?: it.pendingSeekPosition
+            pendingSeekPosition = when {
+                resumePositionMs != null && resumePositionMs > 0L -> resumePositionMs
+                // A user-picked switch from the start starts at the start, not at a stale seek.
+                resumePositionMs != null && userPicked -> null
+                else -> it.pendingSeekPosition
+            }
         )
     }
     showStreamSourceIndicator(stream)
@@ -836,12 +841,22 @@ internal fun PlayerRuntimeController.switchToSourceStream(
         initializePlayer(playbackUrl, playbackHeaders)
     }
 
-    if (resumePositionMs != null && resumePositionMs > 0L) {
-        // The failed stream's position, not the saved progress, which may lag behind it.
+    if (resumePositionMs != null && (resumePositionMs > 0L || userPicked)) {
+        // The failed stream's position, or the live one for a picked source; not the saved
+        // progress, which may lag behind it.
         pendingResumeProgress = null
     } else {
         loadSavedProgressFor(currentSeason, currentEpisode)
     }
+}
+
+/**
+ * The old stream keeps playing while a picked source resolves, so a picked source takes the live
+ * position once it is ready. A recovery keeps the failed stream's position.
+ */
+private fun PlayerRuntimeController.resumePositionAfterResolve(captured: Long?, userPicked: Boolean): Long? {
+    if (!userPicked || captured == null) return captured
+    return livePositionForSourceSwitch() ?: captured
 }
 
 internal fun PlayerRuntimeController.dismissEpisodesPanel() {

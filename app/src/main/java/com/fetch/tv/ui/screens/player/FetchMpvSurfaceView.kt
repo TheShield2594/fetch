@@ -167,9 +167,12 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         return mpv.getPropertyBoolean("paused-for-cache") == true
     }
 
-    fun demuxerCacheDurationSec(): Double {
-        if (!initialized) return 0.0
-        return mpv.getPropertyDouble("demuxer-cache-duration") ?: 0.0
+    fun demuxerCacheDurationSec(): Double = demuxerCacheDurationSecOrNull() ?: 0.0
+
+    /** The demuxer cache in seconds, or null when it can't be read (not a measured zero). */
+    fun demuxerCacheDurationSecOrNull(): Double? {
+        if (!initialized) return null
+        return mpv.getPropertyDouble("demuxer-cache-duration")
     }
 
     /** Whether mpv sends the audio on as an S/PDIF bitstream; null until the output is open. */

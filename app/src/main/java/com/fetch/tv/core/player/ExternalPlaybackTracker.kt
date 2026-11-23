@@ -13,6 +13,7 @@ import com.fetch.tv.core.tracking.buildTrackingMediaReference
 import com.fetch.tv.core.util.parseRuntimeMinutes
 import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.data.local.PlayerSettings
+import com.fetch.tv.domain.model.Meta
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.repository.MetaRepository
@@ -161,6 +162,67 @@ internal fun resolveExternalNextEpisodeSnapshot(
 
 private const val MAX_COUNTED_EXTERNAL_MS = 4 * 60 * 60_000L
 
+/** Shorter than this is a debrid cache-sync placeholder clip, not a real playback. */
+private const val MIN_REAL_PLAYBACK_DURATION_MS = 30_000L
+
+/** What a returned external player result means for progress and auto-next. */
+internal enum class ExternalResultOutcome {
+    /** An implausibly short clip played to its end: neither saved nor chained. */
+    PLACEHOLDER,
+
+    /** Saved as watched; auto-next may follow. */
+    COMPLETED,
+
+    /** Saved as resumable progress. */
+    PARTIAL
+}
+
+/**
+ * Debrid cache-sync placeholders (e.g. Comet) play a few-second clip to its end and report a
+ * normal completion, so an implausibly short playback is ignored rather than marked watched and
+ * chained through the season. A missing or zero duration is left to the normal path, so Just
+ * Player's end-only completion still counts.
+ */
+internal fun classifyExternalResult(result: ExternalPlayerResult): ExternalResultOutcome {
+    val duration = result.durationMs
+    return when {
+        duration != null && duration in 1 until MIN_REAL_PLAYBACK_DURATION_MS -> ExternalResultOutcome.PLACEHOLDER
+        isExternalPlaybackCompleted(result) -> ExternalResultOutcome.COMPLETED
+        else -> ExternalResultOutcome.PARTIAL
+    }
+}
+
+/**
+ * True on a natural end (end_by != "user"), or for players without end_by once the position
+ * reaches [WatchProgress.COMPLETED_THRESHOLD] (90%).
+ */
+internal fun isExternalPlaybackCompleted(result: ExternalPlayerResult): Boolean {
+    if (!result.endedByUser) return true
+    val duration = result.durationMs ?: 0L
+    return duration > 0L &&
+        result.positionMs >= (WatchProgress.COMPLETED_THRESHOLD * duration).toLong()
+}
+
+/**
+ * Some players (notably VLC on network streams) return a real position but no usable duration,
+ * so no percentage can be computed and nothing would be saved as resumable or watched.
+ */
+internal fun needsExternalDurationBackfill(result: ExternalPlayerResult): Boolean =
+    (result.durationMs == null || result.durationMs <= 0L) && result.positionMs > 0L
+
+/** The runtime used for a missing duration: the episode's own, else the title's. */
+internal fun externalFallbackRuntimeMinutes(meta: Meta, season: Int?, episode: Int?): Int? =
+    if (season != null && episode != null) {
+        meta.videos.firstOrNull { it.season == season && it.episode == episode }?.runtime
+            ?: parseRuntimeMinutes(meta.runtime)
+    } else {
+        parseRuntimeMinutes(meta.runtime)
+    }
+
+/** The percentage sent with a scrobble stop; 0 (no scrobble) without a duration. */
+internal fun externalScrobblePercent(positionMs: Long, durationMs: Long): Float =
+    if (durationMs > 0L) (positionMs.toFloat() / durationMs.toFloat() * 100f).coerceIn(0f, 100f) else 0f
+
 /**
  * Application-scoped singleton that tracks external player playback.
  *
@@ -202,7 +264,6 @@ class ExternalPlaybackTracker @Inject constructor(
         private const val NEXT_EPISODE_PREFETCH_RETURN_WAIT_MS = 1_000L
         /** A "completed" playback shorter than this is treated as a debrid cache-sync placeholder
          *  (e.g. Comet's few-second clip), not a real episode: not marked watched, no auto-advance. */
-        private const val MIN_REAL_PLAYBACK_DURATION_MS = 30_000L
         /** A launch within this of an auto-next emit counts as a chain continuation. */
         private const val CONTINUATION_WINDOW_MS = 12_000L
         /** After returning to the app with a persisted (process-recreated) session, how long to
@@ -610,7 +671,7 @@ class ExternalPlaybackTracker @Inject constructor(
 
         // Covers process recreation, where onStart could not use in-memory state. At this point
         // the result is available, so only a completion may claim the transition loader.
-        if (isPlaybackCompleted(result)) {
+        if (isExternalPlaybackCompleted(result)) {
             raiseAutoNextOverlay(metadata, allowUnknownNextEpisode = true)
         }
 
@@ -620,7 +681,7 @@ class ExternalPlaybackTracker @Inject constructor(
         // duration, so Fetch can't compute a % and nothing is saved as resumable/watched.
         // Backfill the duration (saved progress, else episode/movie runtime) off-thread, then
         // process. Players that DO report a duration keep the synchronous path below unchanged.
-        if ((result.durationMs == null || result.durationMs <= 0L) && result.positionMs > 0L) {
+        if (needsExternalDurationBackfill(result)) {
             scope.launch {
                 val fallback = resolveFallbackDurationMs(metadata)
                 val enriched = if (fallback > 0L) {
@@ -639,21 +700,16 @@ class ExternalPlaybackTracker @Inject constructor(
 
     /** Completion check + save + auto-next + cleanup for a result with a resolved duration. */
     private fun processResult(metadata: ExternalPlaybackMetadata, result: ExternalPlayerResult) {
-        // Debrid cache-sync placeholders (e.g. Comet) play a few-second clip to its end and report
-        // a normal completion. Ignore an implausibly short playback so it isn't marked watched and
-        // doesn't chain auto-next through the season. A missing/zero duration is left to the normal
-        // path (so Just Player's end-only completion still works).
-        val duration = result.durationMs
-        if (duration != null && duration in 1 until MIN_REAL_PLAYBACK_DURATION_MS) {
-            Log.d(TAG, "Ignoring ${duration}ms playback (likely a cache-sync placeholder)")
+        val outcome = classifyExternalResult(result)
+        if (outcome == ExternalResultOutcome.PLACEHOLDER) {
+            Log.d(TAG, "Ignoring ${result.durationMs}ms playback (likely a cache-sync placeholder)")
             _autoNextOverlay.value = null
             clearPersistedMetadata()
             stopTracking()
             return
         }
 
-        val completed = isPlaybackCompleted(result)
-        if (completed) {
+        if (outcome == ExternalResultOutcome.COMPLETED) {
             // Mark watched even when the player returns no position/duration (e.g. Just
             // Player sends only end_by=playback_completion). An explicit 100% forces
             // WatchProgress.isCompleted(), which makes the repository flag the item watched
@@ -709,14 +765,7 @@ class ExternalPlaybackTracker @Inject constructor(
                 .first { it !is NetworkResult.Loading }
         }
         val meta = (fetched as? NetworkResult.Success)?.data ?: return 0L
-        val season = metadata.season
-        val episode = metadata.episode
-        val minutes: Int? = if (season != null && episode != null) {
-            meta.videos.firstOrNull { it.season == season && it.episode == episode }?.runtime
-                ?: parseRuntimeMinutes(meta.runtime)
-        } else {
-            parseRuntimeMinutes(meta.runtime)
-        }
+        val minutes = externalFallbackRuntimeMinutes(meta, metadata.season, metadata.episode)
         return (minutes ?: 0).toLong() * 60_000L
     }
 
@@ -894,15 +943,6 @@ class ExternalPlaybackTracker @Inject constructor(
         val meta = (result as? NetworkResult.Success)?.data
             ?: return ExternalNextEpisodeSnapshot.Unknown
         return resolveNextEpisodeSnapshot(metadata, meta.videos, preferredVideoId)
-    }
-
-    // True on a natural end (end_by != "user"), or for players without end_by once the
-    // position reaches COMPLETED_THRESHOLD (90%).
-    private fun isPlaybackCompleted(result: ExternalPlayerResult): Boolean {
-        if (!result.endedByUser) return true
-        val duration = result.durationMs ?: 0L
-        return duration > 0L &&
-            result.positionMs >= (WatchProgress.COMPLETED_THRESHOLD * duration).toLong()
     }
 
     /**
@@ -1342,11 +1382,7 @@ class ExternalPlaybackTracker @Inject constructor(
                 "progressPct=${progress.progressPercentage}, isInProgress=${progress.isInProgress()}")
             watchProgressRepository.saveProgress(progress, metadata.profileId)
 
-            val progressPercent = if (effectiveDuration > 0L) {
-                (positionMs.toFloat() / effectiveDuration.toFloat() * 100f).coerceIn(0f, 100f)
-            } else {
-                0f
-            }
+            val progressPercent = externalScrobblePercent(positionMs, effectiveDuration)
             if (progressPercent > 0f) {
                 val scrobbleItem = buildScrobbleItem(metadata)
                 if (scrobbleItem != null) {

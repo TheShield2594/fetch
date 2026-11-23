@@ -191,7 +191,11 @@ jobs:
       # UI tests assume a landscape TV screen and D-pad (non-touch) focus, and fail on a phone.
       # The MDBList live tests skip themselves unless their instrumentation argument is set,
       # so this run needs no network credentials.
+      # scripts/connected-tests.sh limits each attempt to 15 minutes and retries once when adb or
+      # the emulator fails, but never after a test failure (#490). The step limit leaves room for
+      # the emulator boot and both attempts, so a hang fails well before the job limit.
       - name: Instrumented tests
+        timeout-minutes: 40
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -202,7 +206,7 @@ jobs:
           ram-size: 4096M
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swangle_indirect -noaudio -no-boot-anim -camera-back none
-          script: ./gradlew --no-daemon :app:connectedDebugAndroidTest
+          script: scripts/connected-tests.sh :app:connectedDebugAndroidTest
 
       - uses: actions/upload-artifact@v7
         if: always()

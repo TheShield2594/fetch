@@ -265,6 +265,36 @@ class StreamTitleParserTest {
     }
 
     @Test
+    fun `reads dotted, hyphenated and ampersand release groups`() {
+        fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
+        assertEquals("BEN.THE.MEN", group("Dune.Part.Two.2024.2160p.BluRay.REMUX.DV.HDR.DDP5.1.H265.MP4-BEN.THE.MEN.mp4"))
+        assertEquals("MeM.GP", group("The.Last.of.Us.S01E01.ITA.ENG.2160p.UHD.BluRay.x265-MeM.GP.mkv"))
+        assertEquals("Tsundere-Raws", group("Frieren S01E01 VOSTFR 1080p WEB x264 AAC -Tsundere-Raws (CR).mkv"))
+        assertEquals("R&H", group("Breaking.Bad.S01-2160P.BluRay.10.bit.Encode.AV1.DTS.5.1-R&H"))
+        // The extension is never part of a dotted group, and a web address is not a group.
+        assertEquals("FGT", group("Movie.2024.1080p.WEB-DL.DDP5.1.H.264-FGT.mkv"))
+        assertNull(group("Breaking.Bad.S01E01.4K.2160p.WEB-DL.5.1.x264.DUAL-WWW.BLUDV.COM.mkv"))
+    }
+
+    @Test
+    fun `reads a release group closing the quality tags`() {
+        fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
+        assertEquals("Tigole", group("Dune - Part Two (2024) (2160p BluRay x265 10bit HDR Tigole).mkv"))
+        assertEquals("Silence", group("Breaking Bad (2008) - S01E01 - Pilot (1080p BluRay x265 Silence).mkv"))
+        assertEquals("HONE", group("Breaking Bad (2008) S01E01 (2160p AMZN WEB-DL H265 SDR DDP 5.1 English - HONE).mkv"))
+        assertEquals("TURG", group("Oppenheimer (2023) 1080p BluRay [EN-TRSub] DTS x264 - TURG.mkv"))
+        assertEquals("GEGE", group("Le ali della libertà (1994) (1080p BluRay x265 HEVC 10bit ITA AC3) - GEGE [9.3 GB]"))
+        // Without a resolution or codec before it, the closing word is part of the title.
+        assertNull(group("Breaking Bad - S01E01 - Pilot.mkv"))
+        assertNull(group("Frieren - Beyond Journey's End - Saison 1"))
+        // A closing quality, language or subtitle tag is not a group.
+        assertNull(group("Movie (2020) (1080p BluRay x265 HEVC).mkv"))
+        assertNull(group("Movie (2020) (2160p WEB-DL H265 HDR).mkv"))
+        assertNull(group("Movie (2020) (1080p BluRay x264 English).mkv"))
+        assertNull(group("Movie 2020 1080p BluRay x264 - ESub.mkv"))
+    }
+
+    @Test
     fun `reads release groups in other scripts`() {
         assertEquals("Нечипорук", StreamTitleParser.parse("Dune.Part.Two.2024.2160p.UHD.BDREMUX.HDR.DV.HEVC-Нечипорук.mkv").releaseGroup)
     }

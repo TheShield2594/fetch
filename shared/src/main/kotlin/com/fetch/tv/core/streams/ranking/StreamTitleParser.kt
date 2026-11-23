@@ -307,21 +307,65 @@ object StreamTitleParser {
     )
     private val SEEDERS = Regex("(?:👤|seeders?:?|seeds?:?|\\bS:)\\s?(\\d{1,6})", RegexOption.IGNORE_CASE)
     // "-FGT", "-FGT.mkv", and a group followed by the uploader's tag: "x264-TrollUHD [RiCK]",
-    // "x265-Qman[UTR].mkv" (#202).
-    private val RELEASE_GROUP =
-        Regex("-([\\p{L}\\p{N}]{2,15})(?:\\s?\\[[^\\[\\]]{1,20}])?(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$")
+    // "x265-Qman[UTR].mkv", "-Tsundere-Raws (CR).mkv". The group may be dotted ("MP4-BEN.THE.MEN",
+    // "x265-MeM.GP"), end in "-Raws" or hold an "&" ("-R&H") (#202).
+    private val RELEASE_GROUP = Regex(
+        "-([\\p{L}\\p{N}][\\p{L}\\p{N}&]{1,14}(?:-Raws)?(?:\\.(?!(?:mkv|mp4|avi|ts|m2ts)\\b)\\p{L}{2,10}){0,3})" +
+            "(?:\\s?[\\[(][^\\[\\]()]{1,20}[\\])])?(?:\\.(?:mkv|mp4|avi|ts|m2ts))?\\s*$"
+    )
+
+    // A dotted match that is a web address ("DUAL-WWW.BLUDV.COM"), not a group.
+    private val WEB_ADDRESS = Regex("^www\\.|\\.(?:com|net|org|to|me|io|in)$", RegexOption.IGNORE_CASE)
+
+    // The group as the closing word after the quality tags: "(1080p BluRay x265 Silence)",
+    // "(2160p AMZN WEB-DL H265 SDR DDP 5.1 English - HONE)", "DTS x264 - TURG.mkv" (#202).
+    private val CLOSING_PAREN_GROUP = Regex(
+        "\\(([^()]*)\\s(?:-\\s)?([A-Z][\\p{L}\\p{N}_]{1,15})\\)(?:\\.(?:mkv|mp4|avi))?\\s*$"
+    )
+    private val CLOSING_DASH_GROUP = Regex(
+        "^(.*)\\s-\\s([\\p{L}][\\p{L}\\p{N}_]{1,15})(?:\\s?\\[[^\\[\\]]{1,20}])?(?:\\.(?:mkv|mp4|avi))?\\s*$"
+    )
+
+    // Closing words that describe the file rather than name who made it.
+    private val NOT_A_GROUP = setOf(
+        "hdr", "sdr", "dv", "dovi", "atmos", "remux", "hybrid", "imax", "dual", "multi", "uncut",
+        "extended", "proper", "repack", "subs", "sub", "esub", "esubs", "msubs", "dub", "dubbed",
+        "complete", "pilot", "final", "web", "bd", "uhd", "4k", "10bit", "8bit"
+    )
 
     // Fansub and many Asian releases put the group first: "[SubsPlease] Show - 01 (1080p).mkv".
     private val LEADING_GROUP = Regex("^(?:📄\\s*)?\\[([A-Za-z0-9][A-Za-z0-9 ._-]{1,19})]")
 
     private fun parseReleaseGroup(text: String): String? {
-        val lines = text.lineSequence().map { it.trim() }
-        lines.firstOrNull { RELEASE_GROUP.containsMatchIn(it) }
-            ?.let { RELEASE_GROUP.find(it)?.groupValues?.get(1) }
-            ?.takeUnless { it.equals("dl", true) || it.equals("rip", true) || it.all(Char::isDigit) }
+        val lines = text.lineSequence().map { it.trim() }.toList()
+        lines.firstNotNullOfOrNull { line -> RELEASE_GROUP.find(line)?.groupValues?.get(1)?.takeIf(::isDashGroup) }
             ?.let { return it }
-        return lines.mapNotNull { LEADING_GROUP.find(it)?.groupValues?.get(1)?.trim(' ', '.', '-', '_') }
+        lines.mapNotNull { LEADING_GROUP.find(it)?.groupValues?.get(1)?.trim(' ', '.', '-', '_') }
             .firstOrNull { group -> group.any(Char::isLetter) && !looksLikeQualityTag(group) }
+            ?.let { return it }
+        return lines.firstNotNullOfOrNull(::closingWordGroup)
+    }
+
+    private fun isDashGroup(group: String): Boolean {
+        val first = group.substringBefore('.')
+        if (first.equals("dl", true) || first.equals("rip", true) || group.all(Char::isDigit)) return false
+        // Dotted groups are new (#202): keep them away from web addresses and tag runs.
+        return '.' !in group || !(WEB_ADDRESS.containsMatchIn(group) || looksLikeQualityTag(group))
+    }
+
+    /**
+     * The group as the closing word of a release name whose earlier part already names its quality:
+     * "(1080p BluRay x265 Silence)", "… 5.1 English - HONE)", "BluRay … x264 - TURG.mkv". Without
+     * a resolution or codec before it, the word is more likely a title ("S01E01 - Pilot.mkv").
+     */
+    private fun closingWordGroup(line: String): String? {
+        val match = CLOSING_PAREN_GROUP.find(line) ?: CLOSING_DASH_GROUP.find(line) ?: return null
+        val (before, word) = match.destructured
+        val describesQuality = RES_HEIGHT.containsMatchIn(before) || RES_2160.containsMatchIn(before) ||
+            parseCodec(before) != VideoCodec.UNKNOWN
+        return word.takeIf {
+            describesQuality && it.any(Char::isLetter) && it.lowercase() !in NOT_A_GROUP && !looksLikeQualityTag(it)
+        }
     }
 
     /** "[1080p]", "[BD]", "[Dual Audio]": a bracket that describes the file, not who made it. */

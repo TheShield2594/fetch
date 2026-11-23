@@ -320,6 +320,21 @@ class StreamTitleParserTest {
     }
 
     @Test
+    fun `a site's upload tag is not a release group`() {
+        fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
+        assertNull(group("Dune Part Two 2024 1080p 10bit BluRay Hindi English DDP5.1 x265 HEVC ESub [ProtonMovies]"))
+        assertNull(group("Oppenheimer (2023) [BDRemux 1080p AVC ES DTS 5.1 - EN DTS-HD MA 5.1 Subs][HDO].mkv"))
+        assertNull(group("Breaking Bad S01 E01 BluRay 720p English AAC 5.1 x264 ESub - mkvCinemas.mkv"))
+        assertNull(group("Oppenheimer (2023) BDRemux 1080p Ukr Eng [Hurtom]"))
+        assertNull(group("Show.S01E01.1080p.WEB.h264-EZTV"))
+        // The real group still reads when the site's tag follows it.
+        assertEquals("FGT", group("Movie.2024.1080p.WEB-DL.DDP5.1.H.264-FGT [TGx]"))
+        // Groups that upload under their own name stay groups.
+        assertEquals("QxR", group("The Last of Us (2023) S01 (1080p BluRay x265 10bit EAC3 Atmos 7.1 Ghost) [QxR]"))
+        assertEquals("RARBG", group("Movie.2019.1080p.BluRay.x264-RARBG"))
+    }
+
+    @Test
     fun `the rest of an audio tag is not a release group`() {
         fun group(name: String) = StreamTitleParser.parse(name).releaseGroup
         assertNull(group("Movie 2024 1080p BluRay x264 DTS-HD MA"))

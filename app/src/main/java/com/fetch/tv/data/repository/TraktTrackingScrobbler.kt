@@ -7,6 +7,7 @@ import com.fetch.tv.core.tracking.TrackingScrobbleAction
 import com.fetch.tv.core.tracking.TrackingScrobbleEvent
 import com.fetch.tv.core.tracking.TrackingScrobbler
 import com.fetch.tv.core.tracking.TrackingSeekScrobblePolicy
+import com.fetch.tv.core.tracking.TRACKING_WATCHED_PERCENT
 import com.fetch.tv.data.remote.dto.trakt.TraktIdsDto
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,7 +27,12 @@ class TraktTrackingScrobbler @Inject constructor(
         val item = event.media.toTraktScrobbleItem() ?: return
         when (action) {
             TrackingScrobbleAction.START -> service.scrobbleStart(item, event.progressPercent.toFloat(), event.profileId)
-            TrackingScrobbleAction.PAUSE -> service.scrobbleStop(item, event.progressPercent.toFloat(), event.profileId)
+            // Below Trakt's 80% a stop is a pause; past it a stop records a play, so a real pause is sent (#620).
+            TrackingScrobbleAction.PAUSE -> if (event.progressPercent >= TRACKING_WATCHED_PERCENT) {
+                service.scrobblePause(item, event.progressPercent.toFloat(), event.profileId)
+            } else {
+                service.scrobbleStop(item, event.progressPercent.toFloat(), event.profileId)
+            }
             TrackingScrobbleAction.STOP -> service.scrobbleStop(item, event.progressPercent.toFloat(), event.profileId)
         }
     }

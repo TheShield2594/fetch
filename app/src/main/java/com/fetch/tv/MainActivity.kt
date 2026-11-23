@@ -269,6 +269,9 @@ open class MainActivity : ComponentActivity() {
     lateinit var fetchWebsiteSyncService: dagger.Lazy<com.fetch.tv.data.website.FetchWebsiteSyncService>
 
     @Inject
+    lateinit var scrobbleOutbox: dagger.Lazy<com.fetch.tv.core.tracking.ScrobbleOutbox>
+
+    @Inject
     lateinit var profileManager: ProfileManager
 
     @Inject
@@ -1234,6 +1237,8 @@ open class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             trackingProgressRefreshCoordinator.get().refreshConnected(refreshIntent)
         }
+        // Watched marks a tracker didn't take last time (#619).
+        scrobbleOutbox.get().requestDrain()
     }
 
     /**

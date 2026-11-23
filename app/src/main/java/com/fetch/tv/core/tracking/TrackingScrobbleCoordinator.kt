@@ -15,7 +15,8 @@ data class TrackingScrobbleFailure(
 
 @Singleton
 class TrackingScrobbleCoordinator @Inject constructor(
-    private val providerRegistry: TrackingProviderRegistry
+    private val providerRegistry: TrackingProviderRegistry,
+    private val outbox: ScrobbleOutbox
 ) {
     suspend fun scrobble(
         action: TrackingScrobbleAction,
@@ -33,6 +34,10 @@ class TrackingScrobbleCoordinator @Inject constructor(
             action = action,
             event = event
         ).also { failures ->
+            // A play a tracker didn't take is kept and sent again later (#619); one that got
+            // through means the network is back, so whatever waits goes now.
+            if (isWatchedStop(action, event)) failures.forEach { outbox.enqueue(it.providerId, event) }
+            if (failures.size < scrobblers.size) outbox.requestDrain()
             Log.d(
                 TRACKING_SCROBBLE_DIAGNOSTIC_TAG,
                 "coordinator complete action=${action.wireValue} failures=" +
@@ -78,6 +83,13 @@ class TrackingScrobbleCoordinator @Inject constructor(
         }
     }
 }
+
+/** A stop at or past the trackers' watched line: the one scrobble that records a play. */
+internal fun isWatchedStop(action: TrackingScrobbleAction, event: TrackingScrobbleEvent): Boolean =
+    action == TrackingScrobbleAction.STOP && event.progressPercent >= TRACKING_WATCHED_PERCENT
+
+/** The share of a title at which Trakt, AniList and MyAnimeList count a stop scrobble as a play. */
+const val TRACKING_WATCHED_PERCENT = 80.0
 
 suspend fun dispatchTrackingScrobble(
     scrobblers: Collection<TrackingScrobbler>,

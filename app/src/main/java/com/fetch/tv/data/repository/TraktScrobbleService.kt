@@ -71,6 +71,14 @@ class TraktScrobbleService @Inject constructor(
         sendScrobble(action = "start", item = item, progressPercent = progressPercent, profileId = profileId)
     }
 
+    /**
+     * Keeps a resume point without recording a play. Trakt treats a stop at 80% or more as a
+     * play, so a pause past that line, before this TV counts the title watched, goes here (#620).
+     */
+    suspend fun scrobblePause(item: TraktScrobbleItem, progressPercent: Float, profileId: Int? = null) {
+        sendScrobble(action = "pause", item = item, progressPercent = progressPercent, profileId = profileId)
+    }
+
     suspend fun scrobbleStop(item: TraktScrobbleItem, progressPercent: Float, profileId: Int? = null) {
         sendScrobble(action = "stop", item = item, progressPercent = progressPercent, profileId = profileId)
     }
@@ -99,6 +107,7 @@ class TraktScrobbleService @Inject constructor(
                 traktAuthService.executeAuthorizedWriteRequest(activeProfileId) { authHeader ->
                     when (action) {
                         "start" -> traktApi.scrobbleStart(authHeader, requestBody)
+                        "pause" -> traktApi.scrobblePause(authHeader, requestBody)
                         else -> traktApi.scrobbleStop(authHeader, requestBody)
                     }
                 }
@@ -119,6 +128,8 @@ class TraktScrobbleService @Inject constructor(
                     continue
                 }
                 Log.w(TAG, "Scrobble $action failed after $attempts attempts", lastException)
+                // A play that didn't get through is kept and sent again later (#619).
+                if (action == "stop") throw IOException("Trakt scrobble stop failed", lastException)
                 return
             }
 
@@ -148,8 +159,13 @@ class TraktScrobbleService @Inject constructor(
                 continue
             }
 
-            // Non-retryable error (4xx other than 409)
+            // Non-retryable error (4xx other than 409), or a server error on the last attempt
             Log.w(TAG, "Scrobble $action failed with code ${response.code()}")
+            // Overload, a server error or a token that needs renewing can pass: a play is kept
+            // and sent again later (#619). Anything else (not found, invalid) won't get better.
+            if (action == "stop" && (response.code() == 429 || response.code() == 401 || response.code() in 500..599)) {
+                throw IOException("Trakt scrobble stop failed with HTTP ${response.code()}")
+            }
             return
         }
     }

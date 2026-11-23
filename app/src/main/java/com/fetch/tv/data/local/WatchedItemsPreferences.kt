@@ -51,6 +51,9 @@ class WatchedItemsPreferences @Inject constructor(
 
     /** Where older versions kept the entries; read once by [ensureMigrated], then removed. */
     private val legacyWatchedItemsKey = stringSetPreferencesKey("watched_items")
+
+    /** Legacy watched entries the move to the database couldn't read, kept rather than deleted (#625). */
+    private val unreadableWatchedItemsKey = stringSetPreferencesKey("watched_items_unreadable")
     /** Sync bookkeeping older versions kept next to the entries; never read, removed with the set. */
     private val legacyBookkeepingKeys: List<Preferences.Key<*>> = listOf(
         longPreferencesKey("last_successful_watched_push_ms"),
@@ -85,7 +88,18 @@ class WatchedItemsPreferences @Inject constructor(
                     }
                 }
                 items.insertMissing(profileId, decoded)
-                store.edit { it.remove(legacyWatchedItemsKey) }
+                // Entries that don't parse are kept aside rather than deleted with the old set (#625).
+                val unreadable = legacy.filter { json ->
+                    try {
+                        gson.fromJson(json, WatchedItem::class.java) == null
+                    } catch (e: com.google.gson.JsonParseException) {
+                        true
+                    }
+                }.toSet()
+                store.edit { edited ->
+                    if (unreadable.isNotEmpty()) edited[unreadableWatchedItemsKey] = unreadable
+                    edited.remove(legacyWatchedItemsKey)
+                }
                 Log.i(TAG, "Moved ${decoded.size} of ${legacy.size} watched items of profile $profileId to the database")
             }
             if (legacyBookkeepingKeys.any { it in prefs }) {

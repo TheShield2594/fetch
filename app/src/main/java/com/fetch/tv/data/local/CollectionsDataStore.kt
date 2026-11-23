@@ -145,6 +145,23 @@ class CollectionsDataStore @Inject constructor(
         return parseCollections(prefs[collectionsKey])
     }
 
+    /** [profileId]'s collections as stored, for a profile file or backup; null when it has none. */
+    suspend fun exportJson(profileId: Int): String? = store(profileId).data.first()[collectionsKey]
+
+    /**
+     * Adds the collections in [json] (as [exportJson] wrote them) that [profileId] doesn't have yet,
+     * by id, so restoring a backup twice doesn't double them and keeps collections made since.
+     */
+    suspend fun mergeJson(profileId: Int, json: String) {
+        val incoming = parseCollections(json)
+        if (incoming.isEmpty()) return
+        store(profileId).edit { prefs ->
+            val current = parseCollections(prefs[collectionsKey])
+            val merged = current + incoming.filter { new -> current.none { it.id == new.id } }
+            prefs[collectionsKey] = gson.toJson(merged.map { it.toSerializable() })
+        }
+    }
+
     suspend fun exportCurrentProfileJson(): String? {
         val prefs = store(profileManager.currentProfileId()).data.first()
         return prefs[collectionsKey]

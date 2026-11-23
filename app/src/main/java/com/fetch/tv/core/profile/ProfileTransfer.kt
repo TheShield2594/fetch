@@ -4,7 +4,15 @@ import android.util.Log
 import com.fetch.tv.core.parental.ProfilePinManager
 import com.fetch.tv.core.sync.ProfileSettingsSyncService
 import com.fetch.tv.core.sync.ProfileSyncService
+import com.fetch.tv.core.util.runSuspendCatching
+import com.fetch.tv.core.parental.CertificationLevel
+import com.fetch.tv.data.local.CollectionsDataStore
+import com.fetch.tv.data.local.KidsRules
 import com.fetch.tv.data.local.LibraryPreferences
+import com.fetch.tv.data.local.LocalListsDataStore
+import com.fetch.tv.data.local.ProfileRestrictions
+import com.fetch.tv.data.local.ProfileRestrictionsDataStore
+import com.fetch.tv.data.local.ProfileTitleLists
 import com.fetch.tv.data.local.WatchProgressPreferences
 import com.fetch.tv.data.local.WatchedItemsPreferences
 import com.fetch.tv.domain.model.SavedLibraryItem
@@ -21,6 +29,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.put
@@ -31,9 +40,13 @@ private const val TAG = "ProfileTransfer"
 
 /**
  * Moves a profile to another TV without a sync server: [export] writes its look, settings, library,
- * watch history and progress to one JSON document, and [import] adds that document as a new
- * profile. Credentials, PINs and parental limits are never included, and settings that only fit
- * the TV they were made on stay behind.
+ * watch history and progress, collections, local lists and parental limits to one JSON document,
+ * and [import] adds that document as a new profile. Credentials and PINs are never included, and
+ * settings that only fit the TV they were made on stay behind.
+ *
+ * Limits travel so a kids profile restored after a reset isn't left without them (#623). Reading a
+ * file never loosens limits a profile already has on this TV: they are only applied to a profile
+ * that has none, and hidden titles are added to the ones it hides.
  */
 @Singleton
 class ProfileTransfer @Inject constructor(
@@ -43,7 +56,10 @@ class ProfileTransfer @Inject constructor(
     private val profileSettingsSyncService: ProfileSettingsSyncService,
     private val libraryPreferences: LibraryPreferences,
     private val watchedItemsPreferences: WatchedItemsPreferences,
-    private val watchProgressPreferences: WatchProgressPreferences
+    private val watchProgressPreferences: WatchProgressPreferences,
+    private val collectionsDataStore: CollectionsDataStore,
+    private val localListsDataStore: LocalListsDataStore,
+    private val restrictionsDataStore: ProfileRestrictionsDataStore
 ) {
     private val gson = Gson()
 
@@ -75,6 +91,65 @@ class ProfileTransfer @Inject constructor(
             put("library", buildJsonArray { library.forEach { add(Json.parseToJsonElement(gson.toJson(it))) } })
             put("watched", buildJsonArray { watched.forEach { add(Json.parseToJsonElement(gson.toJson(it))) } })
             put("progress", Json.parseToJsonElement(watchProgressPreferences.encodeEntries(progress)))
+            collectionsDataStore.exportJson(profileId)?.let { raw ->
+                runSuspendCatching { Json.parseToJsonElement(raw) }.getOrNull()?.let { put("collections", it) }
+            }
+            val lists = localListsDataStore.getLists(profileId)
+            if (lists.isNotEmpty()) put("localLists", Json.parseToJsonElement(gson.toJson(lists)))
+            exportParental(profileId)?.let { put("parental", it) }
+        }
+    }
+
+    private suspend fun exportParental(profileId: Int): JsonObject? {
+        val restrictions = restrictionsDataStore.restrictions.first()[profileId] ?: ProfileRestrictions.None
+        val kidsRules = restrictionsDataStore.kidsRules.first()[profileId]
+        val titleLists = restrictionsDataStore.titleLists.first()[profileId]
+        if (restrictions == ProfileRestrictions.None && kidsRules == null && titleLists == null) return null
+        return buildJsonObject {
+            put("isKidsProfile", restrictions.isKidsProfile)
+            restrictions.maxLevel?.let { put("maxLevel", it.name) }
+            put("allowUnrated", restrictions.allowUnrated)
+            // The parent's own lists a kids profile shows are this TV's choice, not the profile's.
+            kidsRules?.let { put("kidsRules", parentalJson.encodeToJsonElement(KidsRules.serializer(), it.copy(approvedListIds = emptyList()))) }
+            titleLists?.let { put("titleLists", parentalJson.encodeToJsonElement(ProfileTitleLists.serializer(), it)) }
+        }
+    }
+
+    /**
+     * Applies the limits in [parental] to [profileId] without loosening any it has: limits and kids
+     * rules only where the profile has none here, and the file's hidden titles added to its own.
+     */
+    private suspend fun importParental(profileId: Int, parental: JsonObject) {
+        val current = restrictionsDataStore.restrictions.first()[profileId] ?: ProfileRestrictions.None
+        val hasRules = restrictionsDataStore.kidsRules.first()[profileId] != null
+        if (current == ProfileRestrictions.None) {
+            val restored = ProfileRestrictions(
+                isKidsProfile = (parental["isKidsProfile"] as? JsonPrimitive)?.booleanOrNull == true,
+                maxLevel = parental.text("maxLevel")?.let { name -> CertificationLevel.entries.firstOrNull { it.name == name } },
+                allowUnrated = (parental["allowUnrated"] as? JsonPrimitive)?.booleanOrNull ?: true
+            )
+            if (restored != ProfileRestrictions.None) restrictionsDataStore.setRestrictions(profileId, restored)
+        }
+        val fileLists = (parental["titleLists"] as? JsonObject)?.let {
+            runSuspendCatching { parentalJson.decodeFromJsonElement(ProfileTitleLists.serializer(), it) }.getOrNull()
+        }
+        if (!hasRules) {
+            (parental["kidsRules"] as? JsonObject)
+                ?.let { runSuspendCatching { parentalJson.decodeFromJsonElement(KidsRules.serializer(), it) }.getOrNull() }
+                ?.let { rules ->
+                    restrictionsDataStore.setKidsRules(profileId, rules.copy(approvedListIds = emptyList()))
+                    restrictionsDataStore.markKidsRulesChanged(profileId, System.currentTimeMillis())
+                }
+        }
+        if (fileLists != null) {
+            restrictionsDataStore.updateTitleLists(profileId) { lists ->
+                lists.copy(
+                    hidden = (lists.hidden + fileLists.hidden).distinctBy { it.ids.sorted() },
+                    // Always-allowed titles widen what an approved-only profile sees: only taken
+                    // along with the kids rules, by a profile that had none.
+                    allowed = if (hasRules) lists.allowed else (lists.allowed + fileLists.allowed).distinctBy { it.ids.sorted() }
+                )
+            }
         }
     }
 
@@ -156,6 +231,20 @@ class ProfileTransfer @Inject constructor(
                 watchedItemsPreferences.mergeRemoteItems(watched, profileId)
             }
         }
+        (document["collections"] as? JsonArray)?.let { collections ->
+            runCatchingNonCancellation("collections") { collectionsDataStore.mergeJson(profileId, collections.toString()) }
+        }
+        (document["localLists"] as? JsonArray)?.let { lists ->
+            runCatchingNonCancellation("local lists") {
+                val incoming = com.fetch.tv.data.local.LocalListsJson.decode(gson, lists.toString()).filterNotNull()
+                localListsDataStore.update(profileId) { current ->
+                    current + incoming.filter { new -> current.none { it.id == new.id } }
+                }
+            }
+        }
+        (document["parental"] as? JsonObject)?.let { parental ->
+            runCatchingNonCancellation("parental limits") { importParental(profileId, parental) }
+        }
         (document["progress"] as? JsonObject)?.let { entries ->
             runCatchingNonCancellation("progress") {
                 watchProgressPreferences.mergeRemoteEntries(
@@ -199,8 +288,10 @@ class ProfileTransfer @Inject constructor(
 
     companion object {
         const val FORMAT = "fetch-profile"
-        const val VERSION = 1
+        /** 2 added collections, local lists and parental limits (#623); 1 is still read. */
+        const val VERSION = 2
         private const val MAX_NAME_LENGTH = 20
+        private val parentalJson = Json { ignoreUnknownKeys = true }
         private const val DEFAULT_COLOR = "#1E88E5"
         private val COLOR_HEX = Regex("^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$")
     }

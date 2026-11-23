@@ -50,6 +50,21 @@ class WatchProgressPreferencesStorageTest {
     }
 
     @Test
+    fun `a legacy map that can't be read at all is kept aside, not deleted`() = runTest {
+        val harness = harness(emptyMap())
+        harness.metadata.updateData {
+            androidx.datastore.preferences.core.preferencesOf(watchProgressEntriesKey to "[\"a format this version never wrote\"]")
+        }
+
+        val result = harness.preferences.getAllRawEntries(profileId = 1)
+
+        // #625: an upgrade that can't read an old format keeps the data for a later fix.
+        assertTrue(result.isEmpty())
+        assertNull(harness.metadata.value[watchProgressEntriesKey])
+        assertEquals("[\"a format this version never wrote\"]", harness.metadata.value[unreadableWatchProgressKey])
+    }
+
+    @Test
     fun `recent and archive buckets move together, the recent one winning a shared key`() = runTest {
         val archived = progress("item", lastWatched = 1L)
         val recent = archived.copy(position = 9_000L, lastWatched = 2L)

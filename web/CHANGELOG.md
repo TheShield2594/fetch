@@ -18,6 +18,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 ### Fixed
 
 - **Importing the same file twice no longer adds the plays again.** A Fetch export, a history CSV or a Letterboxd or IMDb file that matches watches already in the profile now leaves their play counts as they are, instead of adding the file's on top (three plays used to become six).
+- **`restore.sh` works on the database it is meant to rescue.** It used to stop at the first `CREATE` on any database that still had tables, which is every database a failed migration leaves behind. It now replaces the whole database in one transaction (a failure leaves it as it was), stops the running app services for the restore and starts them again, and refuses a file that isn't a complete dump. `backup.sh` no longer leaves a small file that looks like a backup when the dump fails, and both scripts read `POSTGRES_USER` and `POSTGRES_DB` from `.env` too ([#635](https://github.com/TheShield2594/fetch/issues/635)).
 - **Trakt no longer adds a second row for a watch another source already recorded that day.** A Trakt history entry now takes over a same-day row from Plex, Jellyfin, Emby, a TV or an import that has no Trakt id yet. Watches that Letterboxd's `watched.csv`, a Stremio import or a media server bring in without a date are now marked "date unknown" rather than dated to the import.
 
 ## [0.6.0] - 2026-11-13

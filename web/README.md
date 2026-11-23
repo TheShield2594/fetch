@@ -515,7 +515,9 @@ Fetch stores everything in the Postgres database run by the `db` service in `doc
 ./scripts/restore.sh backups/fetch-20260101-120000.sql.gz
 ```
 
-Both scripts run against the `db` service via `docker compose exec`, so Docker Compose must already be up. They read `POSTGRES_USER`/`POSTGRES_DB` from the environment (same defaults as `docker-compose.yml`: `postgres`/`fetch`), and `backup.sh` writes into `BACKUP_DIR` (defaults to `./backups`).
+Both scripts run against the `db` service via `docker compose exec`, so Docker Compose must already be up. They read `POSTGRES_USER`/`POSTGRES_DB` from the environment, then from the `.env` next to `docker-compose.yml` (same defaults as `docker-compose.yml`: `postgres`/`fetch`), and `backup.sh` writes into `BACKUP_DIR` (defaults to `./backups`).
+
+`backup.sh` deletes the file again if the dump fails or is cut short, so every file it leaves is a complete dump. `restore.sh` refuses a file that isn't one, stops the `api`, `addon`, `mdns` and `web` services that are running, replaces the whole database in a single transaction (if any statement fails, the database is left exactly as it was), and starts those services again. It works on a database a failed migration left half-changed.
 
 To schedule automatic backups, add a cron entry that runs `backup.sh` on a schedule, e.g. nightly at 3am:
 

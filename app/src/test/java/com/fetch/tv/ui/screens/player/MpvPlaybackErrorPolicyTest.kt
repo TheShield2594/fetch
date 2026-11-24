@@ -95,19 +95,54 @@ class MpvPlaybackErrorPolicyTest {
     }
 
     @Test
-    fun watchdog_cacheGrowthExtendsWaitUntilAbsoluteTimeout() {
-        val stillWaiting = advance(
-            ticks = MpvStartupWatchdogPolicy.stallTicksLimit,
+    fun watchdog_steadyCacheGrowthIsNeverCutOffByTheAbsoluteClock() {
+        val stillBuffering = advance(
+            ticks = MpvStartupWatchdogPolicy.absoluteTicksLimit * 4,
             cacheProgressing = true
         )
-        assertEquals(MpvStartupWatchdogPolicy.Action.Continue, stillWaiting.action)
-        assertEquals(0, stillWaiting.counters.stallTicks)
+        assertEquals(MpvStartupWatchdogPolicy.Action.Continue, stillBuffering.action)
+        assertEquals(0, stillBuffering.counters.stallTicks)
+    }
 
-        val fired = advance(
-            ticks = MpvStartupWatchdogPolicy.absoluteTicksLimit,
-            cacheProgressing = true
-        )
-        assertEquals(MpvStartupWatchdogPolicy.Action.AbsoluteTimeout, fired.action)
+    @Test
+    fun watchdog_pastTheAbsoluteClockAShortStallFails() {
+        var counters = MpvStartupWatchdogPolicy.Counters()
+        var step = MpvStartupWatchdogPolicy.Step(MpvStartupWatchdogPolicy.Action.Continue, counters)
+        var stalledTicks = 0
+        for (index in 0 until MpvStartupWatchdogPolicy.absoluteTicksLimit + MpvStartupWatchdogPolicy.stallTicksLimit) {
+            val growing = index < MpvStartupWatchdogPolicy.absoluteTicksLimit
+            if (!growing) stalledTicks++
+            step = MpvStartupWatchdogPolicy.step(
+                MpvStartupWatchdogPolicy.Input(
+                    enabled = true,
+                    waitingForSurface = false,
+                    idleActive = false,
+                    cacheProgressing = growing,
+                    counters = counters
+                )
+            )
+            counters = step.counters
+            if (step.action != MpvStartupWatchdogPolicy.Action.Continue) break
+        }
+
+        assertEquals(MpvStartupWatchdogPolicy.Action.AbsoluteTimeout, step.action)
+        assertEquals(MpvStartupWatchdogPolicy.recentGrowthTicks, stalledTicks)
+    }
+
+    @Test
+    fun watchdog_cacheBaselineAccumulatesSlowGrowth() {
+        var baseline = 0.0
+        var progressedAt = -1
+        for (poll in 1..10) {
+            val cacheSec = poll * 0.1
+            if (MpvStartupWatchdogPolicy.cacheIsProgressing(baseline, cacheSec)) {
+                progressedAt = poll
+                break
+            }
+            baseline = MpvStartupWatchdogPolicy.nextCacheBaselineSec(baseline, cacheSec)
+        }
+        assertEquals(3, progressedAt)
+        assertEquals(1.0, MpvStartupWatchdogPolicy.nextCacheBaselineSec(baselineSec = 5.0, currentSec = 1.0), 0.0)
     }
 
     @Test

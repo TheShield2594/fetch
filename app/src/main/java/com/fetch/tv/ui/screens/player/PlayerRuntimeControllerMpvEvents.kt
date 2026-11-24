@@ -353,10 +353,12 @@ internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: FetchMpvSu
     if (enabled && !waitingForSurface) {
         idleActive = runCatching { view.mpv.getPropertyBoolean("idle-active") }.getOrNull() == true
         if (!idleActive) {
-            val cacheSec = runCatching { view.demuxerCacheDurationSec() }.getOrDefault(0.0)
-            cacheProgressing = MpvStartupWatchdogPolicy.cacheIsProgressing(mpvLastDemuxerCacheSec, cacheSec)
-            if (cacheSec > mpvLastDemuxerCacheSec) {
-                mpvLastDemuxerCacheSec = cacheSec
+            // A failed read is no growth and leaves the baseline alone. Read as 0, it would lower
+            // the baseline and count the next good read as growth, resetting the stall clock.
+            val cacheSec = runCatching { view.demuxerCacheDurationSecOrNull() }.getOrNull()
+            if (cacheSec != null) {
+                cacheProgressing = MpvStartupWatchdogPolicy.cacheIsProgressing(mpvLastDemuxerCacheSec, cacheSec)
+                mpvLastDemuxerCacheSec = MpvStartupWatchdogPolicy.nextCacheBaselineSec(mpvLastDemuxerCacheSec, cacheSec)
             }
         }
     }

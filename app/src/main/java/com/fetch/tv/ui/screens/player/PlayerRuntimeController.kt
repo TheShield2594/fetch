@@ -585,6 +585,9 @@ class PlayerRuntimeController(
     internal var seekStepsSetting: SeekSteps = SeekSteps()
     internal var mpvHi10pGnextSoftwareFallbackEnabledSetting: Boolean = false
     internal var mpvHardwareDecodeModeSetting: MpvHardwareDecodeMode = MpvHardwareDecodeMode.AUTO_SAFE
+    /** The user's own target buffer for mpv's demuxer cache; null leaves it to the memory budget. */
+    internal var mpvUserBufferTargetMbSetting: Int? = null
+    internal var mpvAllowBufferAboveBudgetSetting: Boolean = false
     internal var mpvPreferredAudioLanguages: List<String> = emptyList()
     internal var currentStreamBingeGroup: String? = navigationArgs.bingeGroup
     // Per-device delay + current stream's behaviorHints.audioDelayMs + the user's tweak on that stream.

@@ -685,11 +685,16 @@ private fun PlayerRuntimeController.openExternalStreamInBrowser(
 @androidx.annotation.OptIn(UnstableApi::class)
 internal fun PlayerRuntimeController.switchToSourceStream(
     stream: Stream,
-    /** Where to start, for a stream replacing one that failed mid-playback; else the saved progress. */
-    resumePositionMs: Long? = null
+    /**
+     * Where to start: the failed stream's position for a mid-playback replacement, or the live
+     * position for a source the user picks while watching. Null loads the saved progress.
+     */
+    resumePositionMs: Long? = null,
+    /** The user picked this source, so any mid-playback recovery ends. */
+    userPicked: Boolean = resumePositionMs == null
 ) {
     // A source the user picks ends any recovery; a replacement carries it on.
-    if (resumePositionMs == null) midPlaybackRecovery = null
+    if (userPicked) midPlaybackRecovery = null
     errorBeforeSourcesPanel = null
     sourceStreamsScope?.cancel()
     sourceStreamsScope = null
@@ -705,7 +710,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val prepared = prepareServerStream(stream)
             streamResolveJob = null
             if (prepared != null) {
-                switchToSourceStream(prepared, resumePositionMs)
+                switchToSourceStream(prepared, resumePositionAfterResolve(resumePositionMs, userPicked), userPicked)
             } else {
                 _uiState.update { it.copy(isLoadingSourceStreams = false) }
             }
@@ -720,7 +725,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             val resolved = resolveYouTubeStream(stream)
             streamResolveJob = null
             if (resolved != null) {
-                switchToSourceStream(resolved, resumePositionMs)
+                switchToSourceStream(resolved, resumePositionAfterResolve(resumePositionMs, userPicked), userPicked)
             } else {
                 _uiState.update {
                     it.copy(
@@ -792,7 +797,12 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             isLoadingSourceStreams = false,
             sourceStreamsError = null,
             showErrorRecoveryActions = false,
-            pendingSeekPosition = resumePositionMs?.takeIf { position -> position > 0L } ?: it.pendingSeekPosition
+            pendingSeekPosition = when {
+                resumePositionMs != null && resumePositionMs > 0L -> resumePositionMs
+                // A user-picked switch from the start starts at the start, not at a stale seek.
+                resumePositionMs != null && userPicked -> null
+                else -> it.pendingSeekPosition
+            }
         )
     }
     showStreamSourceIndicator(stream)
@@ -831,12 +841,23 @@ internal fun PlayerRuntimeController.switchToSourceStream(
         initializePlayer(playbackUrl, playbackHeaders)
     }
 
-    if (resumePositionMs != null && resumePositionMs > 0L) {
-        // The failed stream's position, not the saved progress, which may lag behind it.
+    if (resumePositionMs != null && (resumePositionMs > 0L || userPicked)) {
+        // The failed stream's position, or the live one for a picked source; not the saved
+        // progress, which may lag behind it.
         pendingResumeProgress = null
     } else {
         loadSavedProgressFor(currentSeason, currentEpisode)
     }
+}
+
+/**
+ * The old stream keeps playing while a picked source resolves, so a picked source takes the live
+ * position once it is ready. A recovery keeps the failed stream's position.
+ */
+private fun PlayerRuntimeController.resumePositionAfterResolve(captured: Long?, userPicked: Boolean): Long? {
+    // Read even when nothing was captured: the current stream may have started meanwhile.
+    if (!userPicked) return captured
+    return livePositionForSourceSwitch() ?: captured
 }
 
 internal fun PlayerRuntimeController.dismissEpisodesPanel() {

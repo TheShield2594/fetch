@@ -3,6 +3,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { invalidateKv } from "../lib/kv.js";
 import { getTmdb } from "../lib/tmdb-client.js";
+import { rethrowIfTmdbNotConfigured } from "../lib/tmdb-errors.js";
 import { upsertMetadata } from "../lib/metadata.js";
 import { getRpdbApiKey, applyRpdbToMetaList } from "../lib/rpdb.js";
 import { aiRecsCacheDeleteForProfiles, trendingCacheGet, trendingCacheSet } from "../lib/cache.js";
@@ -273,6 +274,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       try {
         tmdb = await getTmdb();
       } catch (error) {
+        rethrowIfTmdbNotConfigured(error);
         request.log.error(error, "TMDB client initialization failed");
         return reply.code(500).send({ error: "TMDB integration is not configured" });
       }
@@ -296,6 +298,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
         trendingCacheSet(cacheKey, { data: metas });
         return { metas: applyRpdbToMetaList(metas, rpdbKey) };
       } catch (error) {
+        rethrowIfTmdbNotConfigured(error);
         request.log.error(error, "Trending fetch failed");
         return reply.code(500).send({ error: "Failed to fetch trending content" });
       }
@@ -318,6 +321,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
     try {
       tmdb = await getTmdb();
     } catch (error) {
+      rethrowIfTmdbNotConfigured(error);
       request.log.error(error, "TMDB client initialization failed");
       return reply.code(500).send({ error: "TMDB integration is not configured" });
     }
@@ -338,6 +342,7 @@ const aiRoutes: FastifyPluginAsync = async (app) => {
       trendingCacheSet(cacheKey, { data: metas });
       return { metas: applyRpdbToMetaList(metas, rpdbKey) };
     } catch (error) {
+      rethrowIfTmdbNotConfigured(error);
       request.log.error(error, "Popular fetch failed");
       return reply.code(500).send({ error: "Failed to fetch popular content" });
     }

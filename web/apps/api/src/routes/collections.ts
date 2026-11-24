@@ -74,12 +74,8 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
       }
       const q = request.query.q?.trim() ?? "";
       if (!q || q.length > 100) return reply.code(400).send({ error: "q is required (at most 100 characters)" });
-      let tmdb;
-      try {
-        tmdb = await getTmdb();
-      } catch {
-        return reply.code(409).send({ error: "Add a TMDB API key in Settings to search TMDB.", code: "tmdb_not_configured" });
-      }
+      // No key surfaces as 503 `tmdb_not_configured` from the app's error handler.
+      const tmdb = await getTmdb();
       try {
         return { results: await tmdb.searchEntities(kind, q) };
       } catch (error) {
@@ -140,12 +136,8 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
       }
 
       if (provider === "tmdb") {
-        let tmdb;
-        try {
-          tmdb = await getTmdb();
-        } catch {
-          return reply.code(409).send({ error: "Add a TMDB API key in Settings to preview TMDB sources.", code: "tmdb_not_configured" });
-        }
+        // No key surfaces as 503 `tmdb_not_configured` from the app's error handler.
+        const tmdb = await getTmdb();
         const query: TmdbCollectionSourceQuery = {
           sourceType: String(source.tmdbSourceType).toUpperCase() as TmdbCollectionSourceQuery["sourceType"],
           tmdbId: typeof source.tmdbId === "number" ? source.tmdbId : null,

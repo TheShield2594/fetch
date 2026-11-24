@@ -5,6 +5,7 @@ import { upsertMetadata } from "../lib/metadata.js";
 import { getRpdbApiKey, withRpdbPoster } from "../lib/rpdb.js";
 import { getMetadataType } from "../lib/types.js";
 import { getTmdb } from "../lib/tmdb-client.js";
+import { rethrowIfTmdbNotConfigured } from "../lib/tmdb-errors.js";
 import { BROWSE_GENRES, type BrowseSort } from "../tmdb.js";
 import { resolveProfile } from "../lib/profile.js";
 
@@ -98,6 +99,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
       try {
         tmdb = await getTmdb();
       } catch (error) {
+        rethrowIfTmdbNotConfigured(error);
         request.log.error(error, "TMDB client initialization failed");
         return reply.code(500).send({ error: "TMDB integration is not configured" });
       }
@@ -152,6 +154,7 @@ const searchRoutes: FastifyPluginAsync = async (app) => {
     try {
       tmdb = await getTmdb();
     } catch (error) {
+      rethrowIfTmdbNotConfigured(error);
       request.log.error(error, "TMDB client initialization failed");
       return reply.code(500).send({ error: "TMDB integration is not configured" });
     }

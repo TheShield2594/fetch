@@ -32,6 +32,7 @@ import { sweepExpiredSessions } from "./lib/sessions.js";
 import { sweepOldAccountEvents } from "./lib/account-events.js";
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
+import { isTmdbNotConfiguredError } from "./lib/tmdb-errors.js";
 import { isServiceRequest } from "./lib/service-request.js";
 import { isMdnsEnabled, mdnsConfigFromEnv, startMdnsAdvertiser, type MdnsAdvertiser } from "./lib/mdns.js";
 import { instrumentUpstreamFetch, recordRequest } from "./lib/metrics.js";
@@ -247,6 +248,13 @@ app.setErrorHandler((error, request, reply) => {
   // client shows.
   if (isSchemaValidationError(error)) {
     return reply.code(400).send({ error: error.message });
+  }
+  // No TMDB key is an expected state on an install that skipped that step,
+  // not a fault: answer it the same way everywhere, with a code the website
+  // and the TV turn into an "Add a TMDB key in Settings" prompt, and keep it
+  // out of the error log and Sentry.
+  if (isTmdbNotConfiguredError(error)) {
+    return reply.code(503).send({ error: error.message, code: error.code });
   }
   if (isBodyTooLargeError(error)) {
     // The webhook routes set their own, smaller limit that `MAX_BODY_SIZE_MB`

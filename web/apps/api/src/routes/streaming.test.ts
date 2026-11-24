@@ -173,6 +173,17 @@ describe("streaming routes", () => {
       expect(res.statusCode).toBe(500);
       expect(trendingCacheSet).not.toHaveBeenCalled();
     });
+
+    it("answers 503 tmdb_not_configured, not a 500, when there is no TMDB key", async () => {
+      const { TmdbNotConfiguredError } = await import("../lib/tmdb-errors.js");
+      getTmdb.mockRejectedValue(new TmdbNotConfiguredError());
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/streaming?provider=netflix" });
+
+      expect(res.statusCode).toBe(503);
+      expect(res.json()).toMatchObject({ code: "tmdb_not_configured" });
+    });
   });
 
   describe("GET /streaming/providers", () => {

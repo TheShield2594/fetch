@@ -1,6 +1,7 @@
 import { TmdbClient } from "../tmdb.js";
 import { readSecretKv } from "./secret-store.js";
 import { getLanguageSetting } from "./settings.js";
+import { TmdbNotConfiguredError } from "./tmdb-errors.js";
 
 export const TMDB_API_KEY_KV = "tmdb:apiKey";
 
@@ -29,7 +30,7 @@ export const getTmdbApiKey = async (): Promise<{ apiKey: string | null; source: 
 export const getTmdb = async (): Promise<TmdbClient> => {
   const [lang, { apiKey }] = await Promise.all([getLanguageSetting(), getTmdbApiKey()]);
   if (!apiKey) {
-    throw new Error("TMDB_API_KEY is not configured");
+    throw new TmdbNotConfiguredError();
   }
 
   return TmdbClient.fromKey(apiKey, lang);

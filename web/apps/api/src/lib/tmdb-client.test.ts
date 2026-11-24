@@ -5,6 +5,7 @@ vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
 vi.mock("./settings.js", () => ({ getLanguageSetting: vi.fn(async () => "fr-FR") }));
 
 const { getTmdbApiKey, getTmdb, TMDB_API_KEY_KV } = await import("./tmdb-client.js");
+const { TmdbNotConfiguredError } = await import("./tmdb-errors.js");
 const { kvCacheClear } = await import("./cache.js");
 
 const ORIGINAL_ENV_KEY = process.env.TMDB_API_KEY;
@@ -60,6 +61,6 @@ describe("getTmdb", () => {
   });
 
   it("throws when no key is configured", async () => {
-    await expect(getTmdb()).rejects.toThrow("TMDB_API_KEY is not configured");
+    await expect(getTmdb()).rejects.toBeInstanceOf(TmdbNotConfiguredError);
   });
 });

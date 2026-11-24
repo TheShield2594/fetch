@@ -1,6 +1,7 @@
 import { STREAMING_PROVIDERS } from "../tmdb.js";
 import type { FastifyPluginAsync } from "fastify";
 import { getTmdb } from "../lib/tmdb-client.js";
+import { rethrowIfTmdbNotConfigured } from "../lib/tmdb-errors.js";
 import { getRegionSetting } from "../lib/settings.js";
 import { ownerForRequest } from "../lib/integration-owner.js";
 import { upsertMetadata } from "../lib/metadata.js";
@@ -65,6 +66,7 @@ const streamingRoutes: FastifyPluginAsync = async (app) => {
         trendingCacheSet(cacheKey, { data: metas });
         return { metas: applyRpdbToMetaList(metas, rpdbKey), provider: provider.name };
       } catch (error) {
+        rethrowIfTmdbNotConfigured(error);
         request.log.error(error, "Streaming catalog fetch failed");
         return reply.code(500).send({ error: "Failed to fetch streaming catalog" });
       }
@@ -104,6 +106,7 @@ const streamingRoutes: FastifyPluginAsync = async (app) => {
       trendingCacheSet(cacheKey, { data: metas });
       return { metas: applyRpdbToMetaList(metas, rpdbKey) };
     } catch (error) {
+      rethrowIfTmdbNotConfigured(error);
       request.log.error(error, "Anime catalog fetch failed");
       return reply.code(500).send({ error: "Failed to fetch anime catalog" });
     }

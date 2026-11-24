@@ -10,6 +10,7 @@ import {
   registerRequestSchemas,
   requestSchemaOptions,
 } from "../request-schema.js";
+import { isTmdbNotConfiguredError } from "../tmdb-errors.js";
 
 /**
  * Builds a Fastify instance carrying one route plugin, and closes it after the
@@ -48,9 +49,11 @@ export const buildRouteApp = async (
   app.addHook("onRequest", async (request) => {
     request.auth = auth;
   });
-  app.setErrorHandler((error, _request, reply) =>
-    isSchemaValidationError(error) ? reply.code(400).send({ error: error.message }) : reply.send(error)
-  );
+  app.setErrorHandler((error, _request, reply) => {
+    if (isSchemaValidationError(error)) return reply.code(400).send({ error: error.message });
+    if (isTmdbNotConfiguredError(error)) return reply.code(503).send({ error: error.message, code: error.code });
+    return reply.send(error);
+  });
   await app.register(routes);
   await app.ready();
   openApps.add(app);

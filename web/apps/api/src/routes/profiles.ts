@@ -13,6 +13,7 @@ import {
   hasValidProfileToken,
   invalidateProfileCache,
   isActingAsProfile,
+  isSignedAddonRequestFor,
   mayEditProfile,
   loosensParentalLimits,
   ownsProfile,
@@ -446,10 +447,12 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     }
   );
 
-  // Which generation of a profile's Stremio key is current, for the addon
-  // service: it checks signed `/u/<profileId>/<key>/` URLs itself, and needs
-  // this to turn a replaced URL away. To anything else this route does not
-  // exist — the generation is half of what derives the key.
+  // Which generation of a profile's Stremio key is current, for an add-on
+  // service from before #637, which held `API_TOKEN` and checked signed
+  // `/u/<profileId>/<key>/` URLs itself. Kept so an add-on image older than
+  // this API still works; the current one asks `…/verify` below instead. To
+  // anything else this route does not exist — the generation is half of what
+  // derives the key.
   app.get<{ Params: { id: string } }>("/profiles/:id/addon-url/generation", async (request, reply) => {
     if (!isServiceRequest(request) || !UUID_V4_PATTERN.test(request.params.id)) {
       return reply.code(404).send({ error: "Not found" });
@@ -459,6 +462,25 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
       select: { stremioKeyGeneration: true },
     });
     if (!profile) return reply.code(404).send({ error: "Profile not found" });
+    const body: StremioKeyGenerationResponse = { generation: profile.stremioKeyGeneration };
+    return body;
+  });
+
+  // Whether a signed add-on URL's key is this profile's current one, for the
+  // add-on service, which holds no `API_TOKEN` and so cannot derive the key
+  // itself (#637). The key comes in the `x-fetch-stremio-profile-key` header,
+  // never the path, so it stays out of access logs. A wrong key, a replaced
+  // one and an unknown profile all answer the same `404`; to anything but the
+  // add-on, the route does not exist.
+  app.get<{ Params: { id: string } }>("/profiles/:id/addon-url/verify", async (request, reply) => {
+    if (!isServiceRequest(request) || !UUID_V4_PATTERN.test(request.params.id)) {
+      return reply.code(404).send({ error: "Not found" });
+    }
+    const profile = await prisma.profile.findUnique({
+      where: { id: request.params.id },
+      select: { id: true, stremioKeyGeneration: true },
+    });
+    if (!profile || !isSignedAddonRequestFor(request, profile)) return reply.code(404).send({ error: "Not found" });
     const body: StremioKeyGenerationResponse = { generation: profile.stremioKeyGeneration };
     return body;
   });

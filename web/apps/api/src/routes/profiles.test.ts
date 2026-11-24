@@ -1258,4 +1258,49 @@ describe("profiles routes", () => {
       expect(service.json()).toEqual({ generation: 3 });
     });
   });
+
+  // The add-on service holds no API_TOKEN since #637, so it can't derive a
+  // profile's key to check a signed URL against: it asks here instead.
+  describe("GET /profiles/:id/addon-url/verify", () => {
+    const verify = async (key: string | null, serviceToken: string | null) => {
+      const app = await buildApp();
+      const headers: Record<string, string> = {};
+      if (serviceToken) headers["x-fetch-service-token"] = serviceToken;
+      if (key) headers["x-fetch-stremio-profile-key"] = key;
+      return app.inject({ method: "GET", url: `/profiles/${PROFILE_ID}/addon-url/verify`, headers });
+    };
+
+    beforeEach(() => {
+      process.env.API_TOKEN = "test-api-token";
+      prismaMock.profile.findUnique.mockResolvedValue({ id: PROFILE_ID, stremioKeyGeneration: 2 });
+    });
+
+    it("confirms the profile's current key, derived exactly as installed URLs were", async () => {
+      const { deriveServiceToken, deriveStremioProfileKey } = await import("@fetch/shared");
+      const response = await verify(deriveStremioProfileKey("test-api-token", PROFILE_ID, 2), deriveServiceToken("test-api-token"));
+      expect(response.statusCode).toBe(200);
+      expect(response.json()).toEqual({ generation: 2 });
+    });
+
+    it("answers a replaced key, another profile's, or none as not found", async () => {
+      const { deriveServiceToken, deriveStremioProfileKey } = await import("@fetch/shared");
+      const service = deriveServiceToken("test-api-token");
+      expect((await verify(deriveStremioProfileKey("test-api-token", PROFILE_ID, 1), service)).statusCode).toBe(404);
+      expect((await verify(deriveStremioProfileKey("test-api-token", OTHER_PROFILE_ID, 2), service)).statusCode).toBe(404);
+      expect((await verify(null, service)).statusCode).toBe(404);
+    });
+
+    it("is not there for anything but the add-on service", async () => {
+      const { deriveStremioProfileKey } = await import("@fetch/shared");
+      const response = await verify(deriveStremioProfileKey("test-api-token", PROFILE_ID, 2), null);
+      expect(response.statusCode).toBe(404);
+    });
+
+    it("answers a profile that doesn't exist as not found", async () => {
+      prismaMock.profile.findUnique.mockResolvedValue(null);
+      const { deriveServiceToken, deriveStremioProfileKey } = await import("@fetch/shared");
+      const response = await verify(deriveStremioProfileKey("test-api-token", PROFILE_ID, 2), deriveServiceToken("test-api-token"));
+      expect(response.statusCode).toBe(404);
+    });
+  });
 });

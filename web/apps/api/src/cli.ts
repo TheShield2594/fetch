@@ -6,14 +6,19 @@
  *   docker compose exec api fetch reset-2fa <username>
  *   docker compose exec api fetch clear-pin <profile>
  *   docker compose exec api fetch accounts
+ *   docker compose exec api fetch addon-key
  *
  * They exist because a forgotten admin password or profile PIN otherwise
  * needed the database edited by hand: nothing on the website can reset the
  * admin's password, and nobody can open a profile whose PIN is lost. Someone
  * with a shell on the server already controls everything these commands touch.
+ * `addon-key` is the odd one out: it prints the add-on service's
+ * `FETCH_ADDON_KEY`, which is derived from `API_TOKEN` and so is only to be had
+ * where that token is (#637).
  * Documented in docs/troubleshooting.md.
  */
 import { pathToFileURL } from "node:url";
+import { deriveAddonKey } from "@fetch/shared";
 import { prisma } from "./lib/prisma.js";
 import {
   clearProfilePin,
@@ -30,6 +35,9 @@ const USAGE = `Usage: fetch <command> [options]
 
 Commands:
   accounts                         List accounts and their profiles.
+  addon-key                        Print FETCH_ADDON_KEY, the add-on service's
+                                   credential, for .env. It is derived from
+                                   API_TOKEN and changes when that does.
   reset-password <username>        Give an account a temporary password. It is
       [--password <password>]      signed out of every browser (not its TVs)
                                    and asked for a new password at its next
@@ -50,6 +58,7 @@ class UsageError extends Error {}
 /** What each command accepts. Anything else is refused before it runs. */
 const COMMANDS: Record<string, { args: number; argName?: string; options: string[] }> = {
   accounts: { args: 0, options: [] },
+  "addon-key": { args: 0, options: [] },
   "reset-password": { args: 1, argName: "a username", options: ["password"] },
   "reset-2fa": { args: 1, argName: "a username", options: [] },
   "clear-pin": { args: 1, argName: "a profile id or name", options: ["account"] },
@@ -96,6 +105,16 @@ const listAccounts = async (out: (line: string) => void) => {
       out(`  ${profile.name}${profile.pinHash ? " [PIN]" : ""}  ${profile.id}`);
     }
   }
+};
+
+// Printed alone on its line, so `fetch addon-key` can be captured by a script;
+// the explanation goes to stderr.
+const printAddonKey = (out: (line: string) => void) => {
+  const apiToken = process.env.API_TOKEN;
+  if (!apiToken) throw new UsageError("API_TOKEN is not set, so there is no add-on key to derive.");
+  console.error("Set this as FETCH_ADDON_KEY in the .env next to docker-compose.yml, then run");
+  console.error("`docker compose up -d addon`. It changes whenever API_TOKEN does.");
+  out(deriveAddonKey(apiToken));
 };
 
 const resetPassword = async (username: string | undefined, chosen: string | undefined, out: (line: string) => void) => {
@@ -184,6 +203,9 @@ export const run = async (argv: string[], out: (line: string) => void = console.
     switch (command) {
       case "accounts":
         await listAccounts(out);
+        return 0;
+      case "addon-key":
+        printAddonKey(out);
         return 0;
       case "reset-password":
         await resetPassword(rest[0], options.password, out);

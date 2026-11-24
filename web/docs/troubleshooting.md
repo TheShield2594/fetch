@@ -60,6 +60,25 @@ docker compose logs db
 A failed migration is the usual cause — see
 [Database and migrations](#database-and-migrations).
 
+### The `addon` container restarts in a loop
+
+`docker compose logs addon` says why. Since the add-on stopped being given
+`API_TOKEN`, it needs `FETCH_ADDON_KEY` in `.env` and refuses to start without
+one (or with one that isn't a `fak1_…` key):
+
+```bash
+docker compose exec api fetch addon-key   # paste the output into .env as FETCH_ADDON_KEY
+docker compose up -d addon
+```
+
+The key is derived from `API_TOKEN`, so after rotating that token, run it
+again. See [The add-on's key](../README.md#the-add-ons-key).
+
+A warning that `FETCH_API_TOKEN is deprecated` means the add-on is still
+configured the old way. It works, but the add-on container holds the server's
+root token; set `FETCH_ADDON_KEY` as above and take `FETCH_API_TOKEN` out of
+the `addon` service.
+
 ### Compose refuses to start at all
 
 `API_TOKEN` and `POSTGRES_PASSWORD` are required and have no defaults. Compose
@@ -296,6 +315,10 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
 - **Add-on can't reach the API** — that one *is* internal:
   `FETCH_API_BASE=http://api:7000`. Only change it if you renamed the
   service.
+- **Every catalog is empty and the add-on logs `401`s or `403`s from the API** — its
+  `FETCH_ADDON_KEY` was derived from a different `API_TOKEN` (a `401`), or the
+  add-on and API images are on different versions (a `403`: keep them on one
+  `FETCH_IMAGE_TAG`). Run `docker compose exec api fetch addon-key` again.
 
 ## Trakt
 

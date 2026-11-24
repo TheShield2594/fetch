@@ -1,6 +1,6 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { timingSafeEqual } from "node:crypto";
 import type { FastifyRequest } from "fastify";
-import { FETCH_API_TOKEN } from "./config.js";
+import { ADDON_CREDENTIALS } from "./config.js";
 
 /**
  * What is allowed to write through this service.
@@ -9,16 +9,16 @@ import { FETCH_API_TOKEN } from "./config.js";
  * anyone who has it can reach the mutation routes. An Origin-header check alone
  * isn't real auth — it only stops browser-issued cross-origin requests; nothing
  * stops a direct script/curl request from setting its own Origin header. So
- * mutations additionally require a token derived from the shared
- * FETCH_API_TOKEN (never the raw token itself, to cap the blast radius if a
- * URL containing it leaks — e.g. via proxy/access logs).
+ * mutations additionally require a token derived from `API_TOKEN` (never the
+ * raw token itself, to cap the blast radius if a URL containing it leaks — e.g.
+ * via proxy/access logs). It comes in `FETCH_ADDON_KEY`, derived by
+ * `deriveAddonMutationToken`; this service no longer holds `API_TOKEN` to
+ * derive it from (#637), but the value is the one it always was.
  *
  * Scrobble callers (media-player integrations, capable of setting headers) send
  * this as a standard Bearer token. It is never emitted from a route.
  */
-const MUTATION_TOKEN = FETCH_API_TOKEN
-  ? createHmac("sha256", FETCH_API_TOKEN).update("fetch-addon-mutation").digest("hex")
-  : null;
+const MUTATION_TOKEN = ADDON_CREDENTIALS?.mutationToken ?? null;
 
 // Fastify doesn't validate query/header types against the route's TS generics at
 // runtime, so a repeated query param (e.g. "?token=a&token=b") can arrive as a

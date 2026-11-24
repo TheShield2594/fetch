@@ -32,8 +32,8 @@ export const accountOwnerForProfile = async (profileId: string): Promise<Integra
  * Whose account-level settings a request manages: the signed-in account's (or
  * the paired TV's).
  *
- * `API_TOKEN` has no account of its own. When it names a profile — the
- * Stremio addon always does, for the install URL it is serving — the settings
+ * `API_TOKEN` and the add-on service have no account of their own. When one
+ * names a profile — the Stremio addon always does, for the install URL it is serving — the settings
  * are that profile's account's, so a friend's spoiler protection and region
  * follow their own profile rather than the admin's. Naming none, it acts as the
  * admin, as it does for webhooks.
@@ -41,7 +41,7 @@ export const accountOwnerForProfile = async (profileId: string): Promise<Integra
 export const ownerForRequest = async (request: FastifyRequest): Promise<IntegrationOwner> => {
   const scope = accountScope(request);
   if (scope) return scope;
-  if (request.auth?.kind === "token") {
+  if (request.auth?.kind === "token" || request.auth?.kind === "addon") {
     const headerValue = request.headers[PROFILE_HEADER];
     const profileId = request.profileId ?? (Array.isArray(headerValue) ? headerValue[0] : headerValue);
     if (profileId && UUID_V4_PATTERN.test(profileId)) {

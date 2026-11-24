@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import type { FastifyInstance, InjectOptions } from "fastify";
+import { deriveServiceToken, SERVICE_TOKEN_HEADER } from "@fetch/shared";
 import { prisma } from "../lib/prisma.js";
 import { buildIntApp, createProfile } from "../lib/test-fixtures/int-db.js";
 
@@ -11,6 +12,9 @@ const API_TOKEN = "int-test-api-token";
 process.env.API_TOKEN = API_TOKEN;
 const WEBHOOK_SECRET = "int-test-webhook-secret";
 process.env.WEBHOOK_SECRET = WEBHOOK_SECRET;
+
+/** What the add-on service sends with `FETCH_ADDON_KEY`: its service token, and no bearer. */
+const ADDON_HEADERS = { [SERVICE_TOKEN_HEADER]: deriveServiceToken(API_TOKEN) };
 
 let app: FastifyInstance;
 
@@ -101,6 +105,10 @@ describe("first-run setup", () => {
     });
     expect((await call(null, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false });
     expect((await call(token, { method: "GET", url: "/auth/status" })).json()).toEqual({ setupRequired: false });
+    // The add-on service asks with its own key now, not API_TOKEN (#637).
+    expect(
+      (await call(null, { method: "GET", url: "/auth/status", headers: ADDON_HEADERS })).json()
+    ).toEqual({ setupRequired: false, multipleAccounts: true });
   });
 
   it("makes the admin with API_TOKEN, lowercases the name and hands over existing profiles", async () => {
@@ -677,5 +685,36 @@ describe("AI, preferences and notifications", () => {
 
     expect((await call(admin.token, { method: "GET", url: "/ai/config" })).json()).toMatchObject({ configured: true });
     expect(await prisma.kV.findUnique({ where: { key: "ai:config" } })).toBeNull();
+  });
+});
+
+// #637: the add-on holds a key derived from API_TOKEN instead of the token, and
+// the API lets that key do what the add-on does and nothing more.
+describe("the add-on service's own key", () => {
+  it("reads any account's profile for the install URL it serves, and changes nothing", async () => {
+    const { token } = await bootstrapAdmin();
+    const friend = await inviteFriend(token);
+    const [friendProfile] = await profilesOf(friend.token);
+    const asFriend = { ...ADDON_HEADERS, "x-profile-id": friendProfile!.id };
+
+    const profiles = await call(null, { method: "GET", url: "/profiles", headers: ADDON_HEADERS });
+    expect(profiles.statusCode).toBe(200);
+    expect(profiles.json().profiles.map((p: { id: string }) => p.id)).toContain(friendProfile!.id);
+    expect((await call(null, { method: "GET", url: "/lists", headers: asFriend })).statusCode).toBe(200);
+    expect((await call(null, { method: "GET", url: "/settings/preferences", headers: asFriend })).statusCode).toBe(200);
+
+    const refused = [
+      { method: "POST", url: "/lists", payload: { name: "Mine now" } },
+      { method: "POST", url: "/profiles", payload: { name: "Intruder" } },
+      { method: "DELETE", url: `/profiles/${friendProfile!.id}` },
+      { method: "POST", url: "/settings/preferences", payload: { spoilerProtection: true } },
+      { method: "POST", url: "/auth/invites", payload: {} },
+      { method: "GET", url: "/auth/accounts" },
+    ] as const;
+    for (const request of refused) {
+      const response = await call(null, { ...request, headers: asFriend });
+      expect(response.statusCode, `${request.method} ${request.url}`).toBe(403);
+    }
+    expect(await profilesOf(friend.token)).toHaveLength(1);
   });
 });

@@ -14,12 +14,18 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 ### Added
 
 - **Find and merge duplicate watches.** Settings → Data → Duplicate watches lists watches that look like one watch recorded twice: the same title within 36 hours (two sources dating one evening to different UTC days), or a "date unknown" mark next to the dated play. Untick any real rewatches and merge the rest; each keeps one row with the largest play count, its note and any Trakt id.
+- **Fetch exports carry more of the profile.** Exports are now version 2 and include list descriptions and each list's manual order, tags, dropped shows, the TV settings and the Home layout; version 1 files still import. Add-ons are left out because their addresses often hold account keys, and the TV settings and Home layout are only restored onto a profile that has none yet ([#641](https://github.com/TheShield2594/fetch/issues/641)).
 
 ### Fixed
 
+- **A failed Fetch import no longer leaves the profile half restored.** The whole file is now written in one transaction, so an import that fails partway saves nothing and says so ([#641](https://github.com/TheShield2594/fetch/issues/641)).
 - **Importing the same file twice no longer adds the plays again.** A Fetch export, a history CSV or a Letterboxd or IMDb file that matches watches already in the profile now leaves their play counts as they are, instead of adding the file's on top (three plays used to become six).
 - **`restore.sh` works on the database it is meant to rescue.** It used to stop at the first `CREATE` on any database that still had tables, which is every database a failed migration leaves behind. It now replaces the whole database in one transaction (a failure leaves it as it was), stops the running app services for the restore and starts them again, and refuses a file that isn't a complete dump. `backup.sh` no longer leaves a small file that looks like a backup when the dump fails, and both scripts read `POSTGRES_USER` and `POSTGRES_DB` from `.env` too ([#635](https://github.com/TheShield2594/fetch/issues/635)).
 - **Trakt no longer adds a second row for a watch another source already recorded that day.** A Trakt history entry now takes over a same-day row from Plex, Jellyfin, Emby, a TV or an import that has no Trakt id yet. Watches that Letterboxd's `watched.csv`, a Stremio import or a media server bring in without a date are now marked "date unknown" rather than dated to the import.
+
+### Security
+
+- **The add-on service no longer holds `API_TOKEN`.** It gets `FETCH_ADDON_KEY` instead, two values derived from the token: a service token the API accepts only on the routes the add-on calls (never as the admin, `403` everywhere else), and the unchanged scrobble token. It asks the API to check signed add-on URLs rather than deriving their keys, so a compromised add-on can no longer act as the operator or decrypt stored credentials, and every installed add-on URL keeps working ([#637](https://github.com/TheShield2594/fetch/issues/637)). **To upgrade:** run `docker compose exec api fetch addon-key`, add the output to `.env` as `FETCH_ADDON_KEY`, and `docker compose up -d`; an add-on still given `FETCH_API_TOKEN` keeps working with a deprecation warning.
 
 ## [0.6.0] - 2026-11-13
 

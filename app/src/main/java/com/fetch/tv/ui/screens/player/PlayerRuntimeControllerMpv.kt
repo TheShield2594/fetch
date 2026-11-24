@@ -554,6 +554,10 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
         delayMpvResumeSeekUntilVideoTrack = false
     }
 
+    if (pendingResumeProgress != null && isLiveForWatchProgress()) {
+        // Live: stay at the live edge rather than resuming into the DVR window.
+        pendingResumeProgress = null
+    }
     val state = _uiState.value
     val savedResume = pendingResumeProgress
     val queuedPosition = state.pendingSeekPosition ?: savedResume?.position

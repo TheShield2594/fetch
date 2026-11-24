@@ -36,6 +36,8 @@ data class TraktUiState(
     val isStatsLoading: Boolean = false,
     val isPolling: Boolean = false,
     val username: String? = null,
+    /** Trakt rejected the grant; [username] names the account to reconnect. */
+    val reconnectRequired: Boolean = false,
     val tokenExpiresAtMillis: Long? = null,
     val deviceUserCode: String? = null,
     val verificationUrl: String? = null,
@@ -274,6 +276,7 @@ class TraktViewModel @Inject constructor(
             current.copy(
                 mode = mode,
                 username = authState.username,
+                reconnectRequired = mode == TraktConnectionMode.DISCONNECTED && authState.isReconnectRequired,
                 tokenExpiresAtMillis = tokenExpiresAtMillis,
                 deviceUserCode = authState.userCode,
                 verificationUrl = authState.verificationUrl,

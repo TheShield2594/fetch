@@ -145,6 +145,19 @@ class StreamRepositoryAddonRequestTest {
     }
 
     @Test
+    fun `a media server that never answers times out instead of holding the search`() = runTest {
+        // TheShield2594/fetch#630
+        val server = ServerStreamSource(name = "Jellyfin", preferred = false) {
+            kotlinx.coroutines.awaitCancellation()
+        }
+        val repository = newRepository(serverSources = listOf(server))
+
+        val update = repository.searchStreamsFromAllSources("movie", "tt1").last()
+
+        assertEquals(mapOf("Jellyfin" to StreamSourceOutcome.TIMED_OUT), update.sourceOutcomes)
+    }
+
+    @Test
     fun `a failing addon reports a failure`() = runTest {
         coEvery { api.getStreams(any(), any()) } returns Response.error(500, "".toResponseBody(null))
         val repository = newRepository(addon(resources = listOf("stream")))

@@ -895,6 +895,11 @@ private fun traktConnectionPresentation(state: TraktUiState): TrackingConnection
             value = stringResource(R.string.tracking_status_waiting),
             color = FetchTheme.colors.Warning
         )
+        state.reconnectRequired && !state.username.isNullOrBlank() -> TrackingConnectionPresentation(
+            subtitle = stringResource(R.string.trakt_reconnect_required_as, state.username),
+            value = stringResource(R.string.tracking_status_reconnect),
+            color = FetchTheme.colors.Warning
+        )
         else -> TrackingConnectionPresentation(
             subtitle = stringResource(R.string.trakt_description),
             value = stringResource(R.string.tracking_status_disconnected),

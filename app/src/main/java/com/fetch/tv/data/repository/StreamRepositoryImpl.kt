@@ -290,7 +290,20 @@ class StreamRepositoryImpl @Inject constructor(
                 serverSources.forEach { source ->
                     launch {
                         try {
-                            val streams = source.load()
+                            // A sleeping NAS or an unreachable remote server gets the same budget
+                            // as an addon, so it can't hold up auto-play or "all sources answered".
+                            val streams = when (val call = addonRequestGuard.runUntracked { source.load() }) {
+                                is AddonCallResult.Completed -> call.value
+                                AddonCallResult.TimedOut -> {
+                                    attemptedFailures += StreamAttemptFailure(
+                                        addonName = source.name,
+                                        kind = StreamFailureKind.REQUEST_FAILED,
+                                        detail = context.getString(R.string.stream_error_detail_server_timeout)
+                                    )
+                                    onSourceFinished(source.name, StreamSourceOutcome.TIMED_OUT)
+                                    return@launch
+                                }
+                            }
                             if (streams.isNotEmpty()) {
                                 resultChannel.send(AddonStreams(addonName = source.name, addonLogo = null, streams = streams))
                                 onSourceFinished(source.name, StreamSourceOutcome.STREAMS)

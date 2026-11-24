@@ -21,7 +21,7 @@ import org.junit.Assert.assertTrue
 
 class TraktAuthServiceTest {
     @Test
-    fun `refresh token 400 clears credentials and prevents another refresh`() = runTest {
+    fun `refresh token 400 retries once then clears tokens but keeps the account name`() = runTest {
         // refreshTokenIfNeeded() returns early without a Trakt client ID, which builds
         // without a local.properties (CI, forks) don't have.
         assumeTrue(BuildConfig.TRAKT_CLIENT_ID.isNotBlank())
@@ -32,7 +32,9 @@ class TraktAuthServiceTest {
 
         every { traktAuthDataStore.activeProfileId() } returns 1
         coEvery { traktAuthDataStore.getCurrentState(1) } answers { authState }
-        coEvery { traktAuthDataStore.clearAuth(1) } answers { authState = TraktAuthState() }
+        coEvery { traktAuthDataStore.clearTokensForReconnect(1) } answers {
+            authState = TraktAuthState(username = authState.username)
+        }
         coEvery { authSessionNoticeDataStore.markTraktReconnectRequired() } returns Unit
         coEvery { traktApi.refreshToken(any()) } returns Response.error(400, "invalid_grant".toResponseBody())
 
@@ -46,9 +48,71 @@ class TraktAuthServiceTest {
         assertFalse(service.refreshTokenIfNeeded(force = true))
         assertFalse(service.refreshTokenIfNeeded(force = true))
 
-        coVerify(exactly = 1) { traktApi.refreshToken(any()) }
+        // One retry with the re-read token, then no more attempts once the grant is gone.
+        coVerify(exactly = 2) { traktApi.refreshToken(any()) }
         coVerify(exactly = 1) { authSessionNoticeDataStore.markTraktReconnectRequired() }
-        coVerify(exactly = 1) { traktAuthDataStore.clearAuth(1) }
+        coVerify(exactly = 1) { traktAuthDataStore.clearTokensForReconnect(1) }
+        coVerify(exactly = 0) { traktAuthDataStore.clearAuth(any<Int>()) }
+        assertTrue(authState.isReconnectRequired)
+    }
+
+    @Test
+    fun `refresh rejected once succeeds with the stored token on retry`() = runTest {
+        assumeTrue(BuildConfig.TRAKT_CLIENT_ID.isNotBlank())
+        val traktApi = mockk<TraktApi>()
+        val traktAuthDataStore = mockk<TraktAuthDataStore>(relaxed = true)
+        val authSessionNoticeDataStore = mockk<AuthSessionNoticeDataStore>(relaxed = true)
+        val token = TraktTokenResponseDto(
+            accessToken = "new-access",
+            tokenType = "bearer",
+            expiresIn = 3600,
+            refreshToken = "new-refresh",
+            scope = "public",
+            createdAt = 2L
+        )
+        var calls = 0
+
+        every { traktAuthDataStore.activeProfileId() } returns 1
+        coEvery { traktAuthDataStore.getCurrentState(1) } returns authenticatedState()
+        coEvery { traktApi.refreshToken(any()) } coAnswers {
+            calls++
+            if (calls == 1) Response.error(401, "invalid_grant".toResponseBody()) else Response.success(token)
+        }
+
+        val service = TraktAuthService(
+            context = mockk<Context>(relaxed = true),
+            traktApi = traktApi,
+            traktAuthDataStore = traktAuthDataStore,
+            authSessionNoticeDataStore = authSessionNoticeDataStore
+        )
+
+        assertTrue(service.refreshTokenIfNeeded(force = true))
+        coVerify(exactly = 1) { traktAuthDataStore.saveToken(1, token) }
+        coVerify(exactly = 0) { traktAuthDataStore.clearTokensForReconnect(any()) }
+        coVerify(exactly = 0) { authSessionNoticeDataStore.markTraktReconnectRequired() }
+    }
+
+    @Test
+    fun `network error during refresh keeps the tokens`() = runTest {
+        assumeTrue(BuildConfig.TRAKT_CLIENT_ID.isNotBlank())
+        val traktApi = mockk<TraktApi>()
+        val traktAuthDataStore = mockk<TraktAuthDataStore>(relaxed = true)
+        val authSessionNoticeDataStore = mockk<AuthSessionNoticeDataStore>(relaxed = true)
+
+        every { traktAuthDataStore.activeProfileId() } returns 1
+        coEvery { traktAuthDataStore.getCurrentState(1) } returns authenticatedState()
+        coEvery { traktApi.refreshToken(any()) } throws java.io.IOException("reset")
+
+        val service = TraktAuthService(
+            context = mockk<Context>(relaxed = true),
+            traktApi = traktApi,
+            traktAuthDataStore = traktAuthDataStore,
+            authSessionNoticeDataStore = authSessionNoticeDataStore
+        )
+
+        assertFalse(service.refreshTokenIfNeeded(force = true))
+        coVerify(exactly = 0) { traktAuthDataStore.clearTokensForReconnect(any()) }
+        coVerify(exactly = 0) { traktAuthDataStore.clearAuth(any<Int>()) }
     }
 
     @Test
@@ -95,7 +159,8 @@ class TraktAuthServiceTest {
             refreshToken = "refresh-token",
             tokenType = "bearer",
             createdAt = 1L,
-            expiresIn = 3600
+            expiresIn = 3600,
+            username = "sam"
         )
     }
 }

@@ -591,6 +591,8 @@
     <string name="tracking_status_disconnected">Not connected</string>
     <string name="tracking_status_waiting">Waiting for approval</string>
     <string name="tracking_status_connecting">Connecting</string>
+    <string name="tracking_status_reconnect">Reconnect</string>
+    <string name="trakt_reconnect_required_as">The Trakt sign-in for %1$s expired. Reconnect to keep syncing.</string>
     <string name="tracking_finish_connection">Finish connection approval</string>
     <string name="tracking_connecting_provider">Starting %1$s connection…</string>
     <string name="tracking_watch_progress_dialog_subtitle">Choose the service Fetch reads for resume and Continue Watching. Scrobbling remains active for every connected service.</string>
@@ -2808,6 +2810,7 @@
     <string name="stream_error_detail_addon_unreachable">could not reach the addon server</string>
     <string name="stream_error_detail_addon_connection_failed">connection to the addon failed</string>
     <string name="stream_error_detail_addon_timeout">the addon request timed out</string>
+    <string name="stream_error_detail_server_timeout">the media server didn’t answer in time</string>
     <string name="stream_error_detail_addon_cleartext_blocked">the addon uses an insecure HTTP connection blocked by Android</string>
     <string name="stream_error_detail_addon_request_failed">the addon request failed</string>
     <string name="stream_error_fetch_failed">Failed to fetch streams</string>

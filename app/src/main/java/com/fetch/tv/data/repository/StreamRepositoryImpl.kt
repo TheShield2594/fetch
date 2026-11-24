@@ -16,6 +16,7 @@ import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.network.safeApiCall
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.data.mapper.toDomain
+import com.fetch.tv.data.mediaserver.ServerFailure
 import com.fetch.tv.data.mediaserver.ServerStreamSource
 import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.data.mediaserver.messageRes
@@ -318,12 +319,18 @@ class StreamRepositoryImpl @Inject constructor(
                             }
                         } catch (e: Exception) {
                             if (e is CancellationException) throw e
+                            // The matcher gives up on a slow server itself (INCOMPLETE): that is
+                            // a timeout too, not a broken server.
+                            val timedOut = e.serverFailure() == ServerFailure.INCOMPLETE
                             attemptedFailures += StreamAttemptFailure(
                                 addonName = source.name,
                                 kind = StreamFailureKind.REQUEST_FAILED,
                                 detail = context.getString(e.serverFailure().messageRes())
                             )
-                            onSourceFinished(source.name, StreamSourceOutcome.FAILED)
+                            onSourceFinished(
+                                source.name,
+                                if (timedOut) StreamSourceOutcome.TIMED_OUT else StreamSourceOutcome.FAILED
+                            )
                         } finally {
                             if (completedJobs.incrementAndGet() >= totalJobs) {
                                 resultChannel.close()

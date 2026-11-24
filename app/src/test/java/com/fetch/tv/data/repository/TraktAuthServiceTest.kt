@@ -18,6 +18,8 @@ import org.junit.Test
 import retrofit2.Response
 import com.fetch.tv.data.remote.dto.trakt.TraktTokenResponseDto
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
+import com.fetch.tv.data.remote.dto.trakt.TraktRefreshTokenRequestDto
 
 class TraktAuthServiceTest {
     @Test
@@ -70,13 +72,19 @@ class TraktAuthServiceTest {
             scope = "public",
             createdAt = 2L
         )
-        var calls = 0
+        val sentTokens = mutableListOf<String>()
+        var reads = 0
 
         every { traktAuthDataStore.activeProfileId() } returns 1
-        coEvery { traktAuthDataStore.getCurrentState(1) } returns authenticatedState()
+        // The first read sees token A; by the retry another refresh has stored token B.
+        coEvery { traktAuthDataStore.getCurrentState(1) } answers {
+            reads++
+            authenticatedState().copy(refreshToken = if (reads == 1) "refresh-a" else "refresh-b")
+        }
         coEvery { traktApi.refreshToken(any()) } coAnswers {
-            calls++
-            if (calls == 1) Response.error(401, "invalid_grant".toResponseBody()) else Response.success(token)
+            val request = firstArg<TraktRefreshTokenRequestDto>()
+            sentTokens += request.refreshToken
+            if (sentTokens.size == 1) Response.error(401, "invalid_grant".toResponseBody()) else Response.success(token)
         }
 
         val service = TraktAuthService(
@@ -87,6 +95,7 @@ class TraktAuthServiceTest {
         )
 
         assertTrue(service.refreshTokenIfNeeded(force = true))
+        assertEquals(listOf("refresh-a", "refresh-b"), sentTokens)
         coVerify(exactly = 1) { traktAuthDataStore.saveToken(1, token) }
         coVerify(exactly = 0) { traktAuthDataStore.clearTokensForReconnect(any()) }
         coVerify(exactly = 0) { authSessionNoticeDataStore.markTraktReconnectRequired() }

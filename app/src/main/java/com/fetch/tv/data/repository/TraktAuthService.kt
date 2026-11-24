@@ -239,10 +239,15 @@ class TraktAuthService @Inject constructor(
 
         val tokenBody = response.body()
         if (response.isSuccessful && tokenBody != null) {
-            // Drop any name kept from a grant Trakt rejected: the user may have approved a
-            // different account, and fetchUserSettings below records the right one.
-            traktAuthDataStore.saveUser(profileId, username = null, userSlug = null)
-            traktAuthDataStore.saveToken(profileId, tokenBody)
+            // Under the refresh lock, so a refresh of the old grant that fails while this
+            // is saved can't clear the grant the user just approved. fetchUserSettings stays
+            // outside: it can refresh, and the mutex isn't reentrant.
+            tokenRefreshMutexes.getOrPut(profileId) { Mutex() }.withLock {
+                // Drop any name kept from a grant Trakt rejected: the user may have approved
+                // a different account, and fetchUserSettings below records the right one.
+                traktAuthDataStore.saveUser(profileId, username = null, userSlug = null)
+                traktAuthDataStore.saveToken(profileId, tokenBody)
+            }
             authSessionNoticeDataStore.markTraktAuthenticated()
             resetCircuit()
             traktAuthDataStore.clearDeviceFlow(profileId)

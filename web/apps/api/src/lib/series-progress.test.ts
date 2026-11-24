@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { P2002 } from "./test-fixtures/prisma-errors.js";
 
 const prismaMock = {
-  seriesProgress: { updateMany: vi.fn(), create: vi.fn() },
+  seriesProgress: { updateMany: vi.fn(), createMany: vi.fn() },
 };
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
@@ -58,12 +57,12 @@ describe("upsertSeriesProgressIfNewer", () => {
       lastWatchedAt: new Date("2026-01-01T00:00:00Z"),
     });
 
-    expect(prismaMock.seriesProgress.create).not.toHaveBeenCalled();
+    expect(prismaMock.seriesProgress.createMany).not.toHaveBeenCalled();
   });
 
   it("creates a row when no existing row was old enough to update (first watch)", async () => {
     prismaMock.seriesProgress.updateMany.mockResolvedValue({ count: 0 });
-    prismaMock.seriesProgress.create.mockResolvedValue({});
+    prismaMock.seriesProgress.createMany.mockResolvedValue({ count: 1 });
     const { upsertSeriesProgressIfNewer } = await import("./series-progress.js");
 
     await upsertSeriesProgressIfNewer("profile-1", "tt123", {
@@ -72,21 +71,24 @@ describe("upsertSeriesProgressIfNewer", () => {
       lastWatchedAt: new Date("2026-01-01T00:00:00Z"),
     });
 
-    expect(prismaMock.seriesProgress.create).toHaveBeenCalledWith({
-      data: {
-        profileId: "profile-1",
-        seriesImdbId: "tt123",
-        lastSeason: 1,
-        lastEpisode: 1,
-        lastWatchedAt: new Date("2026-01-01T00:00:00Z"),
-        updatedAt: new Date("2026-01-01T00:00:00Z"),
-      },
+    expect(prismaMock.seriesProgress.createMany).toHaveBeenCalledWith({
+      data: [
+        {
+          profileId: "profile-1",
+          seriesImdbId: "tt123",
+          lastSeason: 1,
+          lastEpisode: 1,
+          lastWatchedAt: new Date("2026-01-01T00:00:00Z"),
+          updatedAt: new Date("2026-01-01T00:00:00Z"),
+        },
+      ],
+      skipDuplicates: true,
     });
   });
 
-  it("swallows a P2002 race when a concurrent request already created the row", async () => {
+  it("leaves the row alone when one already exists (newer, or created concurrently)", async () => {
     prismaMock.seriesProgress.updateMany.mockResolvedValue({ count: 0 });
-    prismaMock.seriesProgress.create.mockRejectedValue(P2002);
+    prismaMock.seriesProgress.createMany.mockResolvedValue({ count: 0 });
     const { upsertSeriesProgressIfNewer } = await import("./series-progress.js");
 
     await expect(
@@ -98,9 +100,9 @@ describe("upsertSeriesProgressIfNewer", () => {
     ).resolves.toBeUndefined();
   });
 
-  it("rethrows non-P2002 errors from create", async () => {
+  it("rethrows errors from the insert", async () => {
     prismaMock.seriesProgress.updateMany.mockResolvedValue({ count: 0 });
-    prismaMock.seriesProgress.create.mockRejectedValue(new Error("connection lost"));
+    prismaMock.seriesProgress.createMany.mockRejectedValue(new Error("connection lost"));
     const { upsertSeriesProgressIfNewer } = await import("./series-progress.js");
 
     await expect(

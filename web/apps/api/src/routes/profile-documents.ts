@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from "fastify";
 import type { Prisma } from "@prisma/client";
 import { resolveProfileParam } from "../lib/profile.js";
 import {
+  MAX_TV_SETTINGS_BYTES,
   etagFor,
   getProfileDocument,
   opaqueDocumentProblem,
@@ -25,12 +26,6 @@ import {
  * Home layout. Both are read with a version and written with `If-Match` naming
  * it — see lib/profile-document.ts for why.
  */
-
-/**
- * The TV's settings blob is a few KB today; this leaves room for it to grow
- * without letting a document the size of a database dump through.
- */
-const MAX_TV_SETTINGS_BYTES = 256 * 1024;
 
 const tvSettingsBodySchema = {
   type: "object",

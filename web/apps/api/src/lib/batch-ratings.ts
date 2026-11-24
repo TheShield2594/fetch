@@ -1,4 +1,4 @@
-import type { MetadataType } from "@prisma/client";
+import type { MetadataType, Prisma } from "@prisma/client";
 import { prisma } from "./prisma.js";
 import { mapWithConcurrency } from "./concurrency.js";
 
@@ -38,8 +38,13 @@ const chunk = <T>(items: T[], size: number): T[][] => {
  * with in a handful of queries, resolves creates and updates in memory (later
  * rows in the batch win, as they did when each was upserted in order), then
  * flushes with chunked `createMany`s and a bounded set of concurrent updates.
+ * `client` is the transaction to write in, when the caller has one.
  */
-export async function batchUpsertRatings(profileId: string, inputs: RatingInput[]): Promise<number> {
+export async function batchUpsertRatings(
+  profileId: string,
+  inputs: RatingInput[],
+  client: Prisma.TransactionClient = prisma
+): Promise<number> {
   if (inputs.length === 0) return 0;
 
   // Collapse duplicates within the batch first, so two rows for the same title
@@ -51,7 +56,7 @@ export async function batchUpsertRatings(profileId: string, inputs: RatingInput[
 
   const existing = new Set<string>();
   for (const ids of chunk(imdbIds, CHUNK_SIZE)) {
-    const rows = await prisma.rating.findMany({
+    const rows = await client.rating.findMany({
       where: { profileId, imdbId: { in: ids } },
       select: { type: true, imdbId: true, season: true, episode: true },
     });
@@ -66,7 +71,7 @@ export async function batchUpsertRatings(profileId: string, inputs: RatingInput[
   }
 
   for (const batch of chunk(creates, CHUNK_SIZE)) {
-    await prisma.rating.createMany({
+    await client.rating.createMany({
       data: batch.map((input) => ({ profileId, ...input, note: input.note ?? null })),
       // A concurrent write (another import, a rating set from the UI) can land
       // between the read above and this insert; skipping is closer to the
@@ -79,7 +84,7 @@ export async function batchUpsertRatings(profileId: string, inputs: RatingInput[
     // `updateMany` rather than `update` so a row deleted between the read and
     // the write is a no-op instead of a P2025 that fails the whole import.
     await mapWithConcurrency(updates, UPDATE_CONCURRENCY, (input) =>
-      prisma.rating.updateMany({
+      client.rating.updateMany({
         where: {
           profileId,
           type: input.type,

@@ -138,6 +138,12 @@ export const sendVersionConflict = (reply: FastifyReply, current: StoredDocument
 
 // ─── Shape checks for documents the API doesn't interpret ───
 
+/**
+ * The TV's settings blob is a few KB today; this leaves room for it to grow
+ * without letting a document the size of a database dump through.
+ */
+export const MAX_TV_SETTINGS_BYTES = 256 * 1024;
+
 /** How deep an opaque document may nest; the TV's own settings blob is three. */
 const MAX_DEPTH = 12;
 

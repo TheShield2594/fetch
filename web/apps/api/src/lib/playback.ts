@@ -1,4 +1,4 @@
-import type { WatchEventType } from "@prisma/client";
+import type { Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyBaseLogger } from "fastify";
 import { prisma } from "./prisma.js";
 
@@ -150,11 +150,15 @@ export const clearPlaybackProgress = async (
  * of episodes), keyed like resume points. What decides whether a pause has
  * been overtaken by finishing the title.
  */
-export const latestWatchByKey = async (profileId: string, imdbIds: string[]): Promise<Map<string, Date>> => {
+export const latestWatchByKey = async (
+  profileId: string,
+  imdbIds: string[],
+  client: Prisma.TransactionClient = prisma
+): Promise<Map<string, Date>> => {
   const latest = new Map<string, Date>();
   if (imdbIds.length === 0) return latest;
   // Episodes are stored against the series, so `imdbId` matches both kinds.
-  const watches = await prisma.watchEvent.findMany({
+  const watches = await client.watchEvent.findMany({
     where: { profileId, imdbId: { in: imdbIds } },
     select: { type: true, imdbId: true, seriesImdbId: true, season: true, episode: true, watchedAt: true },
   });
@@ -192,8 +196,16 @@ const IMPORT_CHUNK = 500;
  * Within one file the newest pause per title wins, so a hand-edited backup
  * listing a title twice lands on one row rather than on whichever came last.
  * Returns how many points were written.
+ *
+ * Given `tx`, the reads and writes run in that transaction instead of in
+ * short transactions of their own, so a caller restoring a whole backup can
+ * have the points land or roll back with the rest of it.
  */
-export const importPlaybackProgress = async (profileId: string, rows: PlaybackImportRow[]): Promise<number> => {
+export const importPlaybackProgress = async (
+  profileId: string,
+  rows: PlaybackImportRow[],
+  tx?: Prisma.TransactionClient
+): Promise<number> => {
   const byKey = new Map<string, { row: PlaybackImportRow; resolved: ResolvedTarget }>();
   for (const row of rows) {
     const resolved = resolvePlaybackTarget(row.target);
@@ -207,11 +219,11 @@ export const importPlaybackProgress = async (profileId: string, rows: PlaybackIm
   const imdbIds = [...new Set([...byKey.values()].map(({ resolved }) => resolved.imdbId))];
 
   const [existing, lastWatchByKey] = await Promise.all([
-    prisma.playbackProgress.findMany({
+    (tx ?? prisma).playbackProgress.findMany({
       where: { profileId, key: { in: keys } },
       select: { key: true, pausedAt: true },
     }),
-    latestWatchByKey(profileId, imdbIds),
+    latestWatchByKey(profileId, imdbIds, tx ?? prisma),
   ]);
 
   const pausedByKey = new Map(existing.map((row) => [row.key, row.pausedAt]));
@@ -223,26 +235,32 @@ export const importPlaybackProgress = async (profileId: string, rows: PlaybackIm
     return !(watched && watched >= row.pausedAt);
   });
 
+  const upsert = (client: Prisma.TransactionClient, { row, resolved }: (typeof writes)[number]) => {
+    const data = {
+      type: resolved.type,
+      imdbId: resolved.imdbId,
+      season: resolved.season,
+      episode: resolved.episode,
+      progress: row.progress,
+      positionSeconds: row.positionSeconds,
+      durationSeconds: row.durationSeconds,
+      pausedAt: row.pausedAt,
+    };
+    return client.playbackProgress.upsert({
+      where: { profileId_key: { profileId, key: resolved.key } },
+      create: { profileId, key: resolved.key, ...data },
+      update: data,
+    });
+  };
+
+  if (tx) {
+    // A transaction runs its statements one after another on one connection
+    // anyway, so there is nothing to batch here.
+    for (const write of writes) await upsert(tx, write);
+    return writes.length;
+  }
   for (let i = 0; i < writes.length; i += IMPORT_CHUNK) {
-    await prisma.$transaction(
-      writes.slice(i, i + IMPORT_CHUNK).map(({ row, resolved }) => {
-        const data = {
-          type: resolved.type,
-          imdbId: resolved.imdbId,
-          season: resolved.season,
-          episode: resolved.episode,
-          progress: row.progress,
-          positionSeconds: row.positionSeconds,
-          durationSeconds: row.durationSeconds,
-          pausedAt: row.pausedAt,
-        };
-        return prisma.playbackProgress.upsert({
-          where: { profileId_key: { profileId, key: resolved.key } },
-          create: { profileId, key: resolved.key, ...data },
-          update: data,
-        });
-      })
-    );
+    await prisma.$transaction(writes.slice(i, i + IMPORT_CHUNK).map((write) => upsert(prisma, write)));
   }
   return writes.length;
 };

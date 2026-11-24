@@ -1,5 +1,5 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "./prisma.js";
-import { isUniqueConstraintError } from "./prisma-tolerant.js";
 import { mapWithConcurrency } from "./concurrency.js";
 import type { SeriesProgressCandidate } from "./types.js";
 
@@ -24,10 +24,13 @@ export const isIncomingSeriesProgressNewer = (
  * request. Rows for the same series collapse to the newest one first (the
  * sequential version reached the same end state, one write at a time), then
  * what's left runs with bounded concurrency.
+ *
+ * `client` is the transaction to write in, when the caller has one.
  */
 export const batchUpsertSeriesProgressIfNewer = async (
   profileId: string,
-  entries: { seriesImdbId: string; incoming: SeriesProgressCandidate }[]
+  entries: { seriesImdbId: string; incoming: SeriesProgressCandidate }[],
+  client: Prisma.TransactionClient = prisma
 ): Promise<number> => {
   if (entries.length === 0) return 0;
 
@@ -40,7 +43,7 @@ export const batchUpsertSeriesProgressIfNewer = async (
   }
 
   await mapWithConcurrency([...newest.entries()], UPSERT_CONCURRENCY, ([seriesImdbId, incoming]) =>
-    upsertSeriesProgressIfNewer(profileId, seriesImdbId, incoming)
+    upsertSeriesProgressIfNewer(profileId, seriesImdbId, incoming, client)
   );
 
   return newest.size;
@@ -49,9 +52,10 @@ export const batchUpsertSeriesProgressIfNewer = async (
 export const upsertSeriesProgressIfNewer = async (
   profileId: string,
   seriesImdbId: string,
-  incoming: SeriesProgressCandidate
+  incoming: SeriesProgressCandidate,
+  client: Prisma.TransactionClient = prisma
 ) => {
-  const { count } = await prisma.seriesProgress.updateMany({
+  const { count } = await client.seriesProgress.updateMany({
     where: {
       profileId,
       seriesImdbId,
@@ -78,9 +82,14 @@ export const upsertSeriesProgressIfNewer = async (
 
   if (count > 0) return;
 
-  try {
-    await prisma.seriesProgress.create({
-      data: {
+  // No row was old enough to move: either there is none yet, or the stored one
+  // is already as far along. Insert-or-nothing covers both, and a concurrent
+  // writer creating the row first, without an error. That matters inside a
+  // transaction (a backup import), where Postgres aborts the whole transaction
+  // on a unique violation even if the code catches it.
+  await client.seriesProgress.createMany({
+    data: [
+      {
         profileId,
         seriesImdbId,
         lastSeason: incoming.lastSeason,
@@ -88,8 +97,7 @@ export const upsertSeriesProgressIfNewer = async (
         lastWatchedAt: incoming.lastWatchedAt,
         updatedAt: incoming.lastWatchedAt,
       },
-    });
-  } catch (error) {
-    if (!isUniqueConstraintError(error)) throw error;
-  }
+    ],
+    skipDuplicates: true,
+  });
 };

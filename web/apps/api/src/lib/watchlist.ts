@@ -1,4 +1,4 @@
-import { ListKind } from "@prisma/client";
+import { ListKind, type Prisma } from "@prisma/client";
 import { prisma } from "./prisma.js";
 import { getDefaultProfileId } from "./profile.js";
 import { findOrCreateTolerant } from "./prisma-tolerant.js";
@@ -17,17 +17,19 @@ export const ensureDefaultWatchlist = async () => {
   );
 };
 
-export const getDefaultWatchlist = async (profileId?: string) => {
+// `client` lets a caller that is already in a transaction (a backup import)
+// find or create the watchlist inside it.
+export const getDefaultWatchlist = async (profileId?: string, client: Prisma.TransactionClient = prisma) => {
   const resolvedProfileId = profileId ?? (await getDefaultProfileId());
 
   return findOrCreateTolerant(
     () =>
-      prisma.list.findFirst({
+      client.list.findFirst({
         where: { kind: ListKind.watchlist, profileId: resolvedProfileId },
         orderBy: { createdAt: "asc" },
       }),
     () =>
-      prisma.list.create({
+      client.list.create({
         data: { kind: ListKind.watchlist, name: "Watchlist", profileId: resolvedProfileId },
       })
   );

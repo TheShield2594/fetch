@@ -92,6 +92,33 @@ describe("previews", () => {
     });
   });
 
+  it("reads a version 2 export and counts what it added", () => {
+    const v2 = {
+      ...EXPORT,
+      version: 2,
+      tags: [{ name: "cosy", createdAt: "2026-10-01T00:00:00Z", items: [] }],
+      droppedShows: [{ imdbId: "tt0141842", droppedAt: "2026-10-01T00:00:00Z" }],
+      tvSettings: { version: 1, features: {} },
+      homeLayout: { rows: [{ key: "builtin:continue_watching", hidden: false }] },
+    };
+    expect(previewJsonExport(JSON.stringify(v2))).toMatchObject({
+      parts: [
+        "1 list (3 titles)",
+        "2 watch events",
+        "1 series progress entry",
+        "1 resume point",
+        "1 tag",
+        "1 dropped show",
+        "TV settings",
+        "a Home layout",
+      ],
+      restoresTvDocuments: true,
+    });
+    expect(previewJsonExport(JSON.stringify({ ...v2, tvSettings: null, homeLayout: null }))).toMatchObject({
+      restoresTvDocuments: false,
+    });
+  });
+
   it("counts CSV rows the way the server parses them, quoted line breaks included", () => {
     expect(csvRecords('a,b\n"x\ny",2\n\n3,4\r\n')).toEqual([["a", "b"], ["x\ny", "2"], ["3", "4"]]);
     expect(previewHistoryCsv("imdbId,type,watchedAt\ntt1,movie,2026-01-01\n")).toEqual({ rows: 1 });
@@ -124,6 +151,37 @@ describe("DataSettings", () => {
     await user.click(screen.getByRole("button", { name: "Import" }));
     await waitFor(() => expect(api.importData).toHaveBeenCalled());
     expect(await screen.findByText(/Imported 2 watch events/)).toBeInTheDocument();
+  });
+
+  it("reports what a version 2 import restored", async () => {
+    vi.mocked(api.importData).mockResolvedValue({
+      status: "ok",
+      summary: {
+        lists: 0,
+        listItems: 3,
+        watchEvents: 2,
+        seriesProgress: 1,
+        ratings: 0,
+        playback: 0,
+        tags: 1,
+        taggedItems: 4,
+        droppedShows: 2,
+        tvSettings: true,
+        homeLayout: false,
+      },
+    });
+    const user = userEvent.setup();
+    render(<DataSettings />);
+
+    await user.upload(
+      fileInputs()[0]!,
+      file(JSON.stringify({ ...EXPORT, version: 2, tvSettings: { version: 1 } }), "backup.json", "application/json")
+    );
+    const review = await screen.findByRole("alertdialog", { name: "Import backup.json?" });
+    expect(review).toHaveTextContent(/only used if Alex doesn.t have its own yet/);
+
+    await user.click(screen.getByRole("button", { name: "Import" }));
+    expect(await screen.findByText(/4 tagged titles, 2 dropped shows, TV settings$/)).toBeInTheDocument();
   });
 
   it("discards a previewed file on Cancel, and says when a file can't be read", async () => {

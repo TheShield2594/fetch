@@ -25,6 +25,21 @@ const SHAWSHANK = "tt0111161";
 const GODFATHER = "tt0068646";
 const SOPRANOS = "tt0141842";
 
+// Lets a test make the ratings write fail partway through an import, after
+// the lists and watch events before it have been written in the same
+// transaction, to see that Postgres takes them back too.
+const failure = { ratings: false };
+vi.mock("../lib/batch-ratings.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../lib/batch-ratings.js")>();
+  return {
+    ...actual,
+    batchUpsertRatings: async (...args: Parameters<typeof actual.batchUpsertRatings>) => {
+      if (failure.ratings) throw new Error("ratings write failed");
+      return actual.batchUpsertRatings(...args);
+    },
+  };
+});
+
 let app: FastifyInstance;
 
 beforeAll(async () => {
@@ -450,5 +465,121 @@ describe("collections and profile settings in a backup", () => {
 
     const profile = await prisma.profile.findUniqueOrThrow({ where: { id: target.id } });
     expect(profile).toMatchObject({ avatarId: "fetch:fox", isKidsProfile: true, maxRating: "PARENTAL_GUIDANCE", allowUnrated: false });
+  });
+});
+
+describe("version 2 of the backup", () => {
+  it("round-trips list descriptions and order, tags, dropped shows and the TV documents", async () => {
+    const source = await seedLibrary("Ada");
+    const comfort = await prisma.list.findFirstOrThrow({ where: { profileId: source.id, name: "Comfort films" } });
+    await prisma.list.update({ where: { id: comfort.id }, data: { description: "Rainy Sundays" } });
+    await prisma.listItem.create({ data: { listId: comfort.id, type: "movie", imdbId: GODFATHER, position: 0 } });
+    await prisma.listItem.update({
+      where: { listId_type_imdbId: { listId: comfort.id, type: "movie", imdbId: SHAWSHANK } },
+      data: { position: 1 },
+    });
+    const tag = await prisma.tag.create({ data: { profileId: source.id, name: "cosy" } });
+    await prisma.itemTag.create({ data: { tagId: tag.id, type: "movie", imdbId: SHAWSHANK } });
+    await prisma.kV.create({
+      data: { key: `dropped:series:${source.id}:${SOPRANOS}`, value: "true", updatedAt: new Date("2026-02-01T00:00:00Z") },
+    });
+    const tvSettings = { version: 1, features: { player_settings: { autoplay: { type: "boolean", value: false } } } };
+    const now = new Date();
+    await prisma.profileDocument.createMany({
+      data: [
+        { profileId: source.id, kind: "tv-settings", document: tvSettings, version: 4, updatedAt: now },
+        {
+          profileId: source.id,
+          kind: "home-layout",
+          document: { rows: [{ key: `list:${comfort.id}`, hidden: false }, { key: "builtin:continue_watching", hidden: true }] },
+          version: 2,
+          updatedAt: now,
+        },
+      ],
+    });
+
+    const exported = await exportFor(source.id);
+    expect(exported.version).toBe(2);
+
+    const target = await createProfile("Target");
+    const { summary } = await importInto(target.id, exported);
+    expect(summary).toMatchObject({ tags: 1, taggedItems: 1, droppedShows: 1, tvSettings: true, homeLayout: true });
+
+    const restored = await prisma.list.findFirstOrThrow({
+      where: { profileId: target.id, name: "Comfort films" },
+      include: { items: { orderBy: { position: "asc" } } },
+    });
+    expect(restored.description).toBe("Rainy Sundays");
+    expect(restored.items.map((item) => [item.imdbId, item.position])).toEqual([
+      [GODFATHER, 0],
+      [SHAWSHANK, 1],
+    ]);
+
+    const tags = await prisma.tag.findMany({ where: { profileId: target.id }, include: { items: true } });
+    expect(tags.map((t) => [t.name, t.items.map((item) => item.imdbId)])).toEqual([["cosy", [SHAWSHANK]]]);
+
+    const dropped = await prisma.kV.findUniqueOrThrow({ where: { key: `dropped:series:${target.id}:${SOPRANOS}` } });
+    expect(dropped.updatedAt.toISOString()).toBe("2026-02-01T00:00:00.000Z");
+
+    const documents = await prisma.profileDocument.findMany({ where: { profileId: target.id }, orderBy: { kind: "asc" } });
+    expect(documents.map((doc) => [doc.kind, doc.version])).toEqual([
+      ["home-layout", 1],
+      ["tv-settings", 1],
+    ]);
+    expect(documents[1]!.document).toEqual(tvSettings);
+    expect(documents[0]!.document).toEqual({
+      rows: [{ key: `list:${restored.id}`, hidden: false }, { key: "builtin:continue_watching", hidden: true }],
+    });
+
+    // A second import changes nothing it already restored.
+    const again = await importInto(target.id, exported);
+    expect(again.summary).toMatchObject({ tags: 0, taggedItems: 0, droppedShows: 0, tvSettings: false, homeLayout: false, listItems: 0 });
+  });
+
+  it("still imports a version 1 file", async () => {
+    const source = await seedLibrary("Ada");
+    const exported = await exportFor(source.id);
+    const v1 = {
+      ...exported,
+      version: 1,
+      lists: exported.lists.map(({ id, name, kind, items }) => ({
+        id,
+        name,
+        kind,
+        items: items.map(({ type, imdbId, addedAt }) => ({ type, imdbId, addedAt })),
+      })),
+      tags: undefined,
+      droppedShows: undefined,
+      tvSettings: undefined,
+      homeLayout: undefined,
+    };
+
+    const target = await createProfile("Target");
+    await importInto(target.id, v1);
+
+    expect(comparable(await exportFor(target.id))).toEqual(comparable(exported));
+  });
+
+  it("writes nothing when the import fails partway", async () => {
+    const source = await seedLibrary("Ada");
+    const exported = await exportFor(source.id);
+    const target = await createProfile("Target");
+
+    failure.ratings = true;
+    try {
+      profileId = target.id;
+      const response = await app.inject({ method: "POST", url: "/import", payload: exported as object });
+      expect(response.statusCode).toBe(500);
+      expect(response.json()).toMatchObject({ code: "import_failed" });
+    } finally {
+      failure.ratings = false;
+    }
+
+    // Lists, their items and the watch events were all written before the
+    // ratings, in the transaction that was rolled back.
+    expect(await prisma.list.count({ where: { profileId: target.id, kind: "custom" } })).toBe(0);
+    expect(await prisma.listItem.count({ where: { list: { profileId: target.id } } })).toBe(0);
+    expect(await prisma.watchEvent.count({ where: { profileId: target.id } })).toBe(0);
+    expect(await prisma.playbackProgress.count({ where: { profileId: target.id } })).toBe(0);
   });
 });

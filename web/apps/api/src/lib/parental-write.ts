@@ -99,8 +99,11 @@ export const writeProfileGuarded = async (
       return { status: "ok", profile, skipped };
     } catch (error) {
       // No row matched: the limits changed (or the profile went) since they
-      // were read. The next pass reads them again.
+      // were read. The next pass reads them again, and asks for authority
+      // again too: whatever changed the limits may also have changed who is
+      // allowed to lift them.
       if (!isRecordNotFound(error)) throw error;
+      authority = undefined;
     }
   }
 

@@ -1175,6 +1175,56 @@ describe("export routes", () => {
       expect(playbackLibMock.importPlaybackProgress).toHaveBeenCalledWith(PROFILE_ID, [], prismaMock);
     });
 
+    it("writes nothing through the global client while the transaction is open", async () => {
+      // A transaction client of its own, with the same answers as the global
+      // mock: a helper that stopped forwarding `tx` would write through the
+      // global one, which this test would then see.
+      type MockModel = Record<string, ReturnType<typeof vi.fn>>;
+      const models = prismaMock as unknown as Record<string, MockModel | ReturnType<typeof vi.fn>>;
+      const txMock: Record<string, MockModel> = {};
+      for (const [model, methods] of Object.entries(models)) {
+        if (typeof methods === "function") continue;
+        txMock[model] = Object.fromEntries(
+          Object.entries(methods).map(([name, spy]) => [name, vi.fn(spy.getMockImplementation())])
+        );
+      }
+      txMock.list!.findFirst!.mockResolvedValue(null);
+      txMock.list!.create!.mockResolvedValue({ id: "88888888-8888-4888-8888-888888888888", description: null });
+      prismaMock.$transaction.mockImplementationOnce(async (work: (tx: unknown) => Promise<unknown>) => work(txMock));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          profile: { name: "Kid", settings: { avatarId: "fetch:panda" } },
+          lists: [
+            { name: "Comfort films", kind: "custom", items: [{ type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 }] },
+          ],
+          watchEvents: [{ type: "movie", imdbId: "tt1", watchedAt: "2024-01-01T00:00:00Z" }],
+          ratings: [{ imdbId: "tt0111161", type: "movie", rating: 9, ratedAt: "2026-05-01T00:00:00Z" }],
+          tags: [{ name: "cosy", items: [{ type: "movie", imdbId: "tt0111161" }] }],
+          droppedShows: [{ imdbId: "tt0141842" }],
+          tvSettings: { version: 1 },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const isWrite = (name: string) => /^(create|update|upsert|delete)/.test(name);
+      for (const [model, methods] of Object.entries(models)) {
+        if (typeof methods === "function") continue;
+        for (const [name, spy] of Object.entries(methods)) {
+          if (isWrite(name)) expect(spy, `${model}.${name} on the global client`).not.toHaveBeenCalled();
+        }
+      }
+      expect(txMock.list!.create).toHaveBeenCalled();
+      expect(txMock.listItem!.createMany).toHaveBeenCalled();
+      expect(txMock.watchEvent!.createMany).toHaveBeenCalled();
+      expect(txMock.kV!.createMany).toHaveBeenCalled();
+      expect(txMock.profile!.update).toHaveBeenCalled();
+    });
+
     it("rolls everything back when a write fails partway, and says nothing was saved", async () => {
       prismaMock.list.findFirst.mockResolvedValue(null);
       prismaMock.list.create.mockResolvedValue({ id: "88888888-8888-4888-8888-888888888888", description: null });

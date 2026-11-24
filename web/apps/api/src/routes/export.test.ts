@@ -13,7 +13,7 @@ const prismaMock = {
   watchEvent: { findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn(), createMany: vi.fn() },
   seriesProgress: { findMany: vi.fn() },
   rating: { findMany: vi.fn(), createMany: vi.fn(), updateMany: vi.fn() },
-  listItem: { createMany: vi.fn(), count: vi.fn() },
+  listItem: { createMany: vi.fn(), count: vi.fn(), updateMany: vi.fn() },
   playbackProgress: { findMany: vi.fn() },
   tag: { findMany: vi.fn(), createMany: vi.fn() },
   itemTag: { createMany: vi.fn() },
@@ -901,6 +901,18 @@ describe("export routes", () => {
       expect(body).not.toHaveProperty("addons");
     });
 
+    it("exports a TV feature named after an Object prototype member as it is", async () => {
+      prismaMock.profileDocument.findMany.mockResolvedValue([
+        { kind: "tv-settings", document: { version: 1, features: { constructor: { enabled: { type: "boolean", value: true } } } } },
+      ]);
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "GET", url: "/export" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().tvSettings.features.constructor).toEqual({ enabled: { type: "boolean", value: true } });
+    });
+
     it("exports no TV documents for a profile that has none", async () => {
       const app = await buildApp();
       const body = (await app.inject({ method: "GET", url: "/export" })).json();
@@ -1022,6 +1034,53 @@ describe("export routes", () => {
 
       expect(prismaMock.list.update).not.toHaveBeenCalled();
       expect(prismaMock.listItem.createMany.mock.calls[0]![0].data[0].position).toBeNull();
+    });
+
+    it("puts titles an unarranged list already holds into the file's order", async () => {
+      prismaMock.list.findFirst.mockResolvedValue({ id: NEW_LIST, description: null });
+      prismaMock.listItem.count.mockResolvedValue(0);
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          lists: [
+            {
+              name: "Comfort films",
+              kind: "custom",
+              items: [
+                { type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 },
+                { type: "movie", imdbId: "tt0068646", addedAt: "2026-04-02T00:00:00Z", position: 1 },
+              ],
+            },
+          ],
+        },
+      });
+
+      expect(prismaMock.listItem.updateMany).toHaveBeenCalledWith({
+        where: { listId: NEW_LIST, type: "movie", imdbId: "tt0111161", position: null },
+        data: { position: 0 },
+      });
+      expect(prismaMock.listItem.updateMany).toHaveBeenCalledTimes(2);
+    });
+
+    it("leaves an arranged list's existing titles where they are", async () => {
+      prismaMock.list.findFirst.mockResolvedValue({ id: NEW_LIST, description: "Mine" });
+      prismaMock.listItem.count.mockResolvedValue(4);
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          lists: [{ name: "Comfort films", kind: "custom", items: [{ type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 }] }],
+        },
+      });
+
+      expect(prismaMock.listItem.updateMany).not.toHaveBeenCalled();
     });
 
     it("fills in a description an existing list doesn't have", async () => {

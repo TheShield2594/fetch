@@ -67,7 +67,8 @@ A failed migration is the usual cause — see
 one (or with one that isn't a `fak1_…` key):
 
 ```bash
-docker compose exec api fetch addon-key   # paste the output into .env as FETCH_ADDON_KEY
+docker compose pull && docker compose up -d api   # the addon-key command is new in this API image
+docker compose exec api fetch addon-key           # paste the output into .env as FETCH_ADDON_KEY
 docker compose up -d addon
 ```
 

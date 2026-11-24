@@ -3,6 +3,7 @@ import type { FastifyBaseLogger } from "fastify";
 import { prisma } from "./prisma.js";
 import { aiRecsCache, aiRecsCacheDeleteForProfiles, watchedImdbIdsCache } from "./cache.js";
 import { getTmdb } from "./tmdb-client.js";
+import { isTmdbNotConfiguredError } from "./tmdb-errors.js";
 import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
 import { upsertMetadata } from "./metadata.js";
 import { guardedFetch, resolveAiProviderUrl } from "./ssrf.js";
@@ -460,6 +461,8 @@ Return ONLY a JSON array, no other text, no markdown:
 
     return { metas, reasons };
   } catch (err) {
+    // No TMDB key is a setup step not taken, not a fault (#642).
+    if (isTmdbNotConfiguredError(err)) return null;
     logger?.error(err, "AI recommendations generation failed");
     return null;
   }

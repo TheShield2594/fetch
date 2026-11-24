@@ -63,8 +63,13 @@ export const SIGNED_PROFILE_ROUTE_PREFIX = "/u/:profileId/:profileKey";
 // forgotten.
 const confirmedKeys = new Map<string, string>();
 
-const sameKey = (a: string, b: string): boolean =>
-  a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
+// Lengths are compared as bytes: two strings of one length can encode to
+// buffers of different lengths, which `timingSafeEqual` throws on.
+const sameKey = (a: string, b: string): boolean => {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
+};
 
 /** Whether `key` is the one last confirmed for `profileId`, for the rate limiter. */
 export const isConfirmedStremioKey = (profileId: string, key: string): boolean => {

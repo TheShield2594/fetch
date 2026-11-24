@@ -228,7 +228,9 @@ const withoutTvCredentials = (document: Record<string, unknown>): Record<string,
   if (!isRecord(document.features)) return document;
   const features = Object.fromEntries(
     Object.entries(document.features).map(([feature, preferences]) => {
-      const credentials = TV_SETTINGS_CREDENTIAL_KEYS[feature];
+      // Own keys only: the TV may store a feature named after an Object
+      // prototype member (`constructor`), which must pass through untouched.
+      const credentials = Object.hasOwn(TV_SETTINGS_CREDENTIAL_KEYS, feature) ? TV_SETTINGS_CREDENTIAL_KEYS[feature] : undefined;
       if (!credentials || !isRecord(preferences)) return [feature, preferences];
       return [feature, Object.fromEntries(Object.entries(preferences).filter(([key]) => !credentials.includes(key)))];
     })
@@ -669,11 +671,6 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     // tightening still applies) and the rest of the settings restore.
     const settings = parseProfileAttributes(isRecord(body.profile) ? body.profile.settings : undefined);
     const settingsData: ProfileAttributeUpdate = settings.ok ? settings.data : {};
-    // Asked before the transaction rather than from inside it: the answer
-    // takes its own connection, and a transaction holding one while waiting
-    // for another is how a busy pool runs dry.
-    const touchesLimits = "isKidsProfile" in settingsData || "maxRating" in settingsData || "allowUnrated" in settingsData;
-    const authority = touchesLimits ? await hasParentalAuthority(request) : false;
 
     // Every write happens in one transaction, so a file that fails partway —
     // a database error, a timeout, the process going away — leaves the profile
@@ -733,6 +730,19 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
               skipDuplicates: true,
             });
             summary.listItems += count;
+            // Titles the list already held were skipped above and kept no
+            // position, which would put them out of the file's order (after
+            // the ones it placed). An unarranged list takes the file's order
+            // for those too.
+            if (!created && !arranged) {
+              for (const item of list.items) {
+                if (item.position == null) continue;
+                await tx.listItem.updateMany({
+                  where: { listId: targetList.id, type: item.type, imdbId: item.imdbId, position: null },
+                  data: { position: item.position },
+                });
+              }
+            }
           }
 
           await batchUpsertWatchEvents(profileId, watchEventInputs, request.log, tx);
@@ -779,7 +789,10 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
             // The check and the write are one step (lib/parental-write.ts), so
             // a grown-up tightening the limits mid-import can't be undone by it.
             const restored = await writeProfileGuarded(profileId, settingsData, {
-              checkAuthority: async () => authority,
+              // Asked at the write, through the transaction's own connection, so
+              // the answer is current for the limits being checked and the
+              // transaction never waits on a second connection from the pool.
+              checkAuthority: () => hasParentalAuthority(request, tx),
               client: tx,
             });
             if (restored.status === "ok") {

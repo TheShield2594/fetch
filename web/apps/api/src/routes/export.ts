@@ -1,4 +1,4 @@
-import { ListItemType, ListKind, MetadataType, Prisma, WatchEventType } from "@prisma/client";
+import { ItemType, ListItemType, ListKind, MetadataType, Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyPluginAsync } from "fastify";
 import { prisma } from "../lib/prisma.js";
 import { hasParentalAuthority, invalidateProfileCache, resolveProfile } from "../lib/profile.js";
@@ -24,26 +24,90 @@ import {
   tooManyRowsMessage,
 } from "../lib/import-validation.js";
 import { normalizeContentId } from "../lib/content-id.js";
+import { droppedSeriesKey } from "../lib/dropped-shows.js";
+import { MAX_TV_SETTINGS_BYTES, opaqueDocumentProblem } from "../lib/profile-document.js";
+import {
+  MAX_HOME_ROWS,
+  listRowKey,
+  parseRowKey,
+  pruneRows,
+  readStoredRows,
+  type StoredRow,
+} from "../lib/home-layout.js";
 
 // A backup restores every title it holds, including those known by a prefixed
 // id rather than an IMDb one (lib/content-id.ts), so the ids it accepts are the
 // ones the rest of the API keys titles by.
 const normalizeImdbId = normalizeContentId;
 
-const EXPORT_VERSION = 1;
+/**
+ * Version 2 added list descriptions, each list item's place in the list's
+ * manual order, tags, dropped shows, the TV settings and the Home layout.
+ * Version 1 files are still read: they have none of those, and import exactly
+ * as they did before.
+ *
+ * The profile's addons are not in either version. A manifest URL often
+ * carries a debrid or account key in its path, which is why it is encrypted at
+ * rest (lib/secret-box.ts), and a backup is a file that gets copied around and
+ * left in download folders. Installing them again also means fetching each
+ * manifest, which an import shouldn't depend on. The Home layout keeps their
+ * rows, so their order comes back once they are reinstalled.
+ */
+const EXPORT_VERSION = 2;
+const IMPORTABLE_VERSIONS: readonly unknown[] = [1, 2];
+
+/**
+ * Long enough for a file at every row cap to land, short of holding a
+ * connection forever. Each statement still has `DATABASE_STATEMENT_TIMEOUT_MS`.
+ */
+const IMPORT_TRANSACTION_TIMEOUT_MS = 10 * 60_000;
+const IMPORT_TRANSACTION_MAX_WAIT_MS = 10_000;
+
+/** The caps PATCH /lists/:id and POST /tags put on what a person types. */
+const MAX_LIST_DESCRIPTION = 280;
+const MAX_TAG_NAME = 50;
+/** The largest position the 32-bit column holds. */
+const MAX_LIST_POSITION = 2_147_483_647;
+/** A tagged title's id is free text on POST /tags/assign; this is only a sanity bound. */
+const MAX_TAGGED_ID = 300;
+
+/**
+ * Credentials the TV keeps out of its settings document
+ * (`credentialProfileSettingsKeys` in its ProfileSettingsSyncService). A
+ * document written by an older TV could still hold one, and a backup file is
+ * no place for a key, so the export drops them whatever the document says.
+ */
+const TV_SETTINGS_CREDENTIAL_KEYS: Record<string, readonly string[]> = {
+  mdblist_settings: ["mdblist_api_key"],
+  animeskip_settings: ["animeskip_client_id"],
+};
 
 interface ExportListItem {
   type: ListItemType;
   imdbId: string;
   addedAt: string;
+  /** Its place in the list's manual order; null when the list was never arranged around it. */
+  position?: number | null | undefined;
 }
 
 interface ExportList {
   /** The list's id here, so a collection's website-list source can be pointed at the restored list. */
   id?: string | undefined;
   name: string;
+  description?: string | null | undefined;
   kind: ListKind;
   items: ExportListItem[];
+}
+
+interface ExportTag {
+  name: string;
+  createdAt: string;
+  items: { type: ItemType; imdbId: string; createdAt: string }[];
+}
+
+interface ExportDroppedShow {
+  imdbId: string;
+  droppedAt: string;
 }
 
 interface ExportWatchEvent {
@@ -107,6 +171,12 @@ interface ExportPayload {
   seriesProgress: ExportSeriesProgress[];
   ratings: ExportRating[];
   playback: ExportPlayback[];
+  tags?: ExportTag[] | undefined;
+  droppedShows?: ExportDroppedShow[] | undefined;
+  /** The TV's settings document as stored, less any credential; null when it has none. */
+  tvSettings?: Record<string, unknown> | null | undefined;
+  /** The Home rows someone arranged, as stored; null when nobody has. */
+  homeLayout?: { rows: StoredRow[] } | null | undefined;
 }
 
 const isString = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
@@ -126,14 +196,15 @@ const parseDate = (v: unknown): Date | null => {
 const importCollections = async (
   profileId: string,
   raw: unknown,
-  restoredListIds: Map<string, string>
+  restoredListIds: Map<string, string>,
+  client: Prisma.TransactionClient = prisma
 ): Promise<number> => {
   if (!Array.isArray(raw) || raw.length === 0) return 0;
   const remapped = raw.map((collection) => remapListSources(collection, restoredListIds));
   const incoming = validateCollections(remapped);
   if (!incoming.ok) return 0;
 
-  const current = await prisma.profileCollections.findUnique({ where: { profileId } });
+  const current = await client.profileCollections.findUnique({ where: { profileId } });
   const existing = Array.isArray(current?.collections) ? (current.collections as unknown as CollectionJson[]) : [];
   const existingIds = new Set(existing.map((collection) => collection.id));
   const added = incoming.value.filter((collection) => !existingIds.has(collection.id));
@@ -144,12 +215,27 @@ const importCollections = async (
   if (!checked.ok) return 0;
   const collections = checked.value as unknown as Prisma.InputJsonValue;
   const updatedAt = new Date();
-  await prisma.profileCollections.upsert({
+  await client.profileCollections.upsert({
     where: { profileId },
     create: { profileId, collections, updatedAt },
     update: { collections, updatedAt },
   });
   return added.length;
+};
+
+/** `document` without the credentials listed in `TV_SETTINGS_CREDENTIAL_KEYS`. */
+const withoutTvCredentials = (document: Record<string, unknown>): Record<string, unknown> => {
+  if (!isRecord(document.features)) return document;
+  const features = Object.fromEntries(
+    Object.entries(document.features).map(([feature, preferences]) => {
+      // Own keys only: the TV may store a feature named after an Object
+      // prototype member (`constructor`), which must pass through untouched.
+      const credentials = Object.hasOwn(TV_SETTINGS_CREDENTIAL_KEYS, feature) ? TV_SETTINGS_CREDENTIAL_KEYS[feature] : undefined;
+      if (!credentials || !isRecord(preferences)) return [feature, preferences];
+      return [feature, Object.fromEntries(Object.entries(preferences).filter(([key]) => !credentials.includes(key)))];
+    })
+  );
+  return { ...document, features };
 };
 
 const remapListSources = (collection: unknown, restoredListIds: Map<string, string>): unknown => {
@@ -175,8 +261,20 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
 
   app.get("/export", async (request) => {
     const profileId = request.profileId!;
+    const droppedPrefix = droppedSeriesKey(profileId, "");
 
-    const [profile, lists, watchEvents, seriesProgress, ratingRows, playbackRows, collectionsRow] = await Promise.all([
+    const [
+      profile,
+      lists,
+      watchEvents,
+      seriesProgress,
+      ratingRows,
+      playbackRows,
+      collectionsRow,
+      tagRows,
+      droppedRows,
+      documentRows,
+    ] = await Promise.all([
       prisma.profile.findUnique({ where: { id: profileId }, select: PROFILE_VIEW_SELECT }),
       prisma.list.findMany({
         where: { profileId },
@@ -188,6 +286,12 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       prisma.rating.findMany({ where: { profileId } }),
       prisma.playbackProgress.findMany({ where: { profileId }, orderBy: { pausedAt: "asc" } }),
       prisma.profileCollections.findUnique({ where: { profileId } }),
+      prisma.tag.findMany({ where: { profileId }, include: { items: true }, orderBy: { name: "asc" } }),
+      prisma.kV.findMany({ where: { key: { startsWith: droppedPrefix } }, select: { key: true, updatedAt: true } }),
+      prisma.profileDocument.findMany({
+        where: { profileId, kind: { in: ["tv-settings", "home-layout"] } },
+        select: { kind: true, document: true },
+      }),
     ]);
 
     const ratings: ExportRating[] = ratingRows.map((row) => ({
@@ -199,6 +303,10 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       note: row.note,
       ratedAt: row.ratedAt.toISOString(),
     }));
+
+    const documentOf = (kind: string) => documentRows.find((row) => row.kind === kind)?.document;
+    const tvSettings = documentOf("tv-settings");
+    const homeRows = readStoredRows(documentOf("home-layout"));
 
     const payload: ExportPayload = {
       version: EXPORT_VERSION,
@@ -225,11 +333,13 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       lists: lists.map((list) => ({
         id: list.id,
         name: list.name,
+        description: list.description ?? null,
         kind: list.kind,
-        items: (list.items as { type: ListItemType; imdbId: string; addedAt: Date }[]).map((item) => ({
+        items: list.items.map((item) => ({
           type: item.type,
           imdbId: item.imdbId,
           addedAt: item.addedAt.toISOString(),
+          position: item.position ?? null,
         })),
       })),
       watchEvents: watchEvents.map((event) => ({
@@ -259,6 +369,17 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
         durationSeconds: row.durationSeconds,
         pausedAt: row.pausedAt.toISOString(),
       })),
+      tags: tagRows.map((tag) => ({
+        name: tag.name,
+        createdAt: tag.createdAt.toISOString(),
+        items: tag.items.map((item) => ({ type: item.type, imdbId: item.imdbId, createdAt: item.createdAt.toISOString() })),
+      })),
+      droppedShows: droppedRows.map((row) => ({
+        imdbId: row.key.slice(droppedPrefix.length),
+        droppedAt: row.updatedAt.toISOString(),
+      })),
+      tvSettings: isRecord(tvSettings) ? withoutTvCredentials(tvSettings) : null,
+      homeLayout: homeRows.length > 0 ? { rows: homeRows } : null,
     };
 
     return payload;
@@ -292,8 +413,8 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     const profileId = request.profileId!;
     const body = request.body as Partial<ExportPayload> | null;
 
-    if (!body || typeof body !== "object" || body.version !== EXPORT_VERSION) {
-      return reply.code(400).send({ error: `Expected an export payload with version ${EXPORT_VERSION}` });
+    if (!body || typeof body !== "object" || !IMPORTABLE_VERSIONS.includes(body.version)) {
+      return reply.code(400).send({ error: `Expected an export payload with version 1 or ${EXPORT_VERSION}` });
     }
 
     // Every collection is capped independently. `MAX_BODY_SIZE_MB` bounds the
@@ -305,6 +426,8 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       seriesProgress: Array.isArray(body.seriesProgress) ? body.seriesProgress : [],
       ratings: Array.isArray(body.ratings) ? body.ratings : [],
       playback: Array.isArray(body.playback) ? body.playback : [],
+      tags: Array.isArray(body.tags) ? (body.tags as unknown[]) : [],
+      droppedShows: Array.isArray(body.droppedShows) ? (body.droppedShows as unknown[]) : [],
     };
     const collectionLabels: Record<keyof typeof collections, string> = {
       lists: "lists",
@@ -312,6 +435,8 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       seriesProgress: "series progress rows",
       ratings: "ratings",
       playback: "resume points",
+      tags: "tags",
+      droppedShows: "dropped shows",
     };
     for (const [name, rows] of Object.entries(collections)) {
       if (rows.length > MAX_IMPORT_ROWS) {
@@ -319,12 +444,13 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(413).send({ error: tooManyRowsMessage(label), code: "too_many_rows" });
       }
     }
-    const listItemCount = collections.lists.reduce(
-      (total, list) => total + (isRecord(list) && Array.isArray(list.items) ? list.items.length : 0),
-      0
-    );
-    if (listItemCount > MAX_IMPORT_ROWS) {
+    const nestedCount = (rows: unknown[]) =>
+      rows.reduce<number>((total, row) => total + (isRecord(row) && Array.isArray(row.items) ? row.items.length : 0), 0);
+    if (nestedCount(collections.lists) > MAX_IMPORT_ROWS) {
       return reply.code(413).send({ error: tooManyRowsMessage("list items"), code: "too_many_rows" });
+    }
+    if (nestedCount(collections.tags) > MAX_IMPORT_ROWS) {
+      return reply.code(413).send({ error: tooManyRowsMessage("tagged titles"), code: "too_many_rows" });
     }
 
     const summary = {
@@ -339,46 +465,48 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       // Parental fields in the file that would have lifted this profile's
       // limits, left out because the request had no authority to lift them.
       parentalLimitsSkipped: [] as string[],
+      tags: 0,
+      taggedItems: 0,
+      droppedShows: 0,
+      tvSettings: false,
+      homeLayout: false,
     };
-    // Exported list id → the list it was restored into, for collections below.
-    const restoredListIds = new Map<string, string>();
 
+    // The whole file is read and checked before anything is written, so the
+    // transaction below holds its connection only for the writes.
+
+    type ListInput = {
+      exportedId: string | null;
+      name: string;
+      kind: ListKind;
+      description: string | null;
+      items: { type: ListItemType; imdbId: string; addedAt: Date; position: number | null }[];
+    };
+    const listInputs: ListInput[] = [];
     for (const list of collections.lists) {
       if (!isRecord(list) || !isString(list.name) || !Object.values(ListKind).includes(list.kind)) continue;
-
-      const targetList =
-        list.kind === ListKind.watchlist
-          ? await getDefaultWatchlist(profileId)
-          : await (async () => {
-              const existing = await prisma.list.findFirst({
-                where: { profileId, kind: ListKind.custom, name: list.name.trim() },
-              });
-              if (existing) return existing;
-              summary.lists += 1;
-              return prisma.list.create({
-                data: { profileId, kind: ListKind.custom, name: list.name.trim() },
-              });
-            })();
-
-      if (isString(list.id)) restoredListIds.set(list.id, targetList.id);
-
-      const validItems = (Array.isArray(list.items) ? list.items : []).flatMap((item) => {
-        if (!isRecord(item) || !Object.values(ListItemType).includes(item.type)) return [];
+      const items = (Array.isArray(list.items) ? list.items : []).flatMap((item: unknown) => {
+        if (!isRecord(item) || !Object.values(ListItemType).includes(item.type as ListItemType)) return [];
         const imdbId = normalizeImdbId(item.imdbId);
-        return imdbId ? [{ type: item.type, imdbId, addedAt: item.addedAt }] : [];
-      });
-      if (validItems.length > 0) {
-        const { count } = await prisma.listItem.createMany({
-          data: validItems.map((item) => ({
-            listId: targetList.id,
-            type: item.type,
-            imdbId: item.imdbId,
+        if (!imdbId) return [];
+        return [
+          {
+            type: item.type as ListItemType,
+            imdbId,
             addedAt: parseDate(item.addedAt) ?? new Date(),
-          })),
-          skipDuplicates: true,
-        });
-        summary.listItems += count;
-      }
+            position: item.position == null ? null : boundedInt(item.position, 0, MAX_LIST_POSITION),
+          },
+        ];
+      });
+      listInputs.push({
+        exportedId: isString(list.id) ? list.id : null,
+        name: list.name.trim(),
+        kind: list.kind,
+        // Longer than the website lets anyone type only if the file was edited
+        // by hand; it is cut to fit rather than costing the list its items.
+        description: isString(list.description) ? list.description.trim().slice(0, MAX_LIST_DESCRIPTION) : null,
+        items,
+      });
     }
 
     const watchEventInputs: WatchEventInput[] = [];
@@ -411,7 +539,6 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       });
       summary.watchEvents += 1;
     }
-    await batchUpsertWatchEvents(profileId, watchEventInputs, request.log);
 
     const progressInputs: { seriesImdbId: string; incoming: SeriesProgressCandidate }[] = [];
     for (const sp of collections.seriesProgress) {
@@ -426,7 +553,6 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       progressInputs.push({ seriesImdbId, incoming: { lastSeason, lastEpisode, lastWatchedAt } });
       summary.seriesProgress += 1;
     }
-    await batchUpsertSeriesProgressIfNewer(profileId, progressInputs);
 
     const ratingInputs: RatingInput[] = [];
     for (const rating of collections.ratings) {
@@ -468,11 +594,7 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
       });
       summary.ratings += 1;
     }
-    await batchUpsertRatings(profileId, ratingInputs);
 
-    // After the watch events, on purpose: a point for a title the file also
-    // shows as watched since is one the import must not bring back, and
-    // `importPlaybackProgress` can only see those watches once they are in.
     const playbackInputs: PlaybackImportRow[] = [];
     for (const point of collections.playback) {
       if (!isRecord(point) || !Object.values(WatchEventType).includes(point.type)) continue;
@@ -505,7 +627,41 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
         pausedAt,
       });
     }
-    summary.playback = await importPlaybackProgress(profileId, playbackInputs);
+
+    // Tags merge by name, as POST /tags/assign does: a tag the profile already
+    // has gains the file's titles, and one it hasn't is created. A tagged
+    // title's id is kept as written, since tagging never required a known id.
+    type TagInput = { createdAt: Date; items: Map<string, { type: ItemType; imdbId: string; createdAt: Date }> };
+    const tagInputs = new Map<string, TagInput>();
+    for (const tag of collections.tags) {
+      if (!isRecord(tag) || !isString(tag.name)) continue;
+      const name = tag.name.trim();
+      if (name.length > MAX_TAG_NAME) continue;
+      const entry = tagInputs.get(name) ?? { createdAt: parseDate(tag.createdAt) ?? new Date(), items: new Map() };
+      for (const item of Array.isArray(tag.items) ? tag.items : []) {
+        if (!isRecord(item) || !Object.values(ItemType).includes(item.type as ItemType) || !isString(item.imdbId)) continue;
+        const imdbId = item.imdbId.trim();
+        if (imdbId.length > MAX_TAGGED_ID) continue;
+        const type = item.type as ItemType;
+        entry.items.set(`${type}:${imdbId}`, { type, imdbId, createdAt: parseDate(item.createdAt) ?? new Date() });
+      }
+      tagInputs.set(name, entry);
+    }
+
+    const droppedInputs = new Map<string, Date>();
+    for (const show of collections.droppedShows) {
+      if (!isRecord(show)) continue;
+      const imdbId = normalizeImdbId(show.imdbId);
+      if (imdbId) droppedInputs.set(imdbId, parseDate(show.droppedAt) ?? new Date());
+    }
+
+    // Checked the way PUT /profiles/:id/settings/tv checks it: the API doesn't
+    // read the TV's settings, only bounds them.
+    const tvSettings =
+      isRecord(body.tvSettings) && opaqueDocumentProblem(body.tvSettings, MAX_TV_SETTINGS_BYTES) === null
+        ? (body.tvSettings as Prisma.InputJsonValue)
+        : null;
+    const homeRows = readStoredRows(body.homeLayout).slice(0, MAX_HOME_ROWS);
 
     // Profile settings are restored as they were: an import is the profile
     // coming back, appearance and parental limit included. Lifting a limit is
@@ -515,20 +671,194 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
     // tightening still applies) and the rest of the settings restore.
     const settings = parseProfileAttributes(isRecord(body.profile) ? body.profile.settings : undefined);
     const settingsData: ProfileAttributeUpdate = settings.ok ? settings.data : {};
-    if (Object.keys(settingsData).length > 0) {
-      // The check and the write are one step (lib/parental-write.ts), so a
-      // grown-up tightening the limits mid-import can't be undone by it.
-      const restored = await writeProfileGuarded(profileId, settingsData, {
-        checkAuthority: () => hasParentalAuthority(request),
+
+    // Every write happens in one transaction, so a file that fails partway —
+    // a database error, a timeout, the process going away — leaves the profile
+    // as it was rather than half restored. Nothing here reaches outside the
+    // database, which is what makes that possible; addons, which would need
+    // their manifests fetched, are not in the file (see `EXPORT_VERSION`).
+    let profileRestored = false;
+    try {
+      await prisma.$transaction(
+        async (tx) => {
+          // Exported list id → the list it was restored into, for collections
+          // and the Home layout below.
+          const restoredListIds = new Map<string, string>();
+
+          for (const list of listInputs) {
+            let created = false;
+            const targetList =
+              list.kind === ListKind.watchlist
+                ? await getDefaultWatchlist(profileId, tx)
+                : await (async () => {
+                    const existing = await tx.list.findFirst({
+                      where: { profileId, kind: ListKind.custom, name: list.name },
+                    });
+                    if (existing) return existing;
+                    created = true;
+                    summary.lists += 1;
+                    return tx.list.create({
+                      data: { profileId, kind: ListKind.custom, name: list.name, description: list.description },
+                    });
+                  })();
+
+            if (list.exportedId) restoredListIds.set(list.exportedId, targetList.id);
+
+            // A description fills in a list that has none; one written here
+            // since the backup was taken is newer than the file's.
+            if (!created && list.description && !targetList.description) {
+              await tx.list.update({ where: { id: targetList.id }, data: { description: list.description } });
+            }
+
+            if (list.items.length === 0) continue;
+            // The file's order is only applied to a list nobody has arranged
+            // here. Positions are a single sequence per list, so mixing the
+            // file's into an existing arrangement would interleave the two at
+            // random; instead the file's titles join it unarranged, after the
+            // arranged ones, as a title added from the website does.
+            const arranged =
+              !created &&
+              (await tx.listItem.count({ where: { listId: targetList.id, position: { not: null } } })) > 0;
+            const { count } = await tx.listItem.createMany({
+              data: list.items.map((item) => ({
+                listId: targetList.id,
+                type: item.type,
+                imdbId: item.imdbId,
+                addedAt: item.addedAt,
+                position: arranged ? null : item.position,
+              })),
+              skipDuplicates: true,
+            });
+            summary.listItems += count;
+            // Titles the list already held were skipped above and kept no
+            // position, which would put them out of the file's order (after
+            // the ones it placed). An unarranged list takes the file's order
+            // for those too.
+            if (!created && !arranged) {
+              for (const item of list.items) {
+                if (item.position == null) continue;
+                await tx.listItem.updateMany({
+                  where: { listId: targetList.id, type: item.type, imdbId: item.imdbId, position: null },
+                  data: { position: item.position },
+                });
+              }
+            }
+          }
+
+          await batchUpsertWatchEvents(profileId, watchEventInputs, request.log, tx);
+          await batchUpsertSeriesProgressIfNewer(profileId, progressInputs, tx);
+          await batchUpsertRatings(profileId, ratingInputs, tx);
+
+          // After the watch events, on purpose: a point for a title the file
+          // also shows as watched since is one the import must not bring back,
+          // and `importPlaybackProgress` can only see those watches once they
+          // are in.
+          summary.playback = await importPlaybackProgress(profileId, playbackInputs, tx);
+
+          if (tagInputs.size > 0) {
+            const names = [...tagInputs.keys()];
+            const created = await tx.tag.createMany({
+              data: names.map((name) => ({ profileId, name, createdAt: tagInputs.get(name)!.createdAt })),
+              skipDuplicates: true,
+            });
+            summary.tags = created.count;
+            const tags = await tx.tag.findMany({ where: { profileId, name: { in: names } }, select: { id: true, name: true } });
+            const items = tags.flatMap((tag) =>
+              [...(tagInputs.get(tag.name)?.items.values() ?? [])].map((item) => ({ tagId: tag.id, ...item }))
+            );
+            if (items.length > 0) {
+              summary.taggedItems = (await tx.itemTag.createMany({ data: items, skipDuplicates: true })).count;
+            }
+          }
+
+          // A show dropped in the file is dropped here too; one already
+          // dropped keeps the date it was dropped on.
+          if (droppedInputs.size > 0) {
+            const dropped = await tx.kV.createMany({
+              data: [...droppedInputs].map(([imdbId, droppedAt]) => ({
+                key: droppedSeriesKey(profileId, imdbId),
+                value: "true",
+                updatedAt: droppedAt,
+              })),
+              skipDuplicates: true,
+            });
+            summary.droppedShows = dropped.count;
+          }
+
+          if (Object.keys(settingsData).length > 0) {
+            // The check and the write are one step (lib/parental-write.ts), so
+            // a grown-up tightening the limits mid-import can't be undone by it.
+            const restored = await writeProfileGuarded(profileId, settingsData, {
+              // Asked at the write, through the transaction's own connection, so
+              // the answer is current for the limits being checked and the
+              // transaction never waits on a second connection from the pool.
+              checkAuthority: () => hasParentalAuthority(request, tx),
+              client: tx,
+            });
+            if (restored.status === "ok") {
+              summary.profileSettings = restored.profile !== undefined;
+              summary.parentalLimitsSkipped = restored.skipped;
+              profileRestored = restored.profile !== undefined;
+            }
+          }
+
+          summary.collections = await importCollections(profileId, body.collections, restoredListIds, tx);
+
+          // The TV settings and the Home layout are each one document that a
+          // TV keeps in step with its own copy, so there is nothing to merge
+          // into: they are restored onto a profile that has none yet, and a
+          // profile that has one keeps it, as it keeps its collections. Version
+          // 1 is what a first write gets, so a TV pulls them like any other.
+          const updatedAt = new Date();
+          if (tvSettings) {
+            const written = await tx.profileDocument.createMany({
+              data: [{ profileId, kind: "tv-settings", document: tvSettings, version: 1, updatedAt }],
+              skipDuplicates: true,
+            });
+            summary.tvSettings = written.count > 0;
+          }
+
+          if (homeRows.length > 0) {
+            // A list row follows its list to the id it was restored under, and
+            // one whose list wasn't in the file is dropped. Addon and
+            // collection rows are kept as they are: the addons aren't in the
+            // file, and a row for one not installed is skipped when the layout
+            // is read, until the addon is installed again and its row comes
+            // back in place.
+            const remapped = homeRows.map((row): StoredRow => {
+              const parsed = parseRowKey(row.key);
+              const restored = parsed.source === "list" ? restoredListIds.get(parsed.listId) : undefined;
+              return restored ? { ...row, key: listRowKey(restored) } : row;
+            });
+            const rows = pruneRows(remapped, {
+              sources: [],
+              installedAddonIds: new Set(),
+              hasUnidentifiedAddon: true,
+              listIds: new Set(restoredListIds.values()),
+              collectionIds: null,
+            });
+            if (rows.length > 0) {
+              const written = await tx.profileDocument.createMany({
+                data: [{ profileId, kind: "home-layout", document: { rows }, version: 1, updatedAt }],
+                skipDuplicates: true,
+              });
+              summary.homeLayout = written.count > 0;
+            }
+          }
+        },
+        { maxWait: IMPORT_TRANSACTION_MAX_WAIT_MS, timeout: IMPORT_TRANSACTION_TIMEOUT_MS }
+      );
+    } catch (error) {
+      request.log.error({ err: error }, "Import failed and was rolled back");
+      return reply.code(500).send({
+        error: "The import failed, so nothing from the file was saved. Try again in a moment.",
+        code: "import_failed",
       });
-      if (restored.status === "ok") {
-        summary.profileSettings = restored.profile !== undefined;
-        summary.parentalLimitsSkipped = restored.skipped;
-        if (restored.profile) invalidateProfileCache();
-      }
     }
 
-    summary.collections = await importCollections(profileId, body.collections, restoredListIds);
+    // Only once the writes are committed: a cache refilled from rows that
+    // were then rolled back would show a profile that never existed.
+    if (profileRestored) invalidateProfileCache();
 
     return reply.code(200).send({ status: "imported", summary });
   });

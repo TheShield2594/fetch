@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { matchesStremioProfileKey, STREMIO_PROFILE_KEY_HEADER } from "@fetch/shared";
 import { accountScope } from "./request-auth.js";
@@ -113,10 +114,13 @@ const findProfileById = async (id: string): Promise<CachedProfile | null> => {
 };
 
 // Per account, so "the only profile" means the only one this caller can see.
-const findProfileCandidates = async (request: FastifyRequest): Promise<CachedProfile[]> => {
+/** Enough of a Prisma client to read profiles: the global one or a transaction. */
+type ProfileReader = Pick<Prisma.TransactionClient, "profile">;
+
+const findProfileCandidates = async (request: FastifyRequest, client: ProfileReader = prisma): Promise<CachedProfile[]> => {
   const scope = accountScope(request);
   return readThrough(`${PROFILE_PROBE_KEY}:${scope ?? "all"}`, () =>
-    prisma.profile.findMany({
+    client.profile.findMany({
       where: scope ? { accountId: scope } : {},
       select: { id: true, pinHash: true, accountId: true, stremioKeyGeneration: true },
       take: 2,
@@ -325,7 +329,7 @@ export const PARENTAL_AUTHORITY_RESPONSE = {
  *   kids profile at all, so there is nothing to protect (a fresh account
  *   adding its second profile, a script).
  */
-export const hasParentalAuthority = async (request: FastifyRequest): Promise<boolean> => {
+export const hasParentalAuthority = async (request: FastifyRequest, client: ProfileReader = prisma): Promise<boolean> => {
   if (request.auth?.kind === "token") return true;
   const scope = accountScope(request);
 
@@ -335,12 +339,12 @@ export const hasParentalAuthority = async (request: FastifyRequest): Promise<boo
   if (rawProfileId) {
     if (UUID_V4_PATTERN.test(rawProfileId)) actingId = rawProfileId;
   } else {
-    const [only, ...rest] = await findProfileCandidates(request);
+    const [only, ...rest] = await findProfileCandidates(request, client);
     if (only && rest.length === 0) actingId = only.id;
   }
 
   if (actingId) {
-    const acting = await prisma.profile.findUnique({
+    const acting = await client.profile.findUnique({
       where: { id: actingId },
       select: { id: true, accountId: true, pinHash: true, isKidsProfile: true },
     });
@@ -349,7 +353,7 @@ export const hasParentalAuthority = async (request: FastifyRequest): Promise<boo
     }
   }
 
-  const kids = await prisma.profile.count({ where: { isKidsProfile: true, ...(scope ? { accountId: scope } : {}) } });
+  const kids = await client.profile.count({ where: { isKidsProfile: true, ...(scope ? { accountId: scope } : {}) } });
   return kids === 0;
 };
 

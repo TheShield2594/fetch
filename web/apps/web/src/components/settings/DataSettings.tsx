@@ -9,8 +9,12 @@ import { downloadProfileExport } from "../../utils/exportDownload";
 import { StremioImportSection } from "./StremioImportSection";
 import { DuplicateWatchesSection } from "./DuplicateWatchesSection";
 
-/** The version of the Fetch export this site writes and the server reads back. */
-const EXPORT_VERSION = 1;
+/**
+ * The versions of the Fetch export the server reads back. Version 2 added list
+ * descriptions and order, tags, dropped shows, the TV settings and the Home
+ * layout; a version 1 file still imports, without them.
+ */
+const IMPORTABLE_VERSIONS: readonly unknown[] = [1, 2];
 
 type ExternalFormat = ExternalImportFormat;
 
@@ -76,21 +80,28 @@ export function csvRecords(text: string): string[][] {
  * picked.
  */
 type ImportPreview =
-  | { kind: "json"; fileName: string; payload: ExportPayload; parts: string[]; replacesSettings: boolean }
+  | {
+      kind: "json";
+      fileName: string;
+      payload: ExportPayload;
+      parts: string[];
+      replacesSettings: boolean;
+      restoresTvDocuments: boolean;
+    }
   | { kind: "csv"; fileName: string; csv: string; rows: number }
   | { kind: "external"; fileName: string; csv: string; rows: number; format: ExternalFormat; listName?: string };
 
 /** Reads a Fetch JSON export, or says why it isn't one. */
 export function previewJsonExport(
   text: string
-): { payload: ExportPayload; parts: string[]; replacesSettings: boolean } | { error: string } {
+): { payload: ExportPayload; parts: string[]; replacesSettings: boolean; restoresTvDocuments: boolean } | { error: string } {
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
   } catch {
     return { error: "That file isn't valid JSON. Choose a file exported from Fetch." };
   }
-  if (!parsed || typeof parsed !== "object" || (parsed as { version?: unknown }).version !== EXPORT_VERSION) {
+  if (!parsed || typeof parsed !== "object" || !IMPORTABLE_VERSIONS.includes((parsed as { version?: unknown }).version)) {
     return { error: "That file isn't a Fetch export this version can read." };
   }
   const payload = parsed as ExportPayload;
@@ -104,6 +115,11 @@ export function previewJsonExport(
   const items = lists.reduce<number>((total, list) => total + count((list as { items?: unknown }).items), 0);
   const playback = count((payload as { playback?: unknown }).playback);
   const collections = count((payload as { collections?: unknown }).collections);
+  const tags = count(payload.tags);
+  const droppedShows = count(payload.droppedShows);
+  const isObject = (value: unknown) => Boolean(value && typeof value === "object" && !Array.isArray(value));
+  const tvSettings = isObject(payload.tvSettings);
+  const homeLayout = count((payload.homeLayout as { rows?: unknown } | null | undefined)?.rows) > 0;
   const settings = (payload.profile as { settings?: unknown } | undefined)?.settings;
   // The server restores a file's profile settings over the profile's own, so
   // the preview says so rather than promising nothing is replaced.
@@ -115,9 +131,13 @@ export function previewJsonExport(
     count(payload.ratings) > 0 && plural(count(payload.ratings), "rating", "ratings"),
     playback > 0 && plural(playback, "resume point", "resume points"),
     collections > 0 && plural(collections, "Home folder", "Home folders"),
+    tags > 0 && plural(tags, "tag", "tags"),
+    droppedShows > 0 && plural(droppedShows, "dropped show", "dropped shows"),
+    tvSettings && "TV settings",
+    homeLayout && "a Home layout",
     replacesSettings && "profile settings",
   ].filter((part): part is string => Boolean(part));
-  return { payload, parts, replacesSettings };
+  return { payload, parts, replacesSettings, restoresTvDocuments: tvSettings || homeLayout };
 }
 
 const REQUIRED_CSV_COLUMNS = ["imdbid", "type", "watchedat"];
@@ -247,7 +267,11 @@ export function DataSettings() {
         const s = (await api.importData(preview.payload)).summary;
         setImportResult(
           `Imported ${s.watchEvents} watch events, ${s.listItems} list items, ${s.seriesProgress} series progress entries, ${s.ratings} ratings` +
-            (s.playback ? `, ${s.playback} resume points` : "")
+            (s.playback ? `, ${s.playback} resume points` : "") +
+            (s.taggedItems ? `, ${plural(s.taggedItems, "tagged title", "tagged titles")}` : "") +
+            (s.droppedShows ? `, ${plural(s.droppedShows, "dropped show", "dropped shows")}` : "") +
+            (s.tvSettings ? ", TV settings" : "") +
+            (s.homeLayout ? ", the Home layout" : "")
         );
       } else if (preview.kind === "csv") {
         const res = await api.importCsv(preview.csv);
@@ -310,6 +334,12 @@ export function DataSettings() {
             {" "}
             Its profile settings (appearance and parental limits) replace {profileName}&apos;s current ones, though a
             limit you can&apos;t lift is left as it is.
+          </>
+        )}
+        {p.kind === "json" && p.restoresTvDocuments && (
+          <>
+            {" "}
+            Its TV settings and Home layout are only used if {profileName} doesn&apos;t have its own yet.
           </>
         )}
       </>

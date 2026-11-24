@@ -15,10 +15,61 @@ const SERVICE_TOKEN_LABEL = "fetch-service-client";
  * `API_TOKEN`) and keeps the blast radius small: the derived value grants
  * nothing on its own, and does not yield the token it came from.
  *
- * Same construction as the addon's mutation token in `apps/addon/src/app.ts`.
+ * Same construction as the addon's mutation token (`deriveAddonMutationToken`).
+ *
+ * Since #637 it is also the add-on's whole credential at the API: sent without
+ * `API_TOKEN`, it is accepted on the routes the add-on calls and nowhere else
+ * (`apps/api/src/lib/addon-scope.ts`). It reaches the add-on inside
+ * `FETCH_ADDON_KEY`.
  */
 export const deriveServiceToken = (apiToken: string): string =>
   createHmac("sha256", apiToken).update(SERVICE_TOKEN_LABEL).digest("hex");
+
+const ADDON_MUTATION_LABEL = "fetch-addon-mutation";
+
+/**
+ * The bearer token the add-on service's scrobble route takes from media
+ * players. Unchanged from when the add-on derived it itself, so an integration
+ * configured with it keeps working.
+ */
+export const deriveAddonMutationToken = (apiToken: string): string =>
+  createHmac("sha256", apiToken).update(ADDON_MUTATION_LABEL).digest("hex");
+
+/**
+ * `FETCH_ADDON_KEY`: everything the add-on service needs, and nothing it
+ * doesn't (#637).
+ *
+ * `API_TOKEN` is the operator's credential and the root every stored secret is
+ * encrypted under, and the add-on is the one service that may face the
+ * internet. So the add-on is handed only two values derived from it, joined
+ * into one string so there is one thing to copy:
+ *
+ * - the service token (`deriveServiceToken`), which the API accepts from the
+ *   add-on alone, and on only the routes it calls;
+ * - the scrobble token (`deriveAddonMutationToken`), which it checks media
+ *   players' scrobbles against.
+ *
+ * Both are HMACs of `API_TOKEN`, so neither yields it, and neither can mint a
+ * profile's Stremio key: the add-on asks the API whether a signed URL's key is
+ * current instead of computing it.
+ *
+ * Shape: `fak1_` then the two 64-character hex digests, back to back.
+ */
+export const ADDON_KEY_PREFIX = "fak1_";
+
+const ADDON_KEY_PATTERN = /^fak1_([0-9a-f]{64})([0-9a-f]{64})$/;
+
+export type AddonCredentials = { serviceToken: string; mutationToken: string };
+
+export const deriveAddonKey = (apiToken: string): string =>
+  `${ADDON_KEY_PREFIX}${deriveServiceToken(apiToken)}${deriveAddonMutationToken(apiToken)}`;
+
+/** The two credentials inside a `FETCH_ADDON_KEY`, or null when it isn't one. */
+export const parseAddonKey = (value: string | undefined | null): AddonCredentials | null => {
+  const match = ADDON_KEY_PATTERN.exec(value?.trim() ?? "");
+  if (!match) return null;
+  return { serviceToken: match[1]!, mutationToken: match[2]! };
+};
 
 /**
  * Constant-time comparison of a presented service token against the expected
@@ -45,6 +96,8 @@ const STREMIO_PROFILE_SECRET_LABEL = "fetch-stremio-addon";
  *
  * One key per profile, used by both the API's own catalog addon
  * (`/addon/stremio/<key>/…`) and the addon service (`/u/<profileId>/<key>/…`).
+ * Only the API derives it: the add-on service holds no `API_TOKEN` and asks the
+ * API to check a key (`GET /profiles/:id/addon-url/verify`).
  */
 /**
  * `generation` is the profile's `stremioKeyGeneration`: replacing a profile's

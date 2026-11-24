@@ -521,8 +521,11 @@ export type ExportPayload = {
   profile: { name: string };
   lists: Array<{
     name: string;
+    /** Version 2 on. */
+    description?: string | null;
     kind: "watchlist" | "custom" | "collection";
-    items: Array<{ type: "movie" | "series"; imdbId: string; addedAt: string }>;
+    /** `position` is the item's place in the list's manual order (version 2 on); null when never arranged. */
+    items: Array<{ type: "movie" | "series"; imdbId: string; addedAt: string; position?: number | null }>;
   }>;
   watchEvents: Array<{
     type: "movie" | "episode";
@@ -551,6 +554,12 @@ export type ExportPayload = {
     durationSeconds: number | null;
     pausedAt: string;
   }>;
+  /** Version 2 on, as are the fields below. */
+  tags?: Array<{ name: string; createdAt: string; items: Array<{ type: "movie" | "series" | "episode"; imdbId: string; createdAt: string }> }>;
+  droppedShows?: Array<{ imdbId: string; droppedAt: string }>;
+  /** The TV's settings document, as the TV writes it; null when the profile had none. */
+  tvSettings?: Record<string, unknown> | null;
+  homeLayout?: { rows: Array<{ key: string; hidden: boolean; title?: string }> } | null;
 };
 
 export type ImportSummary = {
@@ -561,6 +570,14 @@ export type ImportSummary = {
   ratings: number;
   /** Absent when the API predates resume points. */
   playback?: number;
+  /** Absent when the API predates version 2 of the export, as are the fields below. */
+  tags?: number;
+  taggedItems?: number;
+  droppedShows?: number;
+  /** Whether the file's TV settings were restored: false when the profile already had its own. */
+  tvSettings?: boolean;
+  /** Whether the file's Home layout was restored: false when the profile already had one. */
+  homeLayout?: boolean;
 };
 
 export type JobFailure = {

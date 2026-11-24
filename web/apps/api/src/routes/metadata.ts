@@ -3,6 +3,7 @@ import type { EpisodesResponse, SeasonsResponse } from "@fetch/shared";
 import { requireAdmin } from "../lib/request-auth.js";
 import { prisma } from "../lib/prisma.js";
 import { getTmdb } from "../lib/tmdb-client.js";
+import { rethrowIfTmdbNotConfigured } from "../lib/tmdb-errors.js";
 import { upsertMetadata, syncMetadata, METADATA_FRESHNESS_MS } from "../lib/metadata.js";
 import { getOmdbApiKey, fetchOmdbRatings, upsertOmdbRatings } from "../lib/omdb.js";
 import { getMetadataType } from "../lib/types.js";
@@ -41,6 +42,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
         if (!meta) return reply.code(404).send({ error: "Metadata not found" });
         return meta;
       } catch (error) {
+        rethrowIfTmdbNotConfigured(error);
         request.log.error(error, "Metadata fetch failed");
         return reply.code(500).send({ error: "Metadata fetch failed" });
       }
@@ -171,6 +173,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
       }
       return metadata;
     } catch (error) {
+      rethrowIfTmdbNotConfigured(error);
       request.log.error(error, "Metadata sync failed");
       return reply.code(500).send({ error: "Metadata sync failed" });
     }
@@ -200,6 +203,7 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
     try {
       tmdb = await getTmdb();
     } catch (error) {
+      rethrowIfTmdbNotConfigured(error);
       request.log.error(error, "TMDB initialization failed for metadata refresh");
       return reply.code(500).send({ error: "TMDB initialization failed" });
     }

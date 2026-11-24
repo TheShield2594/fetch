@@ -9,21 +9,31 @@ const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const prismaMock = {
   profile: { findUnique: vi.fn(), update: vi.fn() },
   profileCollections: { findUnique: vi.fn(), upsert: vi.fn() },
-  list: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
+  list: { findMany: vi.fn(), findFirst: vi.fn(), create: vi.fn(), update: vi.fn() },
   watchEvent: { findMany: vi.fn(), update: vi.fn(), updateMany: vi.fn(), createMany: vi.fn() },
   seriesProgress: { findMany: vi.fn() },
   rating: { findMany: vi.fn(), createMany: vi.fn(), updateMany: vi.fn() },
-  listItem: { createMany: vi.fn() },
+  listItem: { createMany: vi.fn(), count: vi.fn(), updateMany: vi.fn() },
   playbackProgress: { findMany: vi.fn() },
+  tag: { findMany: vi.fn(), createMany: vi.fn() },
+  itemTag: { createMany: vi.fn() },
+  kV: { findMany: vi.fn(), createMany: vi.fn() },
+  profileDocument: { findMany: vi.fn(), createMany: vi.fn() },
+  // The import's writes run in one interactive transaction. Here the
+  // transaction client is the mock itself, so a test sees every write it would
+  // make; `transactionLog` records whether the callback finished, which is
+  // what tells a committed import from a rolled-back one.
+  $transaction: vi.fn(),
 };
+const transactionLog: { committed: number; rolledBack: number } = { committed: 0, rolledBack: 0 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
 
-const profileLibMock = { hasParentalAuthority: vi.fn() };
+const profileLibMock = { hasParentalAuthority: vi.fn(), invalidateProfileCache: vi.fn() };
 vi.mock("../lib/profile.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../lib/profile.js")>();
   return {
-    invalidateProfileCache: vi.fn(),
+    invalidateProfileCache: profileLibMock.invalidateProfileCache,
     resolveProfile: async (request: { profileId?: string }) => {
       request.profileId = PROFILE_ID;
     },
@@ -69,6 +79,43 @@ const resetMocks = () => {
   prismaMock.profile.update.mockResolvedValue({});
   playbackLibMock.importPlaybackProgress.mockImplementation(async (_profileId: string, rows: unknown[]) => rows.length);
   profileLibMock.hasParentalAuthority.mockResolvedValue(true);
+  prismaMock.listItem.count.mockResolvedValue(0);
+  prismaMock.tag.findMany.mockResolvedValue([]);
+  prismaMock.tag.createMany.mockImplementation(({ data }: { data: unknown[] }) => ({ count: data.length }));
+  prismaMock.itemTag.createMany.mockImplementation(({ data }: { data: unknown[] }) => ({ count: data.length }));
+  prismaMock.kV.findMany.mockResolvedValue([]);
+  prismaMock.kV.createMany.mockImplementation(({ data }: { data: unknown[] }) => ({ count: data.length }));
+  prismaMock.profileDocument.findMany.mockResolvedValue([]);
+  prismaMock.profileDocument.createMany.mockImplementation(({ data }: { data: unknown[] }) => ({ count: data.length }));
+  transactionLog.committed = 0;
+  transactionLog.rolledBack = 0;
+  prismaMock.$transaction.mockImplementation(async (work: (tx: typeof prismaMock) => Promise<unknown>) => {
+    try {
+      const result = await work(prismaMock);
+      transactionLog.committed += 1;
+      return result;
+    } catch (error) {
+      transactionLog.rolledBack += 1;
+      throw error;
+    }
+  });
+};
+
+const EMPTY_SUMMARY = {
+  lists: 0,
+  listItems: 0,
+  watchEvents: 0,
+  seriesProgress: 0,
+  ratings: 0,
+  playback: 0,
+  collections: 0,
+  profileSettings: false,
+  parentalLimitsSkipped: [],
+  tags: 0,
+  taggedItems: 0,
+  droppedShows: 0,
+  tvSettings: false,
+  homeLayout: false,
 };
 
 // `bodyLimit` mirrors the configurable ceiling index.ts sets from
@@ -100,9 +147,14 @@ describe("export routes", () => {
       const app = await buildApp();
       const response = await app.inject({ method: "POST", url: "/import", payload: { version: 1 } });
       expect(response.statusCode).toBe(200);
-      expect(response.json()).toEqual(
-        expect.objectContaining({ status: "imported", summary: { lists: 0, listItems: 0, watchEvents: 0, seriesProgress: 0, ratings: 0, playback: 0, collections: 0, profileSettings: false, parentalLimitsSkipped: [] } })
-      );
+      expect(response.json()).toEqual(expect.objectContaining({ status: "imported", summary: EMPTY_SUMMARY }));
+    });
+
+    it("accepts a version 2 payload", async () => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "POST", url: "/import", payload: { version: 2 } });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().summary).toEqual(EMPTY_SUMMARY);
     });
   });
 
@@ -544,17 +596,7 @@ describe("export routes", () => {
       });
 
       expect(response.statusCode).toBe(200);
-      expect(response.json().summary).toEqual({
-        lists: 0,
-        listItems: 0,
-        watchEvents: 0,
-        seriesProgress: 0,
-        ratings: 0,
-        playback: 0,
-        collections: 0,
-        profileSettings: false,
-        parentalLimitsSkipped: [],
-      });
+      expect(response.json().summary).toEqual(EMPTY_SUMMARY);
     });
 
     it("skips rows whose imdbId isn't an IMDb id", async () => {
@@ -714,7 +756,7 @@ describe("export routes", () => {
           target: { type: "episode", imdbId: "tt0141842", season: 2, episode: 7 },
           progress: 12.5,
         }),
-      ]);
+      ], prismaMock);
     });
 
     it.each([
@@ -789,12 +831,458 @@ describe("export routes", () => {
     });
   });
 
+  describe("version 2: descriptions, order, tags, dropped shows, TV documents", () => {
+    const OLD_LIST = "77777777-7777-4777-8777-777777777777";
+    const NEW_LIST = "88888888-8888-4888-8888-888888888888";
+
+    it("exports list descriptions and positions, tags, dropped shows and the TV documents, without credentials", async () => {
+      prismaMock.list.findMany.mockResolvedValue([
+        {
+          id: OLD_LIST,
+          name: "Comfort films",
+          description: "Rainy Sundays",
+          kind: "custom",
+          items: [
+            { type: "movie", imdbId: "tt0111161", addedAt: new Date("2026-04-01T00:00:00Z"), position: 1 },
+            { type: "movie", imdbId: "tt0068646", addedAt: new Date("2026-04-02T00:00:00Z"), position: null },
+          ],
+        },
+      ]);
+      prismaMock.tag.findMany.mockResolvedValue([
+        {
+          id: "t1",
+          name: "cosy",
+          createdAt: new Date("2026-03-01T00:00:00Z"),
+          items: [{ type: "movie", imdbId: "tt0111161", createdAt: new Date("2026-03-02T00:00:00Z") }],
+        },
+      ]);
+      prismaMock.kV.findMany.mockResolvedValue([
+        { key: `dropped:series:${PROFILE_ID}:tt0141842`, updatedAt: new Date("2026-02-01T00:00:00Z") },
+      ]);
+      prismaMock.profileDocument.findMany.mockResolvedValue([
+        {
+          kind: "tv-settings",
+          document: {
+            version: 1,
+            features: {
+              player_settings: { autoplay: { type: "boolean", value: true } },
+              mdblist_settings: {
+                mdblist_api_key: { type: "string", value: "secret" },
+                mdblist_enabled: { type: "boolean", value: true },
+              },
+            },
+          },
+        },
+        { kind: "home-layout", document: { rows: [{ key: `list:${OLD_LIST}`, hidden: true }, { key: "bogus" }] } },
+      ]);
+      const app = await buildApp();
+
+      const body = (await app.inject({ method: "GET", url: "/export" })).json();
+
+      expect(body.version).toBe(2);
+      expect(body.lists[0]).toMatchObject({
+        description: "Rainy Sundays",
+        items: [
+          { imdbId: "tt0111161", position: 1 },
+          { imdbId: "tt0068646", position: null },
+        ],
+      });
+      expect(body.tags).toEqual([
+        {
+          name: "cosy",
+          createdAt: "2026-03-01T00:00:00.000Z",
+          items: [{ type: "movie", imdbId: "tt0111161", createdAt: "2026-03-02T00:00:00.000Z" }],
+        },
+      ]);
+      expect(body.droppedShows).toEqual([{ imdbId: "tt0141842", droppedAt: "2026-02-01T00:00:00.000Z" }]);
+      expect(body.tvSettings.features.player_settings).toEqual({ autoplay: { type: "boolean", value: true } });
+      expect(body.tvSettings.features.mdblist_settings).toEqual({ mdblist_enabled: { type: "boolean", value: true } });
+      expect(body.homeLayout).toEqual({ rows: [{ key: `list:${OLD_LIST}`, hidden: true }] });
+      expect(body).not.toHaveProperty("addons");
+    });
+
+    it("exports a TV feature named after an Object prototype member as it is", async () => {
+      prismaMock.profileDocument.findMany.mockResolvedValue([
+        { kind: "tv-settings", document: { version: 1, features: { constructor: { enabled: { type: "boolean", value: true } } } } },
+      ]);
+      const app = await buildApp();
+
+      const response = await app.inject({ method: "GET", url: "/export" });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().tvSettings.features.constructor).toEqual({ enabled: { type: "boolean", value: true } });
+    });
+
+    it("exports no TV documents for a profile that has none", async () => {
+      const app = await buildApp();
+      const body = (await app.inject({ method: "GET", url: "/export" })).json();
+      expect(body).toMatchObject({ tags: [], droppedShows: [], tvSettings: null, homeLayout: null });
+    });
+
+    it("restores a new list with its description and order, and the rest of a version 2 file", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(null);
+      prismaMock.list.create.mockResolvedValue({ id: NEW_LIST, description: "Rainy Sundays" });
+      prismaMock.listItem.createMany.mockImplementation(({ data }: { data: unknown[] }) => ({ count: data.length }));
+      prismaMock.tag.findMany.mockResolvedValue([{ id: "t-new", name: "cosy" }]);
+      const tvSettings = { version: 1, features: { player_settings: { autoplay: { type: "boolean", value: true } } } };
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          lists: [
+            {
+              id: OLD_LIST,
+              name: "Comfort films",
+              description: "  Rainy Sundays  ",
+              kind: "custom",
+              items: [
+                { type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 1 },
+                { type: "movie", imdbId: "tt0068646", addedAt: "2026-04-02T00:00:00Z", position: 0 },
+                { type: "movie", imdbId: "tt0110912", addedAt: "2026-04-03T00:00:00Z", position: null },
+              ],
+            },
+          ],
+          tags: [
+            { name: "cosy", createdAt: "2026-03-01T00:00:00Z", items: [{ type: "movie", imdbId: "tt0111161" }, { type: "nope", imdbId: "x" }] },
+            { name: "x".repeat(51), items: [] },
+          ],
+          droppedShows: [{ imdbId: "tt0141842", droppedAt: "2026-02-01T00:00:00Z" }, { imdbId: "../etc" }],
+          tvSettings,
+          homeLayout: {
+            rows: [
+              { key: `list:${OLD_LIST}`, hidden: true },
+              { key: "list:99999999-9999-4999-8999-999999999999", hidden: false },
+              { key: "addon:com.example:movie:top", hidden: false },
+              { key: "builtin:continue_watching", hidden: false },
+            ],
+          },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().summary).toMatchObject({
+        lists: 1,
+        listItems: 3,
+        tags: 1,
+        taggedItems: 1,
+        droppedShows: 1,
+        tvSettings: true,
+        homeLayout: true,
+      });
+      expect(prismaMock.list.create).toHaveBeenCalledWith({
+        data: { profileId: PROFILE_ID, kind: "custom", name: "Comfort films", description: "Rainy Sundays" },
+      });
+      expect(prismaMock.listItem.createMany.mock.calls[0]![0].data.map((item: { imdbId: string; position: number | null }) => [item.imdbId, item.position])).toEqual([
+        ["tt0111161", 1],
+        ["tt0068646", 0],
+        ["tt0110912", null],
+      ]);
+      expect(prismaMock.tag.createMany).toHaveBeenCalledWith({
+        data: [{ profileId: PROFILE_ID, name: "cosy", createdAt: new Date("2026-03-01T00:00:00Z") }],
+        skipDuplicates: true,
+      });
+      expect(prismaMock.itemTag.createMany).toHaveBeenCalledWith({
+        data: [expect.objectContaining({ tagId: "t-new", type: "movie", imdbId: "tt0111161" })],
+        skipDuplicates: true,
+      });
+      expect(prismaMock.kV.createMany).toHaveBeenCalledWith({
+        data: [{ key: `dropped:series:${PROFILE_ID}:tt0141842`, value: "true", updatedAt: new Date("2026-02-01T00:00:00Z") }],
+        skipDuplicates: true,
+      });
+      const documents = prismaMock.profileDocument.createMany.mock.calls.map((call) => call[0].data[0]);
+      expect(documents).toEqual([
+        expect.objectContaining({ kind: "tv-settings", document: tvSettings, version: 1 }),
+        expect.objectContaining({
+          kind: "home-layout",
+          version: 1,
+          // The list row follows its list; the row for a list not in the file goes.
+          document: {
+            rows: [
+              { key: `list:${NEW_LIST}`, hidden: true },
+              { key: "addon:com.example:movie:top", hidden: false },
+              { key: "builtin:continue_watching", hidden: false },
+            ],
+          },
+        }),
+      ]);
+      expect(transactionLog).toEqual({ committed: 1, rolledBack: 0 });
+    });
+
+    it("leaves an arranged list's order and an existing description alone", async () => {
+      prismaMock.list.findFirst.mockResolvedValue({ id: NEW_LIST, description: "Mine" });
+      prismaMock.listItem.count.mockResolvedValue(4);
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          lists: [
+            {
+              name: "Comfort films",
+              description: "From the file",
+              kind: "custom",
+              items: [{ type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 }],
+            },
+          ],
+        },
+      });
+
+      expect(prismaMock.list.update).not.toHaveBeenCalled();
+      expect(prismaMock.listItem.createMany.mock.calls[0]![0].data[0].position).toBeNull();
+    });
+
+    it("puts titles an unarranged list already holds into the file's order", async () => {
+      prismaMock.list.findFirst.mockResolvedValue({ id: NEW_LIST, description: null });
+      prismaMock.listItem.count.mockResolvedValue(0);
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          lists: [
+            {
+              name: "Comfort films",
+              kind: "custom",
+              items: [
+                { type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 },
+                { type: "movie", imdbId: "tt0068646", addedAt: "2026-04-02T00:00:00Z", position: 1 },
+              ],
+            },
+          ],
+        },
+      });
+
+      expect(prismaMock.listItem.updateMany).toHaveBeenCalledWith({
+        where: { listId: NEW_LIST, type: "movie", imdbId: "tt0111161", position: null },
+        data: { position: 0 },
+      });
+      expect(prismaMock.listItem.updateMany).toHaveBeenCalledTimes(2);
+    });
+
+    it("leaves an arranged list's existing titles where they are", async () => {
+      prismaMock.list.findFirst.mockResolvedValue({ id: NEW_LIST, description: "Mine" });
+      prismaMock.listItem.count.mockResolvedValue(4);
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          lists: [{ name: "Comfort films", kind: "custom", items: [{ type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 }] }],
+        },
+      });
+
+      expect(prismaMock.listItem.updateMany).not.toHaveBeenCalled();
+    });
+
+    it("fills in a description an existing list doesn't have", async () => {
+      prismaMock.list.findFirst.mockResolvedValue({ id: NEW_LIST, description: null });
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: { version: 2, lists: [{ name: "Comfort films", description: "From the file", kind: "custom", items: [] }] },
+      });
+
+      expect(prismaMock.list.update).toHaveBeenCalledWith({ where: { id: NEW_LIST }, data: { description: "From the file" } });
+    });
+
+    it("keeps the TV documents a profile already has", async () => {
+      prismaMock.profileDocument.createMany.mockResolvedValue({ count: 0 });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: { version: 2, tvSettings: { version: 1 }, homeLayout: { rows: [{ key: "builtin:continue_watching" }] } },
+      });
+
+      expect(response.json().summary).toMatchObject({ tvSettings: false, homeLayout: false });
+      expect(prismaMock.profileDocument.createMany).toHaveBeenCalledWith(expect.objectContaining({ skipDuplicates: true }));
+    });
+
+    it("skips TV settings that aren't an object", async () => {
+      const app = await buildApp();
+      const response = await app.inject({ method: "POST", url: "/import", payload: { version: 2, tvSettings: ["no"] } });
+      expect(response.json().summary.tvSettings).toBe(false);
+      expect(prismaMock.profileDocument.createMany).not.toHaveBeenCalled();
+    });
+
+    it("reads a version 1 file without any of the version 2 fields", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(null);
+      prismaMock.list.create.mockResolvedValue({ id: NEW_LIST, description: null });
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 1,
+          lists: [{ name: "Old", kind: "custom", items: [{ type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z" }] }],
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(prismaMock.list.create).toHaveBeenCalledWith({
+        data: { profileId: PROFILE_ID, kind: "custom", name: "Old", description: null },
+      });
+      expect(prismaMock.listItem.createMany.mock.calls[0]![0].data[0].position).toBeNull();
+      expect(prismaMock.tag.createMany).not.toHaveBeenCalled();
+      expect(prismaMock.kV.createMany).not.toHaveBeenCalled();
+      expect(prismaMock.profileDocument.createMany).not.toHaveBeenCalled();
+    });
+
+    it("caps tagged titles across tags like list items", async () => {
+      const app = await buildApp(512 * 1024 * 1024);
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: { version: 2, tags: [{ name: "a", items: new Array(MAX_IMPORT_ROWS + 1).fill(0) }] },
+      });
+      expect(response.statusCode).toBe(413);
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("POST /import — one transaction", () => {
+    it("runs every write in the transaction it opens", async () => {
+      const app = await buildApp();
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          watchEvents: [{ type: "movie", imdbId: "tt1", watchedAt: "2024-01-01T00:00:00Z" }],
+          seriesProgress: [{ seriesImdbId: "tt2", lastSeason: 1, lastEpisode: 1, lastWatchedAt: "2024-01-01T00:00:00Z" }],
+        },
+      });
+
+      expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+      expect(seriesProgressLibMock.batchUpsertSeriesProgressIfNewer).toHaveBeenCalledWith(
+        PROFILE_ID,
+        [expect.objectContaining({ seriesImdbId: "tt2" })],
+        prismaMock
+      );
+      expect(playbackLibMock.importPlaybackProgress).toHaveBeenCalledWith(PROFILE_ID, [], prismaMock);
+    });
+
+    it("writes nothing through the global client while the transaction is open", async () => {
+      // A transaction client of its own, with the same answers as the global
+      // mock: a helper that stopped forwarding `tx` would write through the
+      // global one, which this test would then see.
+      type MockModel = Record<string, ReturnType<typeof vi.fn>>;
+      const models = prismaMock as unknown as Record<string, MockModel | ReturnType<typeof vi.fn>>;
+      const txMock: Record<string, MockModel> = {};
+      for (const [model, methods] of Object.entries(models)) {
+        if (typeof methods === "function") continue;
+        txMock[model] = Object.fromEntries(
+          Object.entries(methods).map(([name, spy]) => [name, vi.fn(spy.getMockImplementation())])
+        );
+      }
+      txMock.list!.findFirst!.mockResolvedValue(null);
+      txMock.list!.create!.mockResolvedValue({ id: "88888888-8888-4888-8888-888888888888", description: null });
+      prismaMock.$transaction.mockImplementationOnce(async (work: (tx: unknown) => Promise<unknown>) => work(txMock));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          profile: { name: "Kid", settings: { avatarId: "fetch:panda" } },
+          lists: [
+            { name: "Comfort films", kind: "custom", items: [{ type: "movie", imdbId: "tt0111161", addedAt: "2026-04-01T00:00:00Z", position: 0 }] },
+          ],
+          watchEvents: [{ type: "movie", imdbId: "tt1", watchedAt: "2024-01-01T00:00:00Z" }],
+          ratings: [{ imdbId: "tt0111161", type: "movie", rating: 9, ratedAt: "2026-05-01T00:00:00Z" }],
+          tags: [{ name: "cosy", items: [{ type: "movie", imdbId: "tt0111161" }] }],
+          droppedShows: [{ imdbId: "tt0141842" }],
+          tvSettings: { version: 1 },
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const isWrite = (name: string) => /^(create|update|upsert|delete)/.test(name);
+      for (const [model, methods] of Object.entries(models)) {
+        if (typeof methods === "function") continue;
+        for (const [name, spy] of Object.entries(methods)) {
+          if (isWrite(name)) expect(spy, `${model}.${name} on the global client`).not.toHaveBeenCalled();
+        }
+      }
+      expect(txMock.list!.create).toHaveBeenCalled();
+      expect(txMock.listItem!.createMany).toHaveBeenCalled();
+      expect(txMock.watchEvent!.createMany).toHaveBeenCalled();
+      expect(txMock.kV!.createMany).toHaveBeenCalled();
+      expect(txMock.profile!.update).toHaveBeenCalled();
+    });
+
+    it("rolls everything back when a write fails partway, and says nothing was saved", async () => {
+      prismaMock.list.findFirst.mockResolvedValue(null);
+      prismaMock.list.create.mockResolvedValue({ id: "88888888-8888-4888-8888-888888888888", description: null });
+      prismaMock.rating.createMany.mockRejectedValueOnce(new Error("connection reset"));
+      const app = await buildApp();
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: {
+          version: 2,
+          profile: { name: "Kid", settings: { avatarId: "fetch:panda" } },
+          lists: [{ name: "Comfort films", kind: "custom", items: [] }],
+          ratings: [{ imdbId: "tt0111161", type: "movie", rating: 9, ratedAt: "2026-05-01T00:00:00Z" }],
+          droppedShows: [{ imdbId: "tt0141842" }],
+        },
+      });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.json()).toMatchObject({ code: "import_failed" });
+      expect(transactionLog).toEqual({ committed: 0, rolledBack: 1 });
+      // The list was written before the failure, inside the transaction that
+      // was then abandoned; nothing after it ran, and no cache was cleared for
+      // settings that never landed.
+      expect(prismaMock.list.create).toHaveBeenCalled();
+      expect(prismaMock.kV.createMany).not.toHaveBeenCalled();
+      expect(prismaMock.profile.update).not.toHaveBeenCalled();
+      expect(profileLibMock.invalidateProfileCache).not.toHaveBeenCalled();
+    });
+
+    it("clears the profile cache only after the transaction commits", async () => {
+      const order: string[] = [];
+      prismaMock.$transaction.mockImplementationOnce(async (work: (tx: typeof prismaMock) => Promise<unknown>) => {
+        const result = await work(prismaMock);
+        order.push("commit");
+        return result;
+      });
+      profileLibMock.invalidateProfileCache.mockImplementationOnce(() => order.push("invalidate"));
+      prismaMock.profile.findUnique.mockResolvedValue({ isKidsProfile: false, maxRating: null, allowUnrated: true });
+      prismaMock.profile.update.mockResolvedValue({ id: PROFILE_ID });
+      const app = await buildApp();
+
+      await app.inject({
+        method: "POST",
+        url: "/import",
+        payload: { version: 2, profile: { name: "A", settings: { avatarId: "fetch:panda" } } },
+      });
+
+      expect(order).toEqual(["commit", "invalidate"]);
+    });
+  });
+
   describe("GET /export", () => {
     it("returns export payload with the current version", async () => {
       const app = await buildApp();
       const response = await app.inject({ method: "GET", url: "/export" });
       expect(response.statusCode).toBe(200);
-      expect(response.json().version).toBe(1);
+      expect(response.json().version).toBe(2);
     });
 
     it("carries the profile's resume points", async () => {

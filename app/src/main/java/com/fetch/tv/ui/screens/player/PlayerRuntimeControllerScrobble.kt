@@ -70,15 +70,16 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
             // initializePlayer() because the renderers factory snapshots
             // subtitleDelayUs from _uiState.value.subtitleDelayMs on build.
             currentVideoId?.takeIf { it.isNotBlank() }?.let { vid ->
-                val savedDelayMs = trackPreferenceDataStore.loadSubtitleDelayMs(vid)
-                if (savedDelayMs != null && savedDelayMs != 0) {
-                    subtitleDelayUs.set(savedDelayMs.toLong() * 1000L)
-                    _uiState.update { it.copy(subtitleDelayMs = savedDelayMs) }
-                    Log.d(
-                        PlayerRuntimeController.TAG,
-                        "TRACK_PREF load: restored subtitleDelayMs=$savedDelayMs for videoId=$vid"
-                    )
-                }
+                // Apply unconditionally: with no saved value the delay goes back
+                // to 0, so an earlier episode's offset can't linger here.
+                val savedDelayMs = trackPreferenceDataStore.loadSubtitleDelayMs(vid) ?: 0
+                subtitleDelayUs.set(savedDelayMs.toLong() * 1000L)
+                _uiState.update { it.copy(subtitleDelayMs = savedDelayMs) }
+                if (isUsingMpvEngine()) mpvView?.setSubtitleDelayMs(savedDelayMs)
+                Log.d(
+                    PlayerRuntimeController.TAG,
+                    "TRACK_PREF load: restored subtitleDelayMs=$savedDelayMs for videoId=$vid"
+                )
             }
         } else {
             Log.d(

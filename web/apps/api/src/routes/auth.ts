@@ -9,6 +9,7 @@ import {
 import { PROFILE_TOKEN_TTL_MS, verifyProfileToken } from "../lib/profile-token.js";
 import { prisma } from "../lib/prisma.js";
 import { bearerToken, isApiToken } from "../lib/auth.js";
+import { isServiceRequest } from "../lib/service-request.js";
 import { hashPin, pinMatches } from "../lib/pin-hash.js";
 import { clearAttempts, getLockout, recordFailure } from "../lib/attempt-lockout.js";
 import { invalidateDeviceCache } from "../lib/device-token.js";
@@ -244,14 +245,17 @@ const isUniqueViolation = (error: unknown) =>
 
 const authRoutes: FastifyPluginAsync = async (app) => {
   // Public. Tells the web app which screen to show before anyone is signed in.
-  // With `API_TOKEN` it also says whether more than one account exists: the
-  // Stremio addon service asks, because the keyless addon URLs it can serve
-  // are only safe while one account owns every profile. Anyone else is told
-  // nothing about how many accounts there are.
+  // With `API_TOKEN`, or the add-on's service token, it also says whether more
+  // than one account exists: the Stremio addon service asks, because the
+  // keyless addon URLs it can serve are only safe while one account owns
+  // every profile. Anyone else is told nothing about how many accounts there
+  // are.
   app.get("/auth/status", async (request) => {
     const accounts = await prisma.account.count();
     const token = bearerToken(request);
-    if (token && isApiToken(token)) return { setupRequired: accounts === 0, multipleAccounts: accounts > 1 };
+    if ((token && isApiToken(token)) || isServiceRequest(request)) {
+      return { setupRequired: accounts === 0, multipleAccounts: accounts > 1 };
+    }
     return { setupRequired: accounts === 0 };
   });
 

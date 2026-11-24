@@ -48,9 +48,16 @@ Every endpoint needs a bearer token, which is one of three things:
   [The website's session cookie](#the-websites-session-cookie).
 - **A paired device's token** (see [Devices](#devices)), which a TV gets by
   pairing instead of being given `API_TOKEN`.
-- **`API_TOKEN`**, the server's own token. This is the operator: the add-on
-  service, scripts, and creating the first account. It sees every account's
-  profiles.
+- **`API_TOKEN`**, the server's own token. This is the operator: scripts and
+  creating the first account. It sees every account's profiles.
+
+The add-on service is the one caller that sends no bearer: it sends its service
+token in `x-fetch-service-token` (from `FETCH_ADDON_KEY`, which
+`fetch addon-key` prints). That is accepted only on the routes the add-on calls
+— the reads behind its manifest, catalogs and title pages, `GET
+/profiles/:id/addon-url/verify` and `POST /scrobble/start|pause|stop` — and is
+refused with `403` (`code: "addon_scope"`) on every other route. It sees every
+account's profiles, like `API_TOKEN`, but is never the admin.
 
 ```bash
 curl -H "Authorization: Bearer $API_TOKEN" http://192.168.1.25:7000/watch/stats
@@ -441,7 +448,8 @@ Trakt.
 | `POST` | `/profiles/lock` | Expires the website's `fetch_profile` cookie, so the profile in use needs its PIN again; nothing else is signed out. `204`. A TV just forgets its `x-profile-token`. |
 | `POST` | `/profiles/:id/clear-pin` | `{ password }` → `{ profile }`. Removes a forgotten PIN. Only the admin, signed in, on a profile in their own account (`403 admin_required` otherwise, `404` for another account's profile), with the account password asked again (`401 password_incorrect`). |
 | `POST` | `/profiles/:id/addon-url/rotate` | `{ currentPin? }` → `{ stremioManifestPath, stremioManifestUrl, stremioProfileKey }`. Replaces the profile's Stremio addon key, so the URL it had answers `404` (from the API and the addon service) from now on; other profiles' URLs are unchanged. A PIN-protected profile needs its profile token or `currentPin`. Records `addon_url_rotated`. |
-| `GET` | `/profiles/:id/addon-url/generation` | The addon service only (service token), `404` to anything else. `{ generation }`: which generation of the profile's key is current, which the addon service checks a signed `/u/` URL against. |
+| `GET` | `/profiles/:id/addon-url/verify` | The addon service only (service token), `404` to anything else. Takes a signed `/u/` URL's key in the `x-fetch-stremio-profile-key` header and answers `{ generation }` if it is the profile's current key, `404` if it isn't (or the profile doesn't exist). The add-on holds no `API_TOKEN`, so this is how it checks a key. |
+| `GET` | `/profiles/:id/addon-url/generation` | The addon service only (service token), `404` to anything else. `{ generation }`: which generation of the profile's key is current. Used by add-on images from before `FETCH_ADDON_KEY`, which checked keys themselves. |
 
 The settings mirror what the TV keeps per profile, so a profile edited here reads
 the same on every paired TV. All are optional on write; `null` clears the
@@ -800,8 +808,8 @@ the web UI lives.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/export` | The profile's data as JSON: lists and their items, watch events, series progress, ratings, resume points (`playback`), collections, and the profile's appearance and parental settings (`profile.settings`). Carries a `version` field. Paired devices are not included: they belong to the install, not a profile, and a restored server pairs its TVs again. |
-| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be exactly `1`; anything else is a `400` rather than a partial restore. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported, except that a request without parental authority (see `PATCH /profiles/:id`) cannot use them to lift the profile's parental limits: those fields are left out, a tightening still applies, and the summary's `parentalLimitsSkipped` names what was skipped. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
+| `GET` | `/export` | The profile's data as JSON (`version: 2`): lists with their description and items (each with its `position` in the list's manual order, `null` when never arranged), watch events, series progress, ratings, resume points (`playback`), collections, tags (`tags`), dropped shows (`droppedShows`), the TV settings document (`tvSettings`, less any credential key) and the arranged Home rows (`homeLayout`), and the profile's appearance and parental settings (`profile.settings`). The profile's addons are not included, because a manifest URL often carries an account key; nor are paired devices: they belong to the install, not a profile, and a restored server pairs its TVs again. |
+| `POST` | `/import` | Restores an `/export` payload. The body's `version` must be `1` or `2`; anything else is a `400` rather than a partial restore. Every write runs in one transaction: an import that fails partway writes nothing and answers `500` with `code: "import_failed"`. A new list gets the file's description and order; an existing list gains a description only if it has none, and keeps its own order when it has been arranged (the file's titles then join it unarranged). Tags merge by name, dropped shows are added, and the TV settings and Home layout are restored only onto a profile that has none yet (the summary's `tvSettings` and `homeLayout` say whether they were); a Home row for a list follows the list to its restored id. Resume points only move forward: one is skipped when the profile already has a newer pause for that title, or a watch of it at or after the pause, so restoring an old backup can't bring back something finished since. The summary's `playback` count is the points actually written. A file from before resume points were exported has no `playback` and imports fine. Profile settings are restored as exported, except that a request without parental authority (see `PATCH /profiles/:id`) cannot use them to lift the profile's parental limits: those fields are left out, a tightening still applies, and the summary's `parentalLimitsSkipped` names what was skipped. Collections are added when the profile doesn't already have one with the same id, and a website-list source is pointed at the list it was restored into. |
 | `POST` | `/data/clear` | `{ history?, ratings? }`, at least one `true` → `{ cleared: { watchEvents, seriesProgress, playbackProgress, ratings } }`. Clears the profile's watch history (with its series progress, resume points and check-in) and/or its ratings. Lists and settings stay. A connected tracker may bring history back on its next sync. |
 | `POST` | `/import/csv` | Header must include `imdbId,type,watchedAt`; `season,episode` optional. |
 | `POST` | `/import/stremio/link` | Starts importing a Stremio account into the profile: `{ state: "waiting", code, link, expiresAt }`. The code is approved at `link`. `502` when Stremio can't be reached. |

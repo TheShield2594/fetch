@@ -1,4 +1,11 @@
-import { parseProxyPathPrefixes, parseTrustProxy, parseBoolStrict } from "@fetch/shared";
+import {
+  type AddonCredentials,
+  deriveAddonKey,
+  parseAddonKey,
+  parseBoolStrict,
+  parseProxyPathPrefixes,
+  parseTrustProxy,
+} from "@fetch/shared";
 
 /**
  * Everything this service reads out of its environment, read once.
@@ -9,7 +16,56 @@ import { parseProxyPathPrefixes, parseTrustProxy, parseBoolStrict } from "@fetch
  */
 
 export const FETCH_API_BASE = process.env.FETCH_API_BASE ?? "http://api:7000";
-export const FETCH_API_TOKEN = process.env.FETCH_API_TOKEN;
+
+/**
+ * What this service authenticates with, and where it came from (#637).
+ *
+ * `FETCH_ADDON_KEY` (from `fetch addon-key`) holds the two values derived from
+ * `API_TOKEN` that this service needs — its service token for the API, and the
+ * token it checks scrobbles against — and not `API_TOKEN` itself, which is the
+ * operator's credential and the root of every stored secret's encryption key.
+ * This is the service that may face the internet, so it is the one that must
+ * not hold that.
+ *
+ * `FETCH_API_TOKEN` is how it was configured before. It still works — the same
+ * two values are derived from it here, so nothing an existing install relies on
+ * changes — but it puts the root key in this container, so it is warned about
+ * at startup (`app.ts`). `FETCH_ADDON_KEY` wins when both are set.
+ */
+export type AddonCredentialSource =
+  | { kind: "addon-key"; credentials: AddonCredentials }
+  | { kind: "api-token"; credentials: AddonCredentials }
+  | { kind: "invalid" }
+  | { kind: "none" };
+
+export const resolveAddonCredentials = (
+  addonKey: string | undefined,
+  apiToken: string | undefined
+): AddonCredentialSource => {
+  if (addonKey?.trim()) {
+    const credentials = parseAddonKey(addonKey);
+    return credentials ? { kind: "addon-key", credentials } : { kind: "invalid" };
+  }
+  if (apiToken) {
+    // Through the same parser as a real key, so both paths produce one shape.
+    return { kind: "api-token", credentials: parseAddonKey(deriveAddonKey(apiToken))! };
+  }
+  return { kind: "none" };
+};
+
+export const ADDON_CREDENTIAL_SOURCE = resolveAddonCredentials(
+  process.env.FETCH_ADDON_KEY,
+  process.env.FETCH_API_TOKEN
+);
+
+/** Whether `API_TOKEN` was handed to this container at all, to warn about it. */
+export const HOLDS_API_TOKEN = Boolean(process.env.FETCH_API_TOKEN);
+
+/** The two derived credentials, or null when none (or a malformed key) was configured. */
+export const ADDON_CREDENTIALS: AddonCredentials | null =
+  ADDON_CREDENTIAL_SOURCE.kind === "addon-key" || ADDON_CREDENTIAL_SOURCE.kind === "api-token"
+    ? ADDON_CREDENTIAL_SOURCE.credentials
+    : null;
 export const ADDON_PUBLIC_BASE = process.env.ADDON_PUBLIC_BASE;
 export const WEB_PUBLIC_BASE = (process.env.FETCH_WEB_PUBLIC ?? process.env.WEB_PUBLIC_BASE)?.replace(/\/+$/, "");
 export const PROXY_PATH_PREFIXES = parseProxyPathPrefixes(process.env.PROXY_PATH_PREFIXES, ["/addon"] as const);

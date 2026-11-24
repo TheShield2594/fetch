@@ -4,9 +4,14 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 /**
  * Who a request is acting as.
  *
- * - `token`: the bearer was `API_TOKEN`. That is the operator: the addon
- *   service, scripts, the first-run setup, and recovery. It can see every
- *   account's profiles, as the whole install could before accounts existed.
+ * - `token`: the bearer was `API_TOKEN`. That is the operator: scripts, the
+ *   first-run setup, recovery, and an add-on service still configured the old
+ *   way. It can see every account's profiles, as the whole install could
+ *   before accounts existed.
+ * - `addon`: the add-on service with its own key (`FETCH_ADDON_KEY`), sending
+ *   the service token and no bearer. It acts for whichever profile its install
+ *   URL names, like `token`, but only on the routes in `lib/addon-scope.ts`,
+ *   and is never the admin (#637).
  * - `session`: someone signed in with a username and password. They see only
  *   their own account's profiles.
  * - `device`: a paired TV, with its own revocable token. It sees the profiles
@@ -17,6 +22,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  */
 export type AuthPrincipal =
   | { kind: "token" }
+  | { kind: "addon" }
   | {
       kind: "session";
       sessionId: string;
@@ -45,7 +51,8 @@ export const hashSecret = (value: string): string => createHash("sha256").update
 
 /**
  * The account a request is limited to, or null when it may act on every
- * account (`API_TOKEN`, or a route the auth gate leaves public).
+ * account (`API_TOKEN`, the add-on service on its few routes, or a route the
+ * auth gate leaves public).
  */
 export const accountScope = (request: FastifyRequest): string | null =>
   request.auth?.kind === "session" || request.auth?.kind === "device" ? request.auth.accountId : null;

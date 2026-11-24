@@ -2,7 +2,13 @@ import Fastify, { type RawRequestDefaultExpression } from "fastify";
 import rateLimit from "@fastify/rate-limit";
 import { normalizeProxyPath, redactedRequestSerializer } from "@fetch/shared";
 import { Sentry } from "./lib/sentry.js";
-import { LOG_LEVEL, PROXY_PATH_PREFIXES, trustProxy } from "./lib/config.js";
+import {
+  ADDON_CREDENTIAL_SOURCE,
+  HOLDS_API_TOKEN,
+  LOG_LEVEL,
+  PROXY_PATH_PREFIXES,
+  trustProxy,
+} from "./lib/config.js";
 import { addonRouter } from "./lib/router.js";
 import { rateLimitKey } from "./lib/rate-limit-key.js";
 import { registerCatalogRoutes } from "./routes/catalog.js";
@@ -34,6 +40,29 @@ export const app = Fastify({
   ...(trustProxy !== undefined ? { trustProxy } : {}),
   rewriteUrl: (request: RawRequestDefaultExpression) => normalizeProxyPath(request.url ?? "/", PROXY_PATH_PREFIXES)
 });
+
+// ─── Credentials ───
+//
+// This service is the one that may face the internet, so it should hold only
+// `FETCH_ADDON_KEY` — never `API_TOKEN`, which would hand whoever compromised it
+// every account and the key to every stored secret (#637). An install still
+// configured the old way keeps working, and is told how to stop.
+
+const ADDON_KEY_HOWTO =
+  "Run `docker compose exec api fetch addon-key`, put the result in .env as FETCH_ADDON_KEY, " +
+  "and pass FETCH_ADDON_KEY (not API_TOKEN) to the addon service — see README.md, \"The add-on's key\".";
+
+if (ADDON_CREDENTIAL_SOURCE.kind === "api-token") {
+  app.log.warn(
+    `FETCH_API_TOKEN is deprecated for the addon service: it gives this container the server's root token. ${ADDON_KEY_HOWTO}`
+  );
+} else if (ADDON_CREDENTIAL_SOURCE.kind === "addon-key" && HOLDS_API_TOKEN) {
+  app.log.warn("FETCH_API_TOKEN is set but unused, since FETCH_ADDON_KEY is set. Remove it from the addon service's environment.");
+} else if (ADDON_CREDENTIAL_SOURCE.kind === "invalid") {
+  app.log.error(`FETCH_ADDON_KEY is not a valid add-on key (it starts with "fak1_"). ${ADDON_KEY_HOWTO}`);
+} else if (ADDON_CREDENTIAL_SOURCE.kind === "none") {
+  app.log.error(`No credential for the Fetch API. ${ADDON_KEY_HOWTO}`);
+}
 
 // ─── Rate limiting ───
 // All routes here are unauthenticated (Stremio doesn't send credentials), so apply a global limit.

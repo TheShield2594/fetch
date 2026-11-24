@@ -85,6 +85,9 @@ the port on your LAN.
   including using one profile's credential to read or write another's.
 - Bypassing `API_TOKEN`, a profile PIN, the derived add-on URL secret, the
   add-on service's scrobble token.
+- The add-on service's key (`FETCH_ADDON_KEY`) reaching any API route beyond
+  the add-on's own short list (`apps/api/src/lib/addon-scope.ts`), acting as
+  the admin, or yielding `API_TOKEN` or a profile's Stremio key.
 - Reading stored credentials out of a database copy without `API_TOKEN` — a
   weakness in the AES-256-GCM/HKDF scheme or its per-column binding.
 - SSRF through any user-supplied URL — an AI provider endpoint, a notification
@@ -116,7 +119,9 @@ report.
 - The add-on service on port 7001 being unauthenticated, and anything that
   follows from choosing to expose it.
 - Anything that assumes the attacker can already run code as the `api`
-  container or read its environment. The process holds the encryption key
+  container or read its environment. (The `addon` container is different: it
+  holds only `FETCH_ADDON_KEY`, not `API_TOKEN`, and what that key can reach
+  is in scope above.) The process holds the encryption key
   because it needs it to serve a single request.
 - Consequences of exposing Fetch to the internet without TLS and a reverse
   proxy in front of it.

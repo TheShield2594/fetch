@@ -2,6 +2,7 @@ import { afterAll, beforeEach } from "vitest";
 import Fastify, { type FastifyInstance, type FastifyPluginAsync } from "fastify";
 import { prisma } from "../prisma.js";
 import { isSchemaValidationError, registerRequestSchemas, requestSchemaOptions } from "../request-schema.js";
+import { isTmdbNotConfiguredError } from "../tmdb-errors.js";
 
 // Shared fixtures for the integration suite. Importing this file is what
 // enrols a test file in the per-test reset — there is no opting out, because a
@@ -59,9 +60,11 @@ afterAll(async () => {
 export const buildIntApp = async (routes: FastifyPluginAsync): Promise<FastifyInstance> => {
   const app = Fastify({ logger: false, ...requestSchemaOptions });
   registerRequestSchemas(app);
-  app.setErrorHandler((error, _request, reply) =>
-    isSchemaValidationError(error) ? reply.code(400).send({ error: error.message }) : reply.send(error)
-  );
+  app.setErrorHandler((error, _request, reply) => {
+    if (isSchemaValidationError(error)) return reply.code(400).send({ error: error.message });
+    if (isTmdbNotConfiguredError(error)) return reply.code(503).send({ error: error.message, code: error.code });
+    return reply.send(error);
+  });
   await app.register(routes);
   await app.ready();
   openApps.add(app);

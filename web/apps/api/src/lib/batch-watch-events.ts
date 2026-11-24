@@ -1,4 +1,4 @@
-import { WatchEventType } from "@prisma/client";
+import { type Prisma, WatchEventType } from "@prisma/client";
 import type { FastifyBaseLogger } from "fastify";
 import { prisma } from "./prisma.js";
 import { mapWithConcurrency } from "./concurrency.js";
@@ -37,11 +37,15 @@ const dedupKey =(type: WatchEventType, matchId: string, season: number | null, e
  * evening — so it does not add to that row's `plays`. The stored row keeps the larger
  * of its own count and the batch's. That is what makes an import safe to repeat:
  * a second pass over the same file changes nothing.
+ *
+ * `client` is the transaction to write in, for a caller that needs these rows
+ * to land or roll back with its other writes (a backup import).
  */
 export async function batchUpsertWatchEvents(
   profileId: string,
   inputs: WatchEventInput[],
-  log?: Pick<FastifyBaseLogger, "warn">
+  log?: Pick<FastifyBaseLogger, "warn">,
+  client: Prisma.TransactionClient = prisma
 ): Promise<number> {
   if (inputs.length === 0) return 0;
 
@@ -52,7 +56,7 @@ export async function batchUpsertWatchEvents(
     else seriesIds.add(input.seriesImdbId ?? input.imdbId);
   }
 
-  const existing = await prisma.watchEvent.findMany({
+  const existing = await client.watchEvent.findMany({
     where: {
       profileId,
       OR: [
@@ -151,7 +155,7 @@ export async function batchUpsertWatchEvents(
     // — and reporting an "imported" count for rows that were rolled back — is a far
     // worse outcome than the one this trades for, which is that the colliding row's
     // play weight folds into the row that won instead of being added to it.
-    const created = await prisma.watchEvent.createMany({ data: creates, skipDuplicates: true });
+    const created = await client.watchEvent.createMany({ data: creates, skipDuplicates: true });
     if (created.count < creates.length) {
       log?.warn(
         { requested: creates.length, created: created.count },
@@ -166,7 +170,7 @@ export async function batchUpsertWatchEvents(
   if (raises.length > 0) {
     await mapWithConcurrency(raises, UPDATE_CONCURRENCY, ([id, { batch, storedDay }]) => {
       const plays = storedPlays.get(id) ?? 0;
-      return prisma.watchEvent.updateMany({ where: { id, plays }, data: { plays: plays + batch - storedDay } });
+      return client.watchEvent.updateMany({ where: { id, plays }, data: { plays: plays + batch - storedDay } });
     });
   }
 

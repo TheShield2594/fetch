@@ -1,5 +1,13 @@
+import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { deriveStremioProfileKey, matchesStremioProfileKey } from "./service-client.js";
+import {
+  deriveAddonKey,
+  deriveAddonMutationToken,
+  deriveServiceToken,
+  deriveStremioProfileKey,
+  matchesStremioProfileKey,
+  parseAddonKey,
+} from "./service-client.js";
 
 const TOKEN = "an-api-token";
 const PROFILE = "11111111-1111-4111-8111-111111111111";
@@ -60,5 +68,36 @@ describe("matchesStremioProfileKey", () => {
     expect(matchesStremioProfileKey(key.slice(1), TOKEN, PROFILE)).toBe(false);
     expect(matchesStremioProfileKey(`${key}0`, TOKEN, PROFILE)).toBe(false);
     expect(matchesStremioProfileKey("é".repeat(64), TOKEN, PROFILE)).toBe(false);
+  });
+});
+
+describe("FETCH_ADDON_KEY", () => {
+  it("carries exactly the service and scrobble tokens the add-on derived from API_TOKEN before #637", () => {
+    const parsed = parseAddonKey(deriveAddonKey(TOKEN));
+    expect(parsed).toEqual({
+      serviceToken: createHmac("sha256", TOKEN).update("fetch-service-client").digest("hex"),
+      mutationToken: createHmac("sha256", TOKEN).update("fetch-addon-mutation").digest("hex"),
+    });
+    expect(parsed?.serviceToken).toBe(deriveServiceToken(TOKEN));
+    expect(parsed?.mutationToken).toBe(deriveAddonMutationToken(TOKEN));
+  });
+
+  it("does not contain API_TOKEN", () => {
+    expect(deriveAddonKey(TOKEN)).not.toContain(TOKEN);
+  });
+
+  it("tolerates surrounding whitespace from a pasted .env line", () => {
+    expect(parseAddonKey(`  ${deriveAddonKey(TOKEN)}\n`)).not.toBeNull();
+  });
+
+  it("refuses anything else", () => {
+    const key = deriveAddonKey(TOKEN);
+    expect(parseAddonKey(undefined)).toBeNull();
+    expect(parseAddonKey("")).toBeNull();
+    expect(parseAddonKey(TOKEN)).toBeNull();
+    expect(parseAddonKey(key.slice(0, -1))).toBeNull();
+    expect(parseAddonKey(`${key}0`)).toBeNull();
+    expect(parseAddonKey(key.replace("fak1_", "fak2_"))).toBeNull();
+    expect(parseAddonKey(key.toUpperCase())).toBeNull();
   });
 });

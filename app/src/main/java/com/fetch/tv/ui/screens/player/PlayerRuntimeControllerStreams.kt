@@ -1219,6 +1219,13 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
     subtitleDisabledByPersistedPreference = false
     subtitleAddonRestoredByPersistedPreference = false
     pendingRestoredAddonSubtitle = null
+    // The subtitle delay is tuned to one episode's release, so it must not
+    // carry into the next one (and get saved under its videoId on the next
+    // track pick). The new episode's own saved delay, if any, is restored
+    // when its track preference loads. Not persisted here on purpose.
+    subtitleDelayUs.set(0L)
+    _uiState.update { it.copy(subtitleDelayMs = 0) }
+    if (isUsingMpvEngine()) mpvView?.setSubtitleDelayMs(0)
     hasRetriedCurrentStreamAfter416 = false
     resetErrorRetryState()
     currentVideoId = targetVideoId

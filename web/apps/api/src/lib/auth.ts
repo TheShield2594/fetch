@@ -1,7 +1,10 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { SERVICE_TOKEN_HEADER } from "@fetch/shared";
+import { ADDON_SCOPE_RESPONSE, isAddonServiceRoute } from "./addon-scope.js";
 import { DEVICE_TOKEN_PREFIX, findDeviceByToken } from "./device-token.js";
 import { SESSION_TOKEN_PREFIX } from "./request-auth.js";
+import { isServiceRequest } from "./service-request.js";
 import { findSession, SESSION_COOKIE_MAX_AGE_SEC } from "./sessions.js";
 import {
   clearAuthCookies,
@@ -18,10 +21,11 @@ declare module "fastify" {
     deviceId?: string;
     /**
      * How the credential arrived: `cookie` for the website's session cookie,
-     * `bearer` for an `Authorization` header (TVs, the addon, scripts, and a
-     * browser that has not yet moved its old token into a cookie).
+     * `bearer` for an `Authorization` header (TVs, scripts, and a browser that
+     * has not yet moved its old token into a cookie), `service` for the add-on
+     * service's own key.
      */
-    authVia?: "cookie" | "bearer";
+    authVia?: "cookie" | "bearer" | "service";
   }
 }
 
@@ -64,8 +68,9 @@ export const bearerToken = (request: FastifyRequest): string | null => {
 };
 
 /**
- * Accepts `API_TOKEN`, a signed-in session's token or a paired device's token,
- * and records which on `request.auth` for the routes to scope by. Sessions and
+ * Accepts `API_TOKEN`, a signed-in session's token, a paired device's token or
+ * the add-on service's token, and records which on `request.auth` for the
+ * routes to scope by. Sessions and
  * devices are looked up by the hash of their token, so the comparison is the
  * database's equality on a digest rather than on the secret itself.
  *
@@ -73,6 +78,10 @@ export const bearerToken = (request: FastifyRequest): string | null => {
  * otherwise from the website's session cookie (lib/session-cookie.ts). A
  * cookie can only ever carry a session — never `API_TOKEN` or a device token —
  * and a write made with one must pass the CSRF check.
+ *
+ * With no bearer, a request carrying the service token is the add-on service
+ * (`verifyAddonService`). One that carries a bearer too is judged by the bearer
+ * alone, as before: that is an add-on still configured with `API_TOKEN`.
  */
 export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) => {
   if (!API_TOKEN) {
@@ -81,7 +90,10 @@ export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) 
   }
 
   const token = bearerToken(request);
-  if (!token) return verifySessionCookie(request, reply);
+  if (!token) {
+    if (request.headers[SERVICE_TOKEN_HEADER] !== undefined) return verifyAddonService(request, reply);
+    return verifySessionCookie(request, reply);
+  }
 
   if (token.startsWith(SESSION_TOKEN_PREFIX)) {
     const session = await findSession(token);
@@ -105,6 +117,23 @@ export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) 
   if (!isApiToken(token)) return unauthorized(reply);
   request.auth = { kind: "token" };
   request.authVia = "bearer";
+};
+
+/**
+ * The add-on service, authenticated by its service token alone (#637).
+ *
+ * It holds `FETCH_ADDON_KEY` rather than `API_TOKEN`, so a compromise of the
+ * one container that may face the internet yields neither the operator's
+ * credential nor the key every stored secret is encrypted under. What it can
+ * reach is the short list in `lib/addon-scope.ts`; anything else is a `403`,
+ * so a route that forgot to say who may call it is shut to the add-on rather
+ * than open to it.
+ */
+const verifyAddonService = (request: FastifyRequest, reply: FastifyReply) => {
+  if (!isServiceRequest(request)) return unauthorized(reply);
+  if (!isAddonServiceRoute(request)) return reply.code(403).send(ADDON_SCOPE_RESPONSE);
+  request.auth = { kind: "addon" };
+  request.authVia = "service";
 };
 
 const verifySessionCookie = async (request: FastifyRequest, reply: FastifyReply) => {

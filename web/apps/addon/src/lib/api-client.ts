@@ -1,10 +1,5 @@
-import {
-  ApiContractError,
-  deriveServiceToken,
-  SERVICE_TOKEN_HEADER,
-  STREMIO_PROFILE_KEY_HEADER,
-} from "@fetch/shared";
-import { FETCH_API_BASE, FETCH_API_TOKEN } from "./config.js";
+import { ApiContractError, SERVICE_TOKEN_HEADER, STREMIO_PROFILE_KEY_HEADER } from "@fetch/shared";
+import { ADDON_CREDENTIALS, FETCH_API_BASE } from "./config.js";
 
 /**
  * How this service talks to the Fetch API.
@@ -15,10 +10,13 @@ import { FETCH_API_BASE, FETCH_API_TOKEN } from "./config.js";
  * other than what its contract says.
  */
 
-// Proves these calls come from the addon rather than from a browser holding the
-// same API token, so the API can rate-limit them separately — every Stremio
-// client's requests reach the API from this one container's IP.
-const SERVICE_TOKEN = FETCH_API_TOKEN ? deriveServiceToken(FETCH_API_TOKEN) : null;
+// This service's whole credential at the API: the service token from
+// `FETCH_ADDON_KEY`, sent with no bearer. The API takes it as the add-on
+// principal, on the routes this service calls and no others (#637), and
+// rate-limits it apart from browsers — every Stremio client's requests reach
+// the API from this one container's IP. `API_TOKEN` is never sent, even by an
+// install still configured with it.
+const SERVICE_TOKEN = ADDON_CREDENTIALS?.serviceToken ?? null;
 
 /**
  * Who an API call acts as. `profileId: null` means no profile is bound and the
@@ -39,7 +37,6 @@ export const NO_PROFILE: ApiProfile = { profileId: null, profileKey: null };
 export const apiHeaders = (profile?: ApiProfile | null): Record<string, string> => {
   const headers: Record<string, string> = {};
   if (SERVICE_TOKEN) headers[SERVICE_TOKEN_HEADER] = SERVICE_TOKEN;
-  if (FETCH_API_TOKEN) headers.Authorization = `Bearer ${FETCH_API_TOKEN}`;
   if (profile?.profileId) {
     headers["x-profile-id"] = profile.profileId;
     if (profile.profileKey) headers[STREMIO_PROFILE_KEY_HEADER] = profile.profileKey;

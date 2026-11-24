@@ -46,7 +46,8 @@ export type GuardedProfileWrite =
  *   written in either case.
  *
  * `initial` is the row the caller already checked, used for the first
- * attempt in place of a fresh read.
+ * attempt in place of a fresh read. `client` is the transaction to write in,
+ * when the caller has one.
  */
 export const writeProfileGuarded = async (
   profileId: string,
@@ -55,9 +56,10 @@ export const writeProfileGuarded = async (
     checkAuthority: () => Promise<boolean>;
     strict?: boolean;
     initial?: ParentalLimits;
+    client?: Prisma.TransactionClient;
   }
 ): Promise<GuardedProfileWrite> => {
-  const { strict = false } = options;
+  const { strict = false, client = prisma } = options;
   let authority: boolean | undefined;
   const hasAuthority = async () => (authority ??= await options.checkAuthority());
 
@@ -65,7 +67,7 @@ export const writeProfileGuarded = async (
     const current =
       attempt === 0 && options.initial
         ? options.initial
-        : await prisma.profile.findUnique({ where: { id: profileId }, select: PARENTAL_SELECT });
+        : await client.profile.findUnique({ where: { id: profileId }, select: PARENTAL_SELECT });
     if (!current) return { status: "missing" };
 
     let next = data;
@@ -80,11 +82,11 @@ export const writeProfileGuarded = async (
 
     const touchesLimits = PARENTAL_FIELDS.some((key) => next[key] !== undefined);
     if (!touchesLimits) {
-      const profile = await prisma.profile.update({ where: { id: profileId }, data: next, select: PROFILE_VIEW_SELECT });
+      const profile = await client.profile.update({ where: { id: profileId }, data: next, select: PROFILE_VIEW_SELECT });
       return { status: "ok", profile, skipped };
     }
     try {
-      const profile = await prisma.profile.update({
+      const profile = await client.profile.update({
         where: {
           id: profileId,
           isKidsProfile: current.isKidsProfile,
@@ -97,8 +99,11 @@ export const writeProfileGuarded = async (
       return { status: "ok", profile, skipped };
     } catch (error) {
       // No row matched: the limits changed (or the profile went) since they
-      // were read. The next pass reads them again.
+      // were read. The next pass reads them again, and asks for authority
+      // again too: whatever changed the limits may also have changed who is
+      // allowed to lift them.
       if (!isRecordNotFound(error)) throw error;
+      authority = undefined;
     }
   }
 
@@ -110,6 +115,6 @@ export const writeProfileGuarded = async (
   const skipped = PARENTAL_FIELDS.filter((key) => rest[key] !== undefined);
   for (const key of skipped) delete rest[key];
   if (Object.keys(rest).length === 0) return { status: "ok", skipped };
-  const profile = await prisma.profile.update({ where: { id: profileId }, data: rest, select: PROFILE_VIEW_SELECT });
+  const profile = await client.profile.update({ where: { id: profileId }, data: rest, select: PROFILE_VIEW_SELECT });
   return { status: "ok", profile, skipped };
 };

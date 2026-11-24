@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
+import { deriveAddonKey } from "@fetch/shared";
 import { first } from "./test-fixtures/present.js";
 
 const API_TOKEN = "test-api-token";
@@ -12,7 +13,12 @@ const ADDON_BASE = "http://addon.test";
 const DEFAULT_PROFILE_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_PROFILE_ID = "22222222-2222-4222-8222-222222222222";
 
+// Spelled out rather than imported, so a change to any derivation shows up here
+// as the break it would be for an install that already has these values.
 const MUTATION_TOKEN = createHmac("sha256", API_TOKEN).update("fetch-addon-mutation").digest("hex");
+const SERVICE_TOKEN = createHmac("sha256", API_TOKEN).update("fetch-service-client").digest("hex");
+/** What `fetch addon-key` prints: all this service is given since #637. */
+const ADDON_KEY = deriveAddonKey(API_TOKEN);
 /** A profile's Stremio key, as Settings hands it out: the same HMAC the API's own addon uses. */
 const profileKey = (profileId: string, generation = 0) =>
   createHmac("sha256", API_TOKEN)
@@ -20,7 +26,7 @@ const profileKey = (profileId: string, generation = 0) =>
     .digest("hex");
 const signedPrefix = (profileId: string) => `/u/${profileId}/${profileKey(profileId)}`;
 
-process.env.FETCH_API_TOKEN = API_TOKEN;
+process.env.FETCH_ADDON_KEY = ADDON_KEY;
 process.env.FETCH_API_BASE = API_BASE;
 process.env.ADDON_PUBLIC_BASE = ADDON_BASE;
 process.env.LOG_LEVEL = "silent";
@@ -39,7 +45,7 @@ let lists: { id: string; name: string; kind: string }[];
 let genresBody: unknown;
 /** What `GET /auth/status` says to the API token: a status, or the field's value. */
 let multipleAccounts: boolean | "error" = false;
-/** Each profile's Stremio key generation, as the API reports it; unknown ids 404. */
+/** Each profile's Stremio key generation, as the API holds it; unknown ids 404. */
 let keyGenerations: Record<string, number>;
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -61,10 +67,14 @@ const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
     if (multipleAccounts === "error") return jsonResponse({ error: "boom" }, 500);
     return jsonResponse({ setupRequired: false, multipleAccounts });
   }
-  const generationMatch = /^\/profiles\/([^/]+)\/addon-url\/generation$/.exec(pathname);
-  if (generationMatch) {
-    const generation = keyGenerations[generationMatch[1]!];
-    return generation === undefined ? jsonResponse({ error: "Not found" }, 404) : jsonResponse({ generation });
+  // What the API answers: the profile's current generation, if the key in the
+  // header is that generation's key; a 404 for anything else.
+  const verifyMatch = /^\/profiles\/([^/]+)\/addon-url\/verify$/.exec(pathname);
+  if (verifyMatch) {
+    const profileId = verifyMatch[1]!;
+    const generation = keyGenerations[profileId];
+    const current = generation !== undefined && headers["x-fetch-stremio-profile-key"] === profileKey(profileId, generation);
+    return current ? jsonResponse({ generation }) : jsonResponse({ error: "Not found" }, 404);
   }
   if (pathname === "/profiles") {
     return jsonResponse({ profiles: [{ id: DEFAULT_PROFILE_ID }, { id: OTHER_PROFILE_ID }] });
@@ -639,7 +649,7 @@ describe("signed addon URLs", () => {
 
     const stubbedFetch = fetchMock.getMockImplementation()!;
     fetchMock.mockImplementation(async (input: string | URL, init?: RequestInit) =>
-      String(input).includes("/addon-url/generation") ? jsonResponse({ error: "down" }, 503) : stubbedFetch(input, init)
+      String(input).includes("/addon-url/verify") ? jsonResponse({ error: "down" }, 503) : stubbedFetch(input, init)
     );
     try {
       expect((await app.inject({ method: "GET", url })).statusCode).toBe(404);
@@ -795,8 +805,10 @@ describe("signed addon URLs", () => {
 
 describe("rate limiting", () => {
   it("gives each signed install its own budget, apart from the address's", async () => {
+    // The install has been served once, so the API has confirmed its key.
+    expect((await app.inject({ method: "GET", url: `${signedPrefix(DEFAULT_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
     // Spend the address's whole budget on the keyless URL…
-    for (let i = 0; i < 300; i += 1) await app.inject({ method: "GET", url: "/health" });
+    for (let i = 0; i < 299; i += 1) await app.inject({ method: "GET", url: "/health" });
     expect((await app.inject({ method: "GET", url: "/manifest.json" })).statusCode).toBe(429);
 
     // …and a signed install from the same address is still served.
@@ -821,5 +833,104 @@ describe("manifest search", () => {
     expect(searchable.length).toBeGreaterThan(0);
     expect(searchable.every((id) => id.startsWith(`fetch-${WATCHLIST_ID}-`))).toBe(true);
     expect(manifest.catalogs.length).toBeGreaterThan(searchable.length);
+  });
+});
+
+// #637: the add-on holds FETCH_ADDON_KEY, two values derived from API_TOKEN,
+// rather than API_TOKEN itself.
+describe("credentials", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("never sends API_TOKEN to the API, only the service token", async () => {
+    await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+    await app.inject({
+      method: "POST",
+      url: `${signedPrefix(OTHER_PROFILE_ID)}/scrobble/start`,
+      headers: { authorization: `Bearer ${MUTATION_TOKEN}` },
+      payload: { type: "movie", imdbId: "tt0111161", progress: 12 },
+    });
+
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      expect(call.headers.Authorization, call.url).toBeUndefined();
+      expect(call.headers["x-fetch-service-token"], call.url).toBe(SERVICE_TOKEN);
+      expect(JSON.stringify(call.headers)).not.toContain(API_TOKEN);
+    }
+  });
+
+  it("asks the API to check a signed URL's key, in a header rather than the path", async () => {
+    await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+    const check = first(callsTo(`/profiles/${OTHER_PROFILE_ID}/addon-url/verify`), "key check");
+    expect(check.url).not.toContain(profileKey(OTHER_PROFILE_ID));
+    expect(check.headers["x-fetch-stremio-profile-key"]).toBe(profileKey(OTHER_PROFILE_ID));
+  });
+
+  it("keeps the scrobble token media players were already given", async () => {
+    const wrong = await app.inject({
+      method: "POST",
+      url: `/p/${DEFAULT_PROFILE_ID}/scrobble/start`,
+      headers: { authorization: `Bearer ${SERVICE_TOKEN}` },
+      payload: { type: "movie", imdbId: "tt0111161", progress: 12 },
+    });
+    expect(wrong.statusCode).toBe(403);
+    const right = await app.inject({
+      method: "POST",
+      url: `/p/${DEFAULT_PROFILE_ID}/scrobble/start`,
+      headers: { authorization: `Bearer ${MUTATION_TOKEN}` },
+      payload: { type: "movie", imdbId: "tt0111161", progress: 12 },
+    });
+    expect(right.statusCode).toBe(200);
+  });
+
+  describe("configured the old way, with FETCH_API_TOKEN alone", () => {
+    beforeEach(async () => {
+      await app.close();
+      vi.stubEnv("FETCH_ADDON_KEY", "");
+      vi.stubEnv("FETCH_API_TOKEN", API_TOKEN);
+      app = await buildApp();
+    });
+
+    it("still serves installed URLs and takes the same scrobble token", async () => {
+      expect((await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` })).statusCode).toBe(200);
+      const scrobble = await app.inject({
+        method: "POST",
+        url: `${signedPrefix(OTHER_PROFILE_ID)}/scrobble/start`,
+        headers: { authorization: `Bearer ${MUTATION_TOKEN}` },
+        payload: { type: "movie", imdbId: "tt0111161", progress: 12 },
+      });
+      expect(scrobble.statusCode).toBe(200);
+    });
+
+    it("sends the API what FETCH_ADDON_KEY would have, and not the token", async () => {
+      await app.inject({ method: "GET", url: `${signedPrefix(OTHER_PROFILE_ID)}/manifest.json` });
+      expect(calls.length).toBeGreaterThan(0);
+      for (const call of calls) {
+        expect(call.headers.Authorization).toBeUndefined();
+        expect(call.headers["x-fetch-service-token"]).toBe(SERVICE_TOKEN);
+      }
+    });
+  });
+
+  describe("resolveAddonCredentials", () => {
+    it("derives the same credentials from API_TOKEN as FETCH_ADDON_KEY carries", async () => {
+      const { resolveAddonCredentials } = await import("./lib/config.js");
+      const fromKey = resolveAddonCredentials(ADDON_KEY, undefined);
+      const fromToken = resolveAddonCredentials(undefined, API_TOKEN);
+      expect(fromKey).toEqual({ kind: "addon-key", credentials: { serviceToken: SERVICE_TOKEN, mutationToken: MUTATION_TOKEN } });
+      expect(fromToken).toEqual({ kind: "api-token", credentials: { serviceToken: SERVICE_TOKEN, mutationToken: MUTATION_TOKEN } });
+    });
+
+    it("prefers FETCH_ADDON_KEY when both are set", async () => {
+      const { resolveAddonCredentials } = await import("./lib/config.js");
+      expect(resolveAddonCredentials(ADDON_KEY, "some-other-token").kind).toBe("addon-key");
+    });
+
+    it("rejects a malformed key rather than falling back to the token", async () => {
+      const { resolveAddonCredentials } = await import("./lib/config.js");
+      expect(resolveAddonCredentials(API_TOKEN, API_TOKEN)).toEqual({ kind: "invalid" });
+      expect(resolveAddonCredentials(undefined, undefined)).toEqual({ kind: "none" });
+    });
   });
 });

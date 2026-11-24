@@ -50,6 +50,10 @@ const EXEMPT = new Map([
     "legacy alias read only as a fallback for FETCH_WEB_PUBLIC, which compose does set",
   ],
   [
+    "FETCH_API_TOKEN",
+    "read by apps/addon only as a deprecated fallback for installs whose compose file predates FETCH_ADDON_KEY; compose deliberately no longer hands API_TOKEN to the add-on, the one service that may face the internet (#637)",
+  ],
+  [
     "DATABASE_URL_TEST",
     "read only by apps/api/vitest.int.config.ts, which points the integration suite at a throwaway database it truncates between tests; nothing in a container ever reads it, and a compose entry would be an invitation to set it",
   ],

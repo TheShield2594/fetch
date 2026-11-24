@@ -41,6 +41,20 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # More swap, so memory pressure while recording slows the run down instead of killing the
+      # emulator or the runner itself. Run 6 lost its emulator to the OOM killer, run 9 needed five
+      # attempts, and run 10 lost its runner mid-recording with no log at all (#490). The hosted
+      # runner's /mnt disk has room; a failure here only warns, since the run can still pass.
+      - name: Add swap
+        run: |
+          free -h
+          if sudo fallocate -l 8G /mnt/fetch-swap && sudo chmod 600 /mnt/fetch-swap &&
+            sudo mkswap /mnt/fetch-swap && sudo swapon /mnt/fetch-swap; then
+            free -h
+          else
+            echo "::warning::Couldn't add swap; recording with the runner's default."
+          fi
+
       # Built before the emulator boots, so the two don't compete for the runner's memory.
       - name: Build the app and the journey
         run: |

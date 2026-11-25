@@ -69,8 +69,13 @@ class ProfileTransfer @Inject constructor(
         return profileManager.profiles.value.filter { pins[it.id] != true }
     }
 
-    suspend fun export(profileId: Int): JsonObject {
-        val profile = exportableProfiles().firstOrNull { it.id == profileId }
+    /**
+     * [profileId] as a profile file. A profile with a PIN is refused unless [unlocked], which the
+     * caller sets only once that PIN (or the main profile's) has been checked (#671).
+     */
+    suspend fun export(profileId: Int, unlocked: Boolean = false): JsonObject {
+        val profile = (if (unlocked) profileManager.profiles.value else exportableProfiles())
+            .firstOrNull { it.id == profileId }
             ?: throw IllegalArgumentException("That profile can't be exported.")
         val library = libraryPreferences.getAllItems(profileId)
         val watched = watchedItemsPreferences.getAllItems(profileId)

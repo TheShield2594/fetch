@@ -550,7 +550,7 @@ internal fun PlayerRuntimeController.currentWatchProgress(
  * signal covers live-TV addons whatever type they declare.
  */
 internal fun PlayerRuntimeController.isLiveForWatchProgress(): Boolean =
-    _playbackTimeline.value.isLive || LivePlaybackUiPolicy.isLiveContentType(contentType)
+    _playbackTimeline.value.isLive || LivePlaybackUiPolicy.isLiveContent(contentType, contentId)
 
 internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, duration: Long, syncRemote: Boolean = true) {
     if (isLiveForWatchProgress()) return
@@ -1143,6 +1143,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     showSeekOverlayTemporarily()
                 }
             }
+        }
+        PlayerEvent.OnGoLive -> {
+            pendingPreviewSeekPosition = null
+            seekToLiveEdge()
+            if (_uiState.value.isPlaying.not()) onEvent(PlayerEvent.OnPlay)
+            showControlsTemporarily()
         }
         is PlayerEvent.OnSeekTo -> {
             if (isLiveSeekBlocked()) return

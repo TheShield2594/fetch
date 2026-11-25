@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Live TV (#660): channels from live-TV addons and media servers, with a guide. -->
+    <string name="nav_live_tv">Live TV</string>
+    <string name="live_tv_title">Live TV</string>
+    <string name="live_tv_empty_title">No live channels yet</string>
+    <string name="live_tv_empty_subtitle">Add an addon with live TV channels, or connect a Jellyfin or Emby server that has Live TV.</string>
+    <string name="live_tv_open_settings">Open Settings</string>
+    <string name="live_tv_error_title">Couldn’t load the channels</string>
+    <string name="live_tv_no_channels">This source has no channels right now.</string>
+    <string name="live_tv_on_now">Live now</string>
+    <string name="live_tv_recordings">Recordings</string>
+</resources>

@@ -4,10 +4,18 @@
     <string name="phone_web_card_backup">Back up this TV</string>
     <string name="phone_web_card_backup_sub">Save every profile to one file, or restore one</string>
     <string name="phone_web_backup_title">Back up this TV</string>
-    <string name="phone_web_backup_intro">A backup holds every profile’s name and avatar, settings, library and watch history. Sign-ins, API keys, PINs and parental limits stay on this TV, and profiles with a PIN are left out.</string>
+    <string name="phone_web_backup_intro">A backup holds every profile’s name and avatar, settings, Home rows, library, watch history and parental limits. Sign-ins, API keys and PINs stay on this TV, and a profile with a PIN is left out unless you type its PIN below.</string>
     <string name="phone_web_backup_include_addons">Include each profile’s addons</string>
     <string name="phone_web_backup_include_addons_hint">A configured addon’s link can hold your debrid or other account key, so keep a backup with addons somewhere private.</string>
     <string name="phone_web_backup_save_heading">Save a backup</string>
+    <string name="phone_web_backup_locked_heading">Profiles with a PIN</string>
+    <string name="phone_web_backup_locked_hint">These are left out of the backup unless you type their PIN. The main profile’s PIN includes them all. PINs aren’t saved in the backup.</string>
+    <string name="phone_web_backup_pin_label">PIN for %1$s</string>
+    <string name="phone_web_backup_left_out">Saved. Left out because no PIN was given: %1$s.</string>
+    <string name="phone_web_backup_saved">Saved.</string>
+    <string name="phone_web_backup_saving">Saving…</string>
+    <string name="phone_web_backup_pin_wrong">The PIN for %1$s is wrong. Nothing was saved.</string>
+    <string name="phone_web_backup_pin_locked_out">Too many wrong PINs for %1$s. Wait a while and try again.</string>
     <string name="phone_web_backup_save">Save backup as a file</string>
     <string name="phone_web_backup_save_sub">Keep it somewhere safe, like your phone’s files or a cloud drive</string>
     <string name="phone_web_backup_restore_heading">Restore a backup</string>
@@ -20,6 +28,7 @@
     <string name="phone_web_backup_restored_merged">Restored %1$s.</string>
     <string name="phone_web_backup_restored_added">Added %1$s.</string>
     <string name="phone_web_backup_restored_skipped">Left out %1$s: this TV’s profile of that name has a PIN, or there was no room for another profile.</string>
+    <string name="phone_web_backup_restored_need_pin">%1$s had a PIN on the TV the backup came from. PINs aren’t in a backup, so set one again on this TV.</string>
     <plurals name="phone_web_backup_restored_unreadable">
         <item quantity="one">%d profile in the backup couldn’t be read, so it was left out.</item>
         <item quantity="other">%d profiles in the backup couldn’t be read, so they were left out.</item>

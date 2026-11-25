@@ -1257,6 +1257,40 @@ private fun PlaybackNavHost(
             }
         }
 
+        composable(Screen.LiveTv.route) {
+            ParentalGuardedRoute(onCancel = { navController.popBackStack() }) {
+                com.fetch.tv.ui.screens.livetv.LiveTvScreen(
+                    onPlayChannel = { channel ->
+                        navController.navigate(
+                            Screen.Stream.createRoute(
+                                videoId = channel.videoId,
+                                contentType = channel.type,
+                                title = channel.name,
+                                poster = channel.logo,
+                                logo = channel.logo,
+                                contentId = channel.videoId,
+                                contentName = channel.name
+                            )
+                        )
+                    },
+                    onPlayRecording = { recording ->
+                        navController.navigate(
+                            Screen.Stream.createRoute(
+                                videoId = recording.videoId,
+                                contentType = "movie",
+                                title = recording.title,
+                                poster = recording.image,
+                                backdrop = recording.image,
+                                contentId = recording.videoId,
+                                contentName = recording.title
+                            )
+                        )
+                    },
+                    onOpenSettings = { navController.navigate(Screen.Settings.route) { launchSingleTop = true } }
+                )
+            }
+        }
+
         composable(Screen.Settings.route) { entry ->
             // A page another screen asked Settings to open on, read once.
             val openPage by entry.savedStateHandle

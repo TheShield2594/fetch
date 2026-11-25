@@ -28,13 +28,17 @@ RUN pnpm deploy --filter @fetch/migrate --prod --legacy \
       --config.confirmModulesPurge=false /migrate \
  && cp -r apps/api/prisma apps/api/prisma.config.ts /migrate/
 
-# The service tree: production dependencies only, so no CLI. `pnpm deploy`
+# The service tree: production dependencies only, so no CLI. The migrations
+# are copied in explicitly: the API compares them with the database's at
+# startup and refuses to run against a schema a newer image migrated (#639). `pnpm deploy`
 # links a fresh @prisma/client from the store, so the client generated during
 # the build has to come across separately — it lives in node_modules/.prisma,
 # which @prisma/client re-exports.
 RUN pnpm deploy --filter @fetch/api --prod --legacy \
       --config.confirmModulesPurge=false /deploy \
- && cp -r node_modules/.prisma /deploy/node_modules/.prisma
+ && cp -r node_modules/.prisma /deploy/node_modules/.prisma \
+ && rm -rf /deploy/prisma/migrations && mkdir -p /deploy/prisma \
+ && cp -r apps/api/prisma/migrations /deploy/prisma/migrations
 
 # Applies pending migrations and exits. Built as its own image (build target
 # `migrate`) and run to completion before the service starts — see the `migrate`

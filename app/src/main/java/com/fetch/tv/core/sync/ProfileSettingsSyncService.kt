@@ -67,6 +67,10 @@ private val catalogKeysExcludedFromProfileSettingsBlob = setOf(
     "custom_catalog_titles"
 )
 
+/** The Home layout keys, in the order a backup writes them (#671). */
+private val homeLayoutKeys = catalogKeysExcludedFromProfileSettingsBlob.toList()
+private const val LAYOUT_SETTINGS_FEATURE = "layout_settings"
+
 private val localOnlyLayoutProfileSettingsKeys = setOf(
     "last_non_off_discover_location"
 )
@@ -287,6 +291,30 @@ class ProfileSettingsSyncService @Inject constructor(
     suspend fun exportLocalSettings(profileId: Int): JsonObject = withContext(Dispatchers.IO) {
         syncMutex.withLock {
             exportSettingsBlob(profileId)["features"]?.jsonObject ?: JsonObject(emptyMap())
+        }
+    }
+
+    /**
+     * [profileId]'s Home row order, hidden rows and row titles: the layout keys a sync leaves out
+     * as device-specific, which a whole-TV backup still carries (#671). Each value is the stored
+     * JSON string, as is. Null when the profile has never changed its Home rows.
+     */
+    suspend fun exportHomeLayout(profileId: Int): JsonObject? = withContext(Dispatchers.IO) {
+        val prefs = profileDataStoreFactory.get(profileId, LAYOUT_SETTINGS_FEATURE).data.first()
+        val values = homeLayoutKeys.mapNotNull { keyName ->
+            (prefs[stringPreferencesKey(keyName)])?.takeIf { it.isNotBlank() }?.let { keyName to JsonPrimitive(it) }
+        }
+        if (values.isEmpty()) null else JsonObject(values.toMap())
+    }
+
+    /** Writes [layout], as [exportHomeLayout] gave it, to [profileId]; keys it doesn't have are left alone. */
+    suspend fun importHomeLayout(profileId: Int, layout: JsonObject) = withContext(Dispatchers.IO) {
+        val values = homeLayoutKeys.mapNotNull { keyName ->
+            (layout[keyName] as? JsonPrimitive)?.takeIf { it.isString }?.contentOrNull?.let { keyName to it }
+        }
+        if (values.isEmpty()) return@withContext
+        profileDataStoreFactory.get(profileId, LAYOUT_SETTINGS_FEATURE).edit { prefs ->
+            values.forEach { (keyName, value) -> prefs[stringPreferencesKey(keyName)] = value }
         }
     }
 

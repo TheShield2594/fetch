@@ -16,7 +16,7 @@ const COUNT_LABELS: { key: keyof SyncOverview["profiles"][number]["counts"]; lab
 const FLAVOR_LABELS: Record<string, string> = { full: "Full", playstore: "Play Store" };
 
 /** One paired TV: its build, and its last sync, flagged with the error when that sync failed. */
-function DeviceRow({ device }: { device: SyncOverviewDevice }) {
+function DeviceRow({ device, minTvApp }: { device: SyncOverviewDevice; minTvApp?: string | undefined }) {
   const build = [device.appVersion && `v${device.appVersion}`, device.flavor && (FLAVOR_LABELS[device.flavor] ?? device.flavor)]
     .filter(Boolean)
     .join(" · ");
@@ -40,6 +40,14 @@ function DeviceRow({ device }: { device: SyncOverviewDevice }) {
           {device.lastSyncAt ? `Last sync ${timeAgo(device.lastSyncAt)}` : "Hasn't synced yet"}
           {device.lastSeenAt && ` · seen ${timeAgo(device.lastSeenAt)}`}
         </p>
+        {device.appTooOld && (
+          <p className="mt-1 flex items-start gap-1.5 text-xs text-danger">
+            <AlertTriangle size={14} className="mt-0.5 flex-none" aria-hidden="true" />
+            <span>
+              Update Fetch on this TV{minTvApp ? ` to ${minTvApp} or newer` : ""}: this server no longer syncs with its version.
+            </span>
+          </p>
+        )}
         {failing && device.lastSyncError && (
           <p className="mt-1 flex items-start gap-1.5 text-xs text-danger">
             <AlertTriangle size={14} className="mt-0.5 flex-none" aria-hidden="true" />
@@ -144,7 +152,7 @@ export function TvOverview() {
           ) : (
             <ul className="space-y-2">
               {overview.devices.map((device) => (
-                <DeviceRow key={device.id} device={device} />
+                <DeviceRow key={device.id} device={device} minTvApp={overview.minTvApp} />
               ))}
             </ul>
           )}

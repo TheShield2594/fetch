@@ -118,8 +118,10 @@ describe("GET /sync/overview", () => {
           lastSyncAt: "2026-10-26T11:58:00.000Z",
           lastSyncOk: false,
           lastSyncError: "Couldn't reach the website",
+          appTooOld: true,
         },
       ],
+      minTvApp: "1.9.0",
       server: {
         database: { ok: true, latencyMs: 3 },
         jobs: [{ job: "trakt-history-poll", status: "failed", message: "boom", at: "2026-10-26T12:00:00.000Z" }],

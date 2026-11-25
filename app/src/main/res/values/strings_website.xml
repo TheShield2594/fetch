@@ -6,6 +6,10 @@
     <string name="website_sign_in_subtitle">Pair this TV with your Fetch website by a code, with no address to type. Profiles, parental limits and Home folders are then managed there.</string>
     <string name="website_signed_in_subtitle">Signed in as %1$s · %2$s</string>
     <string name="website_signed_out_notice">This TV was signed out from the Fetch website. Sign in again to keep syncing profiles and Home folders.</string>
+    <string name="website_update_server_notice">This TV’s Fetch app needs a newer Fetch server. Update the server to keep syncing.</string>
+    <string name="website_update_server_notice_version">This TV’s Fetch app needs a newer Fetch server than %1$s. Update the server to keep syncing.</string>
+    <string name="website_update_app_notice">This Fetch server needs a newer version of Fetch on this TV. Update the app to keep syncing.</string>
+    <string name="website_update_app_notice_version">This Fetch server needs Fetch %1$s or newer on this TV. Update the app to keep syncing.</string>
     <string name="website_manage_body">Profiles, parental limits and Home folders sync with this website. Signing out keeps everything on this TV as it is now.</string>
     <string name="website_sync_now">Sync now</string>
     <string name="website_sign_out">Sign out</string>

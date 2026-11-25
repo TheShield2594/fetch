@@ -15,6 +15,8 @@ import { parseLogLevel, registerRequestLogging } from "./lib/request-logging.js"
 import { registerOpenApi } from "./lib/openapi.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
+import { registerAppVersionGate } from "./lib/app-version-gate.js";
+import { verifySchemaMatchesImage } from "./lib/schema-check.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
 import { aiRecsCacheClear } from "./lib/cache.js";
 import { listTraktProfiles, pollTraktHistory, syncTraktPlayback, syncTraktWatchlist } from "./lib/trakt-client.js";
@@ -245,6 +247,11 @@ app.addHook("onResponse", async (request, reply) => {
 // why at length.
 registerAuthGate(app);
 
+// A TV app older than this server supports gets one clear 426 instead of
+// whatever a changed route would break (#639). `onRequest`, so it answers
+// before the auth gate spends a token check on a request it will refuse.
+registerAppVersionGate(app);
+
 // ─── Error handling ───
 
 // Every route's error responses are shaped `{ error: "<human-readable>" }`, and
@@ -366,6 +373,14 @@ const start = async () => {
 
   if (!process.env.WEBHOOK_SECRET?.trim()) {
     app.log.warn("WEBHOOK_SECRET not set — webhook endpoints will reject all requests");
+  }
+
+  // First thing that touches the database: an image rolled back onto a database
+  // a newer image migrated would otherwise run against a schema it doesn't
+  // know, and fail in ways that look like unrelated bugs (#639).
+  if (!(await verifySchemaMatchesImage(app.log))) {
+    await prisma.$disconnect();
+    process.exit(1);
   }
 
   await ensureDefaultWatchlist();

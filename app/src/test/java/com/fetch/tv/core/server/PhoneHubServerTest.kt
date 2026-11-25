@@ -77,6 +77,17 @@ class PhoneHubServerTest {
             return Result.success(buildJsonObject { put("format", "fetch-backup") })
         }
 
+        var backupPins: Map<Int, String>? = null
+
+        override suspend fun exportBackup(includeAddons: Boolean, pins: Map<Int, String>): Result<JsonObject> {
+            backupPins = pins
+            if (pins.values.any { it == "0000" }) return Result.failure(IllegalArgumentException("The PIN for Kids is wrong."))
+            return exportBackup(includeAddons)
+        }
+
+        override suspend fun lockedBackupProfiles(): List<PhoneHubLockedProfile> =
+            listOf(PhoneHubLockedProfile(3, "Kids", isMain = false))
+
         override suspend fun restoreBackup(document: JsonObject): PhoneHubResult {
             restoredBackup = document
             return PhoneHubResult(true, "Restored Sam.")
@@ -281,7 +292,7 @@ class PhoneHubServerTest {
     @Test
     fun `the whole TV is saved as a dated file and restored`() {
         assertTrue(body(server.serve(FakeHttpSession("/"))).contains("href=\"/backup\""))
-        assertTrue(body(server.serve(FakeHttpSession("/backup"))).contains("href=\"/api/backup\""))
+        assertTrue(body(server.serve(FakeHttpSession("/backup"))).contains("post('/api/backup'"))
 
         val export = server.serve(FakeHttpSession("/api/backup"))
         assertEquals(NanoHTTPD.Response.Status.OK, export.status)
@@ -291,6 +302,16 @@ class PhoneHubServerTest {
         assertEquals(false, actions.backupIncludedAddons)
         server.serve(FakeHttpSession("/api/backup", parameters = mapOf("addons" to listOf("1"))))
         assertEquals(true, actions.backupIncludedAddons)
+
+        // The page's save: a POST with the PINs typed for locked profiles (#671).
+        assertTrue(body(server.serve(FakeHttpSession("/api/backup/locked"))).contains("\"name\":\"Kids\""))
+        val unlocked = post("/api/backup", """{"addons":true,"pins":{"3":"1234","x":"9","4":""}}""")
+        assertEquals(NanoHTTPD.Response.Status.OK, unlocked.status)
+        assertEquals(mapOf(3 to "1234"), actions.backupPins)
+        assertEquals(true, actions.backupIncludedAddons)
+        val wrong = post("/api/backup", """{"pins":{"3":"0000"}}""")
+        assertEquals(NanoHTTPD.Response.Status.BAD_REQUEST, wrong.status)
+        assertTrue(body(wrong).contains("The PIN for Kids is wrong."))
 
         val restored = post("/api/backup/restore", """{"format":"fetch-backup","version":1,"profiles":[]}""")
         assertEquals(NanoHTTPD.Response.Status.OK, restored.status)

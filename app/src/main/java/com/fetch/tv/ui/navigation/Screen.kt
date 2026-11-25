@@ -140,6 +140,8 @@ sealed class Screen(val route: String) {
     data object Stats : Screen("stats")
     data object Calendar : Screen("calendar")
     data object YouTube : Screen("youtube")
+    /** Live TV channels and guide (#660); in the sidebar only when enabled and there's a source. */
+    data object LiveTv : Screen("live_tv")
     data object Settings : Screen("settings")
     data object PhoneHub : Screen("phone_hub")
     data object LicensesAttributions : Screen("licenses_attributions")

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_live_tv">Live-TV</string>
+    <string name="live_tv_title">Live-TV</string>
+    <string name="live_tv_empty_title">Noch keine Live-Kanäle</string>
+    <string name="live_tv_empty_subtitle">Füge ein Add-on mit Live-TV-Kanälen hinzu oder verbinde einen Jellyfin- oder Emby-Server mit Live-TV.</string>
+    <string name="live_tv_open_settings">Einstellungen öffnen</string>
+    <string name="live_tv_error_title">Die Kanäle konnten nicht geladen werden</string>
+    <string name="live_tv_no_channels">Diese Quelle hat gerade keine Kanäle.</string>
+    <string name="live_tv_on_now">Jetzt live</string>
+    <string name="live_tv_recordings">Aufnahmen</string>
+    <string name="player_go_live">Zu Live</string>
+    <string name="layout_live_tv">Live-TV</string>
+    <string name="layout_live_tv_sub">Live-TV in der Seitenleiste zeigen, mit einer Programmübersicht deiner Live-Kanäle.</string>
+    <string name="layout_live_tv_sub_no_source">Erscheint in der Seitenleiste, sobald du ein Live-TV-Add-on hinzufügst oder einen Jellyfin- oder Emby-Server mit Live-TV verbindest.</string>
+    <string name="website_update_server_notice">Die Fetch-App auf diesem Fernseher braucht einen neueren Fetch-Server. Aktualisiere den Server, damit die Synchronisierung weiterläuft.</string>
+    <string name="website_update_server_notice_version">Die Fetch-App auf diesem Fernseher braucht einen neueren Fetch-Server als %1$s. Aktualisiere den Server, damit die Synchronisierung weiterläuft.</string>
+    <string name="website_update_app_notice">Dieser Fetch-Server braucht eine neuere Fetch-Version auf diesem Fernseher. Aktualisiere die App, damit die Synchronisierung weiterläuft.</string>
+    <string name="website_update_app_notice_version">Dieser Fetch-Server braucht Fetch %1$s oder neuer auf diesem Fernseher. Aktualisiere die App, damit die Synchronisierung weiterläuft.</string>
+    <string name="phone_web_backup_locked_heading">Profile mit PIN</string>
+    <string name="phone_web_backup_locked_hint">Diese fehlen in der Sicherung, außer du gibst ihre PIN ein. Die PIN des Hauptprofils schließt alle ein. PINs werden nicht in der Sicherung gespeichert.</string>
+    <string name="phone_web_backup_pin_label">PIN für %1$s</string>
+    <string name="phone_web_backup_left_out">Gespeichert. Ohne PIN weggelassen: %1$s.</string>
+    <string name="phone_web_backup_saved">Gespeichert.</string>
+    <string name="phone_web_backup_saving">Wird gespeichert …</string>
+    <string name="phone_web_backup_pin_wrong">Die PIN für %1$s ist falsch. Es wurde nichts gespeichert.</string>
+    <string name="phone_web_backup_pin_locked_out">Zu viele falsche PINs für %1$s. Warte etwas und versuche es erneut.</string>
+    <string name="phone_web_backup_restored_need_pin">%1$s hatte auf dem Fernseher, von dem die Sicherung stammt, eine PIN. PINs sind nicht in einer Sicherung, also lege auf diesem Fernseher wieder eine fest.</string>
+</resources>

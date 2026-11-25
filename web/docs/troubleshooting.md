@@ -487,6 +487,26 @@ FETCH_IMAGE_TAG=v0.1.0
 
 Rolling back is the same two commands with the previous tag.
 
+Rolling the images back does not roll the database back. An API started on a
+database that a newer image has already migrated refuses to start, with the
+names of the migrations it doesn't know in its log: put `FETCH_IMAGE_TAG` back
+to the newer version, or restore the backup taken before the upgrade. If you
+know the newer migrations are harmless to the older code,
+`FETCH_ALLOW_SCHEMA_MISMATCH=true` starts it anyway. Migrations the image has
+and the database doesn't are only a warning, since the `migrate` service may
+still be applying them.
+
+### The TV says to update the app, or to update the server
+
+The TV and the server check each other's version when the TV syncs
+([compatibility.md](compatibility.md)):
+
+- **"Update Fetch on this TV"** — the server is newer than the TV app supports.
+  Update the app on the TV (its "Check for updates" setting). The TVs page
+  on the website flags the TVs that need it.
+- **"Update your Fetch server"** — the TV app needs routes this server doesn't
+  have yet. Pull the newer images (`docker compose pull && docker compose up -d`).
+
 ### Resetting everything
 
 Destroys all data:

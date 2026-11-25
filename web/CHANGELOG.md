@@ -13,6 +13,9 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **The TV and the server check each other's version.** `GET /version` reports the server's version, an `apiVersion` for the TV to check, the oldest TV app it serves and its features. A TV below that gets one "Update Fetch on this TV" answer (`426`, `code: "tv_app_too_old"`) instead of a sync that fails part-way, the TVs page flags it, and the TV says "Update your Fetch server" when the server is too old for it. See [docs/compatibility.md](docs/compatibility.md) ([#639](https://github.com/TheShield2594/fetch/issues/639)).
+- **The API refuses to start on a database a newer image migrated**, naming the migrations it doesn't know, so a rolled-back image no longer runs against a schema it wasn't written for. `FETCH_ALLOW_SCHEMA_MISMATCH=true` starts it anyway ([#639](https://github.com/TheShield2594/fetch/issues/639)).
+
 - **A calendar feed.** Settings → Calendar feed gives a profile's calendar an address a phone or desktop calendar can subscribe to: upcoming episodes and watchlisted films' release dates, as an iCal feed. Off until you turn it on; replace the address if it gets out ([#646](https://github.com/TheShield2594/fetch/issues/646)).
 - **Share a list.** A list's page can make a read-only link for someone with no account. They see the list's name and titles and nothing else, and you can replace the link or stop sharing ([#646](https://github.com/TheShield2594/fetch/issues/646)).
 - **Server alerts.** The admin can mark a notification channel to also get the server's own alerts: a background job that has failed three runs in a row, the same job recovering, and a TV whose sync starts failing ([#646](https://github.com/TheShield2594/fetch/issues/646)).

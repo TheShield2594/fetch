@@ -37,6 +37,9 @@ import javax.inject.Inject
 
 data class LayoutSettingsUiState(
     val sidebarCollapsedByDefault: Boolean = false,
+    /** Live TV in the sidebar (#660), and whether there is a source for it to show. */
+    val liveTvEnabled: Boolean = com.fetch.tv.core.livetv.LiveTvSettingsDataStore.DEFAULT_ENABLED,
+    val liveTvAvailable: Boolean = false,
     val modernLandscapePostersEnabled: Boolean = true,
     val heroSectionEnabled: Boolean = true,
     val modernHeroFullScreenBackdropEnabled: Boolean = true,
@@ -85,6 +88,7 @@ data class LayoutSettingsUiState(
 
 sealed class LayoutSettingsEvent {
     data class SetSidebarCollapsed(val collapsed: Boolean) : LayoutSettingsEvent()
+    data class SetLiveTvEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetModernLandscapePostersEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetHeroSectionEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetModernHeroFullScreenBackdropEnabled(val enabled: Boolean) : LayoutSettingsEvent()
@@ -143,7 +147,9 @@ class LayoutSettingsViewModel @Inject constructor(
     private val trailerSettingsDataStore: TrailerSettingsDataStore,
     private val addonRepository: AddonRepository,
     private val metaRepository: com.fetch.tv.domain.repository.MetaRepository,
-    private val profileManager: com.fetch.tv.core.profile.ProfileManager
+    private val profileManager: com.fetch.tv.core.profile.ProfileManager,
+    private val liveTvSettings: com.fetch.tv.core.livetv.LiveTvSettingsDataStore,
+    private val liveTvRepository: com.fetch.tv.core.livetv.LiveTvRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LayoutSettingsUiState())
@@ -173,6 +179,17 @@ class LayoutSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             layoutPreferenceDataStore.sidebarCollapsedByDefault.distinctUntilChanged().collectLatest { collapsed ->
                 updateUiStateIfChanged { it.copy(sidebarCollapsedByDefault = collapsed) }
+            }
+        }
+        viewModelScope.launch {
+            liveTvSettings.enabled.distinctUntilChanged().collectLatest { enabled ->
+                updateUiStateIfChanged { it.copy(liveTvEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            liveTvRepository.probeServers()
+            liveTvRepository.hasSources.collectLatest { available ->
+                updateUiStateIfChanged { it.copy(liveTvAvailable = available) }
             }
         }
         viewModelScope.launch {
@@ -387,6 +404,7 @@ class LayoutSettingsViewModel @Inject constructor(
     fun onEvent(event: LayoutSettingsEvent) {
         when (event) {
             is LayoutSettingsEvent.SetSidebarCollapsed -> setSidebarCollapsed(event.collapsed)
+            is LayoutSettingsEvent.SetLiveTvEnabled -> viewModelScope.launch { liveTvSettings.setEnabled(event.enabled) }
             is LayoutSettingsEvent.SetModernLandscapePostersEnabled -> setModernLandscapePostersEnabled(event.enabled)
             is LayoutSettingsEvent.SetModernHeroFullScreenBackdropEnabled -> setModernHeroFullScreenBackdropEnabled(event.enabled)
             is LayoutSettingsEvent.SetHeroSectionEnabled -> setHeroSectionEnabled(event.enabled)

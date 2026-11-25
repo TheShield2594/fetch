@@ -195,6 +195,7 @@ describe("isPublicPath", () => {
     const isPublicPath = await load();
     expect(isPublicPath("/health")).toBe(true);
     expect(isPublicPath("/health/ready")).toBe(true);
+    expect(isPublicPath("/version")).toBe(true);
     expect(isPublicPath("/addon")).toBe(true);
     expect(isPublicPath("/trakt/oauth/callback?code=x&state=y")).toBe(true);
     expect(isPublicPath("/webhooks/plex")).toBe(true);

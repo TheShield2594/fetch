@@ -7,7 +7,9 @@ Home Assistant automation, or your own client.
 This is a reference for the endpoints as they behave today. It is not a
 stability promise — Fetch is a self-hosted app with one supported client, and
 routes do change between versions. Pin `FETCH_IMAGE_TAG` if you build
-something on top of it.
+something on top of it, and check `GET /version` (below): its `apiVersion` goes
+up whenever a route the TV app uses changes incompatibly. Which TV app versions
+work with which server versions is in [compatibility.md](compatibility.md).
 
 - [Authentication](#authentication)
 - [Profiles](#profiles)
@@ -240,7 +242,8 @@ row genuinely is not found. Another account's profile is a `404` the same way.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/health` | Liveness: `{ status, service }`. No auth, and no database — it keeps answering 200 during an outage, because restarting the container would not fix one. |
+| `GET` | `/version` | The compatibility handshake: `{ server, apiVersion, minTvApp, features }`. `server` is this build's version, `apiVersion` an integer raised on any breaking change to a route the TV calls, `minTvApp` the oldest TV app this server serves, and `features` the optional route groups it has. No auth, no database. Every response from the API also carries `X-Fetch-Server-Version`. |
+| `GET` | `/health` | Liveness: `{ status, service, version }`. No auth, and no database — it keeps answering 200 during an outage, because restarting the container would not fix one. |
 | `GET` | `/health/ready` | Readiness: `SELECT 1` with a two-second deadline. `200` with `{ status, service, database: { ok, latencyMs } }`, or `503` when the database does not answer — which is also what an exhausted connection pool looks like. No auth; the failing body says only that the database did not answer, never why. This is what the `api` container's Docker healthcheck uses. |
 | `GET` | `/metrics` | Needs the token. Per-process counters as JSON: `uptimeSeconds`, `memory`, `requests` (total, by status class, and per route template with count/failures/total/max/average duration), `upstream` (the same per outbound hostname), `database` (the readiness probe, with its error), and `jobs` — the last run of every scheduled background job, the same rows Settings → Sync Status shows. Counters reset when the process does. `jobs` is `null` with `jobsError` set when the database is down, so the rest still answers. |
 

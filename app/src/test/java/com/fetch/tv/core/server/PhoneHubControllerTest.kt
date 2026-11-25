@@ -6,6 +6,7 @@ import com.fetch.tv.core.parental.ParentalControls
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.profile.TvBackup
 import com.fetch.tv.core.profile.TvBackupRestoreResult
+import com.fetch.tv.core.profile.TvBackupUnlock
 import com.fetch.tv.data.anilist.AniListApi
 import com.fetch.tv.data.anilist.AniListApiException
 import com.fetch.tv.data.anilist.AniListAuthStore
@@ -266,6 +267,34 @@ class PhoneHubControllerTest {
         assertFalse(controller.restoreBackup(backup).ok)
         coEvery { tvBackup.restore(backup) } throws IllegalStateException("disk full")
         assertEquals(PhoneHubResult(false, text(R.string.phone_web_backup_restore_failed)), controller.restoreBackup(backup))
+    }
+
+    @Test
+    fun aBackupWithAWrongPinSavesNothingAndNamesTheProfile() = runBlocking {
+        coEvery { tvBackup.unlock(mapOf(2 to "0000")) } returns TvBackupUnlock(emptySet(), listOf("Kids"))
+        assertEquals(
+            text(R.string.phone_web_backup_pin_wrong, "Kids"),
+            controller.exportBackup(includeAddons = false, pins = mapOf(2 to "0000")).exceptionOrNull()?.message
+        )
+        coVerify(exactly = 0) { tvBackup.export(any(), any()) }
+
+        val document = buildJsonObject { put("format", TvBackup.FORMAT) }
+        coEvery { tvBackup.unlock(mapOf(2 to "1234")) } returns TvBackupUnlock(setOf(2))
+        coEvery { tvBackup.export(true, setOf(2)) } returns document
+        assertEquals(document, controller.exportBackup(includeAddons = true, pins = mapOf(2 to "1234")).getOrNull())
+    }
+
+    @Test
+    fun aRestoreAsksForAPinAgainOnProfilesThatHadOne() = runBlocking {
+        val backup = buildJsonObject { put("format", TvBackup.FORMAT) }
+        coEvery { tvBackup.restore(backup) } returns TvBackupRestoreResult(listOf("Kids"), emptyList(), emptyList(), needPin = listOf("Kids"))
+        assertEquals(
+            listOf(
+                text(R.string.phone_web_backup_restored_merged, "Kids"),
+                text(R.string.phone_web_backup_restored_need_pin, "Kids")
+            ).joinToString(" "),
+            controller.restoreBackup(backup).message
+        )
     }
 
     // ─── Addons sent from the phone ───

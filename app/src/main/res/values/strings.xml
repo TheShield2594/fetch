@@ -977,6 +977,9 @@
     <string name="layout_section_custom_poster_desc">Use artwork from an external poster service.</string>
     <string name="layout_collapse_sidebar">Collapse Sidebar</string>
     <string name="layout_collapse_sidebar_sub">Hide sidebar by default; show when focused.</string>
+    <string name="layout_live_tv">Live TV</string>
+    <string name="layout_live_tv_sub">Show Live TV in the sidebar, with a guide to your live channels.</string>
+    <string name="layout_live_tv_sub_no_source">Shows in the sidebar once you add a live TV addon, or connect a Jellyfin or Emby server with Live TV.</string>
     <string name="layout_hero_section">Show Hero</string>
     <string name="layout_hero_section_sub">Show the large featured title at the top of Home.</string>
     <string name="layout_fullscreen_hero_backdrop">Fullscreen Hero Backdrop</string>
@@ -1652,6 +1655,7 @@
     <string name="player_seek_back_10">Back 10 seconds</string>
     <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>
+    <string name="player_go_live">Go live</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>

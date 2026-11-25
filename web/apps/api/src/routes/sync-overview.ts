@@ -6,6 +6,7 @@ import { getJobRuns } from "../lib/job-status.js";
 import { sendAdminAlert, tvSyncAlert } from "../lib/admin-alerts.js";
 import { accountScope, isAdminRequest } from "../lib/request-auth.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { MIN_TV_APP, isTvAppTooOld } from "../lib/version.js";
 
 /**
  * The read-only account dashboard: what each profile has that a TV syncs, and
@@ -146,7 +147,11 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
               lastSyncAt: device.lastSyncAt?.toISOString() ?? null,
               lastSyncOk: device.lastSyncOk,
               lastSyncError: device.lastSyncError,
+              // Below what this server serves: the TV is refused with a 426
+              // until its app is updated (#639).
+              appTooOld: isTvAppTooOld(device.appVersion),
             })),
+            minTvApp: MIN_TV_APP,
           }
         : {}),
       server: {

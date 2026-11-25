@@ -41,4 +41,25 @@ class TvBackupTest {
         assertFalse(TvBackup.isBackup(buildJsonObject { put("format", JsonPrimitive(ProfileTransfer.FORMAT)) }))
         assertFalse(TvBackup.isBackup(buildJsonObject { }))
     }
+
+    private fun layout(vararg order: String) = buildJsonObject {
+        put("home_catalog_order_keys", JsonPrimitive(order.joinToString(",", "[", "]") { "\"$it\"" }))
+    }
+
+    @Test
+    fun `a backed-up Home layout replaces one that names only catalogs this profile has`() {
+        val here = layout("addon.a_movie_top", "addon.b_series_new", "collection_x")
+        assertTrue(TvBackup.homeLayoutFits(layout("addon.b_series_new", "addon.a_movie_top"), here, includesAddons = false))
+        // Collections aren't addons; one the TV lacks doesn't keep the layout out.
+        assertTrue(TvBackup.homeLayoutFits(layout("addon.a_movie_top", "collection_y"), here, includesAddons = false))
+    }
+
+    @Test
+    fun `a backed-up Home layout naming catalogs this TV lacks keeps the TV's own`() {
+        val here = layout("addon.a_movie_top")
+        assertFalse(TvBackup.homeLayoutFits(layout("addon.a_movie_top", "addon.z_movie_x"), here, includesAddons = false))
+        // Unless the backup brings the addons along, or the profile has no layout to keep.
+        assertTrue(TvBackup.homeLayoutFits(layout("addon.z_movie_x"), here, includesAddons = true))
+        assertTrue(TvBackup.homeLayoutFits(layout("addon.z_movie_x"), current = null, includesAddons = false))
+    }
 }

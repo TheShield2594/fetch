@@ -119,7 +119,9 @@ internal data class WebsiteMetasBody(val metas: List<WebsiteMeta> = emptyList())
 internal data class WebsiteErrorBody(
     val error: String? = null,
     @SerialName("code") val code: String? = null,
-    val retryAfterSec: Int? = null
+    val retryAfterSec: Int? = null,
+    /** With `tv_app_too_old`: the oldest TV app the server serves. */
+    val minTvApp: String? = null
 )
 
 /** An addon in a profile's list on the website, as much of it as the TV reads. */

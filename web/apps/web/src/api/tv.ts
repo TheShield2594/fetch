@@ -72,12 +72,16 @@ export type SyncOverviewDevice = {
   lastSyncAt: string | null;
   lastSyncOk: boolean | null;
   lastSyncError: string | null;
+  /** Older than the server's minimum TV app: it can't sync until the app is updated. Absent on older servers. */
+  appTooOld?: boolean | undefined;
 };
 
 export type SyncOverview = {
   profiles: SyncOverviewProfile[];
   /** Absent when a device asks; the website always gets it. */
   devices?: SyncOverviewDevice[] | undefined;
+  /** The oldest TV app this server serves; sent alongside `devices`. */
+  minTvApp?: string | undefined;
   server: {
     database: { ok: boolean; latencyMs: number };
     jobs: { job: string; status: "ok" | "failed"; message: string | null; at: string }[];

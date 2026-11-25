@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { checkDatabase } from "../lib/db-health.js";
+import { SERVER_VERSION, versionInfo } from "../lib/version.js";
 
 // Two probes, because they answer two different questions and a restart is only
 // the right response to one of them.
@@ -18,8 +19,18 @@ import { checkDatabase } from "../lib/db-health.js";
 // probes carry no credentials. So the failure body says only that the database
 // is not answering — the error itself goes to the log and to the token-guarded
 // `/metrics`.
+//
+// `/version` is the compatibility handshake (#639): the server's version, the
+// API version the TV checks against, the oldest TV app this server serves, and
+// the optional features it has. Public, like the probes, so a TV can ask before
+// it has paired.
 const healthRoutes: FastifyPluginAsync = async (app) => {
-  app.get("/health", async () => ({ status: "ok", service: "api" }));
+  app.get("/health", async () => ({ status: "ok", service: "api", version: SERVER_VERSION }));
+
+  app.get("/version", async (_request, reply) => {
+    reply.header("Cache-Control", "no-store");
+    return versionInfo();
+  });
 
   app.get("/health/ready", async (request, reply) => {
     const database = await checkDatabase();

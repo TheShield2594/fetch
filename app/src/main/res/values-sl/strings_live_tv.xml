@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_live_tv">TV v živo</string>
+    <string name="live_tv_title">TV v živo</string>
+    <string name="live_tv_empty_title">Še ni kanalov v živo</string>
+    <string name="live_tv_empty_subtitle">Dodajte dodatek s TV-kanali v živo ali povežite strežnik Jellyfin ali Emby, ki ima TV v živo.</string>
+    <string name="live_tv_open_settings">Odpri nastavitve</string>
+    <string name="live_tv_error_title">Kanalov ni bilo mogoče naložiti</string>
+    <string name="live_tv_no_channels">Ta vir trenutno nima kanalov.</string>
+    <string name="live_tv_on_now">V živo</string>
+    <string name="live_tv_recordings">Posnetki</string>
+    <string name="player_go_live">V živo</string>
+    <string name="layout_live_tv">TV v živo</string>
+    <string name="layout_live_tv_sub">Prikaži TV v živo v stranski vrstici, z vodnikom po kanalih v živo.</string>
+    <string name="layout_live_tv_sub_no_source">Prikaže se v stranski vrstici, ko dodate dodatek za TV v živo ali povežete strežnik Jellyfin ali Emby s TV v živo.</string>
+    <string name="website_update_server_notice">Aplikacija Fetch na tem TV-ju potrebuje novejši strežnik Fetch. Posodobite strežnik, da se sinhronizacija nadaljuje.</string>
+    <string name="website_update_server_notice_version">Aplikacija Fetch na tem TV-ju potrebuje novejši strežnik Fetch od %1$s. Posodobite strežnik, da se sinhronizacija nadaljuje.</string>
+    <string name="website_update_app_notice">Ta strežnik Fetch potrebuje novejšo različico aplikacije Fetch na tem TV-ju. Posodobite aplikacijo, da se sinhronizacija nadaljuje.</string>
+    <string name="website_update_app_notice_version">Ta strežnik Fetch potrebuje Fetch %1$s ali novejši na tem TV-ju. Posodobite aplikacijo, da se sinhronizacija nadaljuje.</string>
+    <string name="phone_web_backup_locked_heading">Profili s PIN-om</string>
+    <string name="phone_web_backup_locked_hint">Ti profili so izpuščeni iz varnostne kopije, razen če vnesete njihov PIN. PIN glavnega profila vključi vse. PIN-i se ne shranijo v varnostno kopijo.</string>
+    <string name="phone_web_backup_pin_label">PIN za %1$s</string>
+    <string name="phone_web_backup_left_out">Shranjeno. Izpuščeno, ker PIN ni bil vnesen: %1$s.</string>
+    <string name="phone_web_backup_saved">Shranjeno.</string>
+    <string name="phone_web_backup_saving">Shranjevanje …</string>
+    <string name="phone_web_backup_pin_wrong">PIN za %1$s je napačen. Nič ni bilo shranjeno.</string>
+    <string name="phone_web_backup_pin_locked_out">Preveč napačnih PIN-ov za %1$s. Počakajte nekaj časa in poskusite znova.</string>
+    <string name="phone_web_backup_restored_need_pin">%1$s je imel PIN na TV-ju, s katerega je varnostna kopija. PIN-i niso v varnostni kopiji, zato ga na tem TV-ju nastavite znova.</string>
+</resources>

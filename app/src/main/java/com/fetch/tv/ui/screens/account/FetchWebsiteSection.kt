@@ -38,6 +38,7 @@ import com.fetch.tv.R
 import com.fetch.tv.core.qr.QrCodeGenerator
 import com.fetch.tv.data.website.DiscoveredFetchServer
 import com.fetch.tv.data.website.WebsitePairingState
+import com.fetch.tv.data.website.WebsiteVersionMismatch
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
@@ -58,6 +59,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 fun FetchWebsiteSection(viewModel: FetchWebsiteViewModel = hiltViewModel()) {
     val session by viewModel.session.collectAsStateWithLifecycle()
     val signedOutByWebsite by viewModel.signedOutByWebsite.collectAsStateWithLifecycle()
+    val versionMismatch by viewModel.versionMismatch.collectAsStateWithLifecycle()
     var showPairing by rememberSaveable { mutableStateOf(false) }
     var showManage by rememberSaveable { mutableStateOf(false) }
 
@@ -65,6 +67,22 @@ fun FetchWebsiteSection(viewModel: FetchWebsiteViewModel = hiltViewModel()) {
         if (signedOutByWebsite && session == null) {
             Text(
                 text = stringResource(R.string.website_signed_out_notice),
+                style = MaterialTheme.typography.bodySmall,
+                color = FetchTheme.colors.Error,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.md)
+            )
+        }
+        val mismatch = versionMismatch
+        if (mismatch != null && session != null) {
+            Text(
+                text = when (mismatch) {
+                    is WebsiteVersionMismatch.ServerTooOld -> mismatch.serverVersion
+                        ?.let { stringResource(R.string.website_update_server_notice_version, it) }
+                        ?: stringResource(R.string.website_update_server_notice)
+                    is WebsiteVersionMismatch.TvAppTooOld -> mismatch.minTvApp
+                        ?.let { stringResource(R.string.website_update_app_notice_version, it) }
+                        ?: stringResource(R.string.website_update_app_notice)
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = FetchTheme.colors.Error,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.md)

@@ -48,6 +48,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -255,6 +256,12 @@ open class MainActivity : ComponentActivity() {
     // eager field would build each of these graphs on the main thread before anything is drawn.
     @Inject
     lateinit var youTubeAuthDataStore: dagger.Lazy<com.fetch.tv.data.local.YouTubeAuthDataStore>
+
+    @Inject
+    lateinit var liveTvSettings: dagger.Lazy<com.fetch.tv.core.livetv.LiveTvSettingsDataStore>
+
+    @Inject
+    lateinit var liveTvRepository: dagger.Lazy<com.fetch.tv.core.livetv.LiveTvRepository>
 
     @Inject
     lateinit var experienceModeDataStore: ExperienceModeDataStore
@@ -959,7 +966,30 @@ open class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    val rootRoutes = remember(youTubeInSidebar) {
+                    // Live TV, like YouTube, is in the sidebar only when the profile turned it on and
+                    // there is a source: a live-TV addon, or a media server with channels (#660).
+                    val liveTvEnabled by remember(liveTvSettings) { liveTvSettings.get().enabled }
+                        .collectAsStateWithLifecycle(initialValue = null)
+                    val liveTvHasSources by remember(liveTvRepository) {
+                        liveTvRepository.get().hasSources
+                    }.collectAsStateWithLifecycle(initialValue = null)
+                    // Servers are only asked about Live TV once a profile has turned it on.
+                    LaunchedEffect(liveTvEnabled) {
+                        if (liveTvEnabled == true) liveTvRepository.get().probeServers()
+                    }
+                    val liveTvInSidebar = liveTvEnabled == true && liveTvHasSources == true &&
+                        !parentalRestrictions.isRestricted
+                    LaunchedEffect(liveTvEnabled, liveTvHasSources, liveTvInSidebar, currentRoute) {
+                        if (liveTvEnabled == null || liveTvHasSources == null || liveTvInSidebar) return@LaunchedEffect
+                        if (currentRoute == Screen.LiveTv.route) {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(navController.graph.startDestinationId) { saveState = false }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+
+                    val rootRoutes = remember(youTubeInSidebar, liveTvInSidebar) {
                         buildSet {
                             add(Screen.Home.route)
                             add(Screen.Search.route)
@@ -968,6 +998,9 @@ open class MainActivity : ComponentActivity() {
                             add(Screen.Settings.route)
                             if (youTubeInSidebar) {
                                 add(Screen.YouTube.route)
+                            }
+                            if (liveTvInSidebar) {
+                                add(Screen.LiveTv.route)
                             }
                         }
                     }
@@ -978,6 +1011,7 @@ open class MainActivity : ComponentActivity() {
                     val strNavLibrary = stringResource(R.string.nav_library)
                     val strNavSettings = stringResource(R.string.nav_settings)
                     val strNavYouTube = stringResource(R.string.nav_youtube)
+                    val strNavLiveTv = stringResource(R.string.nav_live_tv)
                     val drawerItems = remember(
                         strNavHome,
                         strNavDiscover,
@@ -985,7 +1019,9 @@ open class MainActivity : ComponentActivity() {
                         strNavLibrary,
                         strNavSettings,
                         strNavYouTube,
-                        youTubeInSidebar
+                        youTubeInSidebar,
+                        strNavLiveTv,
+                        liveTvInSidebar
                     ) {
                         buildList {
                             add(
@@ -1022,6 +1058,15 @@ open class MainActivity : ComponentActivity() {
                                         route = Screen.YouTube.route,
                                         label = strNavYouTube,
                                         iconRes = R.raw.sidebar_youtube
+                                    )
+                                )
+                            }
+                            if (liveTvInSidebar) {
+                                add(
+                                    DrawerItem(
+                                        route = Screen.LiveTv.route,
+                                        label = strNavLiveTv,
+                                        icon = Icons.Default.LiveTv
                                     )
                                 )
                             }

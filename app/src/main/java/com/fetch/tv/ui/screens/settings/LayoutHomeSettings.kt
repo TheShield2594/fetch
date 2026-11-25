@@ -148,4 +148,13 @@ internal fun LayoutSidebarSection(
         checked = uiState.sidebarCollapsedByDefault,
         onToggle = { onEvent(LayoutSettingsEvent.SetSidebarCollapsed(!uiState.sidebarCollapsedByDefault)) }
     )
+    // Like YouTube, Live TV is in the sidebar only when there is something to show (#660).
+    SettingsToggleRow(
+        title = stringResource(R.string.layout_live_tv),
+        subtitle = stringResource(
+            if (uiState.liveTvAvailable) R.string.layout_live_tv_sub else R.string.layout_live_tv_sub_no_source
+        ),
+        checked = uiState.liveTvEnabled,
+        onToggle = { onEvent(LayoutSettingsEvent.SetLiveTvEnabled(!uiState.liveTvEnabled)) }
+    )
 }

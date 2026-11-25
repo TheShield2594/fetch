@@ -2,6 +2,9 @@ package com.fetch.tv.ui.components
 
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected as semanticsSelected
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.foundation.border
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -79,7 +82,12 @@ fun GridContentCard(
     downFocusRequester: FocusRequester? = null,
     showReleaseInfo: Boolean = false,
     onLongPress: (() -> Unit)? = null,
-    onFocused: () -> Unit = {}
+    onFocused: () -> Unit = {},
+    // Selection mode (#653): null outside it; otherwise whether this card is chosen.
+    selected: Boolean? = null,
+    // A show's "New" / "New season" corner badge (#653), as on Continue Watching.
+    newEpisodeBadge: String? = null,
+    newEpisodeBadgeIsSeason: Boolean = false
 ) {
     val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
     val density = LocalDensity.current
@@ -110,6 +118,12 @@ fun GridContentCard(
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
+    val selectionState = when (selected) {
+        null -> null
+        true -> stringResource(R.string.library_selection_cd_selected)
+        false -> stringResource(R.string.library_selection_cd_not_selected)
+    }
+    val cardStateDescription = listOfNotNull(selectionState, newEpisodeBadge).joinToString(", ").ifBlank { null }
 
     Column(
         modifier = modifier
@@ -126,7 +140,11 @@ fun GridContentCard(
             },
             modifier = Modifier
                 // The title once, on the card: the artwork, logo and overlay title are decoration.
-                .semantics { contentDescription = item.name }
+                .semantics {
+                    contentDescription = item.name
+                    if (cardStateDescription != null) stateDescription = cardStateDescription
+                    if (selected != null) semanticsSelected = selected
+                }
                 .then(
                     if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
                     else Modifier.width(posterCardStyle.width).height(cardHeight)
@@ -348,7 +366,33 @@ fun GridContentCard(
                     )
                 }
 
-                if (isWatched) {
+                if (selected == true) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .border(FetchTheme.strokes.focus, FetchTheme.colors.Accent, cardShape)
+                    )
+                }
+                if (selected != null) {
+                    SelectionCheckMarker(
+                        selected = selected,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
+                            .zIndex(2f)
+                    )
+                }
+                if (newEpisodeBadge != null) {
+                    // A new episode means the show isn't watched through, so it takes the tick's corner.
+                    NewEpisodeBadge(
+                        text = newEpisodeBadge,
+                        newSeason = newEpisodeBadgeIsSeason,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(end = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
+                            .zIndex(2f)
+                    )
+                } else if (isWatched) {
                     WatchedMarker(
                         modifier = Modifier
                             .align(Alignment.TopEnd)

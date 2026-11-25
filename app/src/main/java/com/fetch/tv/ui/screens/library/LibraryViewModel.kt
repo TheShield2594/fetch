@@ -203,7 +203,9 @@ data class LibraryUiState(
     val pendingOperation: Boolean = false,
     val customPosterUrlPattern: String = "",
     val customPosterEnabledScreens: Set<com.fetch.tv.core.poster.CustomPosterScreen> =
-        com.fetch.tv.core.poster.CustomPosterScreen.ALL
+        com.fetch.tv.core.poster.CustomPosterScreen.ALL,
+    // A bulk action from selection mode is running (#653).
+    val bulkPending: Boolean = false
 ) {
     /** The lists the list picker offers on the current tab. */
     val scopedListTabs: List<LibraryListTab> get() = listTabs.inScope(listScope)
@@ -244,6 +246,8 @@ class LibraryViewModel @Inject constructor(
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
     private val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
+    private val bulkActions: LibraryBulkActions,
+    private val nextUpCache: com.fetch.tv.data.local.ContinueWatchingEnrichmentCache,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -282,6 +286,70 @@ class LibraryViewModel @Inject constructor(
     }
         .flowOn(kotlinx.coroutines.Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /**
+     * Shows with a new episode or season out, by content id, for the cards' corner badge: Home's
+     * Next up snapshot, re-read whenever Home writes it. Collected only while the grid shows.
+     */
+    val newEpisodeBadges: StateFlow<Map<String, LibraryNewEpisodeBadge>> = combine(
+        profileManager.activeProfileId,
+        nextUpCache.snapshotVersion,
+        nextUpCache.cacheCleared
+    ) { profileId, _, _ -> profileId }
+        .map { profileId -> libraryNewEpisodeBadges(nextUpCache.getNextUpSnapshot(profileId)) }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    /**
+     * Runs a selection-mode action over [targets] one title at a time, then says how it went.
+     * [listTitle] names the list for Move / Add to list.
+     */
+    fun onBulkAction(targets: List<LibraryBulkTarget>, operation: LibraryBulkOperation, listTitle: String? = null) {
+        if (targets.isEmpty() || _uiState.value.bulkPending) return
+        val tabs = _uiState.value.listTabs
+        _uiState.update { it.copy(bulkPending = true) }
+        setTransientMessage(context.resources.getQuantityString(R.plurals.library_selection_working, targets.size, targets.size))
+        viewModelScope.launch {
+            try {
+                val result = when (operation) {
+                    is LibraryBulkOperation.RemoveFromList ->
+                        bulkActions.changeMembership(targets, tabs, addTo = null, removeFrom = operation.listKey)
+                    is LibraryBulkOperation.AddToList ->
+                        bulkActions.changeMembership(targets, tabs, addTo = operation.listKey, removeFrom = operation.removeFrom)
+                    LibraryBulkOperation.RemoveFromHistory -> bulkActions.removeFromHistory(targets)
+                    LibraryBulkOperation.RemoveProgress -> bulkActions.removeProgress(targets)
+                    LibraryBulkOperation.MarkWatched -> bulkActions.markWatched(targets)
+                }
+                reportBulkResult(result, operation, listTitle.orEmpty())
+            } finally {
+                _uiState.update { it.copy(bulkPending = false) }
+            }
+        }
+    }
+
+    private fun reportBulkResult(result: LibraryBulkResult, operation: LibraryBulkOperation, listTitle: String) {
+        val res = context.resources
+        if (result.done == 0 && result.failed > 0) {
+            setError(res.getQuantityString(R.plurals.library_selection_failed, result.failed, result.failed))
+            return
+        }
+        val done = result.done
+        val headline = when (operation) {
+            is LibraryBulkOperation.AddToList -> if (operation.removeFrom != null) {
+                res.getQuantityString(R.plurals.library_selection_done_moved, done, done, listTitle)
+            } else {
+                res.getQuantityString(R.plurals.library_selection_done_added, done, done, listTitle)
+            }
+            LibraryBulkOperation.MarkWatched -> res.getQuantityString(R.plurals.library_selection_done_watched, done, done)
+            else -> res.getQuantityString(R.plurals.library_selection_done_removed, done, done)
+        }
+        val message = listOfNotNull(
+            headline,
+            result.failed.takeIf { it > 0 }?.let { res.getQuantityString(R.plurals.library_selection_failed, it, it) },
+            result.skipped.takeIf { it > 0 }?.let { res.getQuantityString(R.plurals.library_selection_skipped, it, it) }
+        ).joinToString(" ")
+        if (result.failed > 0) setError(message) else setTransientMessage(message)
+    }
 
     private class ListManagementContext(val profileId: Int, val source: LibrarySourceMode)
     private var listManagementContext: ListManagementContext? = null

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library multi-select (#653). The button that starts choosing several titles at once. -->
+    <string name="library_selection_start">Select</string>
+    <!-- The bar shown while choosing titles. -->
+    <plurals name="library_selection_count">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <string name="library_selection_hint">OK chooses a title · Menu jumps to these actions · Back finishes</string>
+    <string name="library_selection_remove">Remove</string>
+    <string name="library_selection_mark_watched">Mark watched</string>
+    <string name="library_selection_move_to_list">Move to list</string>
+    <string name="library_selection_add_to_list">Add to list</string>
+    <string name="library_selection_done">Done</string>
+    <string name="library_selection_bar_description">Actions for the chosen titles</string>
+    <!-- TalkBack state of a card while choosing titles. -->
+    <string name="library_selection_cd_selected">Selected</string>
+    <string name="library_selection_cd_not_selected">Not selected</string>
+
+    <!-- Confirming a bulk removal. %d is how many titles. -->
+    <plurals name="library_selection_remove_confirm_title">
+        <item quantity="one">Remove %d title?</item>
+        <item quantity="other">Remove %d titles?</item>
+    </plurals>
+    <!-- %1$s is the list, or the History or In progress tab, the titles leave. -->
+    <string name="library_selection_remove_confirm_subtitle">They leave %1$s. Titles your tracking service wants confirmed one at a time are left as they are.</string>
+
+    <!-- While a bulk action runs, and how it went. -->
+    <plurals name="library_selection_working">
+        <item quantity="one">Updating %d title…</item>
+        <item quantity="other">Updating %d titles…</item>
+    </plurals>
+    <plurals name="library_selection_done_removed">
+        <item quantity="one">Removed %d title.</item>
+        <item quantity="other">Removed %d titles.</item>
+    </plurals>
+    <plurals name="library_selection_done_watched">
+        <item quantity="one">Marked %d title watched.</item>
+        <item quantity="other">Marked %d titles watched.</item>
+    </plurals>
+    <!-- %1$d is how many titles, %2$s the list they went to. -->
+    <plurals name="library_selection_done_moved">
+        <item quantity="one">Moved %1$d title to %2$s.</item>
+        <item quantity="other">Moved %1$d titles to %2$s.</item>
+    </plurals>
+    <plurals name="library_selection_done_added">
+        <item quantity="one">Added %1$d title to %2$s.</item>
+        <item quantity="other">Added %1$d titles to %2$s.</item>
+    </plurals>
+    <plurals name="library_selection_failed">
+        <item quantity="one">%d title couldn’t be changed; try it again from its menu.</item>
+        <item quantity="other">%d titles couldn’t be changed; try them again from their menus.</item>
+    </plurals>
+    <plurals name="library_selection_skipped">
+        <item quantity="one">%d title was left as it was: change it from its own menu.</item>
+        <item quantity="other">%d titles were left as they were: change them from their own menus.</item>
+    </plurals>
+</resources>

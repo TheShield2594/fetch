@@ -270,8 +270,11 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     val cacheBuffering = view.isPausedForCacheNow() || view.isCoreIdleNow()
                     var firstFrameReady = hasRenderedFirstFrame
                     if (!firstFrameReady) {
+                        // A player started paused (#706) never plays or moves; at 0:00 a loaded
+                        // file (known duration, not waiting on the cache) is ready all the same.
+                        val readyWhilePaused = userPausedManually && !view.isPausedForCacheNow()
                         firstFrameReady = view.isPositionFromRequestedMedia() &&
-                            (pos > 0L || (playingNow && !cacheBuffering && playerDuration > 0L))
+                            (pos > 0L || ((playingNow && !cacheBuffering) || readyWhilePaused) && playerDuration > 0L)
                         if (firstFrameReady) {
                             hasRenderedFirstFrame = true
                             onCurrentStreamFirstFrame()

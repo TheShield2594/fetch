@@ -876,7 +876,17 @@ fun PlayerScreen(
                         uiState.postPlayMode is PostPlayMode.StillWatching ||
                         postPlayRecommendationState.isVisible ||
                         uiState.error != null
-                if (panelOrDialogOpen) return@onKeyEvent false
+                if (panelOrDialogOpen) {
+                    // A panel opened during a held FF/Rewind: still commit its preview on release,
+                    // or the stale target lingers on the timeline (#711).
+                    if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP &&
+                        (keyEvent.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD ||
+                            keyEvent.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_MEDIA_REWIND)
+                    ) {
+                        viewModel.onEvent(PlayerEvent.OnCommitKeySeek)
+                    }
+                    return@onKeyEvent false
+                }
                 // The More row is an inline row, not a modal: it keeps D-pad/Enter for its own
                 // focus handling, but hardware media keys still drive playback while it is open.
                 if (uiState.showMoreDialog &&

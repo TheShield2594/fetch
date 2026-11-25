@@ -64,7 +64,8 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
         startWatchProgressSaving()
         updateMpvAvailableTracks()
         scheduleHideControls()
-        emitScrobbleStart()
+        // Started paused (#706): the scrobble starts when playback does, on resume.
+        if (!userPausedManually) emitScrobbleStart()
     }.onFailure {
         val technical = it.message?.trim()?.takeIf { message -> message.isNotEmpty() }
         val explanation = context.getString(com.fetch.tv.R.string.player_error_mpv_surface_failed)
@@ -215,7 +216,8 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         startWatchProgressSaving()
         updateMpvAvailableTracks()
         scheduleHideControls()
-        emitScrobbleStart()
+        // Started paused (#706): the scrobble starts when playback does, on resume.
+        if (!userPausedManually) emitScrobbleStart()
     }.onFailure { error ->
         Log.e(PlayerRuntimeController.TAG, "libmpv initialize failed: ${error.message}", error)
         val technical = error.message?.trim()?.takeIf { it.isNotEmpty() }

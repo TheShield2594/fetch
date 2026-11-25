@@ -192,6 +192,8 @@ class ServerPlaybackTest {
         val session = playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"))
         assertFalse(playback.canFallback(session.url))
         assertEquals(listOf(1 to true, 2 to false), playback.audioTracks(session.url).map { it.index to it.selected })
+        // Started, so the restart reports a STOP; an unstarted one is only released (#702).
+        playback.onPlaybackSnapshot(session.url, 5_000L, isPlaying = true, isLoading = false, isEnded = false)
 
         val switched = playback.switchAudio(session.url, 2)!!
 
@@ -202,6 +204,7 @@ class ServerPlaybackTest {
         assertTrue(playback.isServerSource(switched.url))
         assertEquals(listOf(1 to false, 2 to true), playback.audioTracks(switched.url).map { it.index to it.selected })
         assertTrue(ServerPlaybackEventType.STOP in provider.reported)
+        assertFalse(session.url in provider.released)
     }
 
     @Test

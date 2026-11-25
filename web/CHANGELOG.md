@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Hide watched titles, from the website too.** TV settings → Content has the TV's new "Hide watched titles" toggle, which leaves watched movies and finished shows out of Home rows and See all. The TV's "Not interested" titles sync in the same settings document, one key per title.
+
 - **Find and merge duplicate watches.** Settings → Data → Duplicate watches lists watches that look like one watch recorded twice: the same title within 36 hours (two sources dating one evening to different UTC days), or a "date unknown" mark next to the dated play. Untick any real rewatches and merge the rest; each keeps one row with the largest play count, its note and any Trakt id.
 
 ### Fixed

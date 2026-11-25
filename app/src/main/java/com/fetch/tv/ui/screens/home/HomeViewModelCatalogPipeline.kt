@@ -588,8 +588,13 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
 
 internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     val (orderedKeys, unfilteredCatalogSnapshot) = snapshotCatalogState()
-    // Profile limits apply before anything else so rows, hero and grid all respect them.
-    val catalogSnapshot = unfilteredCatalogSnapshot.mapValues { (_, row) -> parentalControls.filterRow(row) }
+    // Profile limits apply before anything else so rows, hero and grid all respect them; then the
+    // profile's "Not interested" titles and, with "Hide watched", watched ones (#650). See all
+    // shows these same rows, so it leaves them out too.
+    val visibility = titleVisibility.visibility.value
+    val catalogSnapshot = unfilteredCatalogSnapshot.mapValues { (_, row) ->
+        visibility.filterCatalogRow(parentalControls.filterRow(row))
+    }
     val collectionsSnapshot = collectionsCache.associateBy { "collection_${it.id}" }
     val heroCatalogKeys = currentHeroCatalogKeys
     val heroSectionEnabled = _uiState.value.heroSectionEnabled

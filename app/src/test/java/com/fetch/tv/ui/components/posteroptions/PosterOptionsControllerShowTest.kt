@@ -120,7 +120,8 @@ class PosterOptionsControllerShowTest {
             watchProgressRepository = watchProgressRepository,
             metaRepository = metaRepository,
             watchedSeriesStateHolder = watchedSeriesStateHolder,
-            tmdbService = tmdbService
+            tmdbService = tmdbService,
+            hiddenTitlesStore = mockk(relaxed = true)
         )
         controller.bind(backgroundScope)
 
@@ -162,7 +163,8 @@ class PosterOptionsControllerShowTest {
             watchProgressRepository = watchProgressRepository,
             metaRepository = metaRepository,
             watchedSeriesStateHolder = watchedSeriesStateHolder,
-            tmdbService = tmdbService
+            tmdbService = tmdbService,
+            hiddenTitlesStore = mockk(relaxed = true)
         )
         controller.bind(backgroundScope)
 
@@ -196,7 +198,8 @@ class PosterOptionsControllerShowTest {
             watchProgressRepository = watchProgressRepository,
             metaRepository = metaRepository,
             watchedSeriesStateHolder = watchedSeriesStateHolder,
-            tmdbService = tmdbService
+            tmdbService = tmdbService,
+            hiddenTitlesStore = mockk(relaxed = true)
         )
     }
 

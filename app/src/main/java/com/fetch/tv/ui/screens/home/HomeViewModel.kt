@@ -93,6 +93,8 @@ class HomeViewModel @Inject constructor(
     internal val tvRecommendationManager: TvRecommendationManager,
     internal val serverCatalog: ServerCatalog,
     internal val parentalControls: com.fetch.tv.core.parental.ParentalControls,
+    /** "Not interested" titles and "Hide watched" (#650), applied to catalog rows after the profile limit. */
+    internal val titleVisibility: com.fetch.tv.core.hidden.TitleVisibilityFilter,
     internal val bestMatchCacheDataStore: com.fetch.tv.data.local.BestMatchCacheDataStore,
     internal val episodeQueueStore: com.fetch.tv.data.local.EpisodeQueueStore,
     internal val becauseYouWatchedService: com.fetch.tv.core.recommendations.BecauseYouWatchedService,
@@ -433,6 +435,10 @@ class HomeViewModel @Inject constructor(
             viewModelScope.launch {
                 // Rows are filtered by the profile limit; refilter when it or a lookup changes.
                 parentalControls.filterRevision.drop(1).collect { scheduleUpdateCatalogRows() }
+            }
+            viewModelScope.launch {
+                // And by the profile's hidden titles and "Hide watched" (#650).
+                titleVisibility.visibility.drop(1).collect { scheduleUpdateCatalogRows() }
             }
 
             // Clear CW state when profile changes so items don't leak between profiles.

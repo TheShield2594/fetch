@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="poster_options_not_interested">Kein Interesse</string>
+    <string name="poster_options_done_not_interested">„%1$s“ wird nicht mehr vorgeschlagen. In den Einstellungen wiederherstellen</string>
+    <string name="poster_options_error_not_interested">Der Titel konnte nicht ausgeblendet werden. Versuchen Sie es erneut</string>
+    <string name="hidden_titles_group_title">Ausgeblendete Titel</string>
+    <string name="hidden_titles_hide_watched_title">Gesehene Titel ausblenden</string>
+    <string name="hidden_titles_hide_watched_subtitle">Gesehene Filme und fertig geschaute Serien erscheinen nicht in Startseiten-Reihen und unter „Alle anzeigen“. „Weiterschauen“, Ihre Bibliothek und Ihre Listen zeigen sie weiterhin</string>
+    <string name="hidden_titles_not_interested_title">Kein Interesse</string>
+    <string name="hidden_titles_not_interested_subtitle">Titel, die Sie aus Startseiten-Reihen, „Alle anzeigen“, der Suche und „Ähnliche Titel“ ausgeblendet haben</string>
+    <string name="hidden_titles_none">Keine</string>
+    <plurals name="hidden_titles_count">
+        <item quantity="one">%1$d Titel</item>
+        <item quantity="other">%1$d Titel</item>
+    </plurals>
+    <string name="hidden_titles_page_subtitle">Wählen Sie einen Titel, um ihn wieder anzuzeigen</string>
+    <string name="hidden_titles_empty_title">Nichts ausgeblendet</string>
+    <string name="hidden_titles_empty_subtitle">Halten Sie OK auf einem Poster gedrückt und wählen Sie „Kein Interesse“, damit ein Titel nicht wiederkommt</string>
+    <string name="hidden_titles_restore_hint">Zum Wiederherstellen auswählen</string>
+    <string name="hidden_titles_sync_note">Ausgeblendete Titel gehen mit diesem Profil auf Ihre anderen Fernseher und die Fetch-Website und sind in Sicherungen enthalten.</string>
+</resources>

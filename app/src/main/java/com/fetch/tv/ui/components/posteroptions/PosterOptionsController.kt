@@ -47,7 +47,8 @@ class PosterOptionsController @Inject constructor(
     private val watchProgressRepository: WatchProgressRepository,
     private val metaRepository: MetaRepository,
     private val watchedSeriesStateHolder: WatchedSeriesStateHolder,
-    private val tmdbService: TmdbService
+    private val tmdbService: TmdbService,
+    private val hiddenTitlesStore: com.fetch.tv.data.local.HiddenTitlesStore
 ) {
     private val _state = MutableStateFlow(PosterOptionsState())
     val state: StateFlow<PosterOptionsState> = _state.asStateFlow()
@@ -546,6 +547,45 @@ class PosterOptionsController @Inject constructor(
                 }
             }
         return episodes
+    }
+
+    /**
+     * "Not interested" (#650): hides the title from Home rows, See all, Search and More like this
+     * for this profile. Stored under every id it was seen by (the canonical IMDb id, the id the
+     * screen showed, e.g. "tmdb:123"), so rows that know it by either leave it out.
+     */
+    fun markNotInterested() {
+        val state = _state.value
+        val item = state.target ?: return
+        val scope = this.scope ?: return
+        dismiss()
+        scope.launch {
+            val canonical = runCatching { canonicalize(item) }.getOrDefault(item)
+            val ids = buildList {
+                add(canonical.id)
+                add(item.id)
+                state.originalItemId?.let(::add)
+                canonical.imdbId?.let(::add)
+            }.map(String::trim).filter(String::isNotEmpty).distinct()
+            val title = com.fetch.tv.data.local.HiddenTitle(
+                ids = ids,
+                type = canonical.apiType,
+                name = canonical.name,
+                poster = canonical.rawPosterUrl?.takeIf { it.isNotBlank() } ?: canonical.poster,
+                hiddenAtMs = System.currentTimeMillis()
+            )
+            runCatching { hiddenTitlesStore.hide(title) }
+                .onSuccess {
+                    reportActionDone(com.fetch.tv.R.string.poster_options_done_not_interested, canonical.name)
+                }
+                .onFailure { error ->
+                    if (error is kotlinx.coroutines.CancellationException) throw error
+                    Log.w(TAG, "Failed to hide ${canonical.id}: ${error.message}")
+                    _state.update {
+                        it.copy(actionError = appContext.getString(com.fetch.tv.R.string.poster_options_error_not_interested))
+                    }
+                }
+        }
     }
 
     private var activeListPickerInput: LibraryEntryInput? = null

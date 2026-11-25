@@ -1138,6 +1138,7 @@ fun SearchScreen(
     com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
         state = posterOptionsState,
         controller = viewModel.posterOptions,
+        showNotInterested = true,
         onNavigateToDetail = { id, type, addonBaseUrl ->
             // Consume it, so a later navigation cannot reuse this row.
             posterOptionsRowKey?.let(saveSearchFocusForDetail)

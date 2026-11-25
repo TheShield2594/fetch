@@ -73,12 +73,13 @@ internal fun HomeViewModel.observeBecauseYouWatchedPipeline() {
                 input.profileId to builtRows
             }
 
-        combine(rows, parentalControls.filterRevision) { (profileId, builtRows), _ ->
+        combine(rows, parentalControls.filterRevision, titleVisibility.visibility) { (profileId, builtRows), _, visibility ->
             // Rows built for a profile that is no longer active must not reach the new one.
             if (profileId != profileManager.activeProfileId.value) {
                 emptyList()
             } else {
-                builtRows.map(parentalControls::filterRow).filter { it.items.isNotEmpty() }
+                builtRows.map { visibility.filterCatalogRow(parentalControls.filterRow(it)) }
+                    .filter { it.items.isNotEmpty() }
             }
         }.collect { filteredRows: List<CatalogRow> ->
             _uiState.update { state ->

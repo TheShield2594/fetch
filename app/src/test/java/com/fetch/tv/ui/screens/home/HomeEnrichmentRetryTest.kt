@@ -475,6 +475,7 @@ class HomeEnrichmentRetryTest {
             tvRecommendationManager = mockk(relaxed = true),
             serverCatalog = mockk(relaxed = true),
             parentalControls = com.fetch.tv.unrestrictedParentalControls(),
+            titleVisibility = com.fetch.tv.unfilteredTitleVisibility(),
             bestMatchCacheDataStore = mockk(relaxed = true),
             episodeQueueStore = mockk(relaxed = true),
             becauseYouWatchedService = mockk(relaxed = true),

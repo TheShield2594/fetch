@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ARGB_WHITE,
+  HIDDEN_TITLES_FEATURE,
   MDBLIST_RATING_SOURCES,
   TV_SETTING_FIELDS,
   TV_SETTING_GROUPS,
@@ -10,6 +11,7 @@ import {
   hexToArgb,
   isFieldVisible,
   readField,
+  readHiddenTitles,
   readMdbListRatingSettings,
   readPalette,
   readRankingRules,
@@ -17,6 +19,7 @@ import {
   withField,
   withMdbListRatingSettings,
   withRankingRules,
+  withRestoredTitle,
   type TvSettingField,
   type TvSettingsDocument,
 } from "./tv-settings.js";
@@ -239,5 +242,48 @@ describe("the wider settings catalogue", () => {
     expect(readPalette("#112233,#445566,#778899")).toEqual(["#112233", "#445566", "#778899"]);
     expect(readPalette("nonsense")).toEqual(["#b75aff", "#ec70a9", "#ffb37a"]);
     expect(encodePalette(["#aabbcc", "ddeeff", "#010203"])).toBe("#AABBCC,#DDEEFF,#010203");
+  });
+});
+
+describe("hidden titles (#650)", () => {
+  const entry = (ids: string[], hiddenAt: number, name = ids[0]) => ({
+    type: "string" as const,
+    value: JSON.stringify({ ids, type: "movie", name, hiddenAt }),
+  });
+  const document: TvSettingsDocument = {
+    version: 1,
+    features: {
+      [HIDDEN_TITLES_FEATURE]: {
+        hide_watched: { type: "boolean", value: true },
+        "title:movie:tt1": entry(["tt1", "tmdb:1"], 1, "Older"),
+        "title:movie:tt2": entry(["tt2"], 2, "Newer"),
+        "title:movie:broken": { type: "string", value: "{" },
+        "title:movie:noids": entry([], 3),
+      },
+      player_settings: { subtitle_size: { type: "int", value: 120 } },
+    },
+  };
+
+  it("reads the titles the TV synced, newest first, skipping damaged entries", () => {
+    expect(readHiddenTitles(document).map((t) => [t.key, t.name, t.ids])).toEqual([
+      ["title:movie:tt2", "Newer", ["tt2"]],
+      ["title:movie:tt1", "Older", ["tt1", "tmdb:1"]],
+    ]);
+    expect(readHiddenTitles({})).toEqual([]);
+  });
+
+  it("restores one title and leaves everything else alone", () => {
+    const next = withRestoredTitle(document, "title:movie:tt1");
+    expect(readHiddenTitles(next).map((t) => t.key)).toEqual(["title:movie:tt2"]);
+    expect(next.features?.player_settings).toEqual(document.features?.player_settings);
+    expect(next.features?.[HIDDEN_TITLES_FEATURE]?.hide_watched).toEqual({ type: "boolean", value: true });
+  });
+
+  it("offers Hide watched as a toggle, off by default", () => {
+    const hideWatched = field("hide_watched");
+    expect(hideWatched.feature).toBe(HIDDEN_TITLES_FEATURE);
+    expect(readField({}, hideWatched)).toBe(false);
+    expect(readField(document, hideWatched)).toBe(true);
+    expect(withField({}, hideWatched, true).features?.[HIDDEN_TITLES_FEATURE]?.hide_watched).toEqual({ type: "boolean", value: true });
   });
 });

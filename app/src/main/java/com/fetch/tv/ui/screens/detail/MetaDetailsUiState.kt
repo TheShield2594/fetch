@@ -137,6 +137,17 @@ sealed class MetaDetailsEvent {
     data object OnLifecyclePause : MetaDetailsEvent()
 }
 
+/**
+ * Leaves "Not interested" titles (#650) out of More like this. The collection rail lists a
+ * franchise in order, so it keeps them.
+ */
+internal fun MetaDetailsUiState.withoutNotInterested(
+    visibility: com.fetch.tv.core.hidden.TitleVisibility
+): MetaDetailsUiState {
+    val similar = visibility.filterSuggestions(moreLikeThis)
+    return if (similar === moreLikeThis) this else copy(moreLikeThis = similar)
+}
+
 /** Leaves out More like this and collection titles the active profile may not see. */
 internal fun MetaDetailsUiState.filteredForProfile(
     parentalControls: com.fetch.tv.core.parental.ParentalControls

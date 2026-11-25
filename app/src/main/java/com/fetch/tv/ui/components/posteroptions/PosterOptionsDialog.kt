@@ -61,6 +61,8 @@ fun PosterOptionsDialog(
     onDetails: () -> Unit,
     onToggleLibrary: () -> Unit,
     onToggleWatched: () -> Unit,
+    /** "Not interested" (#650); null where the menu isn't on a suggestion (library, lists). */
+    onNotInterested: (() -> Unit)? = null,
     /** Further entries after the built-in ones, such as the parental one. */
     extraActions: @Composable () -> Unit = {}
 ) {
@@ -128,6 +130,19 @@ fun PosterOptionsDialog(
                         stringResource(R.string.hero_mark_watched)
                     }
                 )
+            }
+        }
+
+        if (onNotInterested != null) {
+            Button(
+                onClick = onNotInterested,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.poster_options_not_interested))
             }
         }
 
@@ -223,6 +238,11 @@ fun PosterOptionsHost(
     state: PosterOptionsState,
     controller: PosterOptionsController,
     onNavigateToDetail: (id: String, type: String, addonBaseUrl: String) -> Unit,
+    /**
+     * Offers "Not interested" (#650). On for menus over suggestions (Home rows, See all, Search,
+     * More like this); off over the library and the profile's own lists, which it doesn't filter.
+     */
+    showNotInterested: Boolean = false,
     /** Screen-specific entries (e.g. Home's pin row), shown before the parental one. */
     extraActions: @Composable (target: com.fetch.tv.domain.model.MetaPreview) -> Unit = {}
 ) {
@@ -280,6 +300,7 @@ fun PosterOptionsHost(
                 }
                 controller.dismiss()
             },
+            onNotInterested = if (showNotInterested) controller::markNotInterested else null,
             extraActions = {
                 extraActions(target)
                 ParentalTitleMenuButton(

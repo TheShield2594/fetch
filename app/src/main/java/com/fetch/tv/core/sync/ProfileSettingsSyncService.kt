@@ -197,7 +197,9 @@ class ProfileSettingsSyncService @Inject constructor(
         "trakt_settings",
         "animeskip_settings",
         "track_preference",
-        com.fetch.tv.data.local.EpisodeQueueStore.FEATURE
+        com.fetch.tv.data.local.EpisodeQueueStore.FEATURE,
+        // "Not interested" titles and "Hide watched" (#650): with the website and in backups.
+        com.fetch.tv.data.local.HiddenTitlesStore.FEATURE
     )
 
     init {

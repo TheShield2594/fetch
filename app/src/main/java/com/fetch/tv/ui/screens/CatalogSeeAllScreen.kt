@@ -402,7 +402,9 @@ fun CatalogSeeAllScreen(
             controller = posterOptionsController,
             onNavigateToDetail = { id, type2, addonBaseUrl ->
                 onNavigateToDetail(id, type2, addonBaseUrl)
-            }
+            },
+            // A media server's catalog is the user's own library, which "Not interested" leaves alone.
+            showNotInterested = serverCatalog == null
         )
     }
 }

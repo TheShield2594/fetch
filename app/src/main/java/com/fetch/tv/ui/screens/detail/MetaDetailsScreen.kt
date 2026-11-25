@@ -1214,7 +1214,8 @@ fun MetaDetailsScreen(
         controller = viewModel.posterOptions,
         onNavigateToDetail = { id, type, addonBaseUrl ->
             onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
-        }
+        },
+        showNotInterested = true
     )
 }
 

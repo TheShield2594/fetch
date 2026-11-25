@@ -55,7 +55,8 @@ class UpdateRepository @Inject constructor(
                 notes = dto.body.orEmpty(),
                 assetName = asset.name,
                 assetUrl = asset.browserDownloadUrl,
-                assetSizeBytes = asset.size
+                assetSizeBytes = asset.size,
+                assetSha256 = normalizeSha256(asset.digest)
             )
         }
     }

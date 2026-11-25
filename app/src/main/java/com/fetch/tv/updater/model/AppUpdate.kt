@@ -6,5 +6,7 @@ data class AppUpdate(
     val notes: String,
     val assetName: String,
     val assetUrl: String,
-    val assetSizeBytes: Long?
+    val assetSizeBytes: Long?,
+    /** Lowercase hex SHA-256 of the asset, when the release publishes one. */
+    val assetSha256: String? = null
 )

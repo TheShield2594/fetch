@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.data.local.hides
 import android.content.Context
 import android.os.SystemClock
 import androidx.compose.runtime.mutableStateMapOf
@@ -339,6 +340,10 @@ class HomeViewModel @Inject constructor(
     internal val discoveredOlderNextUpItems = Collections.synchronizedList(mutableListOf<ContinueWatchingItem.NextUp>())
     internal val cwLastProcessedNextUpContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwProcessedOlderSeedContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    /** Shows hidden from Up Next at the last pipeline run, to spot ones restored since. */
+    @Volatile internal var cwLastNextUpDismissalIds: Set<String>? = null
+    /** Shows restored to Up Next that the older-seed pass hasn't tried yet. */
+    internal val cwRestoredNextUpIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwEnrichedNextUpOverlay = ConcurrentHashMap<String, NextUpInfo>()
     /** In-memory cache of enriched InProgress items per contentId+episode key. */
     internal val cwEnrichedInProgressOverlay = ConcurrentHashMap<String, ContinueWatchingItem.InProgress>()
@@ -456,6 +461,7 @@ class HomeViewModel @Inject constructor(
                     discoveredOlderNextUpItems.clear()
                     cwLastProcessedNextUpContentIds.clear()
                     cwProcessedOlderSeedContentIds.clear()
+                    cwRestoredNextUpIds.clear()
                     cwEnrichedNextUpOverlay.clear()
                     cwEnrichedInProgressOverlay.clear()
                     cwLastBadgeEpisodeKeys = emptySet()
@@ -514,6 +520,7 @@ class HomeViewModel @Inject constructor(
         discoveredOlderNextUpItems.clear()
         cwLastProcessedNextUpContentIds.clear()
         cwProcessedOlderSeedContentIds.clear()
+        cwRestoredNextUpIds.clear()
         cwEnrichedNextUpOverlay.clear()
         cwEnrichedInProgressOverlay.clear()
         cwLastBadgeEpisodeKeys = emptySet()
@@ -775,7 +782,7 @@ class HomeViewModel @Inject constructor(
             val cachedInProgress = runCatching { cwEnrichmentCache.getInProgressSnapshot(profileId) }.getOrDefault(emptyList())
             val cachedNextUp = runCatching { cwEnrichmentCache.getNextUpSnapshot(profileId) }.getOrDefault(emptyList())
             if (cachedInProgress.isEmpty() && cachedNextUp.isEmpty()) return@launch
-            val dismissedNextUp = traktSettingsDataStore.dismissedNextUpKeys.first()
+            val dismissedNextUp = traktSettingsDataStore.nextUpDismissals.first()
             // Render cached items immediately — don't wait for Trakt/allProgress.
             // The pipeline will replace these with live data once it completes.
             val inProgressItems = cachedInProgress
@@ -807,7 +814,7 @@ class HomeViewModel @Inject constructor(
                 }
             val nextUpItems = cachedNextUp
                 .filter { !watchProgressRepository.isDroppedShow(it.contentId) }
-                .filter { nextUpDismissKey(it.contentId, it.seedSeason, it.seedEpisode) !in dismissedNextUp }
+                .filter { !dismissedNextUp.hides(it) }
                 .map { cached ->
                 ContinueWatchingItem.NextUp(
                     info = NextUpInfo(

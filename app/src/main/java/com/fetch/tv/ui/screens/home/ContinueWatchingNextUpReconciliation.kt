@@ -1,6 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.data.local.CachedNextUpItem
+import com.fetch.tv.data.local.NextUpDismissals
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -10,7 +11,7 @@ internal fun reconcileConclusiveNextUpItems(
     currentItems: List<ContinueWatchingItem>,
     resolvedItems: List<ContinueWatchingItem.NextUp>,
     conclusivelyProcessedContentIds: Set<String>,
-    dismissedNextUpKeys: Set<String>
+    dismissedNextUps: NextUpDismissals
 ): List<ContinueWatchingItem> {
     val resolvedByContentId = resolvedItems
         .distinctBy { item -> item.info.contentId }
@@ -25,11 +26,7 @@ internal fun reconcileConclusiveNextUpItems(
     val acceptedResolvedItems = resolvedByContentId.values.filter { item ->
         item.info.contentId !in inProgressContentIds &&
             item.info.contentId in conclusivelyProcessedContentIds &&
-            nextUpDismissKey(
-                item.info.contentId,
-                item.info.seedSeason,
-                item.info.seedEpisode
-            ) !in dismissedNextUpKeys
+            !dismissedNextUps.hides(item.info)
     }
     return retainedItems + acceptedResolvedItems
 }
@@ -50,7 +47,7 @@ internal fun mergeConcurrentContinueWatchingEnrichment(
 internal suspend fun HomeViewModel.applyConclusiveOlderNextUpResults(
     resolvedItems: List<ContinueWatchingItem.NextUp>,
     conclusivelyProcessedContentIds: Set<String>,
-    dismissedNextUpKeys: Set<String>,
+    dismissedNextUps: NextUpDismissals,
     sortMode: ContinueWatchingSortMode,
     pipelineProfileId: Int,
     snapshotOrigin: com.fetch.tv.data.local.ContinueWatchingEnrichmentCache.SaveOrigin,
@@ -62,11 +59,7 @@ internal suspend fun HomeViewModel.applyConclusiveOlderNextUpResults(
         .distinctBy { item -> item.info.contentId }
         .filter { item ->
             item.info.contentId in conclusivelyProcessedContentIds &&
-                nextUpDismissKey(
-                    item.info.contentId,
-                    item.info.seedSeason,
-                    item.info.seedEpisode
-                ) !in dismissedNextUpKeys
+                !dismissedNextUps.hides(item.info)
         }
     val reconciledContentIds = conclusivelyProcessedContentIds
 
@@ -83,7 +76,7 @@ internal suspend fun HomeViewModel.applyConclusiveOlderNextUpResults(
             currentItems = state.continueWatchingItems + state.upcomingItems,
             resolvedItems = acceptedResolvedItems,
             conclusivelyProcessedContentIds = conclusivelyProcessedContentIds,
-            dismissedNextUpKeys = dismissedNextUpKeys
+            dismissedNextUps = dismissedNextUps
         )
         val sorted = sortContinueWatchingItems(reconciled, sortMode)
         val (main, upcoming) = splitUpcomingItems(sorted, sortMode)

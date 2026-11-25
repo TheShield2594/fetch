@@ -860,6 +860,20 @@ fun ContinueWatchingOptionsDialog(
         is ContinueWatchingItem.NextUp -> item.info.name
     }
 
+    // Removing a resume point also deletes it from every connected service (Trakt, Simkl...)
+    // and can't be undone, so it asks first with Cancel focused. A Next Up removal only hides
+    // the show and can be restored in Settings, so it goes straight through
+    // (TheShield2594/fetch#649).
+    var confirmingRemove by remember(item) { mutableStateOf(false) }
+    if (confirmingRemove) {
+        ContinueWatchingRemoveConfirmDialog(
+            title = title,
+            onCancel = { confirmingRemove = false },
+            onConfirm = onRemove
+        )
+        return
+    }
+
     val detailsFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
@@ -930,12 +944,56 @@ fun ContinueWatchingOptionsDialog(
         }
 
         Button(
-            onClick = onRemove,
+            onClick = {
+                if (item is ContinueWatchingItem.InProgress) confirmingRemove = true else onRemove()
+            },
             colors = ButtonDefaults.colors(
                 containerColor = FetchTheme.colors.BackgroundCard,
                 contentColor = FetchTheme.colors.TextPrimary
             ),
             modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.cw_action_remove))
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun ContinueWatchingRemoveConfirmDialog(
+    title: String,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val cancelFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        cancelFocusRequester.requestFocus()
+    }
+
+    FetchDialog(
+        onDismiss = onCancel,
+        title = stringResource(R.string.cw_remove_confirm_title),
+        subtitle = stringResource(R.string.cw_remove_confirm_message, title)
+    ) {
+        Button(
+            onClick = onCancel,
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(cancelFocusRequester),
+            colors = ButtonDefaults.colors(
+                containerColor = FetchTheme.colors.BackgroundCard,
+                contentColor = FetchTheme.colors.TextPrimary
+            )
+        ) {
+            Text(stringResource(R.string.action_cancel))
+        }
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.colors(
+                containerColor = FetchTheme.colors.BackgroundCard,
+                contentColor = FetchTheme.colors.Error
+            )
         ) {
             Text(stringResource(R.string.cw_action_remove))
         }

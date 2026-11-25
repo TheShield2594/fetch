@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.data.local.NextUpDismissal
+import com.fetch.tv.data.local.NextUpDismissals
 import com.fetch.tv.domain.model.WatchProgress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -15,7 +17,7 @@ class ContinueWatchingNextUpReconciliationTest {
             currentItems = listOf(existing),
             resolvedItems = emptyList(),
             conclusivelyProcessedContentIds = emptySet(),
-            dismissedNextUpKeys = emptySet()
+            dismissedNextUps = NextUpDismissals.EMPTY
         )
 
         assertEquals(listOf(existing), result)
@@ -31,7 +33,7 @@ class ContinueWatchingNextUpReconciliationTest {
             currentItems = listOf(stale, unrelated, inProgress),
             resolvedItems = emptyList(),
             conclusivelyProcessedContentIds = setOf("completed"),
-            dismissedNextUpKeys = emptySet()
+            dismissedNextUps = NextUpDismissals.EMPTY
         )
 
         assertFalse(result.contains(stale))
@@ -48,7 +50,7 @@ class ContinueWatchingNextUpReconciliationTest {
             currentItems = listOf(stale),
             resolvedItems = listOf(resolved),
             conclusivelyProcessedContentIds = setOf("series"),
-            dismissedNextUpKeys = emptySet()
+            dismissedNextUps = NextUpDismissals.EMPTY
         )
 
         assertEquals(listOf(resolved), result)
@@ -63,7 +65,7 @@ class ContinueWatchingNextUpReconciliationTest {
             currentItems = listOf(inProgress),
             resolvedItems = listOf(resolved),
             conclusivelyProcessedContentIds = setOf("series"),
-            dismissedNextUpKeys = emptySet()
+            dismissedNextUps = NextUpDismissals.EMPTY
         )
 
         assertEquals(listOf(inProgress), result)
@@ -78,11 +80,60 @@ class ContinueWatchingNextUpReconciliationTest {
             currentItems = listOf(stale),
             resolvedItems = listOf(resolved),
             conclusivelyProcessedContentIds = setOf("series"),
-            dismissedNextUpKeys = setOf(nextUpDismissKey("series", 1, 2))
+            dismissedNextUps = dismissed(
+                NextUpDismissal("series", seedSeason = 1, seedEpisode = 2, season = 1, episode = 3, hadAired = true)
+            )
         )
 
         assertTrue(result.isEmpty())
     }
+
+    @Test
+    fun `dismissed show comes back when newer history moves the seed`() {
+        val resolved = nextUp("series", season = 1, episode = 5, seedSeason = 1, seedEpisode = 4)
+
+        val result = reconcileConclusiveNextUpItems(
+            currentItems = emptyList(),
+            resolvedItems = listOf(resolved),
+            conclusivelyProcessedContentIds = setOf("series"),
+            dismissedNextUps = dismissed(
+                NextUpDismissal("series", seedSeason = 1, seedEpisode = 2, season = 1, episode = 3, hadAired = true)
+            )
+        )
+
+        assertEquals(listOf(resolved), result)
+    }
+
+    @Test
+    fun `seed advance alone brings a dismissed show back`() {
+        val resolved = nextUp("series", season = 1, episode = 3, seedSeason = 1, seedEpisode = 3)
+        val result = reconcileConclusiveNextUpItems(
+            currentItems = emptyList(),
+            resolvedItems = listOf(resolved),
+            conclusivelyProcessedContentIds = setOf("series"),
+            dismissedNextUps = dismissed(
+                NextUpDismissal("series", seedSeason = 1, seedEpisode = 2, season = 1, episode = 3, hadAired = true)
+            )
+        )
+        assertEquals(listOf(resolved), result)
+    }
+
+    @Test
+    fun `later offered episode alone brings a dismissed show back`() {
+        val resolved = nextUp("series", season = 2, episode = 1, seedSeason = 1, seedEpisode = 2)
+        val result = reconcileConclusiveNextUpItems(
+            currentItems = emptyList(),
+            resolvedItems = listOf(resolved),
+            conclusivelyProcessedContentIds = setOf("series"),
+            dismissedNextUps = dismissed(
+                NextUpDismissal("series", seedSeason = 1, seedEpisode = 2, season = 1, episode = 3, hadAired = true)
+            )
+        )
+        assertEquals(listOf(resolved), result)
+    }
+
+    private fun dismissed(vararg entries: NextUpDismissal) =
+        NextUpDismissals(entries.associateBy { it.contentId })
 
     @Test
     fun `late enrichment does not resurrect a removed stale card`() {
@@ -129,7 +180,7 @@ class ContinueWatchingNextUpReconciliationTest {
             currentItems = listOf(stale, retained, inProgress("movie")),
             resolvedItems = emptyList(),
             conclusivelyProcessedContentIds = setOf("completed"),
-            dismissedNextUpKeys = emptySet()
+            dismissedNextUps = NextUpDismissals.EMPTY
         )
 
         val snapshot = reconciled.toCachedNextUpSnapshot(setOf("broken"))

@@ -18,5 +18,7 @@ data class GitHubAssetDto(
     val name: String,
     @Json(name = "browser_download_url") val browserDownloadUrl: String,
     val size: Long? = null,
-    @Json(name = "content_type") val contentType: String? = null
+    @Json(name = "content_type") val contentType: String? = null,
+    /** "sha256:<hex>"; GitHub fills it for assets uploaded since mid-2025. */
+    val digest: String? = null
 )

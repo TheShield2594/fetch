@@ -164,6 +164,19 @@ class WatchedSeriesStateHolder @Inject constructor(
     }
 
     /**
+     * Drops the revalidation deadlines of [contentIds] only, so those series are evaluated
+     * again on the next CW pipeline cycle (a show restored to Up Next, for example).
+     */
+    fun clearValidation(contentIds: Set<String>, profileId: Int) {
+        if (contentIds.none { it in revalidateAfterMap }) return
+        val updated = revalidateAfterMap - contentIds
+        revalidateAfterMap = updated
+        scope.launch {
+            store(profileId).edit { prefs -> prefs[REVALIDATE_KEY] = gson.toJson(updated) }
+        }
+    }
+
+    /**
      * Filters the given set to only those series that need re-validation
      * (past their revalidation deadline or never validated).
      */

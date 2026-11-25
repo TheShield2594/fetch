@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,6 +81,60 @@ internal fun LayoutContinueWatchingSection(
             onToggle = { onEvent(LayoutSettingsEvent.SetShowUnairedNextUp(!uiState.showUnairedNextUp)) }
         )
         ContinueWatchingSortModeRow(uiState, onEvent)
+        HiddenNextUpRow(uiState, onEvent)
+    }
+}
+
+/** Shows removed from Up Next, each restorable (TheShield2594/fetch#648). */
+@Composable
+private fun HiddenNextUpRow(
+    uiState: LayoutSettingsUiState,
+    onEvent: (LayoutSettingsEvent) -> Unit
+) {
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    val hidden = uiState.hiddenNextUp
+
+    SettingsActionRow(
+        title = stringResource(R.string.layout_hidden_next_up),
+        subtitle = stringResource(R.string.layout_hidden_next_up_sub),
+        value = if (hidden.isEmpty()) {
+            stringResource(R.string.layout_hidden_next_up_none)
+        } else {
+            hidden.size.toString()
+        },
+        enabled = hidden.isNotEmpty(),
+        onClick = { showDialog = true }
+    )
+
+    if (showDialog && hidden.isNotEmpty()) {
+        val restoreLabel = stringResource(R.string.layout_hidden_next_up_restore)
+        val options = hidden.map { dismissal ->
+            val season = dismissal.season
+            val episode = dismissal.episode
+            SettingsPickerOption(
+                value = dismissal.contentId,
+                title = dismissal.title?.takeIf { it.isNotBlank() } ?: dismissal.contentId,
+                description = if (season != null && episode != null) {
+                    stringResource(R.string.detail_btn_next_episode, season, episode)
+                } else {
+                    null
+                },
+                trailing = restoreLabel
+            )
+        }
+        SettingsSingleChoiceDialog(
+            title = stringResource(R.string.layout_hidden_next_up),
+            subtitle = stringResource(R.string.layout_hidden_next_up_dialog_sub),
+            options = options,
+            // Nothing is "selected": each row is an action.
+            selectedValue = "",
+            onOptionSelected = { contentId -> onEvent(LayoutSettingsEvent.RestoreHiddenNextUp(contentId)) },
+            onDismiss = { showDialog = false }
+        )
+    }
+    // Restoring the last one closes the dialog, so a later dismissal doesn't reopen it.
+    LaunchedEffect(hidden.isEmpty()) {
+        if (hidden.isEmpty()) showDialog = false
     }
 }
 

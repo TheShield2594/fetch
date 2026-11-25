@@ -1,0 +1,94 @@
+package com.fetch.tv.data.local
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class NextUpDismissalsTest {
+
+    private val dismissal = NextUpDismissal(
+        contentId = "tt1",
+        seedSeason = 1,
+        seedEpisode = 4,
+        season = 1,
+        episode = 5,
+        hadAired = true,
+        dismissedAtMs = 42L,
+        title = "A | show"
+    )
+
+    @Test
+    fun `round trips through storage`() {
+        assertEquals(dismissal, NextUpDismissal.decode(dismissal.encode()))
+        assertEquals("tt1", NextUpDismissal.contentIdOf(dismissal.encode()))
+    }
+
+    @Test
+    fun `legacy keys hide by content id`() {
+        val stored = NextUpDismissals.fromStored(setOf("tt1", "tt2|1|3"))
+        assertTrue(stored.hides("tt1", 9, 9, 9, 10, true))
+        assertTrue(stored.hides("tt2", 1, 1))
+        assertFalse(stored.hides("tt3", 1, 1))
+        assertEquals("tt2", NextUpDismissal.contentIdOf("tt2|1|3"))
+    }
+
+    @Test
+    fun `same position stays hidden`() {
+        val stored = dismissals(dismissal)
+        assertTrue(stored.hides("tt1", 1, 4, 1, 5, true))
+        assertTrue(stored.hides("tt1", 1, 4))
+    }
+
+    @Test
+    fun `newer history brings the show back`() {
+        val stored = dismissals(dismissal)
+        assertFalse(stored.hides("tt1", 1, 6, 1, 7, true))
+        assertFalse(stored.hides("tt1", 1, 6))
+    }
+
+    @Test
+    fun `an older seed does not bring the show back`() {
+        assertTrue(dismissals(dismissal).hides("tt1", 1, 2, 1, 5, true))
+    }
+
+    @Test
+    fun `unknown air state does not undo an unaired dismissal`() {
+        assertTrue(dismissals(dismissal.copy(hadAired = false)).hides("tt1", 1, 4, 1, 5, null))
+        assertEquals(null, knownAired(hasAired = true, released = null, releaseTimestamp = null))
+        assertEquals(true, knownAired(hasAired = true, released = "2026-01-01", releaseTimestamp = null))
+    }
+
+    @Test
+    fun `a later offered episode brings the show back`() {
+        assertFalse(dismissals(dismissal).hides("tt1", 1, 4, 2, 1, true))
+    }
+
+    @Test
+    fun `a dismissed unaired episode comes back once it airs`() {
+        val stored = dismissals(dismissal.copy(hadAired = false))
+        assertTrue(stored.hides("tt1", 1, 4, 1, 5, false))
+        assertFalse(stored.hides("tt1", 1, 4, 1, 5, true))
+        // Shuffle has only the seed: an unaired dismissal holds until the seed moves.
+        assertTrue(stored.hides("tt1", 1, 4))
+        // Another, earlier episode airing doesn't count.
+        assertTrue(stored.hides("tt1", 1, 4, 1, 3, true))
+    }
+
+    @Test
+    fun `only legacy dismissals are settled before resolving`() {
+        val stored = NextUpDismissals.fromStored(setOf("tt9", dismissal.encode()))
+        assertTrue(stored.hidesBeforeResolving("tt9"))
+        assertFalse(stored.hidesBeforeResolving("tt1"))
+        assertFalse(stored.hidesBeforeResolving("tt3"))
+    }
+
+    @Test
+    fun `a new dismissal replaces a legacy key for the same show`() {
+        val stored = NextUpDismissals.fromStored(setOf("tt1", dismissal.encode()))
+        assertEquals(dismissal, stored.byContentId["tt1"])
+    }
+
+    private fun dismissals(vararg entries: NextUpDismissal) =
+        NextUpDismissals(entries.associateBy { it.contentId })
+}

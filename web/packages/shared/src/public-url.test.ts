@@ -102,6 +102,47 @@ describe("expandPublicUrlEnv", () => {
     ]);
   });
 
+  it("keeps a set WEB_PUBLIC_BASE as the website address", () => {
+    const env: Record<string, string | undefined> = {
+      FETCH_PUBLIC_URL: "http://10.0.0.5:7002",
+      WEB_PUBLIC_BASE: "https://fetch.example.com/",
+    };
+    expandPublicUrlEnv(env, ["FETCH_WEB_PUBLIC", "FETCH_ALLOWED_ORIGINS"]);
+    expect(env.FETCH_WEB_PUBLIC).toBe("https://fetch.example.com");
+    expect(env.FETCH_ALLOWED_ORIGINS?.split(",")[0]).toBe("https://fetch.example.com");
+  });
+
+  it("gives the web page an overridden API address without FETCH_PUBLIC_URL", () => {
+    const env: Record<string, string | undefined> = {
+      FETCH_PUBLIC_URL: "",
+      FETCH_API_PUBLIC: "https://api.example.com/",
+      VITE_API_BASE: "",
+      VITE_ADDON_BASE: "",
+    };
+    expandPublicUrlEnv(env, ["VITE_API_BASE", "VITE_ADDON_BASE"]);
+    expect(env.VITE_API_BASE).toBe("https://api.example.com");
+    expect("VITE_ADDON_BASE" in env).toBe(false);
+  });
+
+  it("gives the web page an overridden add-on address without FETCH_PUBLIC_URL", () => {
+    const env: Record<string, string | undefined> = {
+      ADDON_PUBLIC_BASE: "https://addon.example.com",
+      VITE_ADDON_BASE: "",
+    };
+    expandPublicUrlEnv(env, ["VITE_API_BASE", "VITE_ADDON_BASE"]);
+    expect(env.VITE_ADDON_BASE).toBe("https://addon.example.com");
+    expect("VITE_API_BASE" in env).toBe(false);
+  });
+
+  it("lets an explicit VITE_API_BASE win over FETCH_API_PUBLIC", () => {
+    const env: Record<string, string | undefined> = {
+      FETCH_API_PUBLIC: "https://api.example.com",
+      VITE_API_BASE: "https://other.example.com",
+    };
+    expandPublicUrlEnv(env, ["VITE_API_BASE"]);
+    expect(env.VITE_API_BASE).toBe("https://other.example.com");
+  });
+
   it("only touches the variables it is given", () => {
     const env: Record<string, string | undefined> = { FETCH_PUBLIC_URL: "https://fetch.example.com" };
     expandPublicUrlEnv(env, ["ADDON_PUBLIC_BASE"]);

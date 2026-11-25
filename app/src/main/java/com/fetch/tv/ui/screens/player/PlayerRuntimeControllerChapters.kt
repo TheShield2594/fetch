@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.fetch.tv.ui.screens.player
 
 import android.util.Log
@@ -39,6 +41,8 @@ internal class PlayerChapterState {
     /** Safe from any thread: mpv reports chapter-list changes off the main thread. */
     fun markMpvChaptersStale() = mpvStale.set(true)
 
+    val mpvChaptersStale: Boolean get() = mpvStale.get()
+
     fun consumeMpvChaptersStale(): Boolean = mpvStale.getAndSet(false)
 }
 
@@ -63,7 +67,11 @@ internal fun PlayerRuntimeController.refreshChaptersOnTick() {
     }
     if (usingMpv) {
         val view = mpvView
-        if (view != null && state.consumeMpvChaptersStale()) {
+        // Until mpv has the requested file it still reports the previous one's chapters; the flag
+        // stays set so a later tick reads them.
+        if (view != null && state.mpvChaptersStale && view.isPositionFromRequestedMedia() &&
+            state.consumeMpvChaptersStale()
+        ) {
             state.containerChapters = runCatching { view.readChapters() }.getOrDefault(emptyList())
             publishChapters()
         }
@@ -100,9 +108,9 @@ private fun PlayerRuntimeController.loadChapters(url: String, usingMpv: Boolean,
         }
         if (state.sourceKey != key) return@launch
         if (serverChapters.isNotEmpty()) {
+            // Shown until the file's own chapters, which win, are read below.
             state.serverChapters = serverChapters
             publishChapters()
-            return@launch
         }
         if (!matroska) return@launch
         val fileChapters = try {
@@ -204,7 +212,8 @@ internal fun PlayerRuntimeController.applyProviderSkipIntervals(intervals: List<
  */
 internal fun PlayerRuntimeController.refreshChapterSkipFallback() {
     val state = chapterState
-    val key = listOf(_uiState.value.chapters, currentPlaybackDurationMs() > 0L, skipIntroEnabled, contentType)
+    // The exact length: the last chapter's segment ends at it.
+    val key = listOf(_uiState.value.chapters, currentPlaybackDurationMs().coerceAtLeast(0L), skipIntroEnabled, contentType)
     if (key == state.fallbackKey) return
     state.fallbackKey = key
     if (skipIntervals.any { it.provider != ChapterRules.SKIP_PROVIDER }) return

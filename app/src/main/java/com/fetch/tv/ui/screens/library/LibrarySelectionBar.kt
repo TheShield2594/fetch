@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.layout.onSizeChanged
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -224,6 +225,8 @@ internal fun LibrarySelectionOverlay(
     onShowListPicker: (Boolean) -> Unit,
     onBarHeightChanged: (Int) -> Unit,
     onExit: () -> Unit,
+    /** The screen's scope: leaving selection mode removes this overlay, cancelling its own. */
+    exitFocusScope: CoroutineScope,
     onBulkAction: (List<LibraryBulkTarget>, LibraryBulkOperation, String?) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -265,7 +268,7 @@ internal fun LibrarySelectionOverlay(
         onShowListPicker(false)
         onExit()
         run(chosen)
-        scope.launch {
+        exitFocusScope.launch {
             val requester = focusKey?.let(requesterFor)
             if (requester?.requestFocusAfterFrames(frames = 1) != true) fallbackFocusRequester.requestFocusAfterFrames(frames = 0)
         }
@@ -287,7 +290,7 @@ internal fun LibrarySelectionOverlay(
             onListAction = { onShowListPicker(true) },
             onDone = {
                 onExit()
-                scope.launch {
+                exitFocusScope.launch {
                     val requester = anchorKey?.takeIf { it in selectionKeys }?.let(requesterFor)
                     if (requester?.requestFocusAfterFrames(frames = 1) != true) fallbackFocusRequester.requestFocusAfterFrames(frames = 0)
                 }

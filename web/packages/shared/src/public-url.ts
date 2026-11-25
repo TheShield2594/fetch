@@ -147,7 +147,8 @@ function valueFor(name: PublicUrlVariable, derived: DerivedPublicUrls, env: Env)
   const explicit = (key: string): string | undefined =>
     isBlank(env[key]) ? undefined : stripTrailingSlash((env[key] as string).trim());
   const api = explicit("FETCH_API_PUBLIC") ?? derived.api;
-  const web = explicit("FETCH_WEB_PUBLIC") ?? derived.web;
+  // WEB_PUBLIC_BASE is the older name every consumer still falls back to.
+  const web = explicit("FETCH_WEB_PUBLIC") ?? explicit("WEB_PUBLIC_BASE") ?? derived.web;
   const addon = explicit("ADDON_PUBLIC_BASE") ?? derived.addon;
   switch (name) {
     case "FETCH_ALLOWED_ORIGINS": {
@@ -165,6 +166,17 @@ function valueFor(name: PublicUrlVariable, derived: DerivedPublicUrls, env: Env)
     case "TRAKT_REDIRECT_URI":
       return `${api}/trakt/oauth/callback`;
   }
+}
+
+/**
+ * The web page's copy of an overridden service address when there is no
+ * FETCH_PUBLIC_URL to derive from: VITE_API_BASE follows FETCH_API_PUBLIC and
+ * VITE_ADDON_BASE follows ADDON_PUBLIC_BASE, as they do when it is set.
+ */
+function overrideWithoutPublicUrl(name: PublicUrlVariable, env: Env): string | undefined {
+  const source = name === "VITE_API_BASE" ? "FETCH_API_PUBLIC" : name === "VITE_ADDON_BASE" ? "ADDON_PUBLIC_BASE" : null;
+  if (!source || isBlank(env[source])) return undefined;
+  return stripTrailingSlash((env[source] as string).trim());
 }
 
 /** True when a URL (or comma-separated list of them) still names the example address. */
@@ -203,7 +215,9 @@ export function expandPublicUrlEnv(
       env[name] = valueFor(name, derived, env);
       filled.push(name);
     } else {
-      delete env[name];
+      const override = overrideWithoutPublicUrl(name, env);
+      if (override !== undefined) env[name] = override;
+      else delete env[name];
     }
   }
   const stillExample = names.filter((name) => mentionsExampleHost(env[name]));

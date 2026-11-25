@@ -177,7 +177,14 @@ internal fun MutablePreferences.withHiddenTitle(title: HiddenTitle) {
         .fold(title) { acc, (_, stored) -> acc.copy(ids = (acc.ids + stored.ids).distinct()) }
     existing.filter { (_, stored) -> stored.overlaps(title) }.forEach { (key, _) -> remove(key) }
     this[stringPreferencesKey(merged.storageKey)] = encodeHiddenTitle(merged)
+    trimHiddenTitles()
+}
 
+/**
+ * Drops the oldest titles past [HiddenTitlesStore.MAX_TITLES]: after a local hide, and after a
+ * sync, whose merge keeps every title either side had.
+ */
+internal fun MutablePreferences.trimHiddenTitles() {
     val all = hiddenTitleEntries()
     if (all.size > HiddenTitlesStore.MAX_TITLES) {
         all.sortedBy { (_, stored) -> stored.hiddenAtMs }

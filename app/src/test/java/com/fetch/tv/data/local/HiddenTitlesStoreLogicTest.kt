@@ -83,6 +83,24 @@ class HiddenTitlesStoreLogicTest {
     }
 
     @Test
+    fun `trimming after a sync keeps the newest titles up to the cap`() {
+        val prefs = mutablePreferencesOf()
+        // As a synced import writes them: every title either side had, past the cap.
+        (1..HiddenTitlesStore.MAX_TITLES + 3).forEach { n ->
+            val synced = title("tt$n", at = n.toLong())
+            prefs[stringPreferencesKey(synced.storageKey)] = encodeHiddenTitle(synced)
+        }
+        prefs[booleanPreferencesKey(HiddenTitlesStore.HIDE_WATCHED_KEY_NAME)] = true
+
+        prefs.trimHiddenTitles()
+
+        val state = hiddenTitlesStateOf(prefs)
+        assertEquals(HiddenTitlesStore.MAX_TITLES, state.titles.size)
+        assertFalse(state.titles.any { it.ids.single() in setOf("tt1", "tt2", "tt3") })
+        assertTrue(state.hideWatched)
+    }
+
+    @Test
     fun `the state reads hide watched and ignores keys it doesn't know`() {
         val prefs = mutablePreferencesOf(
             booleanPreferencesKey("hide_watched") to true,

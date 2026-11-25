@@ -773,6 +773,7 @@ fun LibraryScreen(
             onShowListPicker = { showBulkListPicker = it },
             onBarHeightChanged = { selectionBarHeightPx = it },
             onExit = { dispatchSelection(LibrarySelectionAction.Exit) },
+            exitFocusScope = selectionScope,
             onBulkAction = viewModel::onBulkAction
         )
     }

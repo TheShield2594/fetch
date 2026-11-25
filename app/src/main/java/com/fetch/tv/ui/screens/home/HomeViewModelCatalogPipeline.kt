@@ -813,6 +813,8 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             }
         }
     } else {
+        // An earlier enrichment must not put back hero items this update dropped (a hidden title).
+        heroEnrichmentJob?.cancel()
         lastHeroEnrichmentSignature = null
         lastHeroEnrichedItems = emptyList()
         heroItemOrder = emptyList()

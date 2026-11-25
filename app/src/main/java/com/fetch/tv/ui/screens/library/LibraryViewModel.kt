@@ -307,20 +307,26 @@ class LibraryViewModel @Inject constructor(
     fun onBulkAction(targets: List<LibraryBulkTarget>, operation: LibraryBulkOperation, listTitle: String? = null) {
         if (targets.isEmpty() || _uiState.value.bulkPending) return
         val tabs = _uiState.value.listTabs
+        // The writes go to whichever profile is active, so a profile switch stops the action.
+        val startingProfileId = profileManager.activeProfileId.value
+        val isCurrent = { profileManager.activeProfileId.value == startingProfileId }
         _uiState.update { it.copy(bulkPending = true) }
         setTransientMessage(context.resources.getQuantityString(R.plurals.library_selection_working, targets.size, targets.size))
         viewModelScope.launch {
             try {
                 val result = when (operation) {
                     is LibraryBulkOperation.RemoveFromList ->
-                        bulkActions.changeMembership(targets, tabs, addTo = null, removeFrom = operation.listKey)
+                        bulkActions.changeMembership(targets, tabs, addTo = null, removeFrom = operation.listKey, isCurrent = isCurrent)
                     is LibraryBulkOperation.AddToList ->
-                        bulkActions.changeMembership(targets, tabs, addTo = operation.listKey, removeFrom = operation.removeFrom)
-                    LibraryBulkOperation.RemoveFromHistory -> bulkActions.removeFromHistory(targets)
-                    LibraryBulkOperation.RemoveProgress -> bulkActions.removeProgress(targets)
-                    LibraryBulkOperation.MarkWatched -> bulkActions.markWatched(targets)
+                        bulkActions.changeMembership(
+                            targets, tabs, addTo = operation.listKey, removeFrom = operation.removeFrom, isCurrent = isCurrent
+                        )
+                    LibraryBulkOperation.RemoveFromHistory -> bulkActions.removeFromHistory(targets, isCurrent)
+                    LibraryBulkOperation.RemoveProgress -> bulkActions.removeProgress(targets, isCurrent)
+                    LibraryBulkOperation.MarkWatched -> bulkActions.markWatched(targets, isCurrent)
                 }
-                reportBulkResult(result, operation, listTitle.orEmpty())
+                // Another profile's Library is showing now; the result isn't about it.
+                if (isCurrent()) reportBulkResult(result, operation, listTitle.orEmpty())
             } finally {
                 _uiState.update { it.copy(bulkPending = false) }
             }
@@ -329,8 +335,9 @@ class LibraryViewModel @Inject constructor(
 
     private fun reportBulkResult(result: LibraryBulkResult, operation: LibraryBulkOperation, listTitle: String) {
         val res = context.resources
+        val skipped = result.skipped.takeIf { it > 0 }?.let { res.getQuantityString(R.plurals.library_selection_skipped, it, it) }
         if (result.done == 0 && result.failed > 0) {
-            setError(res.getQuantityString(R.plurals.library_selection_failed, result.failed, result.failed))
+            setError(listOfNotNull(res.getQuantityString(R.plurals.library_selection_failed, result.failed, result.failed), skipped).joinToString(" "))
             return
         }
         val done = result.done
@@ -346,7 +353,7 @@ class LibraryViewModel @Inject constructor(
         val message = listOfNotNull(
             headline,
             result.failed.takeIf { it > 0 }?.let { res.getQuantityString(R.plurals.library_selection_failed, it, it) },
-            result.skipped.takeIf { it > 0 }?.let { res.getQuantityString(R.plurals.library_selection_skipped, it, it) }
+            skipped
         ).joinToString(" ")
         if (result.failed > 0) setError(message) else setTransientMessage(message)
     }

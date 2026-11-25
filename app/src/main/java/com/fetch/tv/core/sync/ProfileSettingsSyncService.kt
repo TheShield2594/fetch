@@ -19,6 +19,7 @@ import com.fetch.tv.data.local.ExperienceModeDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
 import com.fetch.tv.data.local.TmdbSettingsDataStore
+import com.fetch.tv.data.local.trimHiddenTitles
 import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.repository.MetaRepository
 import kotlinx.coroutines.CancellationException
@@ -467,6 +468,8 @@ class ProfileSettingsSyncService @Inject constructor(
                     }
 
                     restorePreferenceEntries(mutablePrefs, preservedEntries)
+                    // The merge keeps every title either TV hid; keep the store's cap (#650).
+                    if (feature == com.fetch.tv.data.local.HiddenTitlesStore.FEATURE) mutablePrefs.trimHiddenTitles()
                     if (feature == "layout_settings" && priorDiscoverLocation != null) {
                         val discoverKey = stringPreferencesKey("discover_location")
                         if (mutablePrefs[discoverKey] == null) {

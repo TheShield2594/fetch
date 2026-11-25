@@ -584,7 +584,7 @@ services:
       - traefik.http.services.fetch-web.loadbalancer.server.port=7002
 ```
 
-Traefik must share a Docker network with these services: attach it to the stack's `fetch` network, or add Traefik's network to the three services. No `StripPrefix` middleware is needed; the services strip the prefix themselves. Traefik prefers the longer rule, so `/api` and `/addon` win over the website's catch-all without priorities.
+Traefik must share a Docker network with these services: attach it to the stack's `fetch` network, or add Traefik's network to the three services. A service on two networks leaves Traefik to pick one, possibly the one it can't reach, so name the shared network with a `traefik.docker.network=<network name>` label on each service (or the provider's `network` option); use the name `docker network ls` shows, which Compose prefixes with the project name (e.g. `fetch_fetch`). No `StripPrefix` middleware is needed; the services strip the prefix themselves. Traefik prefers the longer rule, so `/api` and `/addon` win over the website's catch-all without priorities.
 
 ### Tailscale
 
@@ -596,7 +596,9 @@ tailscale serve --bg --set-path /addon http://127.0.0.1:7001
 tailscale serve --bg http://127.0.0.1:7002
 ```
 
-The api and add-on answer with or without their prefix, so it doesn't matter that `--set-path` strips it. Then set `FETCH_PUBLIC_URL=https://nas.your-tailnet.ts.net`, and `TRUST_PROXY=127.0.0.1` since Tailscale connects from the host itself. Only devices on your tailnet can reach it. Use [Funnel](https://tailscale.com/kb/1223/funnel) instead of Serve only if something outside it needs to, and set `ADDON_REQUIRE_SIGNED_URLS=true` first.
+The api and add-on answer with or without their prefix, so it doesn't matter that `--set-path` strips it. Then set `FETCH_PUBLIC_URL=https://nas.your-tailnet.ts.net`, and `TRUST_PROXY=172.16.0.0/12`: Tailscale connects from the host itself, but Docker hands a connection to a published port on to the container from its bridge gateway (an address such as `172.18.0.1`), not from `127.0.0.1`.
+
+Serve only adds the tailnet address: compose still publishes ports 7000–7002 on every interface of the host, which your LAN (and your TVs) use. On a host reachable from the internet, block those ports in its firewall, or publish them on loopback only (`127.0.0.1:7000:7000`, and the same for 7001 and 7002) so that only Tailscale reaches Fetch — a TV then has to be on the tailnet too. Use [Funnel](https://tailscale.com/kb/1223/funnel) instead of Serve only if something outside it needs to, and set `ADDON_REQUIRE_SIGNED_URLS=true` first.
 
 ### Cloudflare Tunnel
 

@@ -104,8 +104,9 @@ class LibraryBulkActions @Inject constructor(
         targets: List<LibraryBulkTarget>,
         tabs: List<LibraryListTab>,
         addTo: String?,
-        removeFrom: String?
-    ): LibraryBulkResult = forEachTarget(targets) { target ->
+        removeFrom: String?,
+        isCurrent: () -> Boolean = { true }
+    ): LibraryBulkResult = forEachTarget(targets, isCurrent) { target ->
         val snapshot = libraryRepository.getMembershipSnapshot(target.input).listMembership
         val desired = libraryBulkMembership(snapshot, tabs, target.type, addTo, removeFrom)
             ?: return@forEachTarget Outcome.SKIPPED
@@ -115,11 +116,16 @@ class LibraryBulkActions @Inject constructor(
     }
 
     /** Marks movies watched, and every aired episode of a series. */
-    suspend fun markWatched(targets: List<LibraryBulkTarget>): LibraryBulkResult = forEachTarget(targets) { target ->
+    suspend fun markWatched(
+        targets: List<LibraryBulkTarget>,
+        isCurrent: () -> Boolean = { true }
+    ): LibraryBulkResult = forEachTarget(targets, isCurrent) { target ->
         if (target.isSeries) {
             val episodes = fetchEpisodes(target).watchableEpisodes()
             // Without episodes the only mark is a show-level one, which trackers read as all watched.
             if (episodes.isEmpty()) return@forEachTarget Outcome.FAILED
+            // The episode fetch is the long wait; don't write once another profile is active.
+            if (!isCurrent()) return@forEachTarget Outcome.SKIPPED
             val badgeIds = setOfNotNull(target.id, target.imdbId)
             val before = watchedSeriesStateHolder.fullyWatchedSeriesIds.value
             watchedSeriesStateHolder.update(before + badgeIds)
@@ -145,9 +151,12 @@ class LibraryBulkActions @Inject constructor(
     }
 
     /** Takes titles off History: a movie's watch, or every watched episode of a show. */
-    suspend fun removeFromHistory(targets: List<LibraryBulkTarget>): LibraryBulkResult {
+    suspend fun removeFromHistory(
+        targets: List<LibraryBulkTarget>,
+        isCurrent: () -> Boolean = { true }
+    ): LibraryBulkResult {
         val watched = watchProgressRepository.watchedItems.first().groupBy { it.contentId }
-        return forEachTarget(targets) { target ->
+        return forEachTarget(targets, isCurrent) { target ->
             val episodes = watched[target.id].orEmpty()
                 .filter { it.season != null && it.episode != null }
                 .map { Triple(it.season!!, it.episode!!, null as String?) }
@@ -162,19 +171,28 @@ class LibraryBulkActions @Inject constructor(
     }
 
     /** Takes titles off In progress (their saved playback positions). */
-    suspend fun removeProgress(targets: List<LibraryBulkTarget>): LibraryBulkResult = forEachTarget(targets) { target ->
+    suspend fun removeProgress(
+        targets: List<LibraryBulkTarget>,
+        isCurrent: () -> Boolean = { true }
+    ): LibraryBulkResult = forEachTarget(targets, isCurrent) { target ->
         watchProgressRepository.removeProgress(target.id)
         Outcome.DONE
     }
 
     private enum class Outcome { DONE, FAILED, SKIPPED }
 
+    /**
+     * Runs [action] on each target in turn. Stops once [isCurrent] turns false (the profile that
+     * started the action is no longer the active one), since the writes go to the active profile.
+     */
     private suspend fun forEachTarget(
         targets: List<LibraryBulkTarget>,
+        isCurrent: () -> Boolean,
         action: suspend (LibraryBulkTarget) -> Outcome
     ): LibraryBulkResult {
         var result = LibraryBulkResult()
-        targets.forEach { target ->
+        for (target in targets) {
+            if (!isCurrent()) break
             val outcome = try {
                 action(target)
             } catch (error: CancellationException) {

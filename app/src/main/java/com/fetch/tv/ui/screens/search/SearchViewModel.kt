@@ -1364,7 +1364,9 @@ class SearchViewModel @Inject constructor(
                 discoverPagingPaused = paused
             )
         }
-        return hasMore && !paused && visible.size < DISCOVER_MIN_RESULTS
+        // Counted as shown: "Not interested" titles are left out on the way to the grid (#650).
+        val shown = titleVisibility.visibility.value.filterSuggestions(visible).size
+        return hasMore && !paused && shown < DISCOVER_MIN_RESULTS
     }
 
     private suspend fun fetchDiscoverPage(

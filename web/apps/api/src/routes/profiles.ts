@@ -335,7 +335,7 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // the write instead of slipping in between (#678).
     const written = await prisma.$transaction((tx) =>
       writeProfileGuarded(profile.id, data, {
-        checkAuthority: () => hasParentalAuthority(request, tx, { lockIn: tx }),
+        checkAuthority: () => hasParentalAuthority(request, tx, { lockIn: tx, lockTarget: profile.id }),
         strict: true,
         initial: profile,
         client: tx,

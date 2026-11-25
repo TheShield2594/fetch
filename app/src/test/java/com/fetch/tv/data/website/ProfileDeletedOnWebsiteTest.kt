@@ -13,6 +13,9 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import java.io.IOException
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +73,20 @@ class ProfileDeletedOnWebsiteTest {
         }
         coVerify(exactly = 0) { profileManager.deleteProfile(1) }
         coVerify(exactly = 0) { profileManager.deleteProfile(2) }
+    }
+
+    @Test
+    fun `a cleanup that fails keeps the list, so the next pull tries it again`() = runBlocking {
+        coEvery { client.profiles() } returns listOf(remote(1), remote(2))
+        coEvery { profileManager.deleteProfile(3) } throws IOException("disk") andThen true
+        val service = service()
+
+        assertFalse(service.pullProfiles())
+        coVerify(exactly = 0) { profileDataStore.replaceAllProfiles(any()) }
+
+        assertTrue(service.pullProfiles())
+        coVerify(exactly = 2) { profileManager.deleteProfile(3) }
+        coVerify(exactly = 1) { profileDataStore.replaceAllProfiles(any()) }
     }
 
     @Test

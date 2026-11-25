@@ -34,7 +34,7 @@ const loosenKid = (kidId: string, grownUpId: string, beforeAuthority: () => Prom
       {
         checkAuthority: async () => {
           await beforeAuthority();
-          return hasParentalAuthority(actingAs(grownUpId), tx, { lockIn: tx });
+          return hasParentalAuthority(actingAs(grownUpId), tx, { lockIn: tx, lockTarget: kidId });
         },
         client: tx,
       }
@@ -83,7 +83,7 @@ describe("a parental loosening and a change to the acting profile at the same ti
     let pinSettledBeforeCommit = true;
 
     const result = await prisma.$transaction(async (tx) => {
-      const authority = await hasParentalAuthority(actingAs(grownUp.id), tx, { lockIn: tx });
+      const authority = await hasParentalAuthority(actingAs(grownUp.id), tx, { lockIn: tx, lockTarget: kid.id });
       // Someone sets a PIN on the grown-up between the check and the write.
       pinChange = prisma.profile.update({ where: { id: grownUp.id }, data: { pinHash: PIN_HASH } });
       pinSettledBeforeCommit = await settlesWithin(pinChange, 300);
@@ -145,7 +145,7 @@ describe("a parental loosening and a change to the acting profile at the same ti
               await prisma.profile.update({ where: { id: grownUp.id }, data: { pinHash: PIN_HASH } });
               return true;
             }
-            return hasParentalAuthority(actingAs(grownUp.id), tx, { lockIn: tx });
+            return hasParentalAuthority(actingAs(grownUp.id), tx, { lockIn: tx, lockTarget: kid.id });
           },
         }
       )
@@ -156,6 +156,40 @@ describe("a parental loosening and a change to the acting profile at the same ti
     expect(await prisma.profile.findUniqueOrThrow({ where: { id: kid.id } })).toMatchObject({ maxRating: "ALL_AGES" });
   });
 
+  it("two grown-ups each loosening the other's limits at once both finish", async () => {
+    const a = await prisma.profile.create({ data: { name: "A", maxRating: "ALL_AGES" } });
+    const b = await prisma.profile.create({ data: { name: "B", maxRating: "ALL_AGES" } });
+    // Each waits, after its check, for the other's check: the interleaving
+    // that deadlocked when only the acting row was locked before the write.
+    let arrived = 0;
+    let bothChecked!: () => void;
+    const checked = new Promise<void>((resolve) => (bothChecked = resolve));
+    const loosen = (actingId: string, targetId: string) =>
+      prisma.$transaction(async (tx) =>
+        writeProfileGuarded(
+          targetId,
+          { maxRating: "ADULTS_ONLY" },
+          {
+            client: tx,
+            checkAuthority: async () => {
+              const authority = await hasParentalAuthority(actingAs(actingId), tx, { lockIn: tx, lockTarget: targetId });
+              if (++arrived === 2) bothChecked();
+              await Promise.race([checked, new Promise((resolve) => setTimeout(resolve, 300))]);
+              return authority;
+            },
+          }
+        )
+      );
+
+    const results = await Promise.all([loosen(a.id, b.id), loosen(b.id, a.id)]);
+
+    expect(results.map((result) => result.status)).toEqual(["ok", "ok"]);
+    expect(await prisma.profile.findMany({ select: { maxRating: true } })).toEqual([
+      { maxRating: "ADULTS_ONLY" },
+      { maxRating: "ADULTS_ONLY" },
+    ]);
+  });
+
   it("an import into the grown-up's own profile, twice at once, doesn't deadlock", async () => {
     const grownUp = await prisma.profile.create({ data: { name: "Grown-up", maxRating: "ALL_AGES" } });
     const loosenOwn = (maxRating: string) =>
@@ -163,7 +197,7 @@ describe("a parental loosening and a change to the acting profile at the same ti
         writeProfileGuarded(
           grownUp.id,
           { maxRating },
-          { checkAuthority: () => hasParentalAuthority(actingAs(grownUp.id), tx, { lockIn: tx }), client: tx }
+          { checkAuthority: () => hasParentalAuthority(actingAs(grownUp.id), tx, { lockIn: tx, lockTarget: grownUp.id }), client: tx }
         )
       );
 

@@ -214,7 +214,11 @@ class LibraryPreferences @Inject constructor(
                 val items = sanitize(
                     prefs[legacyLibraryItemsKey].orEmpty().mapNotNull { parse(it, SavedLibraryItem::class.java) }
                 ).filterNot { libraryItemKey(it.id, it.type) in queuedRemoves }
-                entries.insertMissing(profileId, items.map { it.toEntry() })
+                entries.transaction {
+                    entries.insertMissing(profileId, items.map { it.toEntry() })
+                    // A move cut short earlier may already have written the title's row.
+                    if (queuedRemoves.isNotEmpty()) entries.delete(profileId, KIND_ITEM, queuedRemoves)
+                }
                 store.edit { preferences -> legacyKeys.forEach { preferences.remove(it) } }
                 Log.i(
                     TAG,

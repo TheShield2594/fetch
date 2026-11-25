@@ -343,6 +343,13 @@ export const hasParentalAuthority = async (
      * already holds is the one its update needs.
      */
     lockIn?: Pick<Prisma.TransactionClient, "$executeRaw">;
+    /**
+     * The profile the write changes, locked with the acting one, both in id
+     * order. Locking only the acting row and then updating the target let two
+     * profiles each loosening the other deadlock (A held, waiting for B; B
+     * held, waiting for A); taken together in one order, the second waits.
+     */
+    lockTarget?: string;
   } = {}
 ): Promise<boolean> => {
   if (request.auth?.kind === "token") return true;
@@ -360,7 +367,8 @@ export const hasParentalAuthority = async (
 
   if (actingId) {
     if (options.lockIn) {
-      await options.lockIn.$executeRaw`SELECT id FROM "Profile" WHERE id = ${actingId}::uuid FOR NO KEY UPDATE`;
+      const ids = [...new Set([actingId, options.lockTarget].filter((id): id is string => !!id))];
+      await options.lockIn.$executeRaw`SELECT id FROM "Profile" WHERE id = ANY(${ids}::uuid[]) ORDER BY id FOR NO KEY UPDATE`;
     }
     const acting = await client.profile.findUnique({
       where: { id: actingId },

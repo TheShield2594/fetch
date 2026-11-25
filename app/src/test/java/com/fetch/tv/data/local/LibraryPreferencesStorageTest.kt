@@ -115,6 +115,21 @@ class LibraryPreferencesStorageTest {
     }
 
     @Test
+    fun `a remove queued in DataStore also takes out a row a cut-short move already wrote`() = runBlocking {
+        val dataStore = TestPreferencesStore()
+        dataStore.edit { prefs ->
+            prefs[stringSetPreferencesKey("library_items")] = setOf(gson.toJson(item(1)), gson.toJson(item(2)))
+            prefs[stringSetPreferencesKey("library_pending_deletes")] = setOf("""{"contentId":"tt2","contentType":"movie"}""")
+        }
+        val rows = InMemoryKeyedEntryStore()
+        // The earlier move inserted both rows, then stopped before clearing DataStore.
+        rows.upsert(1, listOf(item(1), item(2)).map { KeyedEntry("item", "movie:${it.id}", it.id, it.addedAt, gson.toJson(it)) })
+
+        assertEquals(listOf(item(1)), preferences(dataStore, rows).getAllItems(profileId = 1))
+        assertEquals(listOf("movie:tt1"), rows.all(1).map { it.key })
+    }
+
+    @Test
     fun `a remove queued in the database by an older build is applied before its sync rows go`() = runBlocking {
         val rows = InMemoryKeyedEntryStore()
         rows.upsert(

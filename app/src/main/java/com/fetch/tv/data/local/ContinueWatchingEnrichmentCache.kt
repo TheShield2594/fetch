@@ -98,16 +98,17 @@ class ContinueWatchingEnrichmentCache @Inject constructor(
         /**
          * Deletes the Continue Watching snapshots (and any half-written `.tmp`
          * files) of [profileId]. Profile ids are reused, so this must run when
-         * a profile is deleted.
+         * a profile is deleted. False when a snapshot is still there afterwards, so the caller
+         * can try again later.
          */
-        suspend fun deleteProfileFiles(filesDir: File, profileId: Int) = mutex.withLock {
+        suspend fun deleteProfileFiles(filesDir: File, profileId: Int): Boolean = mutex.withLock {
             deletionGeneration.incrementAndGet()
             val dir = File(filesDir, CACHE_DIR_NAME)
-            if (!dir.exists()) return@withLock
-            listOf("inprogress_${profileId}.json", "nextup_${profileId}.json").forEach { name ->
-                File(dir, name).delete()
-                File(dir, "$name.tmp").delete()
-            }
+            if (!dir.exists()) return@withLock true
+            listOf("inprogress_${profileId}.json", "nextup_${profileId}.json")
+                .flatMap { name -> listOf(File(dir, name), File(dir, "$name.tmp")) }
+                .map { file -> file.delete() || !file.exists() }
+                .all { it }
         }
     }
 

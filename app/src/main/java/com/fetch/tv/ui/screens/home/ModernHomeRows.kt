@@ -257,7 +257,7 @@ private fun ModernCatalogRowItem(
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit,
-    onLongPress: () -> Unit,
+    onLongPress: (() -> Unit)?,
     onBackdropInteraction: () -> Unit,
     onExpandedCatalogFocusKeyChange: (String?) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>>,
@@ -1041,14 +1041,15 @@ internal fun ModernRowSection(
                             val metaPreview = item.metaPreview
                             val isPlaceholder = payload is ModernPayload.Catalog &&
                                 payload.itemId.startsWith("__placeholder_")
-                            val onLongPress: () -> Unit = when {
+                            // Null for a card with no options menu, so TalkBack offers no "Options" that does nothing.
+                            val onLongPress: (() -> Unit)? = when {
                                 payload is ModernPayload.Catalog && metaPreview != null -> remember(metaPreview, payload.addonBaseUrl, row.key) {
                                     {
                                         onCatalogItemLongPress(metaPreview, payload.addonBaseUrl, row.orderKey())
                                         Unit
                                     }
                                 }
-                                else -> remember(Unit) { {} }
+                                else -> null
                             }
                             val expandedFocusKey = when (payload) {
                                 is ModernPayload.Catalog -> payload.focusKey
@@ -1167,7 +1168,7 @@ private fun ModernCarouselCard(
     onFocused: () -> Unit,
     onFocusStateChanged: (Boolean) -> Unit = {},
     onClick: () -> Unit,
-    onLongPress: () -> Unit,
+    onLongPress: (() -> Unit)?,
     onBackdropInteraction: () -> Unit,
     onTrailerEnded: () -> Unit,
 ) {
@@ -1391,6 +1392,7 @@ private fun ModernCarouselCard(
                     onClick()
                 }
             },
+            onLongPress = onLongPress,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cardHeight)
@@ -1410,13 +1412,13 @@ private fun ModernCarouselCard(
                         }
                         if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
                             longPressTriggered = true
-                            onLongPress()
+                            onLongPress?.invoke()
                             return@onPreviewKeyEvent true
                         }
                     }
                     if (longPressKeyTracker.handle(native, ::isSelectKey) {
                             longPressTriggered = true
-                            onLongPress()
+                            onLongPress?.invoke()
                         }
                     ) {
                         if (native.action == AndroidKeyEvent.ACTION_UP) {

@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.google.gson.Gson
 import com.google.gson.JsonParseException
+import com.google.gson.JsonParser
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.domain.model.SavedLibraryItem
 import kotlinx.coroutines.CancellationException
@@ -39,7 +40,9 @@ import javax.inject.Singleton
  * JSON set in the library DataStore file; a profile's set is moved the first time its library is used.
  *
  * Older versions also kept a queue of changes waiting to sync and its counters, next to the titles
- * in both places. Nothing reads them: they're removed when the library is first used.
+ * in both places. They're removed when the library is first used, after a queued remove has been
+ * applied to the titles (#672); no sync backend carries this library now, so there is nowhere to
+ * send them.
  */
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,12 +56,14 @@ class LibraryPreferences @Inject constructor(
     // Where older versions kept the library; read once by ensureMigrated, then removed with the
     // old sync keys beside it. The file stays: LibraryViewPreferences moves its own keys out of it.
     private val legacyLibraryItemsKey = stringSetPreferencesKey("library_items")
+    private val legacyPendingUpsertsKey = stringSetPreferencesKey("library_pending_upserts")
+    private val legacyPendingDeletesKey = stringSetPreferencesKey("library_pending_deletes")
     private val legacyKeys: List<Preferences.Key<*>> = listOf(
         legacyLibraryItemsKey,
         longPreferencesKey("library_delta_cursor"),
         booleanPreferencesKey("library_delta_initialized"),
-        stringSetPreferencesKey("library_pending_upserts"),
-        stringSetPreferencesKey("library_pending_deletes"),
+        legacyPendingUpsertsKey,
+        legacyPendingDeletesKey,
         longPreferencesKey("library_mutation_revision")
     )
 
@@ -190,6 +195,12 @@ class LibraryPreferences @Inject constructor(
      * old sync queue and counters from DataStore and the database. Rows are inserted before the
      * set is removed, and a row already moved wins, so a move cut short finishes on the next start
      * without losing anything.
+     *
+     * The queue held only which titles changed, not the titles: older versions applied each change
+     * to the saved titles at once and hid a title with a queued remove whenever they read them. So
+     * before the queue goes, a queued remove takes its title out (#672), or a title removed offline
+     * on an old version would come back with the upgrade. A queued add needs nothing: its title is
+     * already saved, and older versions dropped one whose title wasn't.
      */
     private suspend fun ensureMigrated(profileId: Int) {
         if (profileId in migratedProfiles) return
@@ -199,16 +210,49 @@ class LibraryPreferences @Inject constructor(
             val store = store(profileId)
             val prefs = store.data.first()
             if (legacyKeys.any { it in prefs }) {
+                val queuedRemoves = prefs[legacyPendingDeletesKey].orEmpty().mapNotNullTo(HashSet(), ::legacyQueuedKey)
                 val items = sanitize(
                     prefs[legacyLibraryItemsKey].orEmpty().mapNotNull { parse(it, SavedLibraryItem::class.java) }
-                )
-                entries.insertMissing(profileId, items.map { it.toEntry() })
+                ).filterNot { libraryItemKey(it.id, it.type) in queuedRemoves }
+                entries.transaction {
+                    entries.insertMissing(profileId, items.map { it.toEntry() })
+                    // A move cut short earlier may already have written the title's row.
+                    if (queuedRemoves.isNotEmpty()) entries.delete(profileId, KIND_ITEM, queuedRemoves)
+                }
                 store.edit { preferences -> legacyKeys.forEach { preferences.remove(it) } }
-                Log.i(TAG, "Moved ${items.size} library items of profile $profileId to the database")
+                Log.i(
+                    TAG,
+                    "Moved ${items.size} library items of profile $profileId to the database and applied " +
+                        "${queuedRemoves.size} queued removes " +
+                        "(${prefs[legacyPendingUpsertsKey].orEmpty().size} queued adds were already saved)"
+                )
             }
-            LEGACY_SYNC_KINDS.forEach { entries.clearKind(profileId, it) }
+            entries.transaction {
+                val queuedRemoves = entries.all(profileId)
+                    .filter { it.kind == KIND_LEGACY_PENDING_DELETE }
+                    .mapTo(HashSet()) { it.key }
+                if (queuedRemoves.isNotEmpty()) {
+                    entries.delete(profileId, KIND_ITEM, queuedRemoves)
+                    Log.i(TAG, "Applied ${queuedRemoves.size} queued library removes of profile $profileId")
+                }
+                LEGACY_SYNC_KINDS.forEach { entries.clearKind(profileId, it) }
+            }
             migratedProfiles += profileId
         }
+    }
+
+    /**
+     * The title a row of the old sync queue (`{"contentId":…,"contentType":…}`) names, as its row
+     * key. Read field by field rather than into a class, so shrinking a release build can't rename
+     * what it looks for.
+     */
+    private fun legacyQueuedKey(json: String): String? = try {
+        val change = JsonParser.parseString(json).takeIf { it.isJsonObject }?.asJsonObject
+        val id = change?.get("contentId")?.takeIf { it.isJsonPrimitive }?.asString
+        val type = change?.get("contentType")?.takeIf { it.isJsonPrimitive }?.asString
+        if (id.isNullOrBlank() || type.isNullOrBlank()) null else libraryItemKey(id, type)
+    } catch (e: JsonParseException) {
+        null
     }
 
     private fun SavedLibraryItem.toEntry() =
@@ -254,8 +298,11 @@ class LibraryPreferences @Inject constructor(
 
         const val KIND_ITEM = "item"
 
-        /** Rows older versions kept for the sync queue and its counters; removed, never read. */
-        val LEGACY_SYNC_KINDS = listOf("pending_upsert", "pending_delete", "meta")
+        /** A queued remove older versions kept; applied to the titles, then removed with the rest. */
+        const val KIND_LEGACY_PENDING_DELETE = "pending_delete"
+
+        /** Rows older versions kept for the sync queue and its counters; removed on first use. */
+        val LEGACY_SYNC_KINDS = listOf("pending_upsert", KIND_LEGACY_PENDING_DELETE, "meta")
 
         /** A title's row key, as older versions stored it: `type:id`, type in lower case. */
         fun libraryItemKey(contentId: String, contentType: String): String =

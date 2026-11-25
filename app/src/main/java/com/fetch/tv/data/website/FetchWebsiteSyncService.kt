@@ -190,6 +190,11 @@ class FetchWebsiteSyncService @Inject constructor(
         if (remote.isEmpty()) return false
         remoteProfiles = remote
         val local = profileManager.profiles.value.associateBy { it.id }
+        if (!forgetProfilesDeletedOnWebsite(local.keys, remote)) {
+            // The slot stays in the list, so the next pass sees it missing again and retries.
+            Log.w(TAG, "Keeping this TV's profiles until a website-deleted profile's data is removed")
+            return false
+        }
         profileDataStore.replaceAllProfiles(remote.map { FetchWebsiteMappings.toUserProfile(it, local[it.slot]) })
 
         // Parental limits come from the website while paired: it is where they are set.
@@ -207,6 +212,45 @@ class FetchWebsiteSyncService @Inject constructor(
         remote.filter { !it.hasPin }.forEach { lockStateDataStore.setLocalPinHash(it.slot, null) }
         Log.d(TAG, "Pulled ${remote.size} profiles from the website")
         return true
+    }
+
+    /**
+     * A profile deleted on the website leaves the list on the pull, and its slot is the next one a
+     * new profile gets. Without this its watch history, settings, sign-ins and lock state stayed in
+     * the slot for that new profile to inherit (#670), so it gets the same cleanup as a delete made
+     * on this TV. Done before the list is replaced, as a delete here is, so the slot is refused to
+     * stale writers once it is gone and handed back when a profile takes it again.
+     *
+     * Skipped while this TV has profile changes the website hasn't had: a profile made here since
+     * the last push isn't on the website yet, and its absence there doesn't mean it was deleted.
+     *
+     * False when a slot's cleanup failed, or when the website has a profile in a slot whose old
+     * data isn't all gone yet. The caller then leaves the profile list as it is and the next pull
+     * tries again. A cleanup that fails after the slot has left the list stays marked in
+     * [com.fetch.tv.core.profile.PendingProfileCleanup] and is retried there; until it succeeds
+     * no profile, made here or pulled from the website, is given that slot.
+     */
+    private suspend fun forgetProfilesDeletedOnWebsite(localSlots: Set<Int>, remote: List<WebsiteSlottedProfile>): Boolean {
+        val remoteSlots = remote.mapTo(HashSet()) { it.slot }
+        // A profile the website has in a slot whose previous profile's data isn't all gone from
+        // this TV yet would inherit what's left; it waits until that cleanup has finished.
+        val unfinished = profileManager.retryPendingCleanups()
+        val blocked = remoteSlots.filter { it in unfinished && it !in localSlots }
+        if (blocked.isNotEmpty()) {
+            Log.w(TAG, "Not taking the website's profiles in slots $blocked until their old data is removed")
+            return false
+        }
+        if (store.profilesRevision != 0L) return true
+        var allRemoved = true
+        localSlots.filter { it != PRIMARY_SLOT && it !in remoteSlots }.forEach { slot ->
+            runSuspendCatching { profileManager.deleteProfile(slot) }
+                .onSuccess { Log.d(TAG, "Removed profile $slot's data: it was deleted on the website") }
+                .onFailure {
+                    allRemoved = false
+                    Log.w(TAG, "Couldn't remove the data of profile $slot, deleted on the website", it)
+                }
+        }
+        return allRemoved
     }
 
     /**

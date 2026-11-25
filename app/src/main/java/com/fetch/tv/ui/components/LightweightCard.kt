@@ -48,6 +48,8 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.fetch.tv.R
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -81,8 +83,15 @@ fun LightweightCard(
     label: String? = null,
     /** Read after [label], such as "45% watched" from [cardProgressDescription]. */
     stateDescription: String? = null,
+    /**
+     * The card's options menu, the same one holding OK or pressing Menu opens. Exposed as the
+     * accessibility long click, so TalkBack's "double-tap and hold" and its actions menu reach it.
+     * The key handling stays with the caller; this only wires semantics.
+     */
+    onLongPress: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val longClickLabel = if (onLongPress != null) stringResource(R.string.cd_card_options) else null
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
     val pressed by interactionSource.collectIsPressedAsState()
@@ -139,7 +148,12 @@ fun LightweightCard(
                                 onClick()
                                 true
                             }
-                            onLongClick { false }
+                            if (onLongPress != null) {
+                                onLongClick(label = longClickLabel) {
+                                    onLongPress()
+                                    true
+                                }
+                            }
                         }
                     } else {
                         Modifier.semantics(mergeDescendants = true) {
@@ -147,7 +161,12 @@ fun LightweightCard(
                                 onClick()
                                 true
                             }
-                            onLongClick { false }
+                            if (onLongPress != null) {
+                                onLongClick(label = longClickLabel) {
+                                    onLongPress()
+                                    true
+                                }
+                            }
                         }
                     }
                 )

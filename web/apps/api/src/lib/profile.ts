@@ -329,7 +329,29 @@ export const PARENTAL_AUTHORITY_RESPONSE = {
  *   kids profile at all, so there is nothing to protect (a fresh account
  *   adding its second profile, a script).
  */
-export const hasParentalAuthority = async (request: FastifyRequest, client: ProfileReader = prisma): Promise<boolean> => {
+export const hasParentalAuthority = async (
+  request: FastifyRequest,
+  client: ProfileReader = prisma,
+  options: {
+    /**
+     * The transaction the guarded write runs in. The acting profile's row is
+     * locked in it before it is read, so its PIN and kids mode can't change
+     * between this answer and the write it allows: a concurrent change waits
+     * for the transaction to commit (#678). `FOR NO KEY UPDATE` rather than
+     * `FOR SHARE`, so a write acting as the very profile it changes (an import
+     * into one's own profile) can't deadlock against a second one: the lock it
+     * already holds is the one its update needs.
+     */
+    lockIn?: Pick<Prisma.TransactionClient, "$executeRaw">;
+    /**
+     * The profile the write changes, locked with the acting one, both in id
+     * order. Locking only the acting row and then updating the target let two
+     * profiles each loosening the other deadlock (A held, waiting for B; B
+     * held, waiting for A); taken together in one order, the second waits.
+     */
+    lockTarget?: string;
+  } = {}
+): Promise<boolean> => {
   if (request.auth?.kind === "token") return true;
   const scope = accountScope(request);
 
@@ -344,6 +366,10 @@ export const hasParentalAuthority = async (request: FastifyRequest, client: Prof
   }
 
   if (actingId) {
+    if (options.lockIn) {
+      const ids = [...new Set([actingId, options.lockTarget].filter((id): id is string => !!id))];
+      await options.lockIn.$executeRaw`SELECT id FROM "Profile" WHERE id = ANY(${ids}::uuid[]) ORDER BY id FOR NO KEY UPDATE`;
+    }
     const acting = await client.profile.findUnique({
       where: { id: actingId },
       select: { id: true, accountId: true, pinHash: true, isKidsProfile: true },

@@ -412,6 +412,7 @@ fun ContinueWatchingCard(
                 onClick()
             }
         },
+        onLongPress = onLongPress,
         modifier = modifier
             .width(cardWidth)
             .recompositionHighlighter()

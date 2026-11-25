@@ -1,23 +1,28 @@
 package com.fetch.tv.core.profile
 
 import android.content.Context
+import android.util.Log
 import com.fetch.tv.R
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.local.ProfileDataStore
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.ProfileLockStateDataStore
 import com.fetch.tv.data.local.ProfileRestrictionsDataStore
+import com.fetch.tv.core.util.runSuspendCatching
 import com.fetch.tv.domain.model.UserProfile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -35,12 +40,16 @@ class ProfileManager @Inject constructor(
     private val screenTimeStore: com.fetch.tv.core.parental.ScreenTimeStore,
     private val profileDatabaseData: com.fetch.tv.data.local.db.ProfileDatabaseData,
     private val pendingPushes: com.fetch.tv.core.sync.PendingPushTracker,
+    private val pendingCleanup: PendingProfileCleanup,
     @ApplicationContext private val context: Context
 ) {
     companion object {
         const val MAX_PROFILES = 6
         private const val PROFILE_LIST_UPDATE_TIMEOUT_MS = 5_000L
+        private const val TAG = "ProfileManager"
     }
+
+    private val cleanupMutex = Mutex()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -116,6 +125,12 @@ class ProfileManager @Inject constructor(
         get() = profiles.value.size < MAX_PROFILES
 
     init {
+        // A delete whose cleanup didn't finish last time is finished now, before anyone can be
+        // given its slot.
+        scope.launch {
+            runSuspendCatching { retryPendingCleanups() }
+                .onFailure { Log.w(TAG, "Couldn't retry unfinished profile cleanups", it) }
+        }
         // A fresh session on every change of active profile, including A -> B -> A, so a session
         // never carries over from an earlier period of the same profile.
         scope.launch {
@@ -168,8 +183,11 @@ class ProfileManager @Inject constructor(
         val current = profiles.value
         if (current.size >= MAX_PROFILES) return null
 
+        // A slot whose last profile's data isn't all gone yet isn't given out: the new profile
+        // would inherit what's left of it.
+        val unfinished = retryPendingCleanups()
         val usedIds = current.map { it.id }.toSet()
-        val nextId = (2..MAX_PROFILES).firstOrNull { it !in usedIds } ?: return null
+        val nextId = (2..MAX_PROFILES).firstOrNull { it !in usedIds && it !in unfinished } ?: return null
 
         val profile = UserProfile(
             id = nextId,
@@ -184,17 +202,19 @@ class ProfileManager @Inject constructor(
         return profile
     }
 
+    /**
+     * Deletes the profile in [id] and everything this TV keeps for it. Its slot is marked in
+     * [PendingProfileCleanup] first and unmarked only once every step has succeeded, so a cleanup
+     * cut short (an error, a file that won't delete, the app killed) is finished by
+     * [retryPendingCleanups] before the slot is given to anyone else.
+     */
     suspend fun deleteProfile(id: Int): Boolean {
         if (id == 1) return false
         if (profiles.value.none { it.id == id }) return false
-        credentialStores.forEach { store -> store.removeProfile(id) }
+        pendingCleanup.mark(id)
         // Its id can be given to a new profile: nothing cached for the old one may carry over.
         sessionRef.updateAndGet { current -> if (current.profileId == id) ProfileSession(id) else current }
-        // A new profile can reuse this id, so its PIN and limits must not survive.
-        profileLockStateDataStore.removeProfile(id)
-        profileRestrictionsDataStore.deleteProfile(id)
-        screenTimeStore.deleteProfile(id)
-        deleteProfileDataAsync(id)
+        val wiped = wipeProfileData(id)
         profileDataStore.deleteProfile(id)
         // A Continue Watching save that started before the cleanup above (while this
         // was still the active profile) can recreate its snapshot. Once the profile is
@@ -202,10 +222,37 @@ class ProfileManager @Inject constructor(
         withTimeoutOrNull(PROFILE_LIST_UPDATE_TIMEOUT_MS) {
             profiles.first { entries -> entries.none { it.id == id } }
         }
-        withContext(Dispatchers.IO) {
+        val snapshotsGone = withContext(Dispatchers.IO) {
             ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, id)
         }
+        if (wiped && snapshotsGone) {
+            pendingCleanup.clear(id)
+        } else {
+            Log.w(TAG, "Profile $id is deleted but some of its data is still on disk; retrying later")
+        }
         return true
+    }
+
+    /**
+     * Finishes the cleanup of every deleted profile whose data isn't all gone yet, and answers the
+     * slots still unfinished afterwards; those aren't given to a new profile. A marked slot that is
+     * a profile again (its delete failed before the profile left the list) is left alone: deleting
+     * it again finishes the job, and its data is in use until then.
+     */
+    suspend fun retryPendingCleanups(): Set<Int> = cleanupMutex.withLock {
+        val pending = pendingCleanup.slots
+        if (pending.isEmpty()) return@withLock emptySet()
+        val listed = loadedProfiles.filterNotNull().first().mapTo(HashSet()) { it.id }
+        pending.filter { it != 1 && it !in listed }.forEach { slot ->
+            val done = runSuspendCatching { wipeProfileData(slot) }
+                .onFailure { Log.w(TAG, "Retrying the cleanup of deleted profile $slot failed", it) }
+                .getOrDefault(false)
+            if (done) {
+                pendingCleanup.clear(slot)
+                Log.i(TAG, "Finished removing the data of deleted profile $slot")
+            }
+        }
+        pendingCleanup.slots
     }
 
     suspend fun updateProfile(profile: UserProfile): Boolean {
@@ -214,11 +261,24 @@ class ProfileManager @Inject constructor(
         return true
     }
 
-    private suspend fun deleteProfileDataAsync(profileId: Int) = withContext(Dispatchers.IO) {
-        if (profileId == 1) return@withContext
+    /**
+     * Everything this TV keeps for [profileId] apart from its entry in the profile list. True only
+     * when all of it is gone; a step that throws is left for the caller.
+     */
+    private suspend fun wipeProfileData(profileId: Int): Boolean {
+        credentialStores.forEach { store -> store.removeProfile(profileId) }
+        // A new profile can reuse this id, so its PIN and limits must not survive.
+        profileLockStateDataStore.removeProfile(profileId)
+        profileRestrictionsDataStore.deleteProfile(profileId)
+        screenTimeStore.deleteProfile(profileId)
+        return deleteProfileDataAsync(profileId)
+    }
+
+    private suspend fun deleteProfileDataAsync(profileId: Int): Boolean = withContext(Dispatchers.IO) {
+        if (profileId == 1) return@withContext true
 
         factory.clearProfile(profileId)
-        factory.deleteProfileFiles(profileId)
+        val filesGone = factory.deleteProfileFiles(profileId)
         // Unsent changes of a deleted profile must not be pushed into whoever gets its slot next.
         pendingPushes.clearProfile(profileId)
         // Its watched items, kept in the database rather than DataStore. After clearProfile, so a
@@ -228,12 +288,12 @@ class ProfileManager @Inject constructor(
         // Continue Watching snapshots are keyed by profile id too. A new profile
         // that reuses this id must not show the deleted profile's titles on Home
         // or in the launcher's Play Next row.
-        ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, profileId)
+        val snapshotsGone = ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, profileId)
 
         // Left behind by versions that still ran plugins.
         val pluginCodeDir = File(context.filesDir, "plugin_code_p${profileId}")
-        if (pluginCodeDir.exists()) {
-            pluginCodeDir.deleteRecursively()
-        }
+        val pluginCodeGone = !pluginCodeDir.exists() || pluginCodeDir.deleteRecursively()
+
+        filesGone && snapshotsGone && pluginCodeGone
     }
 }

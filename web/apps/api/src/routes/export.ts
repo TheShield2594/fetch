@@ -794,7 +794,9 @@ const exportRoutes: FastifyPluginAsync = async (app) => {
               // Asked at the write, through the transaction's own connection, so
               // the answer is current for the limits being checked and the
               // transaction never waits on a second connection from the pool.
-              checkAuthority: () => hasParentalAuthority(request, tx),
+              // The acting profile's row is locked there too, so a PIN set on
+              // it before the import commits waits rather than slips in (#678).
+              checkAuthority: () => hasParentalAuthority(request, tx, { lockIn: tx, lockTarget: profileId }),
               client: tx,
             });
             if (restored.status === "ok") {

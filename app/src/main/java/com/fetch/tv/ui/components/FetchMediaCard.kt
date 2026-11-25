@@ -26,6 +26,8 @@ fun FetchMediaCard(
     /** See [LightweightCard]'s label: read once in place of the card's layers. */
     label: String? = null,
     stateDescription: String? = null,
+    /** See [LightweightCard]'s onLongPress: the options menu for TalkBack. */
+    onLongPress: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val fullMotion = FetchTheme.fullMotion
@@ -40,6 +42,7 @@ fun FetchMediaCard(
         focusedShadow = if (fullMotion) FetchTheme.focus.cardShadow else FetchTheme.spacing.none,
         label = label,
         stateDescription = stateDescription,
+        onLongPress = onLongPress,
         content = content
     )
 }

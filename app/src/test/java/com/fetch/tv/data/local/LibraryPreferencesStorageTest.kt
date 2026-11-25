@@ -23,7 +23,7 @@ import org.junit.Test
 /**
  * Audit G5: the library lives in the database, a change writes only the rows it touches, and the
  * titles older builds stored in DataStore move over intact. The sync queue older builds kept next
- * to them is dropped.
+ * to them is dropped once a queued remove has been applied (#672).
  */
 class LibraryPreferencesStorageTest {
     private val gson = Gson()
@@ -85,14 +85,15 @@ class LibraryPreferencesStorageTest {
     }
 
     @Test
-    fun `saved titles move from DataStore once, and the old sync queue is dropped`() = runBlocking {
+    fun `saved titles move from DataStore once, a queued remove is applied, and the old sync queue is dropped`() = runBlocking {
         val dataStore = TestPreferencesStore()
         val viewSort = stringPreferencesKey("library_sort_option")
         dataStore.edit { prefs ->
             prefs[stringSetPreferencesKey("library_items")] = setOf(gson.toJson(item(1)), gson.toJson(item(2)), "{not json")
             prefs[stringSetPreferencesKey("library_pending_upserts")] = setOf("""{"contentId":"tt1","contentType":"movie"}""")
-            // A queued delete no longer hides a saved title.
-            prefs[stringSetPreferencesKey("library_pending_deletes")] = setOf("""{"contentId":"tt2","contentType":"movie"}""")
+            // Removed offline on the old version: the title stays removed (#672). Unreadable rows are skipped.
+            prefs[stringSetPreferencesKey("library_pending_deletes")] =
+                setOf("""{"contentId":"tt2","contentType":"MOVIE"}""", """{"contentId":""}""", "{not json")
             prefs[longPreferencesKey("library_delta_cursor")] = 42L
             prefs[booleanPreferencesKey("library_delta_initialized")] = true
             prefs[longPreferencesKey("library_mutation_revision")] = 7L
@@ -103,7 +104,7 @@ class LibraryPreferencesStorageTest {
 
         val items = preferences(dataStore, rows).getAllItems(profileId = 1)
 
-        assertEquals(listOf(item(1), item(2)), items)
+        assertEquals(listOf(item(1)), items)
         val left = dataStore.data.first()
         assertEquals(setOf("library_sort_option"), left.asMap().keys.map { it.name }.toSet())
         assertEquals("title", left[viewSort])
@@ -111,6 +112,42 @@ class LibraryPreferencesStorageTest {
         rows.resetWriteCount()
         assertEquals(items, preferences(dataStore, rows).getAllItems(profileId = 1))
         assertEquals(0, rows.entriesWritten)
+    }
+
+    @Test
+    fun `a remove queued in DataStore also takes out a row a cut-short move already wrote`() = runBlocking {
+        val dataStore = TestPreferencesStore()
+        dataStore.edit { prefs ->
+            prefs[stringSetPreferencesKey("library_items")] = setOf(gson.toJson(item(1)), gson.toJson(item(2)))
+            prefs[stringSetPreferencesKey("library_pending_deletes")] = setOf("""{"contentId":"tt2","contentType":"movie"}""")
+        }
+        val rows = InMemoryKeyedEntryStore()
+        // The earlier move inserted both rows, then stopped before clearing DataStore.
+        rows.upsert(1, listOf(item(1), item(2)).map { KeyedEntry("item", "movie:${it.id}", it.id, it.addedAt, gson.toJson(it)) })
+
+        assertEquals(listOf(item(1)), preferences(dataStore, rows).getAllItems(profileId = 1))
+        assertEquals(listOf("movie:tt1"), rows.all(1).map { it.key })
+    }
+
+    @Test
+    fun `a remove queued in the database by an older build is applied before its sync rows go`() = runBlocking {
+        val rows = InMemoryKeyedEntryStore()
+        rows.upsert(
+            1,
+            listOf(
+                KeyedEntry("item", "movie:tt1", "tt1", item(1).addedAt, gson.toJson(item(1))),
+                KeyedEntry("item", "movie:tt2", "tt2", item(2).addedAt, gson.toJson(item(2))),
+                KeyedEntry("pending_delete", "movie:tt2", "tt2", 0L, """{"contentId":"tt2","contentType":"movie"}"""),
+                KeyedEntry("meta", "sync", "", 0L, "42|true|7")
+            )
+        )
+
+        assertEquals(listOf(item(1)), preferences(rows = rows).getAllItems(profileId = 1))
+        assertEquals(listOf("movie:tt1"), rows.all(1).map { it.key })
+
+        // Applied once: adding the title back afterwards keeps it, in this run and the next.
+        preferences(rows = rows).addItem(item(2), profileId = 1)
+        assertEquals(listOf(item(1), item(2)), preferences(rows = rows).getAllItems(profileId = 1))
     }
 
     @Test

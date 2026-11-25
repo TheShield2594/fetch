@@ -348,6 +348,8 @@ sealed class PlayerEvent {
     data class OnSeekBy(val deltaMs: Long) : PlayerEvent()
     data class OnPreviewSeekBy(val deltaMs: Long) : PlayerEvent()
     data object OnCommitPreviewSeek : PlayerEvent()
+    /** Commits a held FF/Rewind preview with one exact seek (#711); a no-op without a preview. */
+    data object OnCommitKeySeek : PlayerEvent()
     data class OnSeekTo(val position: Long) : PlayerEvent()
     /** Back to the live edge of a live stream that was paused or rewound (#660). */
     data object OnGoLive : PlayerEvent()

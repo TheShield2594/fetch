@@ -30,7 +30,8 @@ internal fun PlayerRuntimeController.reportServerPlayback() {
     val state = _uiState.value
     serverPlayback.onPlaybackSnapshot(
         url = reportedServerUrl,
-        positionMs = _playbackTimeline.value.currentPosition,
+        // The player's own position: the timeline shows an uncommitted scrub preview (#702).
+        positionMs = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: _playbackTimeline.value.currentPosition,
         isPlaying = state.isPlaying,
         isLoading = state.isBuffering,
         isEnded = state.playbackEnded

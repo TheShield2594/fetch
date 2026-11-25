@@ -149,6 +149,20 @@ class ServerPlaybackTest {
     }
 
     @Test
+    fun unstartedSessionsAreReleasedWithoutAStopAtZero() = runBlocking {
+        val harness = harness()
+        val first = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "1"), "src-1"))
+        harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "2"), "src-2"))
+        val third = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "3"), "src-3"))
+        harness.playback.onPlaybackSnapshot(third.url, 0L, isPlaying = false, isLoading = true, isEnded = false)
+        harness.playback.stop(third.url)
+
+        assertTrue(harness.provider.reported.isEmpty())
+        assertTrue(first.url in harness.provider.released)
+        assertTrue(third.url in harness.provider.released)
+    }
+
+    @Test
     fun directPlayFailureFallsBackOnlyOnce() = runBlocking {
         val provider = FakeServerProvider()
         val harness = harness(provider)
@@ -178,6 +192,8 @@ class ServerPlaybackTest {
         val session = playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "42"), "src-42"))
         assertFalse(playback.canFallback(session.url))
         assertEquals(listOf(1 to true, 2 to false), playback.audioTracks(session.url).map { it.index to it.selected })
+        // Started, so the restart reports a STOP; an unstarted one is only released (#702).
+        playback.onPlaybackSnapshot(session.url, 5_000L, isPlaying = true, isLoading = false, isEnded = false)
 
         val switched = playback.switchAudio(session.url, 2)!!
 
@@ -188,6 +204,7 @@ class ServerPlaybackTest {
         assertTrue(playback.isServerSource(switched.url))
         assertEquals(listOf(1 to false, 2 to true), playback.audioTracks(switched.url).map { it.index to it.selected })
         assertTrue(ServerPlaybackEventType.STOP in provider.reported)
+        assertFalse(session.url in provider.released)
     }
 
     @Test

@@ -270,8 +270,11 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     val cacheBuffering = view.isPausedForCacheNow() || view.isCoreIdleNow()
                     var firstFrameReady = hasRenderedFirstFrame
                     if (!firstFrameReady) {
+                        // A player started paused (#706) never plays or moves; at 0:00 a loaded
+                        // file (known duration, not waiting on the cache) is ready all the same.
+                        val readyWhilePaused = userPausedManually && !view.isPausedForCacheNow()
                         firstFrameReady = view.isPositionFromRequestedMedia() &&
-                            (pos > 0L || (playingNow && !cacheBuffering && playerDuration > 0L))
+                            (pos > 0L || ((playingNow && !cacheBuffering) || readyWhilePaused) && playerDuration > 0L)
                         if (firstFrameReady) {
                             hasRenderedFirstFrame = true
                             onCurrentStreamFirstFrame()
@@ -1129,12 +1132,16 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 showSeekOverlayUntilCommit()
             }
         }
-        PlayerEvent.OnCommitPreviewSeek -> {
+        PlayerEvent.OnCommitPreviewSeek,
+        PlayerEvent.OnCommitKeySeek -> {
             if (isLiveSeekBlocked()) return
             val requested = pendingPreviewSeekPosition
             if (requested != null) {
                 val target = requested
-                seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
+                // FF/Rewind keys land where they say, as their steps always did; the D-pad and
+                // seek bar snap to a keyframe.
+                val parameters = if (event == PlayerEvent.OnCommitKeySeek) SeekParameters.EXACT else SeekParameters.CLOSEST_SYNC
+                seekPlaybackTo(target, parameters)
                 updatePlaybackTimeline(currentPosition = target)
                 updateSeekFeedback(originMs = target, targetMs = target, committed = true)
                 pendingPreviewSeekPosition = null

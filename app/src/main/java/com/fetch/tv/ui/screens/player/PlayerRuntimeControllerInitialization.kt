@@ -1082,7 +1082,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                 try {
                     currentMediaSession?.release()
                     if (canAdvertiseSession()) {
-                        currentMediaSession = MediaSession.Builder(context, SafeMediaSessionPlayer(this)).build()
+                        currentMediaSession = MediaSession.Builder(context, mediaSessionPlayer(this)).build()
                     }
                     updateMediaSessionMetadata()
                 } catch (e: Exception) {
@@ -1394,11 +1394,14 @@ internal fun PlayerRuntimeController.initializePlayer(
 
                     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                         if (!playWhenReady &&
-                            reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY
+                            (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY ||
+                                reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS)
                         ) {
-                            // Headphones / HDMI unplugged: treat like a user pause so no
-                            // autoplay path resumes playback behind the user's back.
+                            // Headphones / HDMI unplugged, or another app took audio focus for
+                            // good: treat like a user pause so no autoplay path resumes playback
+                            // behind the user's back, and show the controls (#705).
                             userPausedManually = true
+                            if (!isInBackground) showControlsTemporarily()
                         }
                     }
 

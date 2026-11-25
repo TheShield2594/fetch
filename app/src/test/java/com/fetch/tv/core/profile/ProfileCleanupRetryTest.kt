@@ -9,7 +9,13 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import java.io.IOException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -87,6 +93,54 @@ class ProfileCleanupRetryTest {
     }
 
     @Test
+    fun `calls made before the profile list has loaded wait for it`() = runBlocking {
+        // On a busy device the stored list arrives after ProfileManager is built; until then
+        // profiles holds a primary-only placeholder. Deleting or creating must not act on it.
+        every { profileDataStore.profilesList } returns flow {
+            delay(LIST_LOAD_DELAY_MS)
+            emitAll(list)
+        }
+        val profiles = manager()
+
+        assertTrue(profiles.deleteProfile(3))
+        assertEquals(listOf(1, 2), list.value.map { it.id })
+
+        // Slot 2 is taken: a create that read the placeholder would overwrite it.
+        assertEquals(3, profiles.createProfile("New", "#1E88E5")?.id)
+        assertEquals(listOf(1, 2, 3), list.value.map { it.id })
+    }
+
+    @Test
+    fun `a create made before the profile list has loaded waits for it and takes a free slot`() = runBlocking {
+        val released = CompletableDeferred<Unit>()
+        every { profileDataStore.profilesList } returns flow {
+            released.await()
+            emitAll(list)
+        }
+        val profiles = manager()
+
+        // Nothing is written while only the primary-only placeholder is known.
+        val created = async(Dispatchers.Default) { profiles.createProfile("New", "#1E88E5") }
+        delay(LIST_LOAD_DELAY_MS)
+        coVerify(exactly = 0) { profileDataStore.upsertProfile(any()) }
+
+        // Slots 2 and 3 are taken; a create that read the placeholder would overwrite 2.
+        released.complete(Unit)
+        assertEquals(4, created.await()?.id)
+        assertEquals(listOf(1, 2, 3, 4), list.value.map { it.id })
+    }
+
+    @Test
+    fun `two creates in a row get different slots`() = runBlocking {
+        list.value = listOf(profile(1))
+        val profiles = manager()
+
+        assertEquals(2, profiles.createProfile("A", "#1E88E5")?.id)
+        assertEquals(3, profiles.createProfile("B", "#1E88E5")?.id)
+        assertEquals(listOf(1, 2, 3), list.value.map { it.id })
+    }
+
+    @Test
     fun `a file that won't delete keeps the slot from a new profile until a retry removes it`() = runBlocking {
         // The profile's DataStore files won't delete until the disk problem clears.
         var filesStuck = true
@@ -139,5 +193,9 @@ class ProfileCleanupRetryTest {
         coEvery { profileDatabaseData.deleteProfile(3) } returns Unit
         assertTrue(profiles.deleteProfile(3))
         assertEquals(emptySet<Int>(), pendingCleanup.slots)
+    }
+
+    private companion object {
+        const val LIST_LOAD_DELAY_MS = 200L
     }
 }

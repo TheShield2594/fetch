@@ -24,7 +24,7 @@ describe("health route", () => {
       const res = await app.inject({ method: "GET", url: "/health" });
 
       expect(res.statusCode).toBe(200);
-      expect(res.json()).toEqual({ status: "ok", service: "api" });
+      expect(res.json()).toEqual({ status: "ok", service: "api", version: expect.any(String) });
     });
 
     it("stays up when the database is down", async () => {
@@ -37,6 +37,23 @@ describe("health route", () => {
       const res = await app.inject({ method: "GET", url: "/health" });
 
       expect(res.statusCode).toBe(200);
+      expect(checkDatabase).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /version", () => {
+    it("answers the compatibility handshake without touching the database", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/version" });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toEqual({
+        server: expect.any(String),
+        apiVersion: expect.any(Number),
+        minTvApp: expect.any(String),
+        features: expect.any(Array),
+      });
       expect(checkDatabase).not.toHaveBeenCalled();
     });
   });

@@ -11,6 +11,7 @@ import com.fetch.tv.data.website.FetchWebsiteSession
 import com.fetch.tv.data.website.FetchWebsiteStore
 import com.fetch.tv.data.website.FetchWebsiteSyncService
 import com.fetch.tv.data.website.WebsitePairingState
+import com.fetch.tv.data.website.WebsiteVersionMismatch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,6 +40,9 @@ class FetchWebsiteViewModel @Inject constructor(
     val discoveredServers: StateFlow<List<DiscoveredFetchServer>> = discovery.servers()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val signedOutByWebsite: StateFlow<Boolean> = store.signedOutByWebsite
+
+    /** Set when this TV or its server needs updating before they sync again (#639). */
+    val versionMismatch: StateFlow<WebsiteVersionMismatch?> = store.versionMismatch
 
     val pairing: StateFlow<WebsitePairingState> = pairingFlow.state
 

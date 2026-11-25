@@ -115,8 +115,17 @@ class FetchWebsiteSyncService @Inject constructor(
     private suspend fun syncLocked(): Result<Unit> {
         var signedIn = false
         val result = runSuspendCatching {
-            if (!client.checkSession()) return@runSuspendCatching
+            val stillSignedIn = try {
+                client.checkSession()
+            } catch (error: FetchWebsiteIncompatibleException) {
+                // Still signed in, just refused for its version: the report below goes through,
+                // so the website's TV list can say this TV needs updating.
+                signedIn = true
+                throw error
+            }
+            if (!stillSignedIn) return@runSuspendCatching
             signedIn = true
+            checkCompatibility()
             // Until this TV's profiles are on the website, the website's list isn't written over
             // them: that would drop the ones not pushed yet. The rest of the pass still runs, and
             // the push is tried again next time.
@@ -148,6 +157,21 @@ class FetchWebsiteSyncService @Inject constructor(
         }.onFailure { Log.w(TAG, "Website sync failed", it) }
         if (signedIn) report(result)
         return result
+    }
+
+    /**
+     * Stops the pass, with a message saying which side to update, when the server is too old
+     * for this TV (#639). The other way round, a server that no longer serves this TV answers
+     * every call with a 426, which the client turns into the same kind of stop. A server that
+     * doesn't answer `/version` at all is left for the calls below to report.
+     */
+    private suspend fun checkCompatibility() {
+        val version = runSuspendCatching { client.serverVersion() }
+            .onFailure { Log.w(TAG, "Couldn't read the server's version", it) }
+            .getOrNull() ?: return
+        val mismatch = FetchWebsiteCompatibility.check(version)
+        store.setVersionMismatch(mismatch)
+        if (mismatch != null) throw FetchWebsiteIncompatibleException(mismatch)
     }
 
     /**

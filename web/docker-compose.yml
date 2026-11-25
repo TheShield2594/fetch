@@ -157,6 +157,8 @@ services:
       # fatal, error, warn, info, debug, trace or silent. At info a request is
       # logged only when it failed or was slow; debug logs them all.
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      # true starts the API even on a database a newer image has migrated.
+      FETCH_ALLOW_SCHEMA_MISMATCH: ${FETCH_ALLOW_SCHEMA_MISMATCH:-false}
       WATCHLIST_REMOVE_WATCHED: ${WATCHLIST_REMOVE_WATCHED:-true}
       # Simkl: the Fetch app's client id (simkl.com/settings/developer). Each
       # profile then signs in to its own Simkl account from Settings.

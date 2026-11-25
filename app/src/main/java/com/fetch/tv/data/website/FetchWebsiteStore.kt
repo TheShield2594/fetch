@@ -39,6 +39,17 @@ class FetchWebsiteStore internal constructor(
 
     val isPaired: Boolean get() = _session.value != null
 
+    /**
+     * Set when this TV and its Fetch server can't sync until one of them is updated (#639); the
+     * Account screen says which. Not kept on disk: the next sync finds out again.
+     */
+    private val _versionMismatch = MutableStateFlow<WebsiteVersionMismatch?>(null)
+    val versionMismatch: StateFlow<WebsiteVersionMismatch?> = _versionMismatch.asStateFlow()
+
+    fun setVersionMismatch(mismatch: WebsiteVersionMismatch?) {
+        _versionMismatch.value = mismatch
+    }
+
     /** The last server address used, so pairing again doesn't mean typing it again. */
     val lastServerUrl: String? get() = prefs.getString(KEY_SERVER_URL, null)
 
@@ -52,6 +63,7 @@ class FetchWebsiteStore internal constructor(
             putBoolean(KEY_INITIAL_PROFILE_PUSH, true)
         }
         _signedOutByWebsite.value = false
+        _versionMismatch.value = null
         _session.value = session
     }
 
@@ -103,6 +115,7 @@ class FetchWebsiteStore internal constructor(
     fun clear() {
         prefs.edit { remove(KEY_TOKEN).remove(KEY_DEVICE_NAME).remove(KEY_PROFILES_REVISION).remove(KEY_PENDING_PROFILE_DELETES) }
         clearSettingsBases()
+        _versionMismatch.value = null
         _session.value = null
     }
 

@@ -62,6 +62,18 @@ describe("TvOverview", () => {
     expect(screen.getByText("Hasn't synced yet")).toBeInTheDocument();
   });
 
+  it("tells the user to update a TV the server no longer syncs with", async () => {
+    getSyncOverview.mockResolvedValue({
+      ...OVERVIEW,
+      minTvApp: "1.9.0",
+      devices: [{ ...OVERVIEW.devices![0]!, appTooOld: true }],
+    });
+    render(<TvOverview />);
+    expect(
+      await screen.findByText("Update Fetch on this TV to 1.9.0 or newer: this server no longer syncs with its version.")
+    ).toBeInTheDocument();
+  });
+
   it("shows per-profile counts, enabled of installed for addons", async () => {
     render(<TvOverview />);
     expect(await screen.findByText("Alex")).toBeInTheDocument();

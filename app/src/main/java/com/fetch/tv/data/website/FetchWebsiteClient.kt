@@ -1,5 +1,6 @@
 package com.fetch.tv.data.website
 
+import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.network.SharedHttpClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,7 +22,7 @@ import javax.inject.Singleton
 import com.fetch.tv.core.util.runSuspendCatching
 
 /** The website answered with an error; [code] is its machine-readable reason when it gave one. */
-class FetchWebsiteException(
+open class FetchWebsiteException(
     message: String,
     val status: Int,
     val code: String? = null,
@@ -47,7 +48,9 @@ class FetchWebsiteSignedOutException : Exception("This TV was signed out from th
 @Singleton
 class FetchWebsiteClient internal constructor(
     private val store: FetchWebsiteStore,
-    private val http: OkHttpClient
+    private val http: OkHttpClient,
+    /** Sent on every request, so the server can turn away a build it no longer serves (#639). */
+    private val appVersion: String = BuildConfig.VERSION_NAME
 ) {
     @Inject
     constructor(store: FetchWebsiteStore) : this(
@@ -79,6 +82,7 @@ class FetchWebsiteClient internal constructor(
     suspend fun startPairing(serverUrl: String, deviceName: String): WebsitePairingStart = call {
         val body = buildJsonObject { put("name", deviceName) }.toString()
         val request = Request.Builder()
+            .header(FetchWebsiteCompatibility.APP_VERSION_HEADER, appVersion)
             .url(endpoint(serverUrl, "devices/pair/start"))
             .post(body.toRequestBody(JSON))
             .build()
@@ -90,6 +94,7 @@ class FetchWebsiteClient internal constructor(
 
     suspend fun pollPairing(serverUrl: String, pollSecret: String): WebsitePairingPoll = call {
         val request = Request.Builder()
+            .header(FetchWebsiteCompatibility.APP_VERSION_HEADER, appVersion)
             .url(endpoint(serverUrl, "devices/pair/poll"))
             .header("x-pairing-secret", pollSecret)
             .get()
@@ -141,6 +146,25 @@ class FetchWebsiteClient internal constructor(
                     if (response.isSuccessful) response.body?.string() else null
                 }
             }.getOrNull()
+        }
+    }
+
+    /**
+     * The paired server's `GET /version` (#639). A server too old to have the route answers 404
+     * and reads as [WebsiteServerVersion.LEGACY]; anything else that isn't a 2xx throws, so a
+     * server that is merely down isn't mistaken for an old one.
+     */
+    suspend fun serverVersion(): WebsiteServerVersion = call {
+        val session = store.session.value ?: throw FetchWebsiteSignedOutException()
+        val request = Request.Builder()
+            .url(endpoint(session.serverUrl, "version"))
+            .header(FetchWebsiteCompatibility.APP_VERSION_HEADER, appVersion)
+            .get()
+            .build()
+        http.newCall(request).execute().use { response ->
+            if (response.code == 404) return@use WebsiteServerVersion.LEGACY
+            ensureOk(response, session = false)
+            json.decodeFromString(WebsiteServerVersion.serializer(), response.body?.string().orEmpty())
         }
     }
 
@@ -481,6 +505,7 @@ class FetchWebsiteClient internal constructor(
         val builder = Request.Builder()
             .url(endpoint(session.serverUrl, path))
             .header("Authorization", "Bearer ${session.deviceToken}")
+            .header(FetchWebsiteCompatibility.APP_VERSION_HEADER, appVersion)
             .method(method, body?.toRequestBody(JSON))
         if (profileId != null) builder.header("x-profile-id", profileId)
         if (!profileToken.isNullOrBlank()) builder.header("x-profile-token", profileToken)
@@ -523,6 +548,12 @@ class FetchWebsiteClient internal constructor(
         val parsed = runCatching {
             json.decodeFromString(WebsiteErrorBody.serializer(), response.body?.string().orEmpty())
         }.getOrNull()
+        // The server no longer serves this build: one clear message, on the Account screen too.
+        if (response.code == 426 && parsed?.code == FetchWebsiteCompatibility.TV_APP_TOO_OLD) {
+            val mismatch = WebsiteVersionMismatch.TvAppTooOld(parsed.minTvApp)
+            store.setVersionMismatch(mismatch)
+            throw FetchWebsiteIncompatibleException(mismatch)
+        }
         throw FetchWebsiteException(
             parsed?.error ?: "The Fetch website answered ${response.code}",
             response.code,

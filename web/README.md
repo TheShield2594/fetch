@@ -95,7 +95,7 @@ web/
    - `FETCH_API_PUBLIC` (api service) — externally reachable URL for the API, used to build the Trakt OAuth redirect URI. Set this to the LAN IP or domain you actually use to reach the API.
    - `ADDON_PUBLIC_BASE` (addon service) — externally reachable URL for the addon, used when generating manifest/catalog URLs for clients like Apple TV.
    - `FETCH_WEB_PUBLIC` (api and addon services) — externally reachable URL for the web UI, used to build the "Configure" link Stremio shows on the addon's manifest (it redirects to the Settings page), and the link a notification channel gives you to tap.
-   - `VITE_API_BASE` / `VITE_ADDON_BASE` (web service) — the API and addon URLs the browser uses. They follow `FETCH_API_PUBLIC` / `ADDON_PUBLIC_BASE`; set them only to make them differ. With nothing configured at all, the page looks for the API at the address it was opened at, using the same two layouts.
+   - `VITE_API_BASE` / `VITE_ADDON_BASE` (web service) — the API and addon URLs the browser uses. They follow `FETCH_API_PUBLIC` / `ADDON_PUBLIC_BASE`; set them only to make them differ. With nothing configured at all, a site behind a reverse proxy still finds its API at `/api`; the plain LAN layout needs `FETCH_PUBLIC_URL` (or `VITE_API_BASE`), because the page's Content-Security-Policy can only allow an API address the container was given.
 
 2. Start everything:
 

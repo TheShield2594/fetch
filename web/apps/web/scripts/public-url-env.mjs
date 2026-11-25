@@ -21,8 +21,9 @@ if (summary) console.error(summary);
 for (const warning of expansion.warnings) console.error(`WARNING: ${warning}`);
 if (!env.VITE_API_BASE) {
   console.error(
-    "Neither FETCH_PUBLIC_URL nor VITE_API_BASE is set: the page will look for the API at the address it is " +
-      "opened at (port 7000 next to 7002, or /api behind a proxy). Set FETCH_PUBLIC_URL in .env to be explicit."
+    "WARNING: neither FETCH_PUBLIC_URL nor VITE_API_BASE is set. Behind a reverse proxy the page still finds " +
+      "the API at /api, but on the plain LAN layout (website on :7002) browsers will block the API on :7000. " +
+      "Set FETCH_PUBLIC_URL in .env to the address you open the website at."
   );
 }
 

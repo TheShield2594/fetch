@@ -14,8 +14,12 @@
 import { createHash } from "node:crypto";
 import { IMAGE_CDN_ORIGINS } from "../src/image-cdn-hosts.mjs";
 
-// Mirrors the fallbacks in `src/api.ts`, so an install that never set
-// VITE_API_BASE/VITE_ADDON_BASE keeps working.
+// Used only when neither FETCH_PUBLIC_URL nor VITE_API_BASE/VITE_ADDON_BASE
+// is set. The page then derives its API from its own address (src/api/runtime.ts):
+// behind a proxy that is `/api` on the same origin, which 'self' already allows;
+// on the plain port layout it is <host>:7000, which this container can't name
+// without knowing the browser's host, so that layout needs FETCH_PUBLIC_URL.
+// Only a browser on the server itself (localhost) works there unconfigured.
 const DEFAULT_API_BASE = "http://localhost:7000";
 const DEFAULT_ADDON_BASE = "http://localhost:7001";
 

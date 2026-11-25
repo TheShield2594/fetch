@@ -76,11 +76,18 @@ internal data class BaseItem(
     @SerialName("ChannelId") val channelId: String? = null,
     @SerialName("StartDate") val startDate: String? = null,
     @SerialName("EpisodeTitle") val episodeTitle: String? = null,
-    @SerialName("CurrentProgram") val currentProgram: BaseItem? = null
+    @SerialName("CurrentProgram") val currentProgram: BaseItem? = null,
+    @SerialName("Chapters") val chapters: List<ChapterInfo> = emptyList()
 ) {
     val isMissing: Boolean
         get() = locationType.equals("Virtual", ignoreCase = true)
 }
+
+@Serializable
+internal data class ChapterInfo(
+    @SerialName("StartPositionTicks") val startPositionTicks: Long? = null,
+    @SerialName("Name") val name: String? = null
+)
 
 @Serializable
 internal data class NamedItem(

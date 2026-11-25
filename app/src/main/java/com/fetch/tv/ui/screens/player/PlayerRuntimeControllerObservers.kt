@@ -544,9 +544,11 @@ internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int
         if (skipIntroFetchedKey == key) return
         skipIntroFetchedKey = key
         scope.launch {
-            skipIntervals = withTimeoutOrNull(15_000L) {
-                skipIntroRepository.getMovieSkipIntervals(id, effectiveId)
-            } ?: emptyList()
+            applyProviderSkipIntervals(
+                withTimeoutOrNull(15_000L) {
+                    skipIntroRepository.getMovieSkipIntervals(id, effectiveId)
+                } ?: emptyList()
+            )
         }
         return
     }
@@ -566,9 +568,11 @@ internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int
         skipIntroFetchedKey = key
         val imdbId = id?.takeIf { it.startsWith("tt") } ?: metaImdbId
         scope.launch {
-            skipIntervals = withTimeoutOrNull(15_000L) {
-                skipIntroRepository.getSkipIntervalsForMal(malId, malEpisode, imdbId = imdbId, imdbSeason = season, imdbEpisode = episode)
-            } ?: emptyList()
+            applyProviderSkipIntervals(
+                withTimeoutOrNull(15_000L) {
+                    skipIntroRepository.getSkipIntervalsForMal(malId, malEpisode, imdbId = imdbId, imdbSeason = season, imdbEpisode = episode)
+                } ?: emptyList()
+            )
         }
         return
     }
@@ -583,9 +587,11 @@ internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int
         skipIntroFetchedKey = key
         val imdbId = id?.takeIf { it.startsWith("tt") } ?: metaImdbId
         scope.launch {
-            skipIntervals = withTimeoutOrNull(15_000L) {
-                skipIntroRepository.getSkipIntervalsForKitsu(kitsuId, kitsuEpisode, imdbId = imdbId, imdbSeason = season, imdbEpisode = episode)
-            } ?: emptyList()
+            applyProviderSkipIntervals(
+                withTimeoutOrNull(15_000L) {
+                    skipIntroRepository.getSkipIntervalsForKitsu(kitsuId, kitsuEpisode, imdbId = imdbId, imdbSeason = season, imdbEpisode = episode)
+                } ?: emptyList()
+            )
         }
         return
     }
@@ -598,9 +604,11 @@ internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int
     skipIntroFetchedKey = key
 
     scope.launch {
-        skipIntervals = withTimeoutOrNull(15_000L) {
-            skipIntroRepository.getSkipIntervals(imdbId, season, episode)
-        } ?: emptyList()
+        applyProviderSkipIntervals(
+            withTimeoutOrNull(15_000L) {
+                skipIntroRepository.getSkipIntervals(imdbId, season, episode)
+            } ?: emptyList()
+        )
     }
 }
 

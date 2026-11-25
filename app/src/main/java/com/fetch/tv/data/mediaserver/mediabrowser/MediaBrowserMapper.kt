@@ -292,3 +292,9 @@ internal fun parseServerDate(value: String?): Long? {
         ?: runCatching { java.time.Instant.parse(text).toEpochMilli() }.getOrNull()
         ?: runCatching { java.time.LocalDateTime.parse(text).toInstant(java.time.ZoneOffset.UTC).toEpochMilli() }.getOrNull()
 }
+
+/** Jellyfin and Emby list chapter starts only, in ticks of 100 ns. */
+internal fun List<ChapterInfo>.toChapters(): List<com.fetch.tv.core.player.Chapter> = mapNotNull { info ->
+    val ticks = info.startPositionTicks?.takeIf { it >= 0L } ?: return@mapNotNull null
+    com.fetch.tv.core.player.Chapter(startMs = ticks / TICKS_PER_MS, title = info.name)
+}

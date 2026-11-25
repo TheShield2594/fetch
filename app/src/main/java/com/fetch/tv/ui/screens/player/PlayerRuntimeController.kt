@@ -521,6 +521,8 @@ class PlayerRuntimeController(
             field = intervals
             _uiState.update { if (it.skipSegments == intervals) it else it.copy(skipSegments = intervals) }
         }
+    // Chapters of the playing stream and the skip segments made from their names (#658).
+    internal val chapterState = PlayerChapterState()
     internal var skipIntroEnabled: Boolean = true
     internal var parentalGuideEnabled: Boolean = false
     internal var autoSkipSegmentTypes: Set<AutoSkipSegmentType> = emptySet()

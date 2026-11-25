@@ -14,6 +14,7 @@ import kotlin.math.pow
 import kotlin.math.roundToLong
 
 internal const val MPV_TRACK_LIST_PROPERTY = "track-list"
+internal const val MPV_CHAPTER_LIST_PROPERTY = "chapter-list"
 
 class FetchMpvSurfaceView @JvmOverloads constructor(
     context: Context,
@@ -729,6 +730,22 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         // Progress is polled by PlayerRuntimeController. Track-list changes are pushed so
         // the poll can skip re-reading an unchanged track list.
         mpv.observeProperty(MPV_TRACK_LIST_PROPERTY, MPV.mpvFormat.MPV_FORMAT_NONE)
+        mpv.observeProperty(MPV_CHAPTER_LIST_PROPERTY, MPV.mpvFormat.MPV_FORMAT_NONE)
+    }
+
+    /** The loaded file's chapters from mpv's `chapter-list`; empty when it has none. */
+    fun readChapters(): List<com.fetch.tv.core.player.Chapter> {
+        if (!initialized) return emptyList()
+        val count = runCatching { mpv.getPropertyInt("chapter-list/count") }.getOrNull() ?: return emptyList()
+        return (0 until count).mapNotNull { index ->
+            val seconds = runCatching { mpv.getPropertyDouble("chapter-list/$index/time") }.getOrNull()
+                ?.takeIf { it.isFinite() && it >= 0.0 }
+                ?: return@mapNotNull null
+            com.fetch.tv.core.player.Chapter(
+                startMs = (seconds * 1_000.0).roundToLong(),
+                title = runCatching { mpv.getPropertyString("chapter-list/$index/title") }.getOrNull()
+            )
+        }
     }
 
     private fun applyHeaders(headers: Map<String, String>) {

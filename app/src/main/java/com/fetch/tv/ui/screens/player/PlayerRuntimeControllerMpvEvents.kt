@@ -98,9 +98,9 @@ internal class MpvEventRelay(
     }
 
     override fun eventProperty(property: String) {
-        if (property != MPV_TRACK_LIST_PROPERTY) return
+        if (property != MPV_TRACK_LIST_PROPERTY && property != MPV_CHAPTER_LIST_PROPERTY) return
         if (!active.get() || epoch != controller.mpvEventRelayEpoch) return
-        controller.markMpvTracksStale()
+        if (property == MPV_CHAPTER_LIST_PROPERTY) controller.chapterState.markMpvChaptersStale() else controller.markMpvTracksStale()
     }
 
     override fun eventProperty(property: String, value: Long) = Unit
@@ -120,6 +120,7 @@ internal fun PlayerRuntimeController.registerMpvEventRelay(view: FetchMpvSurface
     resetMpvStartupWatchdog()
     // Changes that happened before the relay was attached are not replayed.
     markMpvTracksStale()
+    chapterState.markMpvChaptersStale()
     val relay = MpvEventRelay(this, mpvEventRelayEpoch)
     mpvEventRelay = relay
     runCatching { view.mpv.addObserver(relay) }

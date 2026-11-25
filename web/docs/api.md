@@ -38,7 +38,7 @@ something on top of it.
 
 ## Authentication
 
-Every endpoint needs a bearer token, which is one of three things:
+Every endpoint needs a bearer token, which is one of four things:
 
 - **A session token**, from signing in (`POST /auth/login`, `/auth/register`
   or `/auth/bootstrap`). A session only ever sees its own account's profiles.
@@ -46,6 +46,15 @@ Every endpoint needs a bearer token, which is one of three things:
   and never more than 90 days from sign-in. The web app gets its session as a
   cookie rather than a token — see
   [The website's session cookie](#the-websites-session-cookie).
+- **A personal access token**, made in **Settings → Access tokens** (or `POST
+  /auth/tokens`) for a script or an integration such as Home Assistant. It
+  starts with `fpat_`, acts as the account that made it on that account's
+  profiles only, and lasts until it expires or is revoked. It is never the
+  admin and can't manage the account itself: the password, sign-ins, TVs
+  (`403 owner_token_required`) and other tokens stay with a signed-in session.
+  A read-only token may only send `GET` requests; anything else is `403`
+  (`code: "read_only_token"`). Prefer one of these to `API_TOKEN` for anything
+  that isn't the operator.
 - **A paired device's token** (see [Devices](#devices)), which a TV gets by
   pairing instead of being given `API_TOKEN`.
 - **`API_TOKEN`**, the server's own token. This is the operator: scripts and
@@ -62,6 +71,11 @@ account's profiles, like `API_TOKEN`, but is never the admin.
 ```bash
 curl -H "Authorization: Bearer $API_TOKEN" http://192.168.1.25:7000/watch/stats
 ```
+
+`GET /openapi.json` is an OpenAPI 3 description of every route, generated from
+the routes themselves. Routes that declare a request schema are described in
+full; the rest are listed by method, path and path parameters, and this page is
+where their bodies and answers are written out.
 
 A missing, wrong or expired token gets `401` with a `WWW-Authenticate: Bearer`
 header. That header is how the web client tells "you are signed out" apart from
@@ -85,6 +99,8 @@ These paths are exempt, because they cannot carry a bearer token by construction
 | `/addon/stremio/<secret>/*` | Stremio sends no credentials | The unguessable per-profile secret in the path. The same routes without a secret need a token. |
 | `/trakt/oauth/callback` | Browser redirect from trakt.tv | The `state` value that started the flow |
 | `/webhooks/*` | Plex, Jellyfin and Emby post directly | An account's webhook key, or `WEBHOOK_SECRET` plus optional `WEBHOOK_ALLOWED_IPS` |
+| `GET /calendar/feed/<profileId>/<key>/calendar.ics` | A calendar app can't sign in | A key derived from `API_TOKEN`, the profile and a per-profile counter. Off until the profile turns the feed on; replacing or turning it off retires the address. 30/minute. |
+| `GET /shared/lists/<listId>/<key>` | A shared list is for someone with no account | The same kind of derived key, per list. Only while the list is shared. 60/minute. |
 | `POST /devices/pair/start` | A TV has no credential yet | A code someone signed in must confirm; rate-limited, and capped at 3 pending per client address and 200 overall |
 | `GET /devices/pair/poll` | As above | The poll secret `start` returned, in `x-pairing-secret` |
 
@@ -411,6 +427,9 @@ Trakt.
 | `GET` | `/lists` | Each list with its item count. |
 | `POST` | `/lists` | `{ name, kind }`. `400` for a kind that isn't one of the three; `409` for `watchlist` or `collection`, which are per-profile singletons the app creates for you — only `custom` can be created here. |
 | `PATCH` | `/lists/:id` | `{ name }`. Renaming a default list is allowed — both defaults are looked up by kind, not by name. |
+| `POST` | `/lists/:id/share` | Shares the list read-only, or replaces its link (the old one stops working): `{ sharePath }`, the path of `GET /shared/lists/…` below. `GET /lists` reports it as `sharePath` on each list, `null` while unshared. |
+| `DELETE` | `/lists/:id/share` | Stops sharing. `204`. |
+| `GET` | `/shared/lists/:listId/:key` | A shared list, with no bearer token: `{ list: { name, description, itemCount }, items: [{ type, imdbId, name, year, poster, genres, rating }] }`, in the list's manual order, at most 1000 titles. Nothing about whose list it is. `404` for a wrong or retired key, or a list that isn't shared. The website's page for it is `/shared/list/:listId/:key`. |
 | `DELETE` | `/lists/:id` | `409` for the default watchlist or collection — items cascade off the list, so deleting one takes its contents with it. The default is the oldest row of its kind, so a duplicate left by an older version is still deletable. |
 | `GET` | `/lists/:listId/items` | Items with metadata joined; anything still missing metadata falls back to the title captured when it was added, and a backfill is queued. |
 | `POST` | `/lists/:listId/items` | `{ type, imdbId, title? }`. `409` if already present. |
@@ -434,6 +453,10 @@ Trakt.
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/calendar?days=` | Upcoming episodes for shows you follow. `days` is 1–90, default 30. Respects the spoiler-protection setting. |
+| `GET` | `/calendar/feed` | `{ enabled, path }`: whether the profile's iCal feed is on, and the feed's path when it is. |
+| `POST` | `/calendar/feed` | Turns the feed on, or replaces its address (the old one stops working). Answers like `GET`. |
+| `DELETE` | `/calendar/feed` | Turns the feed off. `204`. |
+| `GET` | `/calendar/feed/:profileId/:key/calendar.ics` | The feed itself, `text/calendar`, with no bearer token: the key in the path is the credential. The fortnight just gone and the next 90 days of what `/calendar` shows; an entry with a known air time is a timed event, the rest are all-day. `404` for a wrong or retired key. |
 
 ### Profiles API
 
@@ -515,8 +538,8 @@ per-profile route.
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| `GET` | `/collections` | `{ collections, updatedAt }`. An empty list and `null` when there are none yet. |
-| `PUT` | `/collections` | `{ collections, baseUpdatedAt? }` replaces the whole list. With `baseUpdatedAt` (the value last read), a list changed elsewhere in the meantime is `409 collections_conflict` carrying the current one. |
+| `GET` | `/collections` | `{ collections, updatedAt, version }`, with the version as the `ETag`. An empty list, `null` and version `0` when there are none yet. |
+| `PUT` | `/collections` | `{ collections }` replaces the whole list and answers `{ collections, updatedAt, version }`. With `If-Match` naming the version last read (`"0"` for none), a list changed elsewhere in the meantime is `412 version_conflict` carrying the current `collections`, `updatedAt` and `version`; merge and send again. Without it the save overwrites whatever is stored. `baseUpdatedAt` in the body (the `updatedAt` last read) is the older form of the same check and answers `409 collections_conflict`. |
 | `GET` | `/collections/tmdb-search?kind=&q=` | `{ results: [{ id, name, image, detail }] }`, up to 12 TMDB people (`kind=person`), companies (`company`) or film collections (`collection`) by name, for picking a TMDB source without its numeric id. Needs a TMDB key (`409 tmdb_not_configured`). |
 | `POST` | `/collections/preview` | `{ source }` → `{ metas }`, the first 20 titles a source yields. TMDB needs a key (`409 tmdb_not_configured`), Trakt a connection (`409 trakt_not_connected`). Addon catalogs are `422 preview_in_browser`: the website fetches those from the addon directly, at the source's `addonUrl`. |
 
@@ -599,6 +622,9 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | `PATCH` | `/auth/me` | `{ username, currentPassword }` → `{ account }`. `401 password_incorrect`, `409` for a taken name. |
 | `DELETE` | `/auth/me` | `{ currentPassword }`. Deletes the signed-in account and everything its profiles own. The admin can't (`400 admin_cannot_delete`): hand admin on first. Expires the website's cookies. |
 | `POST` | `/auth/password` | `{ currentPassword, newPassword, signOutTvs? }`. Signs out every other session, and with `signOutTvs: true` every paired device. Clears `mustChangePassword`. `204`. |
+| `GET` | `/auth/tokens` | The account's personal access tokens: `{ tokens: [{ id, name, readOnly, createdAt, lastUsedAt, expiresAt }] }`. Never the tokens themselves. Session only, as are the two below. |
+| `POST` | `/auth/tokens` | `{ name, readOnly?, expiresInDays? }` → `201 { token, accessToken }`. `name` is up to 60 characters; `expiresInDays` is 1 to 3650, or left out for a token that doesn't expire. `token` is in this response only. At most 25 per account (`409 access_token_limit`). |
+| `DELETE` | `/auth/tokens/:id` | Revokes one of the account's tokens. `204`; it stops working at once. |
 | `GET` | `/auth/sessions` | Where the account is signed in: `{ sessions: [...] }`, browsers (`kind: "browser"`, `id`, `current`, `userAgent`, `ipAddress`, `createdAt`, `lastUsedAt`, `expiresAt`) then TVs (`kind: "tv"`, `id`, `name`, `appVersion`, `createdAt`, `lastUsedAt`). Session only. |
 | `DELETE` | `/auth/sessions/:id` | Ends one of the account's browser sessions. A TV is ended with `DELETE /devices/:id`. Session only. Ending this browser's own session also expires its cookies. |
 | `POST` | `/auth/sessions/revoke-others` | `{ includeTvs? }` → `{ browsers, tvs }`. Ends every other browser session, and every TV with `includeTvs: true`. The calling session stays. Session only. |
@@ -784,7 +810,9 @@ routes, and with neither, the default (oldest) profile.
 ### Notification channels
 
 Non-push notification targets, scoped to the calling profile: `ntfy`, `gotify`,
-`discord` and `webhook`. Unlike a push endpoint, these may point at a LAN or
+`discord`, `webhook` and `apprise` (an [Apprise API](https://github.com/caronc/apprise-api)
+server, and through it email, Telegram, Matrix and the rest of what Apprise
+speaks). Unlike a push endpoint, these may point at a LAN or
 loopback address — reaching a self-hosted ntfy is the point — so the URL is held
 to the same rules as the AI provider endpoint instead: http(s) only, never the
 cloud-metadata/link-local range, checked by DNS as well as by name, and
@@ -793,10 +821,18 @@ re-resolved immediately before each send. Redirects are refused, not followed.
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/notifications/channels` | The profile's channels. The stored token is never returned — only `hasToken` — and `url` is masked (`https://ntfy.sh/…`), since for a webhook the URL is the secret. `urlReadable` is `false` when the URL was encrypted under a previous `API_TOKEN`. |
-| `POST` | `/notifications/channels` | `{ kind, url, name?, token?, enabled? }`. An ntfy URL must include its topic; Gotify requires a token. Ten channels per profile. |
-| `PATCH` | `/notifications/channels/:id` | `{ name?, url?, token?, enabled? }`. Omitting `url` or `token` keeps the stored one; `""` clears the token. |
+| `POST` | `/notifications/channels` | `{ kind, url, name?, token?, enabled?, adminAlerts? }`. An ntfy URL must include its topic; Gotify requires a token; an Apprise URL is the server's `/notify/<key>`, or the bare `/notify` with the Apprise service URLs as `token`. Ten channels per profile. `adminAlerts: true` also sends the channel the server's own alerts, and only the admin may set it (`403 admin_required`). |
+| `PATCH` | `/notifications/channels/:id` | `{ name?, url?, token?, enabled?, adminAlerts? }`. Omitting `url` or `token` keeps the stored one; `""` clears the token. |
 | `DELETE` | `/notifications/channels/:id` | |
 | `POST` | `/notifications/channels/:id/test` | Sends a real test notification. Returns `{ success }`, or `{ success: false, outcome, error }` with the same collapsed `outcome` set as `/ai/test` — an upstream failure is a result, not a `500`, and neither the status code nor the socket error is echoed back. |
+
+Two kinds of event are sent. `upcoming-episode` goes to every enabled channel
+of the profile. The server's own alerts go to the enabled channels the admin
+marked `adminAlerts`, on an admin account's profiles: `job-failing` when a
+background job has failed three runs in a row (once, not on every failure
+after), `job-recovered` when it next succeeds, and `tv-sync-failing` when a TV
+that was syncing reports a failed sync. A generic webhook receives the event
+name in `event`.
 
 A generic `webhook` receives `{ event, title, message, url, data }`; for an
 upcoming episode, `data` carries `seriesImdbId`, `seriesName`, `season`,

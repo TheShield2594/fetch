@@ -94,7 +94,9 @@ internal data class WebsiteVerifyBody(val profileToken: String? = null)
 @Serializable
 internal data class WebsiteCollectionsBody(
     val collections: JsonArray = JsonArray(emptyList()),
-    val updatedAt: String? = null
+    val updatedAt: String? = null,
+    /** 0 when the website has none stored, and from a website older than collection versions. */
+    val version: Int = 0
 )
 
 /** One title from a website list, in the Stremio meta-preview shape the API answers with. */

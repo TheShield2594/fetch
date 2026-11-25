@@ -30,6 +30,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -434,23 +436,66 @@ class FetchWebsiteSyncService @Inject constructor(
      */
     suspend fun collections(slot: Int, local: JsonArray): JsonArray? {
         val remote = remoteFor(slot) ?: return null
-        val (collections, updatedAt) = try {
+        val current = try {
             client.collections(remote.id, profileToken(remote.id))
         } catch (error: FetchWebsiteException) {
             if (error.code == "profile_verification_required") return null
             throw error
         }
-        if (updatedAt == null) {
+        if (current.updatedAt == null) {
             if (local.isNotEmpty()) putCollections(slot, local)
             return null
         }
-        return collections
+        saveCollectionsBase(remote.id, current.version, current.collections)
+        return current.collections
     }
 
-    suspend fun putCollections(slot: Int, collections: JsonArray) {
-        val remote = remoteFor(slot) ?: return
-        client.putCollections(remote.id, profileToken(remote.id), collections)
-        Log.d(TAG, "Pushed ${collections.size} collections to the website")
+    /**
+     * Saves [collections] for the website profile in [slot], as the version after the one this
+     * TV last saw. When another device saved in between (a 412), the two lists are merged
+     * ([FetchWebsiteCollectionsMerge]) and the result saved instead; that result is returned for
+     * the caller to apply here. Null when what was sent is what the website now holds.
+     *
+     * A second 412 in a row is thrown, so the change stays pending and goes up on the next pass.
+     */
+    suspend fun putCollections(slot: Int, collections: JsonArray): JsonArray? {
+        val remote = remoteFor(slot) ?: return null
+        val token = profileToken(remote.id)
+        val base = collectionsBase(remote.id)
+        // A TV that hasn't synced since versions existed has no base: it saves over whatever
+        // version is there, as it always did, and has one from then on.
+        val version = base?.first ?: client.collections(remote.id, token).version
+        try {
+            val saved = client.putCollections(remote.id, token, collections, version)
+            saveCollectionsBase(remote.id, saved.version, collections)
+            Log.d(TAG, "Pushed ${collections.size} collections to the website")
+            return null
+        } catch (error: FetchWebsiteException) {
+            if (error.status != 412) throw error
+        }
+        val current = client.collections(remote.id, token)
+        val merged = FetchWebsiteCollectionsMerge.merge(base?.second, collections, current.collections)
+        val saved = client.putCollections(remote.id, token, merged, current.version)
+        saveCollectionsBase(remote.id, saved.version, merged)
+        Log.d(TAG, "Merged with a newer save and pushed ${merged.size} collections to the website")
+        return merged.takeIf { it != collections }
+    }
+
+    /** The version and collections last agreed on with the website for [websiteProfileId], if any. */
+    private fun collectionsBase(websiteProfileId: String): Pair<Int, JsonArray>? = runCatching {
+        val stored = json.parseToJsonElement(store.collectionsBase(websiteProfileId) ?: return null) as JsonObject
+        val version = (stored["version"] as JsonPrimitive).content.toInt()
+        version to stored["collections"] as JsonArray
+    }.getOrNull()
+
+    private fun saveCollectionsBase(websiteProfileId: String, version: Int, collections: JsonArray) {
+        store.saveCollectionsBase(
+            websiteProfileId,
+            buildJsonObject {
+                put("version", JsonPrimitive(version))
+                put("collections", collections)
+            }.toString()
+        )
     }
 
     // ─── Addons ───

@@ -64,7 +64,12 @@ interface SyncBackend {
 
     // ─── Collections ───
 
-    suspend fun pushCollections(profileId: Int, collections: JsonArray): Result<Unit>
+    /**
+     * Saves [collections] for [profileId]. When another device saved since this one last
+     * synced, the backend merges the two lists and saves that instead (#669): the merged list
+     * is returned for the caller to apply locally. Null when what was sent is what is stored.
+     */
+    suspend fun pushCollections(profileId: Int, collections: JsonArray): Result<JsonArray?>
 
     /**
      * The account's collections for [profileId], or null to keep [local] as it is: the account

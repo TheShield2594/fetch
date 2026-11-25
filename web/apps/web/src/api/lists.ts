@@ -104,6 +104,24 @@ export const listsApi = {
       { method: "POST", timeoutMs: 120000 }
     );
   },
+  /** Shares a list read-only, or replaces its link. `sharePath` is the API path of the shared list. */
+  shareList(listId: string) {
+    return request<{ sharePath: string | null }>(`/lists/${encodeURIComponent(listId)}/share`, { method: "POST" });
+  },
+  unshareList(listId: string) {
+    return request<void>(`/lists/${encodeURIComponent(listId)}/share`, { method: "DELETE" });
+  },
+  /** This profile's calendar feed: whether it is on, and the API path of the feed when it is. */
+  getCalendarFeed() {
+    return request<{ enabled: boolean; path: string | null }>("/calendar/feed");
+  },
+  /** Turns the feed on, or replaces its address. */
+  enableCalendarFeed() {
+    return request<{ enabled: boolean; path: string | null }>("/calendar/feed", { method: "POST" });
+  },
+  disableCalendarFeed() {
+    return request<void>("/calendar/feed", { method: "DELETE" });
+  },
   getItemLists(imdbId: string) {
     return request<{ lists: ItemListMembership[] }>(`/items/${encodeURIComponent(imdbId)}/lists`);
   },

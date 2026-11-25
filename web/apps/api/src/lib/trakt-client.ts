@@ -196,17 +196,21 @@ export const pushTraktWatchlistChange = async (
 };
 
 /**
- * Whether a removal on Trakt is allowed to remove the item locally too.
+ * Whether a removal on Trakt removes the item locally too.
  *
- * Off by default: Trakt is an optional mirror, not the system of record. A
- * self-hoster's library should never shrink because a third-party service
- * decided it should — least of all one they are keeping at arm's length
- * precisely because it might go away.
+ * On by default: the watchlist is a two-way sync, and one where adds travel
+ * both ways but removals only one reads as broken — clear a title on Trakt, or
+ * let Trakt clear it because it was watched, and it sat here indefinitely.
  *
- * Turning this on restores the old two-way behaviour for anyone who does want
- * Trakt driving their watchlist.
+ * What makes that safe is the guard in `syncTraktWatchlist`, not this switch: a
+ * Trakt watchlist that has gone entirely empty is treated as a fault and never
+ * mirrored, so a broken or reset account cannot empty the local one.
+ *
+ * `TRAKT_WATCHLIST_MIRROR_DELETES=false` makes Trakt add-only again, for anyone
+ * who wants nothing to leave their library on a third party's say-so. Read per
+ * sync rather than once at import, so a test can flip it.
  */
-const TRAKT_WATCHLIST_MIRROR_DELETES = parseBool(process.env.TRAKT_WATCHLIST_MIRROR_DELETES);
+const mirrorDeletesEnabled = () => parseBool(process.env.TRAKT_WATCHLIST_MIRROR_DELETES, true);
 
 const watchlistSnapshotKey = (item: WatchlistItemRef) => `${item.type}:${item.imdbId}`;
 
@@ -237,8 +241,8 @@ const writeWatchlistSnapshot = async (owner: string, keys: Set<string>): Promise
  * instead of deleted, so a transient failure can't silently drop an item.
  *
  * Items that disappeared from Trakt since the last sync are only removed
- * locally when TRAKT_WATCHLIST_MIRROR_DELETES is on; otherwise they are kept
- * and counted in `keptLocally`. See that constant for why off is the default.
+ * locally too, unless TRAKT_WATCHLIST_MIRROR_DELETES is off; then they are kept
+ * and counted in `keptLocally`.
  */
 export const syncTraktWatchlist = async (
   logger: FastifyRequest["log"],
@@ -300,7 +304,7 @@ export const syncTraktWatchlist = async (
       "Trakt returned an empty watchlist where it previously had items — skipping mirror deletions"
     );
   }
-  const mirrorDeletes = TRAKT_WATCHLIST_MIRROR_DELETES && !traktWentEmpty;
+  const mirrorDeletes = mirrorDeletesEnabled() && !traktWentEmpty;
 
   let addedLocally = 0;
   let removedLocally = 0;
@@ -704,6 +708,21 @@ export const pollTraktHistory = async (
 
   for (const [seriesImdbId, progress] of seriesProgressByImdb.entries()) {
     await upsertSeriesProgressIfNewer(profileId, seriesImdbId, progress);
+  }
+
+  // What was watched in another Trakt app comes off the watchlist here as it
+  // would have had it been watched here. Imported lazily: that module pushes
+  // its removals through this one.
+  const watchedTitles = [
+    ...movieHistory
+      .map((entry) => entry.movie?.ids?.imdb)
+      .filter((id): id is string => !!id)
+      .map((imdbId) => ({ type: "movie" as const, imdbId })),
+    ...[...seriesProgressByImdb.keys()].map((imdbId) => ({ type: "series" as const, imdbId })),
+  ];
+  if (watchedTitles.length > 0) {
+    const { removeWatchedFromWatchlist } = await import("./watchlist-watched.js");
+    await removeWatchedFromWatchlist(profileId, watchedTitles, logger);
   }
 
   // Written only after every event above landed, so a run that throws part-way

@@ -133,9 +133,23 @@ class FetchWebsiteStore internal constructor(
         prefs.edit { putString(KEY_SETTINGS_BASE_PREFIX + websiteProfileId, blob) }
     }
 
-    /** A new pairing, or the website a TV left, starts from the TV's own settings again. */
+    /**
+     * The collections this TV and the website last agreed on for a website profile, as
+     * `{"version": n, "collections": [...]}`: the version a push names, and the base of the merge
+     * in [FetchWebsiteCollectionsMerge] when the website has moved on from it (#669).
+     */
+    fun collectionsBase(websiteProfileId: String): String? =
+        prefs.getString(KEY_COLLECTIONS_BASE_PREFIX + websiteProfileId, null)
+
+    fun saveCollectionsBase(websiteProfileId: String, blob: String) {
+        prefs.edit { putString(KEY_COLLECTIONS_BASE_PREFIX + websiteProfileId, blob) }
+    }
+
+    /** A new pairing, or the website a TV left, starts from the TV's own settings and collections again. */
     private fun clearSettingsBases() {
-        val keys = prefs.all.keys.filter { it.startsWith(KEY_SETTINGS_BASE_PREFIX) }
+        val keys = prefs.all.keys.filter {
+            it.startsWith(KEY_SETTINGS_BASE_PREFIX) || it.startsWith(KEY_COLLECTIONS_BASE_PREFIX)
+        }
         prefs.edit { keys.forEach { remove(it) } }
     }
 
@@ -153,6 +167,7 @@ class FetchWebsiteStore internal constructor(
         const val KEY_SIGNED_OUT = "signed_out_by_website"
         const val KEY_INITIAL_PROFILE_PUSH = "initial_profile_push"
         const val KEY_SETTINGS_BASE_PREFIX = "settings_base_"
+        const val KEY_COLLECTIONS_BASE_PREFIX = "collections_base_"
         const val KEY_PROFILES_REVISION = "profiles_revision"
         const val KEY_PENDING_PROFILE_DELETES = "pending_profile_deletes"
     }

@@ -218,7 +218,9 @@ const importCollections = async (
   await client.profileCollections.upsert({
     where: { profileId },
     create: { profileId, collections, updatedAt },
-    update: { collections, updatedAt },
+    // Bumped, so a TV holding the copy from before the import gets a 412 and
+    // merges rather than pushing its own list over what was just restored.
+    update: { collections, updatedAt, version: { increment: 1 } },
   });
   return added.length;
 };

@@ -10,6 +10,7 @@ import { computeNextEpisode } from "../lib/next-episode.js";
 import { getSeasonsForImdbId } from "../lib/seasons.js";
 import { droppedSeriesKey, getDroppedSeriesIds } from "../lib/dropped-shows.js";
 import { recordWatchEvent } from "../lib/watch-event.js";
+import { removeWatchedFromWatchlist } from "../lib/watchlist-watched.js";
 
 const DROPPED_KEY = droppedSeriesKey;
 
@@ -303,6 +304,8 @@ const seriesRoutes: FastifyPluginAsync = async (app) => {
         lastEpisode: nextEpisode,
         lastWatchedAt: watchedAt,
       });
+
+      void removeWatchedFromWatchlist(profileId, [{ type: "series", imdbId }], request.log);
 
       // Which episode this marked. The client's card can be stale — another
       // device may have moved the show on — so the toast and its Undo name

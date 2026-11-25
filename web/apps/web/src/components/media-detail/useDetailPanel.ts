@@ -11,6 +11,8 @@ export type PanelDetail = {
   director: string | null;
   providers: DetailBundle["providers"] | null;
   recommendations: DetailBundle["recommendations"];
+  /** The rail is still on its way, as opposed to empty. */
+  recommendationsPending: boolean;
   seasons: DetailBundle["seasons"];
   dropped: boolean;
 };
@@ -108,9 +110,28 @@ export function useDetailPanel() {
         director: bundle.director,
         providers: bundle.providers,
         recommendations: bundle.recommendations,
+        recommendationsPending: bundle.recommendationsPending === true,
         seasons: bundle.seasons,
         dropped: bundle.dropped,
       });
+    };
+
+    // The bundle doesn't wait for "More like this" when the API has to build
+    // it from scratch — it is the slowest section by far and the last one on
+    // the page. When it was left out, it is fetched here and folded into both
+    // the panel and the cached bundle, so reopening the title has the rail.
+    const loadPendingRecommendations = async (bundle: DetailBundle, scope: string) => {
+      let metas: DetailBundle["recommendations"] = [];
+      try {
+        metas = (await api.getRecommendationsFor(type, imdbId, controller.signal)).metas;
+      } catch {
+        // An empty rail renders as no rail, which is what a failure should be.
+        // An abort lands here too, and must not cache "none" for the title.
+        if (controller.signal.aborted) return;
+      }
+      bundleCache.setForScope(scope, cacheKey, { ...bundle, recommendations: metas, recommendationsPending: false });
+      if (cancelled) return;
+      setDetail((prev) => (prev ? { ...prev, recommendations: metas, recommendationsPending: false } : prev));
     };
 
     const cacheKey = bundleCacheKey(type, imdbId);
@@ -121,6 +142,8 @@ export function useDetailPanel() {
       // empty cast row that fills in a moment later.
       applyBundle(cached);
       setDetailLoading(false);
+      // Closed and reopened before the rail arrived.
+      if (cached.recommendationsPending) void loadPendingRecommendations(cached, getCacheScope());
     } else {
       setDetail(null);
       setDetailLoading(true);
@@ -132,7 +155,10 @@ export function useDetailPanel() {
         try {
           const bundle = await api.getDetailBundle(type, imdbId, controller.signal);
           bundleCache.setForScope(scope, cacheKey, bundle);
-          if (!cancelled) applyBundle(bundle);
+          if (!cancelled) {
+            applyBundle(bundle);
+            if (bundle.recommendationsPending) void loadPendingRecommendations(bundle, scope);
+          }
         } catch {
           // The title it already had stays on screen; the sections the bundle
           // would have filled are replaced by one error with a Retry. An abort

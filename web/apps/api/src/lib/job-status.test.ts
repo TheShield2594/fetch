@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { first } from "./test-fixtures/present.js";
 
 const prismaMock = {
-  kV: { upsert: vi.fn(), deleteMany: vi.fn(), findMany: vi.fn() },
+  kV: { upsert: vi.fn(), deleteMany: vi.fn(), findMany: vi.fn(), findUnique: vi.fn() },
 };
 
 vi.mock("./prisma.js", () => ({ prisma: prismaMock }));
@@ -21,7 +21,7 @@ describe("job-status", () => {
     expect(prismaMock.kV.upsert).toHaveBeenCalledWith(
       expect.objectContaining({ where: { key: "job-status:trakt-history-poll" } })
     );
-    expect(storedValue()).toEqual({ status: "failed", message: "Trakt API unreachable" });
+    expect(storedValue()).toEqual({ status: "failed", message: "Trakt API unreachable", failures: 1 });
   });
 
   it("recordJobFailure stringifies non-Error values and truncates long messages", async () => {
@@ -134,5 +134,42 @@ describe("job-status", () => {
     const { failuresFrom, getJobRuns } = await import("./job-status.js");
 
     expect(failuresFrom(await getJobRuns())).toEqual([]);
+  });
+
+  describe("failing streaks", () => {
+    const stored = (run: object) => ({ value: JSON.stringify(run) });
+
+    it("counts consecutive failures and reports the streak it found", async () => {
+      const { recordJobFailure } = await import("./job-status.js");
+      prismaMock.kV.findUnique.mockResolvedValue(stored({ status: "failed", message: "x", failures: 2 }));
+
+      const streak = await recordJobFailure("simkl-sync", new Error("still down"));
+
+      expect(streak).toEqual({ job: "simkl-sync", failures: 3, previousFailures: 2, message: "still down" });
+      expect(storedValue().failures).toBe(3);
+    });
+
+    it("starts at one after a success, and for a job never seen", async () => {
+      const { recordJobFailure } = await import("./job-status.js");
+      prismaMock.kV.findUnique.mockResolvedValueOnce(stored({ status: "ok" })).mockResolvedValueOnce(null);
+
+      expect((await recordJobFailure("simkl-sync", new Error("x"))).failures).toBe(1);
+      expect((await recordJobFailure("simkl-sync", new Error("x"))).failures).toBe(1);
+    });
+
+    it("reads a failure recorded before streaks were counted as a streak of one", async () => {
+      const { recordJobFailure } = await import("./job-status.js");
+      prismaMock.kV.findUnique.mockResolvedValue({ value: "a legacy bare message" });
+
+      expect(await recordJobFailure("simkl-sync", new Error("x"))).toMatchObject({ failures: 2, previousFailures: 1 });
+    });
+
+    it("ends the streak on success and says how long it was", async () => {
+      const { recordJobSuccess } = await import("./job-status.js");
+      prismaMock.kV.findUnique.mockResolvedValue(stored({ status: "failed", message: "x", failures: 5 }));
+
+      expect(await recordJobSuccess("simkl-sync")).toMatchObject({ failures: 0, previousFailures: 5 });
+      expect(storedValue()).toEqual({ status: "ok" });
+    });
   });
 });

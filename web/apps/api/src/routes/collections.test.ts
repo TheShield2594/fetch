@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
+import { P2002 } from "../lib/test-fixtures/prisma-errors.js";
 import { buildRouteApp } from "../lib/test-fixtures/route-app.js";
 
 const PROFILE_ID = "11111111-1111-4111-8111-111111111111";
@@ -8,7 +9,7 @@ const headers = { "x-profile-id": PROFILE_ID };
 
 const prismaMock = {
   profile: { findUnique: vi.fn(), findMany: vi.fn() },
-  profileCollections: { findUnique: vi.fn(), upsert: vi.fn() },
+  profileCollections: { findUnique: vi.fn(), upsert: vi.fn(), create: vi.fn(), updateMany: vi.fn() },
   list: { findFirst: vi.fn() },
 };
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
@@ -53,21 +54,23 @@ describe("collections routes", () => {
 
     const response = await app.inject({ method: "GET", url: "/collections", headers });
 
-    expect(response.json()).toEqual({ collections: [], updatedAt: null });
+    expect(response.json()).toEqual({ collections: [], updatedAt: null, version: 0 });
+    expect(response.headers.etag).toBe('"0"');
   });
 
   it("replaces the whole list and stores it as sent", async () => {
-    prismaMock.profileCollections.upsert.mockResolvedValue({});
+    prismaMock.profileCollections.upsert.mockResolvedValue({ version: 4 });
     const app = await buildApp();
 
     const response = await app.inject({ method: "PUT", url: "/collections", headers, payload: { collections: [collection] } });
 
     expect(response.statusCode).toBe(200);
     expect(response.json().collections).toEqual([collection]);
+    expect(response.json().version).toBe(4);
     expect(prismaMock.profileCollections.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { profileId: PROFILE_ID },
-        update: { collections: [collection], updatedAt: expect.any(Date) },
+        update: { collections: [collection], updatedAt: expect.any(Date), version: { increment: 1 } },
       })
     );
   });
@@ -89,6 +92,60 @@ describe("collections routes", () => {
     expect(response.statusCode).toBe(409);
     expect(response.json()).toMatchObject({ code: "collections_conflict", updatedAt: "2026-10-26T10:00:00.000Z" });
     expect(prismaMock.profileCollections.upsert).not.toHaveBeenCalled();
+  });
+
+  describe("with If-Match", () => {
+    const put = async (ifMatch: string, collections: unknown[] = [collection]) =>
+      (await buildApp()).inject({
+        method: "PUT",
+        url: "/collections",
+        headers: { ...headers, "if-match": ifMatch },
+        payload: { collections },
+      });
+
+    it("saves the next version when the one named is still stored", async () => {
+      prismaMock.profileCollections.updateMany.mockResolvedValue({ count: 1 });
+
+      const response = await put('"3"');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().version).toBe(4);
+      expect(response.headers.etag).toBe('"4"');
+      expect(prismaMock.profileCollections.updateMany).toHaveBeenCalledWith({
+        where: { profileId: PROFILE_ID, version: 3 },
+        data: { collections: [collection], updatedAt: expect.any(Date), version: 4 },
+      });
+      expect(prismaMock.profileCollections.upsert).not.toHaveBeenCalled();
+    });
+
+    it("answers 412 with what is stored when another device saved first", async () => {
+      // TV B, still on version 3, pushes its whole list after TV A saved version 4.
+      prismaMock.profileCollections.updateMany.mockResolvedValue({ count: 0 });
+      prismaMock.profileCollections.findUnique.mockResolvedValue({
+        collections: [collection],
+        updatedAt: new Date("2026-10-26T10:00:00Z"),
+        version: 4,
+      });
+
+      const response = await put('"3"', []);
+
+      expect(response.statusCode).toBe(412);
+      expect(response.headers.etag).toBe('"4"');
+      expect(response.json()).toMatchObject({ code: "version_conflict", version: 4, collections: [collection] });
+    });
+
+    it("creates the first version for \"0\", and refuses a second first save", async () => {
+      prismaMock.profileCollections.create.mockResolvedValueOnce({});
+      expect((await put('"0"')).json().version).toBe(1);
+
+      prismaMock.profileCollections.create.mockRejectedValueOnce(P2002);
+      prismaMock.profileCollections.findUnique.mockResolvedValue({ collections: [], updatedAt: new Date(), version: 1 });
+      expect((await put('"0"')).statusCode).toBe(412);
+    });
+
+    it("rejects a header that isn't a version", async () => {
+      expect((await put("*")).statusCode).toBe(400);
+    });
   });
 
   it("rejects an invalid document", async () => {

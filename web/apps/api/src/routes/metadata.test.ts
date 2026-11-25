@@ -204,6 +204,25 @@ describe("metadata routes", () => {
       expect(res.json()).toMatchObject({ cast: [], director: null, providers: EMPTY_PROVIDERS, recommendations: [] });
     });
 
+    it("answers without a slow recommendations rail, flagging it as pending", async () => {
+      loadRecommendations.mockReturnValue(new Promise(() => {}));
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/meta/movie/tt1/bundle" });
+
+      expect(res.statusCode).toBe(200);
+      expect(res.json()).toMatchObject({ recommendations: [], recommendationsPending: true });
+      expect(res.json().cast).toHaveLength(1);
+    });
+
+    it("does not flag a rail that arrived in time", async () => {
+      const app = await buildApp();
+
+      const res = await app.inject({ method: "GET", url: "/meta/movie/tt1/bundle" });
+
+      expect(res.json().recommendationsPending).toBe(false);
+    });
+
     it("404s when the title itself is missing", async () => {
       loadMeta.mockResolvedValue(null);
       const app = await buildApp();

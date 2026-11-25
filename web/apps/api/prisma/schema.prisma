@@ -43,6 +43,7 @@ enum NotificationChannelKind {
   gotify
   discord
   webhook
+  apprise
 }
 
 enum ScrobbleStatus {
@@ -88,6 +89,7 @@ model Account {
 
   profiles        Profile[]
   sessions        Session[]
+  accessTokens    AccessToken[]
   devices         Device[]
   devicePairings  DevicePairing[]
   invitesCreated  Invite[]  @relation("InviteCreatedBy")
@@ -104,7 +106,8 @@ model AccountEvent {
   // pin_changed, pin_removed, pin_cleared, tv_paired, tv_signed_out,
   // session_revoked, signed_out_everywhere, username_changed, admin_granted,
   // admin_transferred, addon_url_rotated, totp_enabled, totp_disabled,
-  // totp_failed, recovery_code_used.
+  // totp_failed, recovery_code_used, access_token_created,
+  // access_token_revoked.
   kind      String
   // A few words of context: a profile or TV name, who reset a password.
   detail    String?
@@ -130,6 +133,26 @@ model Session {
   // can tell its sign-ins apart in Settings → Account.
   userAgent  String?
   ipAddress  String?
+
+  accountId String  @db.Uuid
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+}
+
+// A personal access token: a credential the account makes for a script or an
+// integration, named so it can be told apart and revoked on its own. Like
+// Session, only the token's SHA-256 is kept. It acts as its account, never as
+// the admin, and `readOnly` limits it to GET requests.
+model AccessToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  tokenHash  String    @unique
+  readOnly   Boolean   @default(false)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  lastUsedAt DateTime? @db.Timestamptz(6)
+  // Null for a token that doesn't expire.
+  expiresAt  DateTime? @db.Timestamptz(6)
 
   accountId String  @db.Uuid
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -181,6 +204,11 @@ model Profile {
   // Settings adds one; 0 is the original derivation, so URLs installed before
   // this existed keep working until someone replaces them.
   stremioKeyGeneration Int @default(0)
+  // The profile's calendar as an iCal feed a phone can subscribe to. On while
+  // positive; the key in the feed's URL is derived from this number
+  // (lib/share-keys.ts), so replacing the link is the next number, and turning
+  // it off negates it.
+  calendarFeedGeneration Int?
   updatedAt           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   createdAt           DateTime @default(now()) @db.Timestamptz(6)
 
@@ -241,6 +269,11 @@ model List {
   createdAt   DateTime   @default(now()) @db.Timestamptz(6)
   items       ListItem[]
   link        ListLink?
+  // A read-only link to this list for someone with no account here. Shared
+  // while positive; the key in the link is derived from this number
+  // (lib/share-keys.ts), so it is replaced by the next number and revoked by
+  // negating it.
+  shareGeneration Int?
 
   profileId String  @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -412,13 +445,17 @@ model NotificationChannel {
   name String
   // What this means depends on the kind: the topic URL for ntfy, the server's
   // base URL for Gotify, the full webhook URL for Discord and generic
-  // webhooks. Validated against the SSRF rules on save and re-resolved before
-  // every send — see lib/ssrf.ts.
+  // webhooks, the notify endpoint of an Apprise API server. Validated against
+  // the SSRF rules on save and re-resolved before every send — see lib/ssrf.ts.
   url  String
   // Gotify application token, or an ntfy access token for a protected topic.
-  // Never returned by the API.
+  // For Apprise, the service URLs to notify when the endpoint is the stateless
+  // `/notify`. Never returned by the API.
   token     String?
   enabled   Boolean  @default(true)
+  // Also sent the server's own alerts (lib/admin-alerts.ts): a background job
+  // that keeps failing, a TV whose sync does. Only the admin can set it.
+  adminAlerts Boolean @default(false)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 
   profileId String  @db.Uuid
@@ -633,10 +670,13 @@ model DeviceProfileSlot {
 
 // A profile's collections (custom Home rows and their folders), stored as the
 // TV's own serialized form so a collection made on the TV comes back unchanged.
-// The whole list is replaced on every save, as on the TV.
+// The whole list is replaced on every save, as on the TV. Every save bumps
+// `version`; a save sent with `If-Match` goes through only while that is still
+// the version stored, so two TVs can't overwrite each other's changes.
 model ProfileCollections {
   profileId   String   @id @db.Uuid
   collections Json
+  version     Int      @default(1)
   updatedAt   DateTime @db.Timestamptz(6)
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)

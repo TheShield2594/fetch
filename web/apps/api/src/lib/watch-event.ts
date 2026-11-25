@@ -8,6 +8,7 @@ import { syncWatchEventToTrakt } from "./trakt-client.js";
 import { pushWatchedToTrackers } from "./trackers.js";
 import { watchEventDayWindow } from "./watch-event-dedup.js";
 import { clearPlaybackProgress } from "./playback.js";
+import { removeWatchedFromWatchlist } from "./watchlist-watched.js";
 import type { RecordWatchParams } from "./types.js";
 
 /**
@@ -108,6 +109,8 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
       });
     }
 
+    void removeWatchedFromWatchlist(profileId, [{ type: "series", imdbId: resolvedSeriesImdbId }], log);
+
     syncWatchEventToTrakt(
       watchEvent,
       { type: "episode", imdbId: resolvedSeriesImdbId, seriesImdbId: resolvedSeriesImdbId, season, episode, profileId },
@@ -164,6 +167,8 @@ export const recordWatchEvent = async (params: RecordWatchParams) => {
   );
 
   await clearPlaybackProgress(profileId, { type: "movie", imdbId }, watchedAt, log);
+
+  void removeWatchedFromWatchlist(profileId, [{ type: "movie", imdbId }], log);
 
   syncWatchEventToTrakt(watchEvent, { type: "movie", imdbId, profileId }, log);
   if (wasCreated) void pushWatchedToTrackers(profileId, { type: "movie", imdbId, watchedAt }, log);

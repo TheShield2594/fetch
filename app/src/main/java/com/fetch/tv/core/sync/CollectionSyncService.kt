@@ -4,6 +4,7 @@ import android.util.Log
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.local.CollectionsDataStore
+import com.fetch.tv.data.website.FetchWebsiteCollectionsMerge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -46,11 +47,38 @@ class CollectionSyncService @Inject constructor(
         val revision = pendingPushes.revision(PendingPushTracker.Domain.COLLECTIONS, profileId)
         val collections = runSuspendCatching { localCollectionsJson() }.getOrElse { return@withContext Result.failure(it) }
         backend.pushCollections(profileId, collections)
-            .onSuccess {
+            .mapCatching { merged ->
+                if (merged != null) applyMerged(profileId, sent = collections, merged = merged)
                 pendingPushes.markSent(PendingPushTracker.Domain.COLLECTIONS, profileId, revision)
                 Log.d(TAG, "Pushed ${collections.size} collections to ${backend.kind} for profile $profileId")
+                Unit
             }
-            .onFailure { Log.e(TAG, "Failed to push collections to ${backend.kind}", it) }
+            .onFailure {
+                if (it is kotlinx.coroutines.CancellationException) throw it
+                Log.e(TAG, "Failed to push collections to ${backend.kind}", it)
+            }
+    }
+
+    /**
+     * Another device had saved since this one last synced, so the backend stored [merged]
+     * rather than the list [sent] (#669). Brings the local copy to it, unless the active
+     * profile changed meanwhile: its next pull then does.
+     *
+     * An edit made here while the push was on its way is kept: it is merged in with [sent] as
+     * the base, and being still unsent (the pending revision moved with it) goes up next.
+     */
+    private suspend fun applyMerged(profileId: Int, sent: JsonArray, merged: JsonArray) {
+        if (profileManager.activeProfileId.value != profileId) return
+        val local = localCollectionsJson()
+        val result = if (local == sent) merged else FetchWebsiteCollectionsMerge.merge(sent, local, merged)
+        if (result == local) return
+        isSyncingFromRemote = true
+        try {
+            collectionsDataStore.setCollections(collectionsDataStore.importFromJson(result.toString()))
+        } finally {
+            isSyncingFromRemote = false
+        }
+        Log.d(TAG, "Applied ${result.size} collections merged with another device's for profile $profileId")
     }
 
     /**

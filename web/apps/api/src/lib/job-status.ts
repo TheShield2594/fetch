@@ -1,4 +1,5 @@
 import { prisma } from "./prisma.js";
+import type { JobStreak } from "./admin-alerts.js";
 
 // Persists the outcome of each scheduled background job's last run to the KV
 // table so a self-hoster without Sentry configured (the default — no error data
@@ -30,6 +31,8 @@ type StoredRun = {
   message?: string;
   durationMs?: number;
   overran?: boolean;
+  /** How many runs in a row have failed, this one included. Absent on a row from before it was counted. */
+  failures?: number;
 };
 
 // A run that outlasts its own interval is the shape of the overlap bug the
@@ -39,28 +42,39 @@ type StoredRun = {
 const didOverrun = (timing: JobTiming | undefined): boolean =>
   timing?.intervalMs !== undefined && timing.durationMs > timing.intervalMs;
 
-const write = async (job: JobName, run: StoredRun): Promise<void> => {
+/**
+ * Stores the run and returns the failing streak it leaves and the one it
+ * found, which is what decides whether the admin is told (lib/admin-alerts.ts).
+ * A failed row from before streaks were counted reads as a streak of one.
+ */
+const write = async (job: JobName, run: Omit<StoredRun, "failures">): Promise<JobStreak> => {
   const key = JOB_STATUS_KEY_PREFIX + job;
-  const value = JSON.stringify(run);
+  const previous = await prisma.kV.findUnique({ where: { key }, select: { value: true } });
+  const before = previous ? parseRun(previous.value) : null;
+  const previousFailures = before?.status === "failed" ? (before.failures ?? 1) : 0;
+  const failures = run.status === "failed" ? previousFailures + 1 : 0;
+
+  const value = JSON.stringify(run.status === "failed" ? { ...run, failures } : run);
   const now = new Date();
   await prisma.kV.upsert({
     where: { key },
     create: { key, value, updatedAt: now },
     update: { value, updatedAt: now },
   });
+  return { job, failures, previousFailures, message: run.message ?? null };
 };
 
-export async function recordJobFailure(job: JobName, error: unknown, timing?: JobTiming): Promise<void> {
+export async function recordJobFailure(job: JobName, error: unknown, timing?: JobTiming): Promise<JobStreak> {
   const message = (error instanceof Error ? error.message : String(error)).slice(0, MAX_MESSAGE_LENGTH);
-  await write(job, {
+  return write(job, {
     status: "failed",
     message,
     ...(timing ? { durationMs: timing.durationMs, overran: didOverrun(timing) } : {}),
   });
 }
 
-export async function recordJobSuccess(job: JobName, timing?: JobTiming): Promise<void> {
-  await write(job, {
+export async function recordJobSuccess(job: JobName, timing?: JobTiming): Promise<JobStreak> {
+  return write(job, {
     status: "ok",
     ...(timing ? { durationMs: timing.durationMs, overran: didOverrun(timing) } : {}),
   });

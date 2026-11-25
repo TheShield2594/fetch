@@ -336,8 +336,11 @@ hides it without deleting history, and `DELETE` on the same path undoes it.
   flow again; it's bound to the browser session that began it.
 - **History isn't syncing** — `TRAKT_POLL_INTERVAL_SEC=0` disables the scheduled
   poll. `POST /trakt/poll` runs it once, on demand.
-- **Removals don't propagate** — mirroring deletes to Trakt is opt-in:
-  `TRAKT_WATCHLIST_MIRROR_DELETES=true`. Adds always mirror.
+- **A title removed on Trakt is still on the watchlist here** — removals come
+  in on the scheduled poll, so allow one `TRAKT_POLL_INTERVAL_SEC`. If it never
+  goes, check that `TRAKT_WATCHLIST_MIRROR_DELETES` isn't set to `false` in
+  `.env`, which makes Trakt add-only. A Trakt watchlist that has gone entirely
+  empty is deliberately not mirrored.
 - **A sync failed and you didn't notice** — **Settings → Sync Status**
   surfaces failing scheduled jobs, which otherwise only appear in the logs.
 

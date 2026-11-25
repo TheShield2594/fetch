@@ -45,7 +45,13 @@ export const notificationsApi = {
   // Omitting `token` keeps the stored one; an empty string clears it.
   updateNotificationChannel(
     id: string,
-    payload: { name?: string | undefined; url?: string | undefined; token?: string | undefined; enabled?: boolean | undefined }
+    payload: {
+      name?: string | undefined;
+      url?: string | undefined;
+      token?: string | undefined;
+      enabled?: boolean | undefined;
+      adminAlerts?: boolean | undefined;
+    }
   ) {
     return request<{ channel: NotificationChannel }>(`/notifications/channels/${encodeURIComponent(id)}`, {
       method: "PATCH",

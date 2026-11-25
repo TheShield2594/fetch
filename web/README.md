@@ -230,7 +230,7 @@ http://192.168.1.25:7002
 > secure origin. To get them, put Fetch behind a proxy with a certificate —
 > see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup) — and install from
 > the `https://` address instead. If you'd rather not, **Settings →
-> Notifications** has channels (ntfy, Gotify, Discord, or any webhook) that
+> Notifications** has channels (ntfy, Gotify, Discord, Apprise, or any webhook) that
 > deliver the same alerts over plain http.
 
 Once you're on an `https://` address:
@@ -423,7 +423,8 @@ Trakt is supported but is not a system of record, and nothing depends on it. Eac
   Anything Trakt knows only by its own or TMDB's id is skipped and counted, never guessed at. On a large library the import can take several minutes; afterwards the scheduled poll only fetches what is new. `TRAKT_BACKFILL_MAX_PAGES` caps how far back a single import walks: 100 plays per page, default `500` pages (50,000 plays), hard ceiling `1000` pages (100,000 plays) — a larger value is clamped to that, and a value that isn't a positive whole number falls back to the default.
 - **Ongoing polling** (`TRAKT_POLL_INTERVAL_SEC`) is off-switchable: set it to `0`.
 - **Resume points** come in with each poll too. Something paused in another Trakt app (or on the TV) shows up in Continue Watching here, unless Fetch already holds a later pause of it or it has been watched since. A title finished in Fetch has its Trakt resume point removed on the next poll, as the TV does, so Trakt's own apps stop offering to resume it.
-- **Removals on Trakt never remove anything locally** unless you opt in with `TRAKT_WATCHLIST_MIRROR_DELETES=true`. Even then, a Trakt watchlist that has gone entirely empty is treated as a fault and never mirrored — so a broken or discontinued Trakt cannot empty your library.
+- **The watchlist is a two-way sync.** A title added or removed on either side is added or removed on the other at the next poll. A Trakt watchlist that has gone entirely empty is treated as a fault and never mirrored, so a broken or discontinued Trakt cannot empty yours; `TRAKT_WATCHLIST_MIRROR_DELETES=false` makes Trakt add-only, so nothing leaves your watchlist on its say-so.
+- **Watched titles leave the watchlist**, whether or not Trakt is connected: a film when it is played, a show when its last episode is. `WATCHLIST_REMOVE_WATCHED=false` keeps them listed.
 - **Scrobbles and watchlist changes still push out to Trakt** when it's connected. That direction is a mirror: if Trakt stops answering, the pushes fail quietly and nothing local is affected.
 
 Everything Fetch knows can be exported as a single JSON file (lists, watch history, series progress, ratings) — see [Export / import your data](#export--import-your-data).

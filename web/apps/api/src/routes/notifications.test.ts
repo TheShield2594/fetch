@@ -134,9 +134,22 @@ describe("notification channel routes", () => {
           url: "https://ntfy.sh/fetch",
           token: null,
           enabled: true,
+          adminAlerts: false,
           profileId: PROFILE_ID,
         },
       });
+    });
+
+    it("accepts an Apprise notify endpoint, and wants the services for the stateless one", async () => {
+      const app = await buildApp();
+
+      expect((await create(app, { kind: "apprise", url: "https://apprise.example.com/notify/family" })).statusCode).toBe(201);
+      expect((await create(app, { kind: "apprise", url: "https://apprise.example.com/" })).statusCode).toBe(400);
+      expect((await create(app, { kind: "apprise", url: "https://apprise.example.com/notify" })).statusCode).toBe(400);
+      expect(
+        (await create(app, { kind: "apprise", url: "https://apprise.example.com/notify", token: "mailto://me@example.com" }))
+          .statusCode
+      ).toBe(201);
     });
 
     it("allows a LAN target, which is the whole point of these channels", async () => {
@@ -483,5 +496,30 @@ describe("notification channel routes", () => {
       expect(res.json()).toMatchObject({ success: false, outcome: "failed" });
       expect(res.body).not.toContain("ECONNREFUSED");
     });
+  });
+});
+
+describe("admin alert channels", () => {
+  const post = async (auth: import("../lib/request-auth.js").AuthPrincipal, payload: Record<string, unknown>) => {
+    const { buildRouteApp } = await import("../lib/test-fixtures/route-app.js");
+    const app = await buildRouteApp(() => import("./notifications.js"), {}, auth);
+    return app.inject({
+      method: "POST",
+      url: "/notifications/channels",
+      payload: { kind: "ntfy", url: "https://ntfy.sh/fetch", ...payload },
+    });
+  };
+
+  it("only the admin can point a channel at the server's alerts", async () => {
+    const member = { kind: "session", sessionId: "s1", accountId: "a1", isAdmin: false } as const;
+    const admin = { kind: "session", sessionId: "s2", accountId: "a2", isAdmin: true } as const;
+
+    const refused = await post(member, { adminAlerts: true });
+    expect(refused.statusCode).toBe(403);
+    expect(refused.json().code).toBe("admin_required");
+
+    expect((await post(admin, { adminAlerts: true })).statusCode).toBe(201);
+    expect((await post(member, { adminAlerts: false })).statusCode).toBe(201);
+    expect((await post(admin, { adminAlerts: "yes" })).statusCode).toBe(400);
   });
 });

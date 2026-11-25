@@ -10,6 +10,7 @@ vi.mock("../../api", async (importOriginal) => {
     api: {
       getDetailBundle: vi.fn(),
       getWatchHistory: vi.fn(),
+      getRecommendationsFor: vi.fn(),
     },
   };
 });
@@ -18,6 +19,7 @@ const { api } = await import("../../api");
 const { invalidateDetailBundle, useDetailPanel } = await import("./useDetailPanel");
 const getDetailBundle = vi.mocked(api.getDetailBundle);
 const getWatchHistory = vi.mocked(api.getWatchHistory);
+const getRecommendationsFor = vi.mocked(api.getRecommendationsFor);
 
 const SERIES: SearchResult = {
   imdbId: "tt-severance",
@@ -179,5 +181,43 @@ describe("useDetailPanel when the bundle fails", () => {
     await waitFor(() => expect(view.result.current.detail).not.toBeNull());
     expect(view.result.current.detailFailed).toBe(false);
     expect(getDetailBundle).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("useDetailPanel pending recommendations", () => {
+  const rail = [{ id: "tt-rec", type: "series" as const, name: "A Recommendation" }];
+
+  it("fetches a rail the bundle left out, and keeps it for the reopen", async () => {
+    enterProfile("profile-a");
+    getDetailBundle.mockResolvedValue({ ...bundle(false), recommendationsPending: true });
+    getRecommendationsFor.mockResolvedValue({ metas: rail });
+
+    const first = await openSeries();
+    await waitFor(() => expect(first.result.current.detail?.recommendationsPending).toBe(false));
+    expect(first.result.current.detail?.recommendations).toEqual(rail);
+    first.unmount();
+
+    const second = await openSeries();
+    expect(second.result.current.detail?.recommendations).toEqual(rail);
+    expect(getRecommendationsFor).toHaveBeenCalledTimes(1);
+  });
+
+  it("asks for nothing more when the bundle carried the rail", async () => {
+    enterProfile("profile-a");
+
+    await openSeries();
+
+    expect(getRecommendationsFor).not.toHaveBeenCalled();
+  });
+
+  it("settles on an empty rail when the separate request fails", async () => {
+    enterProfile("profile-a");
+    getDetailBundle.mockResolvedValue({ ...bundle(false), recommendationsPending: true });
+    getRecommendationsFor.mockRejectedValue(new Error("offline"));
+
+    const view = await openSeries();
+
+    await waitFor(() => expect(view.result.current.detail?.recommendationsPending).toBe(false));
+    expect(view.result.current.detail?.recommendations).toEqual([]);
   });
 });

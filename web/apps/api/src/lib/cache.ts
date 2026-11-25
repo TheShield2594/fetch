@@ -188,3 +188,14 @@ export const kvCacheClear = () => {
   kvCache.clear();
   kvLookups.clear();
 };
+
+// A title whose row can never satisfy the detail panel's completeness check —
+// no OMDb key saved, a show TMDB lists no episode runtime for, a film OMDb has
+// no scores for — is refetched once and then served from the row for this long,
+// rather than paying for TMDB and OMDb again on every single open.
+export const DETAIL_REFETCH_COOLDOWN_MS = 6 * 60 * 60 * 1000;
+
+export const detailRefetchCooldownCache = new LRUCache<string, true>({
+  max: 5000,
+  ttl: DETAIL_REFETCH_COOLDOWN_MS,
+});

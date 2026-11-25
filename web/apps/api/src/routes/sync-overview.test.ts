@@ -14,10 +14,15 @@ const prismaMock = {
   playbackProgress: { groupBy: vi.fn() },
   watchEvent: { groupBy: vi.fn() },
   profileDocument: { findMany: vi.fn() },
-  device: { findMany: vi.fn(), update: vi.fn() },
+  device: { findMany: vi.fn(), update: vi.fn(), findUnique: vi.fn() },
 };
 
 vi.mock("../lib/prisma.js", () => ({ prisma: prismaMock }));
+const sendAdminAlert = vi.fn(async () => 1);
+vi.mock("../lib/admin-alerts.js", () => ({
+  sendAdminAlert: (...args: unknown[]) => sendAdminAlert(...(args as [])),
+  tvSyncAlert: (device: { name: string }, error: string) => ({ event: "tv-sync-failing", device: device.name, error }),
+}));
 const database = vi.hoisted(() => ({ ok: true }));
 vi.mock("../lib/db-health.js", () => ({
   checkDatabase: async () => ({ ok: database.ok, latencyMs: 3, error: database.ok ? null : "down" }),
@@ -196,6 +201,29 @@ describe("PUT /devices/me/report", () => {
     await app.inject({ method: "PUT", url: "/devices/me/report", headers: asDevice, payload: { ok: true } });
     const { data } = prismaMock.device.update.mock.calls[0]![0] as { data: Record<string, unknown> };
     expect(data).toMatchObject({ lastSyncOk: true, lastSyncError: null });
+  });
+
+  const report = async (payload: object) =>
+    (await buildApp()).inject({ method: "PUT", url: "/devices/me/report", headers: asDevice, payload });
+
+  it("alerts the admin when a TV that was syncing stops", async () => {
+    prismaMock.device.findUnique.mockResolvedValue({ name: "Living room", lastSyncOk: true });
+
+    await report({ ok: false, error: "timeout" });
+
+    expect(sendAdminAlert).toHaveBeenCalledWith(
+      { event: "tv-sync-failing", device: "Living room", error: "timeout" },
+      expect.anything()
+    );
+  });
+
+  it("doesn't repeat the alert on every failed sync after the first, or send one for a sync that worked", async () => {
+    prismaMock.device.findUnique.mockResolvedValue({ name: "Living room", lastSyncOk: false });
+    await report({ ok: false, error: "timeout" });
+    prismaMock.device.findUnique.mockResolvedValue({ name: "Living room", lastSyncOk: true });
+    await report({ ok: true });
+
+    expect(sendAdminAlert).not.toHaveBeenCalled();
   });
 
   it("is only for paired devices", async () => {

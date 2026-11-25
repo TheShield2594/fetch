@@ -18,6 +18,7 @@ import {
   unlinkList,
 } from "../lib/list-links.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
+import { listSharePath } from "./shared-lists.js";
 
 // A page a client asks for is capped rather than rejected: an addon asking for
 // more than this gets a smaller page and a cursor, which is the same shape it
@@ -204,6 +205,8 @@ const listsRoutes: FastifyPluginAsync = async (app) => {
         itemCount: list._count.items,
         covers: covers.get(list.id) ?? [],
         link: summarizeListLink(list.link),
+        // The read-only link to this list while it is shared; null otherwise.
+        sharePath: listSharePath(list.id, list.shareGeneration),
       })),
     };
   });

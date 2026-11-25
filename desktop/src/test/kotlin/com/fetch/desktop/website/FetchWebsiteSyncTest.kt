@@ -11,6 +11,8 @@ import com.fetch.desktop.sync.RemoteSharedSettings
 import com.fetch.desktop.tracking.FakeHttp
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -382,5 +384,36 @@ class FetchWebsiteSyncTest {
         assertEquals("p-main", fake.sent.last().request.header("x-profile-id"))
         updatedAt = "\"2026-01-01T00:00:00Z\""
         assertEquals(1, remote.pull()!!.size)
+    }
+
+    @Test
+    fun `a push over a TV's newer save merges with it instead of replacing it`() = runBlocking {
+        // The website holds version 2: the TV added X after this computer pulled version 1.
+        var stored = """[{"id":"y","title":"Y"}]"""
+        var version = 1
+        val fake = FakeHttp { request ->
+            when {
+                request.url.encodedPath == "/devices/me/profiles" -> 200 to profilesJson
+                request.url.encodedPath != "/collections" -> 404 to "{}"
+                request.method == "GET" ->
+                    200 to """{"collections":$stored,"updatedAt":"2026-01-01T00:00:00Z","version":$version}"""
+                request.header("If-Match") != "\"$version\"" -> 412 to """{"code":"version_conflict","version":$version}"""
+                else -> {
+                    val buffer = okio.Buffer().also { request.body!!.writeTo(it) }
+                    stored = (kotlinx.serialization.json.Json.parseToJsonElement(buffer.readUtf8()) as JsonObject)["collections"].toString()
+                    version += 1
+                    200 to """{"collections":$stored,"updatedAt":"2026-01-02T00:00:00Z","version":$version}"""
+                }
+            }
+        }
+        val remote = paired(fake).sync.collections(1)
+        remote.pull()
+        stored = """[{"id":"y","title":"Y"},{"id":"x","title":"X"}]"""
+        version = 2
+
+        remote.push(kotlinx.serialization.json.Json.parseToJsonElement("""[{"id":"y","title":"Y renamed"}]""") as JsonArray)
+
+        assertEquals("""[{"id":"y","title":"Y renamed"},{"id":"x","title":"X"}]""", stored)
+        assertEquals(3, version)
     }
 }

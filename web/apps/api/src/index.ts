@@ -11,6 +11,8 @@ import {
 } from "@fetch/shared";
 import { attachDatabaseLogging, prisma } from "./lib/prisma.js";
 import { applyCorsHeaders } from "./lib/cors.js";
+import { parseLogLevel, registerRequestLogging } from "./lib/request-logging.js";
+import { registerOpenApi } from "./lib/openapi.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
@@ -29,6 +31,7 @@ import { checkUpcomingEpisodesAndNotify } from "./lib/notify-episodes.js";
 import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scrobble.js";
 import { sweepStaleAttempts } from "./lib/attempt-lockout.js";
 import { sweepExpiredSessions } from "./lib/sessions.js";
+import { sweepExpiredAccessTokens } from "./lib/access-tokens.js";
 import { sweepOldAccountEvents } from "./lib/account-events.js";
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
@@ -46,6 +49,7 @@ import {
 import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
 import webhookKeyRoutes from "./routes/webhook-key.js";
+import accessTokenRoutes from "./routes/access-tokens.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
 import devicesRoutes from "./routes/devices.js";
@@ -58,8 +62,10 @@ import watchRoutes from "./routes/watch.js";
 import ratingsRoutes from "./routes/ratings.js";
 import tagsRoutes from "./routes/tags.js";
 import listsRoutes from "./routes/lists.js";
+import sharedListRoutes from "./routes/shared-lists.js";
 import seriesRoutes from "./routes/series.js";
 import calendarRoutes from "./routes/calendar.js";
+import calendarFeedRoutes from "./routes/calendar-feed.js";
 import streamingRoutes from "./routes/streaming.js";
 import settingsRoutes from "./routes/settings.js";
 import aiRoutes from "./routes/ai.js";
@@ -125,7 +131,10 @@ const MAX_BODY_SIZE_MB = parseMaxBodySizeMb(process.env.MAX_BODY_SIZE_MB);
 const trustProxy = parseTrustProxy(process.env.TRUST_PROXY);
 
 const app = Fastify({
+  // Replaced by `registerRequestLogging` below, which says why.
+  disableRequestLogging: true,
   logger: {
+    level: parseLogLevel(process.env.LOG_LEVEL),
     // Fastify's default `req` serializer logs the URL verbatim, so a secret sent
     // as a query parameter — `?token=` on the Plex/Jellyfin webhooks, which Plex
     // has no other way to send — is written to the log in plaintext and kept for
@@ -140,6 +149,7 @@ const app = Fastify({
 
 // Schema-validated routes phrase their 400s like the hand-written checks do.
 registerRequestSchemas(app);
+registerRequestLogging(app);
 
 // Here rather than in `start()` because `ensureDefaultWatchlist` and the
 // startup credential sweep both query before the server listens, and a warning
@@ -279,9 +289,13 @@ Sentry.setupFastifyErrorHandler(app);
 
 // ─── Route registration ───
 
+// First, because it learns of the routes as they are added.
+registerOpenApi(app);
+
 app.register(healthRoutes);
 app.register(authRoutes);
 app.register(webhookKeyRoutes);
+app.register(accessTokenRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
 app.register(devicesRoutes);
@@ -295,8 +309,10 @@ app.register(watchRoutes);
 app.register(ratingsRoutes);
 app.register(tagsRoutes);
 app.register(listsRoutes);
+app.register(sharedListRoutes);
 app.register(seriesRoutes);
 app.register(calendarRoutes);
+app.register(calendarFeedRoutes);
 app.register(streamingRoutes);
 app.register(settingsRoutes);
 app.register(aiRoutes);
@@ -459,7 +475,7 @@ const start = async () => {
       runJob("auth-cleanup", async () => {
         const [attempts, sessions, events] = [
           await sweepStaleAttempts(),
-          await sweepExpiredSessions(),
+          (await sweepExpiredSessions()) + (await sweepExpiredAccessTokens()),
           await sweepOldAccountEvents(),
         ];
         if (attempts + sessions + events > 0) {

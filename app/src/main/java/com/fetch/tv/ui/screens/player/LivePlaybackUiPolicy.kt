@@ -6,7 +6,10 @@ package com.fetch.tv.ui.screens.player
  * [androidx.media3.common.Player.isCurrentMediaItemLive], or MPV unseekable)
  * plus the Stremio catalog type `channel`.
  *
- * Do not treat `tv` as live: in this app it is the series synonym.
+ * Do not treat `tv` as live: in this app it is also the internal series synonym (TMDB's
+ * name for shows), so a type check would mark every TMDB episode live. Stremio live-TV
+ * addons declare `tv`; their streams are caught by the player's live signal instead
+ * (TheShield2594/fetch#634).
  */
 object LivePlaybackUiPolicy {
     fun isLiveContentType(contentType: String?): Boolean {

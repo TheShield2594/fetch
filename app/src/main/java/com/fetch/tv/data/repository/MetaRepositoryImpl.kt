@@ -706,10 +706,12 @@ class MetaRepositoryImpl @Inject constructor(
 
     private fun inferCanonicalType(type: String, id: String): String {
         val normalizedType = type.trim()
-        // "tv" is Fetch's internal synonym for episodic content. Stremio metadata
-        // addons advertise episodic content as "series", so fold it over here rather
-        // than requesting a type nothing declares. Live TV is a separate type
-        // ("channel") and is left alone.
+        // "tv" is Fetch's internal synonym for episodic content (TMDB's name for it).
+        // Stremio metadata addons advertise episodic content as "series", so fold it
+        // over here rather than requesting a type nothing declares. In the Stremio
+        // protocol "tv" is the live-TV type; callers try the requested type first, so
+        // an addon that declares "tv" is still asked for "tv" and never reaches this
+        // fallback (TheShield2594/fetch#634).
         if (normalizedType.equals("tv", ignoreCase = true)) return "series"
         val known = setOf("movie", "series", "channel", "anime")
         if (normalizedType.lowercase() in known) return normalizedType

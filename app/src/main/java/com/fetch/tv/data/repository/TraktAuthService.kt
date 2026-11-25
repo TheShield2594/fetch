@@ -13,6 +13,7 @@ import com.fetch.tv.data.remote.dto.trakt.TraktDeviceCodeResponseDto
 import com.fetch.tv.data.remote.dto.trakt.TraktDeviceTokenRequestDto
 import com.fetch.tv.data.remote.dto.trakt.TraktRefreshTokenRequestDto
 import com.fetch.tv.data.remote.dto.trakt.TraktRevokeRequestDto
+import com.fetch.tv.data.remote.dto.trakt.TraktTokenResponseDto
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -238,7 +239,15 @@ class TraktAuthService @Inject constructor(
 
         val tokenBody = response.body()
         if (response.isSuccessful && tokenBody != null) {
-            traktAuthDataStore.saveToken(profileId, tokenBody)
+            // Under the refresh lock, so a refresh of the old grant that fails while this
+            // is saved can't clear the grant the user just approved. fetchUserSettings stays
+            // outside: it can refresh, and the mutex isn't reentrant.
+            tokenRefreshMutexes.getOrPut(profileId) { Mutex() }.withLock {
+                // Drop any name kept from a grant Trakt rejected: the user may have approved
+                // a different account, and fetchUserSettings below records the right one.
+                traktAuthDataStore.saveUser(profileId, username = null, userSlug = null)
+                traktAuthDataStore.saveToken(profileId, tokenBody)
+            }
             authSessionNoticeDataStore.markTraktAuthenticated()
             resetCircuit()
             traktAuthDataStore.clearDeviceFlow(profileId)
@@ -296,30 +305,54 @@ class TraktAuthService @Inject constructor(
             }
 
             trace("refreshTokenIfNeeded: refreshing token (force=$force)")
-            val response = try {
-                traktApi.refreshToken(
-                    TraktRefreshTokenRequestDto(
-                        refreshToken = refreshToken,
-                        clientId = BuildConfig.TRAKT_CLIENT_ID,
-                        clientSecret = traktClientSecret(),
-                        redirectUri = traktRedirectUri()
+            var usedRefreshToken = refreshToken
+            var retriedRejection = false
+            var tokenBody: TraktTokenResponseDto? = null
+            while (tokenBody == null) {
+                val response = try {
+                    traktApi.refreshToken(
+                        TraktRefreshTokenRequestDto(
+                            refreshToken = usedRefreshToken,
+                            clientId = BuildConfig.TRAKT_CLIENT_ID,
+                            clientSecret = traktClientSecret(),
+                            redirectUri = traktRedirectUri()
+                        )
                     )
-                )
-            } catch (e: IOException) {
-                Log.w("TraktAuthService", "Network error while refreshing token", e)
-                return@withLock false
-            }
-
-            val tokenBody = response.body()
-            if (!response.isSuccessful || tokenBody == null) {
-                trace("refreshTokenIfNeeded: failed code=${response.code()}")
-                if (response.code() == 400 || response.code() == 401 || response.code() == 403) {
-                    invalidateCredentials(profileId, response.code())
+                } catch (e: IOException) {
+                    // Transient: keep the stored tokens and try again on the next request.
+                    Log.w("TraktAuthService", "Network error while refreshing token", e)
+                    return@withLock false
                 }
+
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    tokenBody = body
+                    continue
+                }
+                val code = response.code()
+                trace("refreshTokenIfNeeded: failed code=$code")
+                if (code == 403) {
+                    // 403 means the app's API key is invalid or unapproved, not that this
+                    // user's grant is gone, so signing the user out wouldn't fix it.
+                    tripCircuit("Token refresh returned 403")
+                    return@withLock false
+                }
+                if (code != 400 && code != 401) return@withLock false
+
+                // A rejected refresh can follow one whose response was lost, or one made
+                // elsewhere that already rotated the pair. Re-read the stored token and try
+                // once more before asking the user to reconnect.
+                if (!retriedRejection) {
+                    retriedRejection = true
+                    usedRefreshToken = authState(profileId).refreshToken ?: return@withLock false
+                    continue
+                }
+                invalidateCredentials(profileId, code)
                 return@withLock false
             }
+            val newToken = tokenBody ?: return@withLock false
 
-            traktAuthDataStore.saveToken(profileId, tokenBody)
+            traktAuthDataStore.saveToken(profileId, newToken)
             authSessionNoticeDataStore.markTraktAuthenticated()
             resetCircuit()
             trace("refreshTokenIfNeeded: success")
@@ -573,7 +606,8 @@ class TraktAuthService @Inject constructor(
 
     private suspend fun invalidateCredentials(profileId: Int, statusCode: Int) {
         authSessionNoticeDataStore.markTraktReconnectRequired()
-        traktAuthDataStore.clearAuth(profileId)
+        // Keep the linked username so Settings can say which account needs reconnecting.
+        traktAuthDataStore.clearTokensForReconnect(profileId)
         tripCircuit("Token refresh returned $statusCode")
     }
 }

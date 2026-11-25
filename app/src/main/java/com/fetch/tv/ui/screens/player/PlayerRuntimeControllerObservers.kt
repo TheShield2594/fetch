@@ -606,7 +606,9 @@ internal fun PlayerRuntimeController.fetchSkipIntervals(id: String?, season: Int
 
 internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Player) {
     val saved = pendingResumeProgress ?: return
-    if (!player.isCurrentMediaItemSeekable) {
+    // A live stream (or one saved before live channels stopped being saved) starts at the
+    // live edge, not somewhere back in its DVR window.
+    if (!player.isCurrentMediaItemSeekable || player.isCurrentMediaItemLive || isLiveForWatchProgress()) {
         pendingResumeProgress = null
         _uiState.update { it.copy(pendingSeekPosition = null) }
         return
@@ -627,6 +629,10 @@ internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Playe
 
 internal fun PlayerRuntimeController.resolvePendingInitialResumePosition(): Long {
     val saved = pendingResumeProgress ?: return 0L
+    if (LivePlaybackUiPolicy.isLiveContentType(contentType)) {
+        clearPendingInitialResumePosition()
+        return 0L
+    }
     val target = when {
         saved.duration > 0L -> saved.resolveResumePositionWithRewind(saved.duration, System.currentTimeMillis())
         saved.position > 0L -> saved.resolveResumePositionWithRewind(saved.position, System.currentTimeMillis())

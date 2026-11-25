@@ -57,6 +57,16 @@ class AddonRequestGuard(
         return AddonCallResult.Completed(value.value)
     }
 
+    /**
+     * Runs [block] within the same budget as an addon request but records nothing, for sources
+     * that aren't addons (a Jellyfin, Emby or Plex server) and so have no addon health.
+     */
+    suspend fun <T> runUntracked(block: suspend () -> T): AddonCallResult<T> {
+        val value = withTimeoutOrNull(timeoutMs()) { Box(block()) }
+            ?: return AddonCallResult.TimedOut
+        return AddonCallResult.Completed(value.value)
+    }
+
     /** Wraps the result so a block that legitimately returns null isn't mistaken for a timeout. */
     private class Box<T>(val value: T)
 

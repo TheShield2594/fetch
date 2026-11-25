@@ -42,6 +42,13 @@ data class TraktAuthState(
 ) {
     val isAuthenticated: Boolean
         get() = !accessToken.isNullOrBlank() && !refreshToken.isNullOrBlank()
+
+    /**
+     * Trakt rejected the stored grant: the tokens are gone but the linked account's
+     * name was kept so the user can see which account to reconnect.
+     */
+    val isReconnectRequired: Boolean
+        get() = !isAuthenticated && !username.isNullOrBlank()
 }
 
 @Singleton
@@ -192,6 +199,22 @@ class TraktAuthDataStore @Inject constructor(
     }
 
     suspend fun clearAuth() = clearAuth(profileManager.activeProfileId.value)
+
+    /** Drops the tokens and any device flow but keeps the linked username and slug. */
+    suspend fun clearTokensForReconnect(profileId: Int) {
+        store(profileId).edit { preferences ->
+            preferences.remove(accessTokenKey)
+            preferences.remove(refreshTokenKey)
+            preferences.remove(tokenTypeKey)
+            preferences.remove(createdAtKey)
+            preferences.remove(expiresInKey)
+            preferences.remove(deviceCodeKey)
+            preferences.remove(userCodeKey)
+            preferences.remove(verificationUrlKey)
+            preferences.remove(expiresAtKey)
+            preferences.remove(pollIntervalKey)
+        }
+    }
 
     suspend fun clearAuth(profileId: Int) {
         store(profileId).edit { preferences ->

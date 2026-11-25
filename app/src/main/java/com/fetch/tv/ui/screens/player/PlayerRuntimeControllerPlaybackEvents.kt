@@ -430,6 +430,7 @@ internal fun PlayerRuntimeController.stopWatchProgressSaving() {
 
 internal fun PlayerRuntimeController.saveWatchProgressIfNeeded() {
     if (!hasRenderedFirstFrame) return
+    if (isLiveForWatchProgress()) return
     val currentPosition = currentPlaybackPositionMs() ?: return
     val duration = getEffectiveDuration(currentPosition)
     // Don't save progress for very short streams (< 2:01) — these are
@@ -445,6 +446,7 @@ internal fun PlayerRuntimeController.saveWatchProgressIfNeeded() {
 
 internal fun PlayerRuntimeController.saveWatchProgress() {
     if (!hasRenderedFirstFrame) return
+    if (isLiveForWatchProgress()) return
     val currentPosition = currentPlaybackPositionMs() ?: return
     val duration = getEffectiveDuration(currentPosition)
     if (isShortPlaceholderDuration(duration)) return
@@ -542,7 +544,16 @@ internal fun PlayerRuntimeController.currentWatchProgress(
     lastWatched = lastWatched
 )
 
+/**
+ * A live stream has no position to come back to: saving one fills Continue Watching with
+ * channels and reopens them behind the live edge (TheShield2594/fetch#632). The player's live
+ * signal covers live-TV addons whatever type they declare.
+ */
+internal fun PlayerRuntimeController.isLiveForWatchProgress(): Boolean =
+    _playbackTimeline.value.isLive || LivePlaybackUiPolicy.isLiveContentType(contentType)
+
 internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, duration: Long, syncRemote: Boolean = true) {
+    if (isLiveForWatchProgress()) return
     val parentContentId = contentId?.takeIf { it.isNotEmpty() } ?: return
     val parentContentType = contentType?.takeIf { it.isNotEmpty() } ?: return
 

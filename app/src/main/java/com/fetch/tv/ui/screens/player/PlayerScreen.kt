@@ -305,6 +305,9 @@ fun PlayerScreen(
     val subtitleDelayResetFocusRequester = remember { FocusRequester() }
     val subtitleDelaySyncLineFocusRequester = remember { FocusRequester() }
     var subtitleTimingConsumeNextConfirmKeyUp by remember { mutableStateOf(false) }
+    // OK that toggled playback here on key-down: its key-up must not reach the play/pause button
+    // that the controls focus meanwhile, which clicks on key-up and would toggle back (#711).
+    var playPauseConsumeNextConfirmKeyUp by remember { mutableStateOf(false) }
     // Up with the controls hidden opens the playback details bar; each press restarts its timer.
     var showPlaybackDetails by remember { mutableStateOf(false) }
     var playbackDetailsPresses by remember { mutableIntStateOf(0) }
@@ -722,6 +725,13 @@ fun PlayerScreen(
                     subtitleTimingConsumeNextConfirmKeyUp = false
                     return@onPreviewKeyEvent true
                 }
+                if (playPauseConsumeNextConfirmKeyUp &&
+                    keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP &&
+                    isConfirmKey(keyEvent.nativeKeyEvent.keyCode)
+                ) {
+                    playPauseConsumeNextConfirmKeyUp = false
+                    return@onPreviewKeyEvent true
+                }
 
                 val postPlayHandlesBack = postPlayRecommendationState.isVisible ||
                     postPlayRecommendationState.isLoadingRecommendation ||
@@ -926,7 +936,10 @@ fun PlayerScreen(
                             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
                             KeyEvent.KEYCODE_MEDIA_PLAY -> {
                                 // Resume directly from pause overlay in one click.
-                                if (firstPress) viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                if (firstPress) {
+                                    viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                    if (isConfirmKey(keyCode)) playPauseConsumeNextConfirmKeyUp = true
+                                }
                                 return@onKeyEvent true
                             }
                             KeyEvent.KEYCODE_MEDIA_PAUSE,
@@ -945,7 +958,10 @@ fun PlayerScreen(
                     when (keyCode) {
                         KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> {
                             if (!uiState.showControls) {
-                                if (firstPress) viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                if (firstPress) {
+                                    viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                    playPauseConsumeNextConfirmKeyUp = true
+                                }
                                 true
                             } else {
                                 // Let the focused button handle it
@@ -4578,6 +4594,10 @@ private val SEEK_BAR_FOCUSED_PLAYHEAD_RADIUS = 10.dp
 private const val PREFER_NEXT_TIME_DELAY_MS = 4_000L
 private const val PREFER_NEXT_TIME_VISIBLE_MS = 12_000L
 private const val PREFER_NEXT_TIME_MAX_AGE_MS = 3 * 60_000L
+
+private fun isConfirmKey(keyCode: Int): Boolean = keyCode == KeyEvent.KEYCODE_DPAD_CENTER ||
+    keyCode == KeyEvent.KEYCODE_ENTER ||
+    keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER
 
 private fun isSystemVolumeKey(keyCode: Int): Boolean = when (keyCode) {
     KeyEvent.KEYCODE_VOLUME_UP,

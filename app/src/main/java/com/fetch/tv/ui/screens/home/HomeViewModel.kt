@@ -342,6 +342,8 @@ class HomeViewModel @Inject constructor(
     internal val cwProcessedOlderSeedContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     /** Shows hidden from Up Next at the last pipeline run, to spot ones restored since. */
     @Volatile internal var cwLastNextUpDismissalIds: Set<String>? = null
+    /** Shows restored to Up Next that the older-seed pass hasn't tried yet. */
+    internal val cwRestoredNextUpIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwEnrichedNextUpOverlay = ConcurrentHashMap<String, NextUpInfo>()
     /** In-memory cache of enriched InProgress items per contentId+episode key. */
     internal val cwEnrichedInProgressOverlay = ConcurrentHashMap<String, ContinueWatchingItem.InProgress>()
@@ -459,6 +461,7 @@ class HomeViewModel @Inject constructor(
                     discoveredOlderNextUpItems.clear()
                     cwLastProcessedNextUpContentIds.clear()
                     cwProcessedOlderSeedContentIds.clear()
+                    cwRestoredNextUpIds.clear()
                     cwEnrichedNextUpOverlay.clear()
                     cwEnrichedInProgressOverlay.clear()
                     cwLastBadgeEpisodeKeys = emptySet()
@@ -517,6 +520,7 @@ class HomeViewModel @Inject constructor(
         discoveredOlderNextUpItems.clear()
         cwLastProcessedNextUpContentIds.clear()
         cwProcessedOlderSeedContentIds.clear()
+        cwRestoredNextUpIds.clear()
         cwEnrichedNextUpOverlay.clear()
         cwEnrichedInProgressOverlay.clear()
         cwLastBadgeEpisodeKeys = emptySet()

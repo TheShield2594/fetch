@@ -834,7 +834,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     val olderSeedContentIds = allSeedContentIds - processedContentIds - cwProcessedOlderSeedContentIds
                     val uncachedOlderSeedIds = olderSeedContentIds.filter { contentId ->
                         // Skip series validated recently — no new episodes expected within TTL.
-                        if (fullyWatchedSeriesIds.isSeriesValidationFresh(contentId)) return@filter false
+                        if (olderSeedValidationFresh(contentId)) return@filter false
                         // Allow series in disk cache to be re-resolved when their
                         // validation TTL has expired — otherwise stale badge flags
                         // (isNewSeasonRelease, isReleaseAlert) never get refreshed and
@@ -883,10 +883,13 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                     cwProcessedOlderSeedContentIds += seed.contentId
                                     // Re-check freshness — badge pipeline may have validated
                                     // this series while we were processing earlier seeds.
-                                    if (fullyWatchedSeriesIds.isSeriesValidationFresh(seed.contentId)) {
+                                    if (olderSeedValidationFresh(seed.contentId)) {
                                         kotlinx.coroutines.yield()
                                         continue
                                     }
+                                    // Resolution is being attempted: a restored show is no
+                                    // longer owed a pass.
+                                    cwRestoredNextUpIds -= seed.contentId
                                     val item = buildNextUpItem(
                                         progress = seed,
                                         profileId = pipelineProfileId,
@@ -3340,11 +3343,24 @@ internal fun HomeViewModel.releaseRestoredNextUpDismissals(current: NextUpDismis
     val restored = previous.orEmpty() - current.byContentId.keys
     if (restored.isEmpty()) return
     cwProcessedOlderSeedContentIds -= restored
+    // Eligible until the older-seed pass tries them, even if the badge pipeline validates
+    // them again in the meantime.
+    cwRestoredNextUpIds += restored
     fullyWatchedSeriesIds.clearValidation(restored, profileManager.activeProfileId.value)
     synchronized(cwNextUpResolutionCache) {
         cwNextUpResolutionCache.keys.removeAll { key -> key.substringBefore('|') in restored }
     }
 }
+
+/** The older-seed pass's freshness skip, except for shows restored and not yet tried. */
+internal fun HomeViewModel.olderSeedValidationFresh(contentId: String): Boolean =
+    olderSeedValidationFresh(contentId, cwRestoredNextUpIds, fullyWatchedSeriesIds::isSeriesValidationFresh)
+
+internal fun olderSeedValidationFresh(
+    contentId: String,
+    restoredIds: Set<String>,
+    isValidationFresh: (String) -> Boolean
+): Boolean = contentId !in restoredIds && isValidationFresh(contentId)
 
 /** Whether a stored dismissal still hides this Next Up (TheShield2594/fetch#648). */
 internal fun NextUpDismissals.hides(info: NextUpInfo): Boolean = hides(

@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.data.local.NextUpDismissal
+import com.fetch.tv.data.local.NextUpDismissals
 import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.viewModelScope
@@ -66,7 +68,7 @@ private data class ContinueWatchingSettingsSnapshot(
     val items: List<WatchProgress>,
     val nextUpSeeds: List<WatchProgress>,
     val daysCap: Int,
-    val dismissedNextUp: Set<String>,
+    val dismissedNextUp: NextUpDismissals,
     val showUnairedNextUp: Boolean,
     val nextUpFromFurthestEpisode: Boolean,
     val continueWatchingSortMode: ContinueWatchingSortMode,
@@ -297,7 +299,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
             },
             combine(
                 traktSettingsDataStore.continueWatchingDaysCap,
-                traktSettingsDataStore.dismissedNextUpKeys,
+                traktSettingsDataStore.nextUpDismissals,
                 layoutPreferenceDataStore.showUnairedNextUp,
                 layoutPreferenceDataStore.nextUpFromFurthestEpisode,
                 layoutPreferenceDataStore.continueWatchingSortMode
@@ -310,7 +312,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
             val (items, nextUpSeeds, hasLoadedRemoteProgress) = progressSnapshot
             @Suppress("UNCHECKED_CAST")
             val daysCap = settingsSnapshot[0] as Int
-            val dismissedNextUp = settingsSnapshot[1] as Set<String>
+            val dismissedNextUp = settingsSnapshot[1] as NextUpDismissals
             val showUnairedNextUp = settingsSnapshot[2] as Boolean
             val nextUpFromFurthestEpisode = settingsSnapshot[3] as Boolean
             val continueWatchingSortMode = settingsSnapshot[4] as ContinueWatchingSortMode
@@ -514,7 +516,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     // Skip if this show is already in-progress (suppression)
                     if (inProgressOnly.any { it.progress.contentId == cached.contentId }) return@mapNotNull null
                     // Skip dismissed items
-                    if (nextUpDismissKey(cached.contentId, cached.seedSeason, cached.seedEpisode) in dismissedNextUp) return@mapNotNull null
+                    if (dismissedNextUp.hides(cached.contentId, cached.seedSeason, cached.seedEpisode, cached.season, cached.episode, cached.hasAired)) return@mapNotNull null
                     // Recalculate release alert flags from persisted timestamps so that
                     // badges appear correctly even when the cache was written before the
                     // new season aired (fixes stale isNewSeasonRelease/isReleaseAlert/hasAired).
@@ -933,7 +935,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                                     resolvedItems = partialToInject,
                                                     conclusivelyProcessedContentIds =
                                                         conclusivelyProcessedOlderContentIds.toSet(),
-                                                    dismissedNextUpKeys = dismissedNextUp,
+                                                    dismissedNextUps = dismissedNextUp,
                                                     sortMode = continueWatchingSortMode,
                                                     pipelineProfileId = pipelineProfileId,
                                                     snapshotOrigin = pipelineSnapshotOrigin,
@@ -969,7 +971,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                                 resolvedItems = resolvedItemsToRetain,
                                                 conclusivelyProcessedContentIds =
                                                     conclusivelyProcessedOlderContentIds.toSet(),
-                                                dismissedNextUpKeys = dismissedNextUp,
+                                                dismissedNextUps = dismissedNextUp,
                                                 sortMode = continueWatchingSortMode,
                                                 pipelineProfileId = pipelineProfileId,
                                                 snapshotOrigin = pipelineSnapshotOrigin,
@@ -1010,7 +1012,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                         resolvedItems = itemsToInject,
                                         conclusivelyProcessedContentIds =
                                             conclusivelyProcessedOlderContentIds.toSet(),
-                                        dismissedNextUpKeys = dismissedNextUp,
+                                        dismissedNextUps = dismissedNextUp,
                                         sortMode = continueWatchingSortMode,
                                         pipelineProfileId = pipelineProfileId,
                                         snapshotOrigin = pipelineSnapshotOrigin,
@@ -1090,7 +1092,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                             it.info.contentId !in rejectedByFreshPipeline &&
                             // Respect "show unaired" setting for all items including cached.
                             (it.info.hasAired || showUnairedNextUp) &&
-                            nextUpDismissKey(it.info.contentId, it.info.seedSeason, it.info.seedEpisode) !in dismissedNextUp &&
+                            !dismissedNextUp.hides(it.info) &&
                             !watchProgressRepository.isDroppedShow(it.info.contentId)
                         pass
                     }
@@ -1103,7 +1105,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                 it.info.contentId in resolvedOlderNextUpContentIds
                         ) &&
                         it.info.contentId !in rejectedByFreshPipeline &&
-                        nextUpDismissKey(it.info.contentId, it.info.seedSeason, it.info.seedEpisode) !in dismissedNextUp
+                        !dismissedNextUp.hides(it.info)
                 }
                 val finalNextUpItems = allNextUpItems + retainedFromCache
                 val normalItems = applyContinueWatchingEnrichmentOverlay(
@@ -1449,7 +1451,7 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
     profileId: Int,
     nextUpSeeds: List<WatchProgress>,
     inProgressItems: List<ContinueWatchingItem.InProgress>,
-    dismissedNextUp: Set<String>,
+    dismissedNextUp: NextUpDismissals,
     showUnairedNextUp: Boolean,
     nextUpFromFurthestEpisode: Boolean = true,
     debug: CwDebugSession? = null,
@@ -1509,7 +1511,7 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
             }
             .filter { it.contentId !in ipIds }
             .filter { progress ->
-                nextUpDismissKey(progress.contentId, progress.season, progress.episode) !in dismissedNextUp
+                !dismissedNextUp.hidesSeed(progress.contentId, progress.season, progress.episode)
             }
             .sortedByDescending { it.lastWatched }
             // Skip seeds validated as "no next-up" ONLY if the seed hasn't changed.
@@ -3317,13 +3319,15 @@ private fun String?.normalizeImageUrl(): String? = this
     ?.trim()
     ?.takeIf { it.isNotEmpty() }
 
-internal fun nextUpDismissKey(
-    contentId: String,
-    season: Int?,
-    episode: Int?
-): String {
-    return contentId.trim()
-}
+/** Whether a stored dismissal still hides this Next Up (TheShield2594/fetch#648). */
+internal fun NextUpDismissals.hides(info: NextUpInfo): Boolean = hides(
+    contentId = info.contentId,
+    seedSeason = info.seedSeason,
+    seedEpisode = info.seedEpisode,
+    season = info.season,
+    episode = info.episode,
+    hasAired = info.hasAired
+)
 
 internal fun HomeViewModel.removeContinueWatchingPipeline(
     contentId: String,
@@ -3332,35 +3336,35 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
     isNextUp: Boolean = false
 ) {
     if (isNextUp) {
-        val dismissKey = nextUpDismissKey(contentId, season, episode)
-        _uiState.update { state ->
-            state.copy(
-                continueWatchingItems = state.continueWatchingItems.filterNot { item ->
-                    when (item) {
-                        is ContinueWatchingItem.NextUp ->
-                            nextUpDismissKey(
-                                item.info.contentId,
-                                item.info.seedSeason,
-                                item.info.seedEpisode
-                            ) == dismissKey
-                        is ContinueWatchingItem.InProgress -> false
-                    }
+        val dismissedId = contentId.trim()
+        val state = _uiState.value
+        val info = (state.continueWatchingItems + state.upcomingItems)
+            .firstNotNullOfOrNull { item ->
+                (item as? ContinueWatchingItem.NextUp)?.info?.takeIf { it.contentId.trim() == dismissedId }
+            }
+        // Where the user was, so newer history or a newly aired episode brings the show back.
+        val dismissal = NextUpDismissal(
+            contentId = dismissedId,
+            seedSeason = info?.seedSeason,
+            seedEpisode = info?.seedEpisode,
+            season = info?.season ?: season,
+            episode = info?.episode ?: episode,
+            hadAired = info?.hasAired,
+            dismissedAtMs = System.currentTimeMillis(),
+            title = info?.name
+        )
+        _uiState.update { current ->
+            current.copy(
+                continueWatchingItems = current.continueWatchingItems.filterNot { item ->
+                    item is ContinueWatchingItem.NextUp && item.info.contentId.trim() == dismissedId
                 },
-                upcomingItems = state.upcomingItems.filterNot { item ->
-                    when (item) {
-                        is ContinueWatchingItem.NextUp ->
-                            nextUpDismissKey(
-                                item.info.contentId,
-                                item.info.seedSeason,
-                                item.info.seedEpisode
-                            ) == dismissKey
-                        is ContinueWatchingItem.InProgress -> false
-                    }
+                upcomingItems = current.upcomingItems.filterNot { item ->
+                    item is ContinueWatchingItem.NextUp && item.info.contentId.trim() == dismissedId
                 }
             )
         }
         viewModelScope.launch {
-            traktSettingsDataStore.addDismissedNextUpKey(dismissKey)
+            traktSettingsDataStore.addNextUpDismissal(dismissal)
         }
         return
     }

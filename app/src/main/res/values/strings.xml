@@ -171,6 +171,8 @@
     <string name="cw_action_go_to_details">Go to details</string>
     <string name="cw_action_start_from_beginning">Start from beginning</string>
     <string name="cw_action_remove">Remove</string>
+    <string name="cw_remove_confirm_title">Remove from Continue Watching?</string>
+    <string name="cw_remove_confirm_message">This deletes your place in %1$s here and on every connected service, such as Trakt or Simkl. It can’t be undone.</string>
     <string name="cw_action_add_to_queue">Add to queue</string>
     <string name="cw_action_remove_from_queue">Remove from queue</string>
     <string name="cw_dialog_subtitle">Choose what you want to do with this item.</string>
@@ -1027,6 +1029,11 @@
     <string name="layout_next_up_furthest_episode_sub">Show next episode based on the furthest watched episode. Disable for rewatches to use the most recently watched episode instead.</string>
     <string name="layout_show_unaired_next_up">Show Unaired Next Up Episodes</string>
     <string name="layout_show_unaired_next_up_sub">Include upcoming episodes in Continue Watching before they air.</string>
+    <string name="layout_hidden_next_up">Hidden from Up Next</string>
+    <string name="layout_hidden_next_up_sub">Shows you removed from Continue Watching. They come back on their own when you watch more or a new episode airs.</string>
+    <string name="layout_hidden_next_up_dialog_sub">Select a show to bring it back to Up Next.</string>
+    <string name="layout_hidden_next_up_restore">Restore</string>
+    <string name="layout_hidden_next_up_none">None</string>
     <string name="layout_cw_sort_mode">Sort Order</string>
     <string name="layout_cw_sort_mode_sub">How Continue Watching items are arranged</string>
     <string name="layout_cw_sort_default">Default</string>
@@ -2082,6 +2089,9 @@
     <!-- Update flow errors -->
     <string name="update_error_check_failed">Update check failed</string>
     <string name="update_error_download_failed">Download failed</string>
+    <string name="update_error_download_corrupt">The download was incomplete or damaged</string>
+    <string name="update_error_not_newer">The downloaded update isn’t newer than this version</string>
+    <string name="update_error_signer_mismatch">This update isn’t signed like your copy of Fetch. Install it from the releases page instead.</string>
     <string name="update_error_apk_missing">Downloaded file is missing</string>
     <string name="update_error_unknown_sources_unavailable">Couldn’t open the install permission settings. Allow Fetch to install apps in your device settings, then try again.</string>
     <string name="update_error_installer_unavailable">Couldn’t open the installer on this device</string>

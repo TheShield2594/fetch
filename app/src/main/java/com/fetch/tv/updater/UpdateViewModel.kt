@@ -265,13 +265,25 @@ class UpdateViewModel @Inject constructor(
             val result = withContext(Dispatchers.IO) {
                 // Only one update APK is ever kept: drop earlier downloads before this one.
                 UpdateCacheCleaner.clean(updatesDir)
-                apkDownloader.download(update.assetUrl, destination) { downloaded, total ->
+                apkDownloader.download(
+                    url = update.assetUrl,
+                    destinationFile = destination,
+                    expectedSizeBytes = update.assetSizeBytes,
+                    expectedSha256 = update.assetSha256
+                ) { downloaded, total ->
                     val progress = if (total != null && total > 0) {
                         (downloaded.toFloat() / total.toFloat()).coerceIn(0f, 1f)
                     } else {
                         null
                     }
                     _uiState.update { it.copy(downloadProgress = progress) }
+                }.mapCatching { file ->
+                    // Package name, versionCode and signer, before the installer sees it.
+                    ApkArchiveVerifier.verify(context, file)?.let { failure ->
+                        file.delete()
+                        throw ApkArchiveException(failure)
+                    }
+                    file
                 }
             }
 
@@ -294,7 +306,7 @@ class UpdateViewModel @Inject constructor(
                             isDownloading = false,
                             downloadProgress = null,
                             downloadedApkPath = null,
-                            errorMessage = context.getString(R.string.update_error_download_failed),
+                            errorMessage = context.getString(downloadErrorMessage(error)),
                             showBanner = true
                         )
                     }
@@ -358,6 +370,20 @@ class UpdateViewModel @Inject constructor(
             }
         }
     }
+}
+
+private class ApkArchiveException(val failure: ApkArchiveVerifier.Failure) :
+    IllegalStateException("Downloaded APK rejected: $failure")
+
+private fun downloadErrorMessage(error: Throwable): Int = when (error) {
+    is ApkVerificationException -> R.string.update_error_download_corrupt
+    is ApkArchiveException -> when (error.failure) {
+        ApkArchiveVerifier.Failure.UNPARSEABLE -> R.string.update_error_download_corrupt
+        ApkArchiveVerifier.Failure.NOT_NEWER -> R.string.update_error_not_newer
+        ApkArchiveVerifier.Failure.WRONG_PACKAGE,
+        ApkArchiveVerifier.Failure.SIGNER_MISMATCH -> R.string.update_error_signer_mismatch
+    }
+    else -> R.string.update_error_download_failed
 }
 
 private const val TAG = "UpdateViewModel"

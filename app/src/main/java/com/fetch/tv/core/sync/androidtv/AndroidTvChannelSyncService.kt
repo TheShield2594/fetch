@@ -96,7 +96,7 @@ class AndroidTvChannelSyncService @Inject constructor(
                 cwEnrichmentCache.snapshotVersion
                     .dropWhile { it == 0 },
                 traktSettingsDataStore.continueWatchingDaysCap,
-                traktSettingsDataStore.dismissedNextUpKeys,
+                traktSettingsDataStore.nextUpDismissals,
                 layoutPreferenceDataStore.useEpisodeThumbnailsInCw
             ) { _, daysCap, dismissed, useEpisodeThumbnails ->
                 ChannelSettingsSnapshot(daysCap, dismissed, useEpisodeThumbnails)
@@ -142,7 +142,7 @@ class AndroidTvChannelSyncService @Inject constructor(
         }
         val resolvedSettings = settings ?: run {
             val daysCap = traktSettingsDataStore.continueWatchingDaysCap.first()
-            val dismissed = traktSettingsDataStore.dismissedNextUpKeys.first()
+            val dismissed = traktSettingsDataStore.nextUpDismissals.first()
             val useEpisodeThumbnails = layoutPreferenceDataStore.useEpisodeThumbnailsInCw.first()
             ChannelSettingsSnapshot(daysCap, dismissed, useEpisodeThumbnails)
         }
@@ -204,7 +204,7 @@ class AndroidTvChannelSyncService @Inject constructor(
         val filteredNextUp = nextUp
             .filter { it.hasAired }  // Never show unaired in launcher — can't be played
             .filter { cutoffMs == null || it.lastWatched >= cutoffMs }
-            .filter { nextUpDismissKey(it) !in settings.dismissedNextUp }
+            .filter { !settings.dismissedNextUp.hides(it.contentId, it.seedSeason, it.seedEpisode, it.season, it.episode, it.hasAired) }
 
         // Deduplicate: in-progress wins over next-up for same contentId
         val inProgressContentIds = filteredInProgress.mapTo(mutableSetOf()) { it.contentId }
@@ -229,19 +229,9 @@ class AndroidTvChannelSyncService @Inject constructor(
             .distinctBy { it.contentId }
     }
 
-    private fun nextUpDismissKey(item: CachedNextUpItem): String {
-        return buildString {
-            append(item.contentId)
-            if (item.seedSeason != null) {
-                append("_s${item.seedSeason}")
-                if (item.seedEpisode != null) append("e${item.seedEpisode}")
-            }
-        }
-    }
-
     data class ChannelSettingsSnapshot(
         val daysCap: Int,
-        val dismissedNextUp: Set<String>,
+        val dismissedNextUp: com.fetch.tv.data.local.NextUpDismissals,
         val useEpisodeThumbnails: Boolean
     )
 }

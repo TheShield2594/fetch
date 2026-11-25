@@ -87,12 +87,9 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    val dismissedNextUpKeys: Flow<Set<String>> = profileManager.activeProfileId.flatMapLatest { pid ->
+    val nextUpDismissals: Flow<NextUpDismissals> = profileManager.activeProfileId.flatMapLatest { pid ->
         factory.get(pid, FEATURE).data.map { prefs ->
-            val raw = prefs[dismissedNextUpKeysKey] ?: emptySet()
-            // Normalize: extract contentId from legacy "contentId|season|episode" keys
-            // so the check `contentId in dismissedSet` works for both old and new formats.
-            raw.mapTo(mutableSetOf()) { it.substringBefore("|") }
+            NextUpDismissals.fromStored(prefs[dismissedNextUpKeysKey] ?: emptySet())
         }
     }
 
@@ -148,15 +145,21 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun addDismissedNextUpKey(key: String) {
-        if (key.isBlank()) return
-        // Store just the contentId (no season/episode suffix) so dismiss
-        // survives anime episode remapping and seed changes.
-        val contentIdOnly = key.trim().substringBefore("|")
+    /** Hides [dismissal]'s show from Up Next, replacing any earlier dismissal of it. */
+    suspend fun addNextUpDismissal(dismissal: NextUpDismissal) {
+        val contentId = dismissal.contentId.trim()
+        if (contentId.isEmpty()) return
         store(profileManager.currentProfileId()).edit { prefs ->
             val current = prefs[dismissedNextUpKeysKey] ?: emptySet()
-            prefs[dismissedNextUpKeysKey] = current + contentIdOnly
+            prefs[dismissedNextUpKeysKey] = current
+                .filterNot { NextUpDismissal.contentIdOf(it) == contentId }
+                .toSet() + dismissal.copy(contentId = contentId).encode()
         }
+    }
+
+    /** Settings › Hidden from Up Next › Restore, for the active profile. */
+    suspend fun restoreNextUpDismissal(contentId: String) {
+        removeDismissedNextUpKeysForContent(contentId, profileManager.currentProfileId())
     }
 
     suspend fun removeDismissedNextUpKeysForContent(
@@ -165,11 +168,11 @@ class TraktSettingsDataStore @Inject constructor(
     ) {
         if (contentId.isBlank()) return
         val trimmed = contentId.trim()
-        val prefix = "$trimmed|"
         store(profileId).edit { prefs ->
             val current = prefs[dismissedNextUpKeysKey] ?: emptySet()
-            // Remove both legacy format ("contentId|season|episode") and new format ("contentId")
-            val filtered = current.filterNot { it == trimmed || it.startsWith(prefix) }
+            // Every stored format: "contentId", legacy "contentId|season|episode", and the
+            // current NextUpDismissal encoding.
+            val filtered = current.filterNot { NextUpDismissal.contentIdOf(it) == trimmed }
             if (filtered.size != current.size) {
                 prefs[dismissedNextUpKeysKey] = filtered.toSet()
             }

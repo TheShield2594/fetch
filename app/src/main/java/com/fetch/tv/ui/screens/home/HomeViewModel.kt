@@ -775,7 +775,7 @@ class HomeViewModel @Inject constructor(
             val cachedInProgress = runCatching { cwEnrichmentCache.getInProgressSnapshot(profileId) }.getOrDefault(emptyList())
             val cachedNextUp = runCatching { cwEnrichmentCache.getNextUpSnapshot(profileId) }.getOrDefault(emptyList())
             if (cachedInProgress.isEmpty() && cachedNextUp.isEmpty()) return@launch
-            val dismissedNextUp = traktSettingsDataStore.dismissedNextUpKeys.first()
+            val dismissedNextUp = traktSettingsDataStore.nextUpDismissals.first()
             // Render cached items immediately — don't wait for Trakt/allProgress.
             // The pipeline will replace these with live data once it completes.
             val inProgressItems = cachedInProgress
@@ -807,7 +807,7 @@ class HomeViewModel @Inject constructor(
                 }
             val nextUpItems = cachedNextUp
                 .filter { !watchProgressRepository.isDroppedShow(it.contentId) }
-                .filter { nextUpDismissKey(it.contentId, it.seedSeason, it.seedEpisode) !in dismissedNextUp }
+                .filter { !dismissedNextUp.hides(it.contentId, it.seedSeason, it.seedEpisode, it.season, it.episode, it.hasAired) }
                 .map { cached ->
                 ContinueWatchingItem.NextUp(
                     info = NextUpInfo(

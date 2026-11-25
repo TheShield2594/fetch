@@ -71,6 +71,8 @@ data class LayoutSettingsUiState(
     val showFullReleaseDate: Boolean = true,
     val nextUpFromFurthestEpisode: Boolean = true,
     val showUnairedNextUp: Boolean = true,
+    /** Shows removed from Up Next on this profile, newest first (TheShield2594/fetch#648). */
+    val hiddenNextUp: List<com.fetch.tv.data.local.NextUpDismissal> = emptyList(),
     val continueWatchingEnabled: Boolean = true,
     val continueWatchingSortMode: ContinueWatchingSortMode = ContinueWatchingSortMode.DEFAULT,
     val continueWatchingCardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
@@ -117,6 +119,7 @@ sealed class LayoutSettingsEvent {
     data class SetShowFullReleaseDate(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetNextUpFromFurthestEpisode(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetShowUnairedNextUp(val enabled: Boolean) : LayoutSettingsEvent()
+    data class RestoreHiddenNextUp(val contentId: String) : LayoutSettingsEvent()
     data class SetContinueWatchingEnabled(val enabled: Boolean) : LayoutSettingsEvent()
     data class SetContinueWatchingSortMode(val mode: ContinueWatchingSortMode) : LayoutSettingsEvent()
     data class SetContinueWatchingCardStyle(val style: ContinueWatchingCardStyle) : LayoutSettingsEvent()
@@ -326,6 +329,11 @@ class LayoutSettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            traktSettingsDataStore.nextUpDismissals.distinctUntilChanged().collectLatest { dismissals ->
+                updateUiStateIfChanged { it.copy(hiddenNextUp = dismissals.all) }
+            }
+        }
+        viewModelScope.launch {
             layoutPreferenceDataStore.continueWatchingEnabled
                 .distinctUntilChanged()
                 .collect { enabled ->
@@ -412,6 +420,9 @@ class LayoutSettingsViewModel @Inject constructor(
             is LayoutSettingsEvent.SetShowFullReleaseDate -> setShowFullReleaseDate(event.enabled)
             is LayoutSettingsEvent.SetNextUpFromFurthestEpisode -> setNextUpFromFurthestEpisode(event.enabled)
             is LayoutSettingsEvent.SetShowUnairedNextUp -> setShowUnairedNextUp(event.enabled)
+            is LayoutSettingsEvent.RestoreHiddenNextUp -> viewModelScope.launch {
+                traktSettingsDataStore.restoreNextUpDismissal(event.contentId)
+            }
             is LayoutSettingsEvent.SetContinueWatchingEnabled -> setContinueWatchingEnabled(event.enabled)
             is LayoutSettingsEvent.SetContinueWatchingSortMode -> setContinueWatchingSortMode(event.mode)
             is LayoutSettingsEvent.SetContinueWatchingCardStyle -> setContinueWatchingCardStyle(event.style)

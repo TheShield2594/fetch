@@ -287,6 +287,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.layout_next_up_furthest_episode,
         R.string.layout_show_unaired_next_up,
         R.string.layout_cw_sort_mode,
+        R.string.layout_hidden_next_up,
         R.string.layout_autoplay_trailer,
         R.string.layout_trailer_muted,
         R.string.layout_trailer_crop_to_fill,

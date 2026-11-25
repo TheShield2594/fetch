@@ -155,8 +155,15 @@ class ProfileManager @Inject constructor(
         }
     }
 
+    /**
+     * The stored profile list, waiting for it to load. [profiles] starts as a primary-only
+     * placeholder, so a change made right after start (a website sync, say) must not decide
+     * from it: a delete would miss the profile and a create would reuse a taken slot.
+     */
+    private suspend fun storedProfiles(): List<UserProfile> = loadedProfiles.filterNotNull().first()
+
     suspend fun setActiveProfile(id: Int) {
-        val exists = profiles.value.any { it.id == id }
+        val exists = storedProfiles().any { it.id == id }
         if (exists) {
             profileDataStore.setActiveProfile(id)
         }
@@ -180,7 +187,7 @@ class ProfileManager @Inject constructor(
         usesPrimaryAddons: Boolean = false,
         avatarId: String? = null
     ): UserProfile? {
-        val current = profiles.value
+        val current = storedProfiles()
         if (current.size >= MAX_PROFILES) return null
 
         // A slot whose last profile's data isn't all gone yet isn't given out: the new profile
@@ -210,7 +217,7 @@ class ProfileManager @Inject constructor(
      */
     suspend fun deleteProfile(id: Int): Boolean {
         if (id == 1) return false
-        if (profiles.value.none { it.id == id }) return false
+        if (storedProfiles().none { it.id == id }) return false
         pendingCleanup.mark(id)
         // Its id can be given to a new profile: nothing cached for the old one may carry over.
         sessionRef.updateAndGet { current -> if (current.profileId == id) ProfileSession(id) else current }
@@ -256,7 +263,7 @@ class ProfileManager @Inject constructor(
     }
 
     suspend fun updateProfile(profile: UserProfile): Boolean {
-        if (profiles.value.none { it.id == profile.id }) return false
+        if (storedProfiles().none { it.id == profile.id }) return false
         profileDataStore.upsertProfile(profile)
         return true
     }

@@ -18,6 +18,11 @@ vi.mock("../../api", async (importOriginal) => {
   };
 });
 
+const signedIn = vi.hoisted(() => ({ isAdmin: false }));
+vi.mock("../../hooks/useAccount", () => ({
+  useAccount: () => ({ account: null, isAdmin: signedIn.isAdmin, refresh: () => {} }),
+}));
+
 const { api } = await import("../../api");
 const getNotificationChannels = vi.mocked(api.getNotificationChannels);
 const createNotificationChannel = vi.mocked(api.createNotificationChannel);
@@ -163,5 +168,27 @@ describe("NotificationChannelsSettings", () => {
     const row = screen.getByRole("listitem");
     expect(within(row).getByText("https://ntfy.sh/fetch")).toBeInTheDocument();
     expect(row.textContent).not.toMatch(/token/i);
+  });
+
+  describe("server alerts", () => {
+    it("offers them to the admin, and saves the choice", async () => {
+      signedIn.isAdmin = true;
+      getNotificationChannels.mockResolvedValue({ channels: [channel()] });
+      updateNotificationChannel.mockResolvedValue({ channel: channel({ adminAlerts: true }) });
+      await renderChannels();
+
+      await userEvent.click(screen.getByLabelText(/also send server alerts here/i));
+
+      expect(updateNotificationChannel).toHaveBeenCalledWith("channel-1", { adminAlerts: true });
+      await waitFor(() => expect(screen.getByLabelText(/also send server alerts here/i)).toBeChecked());
+      signedIn.isAdmin = false;
+    });
+
+    it("doesn't offer them to anyone else", async () => {
+      getNotificationChannels.mockResolvedValue({ channels: [channel()] });
+      await renderChannels();
+
+      expect(screen.queryByLabelText(/also send server alerts here/i)).not.toBeInTheDocument();
+    });
   });
 });

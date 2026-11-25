@@ -165,6 +165,35 @@ describe("buildChannelRequest", () => {
   });
 });
 
+describe("buildChannelRequest for Apprise", () => {
+  afterEach(() => {
+    delete process.env.FETCH_WEB_PUBLIC;
+  });
+
+  it("posts title and body to a keyed endpoint, with the link at the end of the text", async () => {
+    const { buildChannelRequest } = await loadModule("https://fetch.example");
+
+    const { url, init } = buildChannelRequest(
+      channel({ kind: "apprise", url: "https://apprise.example/notify/family" }),
+      EVENT
+    );
+
+    expect(url).toBe("https://apprise.example/notify/family");
+    expect(bodyOf(init)).toEqual({ title: EVENT.title, body: `${EVENT.body}\nhttps://fetch.example/calendar`, type: "info" });
+  });
+
+  it("sends the services along for the stateless endpoint, and marks an alert as a warning", async () => {
+    const { buildChannelRequest } = await loadModule();
+
+    const { init } = buildChannelRequest(
+      channel({ kind: "apprise", url: "https://apprise.example/notify", token: "mailto://me@example.com" }),
+      { ...EVENT, severity: "warning" }
+    );
+
+    expect(bodyOf(init)).toEqual({ title: EVENT.title, body: EVENT.body, type: "warning", urls: "mailto://me@example.com" });
+  });
+});
+
 describe("sendToChannel", () => {
   const fetchMock = vi.fn();
 

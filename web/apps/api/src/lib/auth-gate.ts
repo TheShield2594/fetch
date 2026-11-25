@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { verifyToken } from "./auth.js";
 import { isStremioSecretPath } from "./stremio-secret.js";
+import { isShareLinkPath } from "./share-keys.js";
 
 /** The sign-in routes, which are how a browser gets a bearer token at all. */
 const SIGN_IN_PATHS = new Set(["/auth/status", "/auth/login", "/auth/login/totp", "/auth/register"]);
@@ -9,7 +10,9 @@ const SIGN_IN_PATHS = new Set(["/auth/status", "/auth/login", "/auth/login/totp"
  * Routes that cannot carry a bearer token by construction: the sign-in routes,
  * the health probes,
  * Stremio's addon URLs (the protocol sends no credentials — an unguessable
- * per-profile secret in the path stands in, verified by the route handler), the
+ * per-profile secret in the path stands in, verified by the route handler), a
+ * profile's calendar feed and a shared list's page (the same idea: a derived
+ * key in the path, lib/share-keys.ts), the
  * Trakt OAuth callback (a browser redirect from trakt.tv, bound to the flow that
  * started it by its `state`), and the Plex/Jellyfin webhooks (their own shared
  * secret), and the two halves of device pairing a TV calls before it has any
@@ -31,6 +34,7 @@ export const isPublicPath = (url: string): boolean =>
   url === "/health" ||
   url === "/health/ready" ||
   isStremioSecretPath(url) ||
+  isShareLinkPath(url) ||
   url === "/addon" ||
   url.startsWith("/trakt/oauth/callback") ||
   url.startsWith("/webhooks/") ||

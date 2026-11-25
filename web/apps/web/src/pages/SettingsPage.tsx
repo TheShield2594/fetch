@@ -1,12 +1,13 @@
 import { type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RouterLink, Navigate, useSearchParams } from "react-router";
-import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X, ChevronLeft, ChevronRight, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette, KeyRound } from "lucide-react";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X, ChevronLeft, ChevronRight, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette, KeyRound, CalendarPlus } from "lucide-react";
 import { healthDotClass, healthSummary, type SectionHealth } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { AccountSettings } from "../components/settings/AccountSettings";
 import { InvitesSettings } from "../components/settings/InvitesSettings";
 import { WebhookSettings } from "../components/settings/WebhookSettings";
 import { AccessTokensSettings } from "../components/settings/AccessTokensSettings";
+import { CalendarFeedSettings } from "../components/settings/CalendarFeedSettings";
 import { MediaServersSettings } from "../components/settings/MediaServersSettings";
 import { useAccount } from "../hooks/useAccount";
 import { TraktSettings } from "../components/settings/TraktSettings";
@@ -262,6 +263,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
         </div>
       </div>
     ),
+  },
+  {
+    id: "calendar-feed",
+    group: "profile",
+    scope: "profile",
+    title: "Calendar feed",
+    icon: <CalendarPlus size={20} />,
+    keywords: "calendar ical ics feed subscribe phone google apple outlook upcoming episodes release dates",
+    content: <CalendarFeedSettings />,
   },
   {
     id: "extras",

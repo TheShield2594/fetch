@@ -43,6 +43,7 @@ enum NotificationChannelKind {
   gotify
   discord
   webhook
+  apprise
 }
 
 enum ScrobbleStatus {
@@ -203,6 +204,11 @@ model Profile {
   // Settings adds one; 0 is the original derivation, so URLs installed before
   // this existed keep working until someone replaces them.
   stremioKeyGeneration Int @default(0)
+  // The profile's calendar as an iCal feed a phone can subscribe to. On while
+  // positive; the key in the feed's URL is derived from this number
+  // (lib/share-keys.ts), so replacing the link is the next number, and turning
+  // it off negates it.
+  calendarFeedGeneration Int?
   updatedAt           DateTime @default(now()) @updatedAt @db.Timestamptz(6)
   createdAt           DateTime @default(now()) @db.Timestamptz(6)
 
@@ -263,6 +269,11 @@ model List {
   createdAt   DateTime   @default(now()) @db.Timestamptz(6)
   items       ListItem[]
   link        ListLink?
+  // A read-only link to this list for someone with no account here. Shared
+  // while positive; the key in the link is derived from this number
+  // (lib/share-keys.ts), so it is replaced by the next number and revoked by
+  // negating it.
+  shareGeneration Int?
 
   profileId String  @db.Uuid
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -434,13 +445,17 @@ model NotificationChannel {
   name String
   // What this means depends on the kind: the topic URL for ntfy, the server's
   // base URL for Gotify, the full webhook URL for Discord and generic
-  // webhooks. Validated against the SSRF rules on save and re-resolved before
-  // every send — see lib/ssrf.ts.
+  // webhooks, the notify endpoint of an Apprise API server. Validated against
+  // the SSRF rules on save and re-resolved before every send — see lib/ssrf.ts.
   url  String
   // Gotify application token, or an ntfy access token for a protected topic.
-  // Never returned by the API.
+  // For Apprise, the service URLs to notify when the endpoint is the stateless
+  // `/notify`. Never returned by the API.
   token     String?
   enabled   Boolean  @default(true)
+  // Also sent the server's own alerts (lib/admin-alerts.ts): a background job
+  // that keeps failing, a TV whose sync does. Only the admin can set it.
+  adminAlerts Boolean @default(false)
   createdAt DateTime @default(now()) @db.Timestamptz(6)
 
   profileId String  @db.Uuid

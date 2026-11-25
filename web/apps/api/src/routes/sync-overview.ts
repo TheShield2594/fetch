@@ -3,6 +3,7 @@ import { NON_BLANK } from "../lib/request-schema.js";
 import { prisma } from "../lib/prisma.js";
 import { checkDatabase } from "../lib/db-health.js";
 import { getJobRuns } from "../lib/job-status.js";
+import { sendAdminAlert, tvSyncAlert } from "../lib/admin-alerts.js";
 import { accountScope, isAdminRequest } from "../lib/request-auth.js";
 import { UUID_V4_PATTERN } from "../lib/types.js";
 
@@ -176,6 +177,11 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
       // The profile the TV is using, when it names one, so the device list
       // can say who is on it. Only one of the TV's own account's profiles.
       const lastProfileId = await reportedProfileId(request);
+      const before = await prisma.device.findUnique({
+        where: { id: request.deviceId },
+        select: { name: true, lastSyncOk: true },
+      });
+      const syncError = ok ? null : (error?.trim() || "Sync failed").slice(0, MAX_SYNC_ERROR_LENGTH);
       await prisma.device.update({
         where: { id: request.deviceId },
         data: {
@@ -183,10 +189,15 @@ const syncOverviewRoutes: FastifyPluginAsync = async (app) => {
           ...(flavor !== undefined ? { flavor: flavor.trim() } : {}),
           lastSyncAt: new Date(),
           lastSyncOk: ok,
-          lastSyncError: ok ? null : (error?.trim() || "Sync failed").slice(0, MAX_SYNC_ERROR_LENGTH),
+          lastSyncError: syncError,
           ...(lastProfileId ? { lastProfileId } : {}),
         },
       });
+      // Told once, when a TV that was syncing stops: it reports after every
+      // sync, so alerting on each failed one would repeat every few minutes.
+      if (before && syncError !== null && before.lastSyncOk !== false) {
+        void sendAdminAlert(tvSyncAlert(before, syncError), request.log);
+      }
       return reply.code(204).send();
     }
   );

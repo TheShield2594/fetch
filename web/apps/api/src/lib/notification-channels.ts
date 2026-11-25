@@ -5,9 +5,11 @@
 // service-worker push over plain http, and iOS only delivers to a site that was
 // added to the home screen first. Every channel here is a single HTTP POST to a
 // URL the user already has — a self-hosted ntfy or Gotify, a Discord webhook,
-// or anything else that accepts JSON (Home Assistant, Slack, n8n).
+// an Apprise API server (and through it email, Telegram, Matrix and the rest
+// of what Apprise speaks), or anything else that accepts JSON (Home Assistant,
+// Slack, n8n).
 //
-// The four differ only in how the request is shaped, so `buildChannelRequest`
+// They differ only in how the request is shaped, so `buildChannelRequest`
 // is a pure function of (channel, event) and `sendToChannel` is the one place
 // that talks to the network.
 //
@@ -47,7 +49,7 @@ export class ChannelSendError extends Error {
   }
 }
 
-export const NOTIFICATION_CHANNEL_KINDS = ["ntfy", "gotify", "discord", "webhook"] as const;
+export const NOTIFICATION_CHANNEL_KINDS = ["ntfy", "gotify", "discord", "webhook", "apprise"] as const;
 
 export const isNotificationChannelKind = (value: unknown): value is NotificationChannelKind =>
   typeof value === "string" && (NOTIFICATION_CHANNEL_KINDS as readonly string[]).includes(value);
@@ -74,6 +76,8 @@ export type NotificationEvent = {
   path?: string;
   /** Structured detail for generic webhooks; ignored by the text-shaped channels. */
   data?: Record<string, unknown>;
+  /** "warning" for something that needs attention (an admin alert); a plain notice otherwise. */
+  severity?: "info" | "warning";
 };
 
 const SEND_TIMEOUT_MS = 10_000;
@@ -194,6 +198,27 @@ export const buildChannelRequest = (channel: ChannelTarget, event: NotificationE
             message: event.body,
             url: link ?? event.path ?? null,
             data: event.data ?? {},
+          }),
+        },
+      };
+
+    case "apprise":
+      // The Apprise API (caronc/apprise-api). `/notify/<key>` sends to the
+      // services saved under that key on the server and needs nothing else;
+      // the bare, stateless `/notify` has nothing saved, so the services come
+      // with the request — which is what the token field holds for this kind
+      // (`mailto://…`, `tgram://…`). Apprise has no click target of its own,
+      // so the link goes at the end of the text.
+      return {
+        url: channel.url,
+        init: {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: event.title,
+            body: link ? `${event.body}\n${link}` : event.body,
+            type: event.severity === "warning" ? "warning" : "info",
+            ...(channel.token ? { urls: channel.token } : {}),
           }),
         },
       };

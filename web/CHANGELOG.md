@@ -13,6 +13,10 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **A calendar feed.** Settings → Calendar feed gives a profile's calendar an address a phone or desktop calendar can subscribe to: upcoming episodes and watchlisted films' release dates, as an iCal feed. Off until you turn it on; replace the address if it gets out ([#646](https://github.com/TheShield2594/fetch/issues/646)).
+- **Share a list.** A list's page can make a read-only link for someone with no account. They see the list's name and titles and nothing else, and you can replace the link or stop sharing ([#646](https://github.com/TheShield2594/fetch/issues/646)).
+- **Server alerts.** The admin can mark a notification channel to also get the server's own alerts: a background job that has failed three runs in a row, the same job recovering, and a TV whose sync starts failing ([#646](https://github.com/TheShield2594/fetch/issues/646)).
+- **Apprise as a notification channel**, which reaches email, Telegram, Matrix and whatever else your Apprise server is set up for ([#646](https://github.com/TheShield2594/fetch/issues/646)).
 - **Personal access tokens.** Settings → Access tokens makes a named token for a script or an integration such as Home Assistant, so it needs neither a sign-in that expires nor `API_TOKEN`. A token reaches only your own profiles, can be read-only, can be given an expiry, and is revoked on its own ([#645](https://github.com/TheShield2594/fetch/issues/645)).
 - **An OpenAPI description of the API** at `GET /openapi.json`, generated from the routes ([#645](https://github.com/TheShield2594/fetch/issues/645)).
 - **Find and merge duplicate watches.** Settings → Data → Duplicate watches lists watches that look like one watch recorded twice: the same title within 36 hours (two sources dating one evening to different UTC days), or a "date unknown" mark next to the dated play. Untick any real rewatches and merge the rest; each keeps one row with the largest play count, its note and any Trakt id.

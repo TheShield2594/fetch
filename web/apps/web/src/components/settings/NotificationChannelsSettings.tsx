@@ -4,6 +4,7 @@ import { ConfirmReview } from "../ConfirmReview";
 import { api, type NotificationChannel, type NotificationChannelKind } from "../../api";
 import { SelectField } from "../SelectField";
 import { StatusBadge } from "./StatusBadge";
+import { useAccount } from "../../hooks/useAccount";
 
 type KindSpec = {
   id: NotificationChannelKind;
@@ -53,6 +54,15 @@ const KINDS: [KindSpec, ...KindSpec[]] = [
     tokenLabel: "Bearer token (optional)",
     tokenRequired: false,
     help: "Receives a JSON POST with the event, title, message and episode details — for Home Assistant, Slack, n8n, or anything else.",
+  },
+  {
+    id: "apprise",
+    label: "Apprise",
+    urlLabel: "Notify URL",
+    urlPlaceholder: "https://apprise.example.com/notify/my-key",
+    tokenLabel: "Apprise URLs (only for a bare /notify)",
+    tokenRequired: false,
+    help: "An Apprise API server's notify address, which reaches email, Telegram, Matrix and whatever else Apprise is set up for. Use /notify/<key> for services saved on the server, or the bare /notify with the service URLs (mailto://…, tgram://…) below.",
   },
 ];
 
@@ -125,6 +135,25 @@ export function NotificationChannelsSettings() {
 
   // The channel whose removal is being confirmed, inline under its row.
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+
+  const { isAdmin } = useAccount();
+
+  const toggleAlerts = async (channel: NotificationChannel) => {
+    setBusyId(channel.id);
+    try {
+      const { channel: updated } = await api.updateNotificationChannel(channel.id, {
+        adminAlerts: !channel.adminAlerts,
+      });
+      setChannels((current) => current.map((c) => (c.id === channel.id ? updated : c)));
+    } catch (err) {
+      setResults((current) => ({
+        ...current,
+        [channel.id]: { ok: false, message: err instanceof Error ? err.message : "Failed to update channel" },
+      }));
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   const toggle = async (channel: NotificationChannel) => {
     setBusyId(channel.id);
@@ -271,6 +300,19 @@ export function NotificationChannelsSettings() {
                     <AlertCircle size={14} /> This channel's address can no longer be read (the server's API token
                     changed). Remove it and add it again.
                   </p>
+                )}
+                {/* The server's own alerts name its jobs and its TVs, so only
+                    the admin is offered them. */}
+                {isAdmin && (
+                  <label className="mt-2 flex items-center gap-2 text-xs" style={{ color: "var(--text-dim)" }}>
+                    <input
+                      type="checkbox"
+                      checked={channel.adminAlerts === true}
+                      disabled={busyId === channel.id}
+                      onChange={() => void toggleAlerts(channel)}
+                    />
+                    Also send server alerts here: a sync that keeps failing, a TV that can't sync
+                  </label>
                 )}
                 {result && (
                   <p

@@ -1,5 +1,6 @@
 import type { FastifyBaseLogger } from "fastify";
 import { recordJobFailure, recordJobSuccess, type JobName } from "./job-status.js";
+import { jobAlertFor, sendAdminAlert, type JobStreak } from "./admin-alerts.js";
 
 // setInterval/setTimeout delays are a 32-bit signed int under the hood; anything
 // larger fires (near-)immediately instead of after the intended wait, so a
@@ -85,10 +86,17 @@ export function everyInterval({
   let firstRunTimer: NodeJS.Timeout | undefined;
   let intervalTimer: NodeJS.Timeout | undefined;
 
-  const persist = (job: JobName, write: Promise<void>) =>
-    write.catch((error: unknown) => {
-      log.error(error, `Failed to persist job status for ${job}`);
-    });
+  // Recording a run also says whether it made or ended a failing streak worth
+  // telling the admin about. Neither the record nor the alert may fail the job.
+  const persist = (job: JobName, write: Promise<JobStreak>) =>
+    write
+      .then(async (streak) => {
+        const alert = jobAlertFor(streak);
+        if (alert) await sendAdminAlert(alert, log);
+      })
+      .catch((error: unknown) => {
+        log.error(error, `Failed to persist job status for ${job}`);
+      });
 
   const runJob: RunJob = async (job, run) => {
     const startedAt = Date.now();

@@ -1,4 +1,5 @@
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyPluginAsync, FastifyRequest } from "fastify";
+import { ADMIN_REQUIRED_RESPONSE, isAdminRequest } from "../lib/request-auth.js";
 import type { NotificationChannelKind } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
@@ -27,6 +28,7 @@ const DEFAULT_NAMES: Record<NotificationChannelKind, string> = {
   gotify: "Gotify",
   discord: "Discord",
   webhook: "Webhook",
+  apprise: "Apprise",
 };
 
 const URL_ERROR =
@@ -57,6 +59,7 @@ const publicChannel = (channel: {
   url: string;
   token: string | null;
   enabled: boolean;
+  adminAlerts: boolean;
   createdAt: Date;
 }) => {
   const url = readChannelUrl(channel.url);
@@ -68,6 +71,7 @@ const publicChannel = (channel: {
     urlReadable: url !== null,
     hasToken: !!channel.token,
     enabled: channel.enabled,
+    adminAlerts: channel.adminAlerts,
     createdAt: channel.createdAt.toISOString(),
   };
 };
@@ -101,6 +105,17 @@ const validateForKind = (
   if (kind === "gotify" && !hasToken) {
     return "token is required for Gotify (an application token)";
   }
+  // The stateless endpoint has no saved services to send to, so without any
+  // in the request Apprise answers 4xx at send time.
+  if (kind === "apprise") {
+    const path = parsed.pathname.replace(/\/+$/, "");
+    if (!/\/notify(\/[^/]+)?$/.test(path)) {
+      return "url must be an Apprise API notify endpoint, e.g. https://apprise.example.com/notify/my-key";
+    }
+    if (path.endsWith("/notify") && !hasToken) {
+      return "the stateless /notify endpoint needs the Apprise URLs to send to (e.g. mailto://…); put them in the token field, or use /notify/<key>";
+    }
+  }
   return null;
 };
 
@@ -110,6 +125,19 @@ type ChannelBody = {
   url?: unknown;
   token?: unknown;
   enabled?: unknown;
+  adminAlerts?: unknown;
+};
+
+/**
+ * The server's own alerts (lib/admin-alerts.ts) name its jobs and its TVs, so
+ * only the admin may point a channel at them. Turning them off is anyone's.
+ * Returns the 403 body when the request may not set what it asks for.
+ */
+const adminAlertsProblem = (request: FastifyRequest, value: unknown) => {
+  if (value === undefined) return null;
+  if (typeof value !== "boolean") return { status: 400 as const, body: { error: "adminAlerts must be true or false" } };
+  if (value && !isAdminRequest(request)) return { status: 403 as const, body: ADMIN_REQUIRED_RESPONSE };
+  return null;
 };
 
 const notificationRoutes: FastifyPluginAsync = async (app) => {
@@ -133,6 +161,8 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
 
     const problem = validateForKind(kind, url, !!token, await outboundScopeForProfile(request.profileId!));
     if (problem) return reply.code(400).send({ error: problem });
+    const alertsProblem = adminAlertsProblem(request, body.adminAlerts);
+    if (alertsProblem) return reply.code(alertsProblem.status).send(alertsProblem.body);
     if (token && token.length > MAX_TOKEN_LENGTH) {
       return reply.code(400).send({ error: `token must be at most ${MAX_TOKEN_LENGTH} characters` });
     }
@@ -156,6 +186,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
         url: storeChannelUrl(url),
         token: token && encryptSecret(SECRET_CONTEXT.notificationChannelToken, token),
         enabled: body.enabled === undefined ? true : body.enabled !== false,
+        adminAlerts: body.adminAlerts === true,
         profileId: request.profileId!,
       },
     });
@@ -211,6 +242,8 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
       if (newToken && newToken.length > MAX_TOKEN_LENGTH) {
         return reply.code(400).send({ error: `token must be at most ${MAX_TOKEN_LENGTH} characters` });
       }
+      const alertsProblem = adminAlertsProblem(request, body?.adminAlerts);
+      if (alertsProblem) return reply.code(alertsProblem.status).send(alertsProblem.body);
 
       const channel = await prisma.notificationChannel.update({
         where: { id: existing.id },
@@ -221,6 +254,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
             ? { name: body.name.trim().slice(0, MAX_NAME_LENGTH) }
             : {}),
           ...(typeof body?.enabled === "boolean" ? { enabled: body.enabled } : {}),
+          ...(typeof body?.adminAlerts === "boolean" ? { adminAlerts: body.adminAlerts } : {}),
         },
       });
 

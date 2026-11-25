@@ -85,6 +85,8 @@ export type CatalogList = {
   covers?: string[];
   /** The Trakt or MDBList list a custom list is kept in step with, if any. */
   link?: ListLink | null;
+  /** The API path of this list's read-only link while it is shared; null or absent otherwise. */
+  sharePath?: string | null;
 };
 
 export type ListLinkProvider = "trakt" | "mdblist";
@@ -163,7 +165,7 @@ export type AddonCatalogOption = {
   requiresAi: boolean;
 };
 
-export type NotificationChannelKind = "ntfy" | "gotify" | "discord" | "webhook";
+export type NotificationChannelKind = "ntfy" | "gotify" | "discord" | "webhook" | "apprise";
 
 export type NotificationChannel = {
   id: string;
@@ -179,6 +181,8 @@ export type NotificationChannel = {
   /** The token itself is write-only — the API never sends it back. */
   hasToken: boolean;
   enabled: boolean;
+  /** Also gets the server's own alerts (a job that keeps failing, a TV that can't sync). Admin only. */
+  adminAlerts?: boolean | undefined;
   createdAt: string;
 };
 

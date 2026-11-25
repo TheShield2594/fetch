@@ -230,7 +230,7 @@ http://192.168.1.25:7002
 > secure origin. To get them, put Fetch behind a proxy with a certificate —
 > see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup) — and install from
 > the `https://` address instead. If you'd rather not, **Settings →
-> Notifications** has channels (ntfy, Gotify, Discord, or any webhook) that
+> Notifications** has channels (ntfy, Gotify, Discord, Apprise, or any webhook) that
 > deliver the same alerts over plain http.
 
 Once you're on an `https://` address:

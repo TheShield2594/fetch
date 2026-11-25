@@ -1,7 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const recordJobSuccess = vi.fn(async () => undefined);
-const recordJobFailure = vi.fn(async () => undefined);
+const quiet = { job: "x", failures: 0, previousFailures: 0, message: null };
+const recordJobSuccess = vi.fn(async () => quiet);
+const recordJobFailure = vi.fn(async () => quiet);
+const sendAdminAlert = vi.fn(async () => 1);
+vi.mock("./admin-alerts.js", async (importOriginal) => {
+  // The real decision about when a streak is worth an alert; a stub in place of sending one.
+  vi.doMock("./prisma.js", () => ({ prisma: {} }));
+  vi.doMock("./integration-owner.js", () => ({ outboundScopeForProfile: vi.fn() }));
+  vi.doMock("./notification-channels.js", () => ({ sendToChannel: vi.fn() }));
+  const actual = await importOriginal<typeof import("./admin-alerts.js")>();
+  return { ...actual, sendAdminAlert: (...args: unknown[]) => sendAdminAlert(...(args as [])) };
+});
 
 vi.mock("./job-status.js", () => ({
   recordJobSuccess: (...args: unknown[]) => recordJobSuccess(...(args as [])),

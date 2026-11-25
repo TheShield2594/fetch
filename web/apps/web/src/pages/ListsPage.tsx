@@ -32,6 +32,7 @@ import { EmptyState, EMPTY_STATE_ACTION } from "../components/EmptyState";
 import { PosterGrid } from "../components/PosterGrid";
 import { kindWord, metaRun, PosterCard, PosterCardSkeleton } from "../components/PosterCard";
 import { ListLinkPanel } from "../components/ListLinkPanel";
+import { ListSharePanel } from "../components/ListSharePanel";
 import { ListDetailsDialog } from "../components/ListDetailsDialog";
 import { SelectField } from "../components/SelectField";
 import { moveItem, ReorderControls, useDragReorder } from "../components/tv/reorder";
@@ -1044,6 +1045,12 @@ function ListView({
 
       {/* The link to Trakt or MDBList is set up once and rarely looked at, so it
           sits under the posters rather than between them and the header. */}
+      {list.kind !== "collection" && (
+        <div className="mt-6">
+          <ListSharePanel list={list} onMessage={showToast} onChanged={() => void onListsChanged()} />
+        </div>
+      )}
+
       {list.kind === "custom" && (
         <div className="mt-6">
           <ListLinkPanel

@@ -19,6 +19,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 ### Changed
 
 - **A title removed from your Trakt watchlist is now removed here too.** Removals used to travel only from Fetch to Trakt unless `TRAKT_WATCHLIST_MIRROR_DELETES=true` was set; that is now the default, and `false` restores add-only. A Trakt watchlist that has gone entirely empty is still never mirrored. Upgrading removes, at the next poll, the titles that were kept here after being removed on Trakt.
+- **The API log is quieter, and `LOG_LEVEL` now applies to it.** Healthchecks are no longer logged, and a request is logged only when it failed (4xx at warn, 5xx at error) or took over a second. Set `LOG_LEVEL=debug` to log every request as before ([#643](https://github.com/TheShield2594/fetch/issues/643)).
 - **Watched titles leave the watchlist.** A film comes off when it is played and a show when its last episode is, however the watch was recorded, and the removal is sent to Trakt. `WATCHLIST_REMOVE_WATCHED=false` keeps them listed.
 
 ### Fixed

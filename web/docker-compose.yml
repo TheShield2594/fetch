@@ -154,6 +154,9 @@ services:
       TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}
       TRAKT_BACKFILL_MAX_PAGES: ${TRAKT_BACKFILL_MAX_PAGES:-500}
       TRAKT_WATCHLIST_MIRROR_DELETES: ${TRAKT_WATCHLIST_MIRROR_DELETES:-true}
+      # fatal, error, warn, info, debug, trace or silent. At info a request is
+      # logged only when it failed or was slow; debug logs them all.
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       WATCHLIST_REMOVE_WATCHED: ${WATCHLIST_REMOVE_WATCHED:-true}
       # Simkl: the Fetch app's client id (simkl.com/settings/developer). Each
       # profile then signs in to its own Simkl account from Settings.

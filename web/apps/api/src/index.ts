@@ -11,6 +11,7 @@ import {
 } from "@fetch/shared";
 import { attachDatabaseLogging, prisma } from "./lib/prisma.js";
 import { applyCorsHeaders } from "./lib/cors.js";
+import { parseLogLevel, registerRequestLogging } from "./lib/request-logging.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
@@ -125,7 +126,10 @@ const MAX_BODY_SIZE_MB = parseMaxBodySizeMb(process.env.MAX_BODY_SIZE_MB);
 const trustProxy = parseTrustProxy(process.env.TRUST_PROXY);
 
 const app = Fastify({
+  // Replaced by `registerRequestLogging` below, which says why.
+  disableRequestLogging: true,
   logger: {
+    level: parseLogLevel(process.env.LOG_LEVEL),
     // Fastify's default `req` serializer logs the URL verbatim, so a secret sent
     // as a query parameter — `?token=` on the Plex/Jellyfin webhooks, which Plex
     // has no other way to send — is written to the log in plaintext and kept for
@@ -140,6 +144,7 @@ const app = Fastify({
 
 // Schema-validated routes phrase their 400s like the hand-written checks do.
 registerRequestSchemas(app);
+registerRequestLogging(app);
 
 // Here rather than in `start()` because `ensureDefaultWatchlist` and the
 // startup credential sweep both query before the server listens, and a warning

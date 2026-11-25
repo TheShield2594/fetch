@@ -150,7 +150,12 @@ internal data class WebsiteVerifyBody(val profileToken: String? = null)
 internal data class WebsiteSavedProfile(val profile: WebsiteProfile)
 
 @Serializable
-internal data class WebsiteCollectionsBody(val collections: JsonArray = JsonArray(emptyList()), val updatedAt: String? = null)
+internal data class WebsiteCollectionsBody(
+    val collections: JsonArray = JsonArray(emptyList()),
+    val updatedAt: String? = null,
+    /** 0 when the website has none stored, and from a website older than collection versions. */
+    val version: Int = 0
+)
 
 /** An addon in a profile's list on the website, as much of it as the apps read. */
 @Serializable
@@ -323,18 +328,25 @@ class FetchWebsiteClient(
             )
         ).metas.map { it.toPreview() }
 
-    /** The profile's collections in the TV's format, and when they were last saved (null: never). */
-    suspend fun collections(profileId: String, profileToken: String?): Pair<JsonArray, String?> {
-        val body = json.decodeFromString(
+    /** The profile's collections in the TV's format, when they were last saved (null: never) and their version. */
+    internal suspend fun collections(profileId: String, profileToken: String?): WebsiteCollectionsBody =
+        json.decodeFromString(
             WebsiteCollectionsBody.serializer(),
             authedText("collections", profileId = profileId, profileToken = profileToken)
         )
-        return body.collections to body.updatedAt
-    }
 
-    suspend fun putCollections(profileId: String, profileToken: String?, collections: JsonArray) {
+    /** Saves the collections as the next version after [version]; a 412 means they changed since (#669). */
+    internal suspend fun putCollections(
+        profileId: String,
+        profileToken: String?,
+        collections: JsonArray,
+        version: Int
+    ): WebsiteCollectionsBody {
         val body = buildJsonObject { put("collections", collections) }.toString()
-        authedText("collections", "PUT", body, profileId = profileId, profileToken = profileToken)
+        return json.decodeFromString(
+            WebsiteCollectionsBody.serializer(),
+            authedText("collections", "PUT", body, profileId = profileId, profileToken = profileToken, ifMatch = version)
+        )
     }
 
     // --- What the apps run, per profile (the TV's FetchWebsiteClient) ---

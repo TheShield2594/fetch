@@ -3,6 +3,7 @@ import { MetadataType, Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { resolveProfile } from "../lib/profile.js";
 import { validateCollections, validateSource } from "../lib/collections.js";
+import { etagFor, parseIfMatch } from "../lib/profile-document.js";
 import { getTmdb } from "../lib/tmdb-client.js";
 import { getTraktClient, isTraktConnected } from "../lib/trakt-client.js";
 import { buildMetasFromIds, getCustomListMetas } from "../lib/stremio-helpers.js";
@@ -19,26 +20,91 @@ type PreviewSource = Record<string, unknown> & { provider?: string };
 const stremioTypeOf = (mediaType: unknown): "movie" | "series" =>
   typeof mediaType === "string" && mediaType.toUpperCase() === "TV" ? "series" : "movie";
 
+/**
+ * Stores `collections` as the version after `expected`, but only while
+ * `expected` is still the one stored. Returns the new version, or null when it
+ * isn't. One statement either way — a conditional update, or an insert the
+ * primary key refuses a second time — as `writeProfileDocument` does it.
+ */
+const writeCollectionsAtVersion = async (
+  profileId: string,
+  collections: Prisma.InputJsonValue,
+  expected: number,
+  updatedAt: Date
+): Promise<number | null> => {
+  if (expected === 0) {
+    try {
+      await prisma.profileCollections.create({ data: { profileId, collections, updatedAt, version: 1 } });
+      return 1;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") return null;
+      throw error;
+    }
+  }
+  const { count } = await prisma.profileCollections.updateMany({
+    where: { profileId, version: expected },
+    data: { collections, updatedAt, version: expected + 1 },
+  });
+  return count === 1 ? expected + 1 : null;
+};
+
 const collectionsRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", resolveProfile);
 
-  app.get("/collections", async (request) => {
+  app.get("/collections", async (request, reply) => {
     const row = await prisma.profileCollections.findUnique({ where: { profileId: request.profileId! } });
+    const version = row?.version ?? 0;
+    reply.header("ETag", etagFor(version)).header("Cache-Control", "no-store");
     return {
       collections: (row?.collections as unknown[] | undefined) ?? [],
       updatedAt: row?.updatedAt.toISOString() ?? null,
+      version,
     };
   });
 
-  // Replaces the whole list, as saving does on the TV. A client that wants to
-  // avoid overwriting a newer save sends the `updatedAt` it last read as
-  // `baseUpdatedAt`; a mismatch is a 409 carrying what is there now.
+  // Replaces the whole list, as saving does on the TV. Every save is the next
+  // version.
+  //
+  // A client that must not overwrite a save it hasn't seen sends `If-Match`
+  // with the version it last read ("0" when there was none): a mismatch is a
+  // 412 carrying what is there now, for it to merge with and try again. The
+  // check and the write are one statement, so two TVs racing on one version
+  // can't both win. That is what the TV and desktop apps do.
+  //
+  // Without the header the save goes through whatever is stored, which is what
+  // an app from before versions existed still sends. `baseUpdatedAt` is the
+  // older guard the website's own editor uses: a 409 on a mismatch.
   app.put<{ Body: unknown }>("/collections", async (request, reply) => {
     const body = (request.body ?? {}) as { collections?: unknown; baseUpdatedAt?: unknown };
     const result = validateCollections(body.collections);
     if (!result.ok) return reply.code(400).send({ error: result.error });
 
     const profileId = request.profileId!;
+    const updatedAt = new Date();
+    const collections = result.value as unknown as Prisma.InputJsonValue;
+    const saved = (version: number) => {
+      reply.header("ETag", etagFor(version));
+      return { collections: result.value, updatedAt: updatedAt.toISOString(), version };
+    };
+
+    const ifMatch = parseIfMatch(request.headers["if-match"]);
+    if (ifMatch === null) return reply.code(400).send({ error: "If-Match must be a version, like \"3\"" });
+    if (ifMatch !== undefined) {
+      const stored = await writeCollectionsAtVersion(profileId, collections, ifMatch, updatedAt);
+      if (stored !== null) return saved(stored);
+
+      const current = await prisma.profileCollections.findUnique({ where: { profileId } });
+      const version = current?.version ?? 0;
+      reply.header("ETag", etagFor(version));
+      return reply.code(412).send({
+        error: "These collections were changed somewhere else since you loaded them. Reload to see the latest.",
+        code: "version_conflict",
+        version,
+        collections: (current?.collections as unknown[] | undefined) ?? [],
+        updatedAt: current?.updatedAt.toISOString() ?? null,
+      });
+    }
+
     if (typeof body.baseUpdatedAt === "string" || body.baseUpdatedAt === null) {
       const current = await prisma.profileCollections.findUnique({ where: { profileId } });
       const currentStamp = current?.updatedAt.toISOString() ?? null;
@@ -48,18 +114,18 @@ const collectionsRoutes: FastifyPluginAsync = async (app) => {
           code: "collections_conflict",
           collections: (current?.collections as unknown[] | undefined) ?? [],
           updatedAt: currentStamp,
+          version: current?.version ?? 0,
         });
       }
     }
 
-    const updatedAt = new Date();
-    const collections = result.value as unknown as Prisma.InputJsonValue;
-    await prisma.profileCollections.upsert({
+    const row = await prisma.profileCollections.upsert({
       where: { profileId },
-      create: { profileId, collections, updatedAt },
-      update: { collections, updatedAt },
+      create: { profileId, collections, updatedAt, version: 1 },
+      update: { collections, updatedAt, version: { increment: 1 } },
+      select: { version: true },
     });
-    return { collections: result.value, updatedAt: updatedAt.toISOString() };
+    return saved(row.version);
   });
 
   // People, studios and film collections by name, so the builder can pick a

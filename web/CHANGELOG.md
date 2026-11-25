@@ -24,6 +24,7 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Fixed
 
+- **Two TVs no longer overwrite each other's Home folders.** `/collections` now has a version: a TV or desktop app saves with `If-Match`, and one whose copy is out of date gets a `412`, merges with what is stored and saves again, where the last save used to replace the whole list ([#669](https://github.com/TheShield2594/fetch/issues/669)).
 - **Opening a title is no longer slow.** A title with no IMDb, Rotten Tomatoes or Metacritic score (every title, with no OMDb key saved) or no runtime was looked up on TMDB again on every open, before anything else loaded. It is now looked up once, the sections load together, and "More like this" no longer holds the rest of the panel back.
 - **A failed Fetch import no longer leaves the profile half restored.** The whole file is now written in one transaction, so an import that fails partway saves nothing and says so ([#641](https://github.com/TheShield2594/fetch/issues/641)).
 - **Importing the same file twice no longer adds the plays again.** A Fetch export, a history CSV or a Letterboxd or IMDb file that matches watches already in the profile now leaves their play counts as they are, instead of adding the file's on top (three plays used to become six).

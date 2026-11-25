@@ -12,6 +12,7 @@ import com.fetch.desktop.sync.RemoteSharedSettings
 import com.fetch.desktop.sync.SyncMerge
 import com.fetch.desktop.sync.SyncSettingsBlob
 import com.fetch.tv.core.parental.CertificationLevel
+import com.fetch.tv.data.website.FetchWebsiteCollectionsMerge
 import com.fetch.tv.domain.model.PROFILE_AVATAR_COLORS
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.JsonArray
@@ -192,20 +193,41 @@ class FetchWebsiteSync(private val website: FetchWebsiteState) {
         override suspend fun pull(): JsonArray? {
             // No website profile in this slot: nothing there, and nowhere for a push to go.
             val remote = website.profileFor(slot) ?: return null
-            val (collections, updatedAt) = try {
+            val current = try {
                 client.collections(remote.id, website.profileToken(remote.id))
             } catch (e: FetchWebsiteException) {
                 if (e.isProfileLocked) throw WebsiteProfileLockedException(slot, remote.name)
                 throw e
             }
-            return collections.takeIf { updatedAt != null }
+            if (current.updatedAt == null) return null
+            collectionsBases[remote.id] = current.version to current.collections
+            return current.collections
         }
 
+        // Saved as the version after the one last pulled or pushed. When a TV saved in
+        // between (a 412), the two lists are merged and that is saved instead, where this
+        // used to replace the TV's changes (#669); the merged list comes back on the next pull.
         override suspend fun push(collections: JsonArray) {
             val remote = website.profileFor(slot) ?: return
-            client.putCollections(remote.id, website.profileToken(remote.id), collections)
+            val token = website.profileToken(remote.id)
+            val base = collectionsBases[remote.id]
+            val version = base?.first ?: client.collections(remote.id, token).version
+            try {
+                val saved = client.putCollections(remote.id, token, collections, version)
+                collectionsBases[remote.id] = saved.version to collections
+                return
+            } catch (e: FetchWebsiteException) {
+                if (e.status != 412) throw e
+            }
+            val current = client.collections(remote.id, token)
+            val merged = FetchWebsiteCollectionsMerge.merge(base?.second, collections, current.collections)
+            val saved = client.putCollections(remote.id, token, merged, current.version)
+            collectionsBases[remote.id] = saved.version to merged
         }
     }
+
+    /** Per website profile: the version and collections last pulled from or pushed to the website. */
+    private val collectionsBases = java.util.concurrent.ConcurrentHashMap<String, Pair<Int, JsonArray>>()
 
     // --- Report ---
 

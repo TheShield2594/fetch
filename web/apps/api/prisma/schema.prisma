@@ -633,10 +633,13 @@ model DeviceProfileSlot {
 
 // A profile's collections (custom Home rows and their folders), stored as the
 // TV's own serialized form so a collection made on the TV comes back unchanged.
-// The whole list is replaced on every save, as on the TV.
+// The whole list is replaced on every save, as on the TV. Every save bumps
+// `version`; a save sent with `If-Match` goes through only while that is still
+// the version stored, so two TVs can't overwrite each other's changes.
 model ProfileCollections {
   profileId   String   @id @db.Uuid
   collections Json
+  version     Int      @default(1)
   updatedAt   DateTime @db.Timestamptz(6)
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)

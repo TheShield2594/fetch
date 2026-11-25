@@ -39,7 +39,7 @@ class FetchWebsiteSyncBackend @Inject constructor(
     override suspend fun deleteProfileData(profileId: Int): Result<Unit> =
         call { website.get().deleteProfile(profileId).getOrThrow() }
 
-    override suspend fun pushCollections(profileId: Int, collections: JsonArray): Result<Unit> =
+    override suspend fun pushCollections(profileId: Int, collections: JsonArray): Result<JsonArray?> =
         call { website.get().putCollections(profileId, collections) }
 
     override suspend fun pullCollections(profileId: Int, local: JsonArray): Result<JsonArray?> =

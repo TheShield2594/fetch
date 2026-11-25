@@ -211,22 +211,28 @@ class FetchWebsiteClient internal constructor(
         ).close()
     }
 
-    suspend fun collections(profileId: String, profileToken: String?): Pair<JsonArray, String?> =
+    suspend fun collections(profileId: String, profileToken: String?): WebsiteCollectionsBody =
         authed("collections", profileId = profileId, profileToken = profileToken).use { response ->
-            val body = json.decodeFromString(WebsiteCollectionsBody.serializer(), response.body?.string().orEmpty())
-            body.collections to body.updatedAt
+            json.decodeFromString(WebsiteCollectionsBody.serializer(), response.body?.string().orEmpty())
         }
 
-    suspend fun putCollections(profileId: String, profileToken: String?, collections: JsonArray): String? {
+    /** Saves the collections as the next version after [version]; a 412 means they changed since (#669). */
+    suspend fun putCollections(
+        profileId: String,
+        profileToken: String?,
+        collections: JsonArray,
+        version: Int
+    ): WebsiteCollectionsBody {
         val body = buildJsonObject { put("collections", collections) }.toString()
         return authed(
             "collections",
             method = "PUT",
             body = body,
             profileId = profileId,
-            profileToken = profileToken
+            profileToken = profileToken,
+            ifMatch = version
         ).use { response ->
-            json.decodeFromString(WebsiteCollectionsBody.serializer(), response.body?.string().orEmpty()).updatedAt
+            json.decodeFromString(WebsiteCollectionsBody.serializer(), response.body?.string().orEmpty())
         }
     }
 

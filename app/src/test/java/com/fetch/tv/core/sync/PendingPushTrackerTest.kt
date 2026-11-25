@@ -95,7 +95,7 @@ class PendingPushTrackerTest {
         assertTrue(tracker.isDirty(PendingPushTracker.Domain.COLLECTIONS, 1))
 
         // Back online: the edit goes up, then the pull runs.
-        coEvery { backend.pushCollections(1, any()) } returns Result.success(Unit)
+        coEvery { backend.pushCollections(1, any()) } returns Result.success(null)
         coEvery { backend.pullCollections(1, any()) } returns Result.success(JsonArray(emptyList()))
         service.pullFromRemote().getOrThrow()
         coVerify(exactly = 2) { backend.pushCollections(1, any()) }

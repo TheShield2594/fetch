@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchStrokes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -124,7 +125,7 @@ internal fun Modifier.playerChapterTicks(ticks: List<Float>, color: Color): Modi
     } else {
         drawWithContent {
             drawContent()
-            val width = 2.dp.toPx()
+            val width = FetchStrokes.tokens.medium.toPx()
             ticks.forEach { fraction ->
                 val x = (size.width * fraction - width / 2f).coerceIn(0f, (size.width - width).coerceAtLeast(0f))
                 drawRect(color = color, topLeft = Offset(x, 0f), size = Size(width, size.height))

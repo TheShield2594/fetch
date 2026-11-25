@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.core.util.runSuspendCatching
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,11 +58,11 @@ class HiddenTitlesSettingsViewModel @Inject constructor(
 
     fun onHideWatchedToggle() {
         val next = !state.value.hideWatched
-        viewModelScope.launch { runCatching { store.setHideWatched(next) } }
+        viewModelScope.launch { runSuspendCatching { store.setHideWatched(next) } }
     }
 
     fun onRestore(title: HiddenTitle) {
-        viewModelScope.launch { runCatching { store.restore(title) } }
+        viewModelScope.launch { runSuspendCatching { store.restore(title) } }
     }
 }
 
@@ -120,7 +121,7 @@ internal fun HiddenTitlesSettingsContent(
         }
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
         SettingsDetailHeader(
             title = stringResource(R.string.hidden_titles_not_interested_title),
             subtitle = stringResource(R.string.hidden_titles_page_subtitle)
@@ -137,7 +138,7 @@ internal fun HiddenTitlesSettingsContent(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = FetchTheme.spacing.sm),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
                 ) {
                     if (titles.isEmpty()) {
                         item(key = "hidden_titles_empty") {

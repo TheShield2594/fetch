@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.core.util.runSuspendCatching
 import android.view.KeyEvent as AndroidKeyEvent
 import com.fetch.tv.ui.components.FetchButtonStyle
 import com.fetch.tv.ui.components.FetchButton
@@ -197,7 +198,7 @@ fun LibraryScreen(
         selectionScope.launch {
             val index = if (tab.listScope != null) visibleItemIndexByKey[target] else null
             // +1: the header is the grid's first item.
-            if (index != null) runCatching { gridState.scrollToItem(index + 1) }
+            if (index != null) runSuspendCatching { gridState.scrollToItem(index + 1) }
             (posterFocusRequesters[target] ?: activityFocusRequesters[target])?.requestFocusAfterFrames(frames = 1)
         }
     }
@@ -441,6 +442,15 @@ fun LibraryScreen(
                             }
                         }
                     )
+                    // History and In progress have no filter row, so their Select sits at the end of
+                    // the tab row: Down from a tab still lands on the grid in one press.
+                    if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
+                        LibrarySelectButton(
+                            active = selection.active,
+                            enabled = true,
+                            onClick = { toggleSelectionMode() }
+                        )
+                    }
                     if (showBuiltInHeader) {
                         // Source names are stored in natural case and capitalized here, once, for the locale.
                         val sourceName = when {
@@ -458,16 +468,6 @@ fun LibraryScreen(
                             style = FetchTheme.textStyles.eyebrow,
                             color = FetchTheme.colors.TextTertiary,
                             maxLines = 1
-                        )
-                    }
-                }
-                if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
-                        LibrarySelectButton(
-                            active = selection.active,
-                            enabled = true,
-                            onClick = { toggleSelectionMode() },
-                            modifier = Modifier.focusProperties { up = primaryFocusRequester }
                         )
                     }
                 }

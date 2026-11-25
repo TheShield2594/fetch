@@ -3592,7 +3592,7 @@ private fun ProgressBar(
                 )
                 .playerChapterTicks(
                     ticks = chapterTicks,
-                    color = FetchTheme.colors.Background.copy(alpha = 0.85f)
+                    color = FetchTheme.colors.Player.ScrimStrong
                 )
         )
     }

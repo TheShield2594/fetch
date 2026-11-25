@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.components.posteroptions
 
+import com.fetch.tv.core.util.runSuspendCatching
 import android.util.Log
 import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.tmdb.TmdbService
@@ -560,7 +561,7 @@ class PosterOptionsController @Inject constructor(
         val scope = this.scope ?: return
         dismiss()
         scope.launch {
-            val canonical = runCatching { canonicalize(item) }.getOrDefault(item)
+            val canonical = runSuspendCatching { canonicalize(item) }.getOrDefault(item)
             val ids = buildList {
                 add(canonical.id)
                 add(item.id)
@@ -574,7 +575,7 @@ class PosterOptionsController @Inject constructor(
                 poster = canonical.rawPosterUrl?.takeIf { it.isNotBlank() } ?: canonical.poster,
                 hiddenAtMs = System.currentTimeMillis()
             )
-            runCatching { hiddenTitlesStore.hide(title) }
+            runSuspendCatching { hiddenTitlesStore.hide(title) }
                 .onSuccess {
                     reportActionDone(com.fetch.tv.R.string.poster_options_done_not_interested, canonical.name)
                 }

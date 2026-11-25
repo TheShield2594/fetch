@@ -9,6 +9,9 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import java.io.IOException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
@@ -104,6 +107,36 @@ class ProfileCleanupRetryTest {
 
         // Slot 2 is taken: a create that read the placeholder would overwrite it.
         assertEquals(3, profiles.createProfile("New", "#1E88E5")?.id)
+        assertEquals(listOf(1, 2, 3), list.value.map { it.id })
+    }
+
+    @Test
+    fun `a create made before the profile list has loaded waits for it and takes a free slot`() = runBlocking {
+        val released = CompletableDeferred<Unit>()
+        every { profileDataStore.profilesList } returns flow {
+            released.await()
+            emitAll(list)
+        }
+        val profiles = manager()
+
+        // Nothing is written while only the primary-only placeholder is known.
+        val created = async(Dispatchers.Default) { profiles.createProfile("New", "#1E88E5") }
+        delay(LIST_LOAD_DELAY_MS)
+        coVerify(exactly = 0) { profileDataStore.upsertProfile(any()) }
+
+        // Slots 2 and 3 are taken; a create that read the placeholder would overwrite 2.
+        released.complete(Unit)
+        assertEquals(4, created.await()?.id)
+        assertEquals(listOf(1, 2, 3, 4), list.value.map { it.id })
+    }
+
+    @Test
+    fun `two creates in a row get different slots`() = runBlocking {
+        list.value = listOf(profile(1))
+        val profiles = manager()
+
+        assertEquals(2, profiles.createProfile("A", "#1E88E5")?.id)
+        assertEquals(3, profiles.createProfile("B", "#1E88E5")?.id)
         assertEquals(listOf(1, 2, 3), list.value.map { it.id })
     }
 

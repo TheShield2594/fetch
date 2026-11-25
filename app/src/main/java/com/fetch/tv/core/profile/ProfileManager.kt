@@ -205,7 +205,8 @@ class ProfileManager @Inject constructor(
         )
         factory.markProfileCreated(nextId)
         profileDataStore.upsertProfile(profile)
-        profiles.first { entries -> entries.any { it.id == nextId } }
+        // The same list the next id was chosen from: a create right after this one must see it.
+        loadedProfiles.filterNotNull().first { entries -> entries.any { it.id == nextId } }
         return profile
     }
 
@@ -227,7 +228,7 @@ class ProfileManager @Inject constructor(
         // was still the active profile) can recreate its snapshot. Once the profile is
         // gone from the list, saves for it are skipped, so delete the snapshots again.
         withTimeoutOrNull(PROFILE_LIST_UPDATE_TIMEOUT_MS) {
-            profiles.first { entries -> entries.none { it.id == id } }
+            loadedProfiles.filterNotNull().first { entries -> entries.none { it.id == id } }
         }
         val snapshotsGone = withContext(Dispatchers.IO) {
             ContinueWatchingEnrichmentCache.deleteProfileFiles(context.filesDir, id)

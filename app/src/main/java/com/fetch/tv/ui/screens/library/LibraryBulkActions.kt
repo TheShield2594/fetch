@@ -108,6 +108,8 @@ class LibraryBulkActions @Inject constructor(
         isCurrent: () -> Boolean = { true }
     ): LibraryBulkResult = forEachTarget(targets, isCurrent) { target ->
         val snapshot = libraryRepository.getMembershipSnapshot(target.input).listMembership
+        // The snapshot read can suspend across a profile switch; don't start the write after one.
+        if (!isCurrent()) return@forEachTarget Outcome.SKIPPED
         val desired = libraryBulkMembership(snapshot, tabs, target.type, addTo, removeFrom)
             ?: return@forEachTarget Outcome.SKIPPED
         if (desired == snapshot) return@forEachTarget Outcome.DONE

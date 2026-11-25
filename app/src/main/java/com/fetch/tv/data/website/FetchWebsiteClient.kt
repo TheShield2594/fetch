@@ -211,13 +211,13 @@ class FetchWebsiteClient internal constructor(
         ).close()
     }
 
-    suspend fun collections(profileId: String, profileToken: String?): WebsiteCollectionsBody =
+    internal suspend fun collections(profileId: String, profileToken: String?): WebsiteCollectionsBody =
         authed("collections", profileId = profileId, profileToken = profileToken).use { response ->
             json.decodeFromString(WebsiteCollectionsBody.serializer(), response.body?.string().orEmpty())
         }
 
     /** Saves the collections as the next version after [version]; a 412 means they changed since (#669). */
-    suspend fun putCollections(
+    internal suspend fun putCollections(
         profileId: String,
         profileToken: String?,
         collections: JsonArray,

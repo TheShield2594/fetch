@@ -153,6 +153,12 @@ jobs:
           CI_USE_DEBUG_SIGNING: "true"
         run: ./gradlew --no-daemon :app:assembleRelease
 
+      # Every 64-bit native library must load on a 16 KB-page device (#663): its LOAD segments
+      # aligned to 16 KB, and stored 16 KB-aligned in the APK. A new or updated AAR that isn't
+      # fails here instead of on a user's TV.
+      - name: Check 16 KB page alignment
+        run: python3 scripts/check_16kb_alignment.py app/build/outputs/apk/release/*.apk
+
       - uses: actions/upload-artifact@v7
         if: always()
         with:

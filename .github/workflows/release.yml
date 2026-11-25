@@ -103,6 +103,10 @@ jobs:
           done
           ./gradlew --no-daemon :app:assembleRelease
 
+      # A release whose native libraries won't load on 16 KB-page devices doesn't ship (#663).
+      - name: Check 16 KB page alignment
+        run: python3 scripts/check_16kb_alignment.py app/build/outputs/apk/release/*.apk
+
       - name: Name APKs after the tag
         run: |
           mkdir -p dist

@@ -55,6 +55,7 @@ class ProfileDeletedOnWebsiteTest {
         store.save(FetchWebsiteSession(serverUrl = "https://fetch.example", deviceToken = "token", deviceName = "TV"))
         every { profileManager.profiles } returns MutableStateFlow(listOf(profile(1), profile(2), profile(3)))
         every { profileManager.activeProfileId } returns MutableStateFlow(1)
+        coEvery { profileManager.retryPendingCleanups() } returns emptySet()
         every { restrictions.restrictions } returns flowOf(emptyMap())
         every { restrictions.titleLists } returns flowOf(emptyMap())
         every { restrictions.kidsRules } returns flowOf(emptyMap())
@@ -86,6 +87,21 @@ class ProfileDeletedOnWebsiteTest {
 
         assertTrue(service.pullProfiles())
         coVerify(exactly = 2) { profileManager.deleteProfile(3) }
+        coVerify(exactly = 1) { profileDataStore.replaceAllProfiles(any()) }
+    }
+
+    @Test
+    fun `a website profile in a slot still being cleaned up waits for the cleanup`() = runBlocking {
+        every { profileManager.profiles } returns MutableStateFlow(listOf(profile(1), profile(2)))
+        // Slot 3's old profile was deleted, but some of its data is still on disk.
+        coEvery { profileManager.retryPendingCleanups() } returns setOf(3) andThen emptySet()
+        coEvery { client.profiles() } returns listOf(remote(1), remote(2), remote(3))
+        val service = service()
+
+        assertFalse(service.pullProfiles())
+        coVerify(exactly = 0) { profileDataStore.replaceAllProfiles(any()) }
+
+        assertTrue(service.pullProfiles())
         coVerify(exactly = 1) { profileDataStore.replaceAllProfiles(any()) }
     }
 

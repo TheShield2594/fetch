@@ -203,12 +203,15 @@ class ProfileDataStoreFactory @Inject constructor(
      * Deletes every DataStore file of [profileId] from disk, including the
      * `.bak` shadow copies, so a profile that later reuses the id starts empty.
      * Call [clearProfile] first so no live DataStore still holds these files.
+     *
+     * False when a file is still there afterwards, so the caller can try again later.
      */
-    fun deleteProfileFiles(profileId: Int) {
-        if (profileId == 1) return
+    fun deleteProfileFiles(profileId: Int): Boolean {
+        if (profileId == 1) return true
         val suffix = "_p$profileId$DATASTORE_FILE_SUFFIX"
         val dataStoreDir = File(context.filesDir, "datastore")
-        if (!dataStoreDir.exists()) return
+        if (!dataStoreDir.exists()) return true
+        var allDeleted = true
         synchronized(shadowCopyLock) {
             dataStoreDir.listFiles()?.forEach { file ->
                 if (file.name.endsWith(suffix) ||
@@ -216,10 +219,11 @@ class ProfileDataStoreFactory @Inject constructor(
                     file.name.endsWith("$suffix$RESET_MARKER_SUFFIX") ||
                     file.name.endsWith("$suffix$SHADOW_COPY_SUFFIX$SHADOW_COPY_TEMP_SUFFIX")
                 ) {
-                    file.delete()
+                    if (!file.delete() && file.exists()) allDeleted = false
                 }
             }
         }
+        return allDeleted
     }
 
     /**

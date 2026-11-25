@@ -224,14 +224,23 @@ class FetchWebsiteSyncService @Inject constructor(
      * Skipped while this TV has profile changes the website hasn't had: a profile made here since
      * the last push isn't on the website yet, and its absence there doesn't mean it was deleted.
      *
-     * False when a slot's cleanup failed. The caller then leaves the profile list as it is: the slot
-     * is only dropped from the list by a cleanup that got that far, so one that failed earlier is
-     * still in the list on the next pull, still missing on the website, and is tried again. Until
-     * then no new profile can be given that slot.
+     * False when a slot's cleanup failed, or when the website has a profile in a slot whose old
+     * data isn't all gone yet. The caller then leaves the profile list as it is and the next pull
+     * tries again. A cleanup that fails after the slot has left the list stays marked in
+     * [com.fetch.tv.core.profile.PendingProfileCleanup] and is retried there; until it succeeds
+     * no profile, made here or pulled from the website, is given that slot.
      */
     private suspend fun forgetProfilesDeletedOnWebsite(localSlots: Set<Int>, remote: List<WebsiteSlottedProfile>): Boolean {
-        if (store.profilesRevision != 0L) return true
         val remoteSlots = remote.mapTo(HashSet()) { it.slot }
+        // A profile the website has in a slot whose previous profile's data isn't all gone from
+        // this TV yet would inherit what's left; it waits until that cleanup has finished.
+        val unfinished = profileManager.retryPendingCleanups()
+        val blocked = remoteSlots.filter { it in unfinished && it !in localSlots }
+        if (blocked.isNotEmpty()) {
+            Log.w(TAG, "Not taking the website's profiles in slots $blocked until their old data is removed")
+            return false
+        }
+        if (store.profilesRevision != 0L) return true
         var allRemoved = true
         localSlots.filter { it != PRIMARY_SLOT && it !in remoteSlots }.forEach { slot ->
             runSuspendCatching { profileManager.deleteProfile(slot) }

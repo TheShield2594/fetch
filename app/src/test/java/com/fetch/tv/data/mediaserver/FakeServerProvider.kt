@@ -25,6 +25,7 @@ internal class FakeServerProvider(
     val indexedIds = mutableMapOf<String, TrackingExternalIds>()
     val episodes = mutableMapOf<Pair<Int, Int>, ServerEpisode>()
     val reported = mutableListOf<ServerPlaybackEventType>()
+    val released = mutableListOf<String>()
     val playbackRequests = mutableListOf<ServerPlaybackRequest>()
     val searches = mutableListOf<Pair<ServerMediaKind, List<String>>>()
     val playedChanges = mutableListOf<Pair<String, Boolean>>()
@@ -140,6 +141,10 @@ internal class FakeServerProvider(
 
     override suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) {
         synchronized(reported) { reported += event.type }
+    }
+
+    override suspend fun release(session: ServerSession, playback: ServerPlaybackSession) {
+        synchronized(released) { released += playback.url }
     }
 
     override suspend fun externalIdIndex(

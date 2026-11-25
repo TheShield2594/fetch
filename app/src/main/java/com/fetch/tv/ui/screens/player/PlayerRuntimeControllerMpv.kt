@@ -44,7 +44,9 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
         view.applyBluetoothAudioRoute(currentAudioOutputRoute?.isBluetooth == true)
         view.setAudioDelayMs(_uiState.value.audioDelayMs)
         view.applyAspectMode(_uiState.value.aspectMode)
-        view.setPaused(false)
+        // initializePlayer sets userPausedManually for startPaused; honour it, or a retry while
+        // paused or in the background starts audible playback (#706).
+        view.setPaused(userPausedManually)
         applyPendingMpvSeekIfNeeded(view)
         hasRenderedFirstFrame = false
         endDetectionArmed = false
@@ -188,7 +190,9 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         view.applyBluetoothAudioRoute(currentAudioOutputRoute?.isBluetooth == true)
         view.setAudioDelayMs(_uiState.value.audioDelayMs)
         view.applyAspectMode(_uiState.value.aspectMode)
-        view.setPaused(false)
+        // initializePlayer sets userPausedManually for startPaused; honour it, or a retry while
+        // paused or in the background starts audible playback (#706).
+        view.setPaused(userPausedManually)
         applyPendingMpvSeekIfNeeded(view)
 
         hasRenderedFirstFrame = false
@@ -317,6 +321,14 @@ internal fun PlayerRuntimeController.startForLifecycle() {
     }
 }
 
+/** The player the MediaSession drives: its play and pause take the remote's path (#705). */
+internal fun PlayerRuntimeController.mediaSessionPlayer(player: androidx.media3.common.Player): SafeMediaSessionPlayer =
+    SafeMediaSessionPlayer(
+        player = player,
+        onPlay = { onEvent(PlayerEvent.OnPlay) },
+        onPause = { onEvent(PlayerEvent.OnPause) },
+    )
+
 internal fun PlayerRuntimeController.resumeForLifecycle() {
     isInBackground = false
 
@@ -341,10 +353,17 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
         // Restore automatic audio focus handling that was disabled in pauseForLifecycle().
         player.setAudioAttributes(player.audioAttributes, true)
 
+        // A pause for the background left a still frame with no controls; show them, and the
+        // pause overlay after its delay, as a pause from the remote does (#705).
+        if (userPausedManually && !_uiState.value.isPlaying) {
+            schedulePauseOverlay()
+            showControlsTemporarily()
+        }
+
         // Re-create the MediaSession so media controls work in the foreground.
         if (currentMediaSession == null) {
             try {
-                currentMediaSession = androidx.media3.session.MediaSession.Builder(context, SafeMediaSessionPlayer(player)).build()
+                currentMediaSession = androidx.media3.session.MediaSession.Builder(context, mediaSessionPlayer(player)).build()
                 updateMediaSessionMetadata()
             } catch (e: Exception) {
                 e.printStackTrace()

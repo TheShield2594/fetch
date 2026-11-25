@@ -149,6 +149,20 @@ class ServerPlaybackTest {
     }
 
     @Test
+    fun unstartedSessionsAreReleasedWithoutAStopAtZero() = runBlocking {
+        val harness = harness()
+        val first = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "1"), "src-1"))
+        harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "2"), "src-2"))
+        val third = harness.playback.prepare(ServerPlaybackTarget(ServerItemRef(harness.connection.id, "3"), "src-3"))
+        harness.playback.onPlaybackSnapshot(third.url, 0L, isPlaying = false, isLoading = true, isEnded = false)
+        harness.playback.stop(third.url)
+
+        assertTrue(harness.provider.reported.isEmpty())
+        assertTrue(first.url in harness.provider.released)
+        assertTrue(third.url in harness.provider.released)
+    }
+
+    @Test
     fun directPlayFailureFallsBackOnlyOnce() = runBlocking {
         val provider = FakeServerProvider()
         val harness = harness(provider)

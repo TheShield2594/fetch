@@ -887,6 +887,8 @@ internal fun PlayerRuntimeController.scheduleDeferredPlayerReinitialize(
     if (clearResumeProgress) {
         pendingResumeProgress = null
     }
+    // A re-init (fallbacks, server track switches) must not undo the user's pause (#706).
+    val paused = userPausedManually
     _uiState.update {
         it.copy(
             pendingSeekPosition = if (fromPositionMs > 0L) fromPositionMs else null,
@@ -898,7 +900,7 @@ internal fun PlayerRuntimeController.scheduleDeferredPlayerReinitialize(
         yield()
         runCatching {
             releasePlayer(flushPlaybackState = true)
-            initializePlayer(currentStreamUrl, currentHeaders)
+            initializePlayer(currentStreamUrl, currentHeaders, startPaused = paused)
         }.onFailure { e ->
             val message = e.toDisplayMessage(context)
             _uiState.update {

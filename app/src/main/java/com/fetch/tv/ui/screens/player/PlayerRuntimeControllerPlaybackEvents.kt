@@ -1129,12 +1129,16 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 showSeekOverlayUntilCommit()
             }
         }
-        PlayerEvent.OnCommitPreviewSeek -> {
+        PlayerEvent.OnCommitPreviewSeek,
+        PlayerEvent.OnCommitKeySeek -> {
             if (isLiveSeekBlocked()) return
             val requested = pendingPreviewSeekPosition
             if (requested != null) {
                 val target = requested
-                seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
+                // FF/Rewind keys land where they say, as their steps always did; the D-pad and
+                // seek bar snap to a keyframe.
+                val parameters = if (event == PlayerEvent.OnCommitKeySeek) SeekParameters.EXACT else SeekParameters.CLOSEST_SYNC
+                seekPlaybackTo(target, parameters)
                 updatePlaybackTimeline(currentPosition = target)
                 updateSeekFeedback(originMs = target, targetMs = target, committed = true)
                 pendingPreviewSeekPosition = null

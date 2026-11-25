@@ -859,8 +859,13 @@ fun PlayerScreen(
                     ) {
                         return@onKeyEvent true
                     }
+                    // Volume and mute belong to the system, and media keys still drive playback (#713).
+                    if (isSystemVolumeKey(keyEvent.nativeKeyEvent.keyCode)) return@onKeyEvent false
+                    if (isTransportMediaKey(keyEvent.nativeKeyEvent.keyCode)) {
+                        return@onKeyEvent handleTransportKey(keyEvent.nativeKeyEvent, uiState, viewModel)
+                    }
                     if (keyEvent.nativeKeyEvent.keyCode != KeyEvent.KEYCODE_BACK) {
-                        // While open, consume all non-back keys to avoid accidental dismissal.
+                        // While open, consume all other non-back keys to avoid accidental dismissal.
                         return@onKeyEvent true
                     }
                 }
@@ -882,6 +887,9 @@ fun PlayerScreen(
                 }
 
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
+                    if (isTransportMediaKey(keyEvent.nativeKeyEvent.keyCode)) {
+                        return@onKeyEvent handleTransportKey(keyEvent.nativeKeyEvent, uiState, viewModel)
+                    }
                     when (keyEvent.nativeKeyEvent.keyCode) {
                         KeyEvent.KEYCODE_DPAD_LEFT,
                         KeyEvent.KEYCODE_DPAD_RIGHT -> {
@@ -895,29 +903,39 @@ fun PlayerScreen(
                 }
 
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
+                    val keyCode = keyEvent.nativeKeyEvent.keyCode
+                    // A held key repeats ACTION_DOWN; toggles and opens act on the first press only (#711).
+                    val firstPress = keyEvent.nativeKeyEvent.repeatCount == 0
+                    // Volume and mute belong to the system, even over the pause overlay (#713).
+                    if (isSystemVolumeKey(keyCode)) return@onKeyEvent false
                     if (uiState.showPauseOverlay) {
-                        when (keyEvent.nativeKeyEvent.keyCode) {
+                        when (keyCode) {
                             KeyEvent.KEYCODE_DPAD_CENTER,
                             KeyEvent.KEYCODE_ENTER,
                             KeyEvent.KEYCODE_NUMPAD_ENTER,
                             KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
                             KeyEvent.KEYCODE_MEDIA_PLAY -> {
                                 // Resume directly from pause overlay in one click.
-                                viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                if (firstPress) viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                return@onKeyEvent true
                             }
                             KeyEvent.KEYCODE_MEDIA_PAUSE,
-                            KeyEvent.KEYCODE_MEDIA_STOP -> {
-                            }
+                            KeyEvent.KEYCODE_MEDIA_STOP -> return@onKeyEvent true
                             else -> {
                                 viewModel.onEvent(PlayerEvent.OnDismissPauseOverlay)
+                                // Other keys only dismiss, but FF/Rewind, skip and next/previous
+                                // also do their job (#713).
+                                if (!isTransportMediaKey(keyCode)) return@onKeyEvent true
                             }
                         }
-                        return@onKeyEvent true
                     }
-                    when (keyEvent.nativeKeyEvent.keyCode) {
+                    if (isTransportMediaKey(keyCode)) {
+                        return@onKeyEvent handleTransportKey(keyEvent.nativeKeyEvent, uiState, viewModel)
+                    }
+                    when (keyCode) {
                         KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> {
                             if (!uiState.showControls) {
-                                viewModel.onEvent(PlayerEvent.OnPlayPause)
+                                if (firstPress) viewModel.onEvent(PlayerEvent.OnPlayPause)
                                 true
                             } else {
                                 // Let the focused button handle it
@@ -946,7 +964,9 @@ fun PlayerScreen(
                         }
                         KeyEvent.KEYCODE_DPAD_UP -> {
                                 if (!uiState.showControls) {
-                                    if (playbackDetailsVisible) {
+                                    if (!firstPress) {
+                                        // Held Up: the first event opened the details; don't go on to Sources.
+                                    } else if (playbackDetailsVisible) {
                                         // The second Up goes on to the sources behind the details.
                                         showPlaybackDetails = false
                                         panelReturnFocus = panelButtonFocus.sources
@@ -985,72 +1005,6 @@ fun PlayerScreen(
                                 // Let focus system handle navigation when controls are visible
                                 false
                             }
-                        }
-                        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
-                            viewModel.onEvent(PlayerEvent.OnPlayPause)
-                            true
-                        }
-                        // Guard on play intent, not uiState.isPlaying: ExoPlayer reports
-                        // isPlaying=false while buffering even though it will resume.
-                        KeyEvent.KEYCODE_MEDIA_PLAY -> {
-                            viewModel.onEvent(PlayerEvent.OnPlay)
-                            true
-                        }
-                        KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                            viewModel.onEvent(PlayerEvent.OnPause)
-                            true
-                        }
-                        // Stop only ever pauses; it must never resume a paused player.
-                        KeyEvent.KEYCODE_MEDIA_STOP -> {
-                            viewModel.onEvent(PlayerEvent.OnPause)
-                            true
-                        }
-                        // With chapters, Next / Previous step through them; past the last chapter Next
-                        // still plays the next episode, and without chapters Previous restarts.
-                        KeyEvent.KEYCODE_MEDIA_NEXT -> {
-                            if (keyEvent.nativeKeyEvent.repeatCount == 0) {
-                                viewModel.onEvent(PlayerEvent.OnNextChapter(orNextEpisode = true))
-                            }
-                            true
-                        }
-                        KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
-                            if (keyEvent.nativeKeyEvent.repeatCount == 0) {
-                                viewModel.onEvent(PlayerEvent.OnPreviousChapter(orRestart = true))
-                            }
-                            true
-                        }
-                        KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
-                            viewModel.onEvent(
-                                PlayerEvent.OnSeekBy(
-                                    PlayerScrubRates.deltaMsForKeyRepeat(
-                                        repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                        forward = true,
-                                        steps = uiState.seekSteps
-                                    )
-                                )
-                            )
-                            true
-                        }
-                        KeyEvent.KEYCODE_MEDIA_REWIND -> {
-                            viewModel.onEvent(
-                                PlayerEvent.OnSeekBy(
-                                    PlayerScrubRates.deltaMsForKeyRepeat(
-                                        repeatCount = keyEvent.nativeKeyEvent.repeatCount,
-                                        forward = false,
-                                        steps = uiState.seekSteps
-                                    )
-                                )
-                            )
-                            true
-                        }
-                        // Skip keys move one step, the same as the transport's skip buttons.
-                        KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD -> {
-                            viewModel.onEvent(PlayerEvent.OnSeekForward)
-                            true
-                        }
-                        KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD -> {
-                            viewModel.onEvent(PlayerEvent.OnSeekBackward)
-                            true
                         }
                         // Menu opens the More row (showing the controls if needed) and closes it again.
                         KeyEvent.KEYCODE_MENU -> {
@@ -4614,6 +4568,58 @@ private val SEEK_BAR_FOCUSED_PLAYHEAD_RADIUS = 10.dp
 private const val PREFER_NEXT_TIME_DELAY_MS = 4_000L
 private const val PREFER_NEXT_TIME_VISIBLE_MS = 12_000L
 private const val PREFER_NEXT_TIME_MAX_AGE_MS = 3 * 60_000L
+
+private fun isSystemVolumeKey(keyCode: Int): Boolean = when (keyCode) {
+    KeyEvent.KEYCODE_VOLUME_UP,
+    KeyEvent.KEYCODE_VOLUME_DOWN,
+    KeyEvent.KEYCODE_VOLUME_MUTE,
+    KeyEvent.KEYCODE_MUTE -> true
+    else -> false
+}
+
+/**
+ * The remote's media keys, the same from the main handler and over the pause and subtitle-delay
+ * overlays (#713). Toggles ignore key repeat, and a held FF/Rewind previews like the D-pad and
+ * seeks once on release instead of seeking on every repeat (#711).
+ */
+private fun handleTransportKey(event: KeyEvent, uiState: PlayerUiState, viewModel: PlayerViewModel): Boolean {
+    val firstPress = event.repeatCount == 0
+    if (event.action == KeyEvent.ACTION_UP) {
+        when (event.keyCode) {
+            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
+            KeyEvent.KEYCODE_MEDIA_REWIND -> viewModel.onEvent(PlayerEvent.OnCommitKeySeek)
+        }
+        return true
+    }
+    if (event.action != KeyEvent.ACTION_DOWN) return true
+    when (event.keyCode) {
+        KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> if (firstPress) viewModel.onEvent(PlayerEvent.OnPlayPause)
+        // Guard on play intent, not uiState.isPlaying: ExoPlayer reports
+        // isPlaying=false while buffering even though it will resume.
+        KeyEvent.KEYCODE_MEDIA_PLAY -> viewModel.onEvent(PlayerEvent.OnPlay)
+        // Stop only ever pauses; it must never resume a paused player.
+        KeyEvent.KEYCODE_MEDIA_PAUSE,
+        KeyEvent.KEYCODE_MEDIA_STOP -> viewModel.onEvent(PlayerEvent.OnPause)
+        // With chapters, Next / Previous step through them; past the last chapter Next
+        // still plays the next episode, and without chapters Previous restarts.
+        KeyEvent.KEYCODE_MEDIA_NEXT -> if (firstPress) viewModel.onEvent(PlayerEvent.OnNextChapter(orNextEpisode = true))
+        KeyEvent.KEYCODE_MEDIA_PREVIOUS -> if (firstPress) viewModel.onEvent(PlayerEvent.OnPreviousChapter(orRestart = true))
+        KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
+        KeyEvent.KEYCODE_MEDIA_REWIND -> viewModel.onEvent(
+            PlayerEvent.OnPreviewSeekBy(
+                PlayerScrubRates.deltaMsForKeyRepeat(
+                    repeatCount = event.repeatCount,
+                    forward = event.keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
+                    steps = uiState.seekSteps
+                )
+            )
+        )
+        // Skip keys move one step, the same as the transport's skip buttons.
+        KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD -> viewModel.onEvent(PlayerEvent.OnSeekForward)
+        KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD -> viewModel.onEvent(PlayerEvent.OnSeekBackward)
+    }
+    return true
+}
 
 private fun isTransportMediaKey(keyCode: Int): Boolean = when (keyCode) {
     KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,

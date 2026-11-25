@@ -588,6 +588,19 @@ internal abstract class MediaBrowserProvider(
     override suspend fun chapters(session: ServerSession, itemId: String): List<Chapter> =
         item(session, itemId, "Chapters").chapters.toChapters()
 
+    override suspend fun release(session: ServerSession, playback: ServerPlaybackSession) {
+        if (playback.playMethod == ServerPlayMethod.DIRECT_PLAY) return
+        val playSessionId = playback.playSessionId ?: return
+        // Ends the transcode without reporting a position, which could overwrite the resume point (#702).
+        client.execute(
+            method = "DELETE",
+            baseUrl = session.apiRoot,
+            path = "/Videos/ActiveEncodings",
+            token = session.token,
+            query = mapOf("deviceId" to client.deviceId, "playSessionId" to playSessionId)
+        )
+    }
+
     internal fun isSupportedVersion(version: String?): Boolean = isAtLeastVersion(version, minimumVersion)
 
     // ─── Live TV (#660). Jellyfin and Emby share these routes. ───

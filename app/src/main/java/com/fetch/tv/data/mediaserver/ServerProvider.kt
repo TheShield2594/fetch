@@ -102,6 +102,12 @@ interface ServerProvider {
     /** The chapters of [itemId], in the order the server lists them; empty when it has none. */
     suspend fun chapters(session: ServerSession, itemId: String): List<Chapter> = emptyList()
 
+    /**
+     * Ends a session that never reported START, freeing any transcode it holds without sending a
+     * position: a STOP at 0 can overwrite the user's server-side resume point (#702).
+     */
+    suspend fun release(session: ServerSession, playback: ServerPlaybackSession) = Unit
+
     suspend fun signOut(session: ServerSession) = Unit
 
     /** The server's Live TV channels, in its own order; empty when it has no tuner or guide (#660). */

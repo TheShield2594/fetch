@@ -86,7 +86,8 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
     }
 
     startupEngineFailoverTriggered = false
-    userPausedManually = false
+    // Switching engines keeps a paused player paused (#706).
+    val paused = userPausedManually
     resetErrorRetryState()
     hidePlayerEngineSwitchInfoJob?.cancel()
     _uiState.update {
@@ -113,7 +114,8 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
         url = currentStreamUrl,
         headers = currentHeaders,
         overrideInternalPlayerEngine = targetEngine,
-        allowEngineFailover = true
+        allowEngineFailover = true,
+        startPaused = paused
     )
 
     hidePlayerEngineSwitchInfoJob = scope.launch {

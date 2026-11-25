@@ -433,6 +433,12 @@ internal class PlexProvider(
         }
     }
 
+    override suspend fun release(session: ServerSession, playback: ServerPlaybackSession) {
+        val sessionId = playback.playSessionId ?: return
+        playbackDurations.remove(sessionId)
+        if (playback.playMethod != ServerPlayMethod.DIRECT_PLAY) stopTranscode(session, sessionId)
+    }
+
     private suspend fun stopTranscode(session: ServerSession, sessionId: String) {
         try {
             client.execute(

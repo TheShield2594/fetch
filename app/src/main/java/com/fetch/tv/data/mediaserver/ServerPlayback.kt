@@ -194,7 +194,21 @@ class ServerPlayback internal constructor(
         }
 
         fun stop() = synchronized(lock) {
-            send(ServerPlaybackEventType.STOP, lastPositionMs, isPaused = true)
+            if (started) {
+                send(ServerPlaybackEventType.STOP, lastPositionMs, isPaused = true)
+            } else {
+                // Never started: the server has no progress from us, so a STOP at 0 would only
+                // risk overwriting its resume point (#702). Just free the transcode, if any.
+                scope.launch {
+                    try {
+                        withTimeoutOrNull(REPORT_TIMEOUT_MS) { provider.release(session, playback) }
+                    } catch (error: CancellationException) {
+                        throw error
+                    } catch (error: Exception) {
+                        Log.w(TAG, "Releasing unstarted $label failed: ${error.serverFailure()} (${error.message})")
+                    }
+                }
+            }
             events.close()
         }
 

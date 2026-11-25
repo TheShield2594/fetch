@@ -3332,7 +3332,7 @@ private fun String?.normalizeImageUrl(): String? = this
 
 /**
  * A show restored in Settings must be resolved again this session: the older-seed pass
- * skips shows it already processed or has a cached resolution for.
+ * skips shows it already processed, has a cached resolution for, or validated recently.
  */
 internal fun HomeViewModel.releaseRestoredNextUpDismissals(current: NextUpDismissals) {
     val previous = cwLastNextUpDismissalIds
@@ -3340,6 +3340,7 @@ internal fun HomeViewModel.releaseRestoredNextUpDismissals(current: NextUpDismis
     val restored = previous.orEmpty() - current.byContentId.keys
     if (restored.isEmpty()) return
     cwProcessedOlderSeedContentIds -= restored
+    fullyWatchedSeriesIds.clearValidation(restored, profileManager.activeProfileId.value)
     synchronized(cwNextUpResolutionCache) {
         cwNextUpResolutionCache.keys.removeAll { key -> key.substringBefore('|') in restored }
     }
@@ -3364,8 +3365,10 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
 ) {
     if (isNextUp) {
         val dismissedId = contentId.trim()
+        // The shown state first: a shuffle card exists only there, and it carries the seed.
+        val shown = uiState.value
         val state = _uiState.value
-        val info = (state.continueWatchingItems + state.upcomingItems)
+        val info = (shown.continueWatchingItems + shown.upcomingItems + state.continueWatchingItems + state.upcomingItems)
             .firstNotNullOfOrNull { item ->
                 (item as? ContinueWatchingItem.NextUp)?.info?.takeIf { it.contentId.trim() == dismissedId }
             }

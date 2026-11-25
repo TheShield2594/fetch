@@ -81,6 +81,13 @@ class ApkDownloader @Inject constructor(
             }
 
             destinationFile
+        }.recoverCatching { error ->
+            // OkHttp reports a body cut short of its Content-Length itself, before the byte
+            // count check above runs. It is the same incomplete download.
+            if (error is java.net.ProtocolException || error is java.io.EOFException) {
+                throw ApkVerificationException("Truncated: ${error.message}")
+            }
+            throw error
         }.onFailure { error ->
             destinationFile.delete()
             if (error is CancellationException) throw error

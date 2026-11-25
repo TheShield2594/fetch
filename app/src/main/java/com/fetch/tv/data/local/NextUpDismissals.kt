@@ -27,7 +27,8 @@ data class NextUpDismissal(
 
     /**
      * Whether this dismissal still hides a Next Up for the show. Unknown values on the
-     * caller's side (null) don't bring the show back.
+     * caller's side (null) don't bring the show back. [hasAired] must come from a known
+     * release date, not a display fallback.
      */
     fun hides(
         seedSeason: Int?,
@@ -35,21 +36,31 @@ data class NextUpDismissal(
         season: Int? = null,
         episode: Int? = null,
         hasAired: Boolean? = null
-    ): Boolean {
-        if (isLegacy) return true
-        if (this.seedSeason != null && this.seedEpisode != null &&
-            seedSeason != null && seedEpisode != null &&
-            episodeOrder(seedSeason, seedEpisode) != episodeOrder(this.seedSeason, this.seedEpisode)
-        ) {
-            return false
-        }
-        if (this.season != null && this.episode != null && season != null && episode != null &&
-            episodeOrder(season, episode) > episodeOrder(this.season, this.episode)
-        ) {
-            return false
-        }
-        if (hadAired == false && hasAired == true) return false
-        return true
+    ): Boolean = isLegacy || !(
+        seedMovedForward(seedSeason, seedEpisode) ||
+            offersLaterEpisode(season, episode) ||
+            dismissedEpisodeAired(season, episode, hasAired)
+        )
+
+    /** Newer watch history arrived. An older seed (a stale cache or sync) doesn't count. */
+    private fun seedMovedForward(seedSeason: Int?, seedEpisode: Int?): Boolean {
+        val stored = order(this.seedSeason, this.seedEpisode) ?: return false
+        val current = order(seedSeason, seedEpisode) ?: return false
+        return current > stored
+    }
+
+    private fun offersLaterEpisode(season: Int?, episode: Int?): Boolean {
+        val stored = order(this.season, this.episode) ?: return false
+        val offered = order(season, episode) ?: return false
+        return offered > stored
+    }
+
+    /** The unaired episode that was dismissed has aired; another episode airing doesn't count. */
+    private fun dismissedEpisodeAired(season: Int?, episode: Int?, hasAired: Boolean?): Boolean {
+        if (hadAired != false || hasAired != true) return false
+        val stored = order(this.season, this.episode) ?: return true
+        val offered = order(season, episode) ?: return true
+        return offered == stored
     }
 
     internal fun encode(): String = listOf(
@@ -95,8 +106,8 @@ data class NextUpDismissal(
         internal fun contentIdOf(raw: String): String =
             raw.trim().substringBefore(SEPARATOR).substringBefore("|").trim()
 
-        private fun episodeOrder(season: Int, episode: Int): Long =
-            season.toLong() * 100_000L + episode.toLong()
+        private fun order(season: Int?, episode: Int?): Long? =
+            if (season == null || episode == null) null else season.toLong() * 100_000L + episode.toLong()
     }
 }
 
@@ -125,17 +136,6 @@ data class NextUpDismissals(val byContentId: Map<String, NextUpDismissal> = empt
     fun hidesBeforeResolving(contentId: String): Boolean =
         byContentId[contentId.trim()]?.isLegacy == true
 
-    /**
-     * For a watch-history seed that is never resolved to an offered episode (episode shuffle). An unaired episode
-     * that was dismissed may have aired since, so those seeds still go on to be resolved
-     * and are checked again with [hides].
-     */
-    fun hidesSeed(contentId: String, seedSeason: Int?, seedEpisode: Int?): Boolean {
-        val dismissal = byContentId[contentId.trim()] ?: return false
-        if (dismissal.hadAired == false) return false
-        return dismissal.hides(seedSeason, seedEpisode)
-    }
-
     companion object {
         val EMPTY = NextUpDismissals()
 
@@ -153,3 +153,19 @@ data class NextUpDismissals(val byContentId: Map<String, NextUpDismissal> = empt
         }
     }
 }
+
+fun NextUpDismissals.hides(cached: CachedNextUpItem): Boolean = hides(
+    contentId = cached.contentId,
+    seedSeason = cached.seedSeason,
+    seedEpisode = cached.seedEpisode,
+    season = cached.season,
+    episode = cached.episode,
+    hasAired = knownAired(cached.hasAired, cached.released, cached.releaseTimestamp)
+)
+
+/**
+ * [hasAired] only when a release date backs it. A missing date reads as aired for display,
+ * which must not undo a dismissal of an unaired episode.
+ */
+fun knownAired(hasAired: Boolean, released: String?, releaseTimestamp: Long?): Boolean? =
+    hasAired.takeIf { releaseTimestamp != null || !released.isNullOrBlank() }

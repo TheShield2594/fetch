@@ -10,6 +10,7 @@ import com.fetch.tv.core.profile.LauncherExposureGate
 import com.fetch.tv.core.recommendations.TvRecommendationManager
 import com.fetch.tv.data.local.CachedInProgressItem
 import com.fetch.tv.data.local.CachedNextUpItem
+import com.fetch.tv.data.local.hides
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.TraktSettingsDataStore
@@ -204,7 +205,7 @@ class AndroidTvChannelSyncService @Inject constructor(
         val filteredNextUp = nextUp
             .filter { it.hasAired }  // Never show unaired in launcher — can't be played
             .filter { cutoffMs == null || it.lastWatched >= cutoffMs }
-            .filter { !settings.dismissedNextUp.hides(it.contentId, it.seedSeason, it.seedEpisode, it.season, it.episode, it.hasAired) }
+            .filter { !settings.dismissedNextUp.hides(it) }
 
         // Deduplicate: in-progress wins over next-up for same contentId
         val inProgressContentIds = filteredInProgress.mapTo(mutableSetOf()) { it.contentId }

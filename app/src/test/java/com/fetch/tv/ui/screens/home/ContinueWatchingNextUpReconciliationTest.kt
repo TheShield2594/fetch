@@ -104,6 +104,34 @@ class ContinueWatchingNextUpReconciliationTest {
         assertEquals(listOf(resolved), result)
     }
 
+    @Test
+    fun `seed advance alone brings a dismissed show back`() {
+        val resolved = nextUp("series", season = 1, episode = 3, seedSeason = 1, seedEpisode = 3)
+        val result = reconcileConclusiveNextUpItems(
+            currentItems = emptyList(),
+            resolvedItems = listOf(resolved),
+            conclusivelyProcessedContentIds = setOf("series"),
+            dismissedNextUps = dismissed(
+                NextUpDismissal("series", seedSeason = 1, seedEpisode = 2, season = 1, episode = 3, hadAired = true)
+            )
+        )
+        assertEquals(listOf(resolved), result)
+    }
+
+    @Test
+    fun `later offered episode alone brings a dismissed show back`() {
+        val resolved = nextUp("series", season = 2, episode = 1, seedSeason = 1, seedEpisode = 2)
+        val result = reconcileConclusiveNextUpItems(
+            currentItems = emptyList(),
+            resolvedItems = listOf(resolved),
+            conclusivelyProcessedContentIds = setOf("series"),
+            dismissedNextUps = dismissed(
+                NextUpDismissal("series", seedSeason = 1, seedEpisode = 2, season = 1, episode = 3, hadAired = true)
+            )
+        )
+        assertEquals(listOf(resolved), result)
+    }
+
     private fun dismissed(vararg entries: NextUpDismissal) =
         NextUpDismissals(entries.associateBy { it.contentId })
 

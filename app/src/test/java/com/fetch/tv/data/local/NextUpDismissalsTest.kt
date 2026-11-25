@@ -37,14 +37,26 @@ class NextUpDismissalsTest {
     fun `same position stays hidden`() {
         val stored = dismissals(dismissal)
         assertTrue(stored.hides("tt1", 1, 4, 1, 5, true))
-        assertTrue(stored.hidesSeed("tt1", 1, 4))
+        assertTrue(stored.hides("tt1", 1, 4))
     }
 
     @Test
     fun `newer history brings the show back`() {
         val stored = dismissals(dismissal)
         assertFalse(stored.hides("tt1", 1, 6, 1, 7, true))
-        assertFalse(stored.hidesSeed("tt1", 1, 6))
+        assertFalse(stored.hides("tt1", 1, 6))
+    }
+
+    @Test
+    fun `an older seed does not bring the show back`() {
+        assertTrue(dismissals(dismissal).hides("tt1", 1, 2, 1, 5, true))
+    }
+
+    @Test
+    fun `unknown air state does not undo an unaired dismissal`() {
+        assertTrue(dismissals(dismissal.copy(hadAired = false)).hides("tt1", 1, 4, 1, 5, null))
+        assertEquals(null, knownAired(hasAired = true, released = null, releaseTimestamp = null))
+        assertEquals(true, knownAired(hasAired = true, released = "2026-01-01", releaseTimestamp = null))
     }
 
     @Test
@@ -57,8 +69,10 @@ class NextUpDismissalsTest {
         val stored = dismissals(dismissal.copy(hadAired = false))
         assertTrue(stored.hides("tt1", 1, 4, 1, 5, false))
         assertFalse(stored.hides("tt1", 1, 4, 1, 5, true))
-        // The seed alone can't tell whether it aired, so it isn't filtered early.
-        assertFalse(stored.hidesSeed("tt1", 1, 4))
+        // Shuffle has only the seed: an unaired dismissal holds until the seed moves.
+        assertTrue(stored.hides("tt1", 1, 4))
+        // Another, earlier episode airing doesn't count.
+        assertTrue(stored.hides("tt1", 1, 4, 1, 3, true))
     }
 
     @Test

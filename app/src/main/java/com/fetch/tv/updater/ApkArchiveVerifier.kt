@@ -81,7 +81,9 @@ object ApkArchiveVerifier {
     @SuppressLint("PackageManagerGetSignatures")
     private fun archiveInfo(pm: PackageManager, apkFile: File): PackageInfo? {
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            PackageManager.GET_SIGNING_CERTIFICATES
+            // Android 9 and 10 only collect an archive's certificates when GET_SIGNATURES is
+            // set; GET_SIGNING_CERTIFICATES alone leaves signingInfo null there.
+            PackageManager.GET_SIGNATURES or PackageManager.GET_SIGNING_CERTIFICATES
         } else {
             PackageManager.GET_SIGNATURES
         }

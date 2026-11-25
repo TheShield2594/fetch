@@ -1,6 +1,8 @@
 package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.data.local.NextUpDismissal
+import com.fetch.tv.data.local.hides
+import com.fetch.tv.data.local.knownAired
 import com.fetch.tv.data.local.NextUpDismissals
 import android.os.SystemClock
 import android.util.Log
@@ -341,6 +343,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 val nextUpSeeds = snapshot.nextUpSeeds
                 val daysCap = snapshot.daysCap
                 val dismissedNextUp = snapshot.dismissedNextUp
+                releaseRestoredNextUpDismissals(dismissedNextUp)
                 val showUnairedNextUp = snapshot.showUnairedNextUp
                 val nextUpFromFurthestEpisode = snapshot.nextUpFromFurthestEpisode
                 val continueWatchingSortMode = snapshot.continueWatchingSortMode
@@ -516,7 +519,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     // Skip if this show is already in-progress (suppression)
                     if (inProgressOnly.any { it.progress.contentId == cached.contentId }) return@mapNotNull null
                     // Skip dismissed items
-                    if (dismissedNextUp.hides(cached.contentId, cached.seedSeason, cached.seedEpisode, cached.season, cached.episode, cached.hasAired)) return@mapNotNull null
+                    if (dismissedNextUp.hides(cached)) return@mapNotNull null
                     // Recalculate release alert flags from persisted timestamps so that
                     // badges appear correctly even when the cache was written before the
                     // new season aired (fixes stale isNewSeasonRelease/isReleaseAlert/hasAired).
@@ -3327,6 +3330,21 @@ private fun String?.normalizeImageUrl(): String? = this
     ?.trim()
     ?.takeIf { it.isNotEmpty() }
 
+/**
+ * A show restored in Settings must be resolved again this session: the older-seed pass
+ * skips shows it already processed or has a cached resolution for.
+ */
+internal fun HomeViewModel.releaseRestoredNextUpDismissals(current: NextUpDismissals) {
+    val previous = cwLastNextUpDismissalIds
+    cwLastNextUpDismissalIds = current.byContentId.keys
+    val restored = previous.orEmpty() - current.byContentId.keys
+    if (restored.isEmpty()) return
+    cwProcessedOlderSeedContentIds -= restored
+    synchronized(cwNextUpResolutionCache) {
+        cwNextUpResolutionCache.keys.removeAll { key -> key.substringBefore('|') in restored }
+    }
+}
+
 /** Whether a stored dismissal still hides this Next Up (TheShield2594/fetch#648). */
 internal fun NextUpDismissals.hides(info: NextUpInfo): Boolean = hides(
     contentId = info.contentId,
@@ -3334,8 +3352,9 @@ internal fun NextUpDismissals.hides(info: NextUpInfo): Boolean = hides(
     seedEpisode = info.seedEpisode,
     season = info.season,
     episode = info.episode,
-    hasAired = info.hasAired
+    hasAired = knownAired(info.hasAired, info.released, info.releaseTimestamp)
 )
+
 
 internal fun HomeViewModel.removeContinueWatchingPipeline(
     contentId: String,

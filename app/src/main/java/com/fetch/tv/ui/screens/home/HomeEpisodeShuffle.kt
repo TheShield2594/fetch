@@ -59,7 +59,9 @@ private fun HomeViewModel.finishedShuffleSeeds() = combine(
         profile.settings(seed.contentId, seed.contentType).enabled &&
             (seed.season ?: 0) > 0 && seed.episode != null &&
             (cutoff == null || seed.lastWatched >= cutoff) &&
-            !dismissed.hidesSeed(seed.contentId, seed.season, seed.episode) &&
+            // A shuffle seed never resolves to an offered episode, so a dismissal holds
+            // until the user watches past it.
+            !dismissed.hides(seed.contentId, seed.season, seed.episode) &&
             !watchProgressRepository.isDroppedShow(seed.contentId) &&
             shouldUseAsCompletedSeed(seed)
     }.sortedByDescending { it.lastWatched }.distinctBy { it.contentId }

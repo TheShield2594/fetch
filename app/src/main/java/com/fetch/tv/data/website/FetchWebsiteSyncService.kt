@@ -190,6 +190,7 @@ class FetchWebsiteSyncService @Inject constructor(
         if (remote.isEmpty()) return false
         remoteProfiles = remote
         val local = profileManager.profiles.value.associateBy { it.id }
+        forgetProfilesDeletedOnWebsite(local.keys, remote)
         profileDataStore.replaceAllProfiles(remote.map { FetchWebsiteMappings.toUserProfile(it, local[it.slot]) })
 
         // Parental limits come from the website while paired: it is where they are set.
@@ -207,6 +208,26 @@ class FetchWebsiteSyncService @Inject constructor(
         remote.filter { !it.hasPin }.forEach { lockStateDataStore.setLocalPinHash(it.slot, null) }
         Log.d(TAG, "Pulled ${remote.size} profiles from the website")
         return true
+    }
+
+    /**
+     * A profile deleted on the website leaves the list on the pull, and its slot is the next one a
+     * new profile gets. Without this its watch history, settings, sign-ins and lock state stayed in
+     * the slot for that new profile to inherit (#670), so it gets the same cleanup as a delete made
+     * on this TV. Done before the list is replaced, as a delete here is, so the slot is refused to
+     * stale writers once it is gone and handed back when a profile takes it again.
+     *
+     * Skipped while this TV has profile changes the website hasn't had: a profile made here since
+     * the last push isn't on the website yet, and its absence there doesn't mean it was deleted.
+     */
+    private suspend fun forgetProfilesDeletedOnWebsite(localSlots: Set<Int>, remote: List<WebsiteSlottedProfile>) {
+        if (store.profilesRevision != 0L) return
+        val remoteSlots = remote.mapTo(HashSet()) { it.slot }
+        localSlots.filter { it != PRIMARY_SLOT && it !in remoteSlots }.forEach { slot ->
+            runSuspendCatching { profileManager.deleteProfile(slot) }
+                .onSuccess { Log.d(TAG, "Removed profile $slot's data: it was deleted on the website") }
+                .onFailure { Log.w(TAG, "Couldn't remove the data of profile $slot, deleted on the website", it) }
+        }
     }
 
     /**

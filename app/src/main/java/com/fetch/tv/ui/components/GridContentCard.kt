@@ -2,6 +2,7 @@ package com.fetch.tv.ui.components
 
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onLongClick
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 
@@ -109,6 +110,7 @@ fun GridContentCard(
     val requestHeightPx = remember(density, cardHeight) { with(density) { cardHeight.roundToPx() }.coerceAtLeast(1) }
     var isFocused by remember { mutableStateOf(false) }
     var longPressTriggered by remember { mutableStateOf(false) }
+    val optionsLabel = stringResource(R.string.cd_card_options)
     val longPressKeyTracker = rememberLongPressKeyTracker()
 
     Column(
@@ -126,7 +128,16 @@ fun GridContentCard(
             },
             modifier = Modifier
                 // The title once, on the card: the artwork, logo and overlay title are decoration.
-                .semantics { contentDescription = item.name }
+                .semantics {
+                    contentDescription = item.name
+                    // Holding OK or pressing Menu opens the options; TalkBack needs it as a long click.
+                    if (onLongPress != null) {
+                        onLongClick(label = optionsLabel) {
+                            onLongPress()
+                            true
+                        }
+                    }
+                }
                 .then(
                     if (globalLandscape) Modifier.fillMaxWidth().aspectRatio(PosterShape.LANDSCAPE.aspectRatio())
                     else Modifier.width(posterCardStyle.width).height(cardHeight)

@@ -852,6 +852,7 @@ private fun EpisodeCard(
                 onClick()
             }
         },
+        onLongPress = onLongPress,
         modifier = Modifier
             .width(cardMetrics.cardWidth)
             .focusRequester(focusRequester)

@@ -330,11 +330,17 @@ const profilesRoutes: FastifyPluginAsync = async (app) => {
     // The parental check above and this write are one step: a parental field
     // only lands if the limits are still the ones it was checked against, so
     // a grown-up tightening them meanwhile can't be undone by this request.
-    const written = await writeProfileGuarded(profile.id, data, {
-      checkAuthority: () => hasParentalAuthority(request),
-      strict: true,
-      initial: profile,
-    });
+    // In a transaction that locks the acting profile while authority is
+    // asked, so a PIN set on it (or kids mode turned on) meanwhile waits for
+    // the write instead of slipping in between (#678).
+    const written = await prisma.$transaction((tx) =>
+      writeProfileGuarded(profile.id, data, {
+        checkAuthority: () => hasParentalAuthority(request, tx, { lockIn: tx }),
+        strict: true,
+        initial: profile,
+        client: tx,
+      })
+    );
     if (written.status === "missing") return reply.code(404).send({ error: "Profile not found" });
     if (written.status === "forbidden") return reply.code(403).send(PARENTAL_AUTHORITY_RESPONSE);
     if (written.status === "conflict") {

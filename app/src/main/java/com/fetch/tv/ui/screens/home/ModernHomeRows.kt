@@ -1391,6 +1391,7 @@ private fun ModernCarouselCard(
                     onClick()
                 }
             },
+            onLongPress = onLongPress,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(cardHeight)

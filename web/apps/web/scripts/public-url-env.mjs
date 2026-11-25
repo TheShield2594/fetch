@@ -19,11 +19,13 @@ const expansion = expandPublicUrlEnv(env, NAMES);
 const summary = describeExpansion(expansion, env);
 if (summary) console.error(summary);
 for (const warning of expansion.warnings) console.error(`WARNING: ${warning}`);
-if (!env.VITE_API_BASE) {
+const missing = NAMES.filter((name) => !env[name]);
+if (missing.length > 0) {
   console.error(
-    "WARNING: neither FETCH_PUBLIC_URL nor VITE_API_BASE is set. Behind a reverse proxy the page still finds " +
-      "the API at /api, but on the plain LAN layout (website on :7002) browsers will block the API on :7000. " +
-      "Set FETCH_PUBLIC_URL in .env to the address you open the website at."
+    `WARNING: ${missing.join(" and ")} could not be worked out (no FETCH_PUBLIC_URL). Behind a reverse proxy ` +
+      "the page still finds the API at /api and the add-on at /addon, but on the plain LAN layout (website on " +
+      ":7002) browsers will block them on :7000/:7001. Set FETCH_PUBLIC_URL in .env to the address you open " +
+      "the website at."
   );
 }
 

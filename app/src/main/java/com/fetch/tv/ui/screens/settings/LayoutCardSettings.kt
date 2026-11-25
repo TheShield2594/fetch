@@ -129,9 +129,7 @@ private fun HiddenNextUpRow(
             // Nothing is "selected": each row is an action.
             selectedValue = "",
             onOptionSelected = { contentId -> onEvent(LayoutSettingsEvent.RestoreHiddenNextUp(contentId)) },
-            onDismiss = { showDialog = false },
-            width = 520.dp,
-            maxHeight = 420.dp
+            onDismiss = { showDialog = false }
         )
     }
     // Restoring the last one closes the dialog, so a later dismissal doesn't reopen it.

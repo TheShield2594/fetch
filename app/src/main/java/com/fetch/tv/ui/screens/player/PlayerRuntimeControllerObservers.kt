@@ -629,7 +629,7 @@ internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Playe
 
 internal fun PlayerRuntimeController.resolvePendingInitialResumePosition(): Long {
     val saved = pendingResumeProgress ?: return 0L
-    if (LivePlaybackUiPolicy.isLiveContentType(contentType)) {
+    if (LivePlaybackUiPolicy.isLiveContent(contentType, contentId)) {
         clearPendingInitialResumePosition()
         return 0L
     }

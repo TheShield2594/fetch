@@ -16,6 +16,15 @@ object LivePlaybackUiPolicy {
         return contentType.equals("channel", ignoreCase = true)
     }
 
+    /**
+     * [isLiveContentType], or a channel opened from the Live TV guide (#660): those are live
+     * whatever type their addon gave them, even before the player has said so, so they never
+     * resume behind the live edge or land in Continue Watching.
+     */
+    fun isLiveContent(contentType: String?, contentId: String?): Boolean {
+        return isLiveContentType(contentType) || com.fetch.tv.core.livetv.LiveTvChannels.isLiveChannel(contentId)
+    }
+
     fun nextLiveLatch(playerReportsLive: Boolean, previouslyLatched: Boolean): Boolean {
         return previouslyLatched || playerReportsLive
     }
@@ -31,11 +40,12 @@ object LivePlaybackUiPolicy {
     fun isLivePlayback(
         playerReportsLive: Boolean,
         contentType: String?,
-        latchedLive: Boolean = false
+        latchedLive: Boolean = false,
+        contentId: String? = null
     ): Boolean {
         return latchedLive ||
             playerReportsLive ||
-            isLiveContentType(contentType)
+            isLiveContent(contentType, contentId)
     }
 }
 

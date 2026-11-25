@@ -11,6 +11,8 @@ import com.fetch.tv.data.mediaserver.ServerFailure
 import com.fetch.tv.data.mediaserver.ServerIndexEntry
 import com.fetch.tv.data.mediaserver.ServerItemDetails
 import com.fetch.tv.data.mediaserver.ServerLibrary
+import com.fetch.tv.data.mediaserver.ServerLiveChannel
+import com.fetch.tv.data.mediaserver.ServerLiveProgram
 import com.fetch.tv.data.mediaserver.ServerMediaKind
 import com.fetch.tv.data.mediaserver.ServerPage
 import com.fetch.tv.data.mediaserver.ServerPlayMethod
@@ -431,6 +433,9 @@ internal abstract class MediaBrowserProvider(
             subtitleStreamIndex = request.subtitleStreamIndex,
             maxStreamingBitrate = MAX_STREAMING_BITRATE,
             enableDirectPlay = request.capabilities.allowDirectPlay,
+            // A Live TV channel's source has to be opened before it plays; the server ignores
+            // this for anything that isn't live (#660).
+            autoOpenLiveStream = true,
             deviceProfile = deviceProfile(request.capabilities)
         )
         val response = client.execute(
@@ -477,6 +482,7 @@ internal abstract class MediaBrowserProvider(
                     "playSessionId" to info.playSessionId,
                     "deviceId" to deviceId,
                     "tag" to source.eTag,
+                    "liveStreamId" to source.liveStreamId,
                     API_KEY to session.token
                 )
             ) to ServerPlayMethod.DIRECT_PLAY
@@ -579,6 +585,72 @@ internal abstract class MediaBrowserProvider(
     }
 
     internal fun isSupportedVersion(version: String?): Boolean = isAtLeastVersion(version, minimumVersion)
+
+    // ─── Live TV (#660). Jellyfin and Emby share these routes. ───
+
+    override suspend fun liveTvChannels(session: ServerSession): List<ServerLiveChannel> {
+        val result = get(
+            session,
+            Endpoint("/LiveTv/Channels"),
+            ItemsResult.serializer(),
+            mapOf(
+                "userId" to session.userId,
+                "addCurrentProgram" to "true",
+                "enableImageTypes" to "Primary",
+                "imageTypeLimit" to "1",
+                "enableTotalRecordCount" to "false",
+                "limit" to MAX_LIVE_CHANNELS.toString()
+            )
+        )
+        val mapper = mapper(session)
+        return result.items.map(mapper::liveChannel)
+    }
+
+    override suspend fun liveTvPrograms(
+        session: ServerSession,
+        channelItemIds: List<String>,
+        fromMs: Long,
+        toMs: Long
+    ): List<ServerLiveProgram> {
+        if (channelItemIds.isEmpty()) return emptyList()
+        val mapper = mapper(session)
+        // A long channel list goes in batches, so the query string stays a sensible length.
+        return channelItemIds.chunked(PROGRAM_CHANNEL_BATCH).flatMap { batch ->
+            get(
+                session,
+                Endpoint("/LiveTv/Programs"),
+                ItemsResult.serializer(),
+                mapOf(
+                    "userId" to session.userId,
+                    "channelIds" to batch.joinToString(","),
+                    "minEndDate" to java.time.Instant.ofEpochMilli(fromMs).toString(),
+                    "maxStartDate" to java.time.Instant.ofEpochMilli(toMs).toString(),
+                    "sortBy" to "StartDate",
+                    "enableImages" to "false",
+                    "enableTotalRecordCount" to "false",
+                    "fields" to "Overview"
+                )
+            ).items.mapNotNull { mapper.liveProgram(it) }
+        }
+    }
+
+    override suspend fun liveTvRecordings(session: ServerSession, limit: Int): List<ServerTitle> {
+        val result = get(
+            session,
+            Endpoint("/LiveTv/Recordings"),
+            ItemsResult.serializer(),
+            mapOf(
+                "userId" to session.userId,
+                "limit" to limit.toString(),
+                "fields" to "Overview",
+                "enableImageTypes" to "Primary,Backdrop",
+                "imageTypeLimit" to "1",
+                "enableTotalRecordCount" to "false"
+            )
+        )
+        val mapper = mapper(session)
+        return result.items.map(mapper::recording)
+    }
 
     private suspend fun item(session: ServerSession, itemId: String, fields: String): BaseItem =
         get(session, itemEndpoint(session.userId, itemId), BaseItem.serializer(), mapOf("fields" to fields))
@@ -683,6 +755,9 @@ internal abstract class MediaBrowserProvider(
     private companion object {
         const val API_KEY = "api_key"
         const val TITLE_LOOKUP_LIMIT = 20
+        // Live TV (#660): a big IPTV line-up is hundreds of channels; the guide asks for them in batches.
+        const val MAX_LIVE_CHANNELS = 1000
+        const val PROGRAM_CHANNEL_BATCH = 50
         const val MAX_STREAMING_BITRATE = 1_000_000_000L
         const val LIST_FIELDS = "Overview,Genres,ProviderIds,PremiereDate"
         const val DETAIL_FIELDS = "Overview,Genres,ProviderIds,People,Studios,PremiereDate,EndDate"

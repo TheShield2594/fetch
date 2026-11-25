@@ -323,6 +323,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.layout_hide_unreleased,
         R.string.layout_overall_ratings,
         R.string.layout_collapse_sidebar,
+        R.string.layout_live_tv,
         R.string.layout_section_home,
         R.string.layout_section_content,
         R.string.layout_section_sidebar,

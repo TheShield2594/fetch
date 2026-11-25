@@ -369,7 +369,8 @@ class PlayerRuntimeController(
         val isLive = LivePlaybackUiPolicy.isLivePlayback(
             playerReportsLive = playerReportsLive,
             contentType = contentType,
-            latchedLive = livePlaybackLatched
+            latchedLive = livePlaybackLatched,
+            contentId = contentId
         )
         val watched = liveWatchClock.watchedDurationMs(
             isLive = isLive,

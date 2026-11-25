@@ -70,7 +70,13 @@ internal data class BaseItem(
     @SerialName("ParentIndexNumber") val parentIndexNumber: Int? = null,
     @SerialName("LocationType") val locationType: String? = null,
     @SerialName("UserData") val userData: UserItemData? = null,
-    @SerialName("MediaSources") val mediaSources: List<MediaSource> = emptyList()
+    @SerialName("MediaSources") val mediaSources: List<MediaSource> = emptyList(),
+    // Live TV (#660): channels carry a number and what's on; programmes their slot and channel.
+    @SerialName("ChannelNumber") val channelNumber: String? = null,
+    @SerialName("ChannelId") val channelId: String? = null,
+    @SerialName("StartDate") val startDate: String? = null,
+    @SerialName("EpisodeTitle") val episodeTitle: String? = null,
+    @SerialName("CurrentProgram") val currentProgram: BaseItem? = null
 ) {
     val isMissing: Boolean
         get() = locationType.equals("Virtual", ignoreCase = true)
@@ -109,6 +115,8 @@ internal data class MediaSource(
     @SerialName("SupportsDirectPlay") val supportsDirectPlay: Boolean = false,
     @SerialName("SupportsDirectStream") val supportsDirectStream: Boolean = false,
     @SerialName("TranscodingUrl") val transcodingUrl: String? = null,
+    /** Set on a Live TV source the server opened for this playback (#660). */
+    @SerialName("LiveStreamId") val liveStreamId: String? = null,
     @SerialName("DefaultAudioStreamIndex") val defaultAudioStreamIndex: Int? = null,
     @SerialName("MediaStreams") val mediaStreams: List<MediaStream> = emptyList()
 ) {

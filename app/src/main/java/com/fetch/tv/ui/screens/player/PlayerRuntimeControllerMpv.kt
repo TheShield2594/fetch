@@ -712,6 +712,22 @@ internal fun PlayerRuntimeController.seekPlaybackTo(
     }
 }
 
+/**
+ * Back to the live edge (#660). ExoPlayer's default position for a live window is the live
+ * edge; mpv's is the end of what it has, which is the same place for a live stream.
+ */
+internal fun PlayerRuntimeController.seekToLiveEdge() {
+    if (!_playbackTimeline.value.isLive) return
+    if (isUsingMpvEngine()) {
+        mpvView?.let { view ->
+            val end = currentPlaybackDurationMs()
+            if (end > 0L) view.seekToMs(end)
+        }
+    } else {
+        _exoPlayer?.seekToDefaultPosition()
+    }
+}
+
 internal fun PlayerRuntimeController.setPlaybackSpeedInternal(speed: Float) {
     if (isUsingMpvEngine()) {
         mpvView?.setPlaybackSpeed(speed)

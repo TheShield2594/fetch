@@ -4,6 +4,8 @@ import com.fetch.tv.core.tracking.TrackingExternalIds
 import com.fetch.tv.core.tracking.parseTrackingExternalIds
 import com.fetch.tv.data.mediaserver.ServerCandidate
 import com.fetch.tv.data.mediaserver.ServerItemRef
+import com.fetch.tv.data.mediaserver.ServerLiveChannel
+import com.fetch.tv.data.mediaserver.ServerLiveProgram
 import com.fetch.tv.data.mediaserver.ServerMediaKind
 import com.fetch.tv.data.mediaserver.ServerPlaybackTarget
 import com.fetch.tv.data.mediaserver.ServerTitle
@@ -158,6 +160,48 @@ internal class MediaBrowserMapper(
         }
     }
 
+    /** A Live TV channel (#660), with what's on now when the server said. */
+    fun liveChannel(item: BaseItem): ServerLiveChannel = ServerLiveChannel(
+        itemId = item.id,
+        name = item.name?.takeIf { it.isNotBlank() } ?: item.channelNumber.orEmpty(),
+        number = item.channelNumber?.takeIf { it.isNotBlank() },
+        logo = item.primaryImage(),
+        currentProgram = item.currentProgram?.let { liveProgram(it, channelItemId = item.id) }
+    )
+
+    /** A guide entry; null without a readable start and end. */
+    fun liveProgram(item: BaseItem, channelItemId: String? = item.channelId): ServerLiveProgram? {
+        val channel = channelItemId ?: return null
+        val start = parseServerDate(item.startDate) ?: return null
+        val end = parseServerDate(item.endDate) ?: return null
+        if (end <= start) return null
+        return ServerLiveProgram(
+            channelItemId = channel,
+            title = item.name?.takeIf { it.isNotBlank() } ?: return null,
+            startMs = start,
+            endMs = end,
+            overview = item.overview,
+            episodeTitle = item.episodeTitle
+        )
+    }
+
+    /** A finished recording, played through [ref] like a film. */
+    fun recording(item: BaseItem): ServerTitle = ServerTitle(
+        MetaPreview(
+            id = ref(item.id),
+            type = ContentType.MOVIE,
+            name = item.name ?: item.id,
+            poster = item.primaryImage(),
+            posterShape = PosterShape.LANDSCAPE,
+            background = item.backdropImage(),
+            logo = null,
+            description = item.overview,
+            releaseInfo = item.productionYear?.toString(),
+            imdbRating = null,
+            genres = item.genres
+        )
+    )
+
     fun image(itemId: String, type: String, tag: String, maxWidth: Int? = null, maxHeight: Int? = null): String =
         buildUrl(
             baseUrl,
@@ -239,4 +283,12 @@ private fun resolutionLabel(stream: MediaStream): String? {
         height > 0 -> "${height}p"
         else -> null
     }
+}
+
+/** A date from Jellyfin or Emby ("2026-11-25T16:00:00.0000000Z", or with an offset) in epoch ms. */
+internal fun parseServerDate(value: String?): Long? {
+    val text = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+    return runCatching { java.time.OffsetDateTime.parse(text).toInstant().toEpochMilli() }.getOrNull()
+        ?: runCatching { java.time.Instant.parse(text).toEpochMilli() }.getOrNull()
+        ?: runCatching { java.time.LocalDateTime.parse(text).toInstant(java.time.ZoneOffset.UTC).toEpochMilli() }.getOrNull()
 }

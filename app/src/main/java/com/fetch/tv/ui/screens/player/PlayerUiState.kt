@@ -347,6 +347,8 @@ sealed class PlayerEvent {
     data class OnPreviewSeekBy(val deltaMs: Long) : PlayerEvent()
     data object OnCommitPreviewSeek : PlayerEvent()
     data class OnSeekTo(val position: Long) : PlayerEvent()
+    /** Back to the live edge of a live stream that was paused or rewound (#660). */
+    data object OnGoLive : PlayerEvent()
     data class OnSelectAudioTrack(val index: Int) : PlayerEvent()
     data class OnSetAudioDelayMs(val delayMs: Int) : PlayerEvent()
     data class OnSetAudioAmplificationDb(val db: Int) : PlayerEvent()

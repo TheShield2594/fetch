@@ -76,6 +76,7 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Forward30
@@ -1593,6 +1594,7 @@ fun PlayerScreen(
                 onPlayPause = { viewModel.onEvent(PlayerEvent.OnPlayPause) },
                 onPlayNextEpisode = { viewModel.onEvent(PlayerEvent.OnPlayNextEpisode) },
                 onSeekBy = { viewModel.onEvent(PlayerEvent.OnSeekBy(it)) },
+                onGoLive = { viewModel.onEvent(PlayerEvent.OnGoLive) },
                 onShowEpisodesPanel = {
                     panelReturnFocus = panelButtonFocus.episodes
                     viewModel.onEvent(PlayerEvent.OnShowEpisodesPanel)
@@ -2527,6 +2529,7 @@ internal fun PlayerControlsOverlay(
     onPlayPause: () -> Unit,
     onPlayNextEpisode: () -> Unit,
     onSeekBy: (Long) -> Unit,
+    onGoLive: () -> Unit = {},
     onShowEpisodesPanel: () -> Unit,
     onShowSourcesPanel: () -> Unit,
     onShowQueuePanel: () -> Unit,
@@ -2935,6 +2938,21 @@ internal fun PlayerControlsOverlay(
                         size = TRANSPORT_PLAY_SIZE,
                         iconSize = 36.dp
                     )
+                    if (isLivePlayback) {
+                        // Back to now after pausing or rewinding a live channel (#660).
+                        ControlButton(
+                            icon = Icons.Default.LiveTv,
+                            contentDescription = stringResource(R.string.player_go_live),
+                            onClick = onGoLive,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            focusLabel = stringResource(R.string.player_go_live),
+                            labelAbove = true,
+                            size = TRANSPORT_SKIP_SIZE,
+                            iconSize = TRANSPORT_SKIP_ICON_SIZE
+                        )
+                    }
                     if (!isLivePlayback) {
                         val forwardSeconds = uiState.seekSteps.forwardSeconds
                         val forwardIcon = seekForwardIcon(forwardSeconds)
@@ -3028,6 +3046,7 @@ internal fun PlayerControlsOverlay(
 /** The transport is the biggest target on screen: play/pause first, the skips beside it. */
 private val TRANSPORT_PLAY_SIZE = 72.dp
 private val TRANSPORT_SKIP_SIZE = 56.dp
+private val TRANSPORT_SKIP_ICON_SIZE = TRANSPORT_SKIP_SIZE * 4 / 7
 
 /** The numbered icon for a back step, when there is one for that length. */
 private fun seekBackIcon(seconds: Int): ImageVector? = when (seconds) {

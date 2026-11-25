@@ -31,6 +31,25 @@ class ServerLinkCode(
     override fun toString(): String = "ServerLinkCode(id=$id)"
 }
 
+/** A Live TV channel on a media server (#660). [itemId] plays like any other item. */
+data class ServerLiveChannel(
+    val itemId: String,
+    val name: String,
+    val number: String? = null,
+    val logo: String? = null,
+    val currentProgram: ServerLiveProgram? = null
+)
+
+/** One programme in a server's guide, in epoch milliseconds. */
+data class ServerLiveProgram(
+    val channelItemId: String,
+    val title: String,
+    val startMs: Long,
+    val endMs: Long,
+    val overview: String? = null,
+    val episodeTitle: String? = null
+)
+
 interface ServerProvider {
     val id: String
     val displayName: String
@@ -80,6 +99,20 @@ interface ServerProvider {
     suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) = Unit
 
     suspend fun signOut(session: ServerSession) = Unit
+
+    /** The server's Live TV channels, in its own order; empty when it has no tuner or guide (#660). */
+    suspend fun liveTvChannels(session: ServerSession): List<ServerLiveChannel> = emptyList()
+
+    /** Programmes on [channelItemIds] that overlap [fromMs] to [toMs]. */
+    suspend fun liveTvPrograms(
+        session: ServerSession,
+        channelItemIds: List<String>,
+        fromMs: Long,
+        toMs: Long
+    ): List<ServerLiveProgram> = emptyList()
+
+    /** Finished Live TV recordings, newest first; each plays like a library item. */
+    suspend fun liveTvRecordings(session: ServerSession, limit: Int): List<ServerTitle> = emptyList()
 
     suspend fun collectionPage(
         session: ServerSession,

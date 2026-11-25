@@ -75,10 +75,19 @@ web/
 
    - **Required:** `API_TOKEN` and `POSTGRES_PASSWORD` — `docker compose up` will refuse to start without them. Generate a token with `openssl rand -hex 32`; the API refuses to start in production with one shorter than 32 characters, since every encryption and signing key is derived from it. Changing it later has a cost — see [Secrets at rest](#secrets-at-rest).
    - **Required, after the first start:** `FETCH_ADDON_KEY`, the add-on service's own credential, derived from `API_TOKEN` — see step 2.
-   - **Recommended for LAN devices** (phone/Apple TV): update the URLs in `api`, `addon`, and `web` services to use your LAN IP instead of `localhost`
+   - **Recommended:** `FETCH_PUBLIC_URL` — the address you open the website at: `http://LAN-IP:7002` on a plain LAN install, or `https://fetch.example.com` behind a [reverse proxy](#reverse-proxy-setup). Every other public URL (the API's, the add-on's, the allowed origins, the Trakt redirect) is derived from it, and each service logs what it derived when it starts. Nothing defaults to an example address any more; a service warns at startup if any URL still names `192.168.1.25`, the example address these docs use.
    - **Optional integrations:** `TMDB_API_KEY`, `TRAKT_CLIENT_ID` (in `api` service). Trakt needs only the app's Client ID: sign-in uses PKCE, so there is no Client Secret to set. `TMDB_API_KEY` can also be set from the app instead: the setup wizard asks for it, and **Settings → TMDB Metadata** changes it later. A key saved there takes precedence over this variable. When the variable is the key in use (none is saved in Settings), that Settings section is left out, since there is nothing to enter.
    - **Optional:** `SENTRY_DSN` — reports unhandled errors from the `api`, `addon`, and `web` services to a Sentry project (or compatible service). Leave unset to disable; no error data leaves your server by default.
    - **Optional:** `CSP_CONNECT_SRC_EXTRA` (in `web` service) — comma-separated extra origins the browser may connect to, on top of `VITE_API_BASE`, `VITE_ADDON_BASE` and `SENTRY_DSN`, which the web server's `Content-Security-Policy` already allows. Only needed if some browsers reach the API at a different address than `VITE_API_BASE` — e.g. one set per-browser under Settings → "API base URL", or a domain used alongside the LAN IP.
+
+   **How the public URLs are derived from `FETCH_PUBLIC_URL`:**
+
+   | `FETCH_PUBLIC_URL` | API | Add-on | Allowed origins |
+   | --- | --- | --- | --- |
+   | `http://LAN-IP:7002` (on port 7002) | `http://LAN-IP:7000` | `http://LAN-IP:7001` | the website, plus `localhost:7002` / `127.0.0.1:7002` |
+   | anything else, e.g. `https://fetch.example.com` | `https://fetch.example.com/api` | `https://fetch.example.com/addon` | the website |
+
+   Each variable below still overrides its own value; the rest stay derived. An overridden `FETCH_API_PUBLIC` or `ADDON_PUBLIC_BASE` is also what the web page uses, so the two sides can't disagree. Upgrading with the old variables already in `.env` changes nothing: explicit values win.
 
    **Internal vs. public URLs:** the `api` and `addon` services distinguish between the URL used for service-to-service traffic inside the Docker network and the URL your browser/Apple TV/Omni actually reach:
 
@@ -86,7 +95,7 @@ web/
    - `FETCH_API_PUBLIC` (api service) — externally reachable URL for the API, used to build the Trakt OAuth redirect URI. Set this to the LAN IP or domain you actually use to reach the API.
    - `ADDON_PUBLIC_BASE` (addon service) — externally reachable URL for the addon, used when generating manifest/catalog URLs for clients like Apple TV.
    - `FETCH_WEB_PUBLIC` (api and addon services) — externally reachable URL for the web UI, used to build the "Configure" link Stremio shows on the addon's manifest (it redirects to the Settings page), and the link a notification channel gives you to tap.
-   - `VITE_ADDON_BASE` (web service) — externally reachable URL for the addon, used to build the manifest URL shown on the Settings page. Should match `ADDON_PUBLIC_BASE`.
+   - `VITE_API_BASE` / `VITE_ADDON_BASE` (web service) — the API and addon URLs the browser uses. They follow `FETCH_API_PUBLIC` / `ADDON_PUBLIC_BASE`; set them only to make them differ. With nothing configured at all, the page looks for the API at the address it was opened at, using the same two layouts.
 
 2. Start everything:
 
@@ -228,7 +237,7 @@ http://192.168.1.25:7002
 >
 > Everything else works fine over the LAN URL; it's only these that need a
 > secure origin. To get them, put Fetch behind a proxy with a certificate —
-> see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup) — and install from
+> see [Reverse proxy setup](#reverse-proxy-setup) — and install from
 > the `https://` address instead. If you'd rather not, **Settings →
 > Notifications** has channels (ntfy, Gotify, Discord, Apprise, or any webhook) that
 > deliver the same alerts over plain http.
@@ -261,7 +270,7 @@ Fetch's add-on service speaks the standard Stremio add-on protocol, so it works 
 
 3. Confirm installation. Fetch's catalogs and metadata now appear inside Stremio's **Board**/**Discover** views.
 
-> **Important:** Android TV cannot use `localhost` URLs either — use your LAN IP (or your public domain, if set up via the Nginx Proxy Manager section below) so the URL is reachable from the TV.
+> **Important:** Android TV cannot use `localhost` URLs either — use your LAN IP (or your public domain, if set up as in [Reverse proxy setup](#reverse-proxy-setup)) so the URL is reachable from the TV.
 
 The Stremio app is the way to use Fetch on a TV. The web app is built for touch and pointer input: it has no D-pad/arrow-key focus navigation and no 10-foot layout, so while it will load in an Android TV browser, driving it with a remote is painful. Apple TV has no web browser at all, so Omni plus the add-on is the only route there.
 
@@ -311,7 +320,7 @@ Away from home, or wherever multicast doesn't reach, type **the address you open
   </service-group>
   ```
 
-- **When the TV can't see it** (the TV on another subnet or VLAN, or a router that filters multicast), choose **Enter the address** on the TV and type the API's address, `http://LAN-IP:7000` — or your domain, if you set up one address for everything as in [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup).
+- **When the TV can't see it** (the TV on another subnet or VLAN, or a router that filters multicast), choose **Enter the address** on the TV and type the API's address, `http://LAN-IP:7000` — or your domain, if you set up one address for everything as in [Reverse proxy setup](#reverse-proxy-setup).
 
 ### Watch state and lists on the Fetch TV app
 
@@ -473,7 +482,27 @@ Fetch is invite-only. There is no public sign-up page: the first account (create
 - **Removing someone:** **Settings → Invites & Accounts** deletes their account and everything in it.
 - **Locked out of the admin account:** `API_TOKEN` still works against the API directly (see [docs/api.md](docs/api.md)), for example to make an invite for a new account.
 
-## Nginx Proxy Manager Setup
+## Reverse proxy setup
+
+Behind a reverse proxy, everything lives on one address: the website at `/`, the API at `/api/` and the add-on at `/addon/`. Set that one address in `.env` and the rest follows:
+
+```bash
+FETCH_PUBLIC_URL=https://fetch.example.com
+TRUST_PROXY=172.16.0.0/12          # the proxy's address as the api container sees it; see below
+ADDON_REQUIRE_SIGNED_URLS=true     # before the add-on faces the internet
+```
+
+Every proxy needs the same three routes. The services strip the `/api` and `/addon` prefixes themselves (and answer without them too), so forward the path unchanged:
+
+| Path | Service | Port |
+| --- | --- | --- |
+| `/api/` | `api` | 7000 |
+| `/addon/` | `addon` | 7001 |
+| everything else | `web` | 7002 |
+
+The sections below show that layout in Nginx Proxy Manager, Caddy and Traefik, and how to reach Fetch through Tailscale or a Cloudflare Tunnel without opening a port.
+
+### Nginx Proxy Manager
 
 Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, `fetch.example.com`):
 
@@ -482,14 +511,7 @@ Configure Nginx Proxy Manager with one Proxy Host for your domain (for example, 
   - `/api/` → port `7000`
   - `/addon/` → port `7001`, **with `ADDON_REQUIRE_SIGNED_URLS=true` in `.env`**. Stremio can't send a login, so the add-on's install URL carries a per-profile key instead, and that setting makes the add-on refuse every URL without one. Without it, anyone who can reach the add-on can read the oldest profile's lists, or any profile's whose ID they know. See [Security](#security).
 
-Then point Fetch at that one address in `.env`, so the site and the API share an origin:
-
-```bash
-VITE_API_BASE=https://fetch.example.com/api
-FETCH_API_PUBLIC=https://fetch.example.com/api
-FETCH_WEB_PUBLIC=https://fetch.example.com
-FETCH_ALLOWED_ORIGINS=https://fetch.example.com
-```
+Then point Fetch at that one address in `.env`, so the site and the API share an origin: `FETCH_PUBLIC_URL=https://fetch.example.com`. That sets the API to `https://fetch.example.com/api`, the add-on to `https://fetch.example.com/addon`, and the allowed origin to `https://fetch.example.com`.
 
 With one address for everything, the TV only needs that one URL too: type `fetch.example.com` and it finds the API at `/api`. The `mdns` service also announces `FETCH_API_PUBLIC` (here `https://fetch.example.com/api`) on the LAN.
 
@@ -503,7 +525,7 @@ Name the proxy rather than setting `TRUST_PROXY=true`. `true` trusts the whole f
 
 The `/api/` and `/addon/` prefixes above are stripped by the services themselves, which expect exactly those two by default. If your proxy mounts them somewhere else, set `API_PROXY_PATH_PREFIXES` / `ADDON_PROXY_PATH_PREFIXES` to match — they are separate variables because the two services need different values, and because giving the api `/addon` would strip the prefix off its own built-in Stremio manifest routes.
 
-Set `ADDON_PUBLIC_BASE` and `VITE_ADDON_BASE` to `https://fetch.example.com/addon`, and install the add-on in Stremio or Omni from the URL **Settings → Stremio Addon** shows, which has this shape:
+`FETCH_PUBLIC_URL` already puts the add-on at `https://fetch.example.com/addon`; install it in Stremio or Omni from the URL **Settings → Stremio Addon** shows, which has this shape:
 
 ```text
 https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
@@ -512,6 +534,94 @@ https://fetch.example.com/addon/u/PROFILE-ID/PROFILE-KEY/manifest.json
 See [Profiles and the add-on URL](#profiles-and-the-add-on-url) for why the profile and its key are part of the URL. The same signed URL works from anywhere, at home or not, so there is no separate LAN install to keep.
 
 LAN URLs stay available too, such as `http://LAN-IP:7002` for the site and `http://LAN-IP:7001/u/PROFILE-ID/PROFILE-KEY/manifest.json` for the add-on.
+
+### Caddy
+
+Caddy gets a certificate for the domain by itself. If it runs in Docker, put it on the stack's `fetch` network and use the service names; on the host, use `localhost:7000` and so on.
+
+```caddyfile
+fetch.example.com {
+	handle /api/* {
+		reverse_proxy api:7000
+	}
+	handle /addon/* {
+		reverse_proxy addon:7001
+	}
+	handle {
+		reverse_proxy web:7002
+	}
+}
+```
+
+`handle` passes the path on unchanged; `handle_path` would strip the prefix, which also works, since the services answer with or without it. `TRUST_PROXY` is Caddy's address on the Docker network (`172.16.0.0/12` covers the default range).
+
+### Traefik
+
+With Traefik watching Docker, add labels in a `docker-compose.override.yml` next to `docker-compose.yml`, so updating the main file doesn't lose them. This assumes an entry point named `websecure` and a certificate resolver named `le`; use your own names.
+
+```yaml
+services:
+  api:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fetch-api.rule=Host(`fetch.example.com`) && PathPrefix(`/api`)
+      - traefik.http.routers.fetch-api.entrypoints=websecure
+      - traefik.http.routers.fetch-api.tls.certresolver=le
+      - traefik.http.services.fetch-api.loadbalancer.server.port=7000
+  addon:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fetch-addon.rule=Host(`fetch.example.com`) && PathPrefix(`/addon`)
+      - traefik.http.routers.fetch-addon.entrypoints=websecure
+      - traefik.http.routers.fetch-addon.tls.certresolver=le
+      - traefik.http.services.fetch-addon.loadbalancer.server.port=7001
+  web:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.fetch-web.rule=Host(`fetch.example.com`)
+      - traefik.http.routers.fetch-web.entrypoints=websecure
+      - traefik.http.routers.fetch-web.tls.certresolver=le
+      - traefik.http.services.fetch-web.loadbalancer.server.port=7002
+```
+
+Traefik must share a Docker network with these services: attach it to the stack's `fetch` network, or add Traefik's network to the three services. No `StripPrefix` middleware is needed; the services strip the prefix themselves. Traefik prefers the longer rule, so `/api` and `/addon` win over the website's catch-all without priorities.
+
+### Tailscale
+
+To reach Fetch from your own devices without exposing it to the internet, run [Tailscale Serve](https://tailscale.com/kb/1312/serve) on the server. It gives the machine an HTTPS name on your tailnet, such as `https://nas.your-tailnet.ts.net`:
+
+```bash
+tailscale serve --bg --set-path /api http://127.0.0.1:7000
+tailscale serve --bg --set-path /addon http://127.0.0.1:7001
+tailscale serve --bg http://127.0.0.1:7002
+```
+
+The api and add-on answer with or without their prefix, so it doesn't matter that `--set-path` strips it. Then set `FETCH_PUBLIC_URL=https://nas.your-tailnet.ts.net`, and `TRUST_PROXY=127.0.0.1` since Tailscale connects from the host itself. Only devices on your tailnet can reach it. Use [Funnel](https://tailscale.com/kb/1223/funnel) instead of Serve only if something outside it needs to, and set `ADDON_REQUIRE_SIGNED_URLS=true` first.
+
+### Cloudflare Tunnel
+
+A [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) publishes Fetch on your domain without opening a port on the router. Run `cloudflared` as one more service on the stack's `fetch` network, and give the tunnel three public hostname routes for the same hostname, in this order:
+
+| Path | Service |
+| --- | --- |
+| `api/*` | `http://api:7000` |
+| `addon/*` | `http://addon:7001` |
+| *(empty)* | `http://web:7002` |
+
+```yaml
+# docker-compose.override.yml
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    restart: unless-stopped
+    networks:
+      - fetch
+```
+
+Then set `FETCH_PUBLIC_URL=https://fetch.example.com`, `TRUST_PROXY=172.16.0.0/12` (cloudflared's address on the Docker network), and `ADDON_REQUIRE_SIGNED_URLS=true`, since the add-on now faces the internet. Pin the `cloudflared` image to a version once it works, as with the Fetch images.
 
 ## Backup & Restore
 
@@ -580,7 +690,7 @@ Fetch is designed for self-hosting on a trusted local network (LAN), not for dir
 - The Stremio add-on protocol sends no credentials, so the API's built-in catalog manifest (`/addon/stremio/...`) cannot sit behind `API_TOKEN`. It is instead gated by an unguessable per-profile secret in the URL path (`/addon/stremio/<secret>/manifest.json`), derived from `API_TOKEN` and served to that profile from `GET /addon/config`; requests without a valid secret get the token check like any other route, and the secret decides which profile's lists are served, so one add-on URL cannot read another profile's library. Rotating `API_TOKEN` invalidates every add-on URL — reinstall from Settings afterwards.
 - The separate add-on service (port `7001`, the full-featured one Settings links to) can't take a login either, so Settings gives it the same kind of per-profile key in the path: `/u/<profileId>/<key>/`. With `ADDON_REQUIRE_SIGNED_URLS=true` it serves nothing else, and a wrong key gets a 404. Under the default `auto` it also answers the older keyless `/p/<profileId>/` and prefix-less URLs while the install has one account, and refuses them once there is a second (if the API can't be asked, it refuses). Those URLs let anyone who can reach the port read the profile named in the URL (or the oldest profile), so set `true` before the port leaves your LAN. Its one write endpoint, scrobble, is separately protected: it takes a bearer token derived from `API_TOKEN`, which the service never emits. The service itself never holds `API_TOKEN` — see [The add-on's key](#the-add-ons-key).
 - Linking a Trakt account is CSRF-protected: `GET /trakt/oauth/authorize` (which requires the API token) mints a single-use `state` that expires in 10 minutes, and the callback rejects anything else — so a link someone else sends you cannot silently bind your install to their Trakt account. Sign-in is the Authorization Code flow with PKCE on `auth.trakt.tv`: the code Trakt returns is only exchangeable with a one-time verifier that never leaves the server, and no Client Secret is used.
-- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Nginx Proxy Manager Setup](#nginx-proxy-manager-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and use account webhook links rather than `WEBHOOK_SECRET` for any media server outside your LAN.
+- If you do expose Fetch beyond your LAN, put it behind a reverse proxy with TLS (e.g. Nginx Proxy Manager, see [Reverse proxy setup](#reverse-proxy-setup)), set `ADDON_REQUIRE_SIGNED_URLS=true` before proxying the add-on service, and use account webhook links rather than `WEBHOOK_SECRET` for any media server outside your LAN.
 - All API routes are rate-limited globally (200 req/min/IP), with tighter per-route limits on sensitive endpoints: PIN verification (`POST /profiles/:id/verify`, 10/min/IP), the Trakt OAuth authorize/callback routes (10/min/IP), the Plex/Jellyfin/Emby webhooks (60/min/IP) and the built-in Stremio manifest/catalog routes (240/min/IP — they answer unauthenticated callers, but a Stremio home screen fetches one request per catalog, so the budget covers several refreshes a minute rather than a single request). The add-on service itself allows 300 req/min per signed install URL, or per client address for the keyless URLs; one Stremio home screen asks for every catalog at once, and only list catalogs take part in search. Calls from the Stremio addon service get their own 1000 req/min bucket rather than sharing the browser's — every Stremio client reaches the API from that one container's IP. The addon identifies itself with a token derived from `API_TOKEN` (never the raw token), carried in `FETCH_ADDON_KEY`, so no browser credential can draw on the addon's budget. The limiter's counters are in-memory and per-process, so they assume the documented single-`api`-container deployment; running multiple API replicas would give each its own independent budget.
 - The media-server webhook endpoints (`/webhooks/plex`, `/webhooks/jellyfin`, `/webhooks/emby`) authenticate with a secret sent as a query param or header: either an account's own webhook key (`fwh_…`, made under Settings, stored only as a hash, and limited to that account's profiles) or the shared `WEBHOOK_SECRET`, which acts for the admin account. None of the three servers sign their outgoing webhooks, so this is the strongest verification available. Account keys are meant to be used from outside your network, for a friend's own media server. Treat `WEBHOOK_SECRET` like a password and keep it on your LAN, where your own media servers run. If you must route them through a reverse proxy, set `WEBHOOK_ALLOWED_IPS` to a comma-separated allowlist of your media servers' IPs (requires `TRUST_PROXY` to be configured correctly) as a second layer of defense. Where you put the secret matters — see [Webhook secret placement](#webhook-secret-placement).
 - Container logs are capped at 10MB × 3 files per service (`docker-compose.yml`'s `x-logging` block) so they can't grow unbounded on the host over a long-running, unattended deployment.

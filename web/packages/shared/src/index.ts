@@ -3,6 +3,7 @@ export * from "./catalogs.js";
 export * from "./parse-bool.js";
 export * from "./pin.js";
 export * from "./proxy.js";
+export * from "./public-url.js";
 export * from "./redact-url.js";
 export * from "./sentry.js";
 export * from "./service-client.js";

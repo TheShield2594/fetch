@@ -130,8 +130,9 @@ const NOT_FOUND_MESSAGE = "That code is wrong or has expired. Check the TV for a
  * `/devices/pair/poll` here, with that secret, collects its token as usual.
  *
  * The address comes from the browser confirming, which knows where it reached
- * this API and website: `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` default to an
- * example IP, so they are only used when the browser's is a loopback address.
+ * this API and website: `FETCH_API_PUBLIC` and `FETCH_WEB_PUBLIC` used to
+ * default to an example IP and may still be stale in an old `.env`, so they are
+ * only used when the browser's is a loopback address.
  */
 const confirmThroughHub = async (
   request: FastifyRequest,

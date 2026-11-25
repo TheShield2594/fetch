@@ -10,6 +10,7 @@
     "./contracts": "./dist/api-contracts.js",
     "./api-cache-routes": "./dist/api-cache-routes.js",
     "./pin": "./dist/pin.js",
+    "./public-url": "./dist/public-url.js",
     "./tv-settings": "./dist/tv-settings.js"
   },
   "scripts": {

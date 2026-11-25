@@ -9,6 +9,7 @@
  * modules describe them.
  */
 
+import { defaultBasesForLocation } from "@fetch/shared/public-url";
 import { invalidateAll as invalidateMemoryCache, setCacheScope } from "../utils/dataCache";
 
 declare global {
@@ -20,14 +21,20 @@ declare global {
 
 const stripTrailingSlash = (url: string) => url.replace(/\/+$/, "");
 
+// With no address configured, the page assumes the stack's own layout: opened
+// on the web port 7002, the API and add-on are the same host on 7000 and 7001;
+// opened anywhere else (a reverse proxy), they are at /api and /addon. The web
+// container normally fills both in from FETCH_PUBLIC_URL (#644).
+const LOCATION_BASES = defaultBasesForLocation(window.location);
+
 const API_BASE_DEFAULT = stripTrailingSlash(
-  window.__FETCH_API_BASE__ || import.meta.env.VITE_API_BASE || "http://localhost:7000"
+  window.__FETCH_API_BASE__ || import.meta.env.VITE_API_BASE || LOCATION_BASES.api
 );
 // Base URL of the dedicated apps/addon service (the full-featured Stremio
 // addon with meta/search/genre support) — distinct from the API
 // server above, which only hosts a thinner catalog-only manifest.
 const ADDON_BASE_DEFAULT = stripTrailingSlash(
-  window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || "http://localhost:7001"
+  window.__FETCH_ADDON_BASE__ || import.meta.env.VITE_ADDON_BASE || LOCATION_BASES.addon
 );
 const PROFILE_ID_KEY = "fetch_profile_id";
 /**

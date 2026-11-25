@@ -1,3 +1,5 @@
+// First: fills the public URLs from FETCH_PUBLIC_URL before anything reads them.
+import "./lib/public-url-env.js";
 import { Sentry } from "./lib/sentry.js";
 import { app } from "./app.js";
 import { ADDON_CREDENTIALS } from "./lib/config.js";

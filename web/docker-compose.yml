@@ -10,6 +10,13 @@
 # Rolling back is the same edit with the previous tag, followed by
 # `docker compose pull && docker compose up -d`. Keep the four images on the
 # same tag — the migrate image applies the schema the api image expects.
+#
+# Where people reach the stack is one setting too: FETCH_PUBLIC_URL in .env,
+# the address you open the website at (http://<LAN-IP>:7002, or your domain
+# behind a reverse proxy). Each service derives the API, add-on and website
+# URLs it needs from it at start and logs what it derived. The per-URL
+# variables below (FETCH_API_PUBLIC, VITE_API_BASE, …) still override it; left
+# unset, they default to empty, never to an example address.
 
 x-logging: &default-logging
   driver: json-file
@@ -95,14 +102,17 @@ services:
       # parameters). 1–60000, default 1000; 0 turns the logging off.
       DATABASE_SLOW_QUERY_MS: ${DATABASE_SLOW_QUERY_MS}
       API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
-      FETCH_ALLOWED_ORIGINS: ${FETCH_ALLOWED_ORIGINS:-http://192.168.1.25:7002,http://localhost:7002,http://127.0.0.1:7002}
-      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-http://192.168.1.25:7000}
+      # The address people open the website at; the public URLs below are
+      # derived from it when they are unset (see the top of this file).
+      FETCH_PUBLIC_URL: ${FETCH_PUBLIC_URL:-}
+      FETCH_ALLOWED_ORIGINS: ${FETCH_ALLOWED_ORIGINS:-}
+      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-}
       # Public URL of the web service — used to build the "Configure" link
       # Stremio shows for this addon's manifest (redirects to /settings), the
       # link notification channels point at, and invite links. Without it,
       # notifications are still sent, just with nothing to tap, and Settings
       # builds invite links from whatever address it was opened at.
-      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
+      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-}
       # The pairing hub a TV gets its sign-in code from when it doesn't know
       # this website's address. Confirming such a code here tells the hub where
       # this website is (never a credential). Unset uses watchfetch.tv; "off"
@@ -149,7 +159,8 @@ services:
       # Leaving them unset is safe; the API validates at startup/request time
       # and returns clear error messages if they are missing when needed.
       TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID}
-      TRAKT_REDIRECT_URI: ${TRAKT_REDIRECT_URI:-http://192.168.1.25:7000/trakt/oauth/callback}
+      # Defaults to <API public URL>/trakt/oauth/callback.
+      TRAKT_REDIRECT_URI: ${TRAKT_REDIRECT_URI:-}
       TRAKT_POLL_INTERVAL_SEC: ${TRAKT_POLL_INTERVAL_SEC:-300}
       TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}
       TRAKT_BACKFILL_MAX_PAGES: ${TRAKT_BACKFILL_MAX_PAGES:-500}
@@ -226,8 +237,9 @@ services:
       # Sent along so the TV pairs against the address you use, a reverse
       # proxy's included. The TV checks it answers and falls back to this
       # host's LAN address when it doesn't.
-      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-http://192.168.1.25:7000}
-      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
+      FETCH_PUBLIC_URL: ${FETCH_PUBLIC_URL:-}
+      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-}
+      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-}
     depends_on:
       api:
         condition: service_healthy
@@ -250,10 +262,11 @@ services:
       # add-on's key"). The add-on refuses to start without it, saying so in
       # `docker compose logs addon`.
       FETCH_ADDON_KEY: ${FETCH_ADDON_KEY:-}
-      ADDON_PUBLIC_BASE: ${ADDON_PUBLIC_BASE:-http://192.168.1.25:7001}
+      FETCH_PUBLIC_URL: ${FETCH_PUBLIC_URL:-}
+      ADDON_PUBLIC_BASE: ${ADDON_PUBLIC_BASE:-}
       # Public URL of the web service — used to build the "Configure" link
       # Stremio shows for this addon's manifest (redirects to /settings).
-      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-http://192.168.1.25:7002}
+      FETCH_WEB_PUBLIC: ${FETCH_WEB_PUBLIC:-}
       # Shared with the api service: same meaning, same .env variable, because
       # a proxy that forwards to one of them forwards to both.
       TRUST_PROXY: ${TRUST_PROXY}
@@ -295,11 +308,16 @@ services:
   web:
     image: ghcr.io/theshield2594/fetch-web:${FETCH_IMAGE_TAG:-latest}
     environment:
-      VITE_API_BASE: ${VITE_API_BASE:-http://192.168.1.25:7000}
+      FETCH_PUBLIC_URL: ${FETCH_PUBLIC_URL:-}
+      # Both default to what FETCH_PUBLIC_URL implies — or to FETCH_API_PUBLIC /
+      # ADDON_PUBLIC_BASE when those are overridden, so the two sides agree.
+      FETCH_API_PUBLIC: ${FETCH_API_PUBLIC:-}
+      ADDON_PUBLIC_BASE: ${ADDON_PUBLIC_BASE:-}
+      VITE_API_BASE: ${VITE_API_BASE:-}
       # Public URL of the dedicated addon service — the full-featured
       # Stremio addon (meta/search/genre support). Used to build
       # the manifest URL shown in Settings.
-      VITE_ADDON_BASE: ${VITE_ADDON_BASE:-http://192.168.1.25:7001}
+      VITE_ADDON_BASE: ${VITE_ADDON_BASE:-}
       # Extra origins the browser may connect to, on top of VITE_API_BASE,
       # VITE_ADDON_BASE and SENTRY_DSN (already allowed by the page's
       # Content-Security-Policy). Only needed when some browsers reach the API

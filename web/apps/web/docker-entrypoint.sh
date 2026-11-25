@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+# VITE_API_BASE / VITE_ADDON_BASE default to what FETCH_PUBLIC_URL implies.
+# Explicit values still win; see scripts/public-url-env.mjs.
+eval "$(node /app/scripts/public-url-env.mjs)"
+
 API_BASE_JSON=$(VITE_API_BASE="${VITE_API_BASE:-}" node -e 'console.log(JSON.stringify(process.env.VITE_API_BASE))')
 ADDON_BASE_JSON=$(VITE_ADDON_BASE="${VITE_ADDON_BASE:-}" node -e 'console.log(JSON.stringify(process.env.VITE_ADDON_BASE))')
 SENTRY_DSN_JSON=$(SENTRY_DSN="${SENTRY_DSN:-}" node -e 'console.log(JSON.stringify(process.env.SENTRY_DSN))')

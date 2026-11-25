@@ -32,6 +32,9 @@ vi.mock("./watchlist.js", () => watchlistMock);
 const seriesProgressMock = { upsertSeriesProgressIfNewer: vi.fn() };
 vi.mock("./series-progress.js", () => seriesProgressMock);
 
+const watchlistWatchedMock = { removeWatchedFromWatchlist: vi.fn() };
+vi.mock("./watchlist-watched.js", () => watchlistWatchedMock);
+
 
 const resetMocks = () => {
   vi.resetModules();
@@ -479,7 +482,8 @@ describe("trakt-client", () => {
       );
     });
 
-    it("keeps an item that disappeared from Trakt, by default", async () => {
+    it("keeps an item that disappeared from Trakt when mirroring is switched off", async () => {
+      process.env.TRAKT_WATCHLIST_MIRROR_DELETES = "false";
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
       prismaMock.kV.findUnique.mockResolvedValue({ value: JSON.stringify(["movie:tt5"]) });
       watchlistMock.getDefaultWatchlist.mockResolvedValue({ id: "watchlist-1" });
@@ -499,6 +503,7 @@ describe("trakt-client", () => {
     });
 
     it("keeps a kept item in the snapshot so the next sync does not push it back to Trakt", async () => {
+      process.env.TRAKT_WATCHLIST_MIRROR_DELETES = "false";
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
       prismaMock.kV.findUnique.mockResolvedValue({ value: JSON.stringify(["movie:tt5"]) });
       watchlistMock.getDefaultWatchlist.mockResolvedValue({ id: "watchlist-1" });
@@ -516,8 +521,8 @@ describe("trakt-client", () => {
       expect(JSON.parse(snapshotWrite.update.value)).toEqual(["movie:tt5"]);
     });
 
-    it("removes an item locally when mirror deletes are explicitly enabled", async () => {
-      process.env.TRAKT_WATCHLIST_MIRROR_DELETES = "true";
+    it("removes an item locally once it has been removed on Trakt, by default", async () => {
+      delete process.env.TRAKT_WATCHLIST_MIRROR_DELETES;
       prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
       prismaMock.kV.findUnique.mockResolvedValue({
         value: JSON.stringify(["movie:tt5", "movie:tt6"]),
@@ -749,6 +754,32 @@ describe("trakt-client", () => {
 
       expect(result.importedWatchEvents.movies).toBe(1);
       expect(prismaMock.watchEvent.create).not.toHaveBeenCalled();
+    });
+
+    it("takes what the poll found watched off the watchlist", async () => {
+      prismaMock.traktToken.findUnique.mockResolvedValue({ accessToken: "at", refreshToken: "rt" });
+      prismaMock.kV.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findUnique.mockResolvedValue(null);
+      prismaMock.watchEvent.findFirst.mockResolvedValue(null);
+      const fetchMock = vi.fn().mockImplementation(async (url: URL) => ({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        json: async () =>
+          url.toString().includes("/sync/history/movies")
+            ? [{ id: 7, watched_at: "2026-01-01T00:00:00.000Z", movie: { ids: { imdb: "tt9" } } }]
+            : [],
+      }));
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { pollTraktHistory } = await import("./trakt-client.js");
+      await pollTraktHistory(makeLogger(), "profile-1");
+
+      expect(watchlistWatchedMock.removeWatchedFromWatchlist).toHaveBeenCalledWith(
+        "profile-1",
+        [{ type: "movie", imdbId: "tt9" }],
+        expect.anything()
+      );
     });
 
     it("creates a new watch event for a history entry not seen before", async () => {

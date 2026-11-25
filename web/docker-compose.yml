@@ -153,7 +153,8 @@ services:
       TRAKT_POLL_INTERVAL_SEC: ${TRAKT_POLL_INTERVAL_SEC:-300}
       TRAKT_POLL_MAX_PAGES: ${TRAKT_POLL_MAX_PAGES:-20}
       TRAKT_BACKFILL_MAX_PAGES: ${TRAKT_BACKFILL_MAX_PAGES:-500}
-      TRAKT_WATCHLIST_MIRROR_DELETES: ${TRAKT_WATCHLIST_MIRROR_DELETES:-false}
+      TRAKT_WATCHLIST_MIRROR_DELETES: ${TRAKT_WATCHLIST_MIRROR_DELETES:-true}
+      WATCHLIST_REMOVE_WATCHED: ${WATCHLIST_REMOVE_WATCHED:-true}
       # Simkl: the Fetch app's client id (simkl.com/settings/developer). Each
       # profile then signs in to its own Simkl account from Settings.
       SIMKL_CLIENT_ID: ${SIMKL_CLIENT_ID}

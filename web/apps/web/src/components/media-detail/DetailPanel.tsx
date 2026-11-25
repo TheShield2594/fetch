@@ -735,7 +735,7 @@ export function DetailPanel({
             <div className="order-8 empty:hidden">
               <RecommendationsSection
                 items={recommendations}
-                loading={sectionsLoading}
+                loading={sectionsLoading || detail?.recommendationsPending === true}
                 onSelect={handleSelectRecommendation}
               />
             </div>

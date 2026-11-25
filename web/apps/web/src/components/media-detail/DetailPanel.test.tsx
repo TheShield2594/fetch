@@ -66,6 +66,7 @@ const FULL_DETAIL: PanelDetail = {
   director: "Andrei Tarkovsky",
   providers: { flatrate: [{ id: 1, name: "Criterion Channel", logo: null }], free: [], ads: [], link: null },
   recommendations: [],
+  recommendationsPending: false,
   seasons: [],
   dropped: false,
 };

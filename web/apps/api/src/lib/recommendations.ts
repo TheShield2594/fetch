@@ -4,6 +4,7 @@ import { upsertMetadata } from "./metadata.js";
 import { applyRpdbToMetaList, getRpdbApiKey } from "./rpdb.js";
 import { trendingCacheGet, trendingCacheSet } from "./cache.js";
 import { resolveTmdbId } from "./detail.js";
+import { coalesce } from "./coalesce.js";
 import type { StremioMetaPreview, StremioMetaType } from "./types.js";
 
 /**
@@ -25,9 +26,14 @@ export async function loadRecommendations(
   ]);
   if (cached) return { metas: applyRpdbToMetaList(cached.data, rpdbKey) };
 
-  const tmdbId = await resolveTmdbId(type, imdbId);
-  if (!tmdbId) return { metas: [] };
-  return getRecommendations(rawType, type, tmdbId, cacheKey);
+  // Coalesced, because the detail bundle can give up waiting on this and the
+  // panel then asks `/recommendations` for the same title: that request joins
+  // the run already under way instead of starting the fan-out a second time.
+  return coalesce(cacheKey, async () => {
+    const tmdbId = await resolveTmdbId(type, imdbId);
+    if (!tmdbId) return { metas: [] };
+    return getRecommendations(rawType, type, tmdbId, cacheKey);
+  });
 }
 
 async function getRecommendations(

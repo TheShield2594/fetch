@@ -48,9 +48,10 @@ export const discoverApi = {
     return request<{ metas: TrendingMeta[] }>(`/trending?type=${type}&window=${window}`);
   },
   /** TMDB's "if you liked this" for one title — Discover's "Because you watched". */
-  getRecommendationsFor(type: MediaType, imdbId: string) {
+  getRecommendationsFor(type: MediaType, imdbId: string, signal?: AbortSignal) {
     return request<{ metas: TrendingMeta[] }>(
-      `/recommendations?type=${type}&imdbId=${encodeURIComponent(imdbId)}`
+      `/recommendations?type=${type}&imdbId=${encodeURIComponent(imdbId)}`,
+      { signal }
     );
   },
 };

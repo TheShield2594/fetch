@@ -281,6 +281,12 @@ export type DetailBundle = {
   director: string | null;
   providers: WatchProviders;
   recommendations: TrendingMeta[];
+  /**
+   * The API answered before "More like this" was ready, and `recommendations`
+   * is empty for that reason rather than because there are none: fetch the rail
+   * separately. Absent from an API that predates it, which always waited.
+   */
+  recommendationsPending?: boolean | undefined;
   seasons: SeasonSummary[];
   dropped: boolean;
 };

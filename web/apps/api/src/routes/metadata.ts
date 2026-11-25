@@ -23,6 +23,9 @@ import { ownerForRequest } from "../lib/integration-owner.js";
 /** Resolves to `fallback` instead of rejecting, for the bundle's optional sections. */
 const settled = <T,>(work: Promise<T>, fallback: T): Promise<T> => work.catch(() => fallback);
 
+/** How long the detail bundle waits on "More like this" before answering without it. */
+const RECOMMENDATIONS_GRACE_MS = 250;
+
 const metadataRoutes: FastifyPluginAsync = async (app) => {
   app.get<{ Params: { type: string; imdbId: string } }>(
     "/meta/:type/:imdbId",
@@ -121,16 +124,21 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
       // `meta` is the panel — without it there is nothing to render, so its
       // rejection is allowed to surface as a 500. The other five are sections
       // within it, and each already degrades to an empty result of its own
-      // accord; `allSettled` covers the paths that get past those guards (a
+      // accord; `settled` covers the paths that get past those guards (a
       // database blip inside the dropped lookup, an upstream throwing before its
       // own try block) so one failing row cannot take the whole panel with it.
-      const meta = await loadMeta(type, imdbId);
-      if (!meta) return reply.code(404).send({ error: "Metadata not found" });
-
-      const [cast, providers, recommendations, seasons, dropped] = await Promise.all([
+      //
+      // All six start together. `meta` used to be awaited first, so a title
+      // whose row needed a TMDB refetch held every other section back until
+      // that had finished.
+      const recommendationsWork = settled(loadRecommendations(request.params.type, type, imdbId), { metas: [] });
+      const [meta, cast, providers, seasons, dropped, recommendations] = await Promise.all([
+        loadMeta(type, imdbId),
         settled(loadCast(type, imdbId, request.log), { cast: [], director: null }),
-        settled(loadProviders(type, imdbId, await ownerForRequest(request), request.log), EMPTY_PROVIDERS),
-        settled(loadRecommendations(request.params.type, type, imdbId), { metas: [] }),
+        settled(
+          ownerForRequest(request).then((owner) => loadProviders(type, imdbId, owner, request.log)),
+          EMPTY_PROVIDERS
+        ),
         isSeries ? settled(loadSeasons(imdbId, request.log), []) : Promise.resolve([]),
         isSeries
           ? settled(
@@ -140,14 +148,30 @@ const metadataRoutes: FastifyPluginAsync = async (app) => {
               false
             )
           : Promise.resolve(false),
+        // The one section that is a fan-out rather than a request: a list call
+        // and then an IMDb-id lookup per result, twenty-one requests when none
+        // of it is cached. It sits at the very bottom of the panel, so it gets
+        // a short grace period — enough for a cached answer — and after that
+        // the panel is sent without it and fetches the rail on its own. The
+        // work carries on regardless and fills the cache that request reads.
+        Promise.race([
+          recommendationsWork,
+          new Promise<null>((resolve) => {
+            setTimeout(() => resolve(null), RECOMMENDATIONS_GRACE_MS).unref();
+          }),
+        ]),
       ]);
+      if (!meta) return reply.code(404).send({ error: "Metadata not found" });
 
       return {
         meta,
         cast: cast.cast,
         director: cast.director,
         providers,
-        recommendations: recommendations.metas,
+        recommendations: recommendations?.metas ?? [],
+        // A separate flag rather than a null rail, so a client that predates it
+        // still reads an array.
+        recommendationsPending: recommendations === null,
         seasons,
         dropped,
       };

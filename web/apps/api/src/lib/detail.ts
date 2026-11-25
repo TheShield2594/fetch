@@ -8,7 +8,7 @@ import { isImdbId } from "./content-id.js";
 import { getRpdbApiKey, withRpdbPoster } from "./rpdb.js";
 import { getRegionSetting } from "./settings.js";
 import type { IntegrationOwner } from "./owner-keys.js";
-import { castCache, episodesCache, seasonsCache, watchProvidersCache } from "./cache.js";
+import { castCache, detailRefetchCooldownCache, episodesCache, seasonsCache, watchProvidersCache } from "./cache.js";
 import { coalesce } from "./coalesce.js";
 import type { Credits, EpisodeInfo, SeasonInfo, WatchProviders } from "../tmdb.js";
 
@@ -35,7 +35,7 @@ export function resolveTmdbId(
     });
     if (existing?.tmdbId) return existing.tmdbId;
 
-    await fetchMetadata(type, imdbId).catch((err) =>
+    await coalesce(`detailMeta:${type}:${imdbId}`, () => fetchMetadata(type, imdbId)).catch((err) =>
       log?.warn({ imdbId, type, err }, "Background metadata fetch failed")
     );
 
@@ -175,21 +175,44 @@ export async function loadMeta(type: MetadataType, imdbId: string) {
     // OMDb scores exist for IMDb ids only, so a `tmdb:` title never gains them.
     (!isImdbId(imdbId) || existing.imdbRating != null || existing.rtScore != null || existing.mcScore != null);
 
-  if (isDetailComplete) {
-    return { ...existing, poster: withRpdbPoster(imdbId, existing.poster, rpdbKey) };
-  }
+  const withPoster = <T extends { poster: string | null }>(row: T) => ({
+    ...row,
+    poster: withRpdbPoster(imdbId, row.poster, rpdbKey),
+  });
 
-  const metadata = await fetchMetadata(type, imdbId);
+  if (isDetailComplete) return withPoster(existing);
+
+  // "Incomplete" is not always something a refetch can fix. With no OMDb key
+  // saved every IMDb title lacks all three scores; TMDB carries no episode
+  // runtime for a good share of series; some films have no release date. Each
+  // of those failed the check above on every open, so every open of them ran
+  // `/find`, the details request and an OMDb call before the panel could draw —
+  // and the rest of the bundle queued behind it. One attempt per cooldown is
+  // enough to pick up what has since been filled in upstream.
+  const cooldownKey = `${type}:${imdbId}`;
+  if (existing && detailRefetchCooldownCache.has(cooldownKey)) return withPoster(existing);
+
+  let metadata: Awaited<ReturnType<typeof fetchMetadata>>;
+  try {
+    // Coalesced: the bundle's other sections resolve the TMDB id at the same
+    // moment, and for a title with no row yet that is this same fetch.
+    metadata = await coalesce(`detailMeta:${cooldownKey}`, () => fetchMetadata(type, imdbId));
+  } catch (error) {
+    // A row to show beats a panel that won't open because TMDB is having a
+    // moment. Not parked: the next open asks again.
+    if (existing) return withPoster(existing);
+    throw error;
+  }
+  detailRefetchCooldownCache.set(cooldownKey, true);
+
   if (!metadata) {
     // TMDB has nothing for it, or can't be asked (an anime catalog's id): what
     // the row already holds, such as the name and poster the TV sent, is the panel.
-    return existing ? { ...existing, poster: withRpdbPoster(imdbId, existing.poster, rpdbKey) } : null;
+    return existing ? withPoster(existing) : null;
   }
 
   const fresh = await prisma.metadata.findUnique({ where: { imdbId_type: { imdbId, type } } });
-  return fresh
-    ? { ...fresh, poster: withRpdbPoster(imdbId, fresh.poster, rpdbKey) }
-    : { ...metadata, poster: withRpdbPoster(imdbId, metadata.poster, rpdbKey) };
+  return fresh ? withPoster(fresh) : withPoster(metadata);
 }
 
 export { EMPTY_PROVIDERS };

@@ -214,6 +214,8 @@ data class PlayerUiState(
     val activeSkipInterval: SkipInterval? = null,
     /** Intro, recap and credits segments for the title, drawn on the scrubber. */
     val skipSegments: List<SkipInterval> = emptyList(),
+    /** Chapters of the playing stream, sorted; drawn as ticks on the scrubber and stepped through with Previous / Next chapter. */
+    val chapters: List<com.fetch.tv.core.player.Chapter> = emptyList(),
     val activeSkipTargetsPostCredits: Boolean = false,
     val skipIntervalDismissed: Boolean = false,
     /** Whether the viewer can record and submit a skip marker for this title (IntroDB API key set). */
@@ -405,6 +407,10 @@ sealed class PlayerEvent {
     data object OnDismissSkipIntro : PlayerEvent()
     data object OnReportSkipMarker : PlayerEvent()
     data object OnMarkSkipSegment : PlayerEvent()
+    /** Previous chapter; with [orRestart], back to the start when the title has no chapters. */
+    data class OnPreviousChapter(val orRestart: Boolean = false) : PlayerEvent()
+    /** Next chapter; with [orNextEpisode], the next episode when there is no later chapter. */
+    data class OnNextChapter(val orNextEpisode: Boolean = false) : PlayerEvent()
     data object OnPlayNextEpisode : PlayerEvent()
     data object OnDismissNextEpisodeCard : PlayerEvent()
     data object OnStillWatchingContinue : PlayerEvent()

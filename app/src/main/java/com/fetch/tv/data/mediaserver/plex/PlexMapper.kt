@@ -241,3 +241,9 @@ private fun PlexMedia.resolutionLabel(): String? = when (videoResolution?.lowerc
     null, "" -> height?.let { "${it}p" }
     else -> videoResolution
 }
+
+internal fun List<PlexChapter>.toChapters(): List<com.fetch.tv.core.player.Chapter> =
+    sortedBy { it.index ?: Int.MAX_VALUE }.mapNotNull { chapter ->
+        val start = chapter.startTimeOffset?.takeIf { it >= 0L } ?: return@mapNotNull null
+        com.fetch.tv.core.player.Chapter(startMs = start, endMs = chapter.endTimeOffset, title = chapter.tag)
+    }

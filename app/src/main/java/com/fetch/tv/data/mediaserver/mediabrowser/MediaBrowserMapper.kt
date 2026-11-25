@@ -240,3 +240,9 @@ private fun resolutionLabel(stream: MediaStream): String? {
         else -> null
     }
 }
+
+/** Jellyfin and Emby list chapter starts only, in ticks of 100 ns. */
+internal fun List<ChapterInfo>.toChapters(): List<com.fetch.tv.core.player.Chapter> = mapNotNull { info ->
+    val ticks = info.startPositionTicks?.takeIf { it >= 0L } ?: return@mapNotNull null
+    com.fetch.tv.core.player.Chapter(startMs = ticks / TICKS_PER_MS, title = info.name)
+}

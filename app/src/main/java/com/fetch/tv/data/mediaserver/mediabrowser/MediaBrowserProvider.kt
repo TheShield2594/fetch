@@ -1,5 +1,6 @@
 package com.fetch.tv.data.mediaserver.mediabrowser
 
+import com.fetch.tv.core.player.Chapter
 import com.fetch.tv.domain.model.FilterRowFilters
 import com.fetch.tv.domain.model.FilterRowSort
 import com.fetch.tv.domain.model.WatchedFilter
@@ -577,6 +578,9 @@ internal abstract class MediaBrowserProvider(
             body = client.json.encodeToString(PlaybackReport.serializer(), report)
         )
     }
+
+    override suspend fun chapters(session: ServerSession, itemId: String): List<Chapter> =
+        item(session, itemId, "Chapters").chapters.toChapters()
 
     internal fun isSupportedVersion(version: String?): Boolean = isAtLeastVersion(version, minimumVersion)
 

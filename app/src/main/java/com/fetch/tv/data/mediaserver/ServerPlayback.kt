@@ -2,6 +2,7 @@ package com.fetch.tv.data.mediaserver
 
 import android.os.SystemClock
 import android.util.Log
+import com.fetch.tv.core.player.Chapter
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
@@ -80,6 +81,12 @@ class ServerPlayback internal constructor(
     suspend fun resumeState(url: String?): ServerUserState? {
         val current = url?.let { synchronized(lock) { active[it] } } ?: return null
         return current.provider.details(current.session, current.playback.target.item.itemId).userStates.firstOrNull()
+    }
+
+    /** The chapters the server has for the item playing at [url]; empty for other URLs. */
+    suspend fun chapters(url: String?): List<Chapter> {
+        val current = url?.let { synchronized(lock) { active[it] } } ?: return emptyList()
+        return current.provider.chapters(current.session, current.playback.target.item.itemId)
     }
 
     fun isServerSource(url: String?): Boolean = url != null && synchronized(lock) { url in active }

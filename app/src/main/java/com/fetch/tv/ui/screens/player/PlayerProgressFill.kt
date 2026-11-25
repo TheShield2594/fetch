@@ -113,3 +113,21 @@ internal fun Modifier.playerSegmentMarks(segments: List<ScrubberSegment>, color:
             }
         }
     }
+
+/**
+ * Draws a thin notch at each chapter start in [ticks] (fractions of the bar), so chapters read on
+ * the scrubber. Only drawing: chapters change once per stream.
+ */
+internal fun Modifier.playerChapterTicks(ticks: List<Float>, color: Color): Modifier =
+    if (ticks.isEmpty()) {
+        this
+    } else {
+        drawWithContent {
+            drawContent()
+            val width = 2.dp.toPx()
+            ticks.forEach { fraction ->
+                val x = (size.width * fraction - width / 2f).coerceIn(0f, (size.width - width).coerceAtLeast(0f))
+                drawRect(color = color, topLeft = Offset(x, 0f), size = Size(width, size.height))
+            }
+        }
+    }

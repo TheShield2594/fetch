@@ -350,6 +350,7 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     }
                 }
                 reportServerPlayback()
+                refreshChaptersOnTick()
                 delay(500)
                 continue
             }
@@ -403,6 +404,7 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                 }
             }
             reportServerPlayback()
+            refreshChaptersOnTick()
             delay(500)
         }
     }
@@ -1551,6 +1553,14 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         PlayerEvent.OnMarkSkipSegment -> {
             markSkipSegmentBoundary()
+        }
+        is PlayerEvent.OnPreviousChapter -> {
+            if (!seekToAdjacentChapter(next = false) && event.orRestart) onEvent(PlayerEvent.OnSeekTo(0L))
+        }
+        is PlayerEvent.OnNextChapter -> {
+            if (!seekToAdjacentChapter(next = true) && event.orNextEpisode && _uiState.value.nextEpisode?.hasAired == true) {
+                playNextEpisode(userInitiated = true)
+            }
         }
         PlayerEvent.OnPlayNextEpisode -> {
             playNextEpisode(userInitiated = true)

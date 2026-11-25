@@ -70,11 +70,18 @@ internal data class BaseItem(
     @SerialName("ParentIndexNumber") val parentIndexNumber: Int? = null,
     @SerialName("LocationType") val locationType: String? = null,
     @SerialName("UserData") val userData: UserItemData? = null,
-    @SerialName("MediaSources") val mediaSources: List<MediaSource> = emptyList()
+    @SerialName("MediaSources") val mediaSources: List<MediaSource> = emptyList(),
+    @SerialName("Chapters") val chapters: List<ChapterInfo> = emptyList()
 ) {
     val isMissing: Boolean
         get() = locationType.equals("Virtual", ignoreCase = true)
 }
+
+@Serializable
+internal data class ChapterInfo(
+    @SerialName("StartPositionTicks") val startPositionTicks: Long? = null,
+    @SerialName("Name") val name: String? = null
+)
 
 @Serializable
 internal data class NamedItem(

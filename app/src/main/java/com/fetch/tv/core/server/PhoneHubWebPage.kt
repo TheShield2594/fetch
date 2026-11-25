@@ -579,7 +579,13 @@ class PhoneHubWebPage(private val resources: Resources) {
             <h2>${h(R.string.phone_web_backup_save_heading)}</h2>
             ${checkRow("addons", R.string.phone_web_backup_include_addons)}
             <p class="hint">${h(R.string.phone_web_backup_include_addons_hint)}</p>
-            <a id="save" class="card" download href="/api/backup">${h(R.string.phone_web_backup_save)}<span>${h(R.string.phone_web_backup_save_sub)}</span></a>
+            <div id="lockedBlock" hidden>
+              <h2>${h(R.string.phone_web_backup_locked_heading)}</h2>
+              <p class="hint">${h(R.string.phone_web_backup_locked_hint)}</p>
+              <div id="locked"></div>
+            </div>
+            <button type="button" id="save" class="card">${h(R.string.phone_web_backup_save)}<span>${h(R.string.phone_web_backup_save_sub)}</span></button>
+            <div id="saveStatus" class="status" role="status"></div>
             <h2>${h(R.string.phone_web_backup_restore_heading)}</h2>
             <p class="hint">${h(R.string.phone_web_backup_restore_hint)}</p>
             <label for="file">${h(R.string.phone_web_backup_file_label)}</label>
@@ -588,8 +594,40 @@ class PhoneHubWebPage(private val resources: Resources) {
             <div id="restoreStatus" class="status" role="status"></div>
         """,
         script = """
-            document.getElementById('addons').addEventListener('change', function (e) {
-              document.getElementById('save').setAttribute('href', e.target.checked ? '/api/backup?addons=1' : '/api/backup');
+            // Profiles with a PIN: each gets a PIN field, and is in the backup only once it's typed (#671).
+            load('/api/backup/locked').then(function (d) {
+              const profiles = (d && d.profiles) || [];
+              document.getElementById('lockedBlock').hidden = !profiles.length;
+              document.getElementById('locked').innerHTML = profiles.map(function (p) {
+                const id = 'pin-' + Number(p.id);
+                return '<label for="' + id + '">' + escapeHtml(fmt(${j(R.string.phone_web_backup_pin_label)}, p.name)) + '</label>' +
+                  '<input id="' + id + '" data-profile="' + Number(p.id) + '" type="password" inputmode="numeric" autocomplete="off" maxlength="8">';
+              }).join('');
+            }).catch(function () {});
+            function backupDate() {
+              return new Date().toISOString().slice(0, 10);
+            }
+            document.getElementById('save').addEventListener('click', function () {
+              const pins = {};
+              document.querySelectorAll('#locked input[data-profile]').forEach(function (input) {
+                if (input.value.trim()) pins[input.getAttribute('data-profile')] = input.value.trim();
+              });
+              show('saveStatus', ${j(R.string.phone_web_backup_saving)});
+              post('/api/backup', { addons: document.getElementById('addons').checked, pins: pins }).then(function (backup) {
+                const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'fetch-backup-' + backupDate() + '.json';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+                const left = (backup.leftOut || []).filter(function (n) { return typeof n === 'string'; });
+                show('saveStatus', left.length
+                  ? fmt(${j(R.string.phone_web_backup_left_out)}, left.join(${j(R.string.phone_web_list_separator)}))
+                  : ${j(R.string.phone_web_backup_saved)});
+              }).catch(function (e) { show('saveStatus', e.message, true); });
             });
             document.getElementById('restore').addEventListener('click', function () {
               const file = document.getElementById('file').files[0];

@@ -729,11 +729,30 @@ class PhoneHubController @Inject constructor(
         }
     }
 
+    override suspend fun lockedBackupProfiles(): List<PhoneHubLockedProfile> =
+        if (parentalControls.needsGate()) {
+            emptyList()
+        } else {
+            tvBackup.lockedProfiles().map { PhoneHubLockedProfile(it.id, it.name, it.isPrimary) }
+        }
+
     // A backup holds every profile's history and settings, so it's behind the same lock as settings.
-    override suspend fun exportBackup(includeAddons: Boolean): Result<JsonObject> {
+    override suspend fun exportBackup(includeAddons: Boolean): Result<JsonObject> = exportBackup(includeAddons, emptyMap())
+
+    override suspend fun exportBackup(includeAddons: Boolean, pins: Map<Int, String>): Result<JsonObject> {
         settingsBlocked()?.let { return Result.failure(IllegalStateException(it.message)) }
         return try {
-            Result.success(tvBackup.export(includeAddons))
+            val unlock = tvBackup.unlock(pins)
+            if (unlock.wrong.isNotEmpty()) {
+                val names = unlock.wrong.joinToString(text(R.string.phone_web_list_separator))
+                val message = if (unlock.retryAfterSeconds > 0) {
+                    text(R.string.phone_web_backup_pin_locked_out, names)
+                } else {
+                    text(R.string.phone_web_backup_pin_wrong, names)
+                }
+                return Result.failure(IllegalArgumentException(message))
+            }
+            Result.success(tvBackup.export(includeAddons, unlock.unlocked))
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
@@ -752,6 +771,7 @@ class PhoneHubController @Inject constructor(
                 if (result.merged.isNotEmpty()) add(text(R.string.phone_web_backup_restored_merged, result.merged.joinToString(separator)))
                 if (result.added.isNotEmpty()) add(text(R.string.phone_web_backup_restored_added, result.added.joinToString(separator)))
                 if (result.skipped.isNotEmpty()) add(text(R.string.phone_web_backup_restored_skipped, result.skipped.joinToString(separator)))
+                if (result.needPin.isNotEmpty()) add(text(R.string.phone_web_backup_restored_need_pin, result.needPin.joinToString(separator)))
                 if (result.unreadable > 0) {
                     add(context.withAppLocale().resources.getQuantityString(R.plurals.phone_web_backup_restored_unreadable, result.unreadable, result.unreadable))
                 }

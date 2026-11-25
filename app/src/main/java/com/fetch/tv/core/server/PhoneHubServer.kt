@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -91,6 +92,9 @@ data class PhoneHubAddonProposal(
 )
 
 /** What the phone hub can do on the TV. Implemented by [PhoneHubController]. */
+/** A profile with a PIN, which a backup includes only once that PIN is given (#671). */
+data class PhoneHubLockedProfile(val id: Int, val name: String, val isMain: Boolean)
+
 interface PhoneHubActions {
     fun sendRemote(command: RemoteCommand): Boolean
     suspend fun accountStatus(): PhoneHubAccountStatus
@@ -113,6 +117,13 @@ interface PhoneHubActions {
      * [includeAddons]; fails with a message to show.
      */
     suspend fun exportBackup(includeAddons: Boolean): Result<JsonObject>
+    /**
+     * [exportBackup] with the PIN-protected profiles whose PIN is in [pins] (by profile id; the
+     * main profile's PIN opens them all). Fails with a message naming a wrong PIN (#671).
+     */
+    suspend fun exportBackup(includeAddons: Boolean, pins: Map<Int, String>): Result<JsonObject> = exportBackup(includeAddons)
+    /** Profiles a backup leaves out unless their PIN is given, as id to name, with whether it's the main one. */
+    suspend fun lockedBackupProfiles(): List<PhoneHubLockedProfile> = emptyList()
     suspend fun restoreBackup(document: JsonObject): PhoneHubResult
     suspend fun installedAddons(): List<PhoneHubAddon>
     fun addonSuggestions(): List<PhoneHubAddonSuggestion>
@@ -211,6 +222,8 @@ class PhoneHubServer(
             result(runBlocking { actions.importProfile(readJson(session, MAX_PROFILE_BYTES)) })
         session.method == Method.GET && uri == "/api/backup" ->
             handleBackupExport(includeAddons = session.parameters["addons"]?.firstOrNull() == "1")
+        session.method == Method.POST && uri == "/api/backup" -> handleBackupExport(readJson(session))
+        session.method == Method.GET && uri == "/api/backup/locked" -> jsonResponse(lockedProfilesJson())
         session.method == Method.POST && uri == "/api/backup/restore" ->
             result(runBlocking { actions.restoreBackup(readJson(session, MAX_BACKUP_BYTES)) })
         else -> newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found")
@@ -374,8 +387,34 @@ class PhoneHubServer(
         }
     }
 
-    private fun handleBackupExport(includeAddons: Boolean): Response {
-        val document = runBlocking { actions.exportBackup(includeAddons) }
+    private fun lockedProfilesJson(): JsonElement = buildJsonObject {
+        put("profiles", buildJsonArray {
+            runBlocking { actions.lockedBackupProfiles() }.forEach { profile ->
+                add(buildJsonObject {
+                    put("id", profile.id)
+                    put("name", profile.name)
+                    put("main", profile.isMain)
+                })
+            }
+        })
+    }
+
+    /** `{"addons": true, "pins": {"2": "1234"}}`: the backup with the profiles those PINs open (#671). */
+    private fun handleBackupExport(body: JsonObject): Response {
+        val includeAddons = (body["addons"] as? JsonPrimitive)?.booleanOrNull == true
+        val pins = (body["pins"] as? JsonObject).orEmpty().mapNotNull { (id, pin) ->
+            val profileId = id.toIntOrNull() ?: return@mapNotNull null
+            val value = (pin as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim().orEmpty()
+            if (value.isEmpty() || value.length > MAX_PIN_LENGTH) null else profileId to value
+        }.toMap()
+        return backupResponse(runBlocking { actions.exportBackup(includeAddons, pins) })
+    }
+
+    private fun handleBackupExport(includeAddons: Boolean): Response =
+        backupResponse(runBlocking { actions.exportBackup(includeAddons) })
+
+    private fun backupResponse(exported: Result<JsonObject>): Response {
+        val document = exported
             .getOrElse { return errorResponse(it.message ?: text(R.string.phone_web_error_backup)) }
         val bytes = document.toString().toByteArray(StandardCharsets.UTF_8)
         val date = java.time.LocalDate.now().toString()
@@ -512,6 +551,8 @@ class PhoneHubServer(
     )
 
     companion object {
+        /** PINs are 4 to 8 digits; anything longer isn't one. */
+        private const val MAX_PIN_LENGTH = 16
         const val SECTION_BADGES = "badges"
         const val SECTION_POSTERS = "posters"
         private const val MAX_BODY_BYTES = 256 * 1024

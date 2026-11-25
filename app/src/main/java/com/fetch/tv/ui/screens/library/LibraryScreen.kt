@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.core.util.runSuspendCatching
 import android.view.KeyEvent as AndroidKeyEvent
 import com.fetch.tv.ui.components.FetchButtonStyle
 import com.fetch.tv.ui.components.FetchButton
@@ -166,6 +167,43 @@ fun LibraryScreen(
         visibleItemKeys.associateWith { FocusRequester() }
     }
     val firstVisiblePosterKey = visibleItemKeys.firstOrNull()
+
+    // Multi-select (#653): OK toggles cards, the bar under the grid acts on them, Back ends it.
+    var selection by remember { mutableStateOf(LibrarySelectionState()) }
+    fun dispatchSelection(action: LibrarySelectionAction) {
+        selection = reduceLibrarySelection(selection, action)
+    }
+    val selectionKeys = if (tab.listScope != null) visibleItemKeys else activityKeys
+    val selectionBarFocusRequester = remember { FocusRequester() }
+    var pendingBulkRemoveConfirm by remember { mutableStateOf(false) }
+    var showBulkListPicker by remember { mutableStateOf(false) }
+    var selectionBarHeightPx by remember { mutableIntStateOf(0) }
+    val newEpisodeBadges by viewModel.newEpisodeBadges.collectAsStateWithLifecycle()
+    val newEpisodeLabel = stringResource(R.string.cw_new_episode_short)
+    val newSeasonLabel = stringResource(R.string.cw_new_season)
+    fun badgeLabel(badge: LibraryNewEpisodeBadge?): Pair<String, Boolean>? = when (badge) {
+        null -> null
+        LibraryNewEpisodeBadge.NEW_EPISODE -> newEpisodeLabel to false
+        LibraryNewEpisodeBadge.NEW_SEASON -> newSeasonLabel to true
+    }
+    val selectionScope = rememberCoroutineScope()
+    // The Select button: starts choosing on the card last focused here (else the first), or ends it.
+    fun toggleSelectionMode() {
+        if (selection.active) {
+            dispatchSelection(LibrarySelectionAction.Exit)
+            return
+        }
+        dispatchSelection(LibrarySelectionAction.Enter)
+        val target = lastFocusedPosterKey?.takeIf { it in selectionKeys } ?: selectionKeys.firstOrNull() ?: return
+        selectionScope.launch {
+            val index = if (tab.listScope != null) visibleItemIndexByKey[target] else null
+            // +1: the header is the grid's first item.
+            if (index != null) runSuspendCatching { gridState.scrollToItem(index + 1) }
+            (posterFocusRequesters[target] ?: activityFocusRequesters[target])?.requestFocusAfterFrames(frames = 1)
+        }
+    }
+    LaunchedEffect(tab) { dispatchSelection(LibrarySelectionAction.Exit) }
+    LaunchedEffect(selectionKeys) { dispatchSelection(LibrarySelectionAction.Retain(selectionKeys.toSet())) }
     // The posters take the size set in Layout, made smaller only as far as needed for two full
     // rows to show under the tabs and filters on entry (audit C3).
     var gridHeightPx by remember { mutableIntStateOf(0) }
@@ -258,6 +296,18 @@ fun LibraryScreen(
         }
     }
 
+    // Declared after the scroll-to-top handler, so while choosing titles Back ends selection first.
+    androidx.activity.compose.BackHandler(enabled = selection.active) {
+        dispatchSelection(LibrarySelectionAction.Exit)
+        pendingBulkRemoveConfirm = false
+        showBulkListPicker = false
+        val anchor = lastFocusedPosterKey?.takeIf { it in selectionKeys }
+        backScope.launch {
+            val requester = anchor?.let { posterFocusRequesters[it] ?: activityFocusRequesters[it] }
+            if (requester?.requestFocusAfterFrames(frames = 1) != true) primaryFocusRequester.requestFocusAfterFrames(frames = 0)
+        }
+    }
+
     LaunchedEffect(uiState.sortSelectionVersion, firstVisiblePosterKey) {
         if (uiState.sortSelectionVersion <= 0L) return@LaunchedEffect
         val targetKey = firstVisiblePosterKey ?: return@LaunchedEffect
@@ -336,10 +386,23 @@ fun LibraryScreen(
                 if (native.action == AndroidKeyEvent.ACTION_DOWN && uiState.transientMessageDismissible) {
                     viewModel.onDismissReadError()
                 }
+                // While choosing titles, Menu jumps to the actions bar from anywhere in the grid.
+                if (selection.active && native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
+                    if (native.action == AndroidKeyEvent.ACTION_DOWN) {
+                        runCatching { selectionBarFocusRequester.requestFocus() }
+                    }
+                    return@onPreviewKeyEvent true
+                }
                 false
             }
             .dpadRepeatThrottle(moveFocusOnRepeat = false),
-        contentPadding = PaddingValues(start = FetchTheme.spacing.screen.horizontal, end = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.screen.vertical, bottom = FetchTheme.spacing.xxl),
+        contentPadding = PaddingValues(
+            start = FetchTheme.spacing.screen.horizontal,
+            end = FetchTheme.spacing.screen.horizontal,
+            top = FetchTheme.spacing.screen.vertical,
+            // The last row scrolls clear of the selection bar.
+            bottom = FetchTheme.spacing.xxl + if (selection.active) with(density) { selectionBarHeightPx.toDp() } else Dp.Hairline
+        ),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
     ) {
@@ -379,6 +442,15 @@ fun LibraryScreen(
                             }
                         }
                     )
+                    // History and In progress have no filter row, so their Select sits at the end of
+                    // the tab row: Down from a tab still lands on the grid in one press.
+                    if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
+                        LibrarySelectButton(
+                            active = selection.active,
+                            enabled = true,
+                            onClick = { toggleSelectionMode() }
+                        )
+                    }
                     if (showBuiltInHeader) {
                         // Source names are stored in natural case and capitalized here, once, for the locale.
                         val sourceName = when {
@@ -402,6 +474,11 @@ fun LibraryScreen(
                 if (tab.listScope != null) {
                     LibrarySelectorsRow(
                         actions = {
+                            LibrarySelectButton(
+                                active = selection.active,
+                                enabled = uiState.visibleItems.isNotEmpty(),
+                                onClick = { toggleSelectionMode() }
+                            )
                             LibraryActionsRow(
                                 pending = uiState.pendingOperation,
                                 isSyncing = uiState.isSyncing,
@@ -543,26 +620,35 @@ fun LibraryScreen(
                 val previewForLongPress = remember(item) {
                     item.toMetaPreview().copy(posterShape = PosterShape.POSTER)
                 }
+                val selected = if (selection.active) selection.isSelected(focusKey) else null
+                val badge = badgeLabel(newEpisodeBadges.badgeFor(item.id, item.imdbId).takeIf { isSeries })
                 GridContentCard(
                     item = previewForLongPress,
                     posterCardStyle = posterCardStyle,
                     isWatched = if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds,
                     focusRequester = posterFocusRequesters[focusKey],
                     showLabel = true,
+                    selected = selected,
+                    newEpisodeBadge = badge?.first,
+                    newEpisodeBadgeIsSeason = badge?.second == true,
                     onFocused = {
                         lastFocusedPosterKey = focusKey
                         viewModel.prefetchMetaOnFocus(item.id, item.type)
                     },
                     onClick = {
                         lastFocusedPosterKey = focusKey
+                        if (selection.active) {
+                            dispatchSelection(LibrarySelectionAction.Toggle(focusKey))
+                            return@GridContentCard
+                        }
                         val backdrop = viewModel.getCachedBackdrop(item.id, item.type)
                         HeroBackdropState.update(backdrop)
                         onNavigateToDetail(item.id, item.type, item.addonBaseUrl)
                     },
-                    onLongPress = {
+                    onLongPress = if (selection.active) null else ({
                         lastFocusedPosterKey = focusKey
                         viewModel.posterOptions.show(previewForLongPress, item.addonBaseUrl)
-                    }
+                    })
                 )
             }
         } else if (tab == LibraryTab.IN_PROGRESS || tab == LibraryTab.HISTORY) {
@@ -574,6 +660,10 @@ fun LibraryScreen(
                 },
                 onClick = { key, item ->
                     lastFocusedPosterKey = key
+                    if (selection.active) {
+                        dispatchSelection(LibrarySelectionAction.Toggle(key))
+                        return@LibraryActivityCardActions
+                    }
                     HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
                     onNavigateToDetail(item.id, item.type, item.addonBaseUrl)
                 },
@@ -583,7 +673,9 @@ fun LibraryScreen(
                 },
                 isWatched = { item ->
                     if (item.isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
-                }
+                },
+                selectedFor = { key -> if (selection.active) selection.isSelected(key) else null },
+                newEpisodeBadgeFor = { item -> badgeLabel(newEpisodeBadges.badgeFor(item.id).takeIf { item.isSeries }) }
             )
             if (tab == LibraryTab.HISTORY) {
                 libraryHistoryContent(historyMonths, posterCardStyle, actions, onNavigateToSearch)
@@ -660,6 +752,29 @@ fun LibraryScreen(
             onPrivacyChanged = viewModel::onUpdateEditorPrivacy,
             onSave = viewModel::onSubmitEditor,
             onCancel = viewModel::onCancelEditor
+        )
+    }
+
+    if (selection.active) {
+        LibrarySelectionOverlay(
+            tab = tab,
+            selection = selection,
+            uiState = uiState,
+            selectionKeys = selectionKeys,
+            historyMonths = historyMonths,
+            inProgressItems = inProgressItems,
+            anchorKey = lastFocusedPosterKey,
+            barFocusRequester = selectionBarFocusRequester,
+            requesterFor = { key -> posterFocusRequesters[key] ?: activityFocusRequesters[key] },
+            fallbackFocusRequester = primaryFocusRequester,
+            showRemoveConfirm = pendingBulkRemoveConfirm,
+            onShowRemoveConfirm = { pendingBulkRemoveConfirm = it },
+            showListPicker = showBulkListPicker,
+            onShowListPicker = { showBulkListPicker = it },
+            onBarHeightChanged = { selectionBarHeightPx = it },
+            onExit = { dispatchSelection(LibrarySelectionAction.Exit) },
+            exitFocusScope = selectionScope,
+            onBulkAction = viewModel::onBulkAction
         )
     }
 

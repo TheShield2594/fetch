@@ -55,7 +55,8 @@ class ProfileSettingsSyncServiceTest {
         "trakt_settings",
         "animeskip_settings",
         "track_preference",
-        "episode_queue"
+        "episode_queue",
+        "hidden_titles"
     )
 
     /** One value of every supported type in every synced feature. */

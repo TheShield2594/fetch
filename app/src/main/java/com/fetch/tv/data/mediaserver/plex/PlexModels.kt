@@ -104,7 +104,17 @@ internal data class PlexMetadata(
     @SerialName("Role") val roles: List<PlexTag> = emptyList(),
     @SerialName("Guid") val guids: List<PlexGuid> = emptyList(),
     @SerialName("Image") val images: List<PlexImage> = emptyList(),
-    @SerialName("Media") val media: List<PlexMedia> = emptyList()
+    @SerialName("Media") val media: List<PlexMedia> = emptyList(),
+    @SerialName("Chapter") val chapters: List<PlexChapter> = emptyList()
+)
+
+/** A chapter from `includeChapters=1`: offsets in milliseconds, the name in [tag]. */
+@Serializable
+internal data class PlexChapter(
+    val index: Int? = null,
+    val tag: String? = null,
+    val startTimeOffset: Long? = null,
+    val endTimeOffset: Long? = null
 )
 
 @Serializable

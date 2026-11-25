@@ -32,17 +32,26 @@ internal fun ContentDiscoverySettingsContent(
     val hubServersRequester = remember { FocusRequester() }
     val serversRequester = remember { FocusRequester() }
     val serverRequester = remember { FocusRequester() }
+    val hubHiddenTitlesRequester = remember { FocusRequester() }
+    val hiddenTitlesRequester = remember { FocusRequester() }
+    var returnFocusToHiddenTitles by remember { mutableStateOf(false) }
     var returningToHub by remember { mutableStateOf(false) }
 
     BackHandler(enabled = serverPage != null) {
-        serverPage = if (serverPage == SERVERS_PAGE) null else SERVERS_PAGE
-        if (serverPage == null) returningToHub = true
+        val leavingHiddenTitles = serverPage == HIDDEN_TITLES_PAGE
+        serverPage = if (serverPage == SERVERS_PAGE || leavingHiddenTitles) null else SERVERS_PAGE
+        if (serverPage == null) {
+            returningToHub = true
+            returnFocusToHiddenTitles = leavingHiddenTitles
+        }
     }
 
     LaunchedEffect(serverPage) {
         val requester = when (serverPage) {
-            null -> hubServersRequester.takeIf { returningToHub }
+            null -> (if (returnFocusToHiddenTitles) hubHiddenTitlesRequester else hubServersRequester)
+                .takeIf { returningToHub }
             SERVERS_PAGE -> serversRequester
+            HIDDEN_TITLES_PAGE -> hiddenTitlesRequester
             else -> serverRequester
         } ?: return@LaunchedEffect
         returningToHub = false
@@ -53,8 +62,11 @@ internal fun ContentDiscoverySettingsContent(
         null -> ContentDiscoveryHub(
             onNavigateToServers = { serverPage = SERVERS_PAGE },
             initialFocusRequester = initialFocusRequester,
-            serversFocusRequester = hubServersRequester
+            serversFocusRequester = hubServersRequester,
+            onNavigateToHiddenTitles = { serverPage = HIDDEN_TITLES_PAGE },
+            hiddenTitlesFocusRequester = hubHiddenTitlesRequester
         )
+        HIDDEN_TITLES_PAGE -> HiddenTitlesSettingsContent(initialFocusRequester = hiddenTitlesRequester)
         SERVERS_PAGE -> MediaServersSettingsContent(
             initialFocusRequester = serversRequester,
             onOpenServer = { serverPage = it }
@@ -72,7 +84,9 @@ internal fun ContentDiscoverySettingsContent(
 private fun ContentDiscoveryHub(
     onNavigateToServers: () -> Unit,
     initialFocusRequester: FocusRequester?,
-    serversFocusRequester: FocusRequester
+    serversFocusRequester: FocusRequester,
+    onNavigateToHiddenTitles: () -> Unit,
+    hiddenTitlesFocusRequester: FocusRequester
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -93,7 +107,13 @@ private fun ContentDiscoveryHub(
                     .focusRequester(serversFocusRequester)
             )
         }
+        HiddenTitlesSettingsGroup(
+            onOpenHiddenTitles = onNavigateToHiddenTitles,
+            hiddenTitlesFocusRequester = hiddenTitlesFocusRequester
+        )
     }
 }
 
 private const val SERVERS_PAGE = "servers"
+// Never a server connection id: those are generated with a "c" prefix.
+private const val HIDDEN_TITLES_PAGE = "hidden_titles"

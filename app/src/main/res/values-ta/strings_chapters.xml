@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Player: chapters (#658) -->
+    <string name="cd_previous_chapter">முந்தைய அத்தியாயம்</string>
+    <string name="cd_next_chapter">அடுத்த அத்தியாயம்</string>
+    <string name="player_chapter_named">அத்தியாயம் %1$d: %2$s</string>
+    <string name="player_chapter_number">அத்தியாயம் %1$d</string>
+</resources>

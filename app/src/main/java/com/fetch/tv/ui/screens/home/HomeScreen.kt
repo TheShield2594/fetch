@@ -429,6 +429,7 @@ fun HomeScreen(
         state = posterOptionsState,
         controller = posterOptionsController,
         onNavigateToDetail = onNavigateToDetail,
+        showNotInterested = true,
         extraActions = {
             val rowKey = posterOptionsRowKey
             // Before Pin, so reordering a row from Home stays a few presses away.

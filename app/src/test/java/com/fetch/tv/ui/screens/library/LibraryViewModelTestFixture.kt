@@ -87,6 +87,11 @@ internal class LibraryViewModelTestFixture(
             every { state } returns MutableStateFlow(com.fetch.tv.ui.components.posteroptions.PosterOptionsState())
         },
         bestMatchCacheDataStore = mockk<BestMatchCacheDataStore> { every { entries } returns bestMatches },
+        bulkActions = mockk(relaxed = true),
+        nextUpCache = mockk(relaxed = true) {
+            every { snapshotVersion } returns MutableStateFlow(0)
+            every { cacheCleared } returns MutableStateFlow(0)
+        },
         context = mockk(relaxed = true)
     )
 

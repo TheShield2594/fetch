@@ -75,6 +75,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.FastRewind
@@ -1004,14 +1005,18 @@ fun PlayerScreen(
                             viewModel.onEvent(PlayerEvent.OnPause)
                             true
                         }
+                        // With chapters, Next / Previous step through them; past the last chapter Next
+                        // still plays the next episode, and without chapters Previous restarts.
                         KeyEvent.KEYCODE_MEDIA_NEXT -> {
-                            if (uiState.nextEpisode?.hasAired == true) {
-                                viewModel.onEvent(PlayerEvent.OnPlayNextEpisode)
+                            if (keyEvent.nativeKeyEvent.repeatCount == 0) {
+                                viewModel.onEvent(PlayerEvent.OnNextChapter(orNextEpisode = true))
                             }
                             true
                         }
                         KeyEvent.KEYCODE_MEDIA_PREVIOUS -> {
-                            viewModel.onEvent(PlayerEvent.OnSeekTo(0L))
+                            if (keyEvent.nativeKeyEvent.repeatCount == 0) {
+                                viewModel.onEvent(PlayerEvent.OnPreviousChapter(orRestart = true))
+                            }
                             true
                         }
                         KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
@@ -1743,7 +1748,12 @@ fun PlayerScreen(
                 .align(Alignment.BottomCenter)
                 .reportSubtitleClearance(subtitleClearanceGapPx) { seekClearancePx = it }
         ) {
-            SeekOverlayHost(viewModel = viewModel, seekFeedback = uiState.seekFeedback, skipSegments = uiState.skipSegments)
+            SeekOverlayHost(
+                viewModel = viewModel,
+                seekFeedback = uiState.seekFeedback,
+                skipSegments = uiState.skipSegments,
+                chapters = uiState.chapters
+            )
         }
 
         // Episodes/streams side panel
@@ -2732,6 +2742,7 @@ internal fun PlayerControlsOverlay(
                                 viewModel = viewModel,
                                 seekSteps = uiState.seekSteps,
                                 skipSegments = uiState.skipSegments,
+                                chapters = uiState.chapters,
                                 seekFeedback = uiState.seekFeedback,
                                 focusRequester = progressBarFocusRequester,
                                 upFocusRequester = progressBarUpFocusRequester,
@@ -2791,6 +2802,26 @@ internal fun PlayerControlsOverlay(
                                 icon = Icons.AutoMirrored.Filled.OpenInNew,
                                 contentDescription = stringResource(R.string.cd_open_external_player),
                                 onClick = openInExternalPlayer,
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
+                                onFocused = onResetHideTimer,
+                                labelAbove = true
+                            )
+                        }
+                        if (uiState.chapters.size > 1) {
+                            ControlButton(
+                                icon = Icons.Default.SkipPrevious,
+                                contentDescription = stringResource(R.string.cd_previous_chapter),
+                                onClick = { viewModel.onEvent(PlayerEvent.OnPreviousChapter()) },
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
+                                onFocused = onResetHideTimer,
+                                labelAbove = true
+                            )
+                            ControlButton(
+                                icon = Icons.Default.SkipNext,
+                                contentDescription = stringResource(R.string.cd_next_chapter),
+                                onClick = { viewModel.onEvent(PlayerEvent.OnNextChapter()) },
                                 upFocusRequester = progressUpTarget,
                                 onDownKey = backToMore,
                                 onFocused = onResetHideTimer,
@@ -3083,6 +3114,7 @@ private fun PlayerControlsProgressBarHost(
     viewModel: PlayerViewModel,
     seekSteps: SeekSteps,
     skipSegments: List<SkipInterval>,
+    chapters: List<com.fetch.tv.core.player.Chapter>,
     seekFeedback: SeekFeedback?,
     focusRequester: FocusRequester,
     upFocusRequester: FocusRequester? = null,
@@ -3113,7 +3145,8 @@ private fun PlayerControlsProgressBarHost(
         onClick = onClick,
         bufferedPosition = playbackTimeline.bufferedPosition,
         seekSteps = seekSteps,
-        skipSegments = skipSegments
+        skipSegments = skipSegments,
+        chapters = chapters
     )
 }
 
@@ -3383,10 +3416,15 @@ private fun ProgressBar(
     seekSteps: SeekSteps = SeekSteps(),
     /** Intro, recap and credits segments to mark on the bar. */
     skipSegments: List<SkipInterval> = emptyList(),
+    /** Chapter starts, drawn as ticks on the bar. */
+    chapters: List<com.fetch.tv.core.player.Chapter> = emptyList(),
     /** False for a display-only bar (the seek overlay): it takes no focus and handles no keys. */
     interactive: Boolean = true
 ) {
     val segments = remember(skipSegments, duration) { scrubberSegments(skipSegments, duration) }
+    val chapterTicks = remember(chapters, duration) {
+        com.fetch.tv.core.player.ChapterRules.tickFractions(chapters, duration)
+    }
     val accentBrush = FetchTheme.palette.accentBrush()
     val progress = if (duration > 0) {
         (currentPosition.toFloat() / duration.toFloat()).coerceIn(0f, 1f)
@@ -3552,6 +3590,10 @@ private fun ProgressBar(
                     color = FetchPrimitives.white.copy(alpha = 0.28f),
                     edgeColor = FetchTheme.colors.Background.copy(alpha = 0.7f)
                 )
+                .playerChapterTicks(
+                    ticks = chapterTicks,
+                    color = FetchTheme.colors.Player.ScrimStrong
+                )
         )
     }
 }
@@ -3562,7 +3604,8 @@ private fun SeekOverlay(
     duration: Long,
     bufferedPosition: Long = 0L,
     seekFeedback: SeekFeedback? = null,
-    skipSegments: List<SkipInterval> = emptyList()
+    skipSegments: List<SkipInterval> = emptyList(),
+    chapters: List<com.fetch.tv.core.player.Chapter> = emptyList()
 ) {
     Column(
         modifier = Modifier
@@ -3582,6 +3625,7 @@ private fun SeekOverlay(
                 onSeekCommit = {},
                 bufferedPosition = bufferedPosition,
                 skipSegments = skipSegments,
+                chapters = chapters,
                 interactive = false
             )
 
@@ -3606,7 +3650,8 @@ private fun SeekOverlay(
 private fun SeekOverlayHost(
     viewModel: PlayerViewModel,
     seekFeedback: SeekFeedback?,
-    skipSegments: List<SkipInterval> = emptyList()
+    skipSegments: List<SkipInterval> = emptyList(),
+    chapters: List<com.fetch.tv.core.player.Chapter> = emptyList()
 ) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
 
@@ -3615,7 +3660,8 @@ private fun SeekOverlayHost(
         duration = playbackTimeline.duration,
         bufferedPosition = playbackTimeline.bufferedPosition,
         seekFeedback = seekFeedback,
-        skipSegments = skipSegments
+        skipSegments = skipSegments,
+        chapters = chapters
     )
 }
 

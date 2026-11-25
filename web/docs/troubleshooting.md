@@ -241,8 +241,8 @@ What that looks like:
   never arrived.
 
 The fix is an `https://` address: put Fetch behind a reverse proxy with a
-certificate — see [Nginx Proxy Manager
-Setup](../README.md#nginx-proxy-manager-setup) — and install from there. Testing
+certificate — see [Reverse proxy
+setup](../README.md#reverse-proxy-setup) — and install from there. Testing
 on the machine running Docker, `http://localhost:7002` is exempt and everything
 works, which is why this only shows up once you open it on a phone.
 

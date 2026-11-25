@@ -1,5 +1,6 @@
 package com.fetch.tv.data.mediaserver.plex
 
+import com.fetch.tv.core.player.Chapter
 import com.fetch.tv.data.mediaserver.ServerCandidate
 import com.fetch.tv.data.mediaserver.ServerCapability
 import com.fetch.tv.data.mediaserver.ServerEpisode
@@ -258,6 +259,10 @@ internal class PlexProvider(
             userStates = (if (episodes.isEmpty()) listOf(item) else episodes).map(mapper::userState)
         )
     }
+
+    override suspend fun chapters(session: ServerSession, itemId: String): List<Chapter> =
+        container(session, "/library/metadata/${pathSegment(itemId)}", mapOf("includeChapters" to "1"))
+            .metadata.firstOrNull()?.chapters?.toChapters().orEmpty()
 
     override suspend fun candidates(session: ServerSession, itemId: String): List<ServerCandidate> =
         mapper(session).candidates(metadata(session, itemId))

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Player: chapters (#658) -->
+    <string name="cd_previous_chapter">Previous chapter</string>
+    <string name="cd_next_chapter">Next chapter</string>
+    <string name="player_chapter_named">Chapter %1$d: %2$s</string>
+    <string name="player_chapter_number">Chapter %1$d</string>
+</resources>

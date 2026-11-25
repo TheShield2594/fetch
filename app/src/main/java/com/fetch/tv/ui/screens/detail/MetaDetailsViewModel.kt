@@ -111,6 +111,8 @@ class MetaDetailsViewModel @Inject constructor(
     private val bestMatchPreviewer: com.fetch.tv.core.streams.BestMatchPreviewer,
     private val parentalControls: com.fetch.tv.core.parental.ParentalControls,
     val posterOptions: com.fetch.tv.ui.components.posteroptions.PosterOptionsController,
+    /** "Not interested" titles (#650), left out of More like this. */
+    private val titleVisibility: com.fetch.tv.core.hidden.TitleVisibilityFilter,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val itemId: String = savedStateHandle["itemId"] ?: ""
@@ -141,10 +143,12 @@ class MetaDetailsViewModel @Inject constructor(
     fun pauseBestMatchPreview() = bestMatchLookup.pause()
     private val shuffleVisit = System.nanoTime()
     val uiState: StateFlow<MetaDetailsUiState> = combine(
-        _uiState, episodeShuffleStore.profiles, watchProgressRepository.continueWatching, parentalControls.filterRevision
-    ) { state, profile, progress, _ ->
+        _uiState, episodeShuffleStore.profiles, watchProgressRepository.continueWatching, parentalControls.filterRevision,
+        titleVisibility.visibility
+    ) { state, profile, progress, _, visibility ->
         applyDetailShuffle(state, profile, progress, episodeShuffle, shuffleVisit, localizedContext)
             .filteredForProfile(parentalControls)
+            .withoutNotInterested(visibility)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, MetaDetailsUiState())
 
     private val _posterCardCornerRadiusDp = MutableStateFlow(THEME_CARD_CORNER_RADIUS)

@@ -51,6 +51,14 @@ export const TRAILER_FEATURE = "trailer_settings";
 export const STREAM_BADGE_FEATURE = "stream_badge_settings";
 export const TMDB_FEATURE = "tmdb_settings";
 export const TRAKT_FEATURE = "trakt_settings";
+/**
+ * The TV's `HiddenTitlesStore` (#650): `hide_watched` (boolean, absent = off),
+ * and one `title:<kind>:<id>` string key per "Not interested" title, holding
+ * JSON `{ ids, type, name, poster?, hiddenAt }`. One key per title lets the
+ * TV's key-by-key merge keep titles hidden or restored on different devices.
+ */
+export const HIDDEN_TITLES_FEATURE = "hidden_titles";
+export const HIDDEN_TITLE_KEY_PREFIX = "title:";
 
 type Option = { value: string; label: string };
 type NumberOption = { value: number; label: string };
@@ -952,6 +960,14 @@ export const TV_SETTING_GROUPS: TvSettingGroup[] = [
         advanced: true,
       },
       { kind: "toggle", feature: TRAKT_FEATURE, key: "show_meta_comments", label: "Trakt comments on detail pages", defaultValue: true, advanced: true },
+      {
+        kind: "toggle",
+        feature: HIDDEN_TITLES_FEATURE,
+        key: "hide_watched",
+        label: "Hide watched titles",
+        help: "Leaves watched movies and finished shows out of Home rows and See all. Continue Watching, the library and lists keep them.",
+        defaultValue: false,
+      },
     ],
   },
 ];
@@ -1182,6 +1198,39 @@ export const withRankingRules = (document: TvSettingsDocument, rules: RankingRul
 // that DataStore is never in this document (the TV leaves credentials out), so
 // the website keeps its own; these are only the display choices, shared by
 // both.
+
+export type HiddenTitle = { key: string; ids: string[]; type: string; name: string; poster?: string; hiddenAt: number };
+
+/** The profile's "Not interested" titles, newest first; entries that don't parse are skipped. */
+export const readHiddenTitles = (document: TvSettingsDocument): HiddenTitle[] => {
+  const feature = document.features?.[HIDDEN_TITLES_FEATURE];
+  if (!isRecord(feature)) return [];
+  const titles: HiddenTitle[] = [];
+  for (const [key, entry] of Object.entries(feature)) {
+    if (!key.startsWith(HIDDEN_TITLE_KEY_PREFIX) || !isRecord(entry) || typeof entry.value !== "string") continue;
+    try {
+      const parsed: unknown = JSON.parse(entry.value);
+      if (!isRecord(parsed) || !Array.isArray(parsed.ids)) continue;
+      const ids = parsed.ids.filter((id): id is string => typeof id === "string" && id.trim() !== "");
+      if (ids.length === 0) continue;
+      titles.push({
+        key,
+        ids,
+        type: typeof parsed.type === "string" ? parsed.type : "",
+        name: typeof parsed.name === "string" && parsed.name !== "" ? parsed.name : ids[0]!,
+        ...(typeof parsed.poster === "string" && parsed.poster !== "" ? { poster: parsed.poster } : {}),
+        hiddenAt: typeof parsed.hiddenAt === "number" ? parsed.hiddenAt : 0,
+      });
+    } catch {
+      // A damaged entry hides nothing on the TV either.
+    }
+  }
+  return titles.sort((a, b) => b.hiddenAt - a.hiddenAt || a.name.localeCompare(b.name));
+};
+
+/** `document` with one "Not interested" title restored, as the TV's Settings does. */
+export const withRestoredTitle = (document: TvSettingsDocument, key: string): TvSettingsDocument =>
+  withoutTvValue(document, HIDDEN_TITLES_FEATURE, key);
 
 export const MDBLIST_FEATURE = "mdblist_settings";
 

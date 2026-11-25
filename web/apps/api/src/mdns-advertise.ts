@@ -6,6 +6,8 @@
 // on the bridge network and gives only this small process the host's interfaces.
 // It needs no database and no secrets: just the public URLs it puts in the TXT
 // record and the port the API is published on.
+// First: fills the public URLs from FETCH_PUBLIC_URL before anything reads them.
+import "./lib/public-url-env.js";
 import { mdnsConfigFromEnv, startMdnsAdvertiser } from "./lib/mdns.js";
 
 const log = {

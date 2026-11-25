@@ -37,7 +37,11 @@ COPY --from=build /app/apps/web/dist ./dist
 # dist/serve.json is rendered from this template at container start — it carries
 # a connect-src that depends on runtime env, so it cannot be baked in here.
 COPY apps/web/serve.template.json ./serve.template.json
-COPY apps/web/scripts/csp.mjs apps/web/scripts/render-serve-json.mjs ./scripts/
+COPY apps/web/scripts/csp.mjs apps/web/scripts/render-serve-json.mjs apps/web/scripts/public-url-env.mjs ./scripts/
+# The FETCH_PUBLIC_URL expansion the entrypoint runs: @fetch/shared's compiled
+# public-url.ts, which imports nothing, so it runs here without node_modules.
+# .mjs because nothing in /app declares "type": "module".
+COPY --from=build /app/packages/shared/dist/public-url.js ./scripts/public-url.mjs
 # csp.mjs reads the artwork-CDN list from here — the same list the service
 # worker in dist/ was built against, so `connect-src` cannot fall behind what
 # the worker fetches. Keep the path: the import is relative to scripts/.

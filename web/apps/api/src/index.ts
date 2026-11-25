@@ -1,3 +1,5 @@
+// First: fills the public URLs from FETCH_PUBLIC_URL before anything reads them.
+import "./lib/public-url-env.js";
 import { Sentry } from "./lib/sentry.js";
 import Fastify from "fastify";
 import rateLimit from "@fastify/rate-limit";

@@ -1,5 +1,6 @@
 package com.fetch.tv.data.mediaserver
 
+import com.fetch.tv.core.player.Chapter
 import com.fetch.tv.core.tracking.TrackingExternalIds
 import com.fetch.tv.domain.model.FilterRowFilters
 
@@ -97,6 +98,9 @@ interface ServerProvider {
     suspend fun preparePlayback(session: ServerSession, request: ServerPlaybackRequest): ServerPlaybackSession
 
     suspend fun report(session: ServerSession, playback: ServerPlaybackSession, event: ServerPlaybackEvent) = Unit
+
+    /** The chapters of [itemId], in the order the server lists them; empty when it has none. */
+    suspend fun chapters(session: ServerSession, itemId: String): List<Chapter> = emptyList()
 
     suspend fun signOut(session: ServerSession) = Unit
 

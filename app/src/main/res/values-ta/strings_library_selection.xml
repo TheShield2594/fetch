@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Library multi-select (#653) -->
+    <string name="library_selection_start">தேர்ந்தெடு</string>
+    <plurals name="library_selection_count">
+        <item quantity="one">%d தேர்ந்தெடுக்கப்பட்டது</item>
+        <item quantity="other">%d தேர்ந்தெடுக்கப்பட்டன</item>
+    </plurals>
+    <string name="library_selection_hint">OK ஒரு தலைப்பைத் தேர்ந்தெடுக்கும் · Menu இந்தச் செயல்களுக்குச் செல்லும் · Back முடிக்கும்</string>
+    <string name="library_selection_remove">அகற்று</string>
+    <string name="library_selection_mark_watched">பார்த்ததாகக் குறி</string>
+    <string name="library_selection_move_to_list">பட்டியலுக்கு நகர்த்து</string>
+    <string name="library_selection_add_to_list">பட்டியலில் சேர்</string>
+    <string name="library_selection_done">முடிந்தது</string>
+    <string name="library_selection_bar_description">தேர்ந்தெடுத்த தலைப்புகளுக்கான செயல்கள்</string>
+    <string name="library_selection_cd_selected">தேர்ந்தெடுக்கப்பட்டது</string>
+    <string name="library_selection_cd_not_selected">தேர்ந்தெடுக்கப்படவில்லை</string>
+    <plurals name="library_selection_remove_confirm_title">
+        <item quantity="one">%d தலைப்பை அகற்றவா?</item>
+        <item quantity="other">%d தலைப்புகளை அகற்றவா?</item>
+    </plurals>
+    <string name="library_selection_remove_confirm_subtitle">அவை %1$s இலிருந்து நீக்கப்படும். உங்கள் கண்காணிப்புச் சேவை ஒவ்வொன்றாக உறுதிசெய்யக் கேட்கும் தலைப்புகள் அப்படியே விடப்படும்.</string>
+    <plurals name="library_selection_working">
+        <item quantity="one">%d தலைப்பு புதுப்பிக்கப்படுகிறது…</item>
+        <item quantity="other">%d தலைப்புகள் புதுப்பிக்கப்படுகின்றன…</item>
+    </plurals>
+    <plurals name="library_selection_done_removed">
+        <item quantity="one">%d தலைப்பு அகற்றப்பட்டது.</item>
+        <item quantity="other">%d தலைப்புகள் அகற்றப்பட்டன.</item>
+    </plurals>
+    <plurals name="library_selection_done_watched">
+        <item quantity="one">%d தலைப்பு பார்த்ததாகக் குறிக்கப்பட்டது.</item>
+        <item quantity="other">%d தலைப்புகள் பார்த்ததாகக் குறிக்கப்பட்டன.</item>
+    </plurals>
+    <plurals name="library_selection_done_moved">
+        <item quantity="one">%1$d தலைப்பு %2$s க்கு நகர்த்தப்பட்டது.</item>
+        <item quantity="other">%1$d தலைப்புகள் %2$s க்கு நகர்த்தப்பட்டன.</item>
+    </plurals>
+    <plurals name="library_selection_done_added">
+        <item quantity="one">%1$d தலைப்பு %2$s இல் சேர்க்கப்பட்டது.</item>
+        <item quantity="other">%1$d தலைப்புகள் %2$s இல் சேர்க்கப்பட்டன.</item>
+    </plurals>
+    <plurals name="library_selection_failed">
+        <item quantity="one">%d தலைப்பை மாற்ற முடியவில்லை; அதன் மெனுவிலிருந்து மீண்டும் முயலவும்.</item>
+        <item quantity="other">%d தலைப்புகளை மாற்ற முடியவில்லை; அவற்றின் மெனுக்களிலிருந்து மீண்டும் முயலவும்.</item>
+    </plurals>
+    <plurals name="library_selection_skipped">
+        <item quantity="one">%d தலைப்பு அப்படியே விடப்பட்டது: அதன் சொந்த மெனுவிலிருந்து மாற்றவும்.</item>
+        <item quantity="other">%d தலைப்புகள் அப்படியே விடப்பட்டன: அவற்றின் சொந்த மெனுக்களிலிருந்து மாற்றவும்.</item>
+    </plurals>
+</resources>

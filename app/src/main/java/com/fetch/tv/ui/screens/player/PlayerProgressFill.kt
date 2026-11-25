@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.ui.theme.FetchStrokes
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -110,6 +111,24 @@ internal fun Modifier.playerSegmentMarks(segments: List<ScrubberSegment>, color:
                     topLeft = Offset((left + width - edge).coerceAtLeast(left), 0f),
                     size = Size(edge, size.height)
                 )
+            }
+        }
+    }
+
+/**
+ * Draws a thin notch at each chapter start in [ticks] (fractions of the bar), so chapters read on
+ * the scrubber. Only drawing: chapters change once per stream.
+ */
+internal fun Modifier.playerChapterTicks(ticks: List<Float>, color: Color): Modifier =
+    if (ticks.isEmpty()) {
+        this
+    } else {
+        drawWithContent {
+            drawContent()
+            val width = FetchStrokes.tokens.medium.toPx()
+            ticks.forEach { fraction ->
+                val x = (size.width * fraction - width / 2f).coerceIn(0f, (size.width - width).coerceAtLeast(0f))
+                drawRect(color = color, topLeft = Offset(x, 0f), size = Size(width, size.height))
             }
         }
     }

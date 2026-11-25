@@ -42,7 +42,11 @@ internal class LibraryActivityCardActions(
     val onFocused: (key: String, item: LibraryActivityItem) -> Unit,
     val onClick: (key: String, item: LibraryActivityItem) -> Unit,
     val onLongPress: (key: String, preview: MetaPreview, item: LibraryActivityItem) -> Unit,
-    val isWatched: (LibraryActivityItem) -> Boolean
+    val isWatched: (LibraryActivityItem) -> Boolean,
+    // Selection mode (#653): null outside it, else whether the card is chosen.
+    val selectedFor: (key: String) -> Boolean? = { null },
+    // The new-episode badge's text and whether it's a new season (#653).
+    val newEpisodeBadgeFor: (LibraryActivityItem) -> Pair<String, Boolean>? = { null }
 )
 
 internal fun LazyGridScope.libraryInProgressContent(
@@ -119,6 +123,8 @@ private fun ActivityCard(
     actions: LibraryActivityCardActions
 ) {
     val preview = remember(item, detail) { item.toMetaPreview(detail) }
+    val selected = actions.selectedFor(focusKey)
+    val badge = actions.newEpisodeBadgeFor(item)
     GridContentCard(
         item = preview,
         posterCardStyle = posterCardStyle,
@@ -128,7 +134,11 @@ private fun ActivityCard(
         showReleaseInfo = detail != null,
         onFocused = { actions.onFocused(focusKey, item) },
         onClick = { actions.onClick(focusKey, item) },
-        onLongPress = { actions.onLongPress(focusKey, preview, item) }
+        // While choosing, OK only toggles the card; the options menu waits until selection ends.
+        onLongPress = if (selected != null) null else ({ actions.onLongPress(focusKey, preview, item) }),
+        selected = selected,
+        newEpisodeBadge = badge?.first,
+        newEpisodeBadgeIsSeason = badge?.second == true
     )
 }
 

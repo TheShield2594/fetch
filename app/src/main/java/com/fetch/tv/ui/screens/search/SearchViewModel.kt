@@ -71,7 +71,9 @@ class SearchViewModel @Inject constructor(
     private val remoteCommandBus: com.fetch.tv.core.remote.RemoteCommandBus,
     @ApplicationContext private val context: Context,
     private val peopleSearch: com.fetch.tv.core.tmdb.TmdbPeopleSearch,
-    private val libraryRepository: com.fetch.tv.domain.repository.LibraryRepository
+    private val libraryRepository: com.fetch.tv.domain.repository.LibraryRepository,
+    /** "Not interested" titles (#650), left out of results, Discover and completions. */
+    private val titleVisibility: com.fetch.tv.core.hidden.TitleVisibilityFilter
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
@@ -94,8 +96,10 @@ class SearchViewModel @Inject constructor(
     // refiltered when the limit changes or more certifications are known. The merged view is
     // built from the filtered rows, so a hidden title never becomes the top result.
     val uiState: StateFlow<SearchUiState> =
-        combine(_uiState, parentalControls.filterRevision, libraryIds) { state, _, inLibrary ->
-            state.filteredForProfile(parentalControls).withMergedResults(inLibrary)
+        combine(_uiState, parentalControls.filterRevision, libraryIds, titleVisibility.visibility) { state, _, inLibrary, visibility ->
+            state.filteredForProfile(parentalControls)
+                .withoutNotInterested(visibility)
+                .withMergedResults(inLibrary)
         }.stateIn(viewModelScope, SharingStarted.Eagerly, SearchUiState())
 
     /**
@@ -531,7 +535,8 @@ class SearchViewModel @Inject constructor(
                             if (result is NetworkResult.Success && _uiState.value.query.trim() == query) {
                                 // Restricted profiles must not see blocked titles as keyboard
                                 // completions any more than as result cards.
-                                val names = parentalControls.filterPreviews(result.data.items)
+                                val names = titleVisibility.visibility.value
+                                    .filterSuggestions(parentalControls.filterPreviews(result.data.items))
                                     .map { it.name }
                                 val previous = namesByCatalog.put(catalogIndex, names)
                                 // Catalog results arrive independently and are merged, so a batch
@@ -1359,7 +1364,9 @@ class SearchViewModel @Inject constructor(
                 discoverPagingPaused = paused
             )
         }
-        return hasMore && !paused && visible.size < DISCOVER_MIN_RESULTS
+        // Counted as shown: "Not interested" titles are left out on the way to the grid (#650).
+        val shown = titleVisibility.visibility.value.filterSuggestions(visible).size
+        return hasMore && !paused && shown < DISCOVER_MIN_RESULTS
     }
 
     private suspend fun fetchDiscoverPage(

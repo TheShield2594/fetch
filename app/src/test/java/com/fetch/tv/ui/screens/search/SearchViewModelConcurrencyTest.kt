@@ -148,7 +148,8 @@ class SearchViewModelConcurrencyTest {
             remoteCommandBus = com.fetch.tv.core.remote.RemoteCommandBus(),
             context = mockk<Context>(relaxed = true),
             peopleSearch = mockk { io.mockk.coEvery { search(any()) } returns emptyList() },
-            libraryRepository = mockk { every { libraryItems } returns flowOf(emptyList()) }
+            libraryRepository = mockk { every { libraryItems } returns flowOf(emptyList()) },
+            titleVisibility = com.fetch.tv.unfilteredTitleVisibility()
         )
     }
 

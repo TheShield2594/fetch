@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Not interested" and "Hide watched" (#650) -->
+    <string name="poster_options_not_interested">Not interested</string>
+    <string name="poster_options_done_not_interested">“%1$s” won’t be suggested again. Restore it in Settings</string>
+    <string name="poster_options_error_not_interested">Couldn’t hide that title. Try again</string>
+    <string name="hidden_titles_group_title">Hidden titles</string>
+    <string name="hidden_titles_hide_watched_title">Hide watched titles</string>
+    <string name="hidden_titles_hide_watched_subtitle">Leave watched movies and finished shows out of Home rows and See all. Continue Watching, your library and your lists still show them</string>
+    <string name="hidden_titles_not_interested_title">Not interested</string>
+    <string name="hidden_titles_not_interested_subtitle">Titles you hid from Home rows, See all, Search and More like this</string>
+    <string name="hidden_titles_none">None</string>
+    <plurals name="hidden_titles_count">
+        <item quantity="one">%1$d title</item>
+        <item quantity="other">%1$d titles</item>
+    </plurals>
+    <string name="hidden_titles_page_subtitle">Select a title to bring it back</string>
+    <string name="hidden_titles_empty_title">Nothing hidden</string>
+    <string name="hidden_titles_empty_subtitle">Hold OK on a poster and choose Not interested to stop a title coming back</string>
+    <string name="hidden_titles_restore_hint">Select to restore</string>
+    <string name="hidden_titles_sync_note">Hidden titles follow this profile to your other TVs and the Fetch website, and are kept in backups.</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fetch: new and changed strings -->
+    <string name="poster_options_not_interested">Ne zanima me</string>
+    <string name="poster_options_done_not_interested">»%1$s« ne bo več predlagan. Obnovite ga lahko v nastavitvah</string>
+    <string name="poster_options_error_not_interested">Naslova ni bilo mogoče skriti. Poskusite znova</string>
+    <string name="hidden_titles_group_title">Skriti naslovi</string>
+    <string name="hidden_titles_hide_watched_title">Skrij ogledane naslove</string>
+    <string name="hidden_titles_hide_watched_subtitle">Ogledani filmi in do konca ogledane serije se ne prikažejo v vrsticah na začetnem zaslonu in v »Prikaži vse«. Nadaljuj z ogledom, vaša knjižnica in vaši seznami jih še vedno prikazujejo</string>
+    <string name="hidden_titles_not_interested_title">Ne zanima me</string>
+    <string name="hidden_titles_not_interested_subtitle">Naslovi, ki ste jih skrili iz vrstic na začetnem zaslonu, »Prikaži vse«, iskanja in podobnih naslovov</string>
+    <string name="hidden_titles_none">Nič</string>
+    <plurals name="hidden_titles_count">
+        <item quantity="one">%1$d naslov</item>
+        <item quantity="two">%1$d naslova</item>
+        <item quantity="few">%1$d naslovi</item>
+        <item quantity="other">%1$d naslovov</item>
+    </plurals>
+    <string name="hidden_titles_page_subtitle">Izberite naslov, da ga znova prikažete</string>
+    <string name="hidden_titles_empty_title">Nič ni skrito</string>
+    <string name="hidden_titles_empty_subtitle">Na plakatu pridržite OK in izberite »Ne zanima me«, da se naslov ne bo več pojavljal</string>
+    <string name="hidden_titles_restore_hint">Izberite za obnovitev</string>
+    <string name="hidden_titles_sync_note">Skriti naslovi sledijo temu profilu na vaše druge televizorje in spletno mesto Fetch ter so vključeni v varnostne kopije.</string>
+</resources>

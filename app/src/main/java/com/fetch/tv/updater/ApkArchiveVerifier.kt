@@ -34,7 +34,8 @@ object ApkArchiveVerifier {
         return check(
             archivePackage = archive.packageName,
             archiveVersionCode = PackageInfoCompat.getLongVersionCode(archive),
-            archiveSigners = archiveSignerDigests(archive),
+            archiveSigners = currentSignerDigests(archive),
+            archiveSignerHistory = signerHistoryDigests(archive),
             installedPackage = installed.packageName,
             installedVersionCode = PackageInfoCompat.getLongVersionCode(installed),
             installedSigners = currentSignerDigests(installed)
@@ -42,27 +43,38 @@ object ApkArchiveVerifier {
     }
 
     /**
-     * The decision on its own, for tests. [archiveSigners] holds the archive's current
-     * signers plus any past certificates in its rotation history; every one of the
-     * installed app's current signers must be among them. Signers that couldn't be read
-     * (empty) are not checked.
+     * The decision on its own, for tests. [archiveSigners] and [installedSigners] are the
+     * current signers; [archiveSignerHistory] the archive's past certificates when it has a
+     * single signer that rotated. Signers that couldn't be read (empty) are not checked.
      */
     internal fun check(
         archivePackage: String?,
         archiveVersionCode: Long,
         archiveSigners: Set<String>,
+        archiveSignerHistory: Set<String> = emptySet(),
         installedPackage: String,
         installedVersionCode: Long,
         installedSigners: Set<String>
     ): Failure? {
         if (archivePackage != installedPackage) return Failure.WRONG_PACKAGE
         if (archiveVersionCode <= installedVersionCode) return Failure.NOT_NEWER
-        if (archiveSigners.isNotEmpty() && installedSigners.isNotEmpty() &&
-            !archiveSigners.containsAll(installedSigners)
-        ) {
-            return Failure.SIGNER_MISMATCH
+        if (archiveSigners.isEmpty() || installedSigners.isEmpty()) return null
+        return if (signersCompatible(archiveSigners, archiveSignerHistory, installedSigners)) {
+            null
+        } else {
+            Failure.SIGNER_MISMATCH
         }
-        return null
+    }
+
+    private fun signersCompatible(
+        archiveSigners: Set<String>,
+        archiveSignerHistory: Set<String>,
+        installedSigners: Set<String>
+    ): Boolean {
+        // Several simultaneous signers are one identity to Android: the sets must match.
+        if (archiveSigners.size > 1 || installedSigners.size > 1) return archiveSigners == installedSigners
+        // One signer: the installed one, or one the archive's key rotated away from.
+        return installedSigners.single() in archiveSigners + archiveSignerHistory
     }
 
     @Suppress("DEPRECATION")
@@ -87,20 +99,15 @@ object ApkArchiveVerifier {
         return pm.getPackageInfo(packageName, flags)
     }
 
-    @Suppress("DEPRECATION")
-    private fun archiveSignerDigests(info: PackageInfo): Set<String> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val signing = info.signingInfo ?: return emptySet()
-            val signers = if (signing.hasMultipleSigners()) {
-                signing.apkContentsSigners
-            } else {
-                // Current certificate plus its rotation history, so a key rotated by an
-                // update is still accepted.
-                signing.signingCertificateHistory
-            }
-            return signers.orEmpty().digests()
-        }
-        return info.signatures.orEmpty().digests()
+    /**
+     * Past certificates of a single-signer package whose key rotated, so an update signed
+     * with the new key is still accepted. Empty for multiple signers and before API 28.
+     */
+    private fun signerHistoryDigests(info: PackageInfo): Set<String> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return emptySet()
+        val signing = info.signingInfo ?: return emptySet()
+        if (signing.hasMultipleSigners()) return emptySet()
+        return signing.signingCertificateHistory.orEmpty().digests()
     }
 
     @Suppress("DEPRECATION")

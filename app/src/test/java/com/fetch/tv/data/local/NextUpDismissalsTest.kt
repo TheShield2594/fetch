@@ -62,6 +62,14 @@ class NextUpDismissalsTest {
     }
 
     @Test
+    fun `only legacy dismissals are settled before resolving`() {
+        val stored = NextUpDismissals.fromStored(setOf("tt9", dismissal.encode()))
+        assertTrue(stored.hidesBeforeResolving("tt9"))
+        assertFalse(stored.hidesBeforeResolving("tt1"))
+        assertFalse(stored.hidesBeforeResolving("tt3"))
+    }
+
+    @Test
     fun `a new dismissal replaces a legacy key for the same show`() {
         val stored = NextUpDismissals.fromStored(setOf("tt1", dismissal.encode()))
         assertEquals(dismissal, stored.byContentId["tt1"])

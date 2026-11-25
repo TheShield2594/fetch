@@ -118,7 +118,15 @@ data class NextUpDismissals(val byContentId: Map<String, NextUpDismissal> = empt
         ?.hides(seedSeason, seedEpisode, season, episode, hasAired) == true
 
     /**
-     * For a watch-history seed whose Next Up episode isn't known yet. An unaired episode
+     * Before a seed is resolved: only a dismissal stored without a position can be settled
+     * here. Every other one depends on the episode the seed resolves to, so it is checked
+     * afterwards with [hides].
+     */
+    fun hidesBeforeResolving(contentId: String): Boolean =
+        byContentId[contentId.trim()]?.isLegacy == true
+
+    /**
+     * For a watch-history seed that is never resolved to an offered episode (episode shuffle). An unaired episode
      * that was dismissed may have aired since, so those seeds still go on to be resolved
      * and are checked again with [hides].
      */

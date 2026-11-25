@@ -48,12 +48,14 @@ class ApkVerificationTest {
     private fun check(
         pkg: String? = "com.fetch.tv",
         version: Long = 2,
-        archiveSigners: Set<String> = setOf("old", "new"),
+        archiveSigners: Set<String> = setOf("new"),
+        archiveHistory: Set<String> = setOf("old", "new"),
         installedSigners: Set<String> = setOf("old")
     ) = ApkArchiveVerifier.check(
         archivePackage = pkg,
         archiveVersionCode = version,
         archiveSigners = archiveSigners,
+        archiveSignerHistory = archiveHistory,
         installedPackage = "com.fetch.tv",
         installedVersionCode = 1,
         installedSigners = installedSigners
@@ -69,7 +71,25 @@ class ApkVerificationTest {
         assertEquals(Failure.WRONG_PACKAGE, check(pkg = "com.other"))
         assertEquals(Failure.WRONG_PACKAGE, check(pkg = null))
         assertEquals(Failure.NOT_NEWER, check(version = 1))
-        assertEquals(Failure.SIGNER_MISMATCH, check(archiveSigners = setOf("debug")))
+        assertEquals(Failure.SIGNER_MISMATCH, check(archiveSigners = setOf("debug"), archiveHistory = emptySet()))
+    }
+
+    @Test
+    fun `same single signer passes`() {
+        assertNull(check(archiveSigners = setOf("old"), archiveHistory = emptySet()))
+    }
+
+    @Test
+    fun `multiple signers must match exactly`() {
+        assertNull(check(archiveSigners = setOf("a", "b"), archiveHistory = emptySet(), installedSigners = setOf("a", "b")))
+        assertEquals(
+            Failure.SIGNER_MISMATCH,
+            check(archiveSigners = setOf("a", "b"), archiveHistory = emptySet(), installedSigners = setOf("a"))
+        )
+        assertEquals(
+            Failure.SIGNER_MISMATCH,
+            check(archiveSigners = setOf("a"), archiveHistory = emptySet(), installedSigners = setOf("a", "b"))
+        )
     }
 
     @Test

@@ -1511,7 +1511,9 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
             }
             .filter { it.contentId !in ipIds }
             .filter { progress ->
-                !dismissedNextUp.hidesSeed(progress.contentId, progress.season, progress.episode)
+                // Only dismissals without a recorded position are settled before resolving; the
+                // rest are checked against the episode the seed resolves to, below.
+                !dismissedNextUp.hidesBeforeResolving(progress.contentId)
             }
             .sortedByDescending { it.lastWatched }
             // Skip seeds validated as "no next-up" ONLY if the seed hasn't changed.
@@ -1578,6 +1580,12 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
                         processedContentIds.remove(progress.contentId)
                     }
                     logNextUpDecision("drop contentId=${progress.contentId} name=${progress.name} reason=buildNextUpItem-null metaResolved=$metaResolved")
+                    return@withPermit
+                }
+                // Still hidden unless newer history, a later episode, or the dismissed episode
+                // airing brought it back (TheShield2594/fetch#648).
+                if (dismissedNextUp.hides(nextUp.info)) {
+                    logNextUpDecision("drop contentId=${progress.contentId} name=${progress.name} reason=dismissed")
                     return@withPermit
                 }
                 val fullyWatched = fullyWatchedSeriesIds.fullyWatchedSeriesIds.value

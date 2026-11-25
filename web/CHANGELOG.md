@@ -13,6 +13,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ### Added
 
+- **Personal access tokens.** Settings → Access tokens makes a named token for a script or an integration such as Home Assistant, so it needs neither a sign-in that expires nor `API_TOKEN`. A token reaches only your own profiles, can be read-only, can be given an expiry, and is revoked on its own ([#645](https://github.com/TheShield2594/fetch/issues/645)).
+- **An OpenAPI description of the API** at `GET /openapi.json`, generated from the routes ([#645](https://github.com/TheShield2594/fetch/issues/645)).
 - **Find and merge duplicate watches.** Settings → Data → Duplicate watches lists watches that look like one watch recorded twice: the same title within 36 hours (two sources dating one evening to different UTC days), or a "date unknown" mark next to the dated play. Untick any real rewatches and merge the rest; each keeps one row with the largest play count, its note and any Trakt id.
 - **Fetch exports carry more of the profile.** Exports are now version 2 and include list descriptions and each list's manual order, tags, dropped shows, the TV settings and the Home layout; version 1 files still import. Add-ons are left out because their addresses often hold account keys, and the TV settings and Home layout are only restored onto a profile that has none yet ([#641](https://github.com/TheShield2594/fetch/issues/641)).
 

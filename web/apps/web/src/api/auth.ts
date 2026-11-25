@@ -57,6 +57,16 @@ export type SignIn =
       lastUsedAt: string | null;
     };
 
+/** A personal access token as Settings lists it. The token itself is only in the response that made it. */
+export type AccessToken = {
+  id: string;
+  name: string;
+  readOnly: boolean;
+  createdAt: string;
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+};
+
 export type AccountEvent = {
   id: string;
   kind: string;
@@ -315,6 +325,20 @@ export const authApi = {
   },
   revokeInvite(id: string) {
     return request<void>(`/auth/invites/${encodeURIComponent(id)}`, { method: "DELETE" });
+  },
+  /** This account's personal access tokens. Never the tokens themselves. */
+  getAccessTokens() {
+    return request<{ tokens: AccessToken[] }>("/auth/tokens");
+  },
+  /** Makes an access token. `token` is shown this once. */
+  createAccessToken(input: { name: string; readOnly: boolean; expiresInDays: number | null }) {
+    return request<{ token: string; accessToken: AccessToken }>("/auth/tokens", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  },
+  revokeAccessToken(id: string) {
+    return request<void>(`/auth/tokens/${encodeURIComponent(id)}`, { method: "DELETE" });
   },
   getWebhookKey() {
     /** `lastUsedAt`: when a media server last reached a webhook with this key, to the minute; null if none has. */

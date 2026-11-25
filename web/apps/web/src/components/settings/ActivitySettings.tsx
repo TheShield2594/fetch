@@ -25,6 +25,8 @@ const EVENT_LABELS: Record<string, string> = {
   totp_disabled: "Two-factor sign-in turned off",
   totp_failed: "Wrong two-factor code",
   recovery_code_used: "Recovery code used",
+  access_token_created: "Access token made",
+  access_token_revoked: "Access token revoked",
 };
 
 /** Events worth a second look: someone else tried, or did, something to the account. */

@@ -23,6 +23,7 @@ export {
   type SecondFactor,
   type TotpChallenge,
   type TotpStatus,
+  type AccessToken,
   type AccountEvent,
   type AccountSummary,
   type Invite,

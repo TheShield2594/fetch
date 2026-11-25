@@ -39,6 +39,9 @@ const makeRequest = (
 const findSession = vi.fn();
 vi.mock("./sessions.js", () => ({ findSession, SESSION_COOKIE_MAX_AGE_SEC: 2592000 }));
 
+const findAccessToken = vi.fn();
+vi.mock("./access-tokens.js", () => ({ findAccessToken }));
+
 const loadVerifyToken = async () => (await import("./auth.js")).verifyToken;
 
 describe("verifyToken", () => {
@@ -93,6 +96,58 @@ describe("verifyToken", () => {
 
     expect(reply.statusCode).toBe(401);
     expect(reply.headers["WWW-Authenticate"]).toBe("Bearer");
+  });
+
+  describe("personal access tokens", () => {
+    const verify = async (method: string) => {
+      process.env.API_TOKEN = "secret-token";
+      vi.resetModules();
+      const verifyToken = await loadVerifyToken();
+      const reply = new FakeReply();
+      const request = makeRequest("Bearer fpat_abc", { method });
+      await verifyToken(request, reply as unknown as FastifyReply);
+      return { request, reply };
+    };
+
+    it("acts as the account that made it", async () => {
+      findAccessToken.mockResolvedValue({ id: "t1", accountId: "a1", readOnly: false });
+
+      const { request, reply } = await verify("POST");
+
+      expect(reply.statusCode).toBeUndefined();
+      expect(request.auth).toEqual({ kind: "pat", tokenId: "t1", accountId: "a1", readOnly: false });
+    });
+
+    it("is refused once revoked or expired", async () => {
+      findAccessToken.mockResolvedValue(null);
+
+      const { request, reply } = await verify("GET");
+
+      expect(reply.statusCode).toBe(401);
+      expect(request.auth).toBeUndefined();
+    });
+
+    it("may read but not write when read-only", async () => {
+      findAccessToken.mockResolvedValue({ id: "t1", accountId: "a1", readOnly: true });
+
+      expect((await verify("GET")).reply.statusCode).toBeUndefined();
+      const refused = await verify("DELETE");
+      expect(refused.reply.statusCode).toBe(403);
+      expect(refused.reply.body).toMatchObject({ code: "read_only_token" });
+      expect(refused.request.auth).toBeUndefined();
+    });
+
+    it("can't manage TVs", async () => {
+      vi.resetModules();
+      const { requireOwnerToken } = await import("./auth.js");
+      const reply = new FakeReply();
+      const request = makeRequest();
+      request.auth = { kind: "pat", tokenId: "t1", accountId: "a1", readOnly: false };
+
+      await requireOwnerToken(request, reply as unknown as FastifyReply);
+
+      expect(reply.statusCode).toBe(403);
+    });
   });
 
   it("lets the request through for the correct token", async () => {

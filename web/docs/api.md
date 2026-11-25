@@ -38,7 +38,7 @@ something on top of it.
 
 ## Authentication
 
-Every endpoint needs a bearer token, which is one of three things:
+Every endpoint needs a bearer token, which is one of four things:
 
 - **A session token**, from signing in (`POST /auth/login`, `/auth/register`
   or `/auth/bootstrap`). A session only ever sees its own account's profiles.
@@ -46,6 +46,15 @@ Every endpoint needs a bearer token, which is one of three things:
   and never more than 90 days from sign-in. The web app gets its session as a
   cookie rather than a token — see
   [The website's session cookie](#the-websites-session-cookie).
+- **A personal access token**, made in **Settings → Access tokens** (or `POST
+  /auth/tokens`) for a script or an integration such as Home Assistant. It
+  starts with `fpat_`, acts as the account that made it on that account's
+  profiles only, and lasts until it expires or is revoked. It is never the
+  admin and can't manage the account itself: the password, sign-ins, TVs
+  (`403 owner_token_required`) and other tokens stay with a signed-in session.
+  A read-only token may only send `GET` requests; anything else is `403`
+  (`code: "read_only_token"`). Prefer one of these to `API_TOKEN` for anything
+  that isn't the operator.
 - **A paired device's token** (see [Devices](#devices)), which a TV gets by
   pairing instead of being given `API_TOKEN`.
 - **`API_TOKEN`**, the server's own token. This is the operator: scripts and
@@ -62,6 +71,11 @@ account's profiles, like `API_TOKEN`, but is never the admin.
 ```bash
 curl -H "Authorization: Bearer $API_TOKEN" http://192.168.1.25:7000/watch/stats
 ```
+
+`GET /openapi.json` is an OpenAPI 3 description of every route, generated from
+the routes themselves. Routes that declare a request schema are described in
+full; the rest are listed by method, path and path parameters, and this page is
+where their bodies and answers are written out.
 
 A missing, wrong or expired token gets `401` with a `WWW-Authenticate: Bearer`
 header. That header is how the web client tells "you are signed out" apart from
@@ -599,6 +613,9 @@ and a browser can't overwrite each other; re-read, merge and retry. A missing
 | `PATCH` | `/auth/me` | `{ username, currentPassword }` → `{ account }`. `401 password_incorrect`, `409` for a taken name. |
 | `DELETE` | `/auth/me` | `{ currentPassword }`. Deletes the signed-in account and everything its profiles own. The admin can't (`400 admin_cannot_delete`): hand admin on first. Expires the website's cookies. |
 | `POST` | `/auth/password` | `{ currentPassword, newPassword, signOutTvs? }`. Signs out every other session, and with `signOutTvs: true` every paired device. Clears `mustChangePassword`. `204`. |
+| `GET` | `/auth/tokens` | The account's personal access tokens: `{ tokens: [{ id, name, readOnly, createdAt, lastUsedAt, expiresAt }] }`. Never the tokens themselves. Session only, as are the two below. |
+| `POST` | `/auth/tokens` | `{ name, readOnly?, expiresInDays? }` → `201 { token, accessToken }`. `name` is up to 60 characters; `expiresInDays` is 1 to 3650, or left out for a token that doesn't expire. `token` is in this response only. At most 25 per account (`409 access_token_limit`). |
+| `DELETE` | `/auth/tokens/:id` | Revokes one of the account's tokens. `204`; it stops working at once. |
 | `GET` | `/auth/sessions` | Where the account is signed in: `{ sessions: [...] }`, browsers (`kind: "browser"`, `id`, `current`, `userAgent`, `ipAddress`, `createdAt`, `lastUsedAt`, `expiresAt`) then TVs (`kind: "tv"`, `id`, `name`, `appVersion`, `createdAt`, `lastUsedAt`). Session only. |
 | `DELETE` | `/auth/sessions/:id` | Ends one of the account's browser sessions. A TV is ended with `DELETE /devices/:id`. Session only. Ending this browser's own session also expires its cookies. |
 | `POST` | `/auth/sessions/revoke-others` | `{ includeTvs? }` → `{ browsers, tvs }`. Ends every other browser session, and every TV with `includeTvs: true`. The calling session stays. Session only. |

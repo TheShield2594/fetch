@@ -12,6 +12,7 @@ import {
 import { attachDatabaseLogging, prisma } from "./lib/prisma.js";
 import { applyCorsHeaders } from "./lib/cors.js";
 import { parseLogLevel, registerRequestLogging } from "./lib/request-logging.js";
+import { registerOpenApi } from "./lib/openapi.js";
 import { registerHttpCaching } from "./lib/http-cache.js";
 import { registerAuthGate } from "./lib/auth-gate.js";
 import { getAiRecommendations, isAiConfigured, listAiOwners } from "./lib/ai.js";
@@ -30,6 +31,7 @@ import { checkUpcomingEpisodesAndNotify } from "./lib/notify-episodes.js";
 import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scrobble.js";
 import { sweepStaleAttempts } from "./lib/attempt-lockout.js";
 import { sweepExpiredSessions } from "./lib/sessions.js";
+import { sweepExpiredAccessTokens } from "./lib/access-tokens.js";
 import { sweepOldAccountEvents } from "./lib/account-events.js";
 import { everyInterval, parseIntervalSec } from "./lib/scheduler.js";
 import { bodyTooLargeMessage, isBodyTooLargeError, mbToBytes, parseMaxBodySizeMb } from "./lib/body-limit.js";
@@ -47,6 +49,7 @@ import {
 import healthRoutes from "./routes/health.js";
 import authRoutes from "./routes/auth.js";
 import webhookKeyRoutes from "./routes/webhook-key.js";
+import accessTokenRoutes from "./routes/access-tokens.js";
 import metricsRoutes from "./routes/metrics.js";
 import profilesRoutes from "./routes/profiles.js";
 import devicesRoutes from "./routes/devices.js";
@@ -284,9 +287,13 @@ Sentry.setupFastifyErrorHandler(app);
 
 // ─── Route registration ───
 
+// First, because it learns of the routes as they are added.
+registerOpenApi(app);
+
 app.register(healthRoutes);
 app.register(authRoutes);
 app.register(webhookKeyRoutes);
+app.register(accessTokenRoutes);
 app.register(metricsRoutes);
 app.register(profilesRoutes);
 app.register(devicesRoutes);
@@ -464,7 +471,7 @@ const start = async () => {
       runJob("auth-cleanup", async () => {
         const [attempts, sessions, events] = [
           await sweepStaleAttempts(),
-          await sweepExpiredSessions(),
+          (await sweepExpiredSessions()) + (await sweepExpiredAccessTokens()),
           await sweepOldAccountEvents(),
         ];
         if (attempts + sessions + events > 0) {

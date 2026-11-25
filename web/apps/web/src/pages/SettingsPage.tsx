@@ -1,11 +1,12 @@
 import { type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link as RouterLink, Navigate, useSearchParams } from "react-router";
-import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X, ChevronLeft, ChevronRight, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette } from "lucide-react";
+import { Link, Database, Info, Clapperboard, Film, Image, Globe, Star, Sparkles, Bell, Users, Activity, Search, X, ChevronLeft, ChevronRight, UserCircle, UserPlus, Webhook, ListChecks, Server, Palette, KeyRound } from "lucide-react";
 import { healthDotClass, healthSummary, type SectionHealth } from "../components/settings/health";
 import { useSettingsHealth } from "../hooks/useSettingsHealth";
 import { AccountSettings } from "../components/settings/AccountSettings";
 import { InvitesSettings } from "../components/settings/InvitesSettings";
 import { WebhookSettings } from "../components/settings/WebhookSettings";
+import { AccessTokensSettings } from "../components/settings/AccessTokensSettings";
 import { MediaServersSettings } from "../components/settings/MediaServersSettings";
 import { useAccount } from "../hooks/useAccount";
 import { TraktSettings } from "../components/settings/TraktSettings";
@@ -280,6 +281,15 @@ export const SETTINGS_SECTIONS: SettingsSection[] = [
     keywords:
       "sign in sign out log out password username login sessions devices browsers sign out everywhere activity log security delete account",
     content: <AccountSettings />,
+  },
+  {
+    id: "access-tokens",
+    group: "account",
+    scope: "account",
+    title: "Access tokens",
+    icon: <KeyRound size={20} />,
+    keywords: "access token personal api key script home assistant integration automation bearer read-only revoke",
+    content: <AccessTokensSettings />,
   },
   // This server: what it offers and to whom, and how its own work is going.
   {

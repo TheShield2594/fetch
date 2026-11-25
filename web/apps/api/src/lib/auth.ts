@@ -3,7 +3,8 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { SERVICE_TOKEN_HEADER } from "@fetch/shared";
 import { ADDON_SCOPE_RESPONSE, isAddonServiceRoute } from "./addon-scope.js";
 import { DEVICE_TOKEN_PREFIX, findDeviceByToken } from "./device-token.js";
-import { SESSION_TOKEN_PREFIX } from "./request-auth.js";
+import { ACCESS_TOKEN_PREFIX, SESSION_TOKEN_PREFIX } from "./request-auth.js";
+import { findAccessToken } from "./access-tokens.js";
 import { isServiceRequest } from "./service-request.js";
 import { findSession, SESSION_COOKIE_MAX_AGE_SEC } from "./sessions.js";
 import {
@@ -46,6 +47,14 @@ export const PASSWORD_CHANGE_ROUTES = new Set([
   "POST /auth/logout",
   "POST /auth/session",
 ]);
+
+/** What a read-only personal access token may send. */
+const READ_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+export const READ_ONLY_TOKEN_RESPONSE = {
+  error: "This access token is read-only",
+  code: "read_only_token",
+} as const;
 
 const toSha256Digest = (value: string) => createHash("sha256").update(value).digest();
 
@@ -102,6 +111,22 @@ export const verifyToken = async (request: FastifyRequest, reply: FastifyReply) 
     // `renewed` is only for the cookie path below; a bearer token has nothing
     // to re-issue.
     request.auth = toPrincipal(session);
+    request.authVia = "bearer";
+    return;
+  }
+
+  if (token.startsWith(ACCESS_TOKEN_PREFIX)) {
+    const accessToken = await findAccessToken(token);
+    if (!accessToken) return unauthorized(reply);
+    if (accessToken.readOnly && !READ_METHODS.has(request.method)) {
+      return reply.code(403).send(READ_ONLY_TOKEN_RESPONSE);
+    }
+    request.auth = {
+      kind: "pat",
+      tokenId: accessToken.id,
+      accountId: accessToken.accountId,
+      readOnly: accessToken.readOnly,
+    };
     request.authVia = "bearer";
     return;
   }
@@ -194,10 +219,14 @@ const toPrincipal = (session: NonNullable<Awaited<ReturnType<typeof findSession>
 /**
  * Turns away a request made with a device token. Pairing and revoking devices
  * stay with the website: a device that could pair others could outlive its own
- * revocation by minting a replacement first.
+ * revocation by minting a replacement first. The same goes for a personal
+ * access token, which could otherwise pair a TV that outlives it.
  */
 export const requireOwnerToken = async (request: FastifyRequest, reply: FastifyReply) => {
   if (request.deviceId) {
     return reply.code(403).send({ error: "Devices can't manage other devices", code: "owner_token_required" });
+  }
+  if (request.auth?.kind === "pat") {
+    return reply.code(403).send({ error: "Access tokens can't manage devices", code: "owner_token_required" });
   }
 };

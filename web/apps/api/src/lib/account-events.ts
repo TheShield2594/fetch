@@ -28,7 +28,9 @@ export type AccountEventKind =
   | "totp_enabled"
   | "totp_disabled"
   | "totp_failed"
-  | "recovery_code_used";
+  | "recovery_code_used"
+  | "access_token_created"
+  | "access_token_revoked";
 
 /** How long an event is kept. */
 export const ACCOUNT_EVENT_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;

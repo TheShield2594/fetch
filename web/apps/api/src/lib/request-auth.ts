@@ -16,6 +16,10 @@ import type { FastifyReply, FastifyRequest } from "fastify";
  *   their own account's profiles.
  * - `device`: a paired TV, with its own revocable token. It sees the profiles
  *   of the account that paired it, and is never the admin.
+ * - `pat`: a personal access token the account made for a script or an
+ *   integration (lib/access-tokens.ts). It sees its account's profiles, is
+ *   never the admin, cannot manage the account itself (password, sign-ins,
+ *   TVs, other tokens), and when `readOnly` may only make `GET` requests.
  *
  * Set by `verifyToken` (lib/auth.ts). Kept apart from lib/sessions.ts, which
  * needs the database, so a route can check who is asking without importing it.
@@ -31,7 +35,8 @@ export type AuthPrincipal =
       /** Signed in with a password someone else set; see `PASSWORD_CHANGE_ROUTES`. */
       mustChangePassword?: boolean;
     }
-  | { kind: "device"; deviceId: string; accountId: string | null };
+  | { kind: "device"; deviceId: string; accountId: string | null }
+  | { kind: "pat"; tokenId: string; accountId: string; readOnly: boolean };
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -46,6 +51,9 @@ declare module "fastify" {
  */
 export const SESSION_TOKEN_PREFIX = "fs1_";
 
+/** Personal access tokens, told apart the same way. */
+export const ACCESS_TOKEN_PREFIX = "fpat_";
+
 /** Session tokens and invite codes are only ever stored as this digest. */
 export const hashSecret = (value: string): string => createHash("sha256").update(value).digest("hex");
 
@@ -55,7 +63,9 @@ export const hashSecret = (value: string): string => createHash("sha256").update
  * auth gate leaves public).
  */
 export const accountScope = (request: FastifyRequest): string | null =>
-  request.auth?.kind === "session" || request.auth?.kind === "device" ? request.auth.accountId : null;
+  request.auth?.kind === "session" || request.auth?.kind === "device" || request.auth?.kind === "pat"
+    ? request.auth.accountId
+    : null;
 
 export const isAdminRequest = (request: FastifyRequest): boolean =>
   request.auth?.kind === "token" || (request.auth?.kind === "session" && request.auth.isAdmin);

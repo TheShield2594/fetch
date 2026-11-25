@@ -88,6 +88,7 @@ model Account {
 
   profiles        Profile[]
   sessions        Session[]
+  accessTokens    AccessToken[]
   devices         Device[]
   devicePairings  DevicePairing[]
   invitesCreated  Invite[]  @relation("InviteCreatedBy")
@@ -104,7 +105,8 @@ model AccountEvent {
   // pin_changed, pin_removed, pin_cleared, tv_paired, tv_signed_out,
   // session_revoked, signed_out_everywhere, username_changed, admin_granted,
   // admin_transferred, addon_url_rotated, totp_enabled, totp_disabled,
-  // totp_failed, recovery_code_used.
+  // totp_failed, recovery_code_used, access_token_created,
+  // access_token_revoked.
   kind      String
   // A few words of context: a profile or TV name, who reset a password.
   detail    String?
@@ -130,6 +132,26 @@ model Session {
   // can tell its sign-ins apart in Settings → Account.
   userAgent  String?
   ipAddress  String?
+
+  accountId String  @db.Uuid
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+}
+
+// A personal access token: a credential the account makes for a script or an
+// integration, named so it can be told apart and revoked on its own. Like
+// Session, only the token's SHA-256 is kept. It acts as its account, never as
+// the admin, and `readOnly` limits it to GET requests.
+model AccessToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  tokenHash  String    @unique
+  readOnly   Boolean   @default(false)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(6)
+  lastUsedAt DateTime? @db.Timestamptz(6)
+  // Null for a token that doesn't expire.
+  expiresAt  DateTime? @db.Timestamptz(6)
 
   accountId String  @db.Uuid
   account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)

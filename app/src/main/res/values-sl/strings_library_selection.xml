@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_selection_start">Izberi</string>
+    <plurals name="library_selection_count">
+        <item quantity="one">Izbran: %d</item>
+        <item quantity="two">Izbrana: %d</item>
+        <item quantity="few">Izbrani: %d</item>
+        <item quantity="other">Izbranih: %d</item>
+    </plurals>
+    <string name="library_selection_hint">OK izbere naslov · Meni skoči na ta dejanja · Nazaj konča</string>
+    <string name="library_selection_remove">Odstrani</string>
+    <string name="library_selection_mark_watched">Označi kot ogledano</string>
+    <string name="library_selection_move_to_list">Premakni na seznam</string>
+    <string name="library_selection_add_to_list">Dodaj na seznam</string>
+    <string name="library_selection_done">Končano</string>
+    <string name="library_selection_bar_description">Dejanja za izbrane naslove</string>
+    <string name="library_selection_cd_selected">Izbrano</string>
+    <string name="library_selection_cd_not_selected">Ni izbrano</string>
+
+    <plurals name="library_selection_remove_confirm_title">
+        <item quantity="one">Odstranim %d naslov?</item>
+        <item quantity="two">Odstranim %d naslova?</item>
+        <item quantity="few">Odstranim %d naslove?</item>
+        <item quantity="other">Odstranim %d naslovov?</item>
+    </plurals>
+    <string name="library_selection_remove_confirm_subtitle">Odstranjeni bodo iz: %1$s. Naslovi, ki jih želi storitev za sledenje potrditi posamič, ostanejo nespremenjeni.</string>
+
+    <plurals name="library_selection_working">
+        <item quantity="one">Posodabljanje %d naslova …</item>
+        <item quantity="two">Posodabljanje %d naslovov …</item>
+        <item quantity="few">Posodabljanje %d naslovov …</item>
+        <item quantity="other">Posodabljanje %d naslovov …</item>
+    </plurals>
+    <plurals name="library_selection_done_removed">
+        <item quantity="one">Odstranjen %d naslov.</item>
+        <item quantity="two">Odstranjena %d naslova.</item>
+        <item quantity="few">Odstranjeni %d naslovi.</item>
+        <item quantity="other">Odstranjenih %d naslovov.</item>
+    </plurals>
+    <plurals name="library_selection_done_watched">
+        <item quantity="one">%d naslov označen kot ogledan.</item>
+        <item quantity="two">%d naslova označena kot ogledana.</item>
+        <item quantity="few">%d naslovi označeni kot ogledani.</item>
+        <item quantity="other">%d naslovov označenih kot ogledanih.</item>
+    </plurals>
+    <plurals name="library_selection_done_moved">
+        <item quantity="one">%1$d naslov premaknjen na %2$s.</item>
+        <item quantity="two">%1$d naslova premaknjena na %2$s.</item>
+        <item quantity="few">%1$d naslovi premaknjeni na %2$s.</item>
+        <item quantity="other">%1$d naslovov premaknjenih na %2$s.</item>
+    </plurals>
+    <plurals name="library_selection_done_added">
+        <item quantity="one">%1$d naslov dodan na %2$s.</item>
+        <item quantity="two">%1$d naslova dodana na %2$s.</item>
+        <item quantity="few">%1$d naslovi dodani na %2$s.</item>
+        <item quantity="other">%1$d naslovov dodanih na %2$s.</item>
+    </plurals>
+    <plurals name="library_selection_failed">
+        <item quantity="one">%d naslova ni bilo mogoče spremeniti; poskusi znova iz njegovega menija.</item>
+        <item quantity="two">%d naslovov ni bilo mogoče spremeniti; poskusi znova iz njihovih menijev.</item>
+        <item quantity="few">%d naslovov ni bilo mogoče spremeniti; poskusi znova iz njihovih menijev.</item>
+        <item quantity="other">%d naslovov ni bilo mogoče spremeniti; poskusi znova iz njihovih menijev.</item>
+    </plurals>
+    <plurals name="library_selection_skipped">
+        <item quantity="one">%d naslov je ostal nespremenjen: spremeni ga iz njegovega menija.</item>
+        <item quantity="two">%d naslova sta ostala nespremenjena: spremeni ju iz njunih menijev.</item>
+        <item quantity="few">%d naslovi so ostali nespremenjeni: spremeni jih iz njihovih menijev.</item>
+        <item quantity="other">%d naslovov je ostalo nespremenjenih: spremeni jih iz njihovih menijev.</item>
+    </plurals>
+</resources>

@@ -587,20 +587,13 @@ fun ContinueWatchingCard(
                 // Remaining time badge - hide progress labels in poster style (only show next-up/new episode badges)
                 val showBadgeInPoster = progress == null
                 if (!isPosterStyle || showBadgeInPoster) {
-                    Box(
+                    ContentCornerBadge(
+                        text = badgeText,
+                        background = badgeBackground,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(FetchTheme.spacing.sm)
-                            .clip(BadgeShape)
-                            .background(badgeBackground)
-                            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
-                    ) {
-                        Text(
-                            text = badgeText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = FetchTheme.colors.TextPrimary
-                        )
-                    }
+                    )
                 }
 
                 if (progress != null) {

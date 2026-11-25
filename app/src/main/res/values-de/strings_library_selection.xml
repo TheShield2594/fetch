@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_selection_start">Auswählen</string>
+    <plurals name="library_selection_count">
+        <item quantity="one">%d ausgewählt</item>
+        <item quantity="other">%d ausgewählt</item>
+    </plurals>
+    <string name="library_selection_hint">OK wählt einen Titel · Menü springt zu diesen Aktionen · Zurück beendet</string>
+    <string name="library_selection_remove">Entfernen</string>
+    <string name="library_selection_mark_watched">Als gesehen markieren</string>
+    <string name="library_selection_move_to_list">In Liste verschieben</string>
+    <string name="library_selection_add_to_list">Zu Liste hinzufügen</string>
+    <string name="library_selection_done">Fertig</string>
+    <string name="library_selection_bar_description">Aktionen für die ausgewählten Titel</string>
+    <string name="library_selection_cd_selected">Ausgewählt</string>
+    <string name="library_selection_cd_not_selected">Nicht ausgewählt</string>
+
+    <plurals name="library_selection_remove_confirm_title">
+        <item quantity="one">%d Titel entfernen?</item>
+        <item quantity="other">%d Titel entfernen?</item>
+    </plurals>
+    <string name="library_selection_remove_confirm_subtitle">Sie werden aus %1$s entfernt. Titel, die dein Tracking-Dienst einzeln bestätigt haben möchte, bleiben unverändert.</string>
+
+    <plurals name="library_selection_working">
+        <item quantity="one">%d Titel wird aktualisiert …</item>
+        <item quantity="other">%d Titel werden aktualisiert …</item>
+    </plurals>
+    <plurals name="library_selection_done_removed">
+        <item quantity="one">%d Titel entfernt.</item>
+        <item quantity="other">%d Titel entfernt.</item>
+    </plurals>
+    <plurals name="library_selection_done_watched">
+        <item quantity="one">%d Titel als gesehen markiert.</item>
+        <item quantity="other">%d Titel als gesehen markiert.</item>
+    </plurals>
+    <plurals name="library_selection_done_moved">
+        <item quantity="one">%1$d Titel nach %2$s verschoben.</item>
+        <item quantity="other">%1$d Titel nach %2$s verschoben.</item>
+    </plurals>
+    <plurals name="library_selection_done_added">
+        <item quantity="one">%1$d Titel zu %2$s hinzugefügt.</item>
+        <item quantity="other">%1$d Titel zu %2$s hinzugefügt.</item>
+    </plurals>
+    <plurals name="library_selection_failed">
+        <item quantity="one">%d Titel konnte nicht geändert werden; versuche es erneut über sein Menü.</item>
+        <item quantity="other">%d Titel konnten nicht geändert werden; versuche es erneut über ihre Menüs.</item>
+    </plurals>
+    <plurals name="library_selection_skipped">
+        <item quantity="one">%d Titel blieb unverändert: ändere ihn über sein eigenes Menü.</item>
+        <item quantity="other">%d Titel blieben unverändert: ändere sie über ihre eigenen Menüs.</item>
+    </plurals>
+</resources>

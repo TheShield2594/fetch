@@ -816,14 +816,13 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     // stays open never reached Continue Watching (NuvioTV#3845).
                     val dueAgainContentIds = olderSeedsDueForRecheck(
                         processedOlderSeedContentIds = cwProcessedOlderSeedContentIds.toSet(),
-                        negativeResolutionKeys = synchronized(cwNextUpResolutionCache) {
-                            cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
-                        },
+                        negativeResolutionKeys = cwNegativeNextUpKeys(),
                         hasBeenValidated = fullyWatchedSeriesIds::hasBeenValidated,
                         isValidationFresh = fullyWatchedSeriesIds::isSeriesValidationFresh
                     )
                     if (dueAgainContentIds.isNotEmpty()) {
                         cwProcessedOlderSeedContentIds -= dueAgainContentIds
+                        cwEvictedNegativeNextUpContentIds -= dueAgainContentIds
                         synchronized(cwNextUpResolutionCache) {
                             // Through entries: a get while iterating would reorder the LRU map.
                             cwNextUpResolutionCache.entries.removeAll { (key, value) ->
@@ -1265,6 +1264,15 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
 }
 
 /**
+ * The "no next episode" resolutions: the cache's null entries, plus the series whose entry the
+ * bounded cache has evicted since (as bare content ids, which the recheck reads the same way).
+ */
+internal fun HomeViewModel.cwNegativeNextUpKeys(): Set<String> =
+    synchronized(cwNextUpResolutionCache) {
+        cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
+    } + cwEvictedNegativeNextUpContentIds
+
+/**
  * Older seeds this session already resolved to "no next episode" whose revalidation
  * deadline has since passed. Seeds without a deadline (meta never resolved) stay
  * checked once per session, as before.
@@ -1308,9 +1316,7 @@ private fun HomeViewModel.scheduleOlderSeedRecheck() {
     val nowMs = System.currentTimeMillis()
     val recheckAtMs = nextOlderSeedRecheckAtMs(
         processedOlderSeedContentIds = cwProcessedOlderSeedContentIds.toSet(),
-        negativeResolutionKeys = synchronized(cwNextUpResolutionCache) {
-            cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
-        },
+        negativeResolutionKeys = cwNegativeNextUpKeys(),
         deadlineOf = fullyWatchedSeriesIds::revalidationDeadline,
         nowMs = nowMs
     )

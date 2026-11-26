@@ -386,13 +386,15 @@ class HomeViewModel @Inject constructor(
     internal val cwTmdbIdCache: MutableMap<String, String?> = createLruMap(MAX_CW_CACHE_SIZE)
     // Bounded LRU (TheShield2594/fetch#826). Access-ordered: iterate only under the map's lock and
     // never `get` while iterating its keys.
-    // Evicting a "no next episode" entry also forgets that its older seed was processed: the
-    // recheck of processed seeds keys on these entries, so a seed whose entry is gone would
-    // otherwise never be rechecked this session. It is resolved once more on the next run.
+    // The recheck of processed older seeds keys on this cache's "no next episode" entries. An
+    // evicted one is remembered in cwEvictedNegativeNextUpContentIds, so the seed is still
+    // rechecked (and its deadline still scheduled) once its validation goes stale.
     internal val cwNextUpResolutionCache: MutableMap<String, NextUpResolution?> =
         boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE) { key, value ->
-            if (value == null) cwProcessedOlderSeedContentIds.remove(key.substringBefore('|'))
+            if (value == null) cwEvictedNegativeNextUpContentIds.add(key.substringBefore('|'))
         }
+    /** Series whose "no next episode" entry the bounded cache evicted; at most one per series. */
+    internal val cwEvictedNegativeNextUpContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwNextUpNegativeCacheTimestamps: MutableMap<String, Long> =
         boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE)
     internal val discoveredOlderNextUpItems = Collections.synchronizedList(mutableListOf<ContinueWatchingItem.NextUp>())
@@ -525,6 +527,7 @@ class HomeViewModel @Inject constructor(
                     discoveredOlderNextUpItems.clear()
                     cwLastProcessedNextUpContentIds.clear()
                     cwProcessedOlderSeedContentIds.clear()
+                    cwEvictedNegativeNextUpContentIds.clear()
                     cwRestoredNextUpIds.clear()
                     cwEnrichedNextUpOverlay.clear()
                     cwEnrichedInProgressOverlay.clear()
@@ -588,6 +591,7 @@ class HomeViewModel @Inject constructor(
         discoveredOlderNextUpItems.clear()
         cwLastProcessedNextUpContentIds.clear()
         cwProcessedOlderSeedContentIds.clear()
+        cwEvictedNegativeNextUpContentIds.clear()
         cwRestoredNextUpIds.clear()
         cwEnrichedNextUpOverlay.clear()
         cwEnrichedInProgressOverlay.clear()

@@ -62,6 +62,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import java.util.Collections
@@ -263,13 +264,23 @@ class HomeViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, HomeContentFilter.ALL)
 
-    fun setHomeContentFilter(filter: HomeContentFilter) {
-        if (filter == homeContentFilter.value) return
-        viewModelScope.launch {
+    /**
+     * The filter last picked, written one at a time. Conflated, so quick Left/Right presses write
+     * only what is still wanted, and the last pick is always the one that ends up saved.
+     */
+    private val requestedContentFilter = MutableStateFlow<HomeContentFilter?>(null)
+
+    @Suppress("unused")
+    private val contentFilterWriter = viewModelScope.launch {
+        requestedContentFilter.filterNotNull().collect { filter ->
             runSuspendCatching {
                 layoutPreferenceDataStore.setHomeContentFilter(filter.takeIf { it != HomeContentFilter.ALL }?.name)
             }
         }
+    }
+
+    fun setHomeContentFilter(filter: HomeContentFilter) {
+        requestedContentFilter.value = filter
     }
 
     /**
@@ -287,12 +298,22 @@ class HomeViewModel @Inject constructor(
     val showHoldHint: StateFlow<Boolean> = _showHoldHint.asStateFlow()
 
     private var holdHintChecked = false
+    private var holdHintJob: Job? = null
+
+    /** A new profile gets its own hold-hint sessions, checked on its first card focus. */
+    internal fun resetHoldHintForProfile() {
+        holdHintJob?.cancel()
+        holdHintJob = null
+        holdHintChecked = false
+        _showHoldHint.value = false
+        requestedContentFilter.value = null
+    }
 
     /** Call once a card on Home has focus: counts this session towards the hold hint's few. */
     fun onHomeCardFocused() {
         if (holdHintChecked) return
         holdHintChecked = true
-        viewModelScope.launch {
+        holdHintJob = viewModelScope.launch {
             val sessions = runSuspendCatching { layoutPreferenceDataStore.homeHoldHintSessions.first() }.getOrNull()
                 ?: return@launch
             if (sessions >= HOME_HOLD_HINT_SESSIONS) return@launch
@@ -563,6 +584,7 @@ class HomeViewModel @Inject constructor(
             profileManager.activeProfileId.collect { newId ->
                 if (newId != previousProfileId) {
                     previousProfileId = newId
+                    resetHoldHintForProfile()
                     // Cancel old pipeline — prevents racing writes from stale coroutines.
                     cwPipelineJob?.cancel()
                     cwPipelineJob = null

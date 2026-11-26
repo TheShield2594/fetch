@@ -358,10 +358,14 @@ fun ModernHomeContent(
     // SPOTLIGHT_ADVANCE_MS, so the hero walks through the featured titles (#813). Any key restarts
     // the wait (spotlightKeyNonce), and reduced motion turns it off.
     val spotlightKeyNonce = remember { mutableIntStateOf(0) }
+    // Up from the Spotlight to the filter keeps Spotlight the active row, so this stops the rotation
+    // taking focus back from the filter.
+    val contentFilterFocused = remember { mutableStateOf(false) }
     val spotlightRotates = FetchTheme.fullMotion
     IsolatedReadScope {
         val restingOnSpotlight = spotlightRotates &&
             contentHasFocus.value &&
+            !contentFilterFocused.value &&
             !isSidebarExpanded.value &&
             activeRowKey.value == MODERN_SPOTLIGHT_ROW_KEY
         LaunchedEffect(restingOnSpotlight, spotlightKeyNonce.intValue) {
@@ -1242,7 +1246,8 @@ fun ModernHomeContent(
             }
 
             androidx.compose.runtime.CompositionLocalProvider(
-                LocalHeroCardAccessibility provides heroCardAccessibilityState
+                LocalHeroCardAccessibility provides heroCardAccessibilityState,
+                LocalHomeContentFilterFocused provides contentFilterFocused
             ) {
             ModernHomeRowsList(
                 carouselRows = carouselRows,
@@ -1298,6 +1303,7 @@ fun ModernHomeContent(
                 contentFilters = presentation.contentFilters,
                 contentFilter = presentation.contentFilter,
                 onContentFilterSelected = onContentFilterSelected,
+                onContentFilterFocusChanged = { focused -> contentFilterFocused.value = focused },
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .onFocusChanged { contentHasFocus.value = it.hasFocus }

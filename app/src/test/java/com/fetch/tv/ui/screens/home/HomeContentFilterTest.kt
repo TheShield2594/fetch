@@ -77,6 +77,17 @@ class HomeContentFilterTest {
     }
 
     @Test
+    fun `a show only in upcoming still offers shows`() {
+        val upcoming = ContinueWatchingItem.NextUp(NextUpInfo(
+            "show", "series", "Show", null, null, null, "show:2:1", 2, 1, "Upcoming",
+            thumbnail = null, released = "2999-01-01", hasAired = false, airDateLabel = "Soon",
+            lastWatched = 100, sortTimestamp = 100, isReleaseAlert = true, isNewSeasonRelease = true
+        ))
+        val filters = availableHomeContentFilters(input(row("m", "movie")).copy(upcomingItems = listOf(upcoming)))
+        assertEquals(listOf(HomeContentFilter.ALL, HomeContentFilter.MOVIES, HomeContentFilter.SHOWS), filters)
+    }
+
+    @Test
     fun `one kind of content offers no filter`() {
         assertEquals(emptyList<HomeContentFilter>(), availableHomeContentFilters(input(row("m", "movie"), row("m2", "movie"))))
     }

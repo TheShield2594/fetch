@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.focus.FocusDirection
@@ -138,6 +139,7 @@ internal fun ModernHomeRowsList(
     contentFilters: StableList<HomeContentFilter> = StableList(),
     contentFilter: HomeContentFilter = HomeContentFilter.ALL,
     onContentFilterSelected: (HomeContentFilter) -> Unit = {},
+    onContentFilterFocusChanged: (Boolean) -> Unit = {},
 ) {
     val focusedItemByRow = focusController.stableFocusedItemByRow
     val focusedItemByRowMap = focusController.focusedItemByRow
@@ -325,7 +327,9 @@ internal fun ModernHomeRowsList(
                         event.key == Key.DirectionUp &&
                         effectiveExpandEnabled &&
                         expandedCatalogFocusKey.value != null &&
-                        activeRowKey.value == firstRowKey
+                        activeRowKey.value == firstRowKey &&
+                        // Up from the first row reaches the filter when it is there (#814).
+                        !(showsContentFilter && contentFilterVisible)
                     ) return@onPreviewKeyEvent true
                     if (event.type == KeyEventType.KeyDown &&
                         event.key == Key.DirectionDown &&
@@ -488,7 +492,8 @@ internal fun ModernHomeRowsList(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = FetchTheme.spacing.screen.horizontal)
-                    .graphicsLayer { alpha = if (contentFilterVisible) trailerContentAlpha() else 0f },
+                    .graphicsLayer { alpha = if (contentFilterVisible) trailerContentAlpha() else 0f }
+                    .onFocusChanged { onContentFilterFocusChanged(it.hasFocus) },
                 focusable = contentFilterVisible
             )
         }

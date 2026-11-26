@@ -42,6 +42,7 @@ internal fun availableHomeContentFilters(input: ModernHomePresentationInput): Li
             }
         }
         input.continueWatchingItems.forEach { add(it.contentType()) }
+        input.upcomingItems.forEach { add(it.contentType()) }
     }
     val offered = HomeContentFilter.entries
         .filter { it != HomeContentFilter.ALL }

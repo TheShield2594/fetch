@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -22,6 +25,13 @@ import com.fetch.tv.ui.components.FetchChip
 import com.fetch.tv.ui.theme.FetchSizes
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.StableList
+
+/**
+ * True while a chip in the filter has focus. A card that becomes the focus target then (the new
+ * first row after a filter change, say) must not take focus from the filter, or Left/Right would
+ * stop changing it (#814). Read inside effects, so it recomposes nothing.
+ */
+internal val LocalHomeContentFilterFocused = compositionLocalOf<State<Boolean>> { mutableStateOf(false) }
 
 /** Room the filter takes above the first row (#814): one ordinary control's height. */
 internal val HOME_CONTENT_FILTER_BAR_HEIGHT = FetchSizes.tokens.controls.default

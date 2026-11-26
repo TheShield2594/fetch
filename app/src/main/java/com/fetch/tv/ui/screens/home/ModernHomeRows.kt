@@ -215,8 +215,9 @@ private fun ModernContinueWatchingRowItem(
         if (!isCardFocused || focusEventId != targetEventId) return@LaunchedEffect
     }
 
+    val contentFilterFocused = LocalHomeContentFilterFocused.current
     LaunchedEffect(isTargetItem) {
-        if (isTargetItem && !isCardFocused) {
+        if (isTargetItem && !isCardFocused && !contentFilterFocused.value) {
             runCatching { requester.requestFocus() }
         }
     }
@@ -371,8 +372,9 @@ private fun ModernCatalogRowItem(
         }
     }
 
+    val contentFilterFocused = LocalHomeContentFilterFocused.current
     LaunchedEffect(isTargetItem) {
-        if (isTargetItem && !isCardFocused) {
+        if (isTargetItem && !isCardFocused && !contentFilterFocused.value) {
             runCatching { requester.requestFocus() }
         }
     }

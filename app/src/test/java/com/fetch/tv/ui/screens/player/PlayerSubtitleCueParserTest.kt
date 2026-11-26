@@ -43,4 +43,17 @@ class PlayerSubtitleCueParserTest {
         assertEquals(5_200L, cues[1].startTimeMs)
         assertEquals("Second, with comma", cues[1].text)
     }
+
+    @Test
+    fun `ass drawing commands are not cue text`() {
+        val ass = """
+            [Events]
+            Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+            Dialogue: 0,0:00:01.00,0:00:02.00,Default,,0,0,0,,{\pos(10,10)\p1}m 0 0 l 100 100{\p0}Hello
+            Dialogue: 0,0:00:03.00,0:00:04.00,Default,,0,0,0,,{\p1}m 0 0 l 50 50
+        """.trimIndent()
+        val cues = PlayerSubtitleCueParser.parseFromText(ass, "https://example.com/sub.ass")
+        assertEquals(1, cues.size)
+        assertEquals("Hello", cues[0].text)
+    }
 }

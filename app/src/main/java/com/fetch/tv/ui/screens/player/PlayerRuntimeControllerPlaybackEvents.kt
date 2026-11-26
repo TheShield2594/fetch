@@ -1146,7 +1146,8 @@ fun PlayerRuntimeController.hideControls() {
 }
 
 fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
-    if (event != PlayerEvent.OnParentalGuideHide) {
+    // These two come from overlays finishing on their own, not from the remote.
+    if (event != PlayerEvent.OnParentalGuideHide && event != PlayerEvent.OnHideDisplayModeInfo) {
         onUserInteraction()
     }
     when (event) {

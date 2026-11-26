@@ -110,8 +110,11 @@ internal fun QueueSidePanel(
         runCatching { undoFocusRequester.requestFocus() }
     }
 
-    LaunchedEffect(pendingRestores) {
-        val head = pendingRestores.firstOrNull() ?: return@LaunchedEffect
+    // Keyed on the head: an Undo appending to the tail must not restart, and so re-dispatch,
+    // the restore still settling.
+    val pendingHead = pendingRestores.firstOrNull()
+    LaunchedEffect(pendingHead) {
+        val head = pendingHead ?: return@LaunchedEffect
         onRestore(head.item, head.index)
         withTimeoutOrNull(QUEUE_RESTORE_SETTLE_TIMEOUT_MS) {
             snapshotFlow {

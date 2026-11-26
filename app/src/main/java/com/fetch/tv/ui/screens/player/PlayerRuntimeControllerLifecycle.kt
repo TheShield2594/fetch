@@ -43,6 +43,8 @@ internal fun PlayerRuntimeController.releasePlayer(
     cancelStallWatchdog()
     seekBufferingUiJob?.cancel()
     seekBufferingUiJob = null
+    // The cancelled job was the one that would have cleared this after its grace window.
+    seekBufferingUiDeferred = false
     // A pending pause-overlay timer would otherwise show the overlay over the next stream.
     pauseOverlayJob?.cancel()
     pauseOverlayJob = null

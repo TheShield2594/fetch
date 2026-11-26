@@ -64,7 +64,7 @@ internal object PlayerSubtitleCueParser {
             val endTimeMs = parseTimestampMs(fields[endIndex].trim()) ?: continue
             if (endTimeMs - startTimeMs <= 0) continue
             val cueText = normalizeCueText(
-                fields[textIndex]
+                stripAssDrawings(fields[textIndex])
                     .replace("\\N", "\n")
                     .replace("\\n", "\n")
                     .replace("\\h", " ")
@@ -73,6 +73,30 @@ internal object PlayerSubtitleCueParser {
             cues += SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
         }
         return cues.sortedBy { it.startTimeMs }
+    }
+
+    private val assOverrideBlockRegex = Regex("""\{[^}]*\}""")
+    private val assDrawingTagRegex = Regex("""\\p(\d+)""")
+
+    /**
+     * Drops ASS drawing commands: text after a `\p` with a positive scale, up to `\p0`, is vector
+     * shapes (`m 0 0 l 100 100`), not words. Override blocks are kept for the later tag strip.
+     */
+    private fun stripAssDrawings(text: String): String {
+        if (!text.contains("\\p")) return text
+        val out = StringBuilder()
+        var drawing = false
+        var cursor = 0
+        for (block in assOverrideBlockRegex.findAll(text)) {
+            if (!drawing) out.append(text, cursor, block.range.first)
+            out.append(block.value)
+            assDrawingTagRegex.findAll(block.value).lastOrNull()?.let { tag ->
+                drawing = (tag.groupValues[1].toIntOrNull() ?: 0) > 0
+            }
+            cursor = block.range.last + 1
+        }
+        if (!drawing) out.append(text, cursor, text.length)
+        return out.toString()
     }
 
     private fun looksLikeVtt(text: String, sourceUrl: String): Boolean {

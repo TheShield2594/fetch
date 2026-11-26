@@ -685,17 +685,22 @@ fun PlayerScreen(
         uiState.postPlayMode is PostPlayMode.AutoPlay ||
         uiState.postPlayMode is PostPlayMode.StillWatching
     var transportOverlayWasVisible by remember { mutableStateOf(false) }
+    val currentShouldConfirmNextEpisodeOnEnd by rememberUpdatedState(shouldConfirmNextEpisodeOnEnd)
+    // Read when each request runs, not when the effect starts: a panel opened during the frame
+    // wait must keep its focus.
+    val transportFocusBlocked = {
+        uiState.showControls || uiState.isPanelOpen || uiState.error != null ||
+            currentShouldConfirmNextEpisodeOnEnd || postPlayRecommendationState.isVisible ||
+            preferNextTimeFocused
+    }
     LaunchedEffect(transportOverlayVisible) {
         val wasVisible = transportOverlayWasVisible
         transportOverlayWasVisible = transportOverlayVisible
         if (transportOverlayVisible || !wasVisible) return@LaunchedEffect
-        if (uiState.showControls || uiState.isPanelOpen || uiState.error != null ||
-            shouldConfirmNextEpisodeOnEnd || postPlayRecommendationState.isVisible ||
-            preferNextTimeFocused
-        ) {
-            return@LaunchedEffect
+        requestFocusWithinFrames {
+            // Returning true ends the retries when something else now owns focus.
+            if (transportFocusBlocked()) true else containerFocusRequester.requestFocus()
         }
-        requestFocusWithinFrames { containerFocusRequester.requestFocus() }
     }
 
     // The Skip pill can stay up for the whole segment (up to 120 s) and the next-episode card

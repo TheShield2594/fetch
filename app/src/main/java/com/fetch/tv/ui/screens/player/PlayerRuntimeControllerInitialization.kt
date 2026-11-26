@@ -1125,7 +1125,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                 // Saved progress first; otherwise a queued seek from a source switch, retry or
                 // recovery, so the source opens there rather than at 0 (#707).
                 val initialResumePosition = resolvePendingInitialResumePosition().takeIf { it > 0L }
-                    ?: takePendingSeekAsStartPosition()
+                    ?: pendingSeekStartPosition()
                     ?: 0L
                 playbackAnalyticsDiagnostics.setStartupStartPosition(initialResumePosition)
                 playbackAnalyticsDiagnostics.recordRawEventLine(

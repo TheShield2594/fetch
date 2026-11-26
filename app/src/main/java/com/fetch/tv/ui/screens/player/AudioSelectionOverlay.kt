@@ -118,10 +118,19 @@ internal fun AudioSelectionOverlay(
             panelHasFocus = false
             return@LaunchedEffect
         }
-        val openTracks = currentTracks
-        val target = if (openTracks.isNotEmpty()) {
-            val selectedListIndex = openTracks.indexOfFirst { it.index == currentSelectedIndex }.takeIf { it >= 0 } ?: 0
-            listState.scrollToItem(selectedListIndex)
+        val toTracks = currentTracks.isNotEmpty()
+        // The selection may move before focus lands: keep the selected row scrolled into view
+        // until then, or the requester points at a row that isn't composed.
+        var scrolledToIndex = -1
+        suspend fun scrollToSelectedTrack() {
+            val index = currentTracks.indexOfFirst { it.index == currentSelectedIndex }.takeIf { it >= 0 } ?: 0
+            if (index != scrolledToIndex) {
+                listState.scrollToItem(index)
+                scrolledToIndex = index
+            }
+        }
+        val target = if (toTracks) {
+            scrollToSelectedTrack()
             tracksFocusRequester
         } else {
             when {
@@ -137,6 +146,7 @@ internal fun AudioSelectionOverlay(
         repeat(30) {
             withFrameNanos { }
             if (panelHasFocus) return@LaunchedEffect
+            if (toTracks) scrollToSelectedTrack()
             runCatching { target.requestFocus() }
         }
     }

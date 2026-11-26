@@ -417,8 +417,9 @@ internal fun SubtitleSelectionOverlay(
             if (!visible || initialLanguageScrolled) return@LaunchedEffect
             val targetIndex = languageItems.indexOfFirst { it.key == sessionInitialLanguageKey }
             if (targetIndex >= 0) {
-                initialLanguageScrolled = true
+                // Set once the scroll completes: a cancelled scroll (the list changed) retries.
                 languageListState.scrollItemIntoView(targetIndex)
+                initialLanguageScrolled = true
             }
         }
 

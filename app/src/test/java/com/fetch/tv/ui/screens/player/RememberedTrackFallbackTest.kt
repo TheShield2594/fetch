@@ -16,7 +16,8 @@ class RememberedTrackFallbackTest {
 
     @Test
     fun `commentary listed first does not become the remembered main track`() {
-        val tracks = listOf(track(0, "English Commentary (AAC 2.0)"), track(1, "English (E-AC-3 5.1)"))
+        // Same layout and codec on both, so only commentary decides.
+        val tracks = listOf(track(0, "English Commentary (AC-3 5.1)"), track(1, "English (AC-3 5.1)"))
         assertEquals(1, best(tracks, "English (AC-3 5.1)").index)
     }
 

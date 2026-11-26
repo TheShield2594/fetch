@@ -843,9 +843,10 @@ internal fun PlayerRuntimeController.switchToSourceStream(
                     cacheKey = currentStreamCacheKey
                 )
                 // Open the new source at the carried-over position, not at 0 and then seek (#707).
-                val startPosition = takePendingSeekAsStartPosition()
+                val startPosition = pendingSeekStartPosition()
                 if (startPosition != null) {
                     player.setMediaSource(newSource, startPosition)
+                    _uiState.update { it.copy(pendingSeekPosition = null) }
                     updatePlaybackTimeline(currentPosition = startPosition)
                 } else {
                     player.setMediaSource(newSource)

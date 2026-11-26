@@ -140,8 +140,16 @@ fun TrailerPlayer(
     // composable's life, for the same reason as the epoch; it records which link it belongs to.
     val backgroundedAt = remember { BackgroundedPosition() }
 
+    // The audio link last loaded: a new audio stream for the same video link must still reload.
+    val loadedAudio = remember { LoadedAudio() }
+
+    // The seek request last applied. A re-acquired player re-runs the seek effect with the same
+    // token; replaying it there (duration still unknown, so clamped to 0) restarted at 0:00.
+    val appliedSeek = remember { AppliedSeek() }
+
     // Loads this link into [player] from [startMs] (0 = its default start: a live stream's edge).
     fun loadInto(player: ExoPlayer, url: String, audioUrl: String?, startMs: Long) {
+        loadedAudio.url = audioUrl
         if (!audioUrl.isNullOrBlank()) {
             val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
             val videoSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(url))
@@ -181,7 +189,8 @@ fun TrailerPlayer(
             // The lifecycle observer below may already have loaded this link on resume (from
             // where it was backgrounded); loading it again here would restart it at the start.
             val alreadyLoaded = player.playbackState != Player.STATE_IDLE &&
-                player.currentMediaItem?.localConfiguration?.uri?.toString() == trailerUrl
+                player.currentMediaItem?.localConfiguration?.uri?.toString() == trailerUrl &&
+                loadedAudio.url == trailerAudioUrl
             if (!alreadyLoaded) {
                 hasRenderedFirstFrame = false
                 // Only a real position: 0 would pin a live stream to its start, not its live edge.
@@ -243,7 +252,13 @@ fun TrailerPlayer(
 
     LaunchedEffect(seekRequestToken, seekDeltaMs, trailerPlayer) {
         val player = trailerPlayer ?: return@LaunchedEffect
-        if (seekRequestToken <= 0) return@LaunchedEffect
+        if (seekRequestToken <= 0) {
+            // The caller reset its tokens (a new attempt): its next request is a new one.
+            appliedSeek.token = 0
+            return@LaunchedEffect
+        }
+        if (seekRequestToken == appliedSeek.token) return@LaunchedEffect
+        appliedSeek.token = seekRequestToken
         val duration = player.duration.takeIf { it > 0 } ?: 0L
         val current = player.currentPosition
         val target = (current + seekDeltaMs).coerceIn(0L, duration.coerceAtLeast(0L))
@@ -388,6 +403,14 @@ fun TrailerPlayer(
             )
         }
     }
+}
+
+private class LoadedAudio {
+    var url: String? = null
+}
+
+private class AppliedSeek {
+    var token: Int = 0
 }
 
 /** A plain holder: written from lifecycle callbacks and read once, so it needn't be observable. */

@@ -179,10 +179,11 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 PlayerPlaybackNetworking.createHttpDataSourceFactory(
                     sanitizedHeaders,
                     useLongReadTimeout = isLoopbackUrl(url),
+                    originUrl = url,
                 ),
             )
         } else {
-            PlayerPlaybackNetworking.createDataSourceFactory(context, sanitizedHeaders)
+            PlayerPlaybackNetworking.createDataSourceFactory(context, sanitizedHeaders, originUrl = url)
         }
 
         val mediaItemBuilder = MediaItem.Builder().setUri(url)
@@ -215,7 +216,17 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         parallelStartupPrefetchUnlocked.set(!useChunkSessionSource)
         val networkProgressiveFactory: DataSource.Factory = if (useChunkSessionSource) {
             val sessionConnections = parallelConnectionCount
-            val okHttpFactory = OkHttpDataSource.Factory(playbackHttpClient).apply {
+            // Chunks are fetched from the resolved (redirected) URL directly, so the client must
+            // keep credentials on the original host itself (TheShield2594/fetch#701).
+            val chunkClient = if (StreamHeaderScope.hasScopedHeaders(sanitizedHeaders)) {
+                PlayerPlaybackNetworking.scopedPlaybackClientBuilder(sanitizedHeaders, url)
+                    .socketFactory(NoDelaySocketFactory)
+                    .let { FetchExoPlayerPerformanceHelper.applyNetworkOptimizations(it) }
+                    .build()
+            } else {
+                playbackHttpClient
+            }
+            val okHttpFactory = OkHttpDataSource.Factory(chunkClient).apply {
                 setDefaultRequestProperties(sanitizedHeaders)
                 if (sanitizedHeaders.none { it.key.equals("User-Agent", ignoreCase = true) }) {
                     setUserAgent(DEFAULT_USER_AGENT)
@@ -233,7 +244,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 onResolvedUri = { resolved -> currentVodCacheResolvedUrl = resolved?.toString() }
             )
         } else if (isLoopbackUrl(url)) {
-            PlayerPlaybackNetworking.createHttpDataSourceFactory(sanitizedHeaders, useLongReadTimeout = true)
+            PlayerPlaybackNetworking.createHttpDataSourceFactory(sanitizedHeaders, useLongReadTimeout = true, originUrl = url)
         } else {
             httpDataSourceFactory
         }

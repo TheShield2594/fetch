@@ -3258,6 +3258,13 @@
     <string name="youtube_action_subscribed">Subscribed</string>
     <string name="youtube_action_failed">YouTube didn’t accept that. Try again.</string>
     <string name="youtube_play_failed">This video can’t be played</string>
+    <string name="youtube_play_failed_age_restricted">This video is age-restricted and can’t be played here</string>
+    <string name="youtube_play_failed_sign_in">This video is private or for members only</string>
+    <string name="youtube_play_failed_region">This video isn’t available in your country</string>
+    <string name="youtube_play_failed_live_not_started">This live stream hasn’t started yet</string>
+    <string name="youtube_play_failed_unavailable">This video is unavailable</string>
+    <string name="youtube_play_failed_rate_limited">YouTube is limiting requests from this device. Try again in a few minutes</string>
+    <string name="youtube_play_failed_network">Couldn’t reach YouTube. Check your connection and try again</string>
     <string name="youtube_switch_channel_hint">Select to switch channel</string>
     <string name="youtube_channel_picker_title">Choose a channel</string>
     <string name="youtube_channel_picker_subtitle">Your feeds, history and searches come from the channel you pick.</string>

@@ -59,6 +59,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import javax.inject.Inject
+import com.fetch.tv.data.trailer.YouTubeExtractionFailure
+import com.fetch.tv.data.trailer.YouTubeExtractionResult
 
 data class YouTubeFeedState(
     val shelves: List<YouTubeShelf> = emptyList(),
@@ -80,6 +82,8 @@ data class YouTubePlaybackState(
     val audioUrl: String? = null,
     val isLoading: Boolean = true,
     val failed: Boolean = false,
+    /** Why no stream was found, when [failed] came from extraction; null for a playback error. */
+    val failureReason: YouTubeExtractionFailure? = null,
     val skipSegments: List<YouTubeSkipSegment> = emptyList(),
     val captionTracks: List<YouTubeCaptionTrack> = emptyList(),
     /** The track showing; null while captions are off. */
@@ -574,13 +578,14 @@ class YouTubeViewModel @Inject constructor(
             // Read before the stream, so the player can start from it on its first frame.
             val resumePoint = orNull { resumeStore.get(video.videoId) }
             updatePlayback(video) { it.copy(sponsorBlockModes = modes, resumeFromMs = resumePoint?.positionMs, continueFromMs = retryFromMs, defaultQuality = maxHeight) }
-            val source = try {
-                extractor.extractPlaybackSource(video.watchUrl, maxVideoHeight = maxHeight)
+            val extraction = try {
+                extractor.extractPlaybackSourceResult(video.watchUrl, maxVideoHeight = maxHeight)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                null
+                YouTubeExtractionResult.Failure(YouTubeExtractionFailure.FAILED)
             }
+            val source = (extraction as? YouTubeExtractionResult.Success)?.source
             // SponsorBlock usually answers before the stream is found. Give it a moment more, so a
             // segment at 0:00 is known before the first frame; otherwise it is applied on arrival,
             // without waiting on the watch page and captions (#787).
@@ -593,7 +598,12 @@ class YouTubeViewModel @Inject constructor(
             }
             updatePlayback(video) { playback ->
                 if (source == null || source.videoUrl.isBlank()) {
-                    playback.copy(isLoading = false, failed = true)
+                    playback.copy(
+                        isLoading = false,
+                        failed = true,
+                        failureReason = (extraction as? YouTubeExtractionResult.Failure)?.reason
+                            ?: YouTubeExtractionFailure.NO_PLAYABLE_STREAM
+                    )
                 } else {
                     playback.copy(
                         skipSegments = earlySegments ?: playback.skipSegments,
@@ -794,7 +804,7 @@ class YouTubeViewModel @Inject constructor(
         val video = _uiState.value.playback?.video ?: return
         saveResumePoint()
         reportHistory()
-        updatePlayback(video) { it.copy(isLoading = false, failed = true) }
+        updatePlayback(video) { it.copy(isLoading = false, failed = true, failureReason = null) }
     }
 
     fun retryPlayback() {

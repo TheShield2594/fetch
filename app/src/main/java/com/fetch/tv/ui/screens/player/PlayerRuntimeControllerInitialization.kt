@@ -1044,7 +1044,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                     extractorsFactory = effectiveExtractorsFactory,
                     subtitleParserFactory = null
                 )
-                val playerDataSourceFactory = PlayerPlaybackNetworking.createDataSourceFactory(context, headers)
+                val playerDataSourceFactory = PlayerPlaybackNetworking.createDataSourceFactory(context, headers, originUrl = url)
                 ExoPlayer.Builder(context)
                     .setBandwidthMeter(bandwidthMeter)
                     .setTrackSelector(trackSelector!!)
@@ -1064,7 +1064,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             if (!afrPreflightGate.isCurrent(afrPreflightToken)) return@launch
 
             _exoPlayer = if (useLibass) {
-                val playerDataSourceFactory = PlayerPlaybackNetworking.createDataSourceFactory(context, headers)
+                val playerDataSourceFactory = PlayerPlaybackNetworking.createDataSourceFactory(context, headers, originUrl = url)
                 ExoPlayer.Builder(context)
                     .setBandwidthMeter(bandwidthMeter)
                     .setLoadControl(loadControl)
@@ -2165,6 +2165,7 @@ internal fun PlayerRuntimeController.resetLoadingOverlayForNewStream() {
     mpvEofSeenClear = false
     hasMarkedCurrentEpisodeCompleted = false
     currentEpisodeCompletionIsFinal = false
+    watchProgressFlagsGeneration++
     shouldEnforceAutoplayOnFirstReady = true
     userPausedManually = false
     timeoutRecoveryAttempts = 0

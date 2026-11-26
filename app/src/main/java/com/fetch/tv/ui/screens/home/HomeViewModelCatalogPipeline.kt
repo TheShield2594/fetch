@@ -392,19 +392,11 @@ internal fun HomeViewModel.loadCatalogPipeline(
                         if (pendingCatalogLoads == 0) {
                             catalogsLoadInProgress = false
                         }
-                        // Batch updates: only trigger a UI rebuild when all
-                        // eager catalogs have completed, or let the debounce
-                        // in scheduleUpdateCatalogRows coalesce intermediate
-                        // arrivals.  When pending == 0 we always flush.
-                        if (pendingCatalogLoads == 0) {
-                            scheduleUpdateCatalogRows()
-                        } else if (!hasRenderedFirstCatalog) {
-                            // First content arriving — show it quickly so the
-                            // user sees something beyond placeholders.
-                            scheduleUpdateCatalogRows()
-                        }
-                        // Otherwise, let the next completion or the final
-                        // pendingCatalogLoads==0 trigger the update.
+                        // Every arrival schedules a rebuild; the debounce in
+                        // scheduleUpdateCatalogRows coalesces bursts. Waiting for
+                        // pending == 0 left loaded rows on shimmer behind one slow
+                        // or hung addon (TheShield2594/fetch#800).
+                        scheduleUpdateCatalogRows()
                     }
                     is NetworkResult.Error -> {
                         val errorKey = catalogKey(
@@ -427,10 +419,8 @@ internal fun HomeViewModel.loadCatalogPipeline(
                         if (pendingCatalogLoads == 0) {
                             catalogsLoadInProgress = false
                         }
-                        // Same batching logic as success path.
-                        if (pendingCatalogLoads == 0 || !hasRenderedFirstCatalog) {
-                            scheduleUpdateCatalogRows()
-                        }
+                        // Same as the success path: drop the failed row's placeholder now.
+                        scheduleUpdateCatalogRows()
                     }
                     NetworkResult.Loading -> {
                         /* Handled by individual row */

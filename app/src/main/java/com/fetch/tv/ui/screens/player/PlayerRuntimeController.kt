@@ -474,6 +474,12 @@ class PlayerRuntimeController(
     internal var hasMarkedCurrentEpisodeCompleted: Boolean = false
     /** The completion mark came from the natural end, so later in-progress saves are stale. */
     internal var currentEpisodeCompletionIsFinal: Boolean = false
+    /**
+     * Bumped whenever the completion flags above are reset for a new stream. A save captures it
+     * synchronously, and only touches the flags if it still matches after its suspensions, so a
+     * late save for the previous episode can't mark the new one (TheShield2594/fetch#708).
+     */
+    internal var watchProgressFlagsGeneration: Long = 0L
     /** Serializes watch-progress saves so a later save never lands before an earlier one. */
     internal val watchProgressSaveMutex = kotlinx.coroutines.sync.Mutex()
     // Queue restores run one at a time, in the order requested (see restoreQueueItem).

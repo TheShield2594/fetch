@@ -613,6 +613,12 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
     // With no known length the stored percent is a placeholder, so only the natural end can finish it.
     val finishedWithUnknownDuration = duration <= 0L && reason == WatchProgressSaveReason.NATURAL_END
 
+    // The flags belong to the item playing now. Capture which one that is before suspending; if the
+    // stream changes while this save waits, it still saves the old item but leaves the flags alone.
+    val flagsGeneration = watchProgressFlagsGeneration
+    val markedAtRequest = hasMarkedCurrentEpisodeCompleted
+    val finalAtRequest = currentEpisodeCompletionIsFinal
+
     // Saves run one at a time, in the order they were requested: a below-threshold save decided
     // just before the natural end must not land after the completion and replace it.
     scope.launch(kotlinx.coroutines.NonCancellable) { watchProgressSaveMutex.withLock {
@@ -622,23 +628,27 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
             profileId = profileId
         )
         val normalizedProgress = progress.copy(contentId = effectiveContentId)
+        val ownsFlags = flagsGeneration == watchProgressFlagsGeneration
+        val alreadyMarked = if (ownsFlags) hasMarkedCurrentEpisodeCompleted else markedAtRequest
         val action = watchProgressSaveAction(
             reachedEnd = normalizedProgress.isCompleted() || finishedByCredits || finishedWithUnknownDuration,
             reason = reason,
-            alreadyMarkedCompleted = hasMarkedCurrentEpisodeCompleted,
-            completionMarkIsFinal = currentEpisodeCompletionIsFinal
+            alreadyMarkedCompleted = alreadyMarked,
+            completionMarkIsFinal = if (ownsFlags) currentEpisodeCompletionIsFinal else finalAtRequest
         )
         when (action) {
             WatchProgressSaveAction.MARK_COMPLETED -> {
-                if (!hasMarkedCurrentEpisodeCompleted) {
-                    hasMarkedCurrentEpisodeCompleted = true
-                    currentEpisodeCompletionIsFinal = reason == WatchProgressSaveReason.NATURAL_END
+                if (!alreadyMarked) {
+                    if (ownsFlags) {
+                        hasMarkedCurrentEpisodeCompleted = true
+                        currentEpisodeCompletionIsFinal = reason == WatchProgressSaveReason.NATURAL_END
+                    }
                     watchProgressRepository.markAsCompleted(
                         normalizedProgress,
                         profileId = profileId,
                         broadcastTrackingHistory = false
                     )
-                } else if (reason == WatchProgressSaveReason.NATURAL_END) {
+                } else if (ownsFlags && reason == WatchProgressSaveReason.NATURAL_END) {
                     currentEpisodeCompletionIsFinal = true
                 }
                 runCatching { tvRecommendationManager.onProgressRemoved(normalizedProgress.contentId) }
@@ -646,8 +656,10 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
             WatchProgressSaveAction.SAVE_IN_PROGRESS -> {
                 // A completion marked when the app went to the background is withdrawn once
                 // playback carries on below the threshold, so the title keeps a resume point.
-                hasMarkedCurrentEpisodeCompleted = false
-                currentEpisodeCompletionIsFinal = false
+                if (ownsFlags) {
+                    hasMarkedCurrentEpisodeCompleted = false
+                    currentEpisodeCompletionIsFinal = false
+                }
                 watchProgressRepository.saveProgress(
                     normalizedProgress,
                     profileId = profileId,
@@ -1643,8 +1655,14 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             showSourcesPanelFromError()
         }
         PlayerEvent.OnRetry -> {
-            // A stream that failed mid-playback picks up where it stopped.
-            val resumeAt = midPlaybackRecovery?.positionMs?.takeIf { it > 0L }
+            // A stream that failed mid-playback picks up where it stopped, but only if that
+            // recovery is for the item on screen now (TheShield2594/fetch#704).
+            val retryRequestKey = currentSourceStreamsRequest()?.let { request ->
+                buildSourceRequestKey(request.type, request.videoId, request.season, request.episode)
+            }
+            val resumeAt = midPlaybackRecovery
+                ?.takeIf { retryRequestKey != null && it.requestKey == retryRequestKey }
+                ?.positionMs?.takeIf { it > 0L }
                 ?: _playbackTimeline.value.currentPosition.takeIf { hasRenderedFirstFrame && it > 0L }
             hasRenderedFirstFrame = false
             endDetectionArmed = false

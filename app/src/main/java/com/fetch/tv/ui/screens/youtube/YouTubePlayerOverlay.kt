@@ -82,6 +82,7 @@ import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayState
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import kotlinx.coroutines.delay
+import com.fetch.tv.data.trailer.YouTubeExtractionFailure
 
 /**
  * Full-screen playback for a YouTube video. Built on the trailer player, with what a long video
@@ -462,7 +463,7 @@ fun YouTubePlayerOverlay(
                     verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
                 ) {
                     Text(
-                        text = stringResource(R.string.youtube_play_failed),
+                        text = stringResource(youTubeFailureMessage(playback.failureReason)),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
@@ -1007,6 +1008,19 @@ internal fun seekStepMs(repeatCount: Int): Long = when {
 
 /** A 403 or 410 from googlevideo: the stream link expired (a long pause) or was revoked. */
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+/** The message for a video that won't play; [reason] null is an error during playback (#741). */
+@androidx.annotation.StringRes
+internal fun youTubeFailureMessage(reason: YouTubeExtractionFailure?): Int = when (reason) {
+    YouTubeExtractionFailure.AGE_RESTRICTED -> R.string.youtube_play_failed_age_restricted
+    YouTubeExtractionFailure.SIGN_IN_REQUIRED -> R.string.youtube_play_failed_sign_in
+    YouTubeExtractionFailure.REGION_BLOCKED -> R.string.youtube_play_failed_region
+    YouTubeExtractionFailure.LIVE_NOT_STARTED -> R.string.youtube_play_failed_live_not_started
+    YouTubeExtractionFailure.UNAVAILABLE -> R.string.youtube_play_failed_unavailable
+    YouTubeExtractionFailure.RATE_LIMITED -> R.string.youtube_play_failed_rate_limited
+    YouTubeExtractionFailure.FAILED -> R.string.youtube_play_failed_network
+    YouTubeExtractionFailure.NO_PLAYABLE_STREAM, null -> R.string.youtube_play_failed
+}
+
 internal fun isExpiredStreamLink(error: Throwable): Boolean {
     var cause: Throwable? = error
     var depth = 0

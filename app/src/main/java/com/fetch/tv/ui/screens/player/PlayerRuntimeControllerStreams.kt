@@ -1250,6 +1250,10 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
     if (isUsingMpvEngine()) mpvView?.setSubtitleDelayMs(0)
     hasRetriedCurrentStreamAfter416 = false
     resetErrorRetryState()
+    // A failed episode's recovery state belongs to it: its position must not be where the next
+    // episode starts, or where Retry seeks on it (TheShield2594/fetch#704).
+    midPlaybackRecovery = null
+    errorBeforeSourcesPanel = null
     currentVideoId = targetVideoId
     currentSeason = targetVideo?.season ?: _uiState.value.episodeStreamsSeason ?: currentSeason
     currentEpisode = targetVideo?.episode ?: _uiState.value.episodeStreamsEpisode ?: currentEpisode
@@ -1267,6 +1271,8 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
         it.clearFrameRateDetection().copy(
             isBuffering = true,
             error = null,
+            showErrorRecoveryActions = false,
+            pendingSeekPosition = null,
             currentSeason = currentSeason,
             currentEpisode = currentEpisode,
             currentVideoId = currentVideoId,

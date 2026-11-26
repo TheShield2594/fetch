@@ -56,4 +56,37 @@ class ContinueWatchingCachePolicyTest {
             )
         )
     }
+
+    @Test
+    fun `empty tracker profile resolves the start-up gate once the tracker answers`() {
+        assertTrue(
+            isInitialContinueWatchingResolved(
+                hasItems = false,
+                usesTrackingProvider = true,
+                hasLoadedRemoteProgress = true
+            )
+        )
+    }
+
+    @Test
+    fun `empty tracker profile keeps the gate while the tracker is still loading`() {
+        assertFalse(
+            isInitialContinueWatchingResolved(
+                hasItems = false,
+                usesTrackingProvider = true,
+                hasLoadedRemoteProgress = false
+            )
+        )
+    }
+
+    @Test
+    fun `local profile resolves the gate on its first run even when empty`() {
+        assertTrue(
+            isInitialContinueWatchingResolved(
+                hasItems = false,
+                usesTrackingProvider = false,
+                hasLoadedRemoteProgress = false
+            )
+        )
+    }
 }

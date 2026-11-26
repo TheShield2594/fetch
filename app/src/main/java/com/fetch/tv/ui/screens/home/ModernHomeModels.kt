@@ -810,6 +810,29 @@ internal fun neighbourHeroBackdrops(
     return if (singleNeighbour) backdrops.take(1) else backdrops
 }
 
+/**
+ * Backdrops for the card that a step Up or Down would land on: each neighbouring row's
+ * remembered card ([landingIndex]), the one below first. [singleNeighbour] keeps one, for the
+ * low-RAM tier (TheShield2594/fetch#804).
+ */
+internal fun verticalNeighbourHeroBackdrops(
+    rows: List<HeroCarouselRow>,
+    activeRowKey: String?,
+    landingIndex: (String) -> Int,
+    enrichedPreviews: Map<String, MetaPreview>,
+    singleNeighbour: Boolean = false
+): List<String> {
+    val activeIndex = rows.indexOfFirst { it.key == activeRowKey }
+    if (activeIndex < 0) return emptyList()
+    val backdrops = listOf(activeIndex + 1, activeIndex - 1).mapNotNull { rowIndex ->
+        val row = rows.getOrNull(rowIndex) ?: return@mapNotNull null
+        val items = row.items.list
+        val item = items.getOrNull(landingIndex(row.key)) ?: items.firstOrNull() ?: return@mapNotNull null
+        heroBackdropFor(item, item.metaPreview?.id?.let { enrichedPreviews[it] })
+    }.distinct()
+    return if (singleNeighbour) backdrops.take(1) else backdrops
+}
+
 internal fun firstNonBlank(vararg candidates: String?): String? {
     return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()
 }

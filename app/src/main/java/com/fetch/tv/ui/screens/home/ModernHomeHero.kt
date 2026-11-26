@@ -74,6 +74,7 @@ import androidx.tv.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import coil3.compose.AsyncImage
+import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.fetch.tv.ui.util.LocalRecompositionHighlighterEnabled
@@ -161,8 +162,24 @@ internal fun ModernHeroMediaLayer(
     val rawBackdrop by remember { derivedStateOf { heroBackdrop() } }
     val enriching by remember { derivedStateOf { enrichmentActive() } }
     var displayedBackdrop by remember { mutableStateOf(HeroBackdropState.lastDisplayedUrl ?: heroBackdrop()) }
-    if (rawBackdrop != null && rawBackdrop != displayedBackdrop && !enriching) {
-        displayedBackdrop = rawBackdrop!!
+    // The backdrop the hero is moving to. It is shown (and the crossfade starts) only once it
+    // has loaded, so the old backdrop holds instead of fading onto the plain background while
+    // the network catches up (TheShield2594/fetch#804).
+    var targetBackdrop by remember { mutableStateOf(displayedBackdrop) }
+    if (rawBackdrop != null && rawBackdrop != targetBackdrop && !enriching) {
+        targetBackdrop = rawBackdrop!!
+    }
+    LaunchedEffect(targetBackdrop, requestWidthPx, requestHeightPx) {
+        val target = targetBackdrop ?: return@LaunchedEffect
+        if (target == displayedBackdrop) return@LaunchedEffect
+        if (displayedBackdrop != null) {
+            // Same request the AsyncImage below makes, so it lands in its memory-cache entry.
+            // A failure switches anyway: holding the old title's art would be wrong too.
+            localContext.imageLoader.execute(
+                heroBackdropRequest(localContext, target, requestWidthPx, requestHeightPx)
+            )
+        }
+        displayedBackdrop = target
     }
     val imageModel = remember(
         localContext,
@@ -170,12 +187,7 @@ internal fun ModernHeroMediaLayer(
         requestWidthPx,
         requestHeightPx
     ) {
-        displayedBackdrop?.let {
-            ImageRequest.Builder(localContext)
-                .data(it)
-                .size(width = requestWidthPx, height = requestHeightPx)
-                .build()
-        }
+        displayedBackdrop?.let { heroBackdropRequest(localContext, it, requestWidthPx, requestHeightPx) }
     }
     // Keep HeroBackdropState in sync for navigation transitions.
     LaunchedEffect(displayedBackdrop) {
@@ -990,3 +1002,14 @@ private fun HeroMetaDivider(
             .background(FetchTheme.colors.TextTertiary.copy(alpha = 0.78f))
     )
 }
+
+/** The hero backdrop request: one builder for the preload and the AsyncImage, so their cache keys match. */
+private fun heroBackdropRequest(
+    context: android.content.Context,
+    url: String,
+    widthPx: Int,
+    heightPx: Int
+): ImageRequest = ImageRequest.Builder(context)
+    .data(url)
+    .size(width = widthPx, height = heightPx)
+    .build()

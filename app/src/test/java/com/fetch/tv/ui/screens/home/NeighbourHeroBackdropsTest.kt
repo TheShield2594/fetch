@@ -116,4 +116,54 @@ class NeighbourHeroBackdropsTest {
             neighbourHeroBackdrops(items, 1, emptyMap(), singleNeighbour = true)
         )
     }
+
+    private fun row(key: String, vararg ids: String) = HeroCarouselRow(
+        key = key,
+        title = key,
+        globalRowIndex = 0,
+        items = StableList(ids.map { card(it) })
+    )
+
+    @Test
+    fun `a step up or down preloads the card it lands on, below first`() {
+        val rows = listOf(row("r1", "a", "b"), row("r2", "c"), row("r3", "d", "e"))
+
+        assertEquals(
+            listOf("https://art.test/e-backdrop.jpg", "https://art.test/a-backdrop.jpg"),
+            verticalNeighbourHeroBackdrops(
+                rows,
+                activeRowKey = "r2",
+                landingIndex = { key -> if (key == "r3") 1 else 0 },
+                enrichedPreviews = emptyMap()
+            )
+        )
+    }
+
+    @Test
+    fun `a remembered index past the row's end falls back to its first card`() {
+        val rows = listOf(row("r1", "a"), row("r2", "b"))
+
+        assertEquals(
+            listOf("https://art.test/b-backdrop.jpg"),
+            verticalNeighbourHeroBackdrops(rows, "r1", landingIndex = { 5 }, enrichedPreviews = emptyMap())
+        )
+    }
+
+    @Test
+    fun `the low-RAM tier preloads only the row below`() {
+        val rows = listOf(row("r1", "a"), row("r2", "b"), row("r3", "c"))
+
+        assertEquals(
+            listOf("https://art.test/c-backdrop.jpg"),
+            verticalNeighbourHeroBackdrops(rows, "r2", { 0 }, emptyMap(), singleNeighbour = true)
+        )
+    }
+
+    @Test
+    fun `an unknown active row preloads nothing`() {
+        assertEquals(
+            emptyList<String>(),
+            verticalNeighbourHeroBackdrops(listOf(row("r1", "a")), "gone", { 0 }, emptyMap())
+        )
+    }
 }

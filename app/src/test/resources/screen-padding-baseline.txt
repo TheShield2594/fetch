@@ -3,7 +3,6 @@
 # FetchTheme.spacing.screen, and delete it when the count reaches zero.
 com/fetch/tv/ui/components/CatalogRowSection.kt|LITERAL|1
 com/fetch/tv/ui/components/CatalogRowSection.kt|STAND_IN|3
-com/fetch/tv/ui/components/HeroCarousel.kt|STAND_IN|2
 com/fetch/tv/ui/components/Skeletons.kt|STAND_IN|8
 com/fetch/tv/ui/components/Synopsis.kt|STAND_IN|1
 com/fetch/tv/ui/screens/ambient/AmbientClock.kt|LITERAL|2

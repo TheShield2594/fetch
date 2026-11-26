@@ -30,10 +30,6 @@ com/fetch/tv/ui/components/FocusScrollingText.kt|DP|3
 com/fetch/tv/ui/components/GridContentCard.kt|ALPHA|3
 com/fetch/tv/ui/components/GridContentCard.kt|DP|2
 com/fetch/tv/ui/components/GridContentCard.kt|WHITE_BLACK|4
-com/fetch/tv/ui/components/HeroCarousel.kt|ALPHA|15
-com/fetch/tv/ui/components/HeroCarousel.kt|DP|8
-com/fetch/tv/ui/components/HeroCarousel.kt|PERCENT_RADIUS|1
-com/fetch/tv/ui/components/HeroCarousel.kt|WHITE_BLACK|1
 com/fetch/tv/ui/components/LightweightCard.kt|DP|1
 com/fetch/tv/ui/components/LoadingIndicator.kt|DURATION|1
 com/fetch/tv/ui/components/MDBListRatingsRow.kt|DP|2

@@ -355,10 +355,6 @@ internal fun CatalogDescriptor.shouldShowOnHome(): Boolean {
 internal fun CatalogDescriptor.isBrowsableOnHome(): Boolean =
     !isSearchOnlyCatalog() && requiredBrowseExtraArgs() != null
 
-internal fun MetaPreview.hasHeroArtwork(): Boolean {
-    return !background.isNullOrBlank()
-}
-
 internal fun HomeViewModel.extractYear(releaseInfo: String?): String? {
     if (releaseInfo.isNullOrBlank()) return null
     return Regex("\\b(19|20)\\d{2}\\b").find(releaseInfo)?.value

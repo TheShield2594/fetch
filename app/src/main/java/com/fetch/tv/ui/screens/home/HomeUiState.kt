@@ -47,8 +47,7 @@ data class HomeUiState(
     val modernHeroFullScreenBackdropEnabled: Boolean = true,
     val homeImdbRatingsVisibility: HomeImdbRatingsVisibility = HomeImdbRatingsVisibility.SHOW_ALL,
     val detailImdbRatingsVisibility: DetailImdbRatingsVisibility = DetailImdbRatingsVisibility.SHOW_ALL,
-    val heroItems: List<MetaPreview> = emptyList(),
-    val heroCatalogKeys: List<String> = emptyList(),
+    /** "Show Hero": off (or a kids Home) leaves Home rows only, using the full height. */
     val heroSectionEnabled: Boolean = true,
     /**
      * A kids profile's Home: no hero, fewer rows, bigger cards, and nothing about addons,

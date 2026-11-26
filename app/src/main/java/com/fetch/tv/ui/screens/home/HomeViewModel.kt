@@ -284,7 +284,6 @@ class HomeViewModel @Inject constructor(
     internal var pinnedHomeCatalogKeys: List<String> = emptyList()
     internal var followAddonsOrderEnabled: Boolean = false
     internal var customCatalogTitles: Map<String, String> = emptyMap()
-    internal var currentHeroCatalogKeys: List<String> = emptyList()
     internal var catalogUpdateJob: Job? = null
     internal var hasRenderedFirstCatalog = false
     internal val catalogLoadSemaphore = Semaphore(
@@ -304,10 +303,6 @@ class HomeViewModel @Inject constructor(
     internal var trailerPreviewJob: Job? = null
     internal var currentTmdbSettings: TmdbSettings = TmdbSettings()
     internal var currentMdbListSettings: MDBListSettings = MDBListSettings()
-    internal var heroEnrichmentJob: Job? = null
-    internal var lastHeroEnrichmentSignature: String? = null
-    internal var lastHeroEnrichedItems: List<MetaPreview> = emptyList()
-    internal var heroItemOrder: List<String> = emptyList()
     internal val modernCarouselRowBuildCache = ModernCarouselRowBuildCache()
     internal val prefetchedExternalMetaIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
     internal val backgroundMetaPrefetchedIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
@@ -319,7 +314,9 @@ class HomeViewModel @Inject constructor(
     /** Items an enrichment merge was applied for. */
     internal val enrichmentMergedIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
 
-    internal val mdbBatchNegativeIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    internal val mdbBatchNegativeIds = MdbListNegativeCache()
+    internal val mdbBatchInFlightIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    @Volatile internal var mdbBatchFocusedRowKey: String? = null
     internal var mdbBatchRowFocusJob: Job? = null
     @Volatile internal var mdbBatchHasFired: Boolean = false
     internal val cwMetaCache: MutableMap<String, CwMetaSummary?> = createLruMap(MAX_CW_CACHE_SIZE)

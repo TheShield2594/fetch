@@ -544,7 +544,6 @@ class FolderDetailViewModel @Inject constructor(
                 val homeState = HomeUiState(
                     catalogRows = allRows,
                     homeRows = homeRows,
-                    heroItems = emptyList(),
                     heroSectionEnabled = false,
                     isLoading = anyLoading,
                     homeImdbRatingsVisibility = s.homeImdbRatingsVisibility,

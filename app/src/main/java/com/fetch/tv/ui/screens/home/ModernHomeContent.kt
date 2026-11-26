@@ -202,20 +202,12 @@ fun ModernHomeContent(
     }
 
     if (carouselRows.list.isEmpty()) {
-        if (uiState.heroSectionEnabled && uiState.heroItems.isNotEmpty()) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                com.fetch.tv.ui.components.HeroCarousel(
-                    items = uiState.heroItems.asStable(),
-                    showImdbRatings = uiState.homeImdbRatingsVisibility.showRatings,
-                    onItemClick = { item ->
-                        onNavigateToDetail(item.id, item.apiType, "")
-                    },
-                    onItemFocus = { item -> onItemFocus(item) }
-                )
-            }
-        }
+        // Rows are on their way (the presentation is built after the catalogs land).
+        if (hasCatalogs || hasCollections) ModernHomeSkeleton(uiState = uiState, modifier = Modifier.fillMaxSize())
         return
     }
+    // "Show Hero" off, or a kids Home: rows only, using the full height (#797).
+    val showHero = uiState.heroSectionEnabled
 
     val carouselLookups = presentation.lookups
     val rowIndexByKey = carouselLookups.rowIndexByKey
@@ -886,6 +878,7 @@ fun ModernHomeContent(
                 derivedStateOf { !verticalRowListState.isScrollInProgress }
             }
             val shouldPlayCatalogHeroTrailerState = remember(
+                showHero,
                 isScrollStoppedState,
                 effectiveAutoplayEnabled,
                 trailerPlaybackTarget,
@@ -894,7 +887,8 @@ fun ModernHomeContent(
                 isRapidHorizontalNav
             ) {
                 derivedStateOf {
-                    isScrollStoppedState.value &&
+                    showHero &&
+                        isScrollStoppedState.value &&
                         effectiveAutoplayEnabled &&
                         !isSidebarExpanded.value &&
                         !isRapidHorizontalNav.value &&
@@ -903,6 +897,7 @@ fun ModernHomeContent(
                 }
             }
             val shouldPlayCollectionHeroVideoState = remember(
+                showHero,
                 isScrollStoppedState,
                 collectionHeroVideoUrl,
                 collectionHeroVideoPlaybackKey,
@@ -910,7 +905,8 @@ fun ModernHomeContent(
                 isSidebarExpanded
             ) {
                 derivedStateOf {
-                    isScrollStoppedState.value &&
+                    showHero &&
+                        isScrollStoppedState.value &&
                         !isSidebarExpanded.value &&
                         !collectionHeroVideoUrl.isNullOrBlank() &&
                         collectionHeroVideoPlaybackKey != null &&
@@ -1133,18 +1129,31 @@ fun ModernHomeContent(
                 }.coerceAtLeast(1)
             }
 
-            // Load the backdrops either side of the focused card at the size the hero asks for, so a
-            // step left or right crossfades from the memory cache instead of waiting on the network.
+            // Load the backdrops either side of the focused card, and of the card a step up or down
+            // lands on, at the size the hero asks for, so those moves crossfade from the memory
+            // cache instead of waiting on the network.
             val heroPreloadContext = LocalContext.current
-            LaunchedEffect(rowByKey, heroMediaWidthPx, heroMediaHeightPx) {
+            LaunchedEffect(showHero, rowByKey, carouselRows, heroMediaWidthPx, heroMediaHeightPx) {
+                if (!showHero) return@LaunchedEffect
                 snapshotFlow {
-                    val row = activeRowKey.value?.let { rowByKey[it] } ?: return@snapshotFlow emptyList()
-                    neighbourHeroBackdrops(
-                        row.items.list,
-                        activeItemIndex.intValue,
-                        enrichedPreviews.value,
-                        singleNeighbour = MemoryBudget.isLowRamTier
-                    )
+                    val activeKey = activeRowKey.value
+                    val row = activeKey?.let { rowByKey[it] } ?: return@snapshotFlow emptyList()
+                    val previews = enrichedPreviews.value
+                    val lowRam = MemoryBudget.isLowRamTier
+                    (
+                        neighbourHeroBackdrops(
+                            row.items.list,
+                            activeItemIndex.intValue,
+                            previews,
+                            singleNeighbour = lowRam
+                        ) + verticalNeighbourHeroBackdrops(
+                            carouselRows.list,
+                            activeKey,
+                            landingIndex = { key -> focusedItemByRow[key] ?: 0 },
+                            enrichedPreviews = previews,
+                            singleNeighbour = lowRam
+                        )
+                    ).distinct()
                 }
                     .distinctUntilChanged()
                     .collectLatest { urls ->
@@ -1186,7 +1195,7 @@ fun ModernHomeContent(
             }
             val onFirstFrameRenderedLambda = remember { { heroTrailerFirstFrameRendered = true } }
 
-            ModernHeroSection(
+            if (showHero) ModernHeroSection(
                 heroSceneState = heroSceneStateLambda,
                 isFullScreen = isFullScreenLambda,
                 heroMediaWidthPx = heroMediaWidthPx,
@@ -1216,7 +1225,7 @@ fun ModernHomeContent(
 
             // The title and metadata follow focus at once, from the catalog's data until enrichment
             // replaces it. Only the art above waits for focus to settle and enrichment to land.
-            HeroTitleBlock(
+            if (showHero) HeroTitleBlock(
                 // The resolved hero, not the scene's preview: the scene holds no preview while
                 // enrichment is pending, and this block should show the catalog title meanwhile.
                 previewProvider = { resolvedHeroState.value.second },

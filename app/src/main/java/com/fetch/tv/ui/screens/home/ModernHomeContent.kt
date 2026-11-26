@@ -1374,7 +1374,11 @@ fun ModernHomeContent(
                     onReturnToRow = returnFocusToContinueWatching,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .padding(top = FetchTheme.spacing.screen.vertical)
+                        .padding(
+                            top = FetchTheme.spacing.screen.vertical,
+                            start = FetchTheme.spacing.screen.horizontal,
+                            end = FetchTheme.spacing.screen.horizontal
+                        )
                         .onFocusChanged { cwUndoHasFocus.value = it.hasFocus }
                 )
             }

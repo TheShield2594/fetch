@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
@@ -38,7 +36,6 @@ internal fun ContinueWatchingUndoBanner(
 ) {
     Row(
         modifier = modifier
-            .widthIn(max = 720.dp)
             .background(FetchTheme.colors.BackgroundCard, RoundedCornerShape(FetchTheme.radii.md))
             .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.sm),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),

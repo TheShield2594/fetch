@@ -793,6 +793,12 @@ internal fun PlayerRuntimeController.switchToSourceStream(
     _exoPlayer?.stop()
     resetLoadingOverlayForNewStream()
 
+    pendingSeekPosition = when {
+        resumePositionMs != null && resumePositionMs > 0L -> resumePositionMs
+        // A user-picked switch from the start starts at the start, not at a stale seek.
+        resumePositionMs != null && userPicked -> null
+        else -> pendingSeekPosition
+    }
     _uiState.update {
         it.clearFrameRateDetection().copy(
             isBuffering = true,
@@ -809,13 +815,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
             activeOverlay = it.activeOverlay.closing(PlayerOverlay.SOURCES),
             isLoadingSourceStreams = false,
             sourceStreamsError = null,
-            showErrorRecoveryActions = false,
-            pendingSeekPosition = when {
-                resumePositionMs != null && resumePositionMs > 0L -> resumePositionMs
-                // A user-picked switch from the start starts at the start, not at a stale seek.
-                resumePositionMs != null && userPicked -> null
-                else -> it.pendingSeekPosition
-            }
+            showErrorRecoveryActions = false
         )
     }
     showStreamSourceIndicator(stream)
@@ -846,7 +846,7 @@ internal fun PlayerRuntimeController.switchToSourceStream(
                 val startPosition = pendingSeekStartPosition()
                 if (startPosition != null) {
                     player.setMediaSource(newSource, startPosition)
-                    _uiState.update { it.copy(pendingSeekPosition = null) }
+                    pendingSeekPosition = null
                     updatePlaybackTimeline(currentPosition = startPosition)
                 } else {
                     player.setMediaSource(newSource)
@@ -1267,12 +1267,12 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
     currentTraktEpisodeMappingKey = null
     lastSavedPosition = 0L
 
+    pendingSeekPosition = null
     _uiState.update {
         it.clearFrameRateDetection().copy(
             isBuffering = true,
             error = null,
             showErrorRecoveryActions = false,
-            pendingSeekPosition = null,
             currentSeason = currentSeason,
             currentEpisode = currentEpisode,
             currentVideoId = currentVideoId,

@@ -39,11 +39,13 @@ import androidx.compose.material.icons.filled.Remove
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -102,13 +104,78 @@ internal fun SubtitleSelectionOverlay(
     onEvent: (PlayerEvent) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    // Kept across opens, so the style rail returns to where it was last left.
+    val persistedStyleFocusKey = rememberSaveable { mutableStateOf<String?>(null) }
+    // The session below is rebuilt from the tracks, addon list and style on every recomposition
+    // it is in, so it is only composed while the panel is on screen. On open it is composed
+    // hidden for one frame first, so the panel animates in; on close it stays for the exit
+    // animation.
+    var panelShown by remember { mutableStateOf(false) }
+    LaunchedEffect(visible) {
+        if (visible) {
+            panelShown = true
+        } else if (panelShown) {
+            delay(SUBTITLE_OVERLAY_EXIT_HOLD_MS)
+            panelShown = false
+        }
+    }
+    if (visible || panelShown) {
+        SubtitleSelectionOverlaySession(
+            visible = visible && panelShown,
+            internalTracks = internalTracks,
+            selectedInternalIndex = selectedInternalIndex,
+            addonSubtitles = addonSubtitles,
+            selectedAddonSubtitle = selectedAddonSubtitle,
+            subtitleStyle = subtitleStyle,
+            modifier = modifier,
+            isEditingHdrStyle = isEditingHdrStyle,
+            subtitleDelayMs = subtitleDelayMs,
+            installedSubtitleAddonOrder = installedSubtitleAddonOrder,
+            isLoadingAddons = isLoadingAddons,
+            useLibass = useLibass,
+            isUsingMpv = isUsingMpv,
+            onInternalTrackSelected = onInternalTrackSelected,
+            onAddonSubtitleSelected = onAddonSubtitleSelected,
+            onDisableSubtitles = onDisableSubtitles,
+            onEvent = onEvent,
+            onDismiss = onDismiss,
+            persistedStyleFocusKeyState = persistedStyleFocusKey
+        )
+    }
+}
+
+/** Longer than the side panel's exit animation, so the panel slides out with its content. */
+private const val SUBTITLE_OVERLAY_EXIT_HOLD_MS = 1_000L
+
+@Composable
+private fun SubtitleSelectionOverlaySession(
+    visible: Boolean,
+    internalTracks: List<TrackInfo>,
+    selectedInternalIndex: Int,
+    addonSubtitles: List<Subtitle>,
+    selectedAddonSubtitle: Subtitle?,
+    subtitleStyle: SubtitleStyleSettings,
+    modifier: Modifier = Modifier,
+    isEditingHdrStyle: Boolean = false,
+    subtitleDelayMs: Int,
+    installedSubtitleAddonOrder: List<String>,
+    isLoadingAddons: Boolean,
+    useLibass: Boolean = false,
+    isUsingMpv: Boolean = false,
+    onInternalTrackSelected: (Int) -> Unit,
+    onAddonSubtitleSelected: (Subtitle) -> Unit,
+    onDisableSubtitles: () -> Unit,
+    onEvent: (PlayerEvent) -> Unit,
+    onDismiss: () -> Unit,
+    persistedStyleFocusKeyState: MutableState<String?>
+) {
     val noneLabel = stringResource(R.string.subtitle_none)
     val unknownLabel = stringResource(R.string.subtitle_language_unknown)
     val builtInLabel = stringResource(R.string.subtitle_built_in)
     val forcedLabel = stringResource(R.string.sub_forced_lang)
     val metaContext = LocalContext.current
     val joinMeta: (List<String?>) -> String = { parts -> metaContext.joinPlayerMeta(parts) }
-    var persistedStyleFocusKey by rememberSaveable { mutableStateOf<String?>(null) }
+    var persistedStyleFocusKey by persistedStyleFocusKeyState
     val sessionPreferredLanguage = remember(visible) { subtitleStyle.preferredLanguage }
     val sessionSecondaryPreferredLanguage = remember(visible) { subtitleStyle.secondaryPreferredLanguage }
     val sessionShowOnlyPreferredLanguages = remember(visible) { subtitleStyle.showOnlyPreferredLanguages }

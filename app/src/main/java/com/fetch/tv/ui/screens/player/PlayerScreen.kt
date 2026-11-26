@@ -1799,7 +1799,6 @@ fun PlayerScreen(
         ) {
             SeekOverlayHost(
                 viewModel = viewModel,
-                seekFeedback = uiState.seekFeedback,
                 skipSegments = uiState.skipSegments,
                 chapters = uiState.chapters
             )
@@ -2793,7 +2792,6 @@ internal fun PlayerControlsOverlay(
                                 seekSteps = uiState.seekSteps,
                                 skipSegments = uiState.skipSegments,
                                 chapters = uiState.chapters,
-                                seekFeedback = uiState.seekFeedback,
                                 focusRequester = progressBarFocusRequester,
                                 upFocusRequester = progressBarUpFocusRequester,
                                 downFocusRequester = playPauseFocusRequester,
@@ -3165,7 +3163,6 @@ private fun PlayerControlsProgressBarHost(
     seekSteps: SeekSteps,
     skipSegments: List<SkipInterval>,
     chapters: List<com.fetch.tv.core.player.Chapter>,
-    seekFeedback: SeekFeedback?,
     focusRequester: FocusRequester,
     upFocusRequester: FocusRequester? = null,
     downFocusRequester: FocusRequester? = null,
@@ -3174,6 +3171,7 @@ private fun PlayerControlsProgressBarHost(
     onClick: (() -> Unit)? = null
 ) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
+    val seekFeedback = viewModel.seekPreview.collectAsStateWithLifecycle().value.seekFeedback
 
     if (seekFeedback != null) {
         SeekFeedbackBubble(feedback = seekFeedback, durationMs = playbackTimeline.duration)
@@ -3700,11 +3698,11 @@ private fun SeekOverlay(
 @Composable
 private fun SeekOverlayHost(
     viewModel: PlayerViewModel,
-    seekFeedback: SeekFeedback?,
     skipSegments: List<SkipInterval> = emptyList(),
     chapters: List<com.fetch.tv.core.player.Chapter> = emptyList()
 ) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
+    val seekFeedback = viewModel.seekPreview.collectAsStateWithLifecycle().value.seekFeedback
 
     SeekOverlay(
         currentPosition = playbackTimeline.currentPosition,

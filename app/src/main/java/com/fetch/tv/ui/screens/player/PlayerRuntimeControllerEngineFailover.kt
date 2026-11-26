@@ -82,7 +82,7 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
 
     if (currentPosition > 0L) {
         pendingResumeProgress = null
-        _uiState.update { it.copy(pendingSeekPosition = currentPosition) }
+        pendingSeekPosition = currentPosition
     }
 
     startupEngineFailoverTriggered = false

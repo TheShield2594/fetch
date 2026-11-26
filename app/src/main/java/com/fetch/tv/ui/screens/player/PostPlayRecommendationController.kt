@@ -122,8 +122,9 @@ internal class PostPlayRecommendationController(
             combine(
                 playbackController.uiState,
                 playbackController.playbackTimeline,
+                playbackController.seekPreview,
                 playerSettingsDataStore.playerSettings
-            ) { playerState, timeline, playerSettings ->
+            ) { playerState, timeline, seekPreview, playerSettings ->
                 PlaybackSnapshot(
                     identity = PlaybackIdentity(
                         contentType = playerState.contentType?.trim()?.lowercase(),
@@ -140,7 +141,7 @@ internal class PostPlayRecommendationController(
                     nextEpisodeAvailable = playerState.nextEpisode?.available,
                     nextEpisodeReleased = playerState.nextEpisode?.released,
                     hasError = !playerState.error.isNullOrBlank(),
-                    hasBlockingInteraction = playerState.blocksPostPlayRecommendation(),
+                    hasBlockingInteraction = playerState.blocksPostPlayRecommendation(seekPreview),
                     playbackEnded = playerState.playbackEnded,
                     positionMs = timeline.currentPosition,
                     durationMs = timeline.duration,

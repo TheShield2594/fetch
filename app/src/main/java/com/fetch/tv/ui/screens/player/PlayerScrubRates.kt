@@ -84,6 +84,17 @@ data class SeekFeedback(val originMs: Long, val targetMs: Long) {
     val deltaMs: Long get() = targetMs - originMs
 }
 
+/**
+ * The seek in progress, kept out of [PlayerUiState] because it changes on every key repeat of a
+ * held seek: only the seek bubble and the scrub bar read it, so only they recompose.
+ */
+data class SeekPreviewState(
+    /** Where a held seek will land once released; null when no preview is pending. */
+    val pendingPreviewSeekPosition: Long? = null,
+    /** Where a seek will land and how far from its start; null when no seek is in progress. */
+    val seekFeedback: SeekFeedback? = null
+)
+
 /** Formats [deltaMs] as a signed duration: "+0:30", "−1:05", "+1:02:03". */
 internal fun formatSeekDelta(deltaMs: Long): String {
     val sign = if (deltaMs < 0L) "−" else "+"

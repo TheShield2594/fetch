@@ -338,7 +338,7 @@ private fun PlayerRuntimeController.attemptMpvAutoRetry(
         delay(MPV_RETRY_DELAY_MS)
         releasePlayer(flushPlaybackState = false)
         if (savedPosition > 0L) {
-            _uiState.update { it.copy(pendingSeekPosition = savedPosition) }
+            pendingSeekPosition = savedPosition
         }
         initializePlayer(currentStreamUrl, currentHeaders, startPaused = paused)
     }

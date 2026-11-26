@@ -6,7 +6,6 @@ import com.fetch.tv.data.local.FrameRateMatchingMode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
@@ -118,7 +117,7 @@ private suspend fun <T : Any> PlayerRuntimeController.runDetachedProbe(
 /** A stream switch or a player release: a preflight still running for the old stream stands down. */
 internal fun PlayerRuntimeController.cancelAfrPreflight() {
     afrPreflightGate.cancel()
-    _uiState.update { it.copy(afrProbeRunning = false) }
+    afrProbeRunning = false
 }
 
 internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
@@ -134,9 +133,8 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
     mpvDelayStartAfterAfrSwitch = false
 
     if (frameRateMatchingMode == FrameRateMatchingMode.OFF) {
-        _uiState.update {
-            it.clearFrameRateDetection().copy(afrProbeRunning = false)
-        }
+        afrProbeRunning = false
+        _uiState.update { it.clearFrameRateDetection() }
         return
     }
 
@@ -146,14 +144,13 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
         return
     }
 
-    if (_uiState.value.afrProbeRunning || _uiState.value.detectedFrameRateSource != null) {
+    if (afrProbeRunning || _uiState.value.detectedFrameRateSource != null) {
         Log.d(PlayerRuntimeController.TAG, "AFR preflight: already running or completed, skipping duplicate execution")
         return
     }
 
-    _uiState.update {
-        it.clearFrameRateDetection().copy(afrProbeRunning = true)
-    }
+    afrProbeRunning = true
+    _uiState.update { it.clearFrameRateDetection() }
 
     // Original stream headers (without Range) – used for NextLib bypass decision.
     // If these contain auth/custom headers, NextLib is skipped (MediaInfoBuilder cannot forward them).
@@ -315,9 +312,7 @@ internal suspend fun PlayerRuntimeController.runAfrPreflightIfEnabled(
     } finally {
         // A switch or release already cleared the flag and a newer preflight may own it now.
         if (!isStale()) {
-            withContext(NonCancellable) {
-                _uiState.update { it.copy(afrProbeRunning = false) }
-            }
+            afrProbeRunning = false
         }
     }
 }

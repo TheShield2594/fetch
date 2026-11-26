@@ -293,8 +293,8 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
     cwPipelineJob = viewModelScope.launch {
         combine(
             combine(
-                watchProgressRepository.allProgress,
-                watchProgressRepository.observeNextUpSeeds(),
+                sharedAllProgress,
+                sharedNextUpSeeds,
                 watchProgressRepository.observeRemoteProgressLoaded()
             ) { items, nextUpSeeds, hasLoaded ->
                 ProgressSnapshot(items, nextUpSeeds, hasLoaded)
@@ -308,7 +308,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
             ) { daysCap, dismissedNextUp, showUnairedNextUp, nextUpFromFurthest, sortMode ->
                 arrayOf(daysCap, dismissedNextUp, showUnairedNextUp, nextUpFromFurthest, sortMode)
             },
-            watchProgressRepository.watchedItems.map { it.size },
+            sharedWatchedItems.map { it.size },
             cwPipelineRefreshTrigger
         ) { progressSnapshot, settingsSnapshot, watchedItemsSize, _ ->
             val (items, nextUpSeeds, hasLoadedRemoteProgress) = progressSnapshot
@@ -701,7 +701,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 // Badge evaluation is handled exclusively by publishBadgeUpdate below,
                 // which uses getWatchedShowEpisodes() as the single source of truth.
                 // No seed-based heuristics here.
-                val allWatchedItems = watchProgressRepository.watchedItems.first()
+                val allWatchedItems = sharedWatchedItems.first()
                 // --- Async badge evaluation ---
                 // Resolve meta for all series with watched episodes and evaluate badges.
                 // Uses getWatchedShowEpisodes() as the single source of truth.
@@ -816,17 +816,17 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     // stays open never reached Continue Watching (NuvioTV#3845).
                     val dueAgainContentIds = olderSeedsDueForRecheck(
                         processedOlderSeedContentIds = cwProcessedOlderSeedContentIds.toSet(),
-                        negativeResolutionKeys = synchronized(cwNextUpResolutionCache) {
-                            cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
-                        },
+                        negativeResolutionKeys = cwNegativeNextUpKeys(),
                         hasBeenValidated = fullyWatchedSeriesIds::hasBeenValidated,
                         isValidationFresh = fullyWatchedSeriesIds::isSeriesValidationFresh
                     )
                     if (dueAgainContentIds.isNotEmpty()) {
                         cwProcessedOlderSeedContentIds -= dueAgainContentIds
+                        cwEvictedNegativeNextUpContentIds -= dueAgainContentIds
                         synchronized(cwNextUpResolutionCache) {
-                            cwNextUpResolutionCache.keys.removeAll { key ->
-                                cwNextUpResolutionCache[key] == null && key.substringBefore('|') in dueAgainContentIds
+                            // Through entries: a get while iterating would reorder the LRU map.
+                            cwNextUpResolutionCache.entries.removeAll { (key, value) ->
+                                value == null && key.substringBefore('|') in dueAgainContentIds
                             }
                         }
                     }
@@ -848,12 +848,14 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                             .filter { it.contentId in uncachedOlderSeedIds }
                             .filter { isSeriesTypeCW(it.contentType) && it.season != null && it.episode != null && it.season != 0 }
                             .filter { shouldUseAsCompletedSeed(it) }
+                        // One pass over the watched items, not one per seed (#824).
+                        val nextUpSeedContentIds = seedsFromNextUp.mapTo(HashSet()) { it.contentId }
+                        val watchedOnlySeedIds = uncachedOlderSeedIds - nextUpSeedContentIds
+                        val latestWatchedEpisodes = latestWatchedEpisodeByContentId(allWatchedItems, watchedOnlySeedIds)
                         val seedsFromWatchedItems = uncachedOlderSeedIds
-                            .filter { contentId -> seedsFromNextUp.none { it.contentId == contentId } }
+                            .filter { contentId -> contentId in watchedOnlySeedIds }
                             .mapNotNull { contentId ->
-                                val latestEpisode = allWatchedItems
-                                    .filter { it.contentId == contentId && it.season != null && it.episode != null }
-                                    .maxWithOrNull(compareBy({ it.season }, { it.episode }))
+                                val latestEpisode = latestWatchedEpisodes[contentId]
                                     ?: return@mapNotNull null
                                 WatchProgress(
                                     contentId = contentId,
@@ -1262,6 +1264,15 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
 }
 
 /**
+ * The "no next episode" resolutions: the cache's null entries, plus the series whose entry the
+ * bounded cache has evicted since (as bare content ids, which the recheck reads the same way).
+ */
+internal fun HomeViewModel.cwNegativeNextUpKeys(): Set<String> =
+    synchronized(cwNextUpResolutionCache) {
+        cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
+    } + cwEvictedNegativeNextUpContentIds
+
+/**
  * Older seeds this session already resolved to "no next episode" whose revalidation
  * deadline has since passed. Seeds without a deadline (meta never resolved) stay
  * checked once per session, as before.
@@ -1305,9 +1316,7 @@ private fun HomeViewModel.scheduleOlderSeedRecheck() {
     val nowMs = System.currentTimeMillis()
     val recheckAtMs = nextOlderSeedRecheckAtMs(
         processedOlderSeedContentIds = cwProcessedOlderSeedContentIds.toSet(),
-        negativeResolutionKeys = synchronized(cwNextUpResolutionCache) {
-            cwNextUpResolutionCache.filterValues { it == null }.keys.toSet()
-        },
+        negativeResolutionKeys = cwNegativeNextUpKeys(),
         deadlineOf = fullyWatchedSeriesIds::revalidationDeadline,
         nowMs = nowMs
     )
@@ -1356,9 +1365,12 @@ private fun HomeViewModel.shouldTreatAsActiveInProgressForNextUpSuppression(
     return progress.lastWatched >= latestCompletedAt
 }
 
-private fun logNextUpDecision(message: String) {
-    Unit
-}
+/**
+ * Next-up trace logging, compiled out. Takes the message as a lambda that is never called, so a
+ * Continue Watching run no longer builds these strings (some join every seed) for nothing (#826).
+ */
+@Suppress("UNUSED_PARAMETER")
+private inline fun logNextUpDecision(message: () -> String) = Unit
 
 private fun shouldTraceNextUpSeries(progress: WatchProgress): Boolean = false
 
@@ -1508,13 +1520,13 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
                                 .thenByDescending { it.lastWatched }
                         )
                         .joinToString(" || ") { it.toNextUpTraceString() }
-                    logNextUpDecision("seed-group contentId=${items.first().contentId} candidates=$candidates")
+                    logNextUpDecision { "seed-group contentId=${items.first().contentId} candidates=$candidates" }
                 }
                 val chosen = choosePreferredNextUpSeed(items, nextUpFromFurthestEpisode)
                 if (chosen != null && shouldTraceNextUpSeries(chosen)) {
-                    logNextUpDecision(
+                    logNextUpDecision {
                         "seed-picked ${chosen.toNextUpTraceString()} rank=${nextUpSeedSourceRank(chosen)}"
-                    )
+                    }
                 }
                 chosen
             }
@@ -1546,10 +1558,10 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
         seeds to ipIds
     }
 
-    logNextUpDecision(
+    logNextUpDecision {
         "seed candidates=${latestCompletedBySeries.joinToString { "${it.name}(${it.contentId}) s=${it.season} e=${it.episode}" }} " +
             "suppressedInProgress=${inProgressIds.joinToString()}"
-    )
+    }
 
     if (latestCompletedBySeries.isEmpty()) {
         return@coroutineScope emptyList()
@@ -1588,13 +1600,13 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
                     if (!metaResolved) {
                         processedContentIds.remove(progress.contentId)
                     }
-                    logNextUpDecision("drop contentId=${progress.contentId} name=${progress.name} reason=buildNextUpItem-null metaResolved=$metaResolved")
+                    logNextUpDecision { "drop contentId=${progress.contentId} name=${progress.name} reason=buildNextUpItem-null metaResolved=$metaResolved" }
                     return@withPermit
                 }
                 // Still hidden unless newer history, a later episode, or the dismissed episode
                 // airing brought it back (TheShield2594/fetch#648).
                 if (dismissedNextUp.hides(nextUp.info)) {
-                    logNextUpDecision("drop contentId=${progress.contentId} name=${progress.name} reason=dismissed")
+                    logNextUpDecision { "drop contentId=${progress.contentId} name=${progress.name} reason=dismissed" }
                     return@withPermit
                 }
                 val fullyWatched = fullyWatchedSeriesIds.fullyWatchedSeriesIds.value
@@ -1608,11 +1620,11 @@ private suspend fun HomeViewModel.buildLightweightNextUpItems(
                                 nextSeason = nextUp.info.season,
                                 nextEpisode = nextUp.info.episode
                             )
-                            logNextUpDecision(
+                            logNextUpDecision {
                                 "keep contentId=${progress.contentId} name=${progress.name} " +
                                     "reason=aired-next-up-cleared-fully-watched-badge " +
                                     "next=${nextUp.info.season}x${nextUp.info.episode}"
-                            )
+                            }
                         }
                         FullyWatchedNextUpAction.KEEP_WITH_BADGE -> {
                             // Unaired countdown / new-season window: badge stays, item stays.
@@ -1911,9 +1923,9 @@ private suspend fun HomeViewModel.buildNextUpItem(
 ): ContinueWatchingItem.NextUp? {
     debug?.recordNextUpAttempt(progress)
     if (shouldTraceNextUpSeries(progress)) {
-        logNextUpDecision(
+        logNextUpDecision {
             "build-start ${progress.toNextUpTraceString()} showUnaired=$showUnairedNextUp"
-        )
+        }
     }
     val nextUp = findNextUpEpisodeFromMetaSeed(
         progress = progress,
@@ -2002,10 +2014,10 @@ private suspend fun HomeViewModel.buildNextUpItem(
         seedEpisode = progress.episode,
         contentLanguage = normalizeLanguageCode(seedMeta?.language) ?: countryToLanguageCode(seedMeta?.country)
     )
-    logNextUpDecision(
+    logNextUpDecision {
         "built contentId=${progress.contentId} name=${progress.name} next=${nextUp.season}x${nextUp.episode} " +
             "videoId=${nextUp.videoId} lastWatched=${nextUp.lastWatched}"
-    )
+    }
     return ContinueWatchingItem.NextUp(info)
 }
 
@@ -2215,11 +2227,11 @@ private suspend fun HomeViewModel.enrichNextUpItem(
         imdbRating = episodeRating
     )
     if (shouldTraceNextUpSeries(progressSeed)) {
-        logNextUpDecision(
+        logNextUpDecision {
             "enrich-result contentId=${item.info.contentId} seed=${item.info.seedSeason}x${item.info.seedEpisode} " +
                 "initial=${item.info.season}x${item.info.episode} final=${enrichedInfo.season}x${enrichedInfo.episode} " +
                 "released=${enrichedInfo.released} hasAired=${enrichedInfo.hasAired} title=${enrichedInfo.episodeTitle}"
-        )
+        }
     }
     item.copy(info = enrichedInfo)
 }
@@ -2290,10 +2302,10 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
             elapsedMs = SystemClock.elapsedRealtime() - startedAtMs,
             resolved = false
         )
-        logNextUpDecision(
+        logNextUpDecision {
             "drop contentId=$contentId name=${progress.name} reason=missing-seed-season-episode " +
                 "seed=${progress.season}x${progress.episode}"
-        )
+        }
         synchronized(cwNextUpResolutionCache) {
             cwNextUpResolutionCache[cacheKey] = null
             cwNextUpNegativeCacheTimestamps[cacheKey] = SystemClock.elapsedRealtime()
@@ -2308,7 +2320,7 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
             elapsedMs = SystemClock.elapsedRealtime() - startedAtMs,
             resolved = false
         )
-        logNextUpDecision("drop contentId=$contentId name=${progress.name} reason=no-meta-for-seed")
+        logNextUpDecision { "drop contentId=$contentId name=${progress.name} reason=no-meta-for-seed" }
         synchronized(cwNextUpResolutionCache) {
             cwNextUpResolutionCache[cacheKey] = null
             cwNextUpNegativeCacheTimestamps[cacheKey] = SystemClock.elapsedRealtime()
@@ -2330,10 +2342,10 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
         return null
     }
     if (shouldTraceNextUpSeries(progress)) {
-        logNextUpDecision(
+        logNextUpDecision {
             "next-video contentId=$contentId name=${progress.name} seed=${season}x${episode} src=${progress.source} " +
                 "showUnaired=$showUnairedNextUp next=${nextVideo.season}x${nextVideo.episode} released=${nextVideo.released} title=${nextVideo.title}"
-        )
+        }
     }
 
     val nextSeason = nextVideo.season ?: return null
@@ -2441,19 +2453,19 @@ internal fun resolveNextUpVideoFromMeta(
                 val globalIndex = seedEpisode - 1 // 0-based
                 if (globalIndex in episodes.indices) {
                     watchedIndex = globalIndex
-                    logNextUpDecision(
+                    logNextUpDecision {
                         "remap-index contentId=${progress.contentId} seed=${seedSeason}x${seedEpisode} " +
                             "-> ${episodes[globalIndex].season}x${episodes[globalIndex].episode} (index=$globalIndex)"
-                    )
+                    }
                 }
             }
         }
     }
 
     if (watchedIndex < 0) {
-        logNextUpDecision(
+        logNextUpDecision {
             "drop contentId=${progress.contentId} name=${progress.name} reason=seed-not-found-in-meta seed=${seedSeason}x${seedEpisode}"
-        )
+        }
         return null
     }
 
@@ -2466,10 +2478,10 @@ internal fun resolveNextUpVideoFromMeta(
         val isSeasonRollover = video.season != watchedEpisodeSeason
         if (isSeasonRollover) {
             if (releaseDate == null) {
-                logNextUpDecision(
+                logNextUpDecision {
                     "skip contentId=${progress.contentId} name=${progress.name} reason=unaired-next-season-missing-date " +
                         "seed=${seedSeason}x${seedEpisode} next=${video.season}x${video.episode}"
-                )
+                }
                 return@firstOrNull false
             }
             if (!releaseDate.isAfter(todayLocal)) {
@@ -2495,9 +2507,9 @@ internal fun resolveNextUpVideoFromMeta(
     }
 
     if (nextVideo == null) {
-        logNextUpDecision(
+        logNextUpDecision {
             "drop contentId=${progress.contentId} name=${progress.name} reason=no-next-video-after-seed seed=${seedSeason}x${seedEpisode} showUnaired=$showUnairedNextUp"
-        )
+        }
         return null
     }
 
@@ -2505,6 +2517,21 @@ internal fun resolveNextUpVideoFromMeta(
 }
 
 private const val CW_META_NEGATIVE_CACHE_TTL_MS = 5 * 60_000L
+
+/** Longest one meta request may take. */
+private const val CW_META_ATTEMPT_TIMEOUT_MS = 6_000L
+
+/** Longest all the attempts for one id may take together, fallbacks included. */
+private const val CW_META_RESOLVE_BUDGET_MS = 12_000L
+
+/**
+ * Types to ask an addon for when resolving Continue Watching meta. A series can be listed as
+ * `series` or `tv`; a movie is only ever a movie, so trying it as a series too only added two
+ * slow misses per unresolved movie (#826).
+ */
+internal fun cwMetaTypeCandidates(contentType: String): List<String> =
+    if (contentType.equals("movie", ignoreCase = true)) listOf(contentType)
+    else listOf(contentType, "series", "tv").distinct()
 
 // Episode lists change: a new season gets added. A list cached for the whole
 // session hid that season until Fetch restarted (NuvioTV#3845).
@@ -2548,16 +2575,23 @@ private suspend fun HomeViewModel.resolveMetaForProgress(
         if (progress.contentId.startsWith("tmdb:")) add(progress.contentId.substringAfter(':'))
     }.distinct()
 
-    val typeCandidates = listOf(progress.contentType, "series", "tv").distinct()
+    val typeCandidates = cwMetaTypeCandidates(progress.contentType)
     val useAllAddons = externalMetaPrefetchEnabled
+    // One budget for every attempt on this id (#826): it used to be up to 6 attempts of 6 s
+    // each. A miss is negative-cached below, so the id isn't retried until that TTL passes.
+    val deadlineMs = startedAtMs + CW_META_RESOLVE_BUDGET_MS
+    fun attemptTimeoutMs(): Long =
+        (deadlineMs - SystemClock.elapsedRealtime()).coerceAtMost(CW_META_ATTEMPT_TIMEOUT_MS)
     val resolved = run {
         var summary: CwMetaSummary? = null
         var attempts = 0
-        for (type in typeCandidates) {
+        primary@ for (type in typeCandidates) {
             for (candidateId in idCandidates) {
+                val timeoutMs = attemptTimeoutMs()
+                if (timeoutMs <= 0L) break@primary
                 attempts += 1
                 val attemptStartedAtMs = SystemClock.elapsedRealtime()
-                val result = withTimeoutOrNull(6_000L) {
+                val result = withTimeoutOrNull(timeoutMs) {
                     if (useAllAddons) {
                         metaRepository.getMetaFromAllAddons(
                             type = type,
@@ -2611,10 +2645,12 @@ private suspend fun HomeViewModel.resolveMetaForProgress(
         }
         // Fallback: if primary addon failed, try all addons before giving up.
         if (summary == null && !useAllAddons) {
-            for (type in typeCandidates) {
+            fallback@ for (type in typeCandidates) {
                 for (candidateId in idCandidates) {
+                    val timeoutMs = attemptTimeoutMs()
+                    if (timeoutMs <= 0L) break@fallback
                     attempts += 1
-                    val fallbackResult = withTimeoutOrNull(6_000L) {
+                    val fallbackResult = withTimeoutOrNull(timeoutMs) {
                         metaRepository.getMetaFromAllAddons(
                             type = type,
                             id = candidateId
@@ -3346,6 +3382,7 @@ internal fun HomeViewModel.releaseRestoredNextUpDismissals(current: NextUpDismis
     val restored = previous.orEmpty() - current.byContentId.keys
     if (restored.isEmpty()) return
     cwProcessedOlderSeedContentIds -= restored
+    cwEvictedNegativeNextUpContentIds -= restored
     // Eligible until the older-seed pass tries them, even if the badge pipeline validates
     // them again in the meantime.
     cwRestoredNextUpIds += restored

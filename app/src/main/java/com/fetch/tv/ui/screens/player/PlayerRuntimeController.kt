@@ -339,6 +339,9 @@ class PlayerRuntimeController(
     internal val _playbackTimeline = MutableStateFlow(PlaybackTimelineState())
     val playbackTimeline: StateFlow<PlaybackTimelineState> = _playbackTimeline.asStateFlow()
 
+    internal val _seekPreview = MutableStateFlow(SeekPreviewState())
+    val seekPreview: StateFlow<SeekPreviewState> = _seekPreview.asStateFlow()
+
     internal val liveWatchClock = LivePlaybackWatchClock()
     internal var livePlaybackLatched: Boolean = false
 
@@ -669,9 +672,9 @@ class PlayerRuntimeController(
     internal val audioDelayUs = AtomicLong(0L)
     internal val subtitleDelayUs = AtomicLong(0L)
     internal var pendingPreviewSeekPosition: Long?
-        get() = _uiState.value.pendingPreviewSeekPosition
+        get() = _seekPreview.value.pendingPreviewSeekPosition
         set(value) {
-            _uiState.update { state ->
+            _seekPreview.update { state ->
                 if (state.pendingPreviewSeekPosition == value) {
                     state
                 } else {
@@ -680,6 +683,16 @@ class PlayerRuntimeController(
             }
         }
     internal var pendingResumeProgress: WatchProgress? = null
+    /**
+     * Where the next player start should seek to (saved progress, a retry, an engine or source
+     * switch), or null. Only the controller reads it, so it lives here rather than in
+     * [PlayerUiState], where every change would recompose the player screen.
+     */
+    @Volatile
+    internal var pendingSeekPosition: Long? = null
+    /** An AFR preflight probe is in flight for the current stream. Controller-only, like [pendingSeekPosition]. */
+    @Volatile
+    internal var afrProbeRunning: Boolean = false
     internal var hasRetriedCurrentStreamAfter416: Boolean = false
     internal var isReleasingPlayer: Boolean = false
     internal var cachedDecoderPriority: Int = 1

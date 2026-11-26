@@ -68,20 +68,20 @@ internal fun PlayerRuntimeController.showSeekOverlayUntilCommit() {
  */
 internal fun PlayerRuntimeController.updateSeekFeedback(originMs: Long, targetMs: Long, committed: Boolean) {
     seekFeedbackJob?.cancel()
-    _uiState.update {
+    _seekPreview.update {
         val origin = it.seekFeedback?.originMs ?: originMs
         it.copy(seekFeedback = SeekFeedback(originMs = origin, targetMs = targetMs))
     }
     seekFeedbackJob = scope.launch {
         delay(if (committed) SEEK_FEEDBACK_LINGER_MS else SEEK_PREVIEW_FALLBACK_HIDE_MS)
-        _uiState.update { it.copy(seekFeedback = null) }
+        _seekPreview.update { it.copy(seekFeedback = null) }
     }
 }
 
 internal fun PlayerRuntimeController.clearSeekFeedback() {
     seekFeedbackJob?.cancel()
     seekFeedbackJob = null
-    if (_uiState.value.seekFeedback != null) _uiState.update { it.copy(seekFeedback = null) }
+    if (_seekPreview.value.seekFeedback != null) _seekPreview.update { it.copy(seekFeedback = null) }
 }
 
 internal fun PlayerRuntimeController.selectAudioTrack(trackIndex: Int) {

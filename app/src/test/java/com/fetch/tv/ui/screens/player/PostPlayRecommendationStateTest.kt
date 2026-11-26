@@ -55,12 +55,10 @@ class PostPlayRecommendationStateTest {
 
     @Test
     fun `active seek preview blocks the recommendation until release`() {
-        val seeking = PlayerUiState(pendingPreviewSeekPosition = 95_000L)
+        val state = PlayerUiState()
 
-        assertTrue(seeking.blocksPostPlayRecommendation())
-        assertFalse(
-            seeking.copy(pendingPreviewSeekPosition = null).blocksPostPlayRecommendation()
-        )
+        assertTrue(state.blocksPostPlayRecommendation(SeekPreviewState(pendingPreviewSeekPosition = 95_000L)))
+        assertFalse(state.blocksPostPlayRecommendation(SeekPreviewState()))
     }
 
     @Test

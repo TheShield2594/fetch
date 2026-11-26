@@ -3,7 +3,9 @@ package com.fetch.tv.ui.screens.home
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.recommendations.BecauseYouWatchedSeed
 import com.fetch.tv.core.recommendations.latestCompletedSeeds
+import com.fetch.tv.core.player.PlayerSessionTracker
 import com.fetch.tv.domain.model.CatalogRow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -12,6 +14,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
@@ -39,11 +42,15 @@ internal fun HomeViewModel.observeBecauseYouWatchedPipeline() {
     if (!becauseYouWatchedService.isAvailable) return
     viewModelScope.launch {
         val seeds = combine(
-            watchProgressRepository.allProgress,
-            watchProgressRepository.watchedItems
+            sharedAllProgress,
+            sharedWatchedItems
         ) { progress, watched ->
             latestCompletedSeeds(progress, watched, MAX_BECAUSE_YOU_WATCHED_ROWS)
-        }.distinctUntilChanged()
+        }
+            // Off Main, and not at all while the player is open (#824).
+            .flowOn(Dispatchers.Default)
+            .pausedWhilePlayerOpen(PlayerSessionTracker.isSessionOpen)
+            .distinctUntilChanged()
 
         val settings = tmdbSettingsDataStore.settings
             .map { (it.enabled && it.useMoreLikeThis) to it.language }

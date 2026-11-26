@@ -106,11 +106,8 @@ data class PlayerUiState(
     /** What [PlayerOverlay.STREAM_INFO] was opened over (the More row), restored when it closes. */
     val overlayBeneathStreamInfo: PlayerOverlay? = null,
     val showSeekOverlay: Boolean = false,
-    /** Where a seek will land and how far from its start; null when no seek is in progress. */
-    val seekFeedback: SeekFeedback? = null,
     /** The one pair of seek steps the keys and on-screen buttons use (#407). */
     val seekSteps: SeekSteps = SeekSteps(),
-    val pendingPreviewSeekPosition: Long? = null,
     val playbackSpeed: Float = 1f,
     val loadingOverlayEnabled: Boolean = true,
     val showPlayerLoadingStatus: Boolean = false,
@@ -153,7 +150,6 @@ data class PlayerUiState(
     val addonSubtitles: List<Subtitle> = emptyList(),
     val isLoadingAddonSubtitles: Boolean = false,
     val selectedAddonSubtitle: Subtitle? = null,
-    val addonSubtitlesError: String? = null,
     val installedSubtitleAddonOrder: List<String> = emptyList(),
     // Episodes/streams side panel (for series)
     val isLoadingEpisodes: Boolean = false,
@@ -205,7 +201,6 @@ data class PlayerUiState(
     val showSwitchToMpvErrorAction: Boolean = false,
     /** The error is a mid-playback failure that recovery couldn't fix: Retry, Try next source, All sources. */
     val showErrorRecoveryActions: Boolean = false,
-    val pendingSeekPosition: Long? = null, // For resuming from saved progress
     // Parental guide overlay
     val parentalWarnings: List<ParentalWarning> = emptyList(),
     val showParentalGuide: Boolean = false,
@@ -241,7 +236,6 @@ data class PlayerUiState(
     val detectedFrameRateRaw: Float = 0f,
     val detectedFrameRateSource: FrameRateSource? = null,
     val detectedFrameRate: Float = 0f,
-    val afrProbeRunning: Boolean = false,
     val internalPlayerEngine: InternalPlayerEngine = InternalPlayerEngine.EXOPLAYER,
     val frameRateMatchingMode: FrameRateMatchingMode = FrameRateMatchingMode.OFF,
     val useLibass: Boolean = false,

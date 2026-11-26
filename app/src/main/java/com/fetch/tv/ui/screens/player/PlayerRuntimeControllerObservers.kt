@@ -102,7 +102,6 @@ internal fun PlayerRuntimeController.fetchAddonSubtitles() {
         _uiState.update {
             it.copy(
                 isLoadingAddonSubtitles = true,
-                addonSubtitlesError = null,
                 addonSubtitles = if (streamSubtitles.isNotEmpty()) {
                     filterToVisibleAddonSubtitles(streamSubtitles)
                 } else {
@@ -145,7 +144,6 @@ internal fun PlayerRuntimeController.fetchAddonSubtitles() {
             _uiState.update {
                 it.copy(
                     isLoadingAddonSubtitles = false,
-                    addonSubtitlesError = e.message,
                     addonSubtitles = if (streamSubtitles.isNotEmpty()) {
                         filterToVisibleAddonSubtitles(streamSubtitles)
                     } else {
@@ -162,8 +160,7 @@ private fun PlayerRuntimeController.publishStreamSidecarSubtitlesWithoutAddonFet
     _uiState.update {
         it.copy(
             addonSubtitles = filterToVisibleAddonSubtitles(streamSubtitles),
-            isLoadingAddonSubtitles = false,
-            addonSubtitlesError = null
+            isLoadingAddonSubtitles = false
         )
     }
     tryAutoSelectPreferredSubtitleFromAvailableTracks()
@@ -321,9 +318,8 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
 
             bufferLogsEnabled = settings.enableBufferLogs
             if (settings.frameRateMatchingMode == FrameRateMatchingMode.OFF) {
-                _uiState.update {
-                    it.clearFrameRateDetection().copy(afrProbeRunning = false)
-                }
+                afrProbeRunning = false
+                _uiState.update { it.clearFrameRateDetection() }
             }
 
             if (!settings.pauseOverlayEnabled) {
@@ -477,7 +473,7 @@ internal fun PlayerRuntimeController.loadSavedProgressFor(season: Int?, episode:
             if (saved.isInProgress()) {
                 pendingResumeProgress = saved
                 if (isUsingMpvEngine()) {
-                    _uiState.update { it.copy(pendingSeekPosition = null) }
+                    pendingSeekPosition = null
                     mpvView?.let { view ->
                         applyPendingMpvSeekIfNeeded(view)
                     }
@@ -618,7 +614,7 @@ internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Playe
     // live edge, not somewhere back in its DVR window.
     if (!player.isCurrentMediaItemSeekable || player.isCurrentMediaItemLive || isLiveForWatchProgress()) {
         pendingResumeProgress = null
-        _uiState.update { it.copy(pendingSeekPosition = null) }
+        pendingSeekPosition = null
         return
     }
     val duration = player.duration
@@ -631,7 +627,7 @@ internal fun PlayerRuntimeController.tryApplyPendingResumeProgress(player: Playe
     if (target > 0L) {
         player.seekTo(target)
     }
-    _uiState.update { it.copy(pendingSeekPosition = null) }
+    pendingSeekPosition = null
     pendingResumeProgress = null
 }
 
@@ -661,12 +657,12 @@ internal fun PlayerRuntimeController.resolvePendingInitialResumePosition(): Long
  */
 internal fun PlayerRuntimeController.pendingSeekStartPosition(): Long? {
     if (LivePlaybackUiPolicy.isLiveContent(contentType, contentId)) return null
-    return _uiState.value.pendingSeekPosition?.takeIf { it > 0L }
+    return pendingSeekPosition?.takeIf { it > 0L }
 }
 
 internal fun PlayerRuntimeController.clearPendingInitialResumePosition() {
     pendingResumeProgress = null
-    _uiState.update { it.copy(pendingSeekPosition = null) }
+    pendingSeekPosition = null
 }
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -901,9 +897,9 @@ internal fun PlayerRuntimeController.scheduleDeferredPlayerReinitialize(
     }
     // A re-init (fallbacks, server track switches) must not undo the user's pause (#706).
     val paused = userPausedManually
+    pendingSeekPosition = if (fromPositionMs > 0L) fromPositionMs else null
     _uiState.update {
         it.copy(
-            pendingSeekPosition = if (fromPositionMs > 0L) fromPositionMs else null,
             error = null,
             showLoadingOverlay = it.loadingOverlayEnabled
         )

@@ -63,7 +63,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -103,11 +102,11 @@ internal fun ModernHeroScene(
     requestWidthPx: Int,
     requestHeightPx: Int,
     onTrailerEnded: () -> Unit,
-    onFirstFrameRendered: () -> Unit
+    onFirstFrameRendered: () -> Unit,
+    onBackdropDisplayed: (String) -> Unit = {}
 ) {
     ModernHeroMediaLayer(
         heroBackdrop = { state().heroBackdrop },
-        enrichmentActive = { state().enrichmentActive },
         shouldPlayHeroTrailer = { state().shouldPlayTrailer },
         heroTrailerFirstFrameRendered = { state().trailerFirstFrameRendered },
         heroTrailerUrl = { state().trailerUrl },
@@ -116,6 +115,7 @@ internal fun ModernHeroScene(
         muted = { state().trailerMuted },
         onTrailerEnded = onTrailerEnded,
         onFirstFrameRendered = onFirstFrameRendered,
+        onBackdropDisplayed = onBackdropDisplayed,
         modifier = modifier,
         requestWidthPx = requestWidthPx,
         requestHeightPx = requestHeightPx
@@ -134,8 +134,8 @@ internal fun ModernHeroScene(
 
 @Composable
 internal fun ModernHeroMediaLayer(
+    /** The backdrop to move to. HeroPresenter holds it during scroll, a held D-pad and enrichment. */
     heroBackdrop: () -> String?,
-    enrichmentActive: () -> Boolean,
     shouldPlayHeroTrailer: () -> Boolean,
     heroTrailerFirstFrameRendered: () -> Boolean,
     heroTrailerUrl: () -> String?,
@@ -146,7 +146,8 @@ internal fun ModernHeroMediaLayer(
     onFirstFrameRendered: () -> Unit,
     modifier: Modifier,
     requestWidthPx: Int,
-    requestHeightPx: Int
+    requestHeightPx: Int,
+    onBackdropDisplayed: (String) -> Unit = {}
 ) {
     val shouldPlay by remember { derivedStateOf { shouldPlayHeroTrailer() } }
     val trailerRendered by remember { derivedStateOf { heroTrailerFirstFrameRendered() } }
@@ -157,18 +158,14 @@ internal fun ModernHeroMediaLayer(
     )
     val localContext = LocalContext.current
 
-    // Backdrop URL is managed upstream (heroSceneStateLambda freezes it
-    // during rapid nav / scroll). Only update when enrichment is not active
-    val rawBackdrop by remember { derivedStateOf { heroBackdrop() } }
-    val enriching by remember { derivedStateOf { enrichmentActive() } }
+    // The backdrop the hero is moving to, resolved upstream by HeroPresenter (resolveHeroScene
+    // holds it while the rows scroll, the D-pad is held or enrichment is pending).
+    val targetBackdrop by remember { derivedStateOf { heroBackdrop() } }
+    // The backdrop on screen. It moves to the target (and the crossfade starts) only once the
+    // target has loaded, so the old backdrop holds instead of fading onto the plain background
+    // while the network catches up (TheShield2594/fetch#804). It starts on the last backdrop
+    // shown anywhere, for a seamless return from Details.
     var displayedBackdrop by remember { mutableStateOf(HeroBackdropState.lastDisplayedUrl ?: heroBackdrop()) }
-    // The backdrop the hero is moving to. It is shown (and the crossfade starts) only once it
-    // has loaded, so the old backdrop holds instead of fading onto the plain background while
-    // the network catches up (TheShield2594/fetch#804).
-    var targetBackdrop by remember { mutableStateOf(displayedBackdrop) }
-    if (rawBackdrop != null && rawBackdrop != targetBackdrop && !enriching) {
-        targetBackdrop = rawBackdrop!!
-    }
     LaunchedEffect(targetBackdrop, requestWidthPx, requestHeightPx) {
         val target = targetBackdrop ?: return@LaunchedEffect
         if (target == displayedBackdrop) return@LaunchedEffect
@@ -189,9 +186,13 @@ internal fun ModernHeroMediaLayer(
     ) {
         displayedBackdrop?.let { heroBackdropRequest(localContext, it, requestWidthPx, requestHeightPx) }
     }
-    // Keep HeroBackdropState in sync for navigation transitions.
+    // Keep HeroBackdropState in sync for navigation transitions, and tell the presenter, whose
+    // holds keep the backdrop that is on screen.
     LaunchedEffect(displayedBackdrop) {
-        displayedBackdrop?.let { HeroBackdropState.update(it) }
+        displayedBackdrop?.let {
+            HeroBackdropState.update(it)
+            onBackdropDisplayed(it)
+        }
     }
 
     // A slow, eased blend so moving between titles feels like a cut in a film, not a flicker.
@@ -355,20 +356,12 @@ internal fun HeroTitleBlock(
     compact: Boolean = false
 ) {
     // The provider reads hero state that is rewritten on every focus move, often with an equal
-    // value. Deriving it recomposes this block only when what it shows actually changes.
+    // value. Deriving it recomposes this block only when what it shows actually changes. The
+    // provider already keeps the last title while focus passes over a gap (HeroPresenter).
     val latestPreviewProvider = rememberUpdatedState(previewProvider)
     val currentPreview by remember { derivedStateOf { latestPreviewProvider.value() } }
 
-    // Keeps the last title on screen while focus passes over a gap with nothing to show.
-    var stablePreview by remember { mutableStateOf<HeroPreview?>(null) }
-    LaunchedEffect(Unit) {
-        snapshotFlow { previewProvider() }.collect { p ->
-            if (p != null && stablePreview != p) stablePreview = p
-        }
-    }
-
-    val displayPreview = currentPreview ?: stablePreview
-    if (displayPreview == null) return
+    val displayPreview = currentPreview ?: return
 
     // A new title fades the old text out, then the new one in, so the block changes with the art
     // instead of cutting in a single frame. Keyed on the title: enrichment filling in the same

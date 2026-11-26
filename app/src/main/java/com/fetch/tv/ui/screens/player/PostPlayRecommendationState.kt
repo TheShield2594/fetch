@@ -74,8 +74,8 @@ internal fun PostPlayRecommendationUiState.returnToPlayer(): PostPlayRecommendat
     )
 }
 
-internal fun PlayerUiState.blocksPostPlayRecommendation(): Boolean {
-    return pendingPreviewSeekPosition != null ||
+internal fun PlayerUiState.blocksPostPlayRecommendation(seekPreview: SeekPreviewState): Boolean {
+    return seekPreview.pendingPreviewSeekPosition != null ||
         showPauseOverlay ||
         showStreamInfoOverlay ||
         showEpisodesPanel ||

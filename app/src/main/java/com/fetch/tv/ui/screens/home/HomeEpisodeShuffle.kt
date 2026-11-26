@@ -1,38 +1,62 @@
 package com.fetch.tv.ui.screens.home
 
 import androidx.lifecycle.viewModelScope
+import com.fetch.tv.core.player.PlayerSessionTracker
 import com.fetch.tv.data.local.EpisodeShuffleProfile
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
 import com.fetch.tv.domain.model.EpisodeShuffle
 import com.fetch.tv.domain.model.ShuffleSurface
 import com.fetch.tv.domain.model.Video
 import com.fetch.tv.domain.model.WatchProgress
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 internal data class HomeShuffleRefresh(val visit: Long = System.nanoTime(), val metadata: Int = 0)
+
+/** Whether any show on this profile shuffles on Home; with none, [applyHomeShuffle] changes nothing. */
+internal fun EpisodeShuffleProfile.hasHomeShuffle(): Boolean = available && shows.values.any { it.enabled }
+
+/**
+ * Runs [active] while some show shuffles and the player is closed, else stands still: with
+ * shuffle off it emits [inactive] once and collects nothing, and while the player is open it
+ * collects nothing and the last value stays (#824).
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun <T> HomeViewModel.whileHomeShuffleActive(inactive: T, active: () -> Flow<T>): Flow<T> =
+    episodeShuffleStore.profiles
+        .map { it.hasHomeShuffle() }
+        .distinctUntilChanged()
+        .flatMapLatest { on ->
+            if (on) active().pausedWhilePlayerOpen(PlayerSessionTracker.isSessionOpen) else flowOf(inactive)
+        }
 
 internal fun HomeViewModel.createShuffleHomeState(): StateFlow<HomeUiState> {
     val finished = finishedShuffleSeeds().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     viewModelScope.launch {
         finished.collectLatest { seeds -> seeds.forEach { resolveCwMeta(it) } }
     }
+    // Regrouping every watched item on each progress save is skipped with shuffle off and while
+    // the player is open, and runs on Default otherwise (#824).
+    val watchedEpisodes = whileHomeShuffleActive(emptyMap()) {
+        combine(sharedWatchedItems, sharedAllProgress, ::groupWatchedEpisodesForShuffle)
+            .flowOn(Dispatchers.Default)
+    }.distinctUntilChanged()
     return combine(
         _uiState,
         episodeShuffleStore.profiles,
-        combine(watchProgressRepository.watchedItems, watchProgressRepository.allProgress) { watched, progress ->
-            val keys = watched.mapNotNull { item ->
-                item.season?.let { season -> item.episode?.let { item.contentId to (season to it) } }
-            } + progress.filter { it.isCompleted() }.mapNotNull { item ->
-                item.season?.let { season -> item.episode?.let { item.contentId to (season to it) } }
-            }
-            keys.groupBy({ it.first }, { it.second }).mapValues { it.value.toSet() }
-        }.distinctUntilChanged(),
+        watchedEpisodes,
         shuffleHomeRefresh,
         finished
     ) { state, profile, watched, refresh, seeds ->
@@ -48,8 +72,8 @@ internal fun HomeViewModel.createShuffleHomeState(): StateFlow<HomeUiState> {
     }.stateIn(viewModelScope, SharingStarted.Eagerly, HomeUiState())
 }
 
-private fun HomeViewModel.finishedShuffleSeeds() = combine(
-    watchProgressRepository.observeNextUpSeeds(),
+private fun HomeViewModel.finishedShuffleSeeds() = whileHomeShuffleActive(emptyList()) { combine(
+    sharedNextUpSeeds,
     traktSettingsDataStore.continueWatchingDaysCap,
     traktSettingsDataStore.nextUpDismissals,
     episodeShuffleStore.profiles
@@ -65,7 +89,7 @@ private fun HomeViewModel.finishedShuffleSeeds() = combine(
             !watchProgressRepository.isDroppedShow(seed.contentId) &&
             shouldUseAsCompletedSeed(seed)
     }.sortedByDescending { it.lastWatched }.distinctBy { it.contentId }
-}.distinctUntilChanged()
+} }.distinctUntilChanged()
 
 private fun HomeViewModel.cachedCwMeta(type: String, id: String) =
     cwMetaCache["$type:$id"] ?: cwMetaCache["series:$id"] ?: cwMetaCache["tv:$id"]
@@ -87,7 +111,7 @@ internal fun applyHomeShuffle(
     finished: List<ContinueWatchingItem.NextUp> = emptyList(),
     videos: (String, String) -> List<Video>?
 ): HomeUiState {
-    if (!profile.available || profile.shows.values.none { it.enabled }) return state
+    if (!profile.hasHomeShuffle()) return state
     val native = state.continueWatchingItems + state.upcomingItems
     val items = native + finished.filter { card ->
         profile.settings(card.info.contentId, card.info.contentType).enabled &&

@@ -410,9 +410,9 @@ internal fun PlayerRuntimeController.maybeAdjustLibassPipelineForTracks(tracks: 
     libassPipelineOverrideForCurrentStream = desiredUseLibass
     libassPipelineSwitchInFlight = true
 
+    pendingSeekPosition = resumePosition ?: pendingSeekPosition
     _uiState.update { state ->
         state.copy(
-            pendingSeekPosition = resumePosition ?: state.pendingSeekPosition,
             showLoadingOverlay = state.loadingOverlayEnabled
         )
     }

@@ -42,6 +42,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -556,20 +557,17 @@ internal fun ModernRowSection(
     val firstCardKey = remember(rowKey) { "${rowKey}__first" }
     val firstIsPlaceholder = (row.items.list.firstOrNull()?.payload as? ModernPayload.Catalog)
         ?.itemId?.startsWith("__placeholder_") == true
-    val pinFirstCard = remember(rowKey) { mutableStateOf(firstIsPlaceholder) }
-    val pinSpent = remember(rowKey) { mutableStateOf(false) }
-    // Lent to the card, not the slot: slot 0 would hand the key to whatever lands there.
-    val pinnedItemKey = remember(rowKey) { mutableStateOf<String?>(null) }
-    if (firstIsPlaceholder && !pinSpent.value) pinFirstCard.value = true
-    if (pinFirstCard.value && !firstIsPlaceholder && pinnedItemKey.value == null) {
-        pinnedItemKey.value = row.items.list.firstOrNull()?.key
-    }
-    // Released once the ring has left the row: swapping the node earlier is visible for nothing.
-    if (pinFirstCard.value && !firstIsPlaceholder && !isActiveRow()) {
-        pinFirstCard.value = false
-        pinnedItemKey.value = null
-        pinSpent.value = true
-    }
+    // Resolved here and stored after the composition (FirstCardPin.next has the rules), so the
+    // item keys below use it in this pass without a second one.
+    val firstCardPinHold = remember(rowKey) { CompositionHold(FirstCardPin(pinned = firstIsPlaceholder)) }
+    val firstCardPin = firstCardPinHold.value.next(
+        firstIsPlaceholder = firstIsPlaceholder,
+        firstItemKey = row.items.list.firstOrNull()?.key,
+        isActiveRow = isActiveRow
+    )
+    SideEffect { firstCardPinHold.value = firstCardPin }
+    val pinFirstCard = ResolvedValue(firstCardPin.pinned)
+    val pinnedItemKey = ResolvedValue(firstCardPin.itemKey)
     Column(
         modifier = Modifier.then(
             if (blockingFocusExit.value) {
@@ -820,12 +818,12 @@ internal fun ModernRowSection(
                         .distinctUntilChanged()
                         .collect { lastVisibleIndex ->
                             val currentItems = currentRowState.value.items.list
-                            withContext(Dispatchers.IO) {
-                                for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + posterPrefetchDistance())) {
-                                    val item = currentItems.getOrNull(i) ?: continue
-                                    val (wPx, hPx) = cardSizePx(item)
-                                    enqueueIfNeeded(item, wPx, hPx)
-                                }
+                            // enqueue is already asynchronous; sizing a few cards is cheap, so
+                            // this stays on Main rather than hopping to IO and back.
+                            for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + posterPrefetchDistance())) {
+                                val item = currentItems.getOrNull(i) ?: continue
+                                val (wPx, hPx) = cardSizePx(item)
+                                enqueueIfNeeded(item, wPx, hPx)
                             }
                         }
                 }
@@ -951,14 +949,7 @@ internal fun ModernRowSection(
                             else -> item.key
                         }
                     },
-                    contentType = { _, item ->
-                        when (val payload = item.payload) {
-                            is ModernPayload.ContinueWatching -> "modern_cw_card"
-                            is ModernPayload.Catalog -> if (payload.itemId.startsWith("__placeholder_")) "placeholder" else payload.itemType
-                            is ModernPayload.CollectionFolder -> "modern_collection_folder_card"
-                            is ModernPayload.YouTubeVideo -> "modern_youtube_card"
-                        }
-                    }
+                    contentType = { _, item -> modernCarouselItemContentType(item) }
                 ) { index, item ->
                     val requester = itemFocusRequesters.focusRequesterFor(index)
                     val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)
@@ -1216,36 +1207,32 @@ private fun ModernCarouselCard(
     // The first non-blank value wins and is never replaced.
     // Primary source of truth is the data-layer frozen value (survives navigation);
     // the remember-state acts as a secondary guard within the same composition.
-    val dataFrozenLogo = item.heroPreview.frozenLogoUrl?.takeIf { !it.isPlaceholder() }
-    val frozenLogoUrl = remember(item.key) { mutableStateOf(dataFrozenLogo ?: item.heroPreview.logo?.takeIf { !it.isPlaceholder() }) }
-    if ((frozenLogoUrl.value.isNullOrBlank() || frozenLogoUrl.value.isPlaceholder()) &&
-        !item.heroPreview.logo.isNullOrBlank() && !item.heroPreview.logo.isPlaceholder()) {
-        frozenLogoUrl.value = item.heroPreview.logo
+    // Resolved here (resolveCardLogoUrl has the rules) and stored after the composition.
+    val frozenLogoHold = remember(item.key) {
+        CompositionHold(initialCardLogoUrl(item.heroPreview.frozenLogoUrl, item.heroPreview.logo))
     }
-    if (!enrichedLogoUrl.isNullOrBlank() && frozenLogoUrl.value != enrichedLogoUrl) {
-        // Outside landscape we always pick up the enriched URL so manual artwork
-        // updates land instantly. Inside landscape we still adopt the enriched
-        // URL when there was no logo to begin with — otherwise the card would
-        // permanently fall back to the title text whenever the addon manifest
-        // ships items without a logo even
-        // though TMDB has one. Once we have any non-blank value we keep it
-        // frozen to avoid mid-scroll flicker on enrichment refresh.
-        if (!useLandscapeOverlayTreatment || frozenLogoUrl.value.isNullOrBlank()) {
-            frozenLogoUrl.value = enrichedLogoUrl
-        }
-    }
-    val effectiveLogoUrl = frozenLogoUrl.value?.takeIf { !it.isPlaceholder() }
+    val frozenLogoUrl = resolveCardLogoUrl(
+        held = frozenLogoHold.value,
+        logo = item.heroPreview.logo,
+        enrichedLogoUrl = enrichedLogoUrl,
+        useLandscapeOverlayTreatment = useLandscapeOverlayTreatment
+    )
+    val effectiveLogoUrl = frozenLogoUrl?.takeIf { !it.isPlaceholder() }
     // Freeze the backdrop URL for landscape cards - prevents image reload when enrichment updates backdrop.
-    val dataFrozenBackdrop = item.heroPreview.frozenBackdropUrl?.takeIf { !it.isPlaceholder() }
-    val frozenBackdropUrl = remember(item.key) { mutableStateOf(dataFrozenBackdrop ?: item.heroPreview.backdrop?.takeIf { !it.isPlaceholder() }) }
-    if ((frozenBackdropUrl.value.isNullOrBlank() || frozenBackdropUrl.value.isPlaceholder()) &&
-        !item.heroPreview.backdrop.isNullOrBlank() && !item.heroPreview.backdrop.isPlaceholder()) {
-        frozenBackdropUrl.value = item.heroPreview.backdrop
+    val frozenBackdropHold = remember(item.key) {
+        CompositionHold(initialCardBackdropUrl(item.heroPreview.frozenBackdropUrl, item.heroPreview.backdrop))
     }
-    if (!useLandscapeOverlayTreatment && !enrichedBackdropUrl.isNullOrBlank() && frozenBackdropUrl.value != enrichedBackdropUrl) {
-        frozenBackdropUrl.value = enrichedBackdropUrl
+    val frozenBackdropUrl = resolveCardBackdropUrl(
+        held = frozenBackdropHold.value,
+        backdrop = item.heroPreview.backdrop,
+        enrichedBackdropUrl = enrichedBackdropUrl,
+        useLandscapeOverlayTreatment = useLandscapeOverlayTreatment
+    )
+    SideEffect {
+        frozenLogoHold.value = frozenLogoUrl
+        frozenBackdropHold.value = frozenBackdropUrl
     }
-    val effectiveBackdropUrl = frozenBackdropUrl.value?.takeIf { !it.isPlaceholder() }
+    val effectiveBackdropUrl = frozenBackdropUrl?.takeIf { !it.isPlaceholder() }
     var isFocused by remember { mutableStateOf(false) }
     val payload = item.payload as? ModernPayload.CollectionFolder
     val isCollectionFolder = item.payload is ModernPayload.CollectionFolder

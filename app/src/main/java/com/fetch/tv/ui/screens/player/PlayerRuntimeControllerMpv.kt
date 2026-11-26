@@ -167,7 +167,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         registerMpvEventRelay(view)
         val initialResumePosition = resolvePendingInitialResumePosition()
             .takeIf { it > 0L }
-            ?: (_uiState.value.pendingSeekPosition?.coerceAtLeast(0L) ?: 0L)
+            ?: (pendingSeekPosition?.coerceAtLeast(0L) ?: 0L)
         playbackAnalyticsDiagnostics.setStartupStartPosition(initialResumePosition)
         view.setMedia(url, headers, initialResumePosition)
         playbackAnalyticsDiagnostics.recordRawEventLine(
@@ -176,7 +176,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         )
         if (initialResumePosition > 0L) {
             clearPendingInitialResumePosition()
-            _uiState.update { it.copy(pendingSeekPosition = null) }
+            pendingSeekPosition = null
             updatePlaybackTimeline(currentPosition = initialResumePosition)
         }
         view.setPlaybackSpeed(_uiState.value.playbackSpeed)
@@ -352,7 +352,7 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
         val savedPosition = backgroundCrashSavedPositionMs
         backgroundCrashSavedPositionMs = 0L
         if (savedPosition > 0L) {
-            _uiState.update { it.copy(pendingSeekPosition = savedPosition) }
+            pendingSeekPosition = savedPosition
         }
         if (currentStreamUrl.isNotEmpty()) {
             initializePlayer(currentStreamUrl, currentHeaders, startPaused = true)
@@ -613,15 +613,15 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
         // Live: stay at the live edge rather than resuming into the DVR window. While saved
         // progress is pending, pendingSeekPosition only holds the retry of that same seek.
         pendingResumeProgress = null
-        _uiState.update { it.copy(pendingSeekPosition = null) }
+        pendingSeekPosition = null
         return
     }
     val state = _uiState.value
     val savedResume = pendingResumeProgress
-    val queuedPosition = state.pendingSeekPosition ?: savedResume?.position
+    val queuedPosition = pendingSeekPosition ?: savedResume?.position
     if (queuedPosition == null) return
     if (queuedPosition <= 0L && savedResume == null) {
-        _uiState.update { it.copy(pendingSeekPosition = null) }
+        pendingSeekPosition = null
         pendingResumeProgress = null
         return
     }
@@ -646,7 +646,7 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
     }
 
     if (target <= 0L) {
-        _uiState.update { it.copy(pendingSeekPosition = null) }
+        pendingSeekPosition = null
         pendingResumeProgress = null
         return
     }
@@ -654,8 +654,8 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
     val isAlreadyAtTarget = currentPositionMs >= target ||
         abs(currentPositionMs - target) <= MPV_RESUME_SEEK_TOLERANCE_MS
     if (isAlreadyAtTarget) {
-        if (state.pendingSeekPosition != null || savedResume != null) {
-            _uiState.update { it.copy(pendingSeekPosition = null) }
+        if (pendingSeekPosition != null || savedResume != null) {
+            pendingSeekPosition = null
             pendingResumeProgress = null
         }
         return
@@ -667,9 +667,7 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
     view.seekToMs(target)
     view.setSubtitleDelayMs(state.subtitleDelayMs)
     view.setAudioDelayMs(state.audioDelayMs)
-    if (state.pendingSeekPosition != target) {
-        _uiState.update { it.copy(pendingSeekPosition = target) }
-    }
+    pendingSeekPosition = target
 }
 
 internal fun PlayerRuntimeController.isUsingMpvEngine(): Boolean {

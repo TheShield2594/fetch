@@ -92,4 +92,38 @@ class ContinueWatchingRecheckTest {
         assertFalse(isCwMetaCacheFresh(cachedAt, cachedAt + CW_META_CACHE_TTL_MS))
         assertFalse(isCwMetaCacheFresh(null, cachedAt))
     }
+
+    @Test
+    fun `a series whose negative entry was evicted keeps its deadline and is rechecked when stale`() {
+        // The bounded cache evicted tt1's "no next episode" entry while its validation was
+        // still fresh; the eviction leaves the bare content id behind.
+        val negativeKeys = setOf("tt1")
+
+        assertEquals(
+            5_000L,
+            nextOlderSeedRecheckAtMs(
+                processedOlderSeedContentIds = setOf("tt1"),
+                negativeResolutionKeys = negativeKeys,
+                deadlineOf = { 5_000L },
+                nowMs = 1_000L
+            )
+        )
+        assertTrue(
+            olderSeedsDueForRecheck(
+                processedOlderSeedContentIds = setOf("tt1"),
+                negativeResolutionKeys = negativeKeys,
+                hasBeenValidated = { true },
+                isValidationFresh = { true }
+            ).isEmpty()
+        )
+        assertEquals(
+            setOf("tt1"),
+            olderSeedsDueForRecheck(
+                processedOlderSeedContentIds = setOf("tt1"),
+                negativeResolutionKeys = negativeKeys,
+                hasBeenValidated = { true },
+                isValidationFresh = { false }
+            )
+        )
+    }
 }

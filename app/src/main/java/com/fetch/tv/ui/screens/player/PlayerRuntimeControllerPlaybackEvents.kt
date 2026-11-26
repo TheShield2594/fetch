@@ -1134,6 +1134,19 @@ internal fun PlayerRuntimeController.cancelPauseOverlay() {
     _uiState.update { it.copy(showPauseOverlay = false) }
 }
 
+/**
+ * Whether [this] comes from someone using the remote. Events that overlays and effects send on
+ * their own (a timer hiding the parental guide or display-mode card, the screen acknowledging a
+ * queued item) must not reset the pause-overlay timer or the unattended auto-play count.
+ */
+internal fun PlayerEvent.isUserInteraction(): Boolean = when (this) {
+    PlayerEvent.OnParentalGuideHide,
+    is PlayerEvent.OnShowDisplayModeInfo,
+    PlayerEvent.OnHideDisplayModeInfo,
+    PlayerEvent.OnQueuePlaybackHandled -> false
+    else -> true
+}
+
 fun PlayerRuntimeController.onUserInteraction() {
     // Someone is holding the remote, so the run of unattended auto-plays starts over.
     if (_uiState.value.postPlayMode !is PostPlayMode.StillWatching) consecutiveAutoPlayCount = 0
@@ -1159,8 +1172,7 @@ fun PlayerRuntimeController.hideControls() {
 }
 
 fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
-    // These two come from overlays finishing on their own, not from the remote.
-    if (event != PlayerEvent.OnParentalGuideHide && event != PlayerEvent.OnHideDisplayModeInfo) {
+    if (event.isUserInteraction()) {
         onUserInteraction()
     }
     when (event) {
@@ -1672,12 +1684,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             resetErrorRetryState()
             clearPendingEngineSwitchTrackPreference()
             resetPostPlayOverlayState(clearEpisode = false)
+            pendingSeekPosition = resumeAt ?: pendingSeekPosition
             _uiState.update { state ->
                 state.copy(
                     activeOverlay = state.activeOverlay.closing(PlayerOverlay.SUBTITLE_TIMING, PlayerOverlay.SUBTITLE_DELAY),
                     error = null,
                     showErrorRecoveryActions = false,
-                    pendingSeekPosition = resumeAt ?: state.pendingSeekPosition,
                     showLoadingOverlay = state.loadingOverlayEnabled,
                 )
             }

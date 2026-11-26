@@ -715,9 +715,26 @@ internal fun PlayerRuntimeController.rememberAddonSubtitleSelection(subtitle: Su
     persistTrackPreference()
 }
 
-private fun PlayerRuntimeController.currentTrackPreferenceForPersistence(): PlayerRuntimeController.TrackPreference {
-    return rememberedTrackPreference ?: persistedTrackPreference ?: PlayerRuntimeController.TrackPreference()
-}
+private fun PlayerRuntimeController.currentTrackPreferenceForPersistence(): PlayerRuntimeController.TrackPreference =
+    trackPreferenceForPersistence(
+        remembered = rememberedTrackPreference,
+        loaded = loadedTrackPreference,
+        pending = persistedTrackPreference
+    )
+
+/**
+ * The track preference to save. A field picked this session wins; otherwise the saved value as
+ * loaded. [pending] is only a last resort: restore drains it field by field as tracks are applied,
+ * so building from it alone saved an all-null preference and erased the title's choice (#691).
+ */
+internal fun trackPreferenceForPersistence(
+    remembered: PlayerRuntimeController.TrackPreference?,
+    loaded: PlayerRuntimeController.TrackPreference?,
+    pending: PlayerRuntimeController.TrackPreference?
+): PlayerRuntimeController.TrackPreference = PlayerRuntimeController.TrackPreference(
+    audio = remembered?.audio ?: loaded?.audio ?: pending?.audio,
+    subtitle = remembered?.subtitle ?: loaded?.subtitle ?: pending?.subtitle
+)
 
 /**
  * Where the subtitle delay is stored: the video plus the release playing it, so an offset tuned
@@ -750,11 +767,8 @@ internal fun PlayerRuntimeController.persistTrackPreference() {
     // Saved before the contentId check: a delay is worth keeping even when the title has no id.
     persistSubtitleDelay()
     val id = contentId ?: return
-    // Use the currently-effective preference (remembered OR previously persisted)
-    // so that a delay-only change does not wipe a previously-saved track selection.
-    // For the resume-from-CW case, rememberedTrackPreference is null for the fresh
-    // session, and falling through to persistedTrackPreference preserves the user's
-    // earlier audio/subtitle choices. See issue #1063.
+    // This session's picks layered over the preference as loaded, so a field the user did not
+    // touch keeps its saved value (#1063, #691). Delay changes call persistSubtitleDelay() alone.
     val pref = currentTrackPreferenceForPersistence()
     val audio = pref.audio
     val subtitle = pref.subtitle

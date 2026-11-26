@@ -16,7 +16,7 @@ let configured: { publicKey: string } | null = null;
 // silently unsubscribes every device with no sign anything went wrong. Refuse
 // loudly instead — the row is still there if the old API_TOKEN turns up.
 const UNREADABLE_VAPID =
-  "Stored VAPID keys could not be decrypted — API_TOKEN has changed since they were saved. " +
+  "Stored VAPID keys could not be decrypted — the encryption key (FETCH_SECRET_KEY or API_TOKEN) has changed since they were saved. " +
   "Restore the previous API_TOKEN, or delete the push:vapidKeys row to generate a new keypair " +
   "(which requires every browser to re-subscribe).";
 

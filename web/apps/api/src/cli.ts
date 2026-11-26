@@ -7,6 +7,7 @@
  *   docker compose exec api fetch clear-pin <profile>
  *   docker compose exec api fetch accounts
  *   docker compose exec api fetch addon-key
+ *   docker compose run --rm api fetch rotate-key --old <key> --new <key>
  *
  * They exist because a forgotten admin password or profile PIN otherwise
  * needed the database edited by hand: nothing on the website can reset the
@@ -14,7 +15,8 @@
  * with a shell on the server already controls everything these commands touch.
  * `addon-key` is the odd one out: it prints the add-on service's
  * `FETCH_ADDON_KEY`, which is derived from `API_TOKEN` and so is only to be had
- * where that token is (#637).
+ * where that token is (#637). `rotate-key` moves every stored credential onto a
+ * new encryption key, which is otherwise a matter of re-entering them all (#638).
  * Documented in docs/troubleshooting.md.
  */
 import { pathToFileURL } from "node:url";
@@ -29,6 +31,9 @@ import {
   setTemporaryPassword,
 } from "./lib/account-admin.js";
 import { recordAccountEvent } from "./lib/account-events.js";
+import { secretKeyRoot } from "./lib/secret-box.js";
+import { RotationError, rotateStoredSecrets } from "./lib/secret-rotation.js";
+import { MIN_API_TOKEN_LENGTH } from "./lib/startup-config.js";
 import { UUID_V4_PATTERN } from "./lib/types.js";
 
 const USAGE = `Usage: fetch <command> [options]
@@ -51,6 +56,12 @@ Commands:
       [--account <username>]       or its name, in quotes if it has a space
                                    ("Kids Room"). Add --account when two
                                    accounts have a profile of that name.
+  rotate-key --old <key>           Re-encrypt every stored credential from the
+      --new <key>                  key they are under now (FETCH_SECRET_KEY, or
+                                   API_TOKEN if that is unset) to a new one, in
+                                   one transaction. Then set FETCH_SECRET_KEY
+                                   to the new key. Stop the API first. See the
+                                   README, "Secrets at rest".
 `;
 
 class UsageError extends Error {}
@@ -62,6 +73,7 @@ const COMMANDS: Record<string, { args: number; argName?: string; options: string
   "reset-password": { args: 1, argName: "a username", options: ["password"] },
   "reset-2fa": { args: 1, argName: "a username", options: [] },
   "clear-pin": { args: 1, argName: "a profile id or name", options: ["account"] },
+  "rotate-key": { args: 0, options: ["old", "new"] },
 };
 
 /** `--name value` options and the positional arguments around them. */
@@ -175,6 +187,37 @@ const clearPin = async (target: string | undefined, accountName: string | undefi
   out(`Removed the PIN from ${profile.name}. Set a new one in Settings → Profile.`);
 };
 
+const rotateKey = async (oldKey: string | undefined, newKey: string | undefined, out: (line: string) => void) => {
+  if (!oldKey || !newKey) throw new UsageError("rotate-key needs both --old and --new.");
+  if (oldKey === newKey) throw new UsageError("--old and --new are the same key. Nothing to do.");
+  if (newKey.length < MIN_API_TOKEN_LENGTH) {
+    throw new UsageError(`--new must be at least ${MIN_API_TOKEN_LENGTH} characters. Generate one with \`openssl rand -hex 32\`.`);
+  }
+  // The point of a separate key is that the admin bearer can change without it.
+  if (process.env.API_TOKEN && newKey === process.env.API_TOKEN) {
+    throw new UsageError("--new is API_TOKEN. Give the encryption key its own value: `openssl rand -hex 32`.");
+  }
+  const current = secretKeyRoot();
+  if (current !== null && current !== oldKey && current !== newKey) {
+    console.error("Note: --old is not the key this container is configured with; using --old as given.");
+  }
+
+  let report;
+  try {
+    report = await rotateStoredSecrets(oldKey, newKey);
+  } catch (error) {
+    if (error instanceof RotationError) {
+      const list = error.unreadable.map((label) => `  ${label}`).join("\n");
+      throw new UsageError(list ? `${error.message}\n${list}` : error.message);
+    }
+    throw error;
+  }
+  out(`Re-encrypted ${report.reencrypted} stored credential row(s) under the new key.`);
+  out("Now set FETCH_SECRET_KEY to the new key in the .env next to docker-compose.yml, and run");
+  out("`docker compose up -d`. Until you do, the API can't read them. API_TOKEN, add-on URLs and");
+  out("profile unlocks are unaffected.");
+};
+
 export const run = async (argv: string[], out: (line: string) => void = console.log): Promise<number> => {
   try {
     const { positional, options } = parseArgs(argv);
@@ -212,6 +255,9 @@ export const run = async (argv: string[], out: (line: string) => void = console.
         return 0;
       case "reset-2fa":
         await resetTwoFactor(rest[0], out);
+        return 0;
+      case "rotate-key":
+        await rotateKey(options.old, options.new, out);
         return 0;
       default:
         await clearPin(rest[0], options.account, out);

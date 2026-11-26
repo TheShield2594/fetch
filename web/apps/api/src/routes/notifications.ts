@@ -232,7 +232,7 @@ const notificationRoutes: FastifyPluginAsync = async (app) => {
         // pair is validated together.
         if (newToken !== undefined) {
           return reply.code(400).send({
-            error: "The stored URL can't be read since API_TOKEN changed; enter the URL again along with the token",
+            error: "The stored URL can't be read since the encryption key (FETCH_SECRET_KEY or API_TOKEN) changed; enter the URL again along with the token",
           });
         }
       } else {

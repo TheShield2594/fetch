@@ -48,7 +48,9 @@ internal data class ModernHomeLayout(
     val rowSpacing: Dp,
     val rowsViewportHeight: Dp,
     /** The rows grew into the hero to show two whole rows, so the hero's text is shortened. */
-    val compactHeroText: Boolean
+    val compactHeroText: Boolean,
+    /** "Show Hero" is on and this isn't a kids Home; without it the rows take the screen (#797). */
+    val showHero: Boolean = true
 )
 
 @Composable
@@ -63,7 +65,14 @@ internal fun rememberModernHomeLayout(uiState: HomeUiState): ModernHomeLayout {
     val rowTitleLineHeight = MaterialTheme.typography.titleMedium.lineHeight
     val rowSpacing = FetchTheme.spacing.xl
     val fallbackTitleHeight = FetchTheme.spacing.xl
+    val showHero = uiState.heroSectionEnabled
+    // With the hero off, the rows start below this band, which keeps the clock clear.
+    val noHeroTopInset = FetchTheme.spacing.huge + FetchTheme.spacing.xl
+    val noHeroMinHeight = FetchTheme.spacing.none
     return remember(
+        showHero,
+        noHeroTopInset,
+        noHeroMinHeight,
         useLandscapePosters,
         portraitBaseWidth,
         portraitBaseHeight,
@@ -110,8 +119,12 @@ internal fun rememberModernHomeLayout(uiState: HomeUiState): ModernHomeLayout {
         }
         val twoRowsHeight = rowTitleHeight * 2 + MODERN_ROW_TITLE_BOTTOM * 2 +
             firstRowCardHeight + entryRowCardHeight + rowSpacing + MODERN_ROW_FOCUS_ALLOWANCE
-        val rowsViewportHeight = maxOf(screenHeight * rowsViewportHeightFraction, twoRowsHeight)
-            .coerceAtMost(screenHeight * MODERN_ROWS_VIEWPORT_MAX_FRACTION)
+        val rowsViewportHeight = if (showHero) {
+            maxOf(screenHeight * rowsViewportHeightFraction, twoRowsHeight)
+                .coerceAtMost(screenHeight * MODERN_ROWS_VIEWPORT_MAX_FRACTION)
+        } else {
+            (screenHeight - noHeroTopInset).coerceAtLeast(noHeroMinHeight)
+        }
         ModernHomeLayout(
             portraitCatalogCardWidth = portraitCatalogCardWidth,
             portraitCatalogCardHeight = portraitCatalogCardHeight,
@@ -125,7 +138,8 @@ internal fun rememberModernHomeLayout(uiState: HomeUiState): ModernHomeLayout {
             rowTitleHeight = rowTitleHeight,
             rowSpacing = rowSpacing,
             rowsViewportHeight = rowsViewportHeight,
-            compactHeroText = rowsViewportHeight > screenHeight * rowsViewportHeightFraction
+            compactHeroText = showHero && rowsViewportHeight > screenHeight * rowsViewportHeightFraction,
+            showHero = showHero
         )
     }
 }
@@ -147,7 +161,7 @@ internal fun ModernHomeSkeleton(
     val horizontalPadding = FetchTheme.spacing.screen.horizontal
     Box(modifier = modifier.fillMaxSize()) {
         // Hero text: the same anchor as HeroTitleBlock, just above the rows viewport.
-        Column(
+        if (layout.showHero) Column(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(

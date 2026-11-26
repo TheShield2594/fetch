@@ -18,11 +18,15 @@ import com.fetch.tv.ui.theme.FetchTheme
  * This widens the clip by [inset] on each side, into the screen padding or gap the row already
  * sits in, and pads the content back by the same amount, so nothing moves and the row takes the
  * same space in its parent.
+ *
+ * The default covers a focused pill of up to about 200dp: tv-material's 1.1 focus scale grows it
+ * by a twentieth of its width on each side, and the ring and its gap add a few dp more. 8dp was
+ * too little, and still cut the left edge of a focused Library "Watchlist" tab.
  */
 @Composable
 fun Modifier.focusSafeHorizontalScroll(
     state: ScrollState = rememberScrollState(),
-    inset: Dp = FetchTheme.spacing.sm
+    inset: Dp = FetchTheme.spacing.lg
 ): Modifier = this
     .bleedHorizontally(inset)
     .horizontalScroll(state)

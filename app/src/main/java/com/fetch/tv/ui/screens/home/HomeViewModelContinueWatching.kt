@@ -1175,11 +1175,14 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                     elapsedMs = SystemClock.elapsedRealtime() - cycleStartMs
                 )
                 // Signal that the first CW cycle completed (items or confirmed empty).
-                if (!_initialCwResolved.value) {
-                    val hasRealData = normalItems.isNotEmpty() || !useTrackingProvider || items.isNotEmpty()
-                    if (hasRealData) {
-                        _initialCwResolved.value = true
-                    }
+                if (!_initialCwResolved.value &&
+                    isInitialContinueWatchingResolved(
+                        hasItems = normalItems.isNotEmpty() || items.isNotEmpty(),
+                        usesTrackingProvider = useTrackingProvider,
+                        hasLoadedRemoteProgress = snapshot.hasLoadedRemoteProgress
+                    )
+                ) {
+                    _initialCwResolved.value = true
                 }
 
                 // Save lightweight CW snapshot to disk immediately so cache stays fresh
@@ -3414,6 +3417,13 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
         }
         return
     }
+    // Removing a series episode would otherwise bring the show straight back as Up Next,
+    // seeded from its earlier watched episodes (TheShield2594/fetch#801).
+    val removedProgress = (uiState.value.continueWatchingItems + _uiState.value.continueWatchingItems)
+        .firstNotNullOfOrNull { item ->
+            (item as? ContinueWatchingItem.InProgress)?.progress?.takeIf { it.contentId == contentId }
+        }
+    val dismissal = removedProgress?.let { inProgressRemovalDismissal(it, System.currentTimeMillis()) }
     viewModelScope.launch {
         // Optimistic UI: remove the item from the CW list immediately
         // so the user sees instant feedback while the DataStore write propagates.
@@ -3433,12 +3443,33 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
                 }
             )
         }
-        val targetSeason = if (isNextUp) season else null
-        val targetEpisode = if (isNextUp) episode else null
+        // Before the removal, so the pipeline run it triggers already sees the dismissal.
+        // Playing the show again clears it (WatchProgressRepositoryImpl.saveProgress).
+        dismissal?.let { traktSettingsDataStore.addNextUpDismissal(it) }
         watchProgressRepository.removeProgress(
             contentId = contentId,
-            season = targetSeason,
-            episode = targetEpisode
+            season = null,
+            episode = null
         )
     }
+}
+
+/**
+ * The Up Next dismissal recorded when an in-progress episode is removed from Continue Watching,
+ * or null for a movie. It hides Up Next while it offers that episode or an earlier one; watching
+ * past it (anywhere) offers a later episode and brings the show back.
+ */
+internal fun inProgressRemovalDismissal(progress: WatchProgress, nowMs: Long): NextUpDismissal? {
+    val season = progress.season ?: return null
+    val episode = progress.episode ?: return null
+    if (progress.contentType.equals("movie", ignoreCase = true)) return null
+    val contentId = progress.contentId.trim().takeIf { it.isNotEmpty() } ?: return null
+    return NextUpDismissal(
+        contentId = contentId,
+        season = season,
+        episode = episode,
+        hadAired = true,
+        dismissedAtMs = nowMs,
+        title = progress.name.takeIf { it.isNotBlank() }
+    )
 }

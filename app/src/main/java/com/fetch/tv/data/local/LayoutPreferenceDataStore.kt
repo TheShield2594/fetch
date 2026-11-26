@@ -495,19 +495,6 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    suspend fun setHeroCatalogKeys(catalogKeys: List<String>) {
-        val normalizedKeys = normalizeCatalogOrderKeys(catalogKeys)
-        store(profileManager.currentProfileId()).edit { prefs ->
-            if (normalizedKeys.isEmpty()) {
-                prefs.remove(heroCatalogKeysKey)
-                prefs.remove(heroCatalogKey)
-            } else {
-                prefs[heroCatalogKeysKey] = gson.toJson(normalizedKeys)
-                prefs[heroCatalogKey] = normalizedKeys.first()
-            }
-        }
-    }
-
     suspend fun setHomeCatalogOrderKeys(keys: List<String>) {
         val normalizedKeys = normalizeCatalogOrderKeys(keys)
         store(profileManager.currentProfileId()).edit { prefs ->

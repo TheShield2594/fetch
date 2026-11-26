@@ -33,7 +33,6 @@ import kotlinx.coroutines.withContext
 
 private data class CoreLayoutPrefs(
     val kidsHome: Boolean,
-    val heroCatalogKeys: List<String>,
     val heroSectionEnabled: Boolean,
     val posterLabelsEnabled: Boolean,
     val catalogAddonNameEnabled: Boolean,
@@ -52,7 +51,6 @@ private data class FocusedBackdropPrefs(
 
 private data class LayoutUiPrefs(
     val kidsHome: Boolean,
-    val heroCatalogKeys: List<String>,
     val heroSectionEnabled: Boolean,
     val posterLabelsEnabled: Boolean,
     val catalogAddonNameEnabled: Boolean,
@@ -86,16 +84,14 @@ private data class ModernLayoutPrefs(
 internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
     val coreLayoutPrefsFlow = combine(
         combine(
-            layoutPreferenceDataStore.heroCatalogSelections,
             layoutPreferenceDataStore.heroSectionEnabled,
             layoutPreferenceDataStore.posterLabelsEnabled,
             layoutPreferenceDataStore.catalogAddonNameEnabled,
             parentalControls.activeRestrictions.map { it.isKidsProfile }.distinctUntilChanged()
-        ) { heroCatalogKeys, heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled, kidsHome ->
+        ) { heroSectionEnabled, posterLabelsEnabled, catalogAddonNameEnabled, kidsHome ->
             // Kids profiles get a Home of their own: no hero, and no addon names on the rows.
             CoreLayoutPrefs(
                 kidsHome = kidsHome,
-                heroCatalogKeys = heroCatalogKeys,
                 heroSectionEnabled = heroSectionEnabled && !kidsHome,
                 posterLabelsEnabled = posterLabelsEnabled,
                 catalogAddonNameEnabled = catalogAddonNameEnabled && !kidsHome,
@@ -158,7 +154,6 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
         val cardScale = if (corePrefs.kidsHome) KIDS_HOME_CARD_SCALE else 1f
         LayoutUiPrefs(
             kidsHome = corePrefs.kidsHome,
-            heroCatalogKeys = corePrefs.heroCatalogKeys,
             heroSectionEnabled = corePrefs.heroSectionEnabled,
             posterLabelsEnabled = corePrefs.posterLabelsEnabled,
             catalogAddonNameEnabled = corePrefs.catalogAddonNameEnabled,
@@ -199,20 +194,15 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                 // Modern cards carry their own title treatment, so poster labels stay off on Home.
                 val effectivePosterLabelsEnabled = false
                 val previousState = _uiState.value
-                val heroKeysChanged = currentHeroCatalogKeys != prefs.heroCatalogKeys
                 val shouldRefreshCatalogPresentation =
-                    heroKeysChanged ||
-                        previousState.heroSectionEnabled != prefs.heroSectionEnabled ||
-                        previousState.kidsHome != prefs.kidsHome ||
+                    previousState.kidsHome != prefs.kidsHome ||
                         previousState.hideUnreleasedContent != prefs.hideUnreleasedContent ||
                         previousState.posterCardWidthDp != prefs.posterCardWidthDp ||
                         previousState.homeImdbRatingsVisibility != prefs.homeImdbRatingsVisibility
-                currentHeroCatalogKeys = prefs.heroCatalogKeys
                 _uiState.update {
                     it.copy(
                         layoutPreferencesReady = true,
                         kidsHome = prefs.kidsHome,
-                        heroCatalogKeys = prefs.heroCatalogKeys,
                         heroSectionEnabled = prefs.heroSectionEnabled,
                         posterLabelsEnabled = effectivePosterLabelsEnabled,
                         catalogAddonNameEnabled = prefs.catalogAddonNameEnabled,
@@ -235,14 +225,7 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
                     )
                 }
                 if (shouldRefreshCatalogPresentation) {
-                    // When hero catalog keys change, load any hero catalogs
-                    // not yet in catalogsMap (e.g., after startup race or
-                    // when user changes hero selection in settings).
-                    if (heroKeysChanged && prefs.heroCatalogKeys.isNotEmpty()) {
-                        loadHeroCatalogsPipeline()
-                    } else {
-                        scheduleUpdateCatalogRows()
-                    }
+                    scheduleUpdateCatalogRows()
                 }
             }
     }
@@ -873,45 +856,53 @@ private fun HomeViewModel.updateCatalogItemWithTmdb(itemId: String, enrichment: 
     }
 }
 
-internal fun HomeViewModel.updateCatalogItemMdbListRatings(
-    itemId: String,
-    ratings: com.fetch.tv.domain.model.MDBListRatings
+/** Applies a batch of MDBList ratings in one state update (TheShield2594/fetch#823). */
+internal fun HomeViewModel.updateCatalogItemsMdbListRatings(
+    ratingsById: Map<String, com.fetch.tv.domain.model.MDBListRatings>
 ) {
+    if (ratingsById.isEmpty()) return
     val order = currentMdbListSettings.ratingOrder
-    fun mergeItem(currentItem: MetaPreview): MetaPreview =
-        currentItem.copy(
+    fun mergeItem(currentItem: MetaPreview): MetaPreview {
+        val ratings = ratingsById[currentItem.id] ?: return currentItem
+        return currentItem.copy(
             mdbListRatings = ratings,
             mdbListRatingOrder = order,
             imdbRating = ratings.imdb?.toFloat() ?: currentItem.imdbRating
         )
+    }
 
-    updateIndexedCatalogItem(itemId, ::mergeItem)
+    ratingsById.keys.forEach { itemId -> updateIndexedCatalogItem(itemId, ::mergeItem) }
     // MDB ratings must reach catalogRows so the carousel presentation rebuild picks them up.
     _uiState.update { state ->
         var changed = false
         val updatedRows = state.catalogRows.map { row ->
-            val idx = row.items.indexOfFirst { it.id == itemId }
-            if (idx < 0) row
-            else {
-                val merged = mergeItem(row.items[idx])
-                if (merged == row.items[idx]) row
-                else {
-                    changed = true
-                    row.copy(items = row.items.toMutableList().apply { set(idx, merged) })
-                }
+            if (row.items.none { it.id in ratingsById }) return@map row
+            var rowChanged = false
+            val items = row.items.map { item ->
+                val merged = mergeItem(item)
+                if (merged != item) rowChanged = true
+                merged
+            }
+            if (rowChanged) {
+                changed = true
+                row.copy(items = items)
+            } else {
+                row
             }
         }
         if (changed) state.copy(catalogRows = updatedRows) else state
     }
 
-    val existing = _enrichedPreviews.value[itemId]
-    if (existing != null) {
+    var lastEnriched: MetaPreview? = null
+    ratingsById.keys.forEach { itemId ->
+        val existing = _enrichedPreviews.value[itemId] ?: return@forEach
         val enriched = findCatalogItemById(itemId)
         if (enriched != null && enriched != existing) {
-            _lastEnrichedPreview.value = enriched
             addEnrichedPreview(itemId, enriched)
+            lastEnriched = enriched
         }
     }
+    lastEnriched?.let { _lastEnrichedPreview.value = it }
 }
 
 private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) {
@@ -958,32 +949,5 @@ private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) 
         trailerPreviewRequestVersion++
         val currentItem = findCatalogItemById(itemId) ?: return
         requestTrailerPreviewPipeline(currentItem)
-    }
-}
-
-internal suspend fun HomeViewModel.enrichHeroItemsPipeline(
-    items: List<MetaPreview>,
-    settings: TmdbSettings
-): List<MetaPreview> = metaPreviewEnricher.enrich(items, settings, currentMdbListSettings)
-
-internal fun HomeViewModel.heroEnrichmentSignaturePipeline(
-    items: List<MetaPreview>,
-    settings: TmdbSettings
-): String {
-    val itemSignature = items.joinToString(separator = "|") { item ->
-        "${item.id}:${item.apiType}:${item.name}:${item.backdropUrl}:${item.logo}:${item.poster}"
-    }
-    return buildString {
-        append(settings.enabled)
-        append(':')
-        append(settings.language)
-        append(':')
-        append(settings.useArtwork)
-        append(':')
-        append(settings.useBasicInfo)
-        append(':')
-        append(settings.useDetails)
-        append("::")
-        append(itemSignature)
     }
 }

@@ -111,10 +111,7 @@ fun HomeScreen(
     )
     val hasCatalogContent = uiState.catalogRows.any { it.items.isNotEmpty() }
     val hasCollectionContent = uiState.homeRows.any { it is HomeRow.CollectionRow }
-    val hasHeroContent = uiState.heroItems.isNotEmpty()
-    val modernPresentationReady =
-        modernPresentation.rows.list.isNotEmpty() ||
-            (uiState.heroSectionEnabled && hasHeroContent && !hasCatalogContent && !hasCollectionContent)
+    val modernPresentationReady = modernPresentation.rows.list.isNotEmpty()
     var showHomeContentWithAnimation by rememberSaveable { mutableStateOf(false) }
     var hasShownInitialHomeContent by rememberSaveable { mutableStateOf(false) }
     // Once we've shown stable home content, never go back to loading gate.
@@ -169,7 +166,6 @@ fun HomeScreen(
         uiState.isLoading,
         hasCatalogContent,
         hasCollectionContent,
-        hasHeroContent,
         initialCwResolved,
         modernPresentationReady
     ) {
@@ -206,7 +202,6 @@ fun HomeScreen(
 
     val hasAnyContent = uiState.catalogRows.isNotEmpty() ||
         (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
-        uiState.heroItems.isNotEmpty() ||
         hasCollectionContent
     val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
         reach = uiState.networkReach,
@@ -219,7 +214,7 @@ fun HomeScreen(
         showOffline -> false
         uiState.isLoading && !hasAnyContent -> true
         uiState.errorKind == HomeErrorKind.NO_ADDONS && uiState.catalogRows.isEmpty() -> !homeStableGateReleased
-        uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent && !hasHeroContent -> !homeStableGateReleased
+        uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent -> !homeStableGateReleased
         uiState.errorKind != null && uiState.catalogRows.isEmpty() -> false
         !uiState.isLoading && !hasAnyContent -> !homeStableGateReleased
         else -> !homeStableGateReleased || !modernPresentationReady || !showHomeContentWithAnimation
@@ -280,7 +275,7 @@ fun HomeScreen(
                 }
             }
 
-            uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent && !hasHeroContent -> {
+            uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent -> {
                 if (!homeStableGateReleased) {
                     Unit
                 } else {

@@ -249,8 +249,8 @@ fun ModernHomeContent(
         focusState.focusedItemKeyByRow.forEach { (rowKey, savedItemKey) ->
             if (savedItemKey.isBlank()) return@forEach
             val row = rowsByKey[rowKey] ?: return@forEach
-            val itemIndex = row.items.list.indexOfFirst { it.key == savedItemKey }
-            if (itemIndex >= 0) focusedItemByRow[rowKey] = itemIndex
+            val itemIndex = row.focusIndexForSavedKey(savedItemKey)
+            if (itemIndex != null) focusedItemByRow[rowKey] = itemIndex
         }
     }
 
@@ -507,11 +507,11 @@ fun ModernHomeContent(
             if (resolvedRow != null) {
                 val savedItemKey = focusState.focusedItemKeyByRow[resolvedRow.key]
                 val resolvedIndex = if (savedItemKey != null) {
-                    resolvedRow.items.list.indexOfFirst { it.key == savedItemKey }.coerceAtLeast(0)
+                    resolvedRow.focusIndexForSavedKey(savedItemKey) ?: 0
                 } else {
                     focusState.focusedItemIndex
                         .coerceAtLeast(0)
-                        .coerceAtMost((resolvedRow.items.list.size - 1).coerceAtLeast(0))
+                        .coerceAtMost(resolvedRow.maxFocusIndex())
                 }
 
                 focusHolder.activeRowKey = resolvedRow.key
@@ -541,7 +541,7 @@ fun ModernHomeContent(
 
         if (resolvedActive != null) {
             val resolvedIndex = focusedItemByRow[resolvedActive.key]
-                ?.coerceIn(0, (resolvedActive.items.size - 1).coerceAtLeast(0))
+                ?.coerceIn(0, resolvedActive.maxFocusIndex())
                 ?: 0
             focusHolder.activeRowKey = resolvedActive.key
             focusHolder.activeItemIndex = resolvedIndex
@@ -679,7 +679,7 @@ fun ModernHomeContent(
             val focusedItemKeyByRow = latestCarouselRows
                 .associate { rowState ->
                     val focusedIdx = focusedItemByRow[rowState.key] ?: 0
-                    val itemKey = rowState.items.list.getOrNull(focusedIdx)?.key ?: ""
+                    val itemKey = rowState.savedFocusKeyAt(focusedIdx)
                     rowState.key to itemKey
                 }
 

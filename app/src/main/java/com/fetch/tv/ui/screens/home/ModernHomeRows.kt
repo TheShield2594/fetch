@@ -672,7 +672,7 @@ internal fun ModernRowSection(
         LaunchedEffect(row.key, pendingRowFocusNonce.value) {
             if (pendingRowFocusKey.value != row.key) return@LaunchedEffect
             val targetIndex = (pendingRowFocusIndex.value ?: 0)
-                .coerceIn(0, (row.items.list.size - 1).coerceAtLeast(0))
+                .coerceIn(0, row.maxFocusIndex())
             if (!rowListState.isScrollInProgress) {
                 runCatching { rowListState.scrollToItem(targetIndex) }
             }
@@ -1097,6 +1097,17 @@ internal fun ModernRowSection(
                                 }
                             }
                         }
+                        // A pending focus request for See all (restored after returning to Home) is
+                        // honoured here the way catalog cards honour theirs via isTargetItem.
+                        val isPendingTarget by remember(row.key, seeAllIndex) {
+                            derivedStateOf {
+                                pendingRowFocusKey.value == row.key &&
+                                    (pendingRowFocusIndex.value ?: 0) == seeAllIndex
+                            }
+                        }
+                        LaunchedEffect(isPendingTarget) {
+                            if (isPendingTarget) runCatching { requester.requestFocus() }
+                        }
                         ModernSeeAllCard(
                             width = if (useLandscapePosters) landscapeCatalogCardWidth else portraitCatalogCardWidth,
                             height = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight,
@@ -1123,6 +1134,24 @@ internal fun HeroCarouselRow.showsSeeAllCard(): Boolean =
         addonId != MODERN_READY_TONIGHT_ROW_KEY &&
         !isContinueWatchingStyleRow(key) &&
         orderKey() != null
+
+/** Saved focus key for the See all card, which has no item key of its own. */
+internal const val SEE_ALL_FOCUS_KEY = "__see_all__"
+
+/** The key saved for the focused index: the item's key, [SEE_ALL_FOCUS_KEY] for See all, or "". */
+internal fun HeroCarouselRow.savedFocusKeyAt(index: Int): String =
+    items.list.getOrNull(index)?.key
+        ?: if (index == items.list.size && showsSeeAllCard()) SEE_ALL_FOCUS_KEY else ""
+
+/**
+ * The index a saved focus key restores to: the item with that key, or See all when it was saved
+ * there and the row still shows one. Null when the key matches nothing.
+ */
+internal fun HeroCarouselRow.focusIndexForSavedKey(key: String): Int? {
+    if (key.isBlank()) return null
+    if (key == SEE_ALL_FOCUS_KEY) return if (showsSeeAllCard()) items.list.size else null
+    return items.list.indexOfFirst { it.key == key }.takeIf { it >= 0 }
+}
 
 /** Highest focusable index in the row: the See all card, at items.size, when the row has one. */
 internal fun HeroCarouselRow.maxFocusIndex(): Int =

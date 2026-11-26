@@ -24,12 +24,13 @@ class ProgramBuilder @Inject constructor(
 ) {
 
     fun watchNextId(progress: WatchProgress): String =
-        if (progress.season != null && progress.episode != null)
-            "wn_${progress.contentId}_s${progress.season}e${progress.episode}"
-        else
-            "wn_${progress.contentId}"
+        watchNextId(progress.contentId, progress.season, progress.episode)
 
-    fun buildWatchNextProgram(progress: WatchProgress): WatchNextProgram {
+    /**
+     * [isNewEpisode] marks a release alert: a newly aired episode of a show the user follows. If
+     * it hasn't been started, it goes up as `WATCH_NEXT_TYPE_NEW` so the launcher labels it.
+     */
+    fun buildWatchNextProgram(progress: WatchProgress, isNewEpisode: Boolean = false): WatchNextProgram {
         val isMovie = progress.contentType == "movie"
         val programType = if (isMovie) {
             TvContractCompat.WatchNextPrograms.TYPE_MOVIE
@@ -39,13 +40,7 @@ class ProgramBuilder @Inject constructor(
 
         val builder = WatchNextProgram.Builder()
             .setType(programType)
-            .setWatchNextType(
-                if (isNextUpEpisode(progress)) {
-                    TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_NEXT
-                } else {
-                    TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE
-                }
-            )
+            .setWatchNextType(watchNextTypeFor(progress, isNewEpisode))
             .setTitle(progress.name)
             .setLastEngagementTimeUtcMillis(progress.lastWatched)
             .setInternalProviderId(watchNextId(progress))
@@ -218,6 +213,19 @@ class ProgramBuilder @Inject constructor(
             putExtra("launchMode", "stream")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }.toUri(Intent.URI_INTENT_SCHEME).toUri()
+}
+
+internal fun watchNextId(contentId: String, season: Int?, episode: Int?): String =
+    if (season != null && episode != null) "wn_${contentId}_s${season}e$episode" else "wn_$contentId"
+
+/**
+ * The launcher's label for a Watch Next program: `NEW` for an unstarted release alert, `NEXT` for
+ * any other unstarted next episode, `CONTINUE` for anything already started.
+ */
+internal fun watchNextTypeFor(progress: WatchProgress, isNewEpisode: Boolean): Int = when {
+    !isNextUpEpisode(progress) -> TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE
+    isNewEpisode -> TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_NEW
+    else -> TvContractCompat.WatchNextPrograms.WATCH_NEXT_TYPE_NEXT
 }
 
 /**

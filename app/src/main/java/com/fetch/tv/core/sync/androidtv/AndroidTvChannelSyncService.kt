@@ -8,6 +8,7 @@ import com.fetch.tv.core.poster.patternForScreen
 import com.fetch.tv.core.poster.withCustomPosterArt
 import com.fetch.tv.core.profile.LauncherExposureGate
 import com.fetch.tv.core.recommendations.TvRecommendationManager
+import com.fetch.tv.core.recommendations.watchNextId
 import com.fetch.tv.data.local.CachedInProgressItem
 import com.fetch.tv.data.local.CachedNextUpItem
 import com.fetch.tv.data.local.hides
@@ -170,8 +171,12 @@ class AndroidTvChannelSyncService @Inject constructor(
         )
         manager.reconcile(channelItems)
 
+        // Release alerts go up as "New" rather than "Next" (#657).
+        val newEpisodeIds = nextUpItems
+            .filter { it.isReleaseAlert }
+            .mapTo(mutableSetOf()) { watchNextId(it.contentId, it.season, it.episode) }
         runSuspendCatching {
-            tvRecommendationManager.updateWatchNext(channelItems)
+            tvRecommendationManager.updateWatchNext(channelItems, newEpisodeIds)
         }
     }
 

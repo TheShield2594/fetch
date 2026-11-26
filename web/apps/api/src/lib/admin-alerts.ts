@@ -92,3 +92,31 @@ export const tvSyncAlert = (device: { name: string }, error: string): Notificati
   severity: "warning",
   data: { device: device.name, error },
 });
+
+/**
+ * The alert for credentials the startup sweep could not decrypt: API_TOKEN has
+ * changed since they were saved. A channel whose own URL is among them can't
+ * carry it, so this reaches only the channels saved since; the startup log
+ * names them either way.
+ */
+export const credentialsUnreadableAlert = (labels: string[]): NotificationEvent => ({
+  event: "credentials-unreadable",
+  title: `Fetch: ${labels.length} stored credential${labels.length === 1 ? "" : "s"} can't be read`,
+  body: (
+    `API_TOKEN has changed since ${labels.length === 1 ? "it was" : "they were"} saved: ${labels.join(", ")}. ` +
+    "Restore the previous API_TOKEN, or enter them again in Settings."
+  ).slice(0, 500),
+  path: "/settings",
+  severity: "warning",
+  data: { credentials: labels },
+});
+
+/** The alert for a profile whose Trakt sign-in can no longer be refreshed. */
+export const traktSignInAlert = (profileName: string): NotificationEvent => ({
+  event: "trakt-reconnect-needed",
+  title: `Fetch: Trakt needs signing in again for ${profileName}`,
+  body: "Trakt refused to renew the sign-in, so history, watchlist and scrobbles for this profile have stopped syncing. Reconnect Trakt from Settings.",
+  path: "/settings?section=trakt",
+  severity: "warning",
+  data: { profile: profileName },
+});

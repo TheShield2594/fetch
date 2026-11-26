@@ -22,4 +22,7 @@
     <!-- Discover and Search See all when every loaded title is hidden but more pages remain (#789) -->
     <string name="discover_empty_hidden_title">Nothing to show yet</string>
     <string name="discover_empty_hidden_subtitle">The titles loaded so far are hidden or filtered out. Later pages may have more</string>
+    <!-- See all filters (#651) -->
+    <string name="catalog_see_all_hide_watched">Hide watched</string>
+    <string name="catalog_see_all_genre_failed">Couldn’t load this genre. Check the addon and try again</string>
 </resources>

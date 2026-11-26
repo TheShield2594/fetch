@@ -3,6 +3,22 @@ import type { PrismaClient } from "@prisma/client";
 import { SECRET_CONTEXT, decryptSecret, encryptSecret } from "./lib/secret-box.js";
 import { fetchWithPolicy } from "./lib/http.js";
 
+/**
+ * Told when Trakt refuses a refresh token (spent, revoked) and when one is
+ * exchanged again. Kept as a hook so this client stays free of the
+ * notification code: `lib/trakt-client.ts` turns it into an admin alert.
+ */
+export type TraktRefreshListener = {
+  rejected: (tokenRowId: string, logger: FastifyBaseLogger) => void;
+  refreshed: (tokenRowId: string) => void;
+};
+
+let refreshListener: TraktRefreshListener | null = null;
+
+export const setTraktRefreshListener = (listener: TraktRefreshListener | null): void => {
+  refreshListener = listener;
+};
+
 const TRAKT_API_BASE = "https://api.trakt.tv";
 /** Trakt's sign-in host: authorize, code exchange and token refresh all live here. */
 export const TRAKT_AUTH_BASE = "https://auth.trakt.tv";
@@ -730,7 +746,9 @@ export class TraktClient {
       const body = await response.text();
       // A refresh token that is spent, revoked or from before Trakt's move to
       // auth.trakt.tv cannot be exchanged again; only signing in again helps.
-      const hint = body.includes("invalid_grant") ? " Reconnect Trakt from Settings." : "";
+      const rejected = body.includes("invalid_grant");
+      const hint = rejected ? " Reconnect Trakt from Settings." : "";
+      if (rejected) refreshListener?.rejected(this.tokenRowId, logger);
       throw new Error(`Failed to refresh Trakt token (${response.status}): ${body}${hint}`);
     }
 
@@ -750,6 +768,7 @@ export class TraktClient {
       data: { accessToken, refreshToken, expiresAt }
     });
 
+    refreshListener?.refreshed(this.tokenRowId);
     logger.info("Trakt tokens refreshed and persisted");
   }
 }

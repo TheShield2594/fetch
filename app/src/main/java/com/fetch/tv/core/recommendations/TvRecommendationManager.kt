@@ -56,7 +56,8 @@ class TvRecommendationManager @Inject constructor(
         val poster: String?,
         val backdrop: String?,
         val season: Int?,
-        val episode: Int?
+        val episode: Int?,
+        val watchNextType: Int
     )
 
     companion object {
@@ -64,7 +65,11 @@ class TvRecommendationManager @Inject constructor(
         val isPlaybackActive = MutableStateFlow(false)
     }
 
-    suspend fun updateWatchNext(items: List<WatchProgress>) {
+    /**
+     * [newEpisodeIds] holds the [ProgramBuilder.watchNextId]s of release alerts (new episodes of
+     * followed shows), which the launcher shows as "New" rather than "Next".
+     */
+    suspend fun updateWatchNext(items: List<WatchProgress>, newEpisodeIds: Set<String> = emptySet()) {
         if (!isTvDevice()) return
         // Watch Next is on the launcher for anyone holding the remote: on a TV with a PIN-protected
         // active profile or parental limits, publish nothing (and so clear what's there).
@@ -87,6 +92,7 @@ class TvRecommendationManager @Inject constructor(
                     // Upsert current CW programs only if they actually changed
                     decorated.forEach { p ->
                         val id = programBuilder.watchNextId(p)
+                        val isNewEpisode = id in newEpisodeIds
                         val newFingerprint = ProgramFingerprint(
                             title = p.name,
                             position = p.position,
@@ -94,7 +100,8 @@ class TvRecommendationManager @Inject constructor(
                             poster = p.poster,
                             backdrop = p.backdrop,
                             season = p.season,
-                            episode = p.episode
+                            episode = p.episode,
+                            watchNextType = watchNextTypeFor(p, isNewEpisode)
                         )
                         val oldFingerprint = syncedFingerprints[id]
                         if (oldFingerprint != null &&
@@ -104,13 +111,14 @@ class TvRecommendationManager @Inject constructor(
                             oldFingerprint.season == newFingerprint.season &&
                             oldFingerprint.episode == newFingerprint.episode &&
                             oldFingerprint.duration == newFingerprint.duration &&
+                            oldFingerprint.watchNextType == newFingerprint.watchNextType &&
                             abs(oldFingerprint.position - newFingerprint.position) < 2_000L
                         ) {
                             // No meaningful change: skip database update to prevent waking up launcher
                             return@forEach
                         }
 
-                        val program = programBuilder.buildWatchNextProgram(p)
+                        val program = programBuilder.buildWatchNextProgram(p, isNewEpisode)
                         programBuilder.upsertWatchNextProgram(program, id)
                         syncedFingerprints[id] = newFingerprint
                     }
@@ -165,7 +173,8 @@ class TvRecommendationManager @Inject constructor(
                     poster = decorated.poster,
                     backdrop = decorated.backdrop,
                     season = decorated.season,
-                    episode = decorated.episode
+                    episode = decorated.episode,
+                    watchNextType = watchNextTypeFor(decorated, isNewEpisode = false)
                 )
                 val oldFingerprint = syncedFingerprints[id]
                 if (oldFingerprint != null &&
@@ -175,6 +184,7 @@ class TvRecommendationManager @Inject constructor(
                     oldFingerprint.season == newFingerprint.season &&
                     oldFingerprint.episode == newFingerprint.episode &&
                     oldFingerprint.duration == newFingerprint.duration &&
+                    oldFingerprint.watchNextType == newFingerprint.watchNextType &&
                     abs(oldFingerprint.position - newFingerprint.position) < 2_000L
                 ) {
                     return@withContext

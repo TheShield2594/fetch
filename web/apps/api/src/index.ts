@@ -31,6 +31,7 @@ import { ensureDefaultWatchlist } from "./lib/watchlist.js";
 import { ensureDefaultCollection } from "./lib/collection.js";
 import { getDefaultProfileId } from "./lib/profile.js";
 import { encryptStoredSecrets } from "./lib/secret-migration.js";
+import { credentialsUnreadableAlert, sendAdminAlert } from "./lib/admin-alerts.js";
 import { checkUpcomingEpisodesAndNotify } from "./lib/notify-episodes.js";
 import { cleanupStaleSessions, SCROBBLE_CLEANUP_INTERVAL_MS } from "./routes/scrobble.js";
 import { sweepStaleAttempts } from "./lib/attempt-lockout.js";
@@ -390,7 +391,11 @@ const start = async () => {
   // Before anything reads a credential, so an API_TOKEN that no longer matches
   // what the database was written under is one startup error rather than a
   // week of integrations failing separately.
-  await encryptStoredSecrets(app.log);
+  const secretSweep = await encryptStoredSecrets(app.log);
+  // The log line above is for whoever reads logs; this is for whoever doesn't.
+  if (secretSweep.unreadable.length > 0) {
+    void sendAdminAlert(credentialsUnreadableAlert(secretSweep.unreadable), app.log);
+  }
   // An install whose admin was created before AI configs were per account.
   await adoptLegacyAiConfig();
 

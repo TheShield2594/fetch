@@ -81,7 +81,8 @@ fun SkipIntroButton(
     focusRequester: FocusRequester? = null,
     downFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
-    rightFocusRequester: FocusRequester? = null,
+    // The next-episode card sits at the end edge; `end` follows the layout direction (RTL).
+    endFocusRequester: FocusRequester? = null,
 ) {
 
     var lastType by remember { mutableStateOf(interval?.type) }
@@ -190,7 +191,7 @@ fun SkipIntroButton(
                     this.canFocus = canFocus
                     downFocusRequester?.let { down = it }
                     upFocusRequester?.let { up = it }
-                    rightFocusRequester?.let { right = it }
+                    endFocusRequester?.let { end = it }
                 }
                 .onPreviewKeyEvent { keyEvent ->
                     if (!canFocus) return@onPreviewKeyEvent false

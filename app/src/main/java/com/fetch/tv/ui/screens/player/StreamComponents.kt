@@ -114,6 +114,9 @@ internal fun AddonFilterChips(
         }
     }
     val scope = rememberCoroutineScope()
+    // Same rule as a chip's click: only an addon that answered successfully can filter the list.
+    fun isAddonSelectable(addon: String): Boolean =
+        addon in addons && (chipMap[addon]?.status ?: SourceChipStatus.SUCCESS) == SourceChipStatus.SUCCESS
     fun moveFocusTo(targetIndex: Int) {
         focusedChipIndex = targetIndex
         if (hasRefresh && targetIndex == 0) {
@@ -131,7 +134,10 @@ internal fun AddonFilterChips(
         } else {
             if (targetIndex == 0) null else orderedNames.getOrNull(targetIndex - 1)
         }
-        onAddonSelected(selectedFilter)
+        // D-padding across a loading or failed addon only moves focus; a click would refuse it.
+        if (selectedFilter == null || isAddonSelectable(selectedFilter)) {
+            onAddonSelected(selectedFilter)
+        }
         scope.coroutineLaunch {
             withFrameNanos {}
             if (targetIndex in focusRequesters.indices) {
@@ -151,8 +157,14 @@ internal fun AddonFilterChips(
     // When the selected addon is removed, switch filter to the last available addon
     LaunchedEffect(selectedAddon, orderedNames) {
         if (selectedAddon != null && selectedAddon !in orderedNames) {
-            val lastIndex = if (hasRefresh) orderedNames.size + 1 else orderedNames.size
-            moveFocusTo(lastIndex.coerceAtLeast(if (hasRefresh) 1 else 0))
+            // The last addon that can filter, or All when none can.
+            val lastSelectable = orderedNames.indexOfLast { isAddonSelectable(it) }
+            val allIndex = if (hasRefresh) 1 else 0
+            if (lastSelectable >= 0) {
+                moveFocusTo(allIndex + 1 + lastSelectable)
+            } else {
+                moveFocusTo(allIndex)
+            }
         }
     }
 

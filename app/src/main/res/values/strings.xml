@@ -1652,6 +1652,8 @@
     <string name="player_queue_move_down">Move down</string>
     <string name="player_queue_removed">Removed %1$s from the queue</string>
     <string name="player_queue_undo">Undo</string>
+    <string name="player_queue_clear_all">Clear all</string>
+    <string name="player_queue_cleared">Cleared the queue</string>
     <string name="player_seek_back_10">Back 10 seconds</string>
     <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>
@@ -1663,8 +1665,8 @@
     <string name="player_meta_line" translatable="false">%1$s · %2$s</string>
     <!-- Audio channel count on an audio track, e.g. "6 ch". %1$d = channels. -->
     <string name="audio_channels">%1$d ch</string>
-    <!-- Audio sample rate, e.g. "48 kHz". %1$d = kilohertz. -->
-    <string name="audio_sample_rate_khz">%1$d kHz</string>
+    <!-- Audio sample rate, e.g. "48 kHz" or "44.1 kHz". %1$s = kilohertz, already formatted. -->
+    <string name="audio_sample_rate_khz">%1$s kHz</string>
     <!-- A playback speed, e.g. "1.5×". %1$s = the speed. -->
     <string name="playback_speed_value" translatable="false">%1$s×</string>
     <!-- A display refresh rate, e.g. "23.976 Hz". %1$s = the rate. -->

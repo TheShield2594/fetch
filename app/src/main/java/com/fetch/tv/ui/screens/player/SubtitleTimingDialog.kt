@@ -50,6 +50,7 @@ import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.ui.components.LoadingIndicator
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import kotlinx.coroutines.delay
 import kotlin.math.abs
 
@@ -75,9 +76,14 @@ internal fun SubtitleTimingDialog(
     errorMessage: String?,
     isLoadingCues: Boolean,
     onCaptureNow: () -> Unit,
-    onCueSelected: (SubtitleSyncCue) -> Unit
+    onCueSelected: (SubtitleSyncCue) -> Unit,
+    onClose: () -> Unit
 ) {
     val syncButtonFocusRequester = remember { FocusRequester() }
+    val closeButtonFocusRequester = remember { FocusRequester() }
+    // Sync by line reads the addon subtitle file, so with an embedded track it can't work:
+    // say so before Sync is pressed, and give the state a Close button to hold focus.
+    val needsAddonSubtitle = selectedAddonSubtitle == null
     val rawAnchorMs = capturedVideoMs ?: currentPositionMs
     val anchorMs = (rawAnchorMs - subtitleDelayMs).coerceAtLeast(0L)
     val visibleCues = remember(cues, anchorMs) {
@@ -94,14 +100,11 @@ internal fun SubtitleTimingDialog(
         stage = if (capturedVideoMs != null) SyncStage.PICK_LINE else SyncStage.WAIT_FOR_SYNC
     }
 
-    LaunchedEffect(stage) {
+    LaunchedEffect(stage, needsAddonSubtitle) {
         if (stage == SyncStage.WAIT_FOR_SYNC) {
             delay(120)
-            try {
-                syncButtonFocusRequester.requestFocus()
-            } catch (_: Exception) {
-                // Focus target may not be attached yet.
-            }
+            val target = if (needsAddonSubtitle) closeButtonFocusRequester else syncButtonFocusRequester
+            target.requestFocusAfterFrames(frames = 0)
         }
     }
 
@@ -117,13 +120,20 @@ internal fun SubtitleTimingDialog(
     ) {
         when (stage) {
             SyncStage.WAIT_FOR_SYNC -> {
-                SyncPromptPanel(
-                    onCaptureNow = {
-                        stage = SyncStage.PICK_LINE
-                        onCaptureNow()
-                    },
-                    focusRequester = syncButtonFocusRequester
-                )
+                if (needsAddonSubtitle) {
+                    SyncUnavailablePanel(
+                        onClose = onClose,
+                        focusRequester = closeButtonFocusRequester
+                    )
+                } else {
+                    SyncPromptPanel(
+                        onCaptureNow = {
+                            stage = SyncStage.PICK_LINE
+                            onCaptureNow()
+                        },
+                        focusRequester = syncButtonFocusRequester
+                    )
+                }
             }
 
             SyncStage.PICK_LINE -> {
@@ -135,7 +145,8 @@ internal fun SubtitleTimingDialog(
                     statusMessage = statusMessage,
                     errorMessage = errorMessage,
                     isLoadingCues = isLoadingCues,
-                    onCueSelected = onCueSelected
+                    onCueSelected = onCueSelected,
+                    onClose = onClose
                 )
             }
         }
@@ -147,7 +158,6 @@ private fun SyncPromptPanel(
     onCaptureNow: () -> Unit,
     focusRequester: FocusRequester
 ) {
-    var isFocused by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -159,24 +169,63 @@ private fun SyncPromptPanel(
             color = FetchTheme.colors.Player.TextPrimary
         )
 
-        Card(
+        TimingDialogButton(
+            text = stringResource(R.string.subtitle_timing_sync_button),
             onClick = onCaptureNow,
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged { isFocused = it.isFocused },
-            colors = CardDefaults.colors(
-                containerColor = FetchTheme.colors.Player.Control,
-                focusedContainerColor = FetchTheme.colors.Player.Focus
-            ),
-            shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
-        ) {
-            Text(
-                text = stringResource(R.string.subtitle_timing_sync_button),
-                style = FetchTheme.textStyles.titleStrong,
-                color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
-                modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
-            )
-        }
+            focusRequester = focusRequester
+        )
+    }
+}
+
+/** Shown instead of the Sync prompt when no addon subtitle is selected. */
+@Composable
+private fun SyncUnavailablePanel(
+    onClose: () -> Unit,
+    focusRequester: FocusRequester
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.subtitle_timing_select_addon_first),
+            style = MaterialTheme.typography.headlineSmall,
+            color = FetchTheme.colors.Player.TextPrimary
+        )
+        TimingDialogButton(
+            text = stringResource(R.string.action_close),
+            onClick = onClose,
+            focusRequester = focusRequester
+        )
+    }
+}
+
+@Composable
+private fun TimingDialogButton(
+    text: String,
+    onClick: () -> Unit,
+    focusRequester: FocusRequester,
+    modifier: Modifier = Modifier
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    Card(
+        onClick = onClick,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { isFocused = it.isFocused },
+        colors = CardDefaults.colors(
+            containerColor = FetchTheme.colors.Player.Control,
+            focusedContainerColor = FetchTheme.colors.Player.Focus
+        ),
+        shape = CardDefaults.shape(RoundedCornerShape(FetchTheme.radii.md))
+    ) {
+        Text(
+            text = text,
+            style = FetchTheme.textStyles.titleStrong,
+            color = if (isFocused) FetchTheme.colors.Player.OnFocus else FetchTheme.colors.Player.TextPrimary,
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.xl, vertical = FetchTheme.spacing.md)
+        )
     }
 }
 
@@ -189,8 +238,18 @@ private fun CueSelectionPanel(
     statusMessage: String?,
     errorMessage: String?,
     isLoadingCues: Boolean,
-    onCueSelected: (SubtitleSyncCue) -> Unit
+    onCueSelected: (SubtitleSyncCue) -> Unit,
+    onClose: () -> Unit
 ) {
+    // Error, no addon subtitle and no lines found have nothing else to focus: a Close button
+    // takes focus there so OK does something.
+    val closeFocusRequester = remember { FocusRequester() }
+    val showsCloseOnly = !errorMessage.isNullOrBlank() ||
+        selectedAddonSubtitle == null ||
+        (!isLoadingCues && cues.isEmpty())
+    LaunchedEffect(showsCloseOnly) {
+        if (showsCloseOnly) closeFocusRequester.requestFocusAfterFrames(frames = 1)
+    }
     val nearestCueIndex = remember(cues, anchorMs) {
         cues.indices.minByOrNull { index -> abs(cues[index].startTimeMs - anchorMs) } ?: 0
     }
@@ -251,6 +310,11 @@ private fun CueSelectionPanel(
                 style = MaterialTheme.typography.bodySmall,
                 color = FetchTheme.colors.Warning
             )
+            TimingDialogButton(
+                text = stringResource(R.string.action_close),
+                onClick = onClose,
+                focusRequester = closeFocusRequester
+            )
             return
         }
 
@@ -259,6 +323,11 @@ private fun CueSelectionPanel(
                 text = stringResource(R.string.subtitle_timing_select_addon_first),
                 style = MaterialTheme.typography.bodyMedium,
                 color = FetchTheme.colors.Warning
+            )
+            TimingDialogButton(
+                text = stringResource(R.string.action_close),
+                onClick = onClose,
+                focusRequester = closeFocusRequester
             )
             return
         }
@@ -290,6 +359,11 @@ private fun CueSelectionPanel(
                 text = stringResource(R.string.subtitle_timing_no_lines_found),
                 style = MaterialTheme.typography.bodyMedium,
                 color = FetchTheme.colors.Player.TextTertiary
+            )
+            TimingDialogButton(
+                text = stringResource(R.string.action_close),
+                onClick = onClose,
+                focusRequester = closeFocusRequester
             )
             return
         }

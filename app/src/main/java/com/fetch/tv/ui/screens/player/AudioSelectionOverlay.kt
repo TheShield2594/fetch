@@ -280,7 +280,7 @@ private fun AudioTrackCard(
     val metadata = joinPlayerMeta(
         track.codec,
         track.channelCount?.let { stringResource(R.string.audio_channels, it) },
-        track.sampleRate?.let { stringResource(R.string.audio_sample_rate_khz, it / 1000) }
+        track.sampleRate?.let { stringResource(R.string.audio_sample_rate_khz, formatSampleRateKhz(it)) }
     )
 
     Card(

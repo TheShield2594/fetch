@@ -24,7 +24,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +54,8 @@ import com.fetch.tv.data.local.QueueItem
 import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.localizeEpisodeTitle
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** "S2 E6 · Title" for an episode, the title alone otherwise. */
 @Composable
@@ -68,6 +72,9 @@ internal fun queueItemSubtitle(item: QueueItem): String? {
 
 /** A queue item the person just removed, and where it sat in the full queue. */
 private data class RemovedQueueItem(val item: QueueItem, val index: Int)
+
+/** Longest an Undo waits for one restored item to settle before putting back the next. */
+private const val QUEUE_RESTORE_SETTLE_TIMEOUT_MS = 2_000L
 
 /** The player's Queue panel: what plays after this, in order, with play, reorder and remove. */
 @Composable
@@ -88,14 +95,31 @@ internal fun QueueSidePanel(
     val undoFocusRequester = remember { FocusRequester() }
 
     var panelHasFocus by remember { mutableStateOf(false) }
-    // The last removal, kept while the panel is open so it can be undone from here.
-    var lastRemoved by remember { mutableStateOf<RemovedQueueItem?>(null) }
+    // The last removal (one row, or every row for Clear all), kept while the panel is open so
+    // it can be undone from here.
+    var lastRemoved by remember { mutableStateOf<List<RemovedQueueItem>>(emptyList()) }
+    // Items an Undo is putting back, in queue order. One at a time: each restore walks its
+    // item up from the end of the queue, so the next starts once the previous has settled.
+    var pendingRestores by remember { mutableStateOf<List<RemovedQueueItem>>(emptyList()) }
+    val currentItems by rememberUpdatedState(items)
 
     // A removal takes focus to its Undo, which sits where the removed row was reached from.
     LaunchedEffect(lastRemoved) {
-        if (lastRemoved == null) return@LaunchedEffect
+        if (lastRemoved.isEmpty()) return@LaunchedEffect
         withFrameNanos { }
         runCatching { undoFocusRequester.requestFocus() }
+    }
+
+    LaunchedEffect(pendingRestores) {
+        val head = pendingRestores.firstOrNull() ?: return@LaunchedEffect
+        onRestore(head.item, head.index)
+        withTimeoutOrNull(QUEUE_RESTORE_SETTLE_TIMEOUT_MS) {
+            snapshotFlow {
+                val at = currentItems.indexOfFirst { it.videoId == head.item.videoId }
+                at >= 0 && at <= head.index
+            }.first { it }
+        }
+        pendingRestores = pendingRestores.drop(1)
     }
 
     // On open, and again when the focused row was removed, so focus never falls out of the panel.
@@ -127,15 +151,35 @@ internal fun QueueSidePanel(
                 style = MaterialTheme.typography.headlineSmall,
                 color = FetchTheme.colors.TextPrimary
             )
-            DialogButton(
-                text = stringResource(R.string.sources_close),
-                onClick = onClose,
-                isPrimary = false,
-                modifier = Modifier.focusRequester(closeFocusRequester)
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (upcoming.size > 1) {
+                    DialogButton(
+                        text = stringResource(R.string.player_queue_clear_all),
+                        onClick = {
+                            lastRemoved = upcoming.map { item ->
+                                RemovedQueueItem(
+                                    item = item,
+                                    index = items.indexOfFirst { it.videoId == item.videoId }.coerceAtLeast(0)
+                                )
+                            }
+                            upcoming.forEach(onRemove)
+                        },
+                        isPrimary = false
+                    )
+                }
+                DialogButton(
+                    text = stringResource(R.string.sources_close),
+                    onClick = onClose,
+                    isPrimary = false,
+                    modifier = Modifier.focusRequester(closeFocusRequester)
+                )
+            }
         }
 
-        lastRemoved?.let { removed ->
+        lastRemoved.takeIf { it.isNotEmpty() }?.let { removed ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -144,7 +188,11 @@ internal fun QueueSidePanel(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.player_queue_removed, removed.item.name),
+                    text = if (removed.size == 1) {
+                        stringResource(R.string.player_queue_removed, removed.single().item.name)
+                    } else {
+                        stringResource(R.string.player_queue_cleared)
+                    },
                     style = MaterialTheme.typography.bodyMedium,
                     color = FetchTheme.colors.TextSecondary,
                     maxLines = 2,
@@ -154,8 +202,8 @@ internal fun QueueSidePanel(
                 DialogButton(
                     text = stringResource(R.string.player_queue_undo),
                     onClick = {
-                        lastRemoved = null
-                        onRestore(removed.item, removed.index)
+                        lastRemoved = emptyList()
+                        pendingRestores = pendingRestores + removed.sortedBy { it.index }
                     },
                     isPrimary = false,
                     modifier = Modifier.focusRequester(undoFocusRequester)
@@ -188,9 +236,11 @@ internal fun QueueSidePanel(
                     onPlay = { onPlay(item) },
                     onMove = { up -> onMove(item, up) },
                     onRemove = {
-                        lastRemoved = RemovedQueueItem(
-                            item = item,
-                            index = items.indexOfFirst { it.videoId == item.videoId }.coerceAtLeast(0)
+                        lastRemoved = listOf(
+                            RemovedQueueItem(
+                                item = item,
+                                index = items.indexOfFirst { it.videoId == item.videoId }.coerceAtLeast(0)
+                            )
                         )
                         onRemove(item)
                     }

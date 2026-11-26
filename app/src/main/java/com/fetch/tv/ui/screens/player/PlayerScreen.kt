@@ -271,6 +271,8 @@ fun PlayerScreen(
     val postPlayRecommendationFocusRequester = remember { FocusRequester() }
     val postPlayRecommendationPlayerWindowFocusRequester = remember { FocusRequester() }
     var skipButtonActuallyVisible by remember { mutableStateOf(false) }
+    var skipPillHasFocus by remember { mutableStateOf(false) }
+    var nextEpisodeCardHasFocus by remember { mutableStateOf(false) }
     var preferNextTimeSuggestions by remember {
         mutableStateOf<List<com.fetch.tv.core.streams.ranking.PreferenceSuggestion>?>(null)
     }
@@ -363,7 +365,9 @@ fun PlayerScreen(
                 uiState.streamAutoPlayPreferBingeGroupForNextEpisode) &&
             !uiState.streamAutoPlayNextEpisodeEnabled &&
             nextEpisodeForEndPrompt != null
-    val returnToDetailsFromEndPrompt = {
+    val returnToDetailsFromEndPrompt: () -> Unit = returnToDetailsFromEndPrompt@{
+        if (exitDispatched) return@returnToDetailsFromEndPrompt
+        exitDispatched = true
         viewModel.stopAndRelease()
         val (focusSeason, focusEpisode) = uiState.returnFocusSeasonEpisode(completed = true)
         currentOnBackPress(
@@ -374,9 +378,11 @@ fun PlayerScreen(
             true
         )
     }
-    val continueToNextEpisodeFromEndPrompt = {
+    val continueToNextEpisodeFromEndPrompt: () -> Unit = continueToNextEpisodeFromEndPrompt@{
         val next = nextEpisodeForEndPrompt
         if (next != null) {
+            if (exitDispatched) return@continueToNextEpisodeFromEndPrompt
+            exitDispatched = true
             viewModel.stopAndRelease()
             val cb = currentOnPlaybackEnded
             if (cb != null) {
@@ -488,7 +494,10 @@ fun PlayerScreen(
         uiState.error,
         uiState.pendingExitReason,
         shouldConfirmNextEpisodeOnEnd,
-        postPlayRecommendationState.blocksNaturalCompletion
+        postPlayRecommendationState.blocksNaturalCompletion,
+        // Dismissing the next-episode card after playback ended must re-check completion, or
+        // the ended frame stays up until a second Back.
+        uiState.postPlayMode?.blocksNaturalCompletion() == true
     ) {
         val explicitReason = uiState.pendingExitReason
         val shouldDispatchNatural = uiState.playbackEnded &&
@@ -499,6 +508,11 @@ fun PlayerScreen(
             explicitReason == null
         when {
             explicitReason != null -> {
+                if (exitDispatched) {
+                    viewModel.consumePendingExitReason()
+                    return@LaunchedEffect
+                }
+                exitDispatched = true
                 viewModel.stopAndRelease()
                 val cb = currentOnPlaybackEnded
                 if (cb != null) {
@@ -516,6 +530,8 @@ fun PlayerScreen(
                 viewModel.consumePendingExitReason()
             }
             shouldDispatchNatural -> {
+                if (exitDispatched) return@LaunchedEffect
+                exitDispatched = true
                 viewModel.stopAndRelease()
                 val next = uiState.nextEpisode?.takeIf {
                     it.hasAired && !(it.released.isNullOrBlank() && it.available == false)
@@ -658,6 +674,43 @@ fun PlayerScreen(
                 }
             }
             // If skip or next episode card is visible, their own LaunchedEffect will request focus
+        }
+    }
+
+    // The Skip pill or next-episode card leaving while it held focus (intro over, card
+    // dismissed or timed out) took focus with it, and OK did nothing until a D-pad press.
+    // Hand focus back to the container when the last of them goes with the controls hidden.
+    val transportOverlayVisible = skipButtonActuallyVisible ||
+        uiState.postPlayMode is PostPlayMode.AutoPlay ||
+        uiState.postPlayMode is PostPlayMode.StillWatching
+    var transportOverlayWasVisible by remember { mutableStateOf(false) }
+    LaunchedEffect(transportOverlayVisible) {
+        val wasVisible = transportOverlayWasVisible
+        transportOverlayWasVisible = transportOverlayVisible
+        if (transportOverlayVisible || !wasVisible) return@LaunchedEffect
+        if (uiState.showControls || uiState.isPanelOpen || uiState.error != null ||
+            shouldConfirmNextEpisodeOnEnd || postPlayRecommendationState.isVisible ||
+            preferNextTimeFocused
+        ) {
+            return@LaunchedEffect
+        }
+        requestFocusWithinFrames { containerFocusRequester.requestFocus() }
+    }
+
+    // The Skip pill can stay up for the whole segment (up to 120 s) and the next-episode card
+    // for the credits; while either holds focus, OK means skip/next instead of pause. They take
+    // focus only for a short window, then hand it back to the container so OK pauses again.
+    // Both stay reachable: Down shows the controls, Up from the seek bar goes back to them.
+    val nextEpisodeCardVisible = uiState.postPlayMode is PostPlayMode.AutoPlay
+    LaunchedEffect(skipButtonActuallyVisible, nextEpisodeCardVisible, uiState.showControls) {
+        if (uiState.showControls) return@LaunchedEffect
+        if (!skipButtonActuallyVisible && !nextEpisodeCardVisible) return@LaunchedEffect
+        delay(TRANSPORT_OVERLAY_FOCUS_HOLD_MS)
+        if (!uiState.showControls && !uiState.isPanelOpen &&
+            (skipPillHasFocus ||
+                (uiState.postPlayMode is PostPlayMode.AutoPlay && nextEpisodeCardHasFocus))
+        ) {
+            runCatching { containerFocusRequester.requestFocus() }
         }
     }
 
@@ -904,6 +957,13 @@ fun PlayerScreen(
                     keyEvent.nativeKeyEvent.keyCode != KeyEvent.KEYCODE_MENU
                 ) {
                     return@onKeyEvent false
+                }
+                // Nothing is playing yet behind the loading overlay: OK would flip playWhenReady
+                // and Left/Right would preview-seek from 0, so the transport keys wait for it.
+                if (uiState.showLoadingOverlay && !uiState.showControls &&
+                    isLoadingGatedTransportKey(keyEvent.nativeKeyEvent.keyCode)
+                ) {
+                    return@onKeyEvent true
                 }
 
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_UP) {
@@ -1426,7 +1486,7 @@ fun PlayerScreen(
             } else {
                 null
             },
-            rightFocusRequester = if (uiState.postPlayMode is PostPlayMode.AutoPlay) nextEpisodeFocusRequester else null,
+            endFocusRequester = if (uiState.postPlayMode is PostPlayMode.AutoPlay) nextEpisodeFocusRequester else null,
             onHideControls = {
                 if (uiState.showControls) viewModel.hideControls()
                 else viewModel.onEvent(PlayerEvent.OnToggleControls)
@@ -1440,6 +1500,7 @@ fun PlayerScreen(
                 .graphicsLayer {
                     translationY = -skipButtonLift.value * SKIP_BUTTON_CONTROLS_LIFT.toPx()
                 }
+                .onFocusChanged { skipPillHasFocus = it.hasFocus }
         )
         PostPlayOverlay(
             mode = postPlayOverlayMode,
@@ -1447,7 +1508,7 @@ fun PlayerScreen(
             blurUnwatchedEpisodes = uiState.blurUnwatchedEpisodes,
             nextEpisodeFocusRequester = nextEpisodeFocusRequester,
             progressBarFocusRequester = if (uiState.showControls) progressBarFocusRequester else null,
-            leftFocusRequester = if (skipButtonActuallyVisible) skipIntroFocusRequester else null,
+            startFocusRequester = if (skipButtonActuallyVisible) skipIntroFocusRequester else null,
             onPlayNext = { viewModel.onEvent(PlayerEvent.OnPlayNextEpisode) },
             onContinueStillWatching = { viewModel.onEvent(PlayerEvent.OnStillWatchingContinue) },
             onDismissStillWatching = { viewModel.onEvent(PlayerEvent.OnDismissStillWatchingPrompt) },
@@ -1455,7 +1516,8 @@ fun PlayerScreen(
                 .align(Alignment.BottomEnd)
                 .padding(end = 26.dp, bottom = if (uiState.showControls) 174.dp else 30.dp)
                 .zIndex(2.1f)
-                .reportSubtitleClearance(subtitleClearanceGapPx) { postPlayClearancePx = it },
+                .reportSubtitleClearance(subtitleClearanceGapPx) { postPlayClearancePx = it }
+                .onFocusChanged { nextEpisodeCardHasFocus = it.hasFocus },
         )
 
         val preferSuggestions = preferNextTimeSuggestions
@@ -1684,7 +1746,8 @@ fun PlayerScreen(
             )
         }
 
-        // Seek-only overlay (progress bar + time) when controls are hidden
+        // Subtitle delay overlay (slider, Reset, Sync by line), shown on its own while the
+        // controls are hidden.
         AnimatedVisibility(
             visible = uiState.showSubtitleDelayOverlay &&
                 !uiState.showControls &&
@@ -1928,7 +1991,8 @@ fun PlayerScreen(
                 onCaptureNow = { viewModel.onEvent(PlayerEvent.OnCaptureSubtitleAutoSyncTime) },
                 onCueSelected = { cue ->
                     viewModel.onEvent(PlayerEvent.OnApplySubtitleAutoSyncCue(cue.startTimeMs))
-                }
+                },
+                onClose = { viewModel.onEvent(PlayerEvent.OnDismissSubtitleTimingDialog) }
             )
         }
 
@@ -3481,7 +3545,8 @@ private fun ProgressBar(
                     return@onPreviewKeyEvent false
                 }
 
-                // testing additional key handling for DPAD_LEFT and DPAD_RIGHT to allow seek in focus (check)
+                // Key-down: OK clicks (first press only), Up/Down move focus (Up may run
+                // onUpKey), and Left/Right preview a seek; the seek commits on key-up above.
                 if (keyEvent.nativeKeyEvent.action == KeyEvent.ACTION_DOWN) {
                     when (keyEvent.nativeKeyEvent.keyCode) {
                         KeyEvent.KEYCODE_DPAD_CENTER,
@@ -3771,7 +3836,8 @@ private fun SubtitleTimingDialogHost(
     errorMessage: String?,
     isLoadingCues: Boolean,
     onCaptureNow: () -> Unit,
-    onCueSelected: (SubtitleSyncCue) -> Unit
+    onCueSelected: (SubtitleSyncCue) -> Unit,
+    onClose: () -> Unit
 ) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
 
@@ -3786,7 +3852,8 @@ private fun SubtitleTimingDialogHost(
         errorMessage = errorMessage,
         isLoadingCues = isLoadingCues,
         onCaptureNow = onCaptureNow,
-        onCueSelected = onCueSelected
+        onCueSelected = onCueSelected,
+        onClose = onClose
     )
 }
 
@@ -4304,11 +4371,12 @@ private fun SpeedSelectionDialog(
         PLAYBACK_SPEEDS.map { FocusRequester() }
     }
 
-    LaunchedEffect(selectedIndex) {
-        runCatching { speedFocusRequesters[selectedIndex].requestFocus() }
-    }
-
     Dialog(onDismissRequest = onDismiss) {
+        // Inside the dialog's own window, retried over a few frames: the list items are not
+        // attached yet on the first frame, and a single request outside the Dialog could miss.
+        LaunchedEffect(selectedIndex) {
+            speedFocusRequesters[selectedIndex].requestFocusAfterFrames(frames = 1)
+        }
         Box(
             modifier = Modifier
                 .width(300.dp)
@@ -4334,7 +4402,7 @@ private fun SpeedSelectionDialog(
                         SpeedItem(
                             modifier = Modifier.focusRequester(speedFocusRequesters[index]),
                             speed = speed,
-                            isSelected = speed == currentSpeed,
+                            isSelected = isPlaybackSpeedSelected(speed, currentSpeed),
                             onClick = { onSpeedSelected(speed) }
                         )
                     }
@@ -4468,11 +4536,11 @@ private fun PlayerChoiceListDialog(
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = focusIndex)
     val focusRequesters = remember(labels.size) { List(labels.size) { FocusRequester() } }
 
-    LaunchedEffect(Unit) {
-        runCatching { focusRequesters[focusIndex].requestFocus() }
-    }
-
     Dialog(onDismissRequest = onDismiss) {
+        // Inside the dialog's own window, retried over a few frames (see SpeedSelectionDialog).
+        LaunchedEffect(Unit) {
+            focusRequesters.getOrNull(focusIndex)?.requestFocusAfterFrames(frames = 1)
+        }
         Box(
             modifier = Modifier
                 .width(300.dp)
@@ -4591,6 +4659,11 @@ private fun PlayerBufferingIndicator(
 
 private val SEEK_BAR_PLAYHEAD_RADIUS = 6.dp
 private val SEEK_BAR_FOCUSED_PLAYHEAD_RADIUS = 10.dp
+/**
+ * How long the Skip pill or next-episode card keeps the focus it takes on its own before
+ * handing it back to the container, so OK pauses again instead of skipping (#785).
+ */
+private const val TRANSPORT_OVERLAY_FOCUS_HOLD_MS = 8_000L
 private const val PREFER_NEXT_TIME_DELAY_MS = 4_000L
 private const val PREFER_NEXT_TIME_VISIBLE_MS = 12_000L
 private const val PREFER_NEXT_TIME_MAX_AGE_MS = 3 * 60_000L
@@ -4649,6 +4722,32 @@ private fun handleTransportKey(event: KeyEvent, uiState: PlayerUiState, viewMode
         KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD -> viewModel.onEvent(PlayerEvent.OnSeekBackward)
     }
     return true
+}
+
+/**
+ * Whether the speed list's [speed] is the one playing. A tolerance, not float equality: the
+ * engine can hand back 1.2499999 for 1.25, which left the list with no check mark.
+ */
+internal fun isPlaybackSpeedSelected(speed: Float, currentSpeed: Float): Boolean =
+    abs(speed - currentSpeed) < PLAYBACK_SPEED_MATCH_TOLERANCE
+
+private const val PLAYBACK_SPEED_MATCH_TOLERANCE = 0.01f
+
+/** Keys that toggle or seek playback, held back while the loading overlay is up (#785). */
+private fun isLoadingGatedTransportKey(keyCode: Int): Boolean = when (keyCode) {
+    KeyEvent.KEYCODE_DPAD_CENTER,
+    KeyEvent.KEYCODE_ENTER,
+    KeyEvent.KEYCODE_NUMPAD_ENTER,
+    KeyEvent.KEYCODE_DPAD_LEFT,
+    KeyEvent.KEYCODE_DPAD_RIGHT,
+    KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE,
+    KeyEvent.KEYCODE_MEDIA_PLAY,
+    KeyEvent.KEYCODE_MEDIA_PAUSE,
+    KeyEvent.KEYCODE_MEDIA_FAST_FORWARD,
+    KeyEvent.KEYCODE_MEDIA_REWIND,
+    KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD,
+    KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD -> true
+    else -> false
 }
 
 private fun isTransportMediaKey(keyCode: Int): Boolean = when (keyCode) {

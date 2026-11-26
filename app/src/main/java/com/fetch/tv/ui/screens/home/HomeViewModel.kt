@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.core.util.runSuspendCatching
 import com.fetch.tv.data.local.hides
 import android.content.Context
 import android.os.SystemClock
@@ -265,7 +266,7 @@ class HomeViewModel @Inject constructor(
     fun setHomeContentFilter(filter: HomeContentFilter) {
         if (filter == homeContentFilter.value) return
         viewModelScope.launch {
-            runCatching {
+            runSuspendCatching {
                 layoutPreferenceDataStore.setHomeContentFilter(filter.takeIf { it != HomeContentFilter.ALL }?.name)
             }
         }
@@ -292,11 +293,11 @@ class HomeViewModel @Inject constructor(
         if (holdHintChecked) return
         holdHintChecked = true
         viewModelScope.launch {
-            val sessions = runCatching { layoutPreferenceDataStore.homeHoldHintSessions.first() }.getOrNull()
+            val sessions = runSuspendCatching { layoutPreferenceDataStore.homeHoldHintSessions.first() }.getOrNull()
                 ?: return@launch
             if (sessions >= HOME_HOLD_HINT_SESSIONS) return@launch
             _showHoldHint.value = true
-            runCatching { layoutPreferenceDataStore.recordHomeHoldHintSession() }
+            runSuspendCatching { layoutPreferenceDataStore.recordHomeHoldHintSession() }
         }
     }
 

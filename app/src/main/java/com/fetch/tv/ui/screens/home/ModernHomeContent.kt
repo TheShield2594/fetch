@@ -8,6 +8,7 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.core.util.runSuspendCatching
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PlayLaunchOrigin
 import com.fetch.tv.ui.screens.settings.MemoryBudget
@@ -291,7 +292,7 @@ fun ModernHomeContent(
         verticalRowListState.scrollToItem(0, 0)
         if (resetRows) {
             rowListStates.values.toList().forEach { state ->
-                runCatching { state.scrollToItem(0, 0) }
+                runSuspendCatching { state.scrollToItem(0, 0) }
             }
         }
     }

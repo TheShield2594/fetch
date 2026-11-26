@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 @file:OptIn(ExperimentalFoundationApi::class, kotlinx.coroutines.FlowPreview::class)
 
 package com.fetch.tv.ui.screens.home

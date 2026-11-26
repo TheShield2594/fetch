@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContentType
+import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
 import org.junit.Assert.assertEquals
@@ -85,6 +86,29 @@ class HomeContentFilterTest {
         ))
         val filters = availableHomeContentFilters(input(row("m", "movie")).copy(upcomingItems = listOf(upcoming)))
         assertEquals(listOf(HomeContentFilter.ALL, HomeContentFilter.MOVIES, HomeContentFilter.SHOWS), filters)
+    }
+
+    @Test
+    fun `a because you watched row of another kind offers the filter`() {
+        val withRecommendations = input(row("s", "series")).copy(becauseYouWatchedRows = listOf(row("byw", "movie")))
+        assertEquals(
+            listOf(HomeContentFilter.ALL, HomeContentFilter.MOVIES, HomeContentFilter.SHOWS),
+            availableHomeContentFilters(withRecommendations)
+        )
+        assertEquals(emptyList<HomeContentFilter>(), availableHomeContentFilters(withRecommendations.copy(kidsHome = true)))
+    }
+
+    @Test
+    fun `a ready watchlist movie offers movies`() {
+        fun entry(id: String) = LibraryEntry(
+            id = id, type = "movie", name = id, poster = null, background = null, logo = null,
+            description = null, releaseInfo = null, imdbRating = null, genres = emptyList(), addonBaseUrl = null
+        )
+        val readyMovie = input(row("s", "series")).copy(readyWatchlistMovies = listOf(entry("a")))
+        assertEquals(
+            listOf(HomeContentFilter.ALL, HomeContentFilter.MOVIES, HomeContentFilter.SHOWS),
+            availableHomeContentFilters(readyMovie)
+        )
     }
 
     @Test

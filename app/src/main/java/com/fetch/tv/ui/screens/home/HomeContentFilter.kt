@@ -43,6 +43,12 @@ internal fun availableHomeContentFilters(input: ModernHomePresentationInput): Li
         }
         input.continueWatchingItems.forEach { add(it.contentType()) }
         input.upcomingItems.forEach { add(it.contentType()) }
+        // Ready tonight's watchlist cards are movies, and count only when the row would show under
+        // Movies; recommendation rows show on all but a kids Home.
+        val readyMovies = input.readyWatchlistMovies.size +
+            input.readyTonightItems.count { HomeContentFilter.MOVIES.matchesType(it.contentType()) }
+        if (input.readyWatchlistMovies.isNotEmpty() && readyMovies >= READY_TONIGHT_MIN_ITEMS) add("movie")
+        if (!input.kidsHome) input.becauseYouWatchedRows.filter { it.items.isNotEmpty() }.forEach { add(it.apiType) }
     }
     val offered = HomeContentFilter.entries
         .filter { it != HomeContentFilter.ALL }

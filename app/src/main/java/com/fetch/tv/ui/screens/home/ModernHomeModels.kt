@@ -49,6 +49,8 @@ internal const val MODERN_ROWS_VIEWPORT_MAX_FRACTION = 0.66f
 internal const val MODERN_CONTINUE_WATCHING_ROW_KEY = "continue_watching"
 internal const val MODERN_UPCOMING_ROW_KEY = "upcoming_section"
 internal const val MODERN_READY_TONIGHT_ROW_KEY = "ready_tonight"
+/** Featured titles that lead Home when there is nothing to resume (#813). */
+internal const val MODERN_SPOTLIGHT_ROW_KEY = "spotlight"
 internal const val MODERN_YOUTUBE_ROW_KEY = "youtube_subscriptions"
 
 /** Rows drawn with Continue Watching cards rather than catalog cards. */
@@ -95,7 +97,10 @@ data class HeroPreview(
     val resumeTimeLeftText: String? = null,
     /** Continue Watching only: how much is watched, 0..1, drawn as the hero's progress line. */
     val resumeProgressFraction: Float? = null,
-    /** Continue Watching only: key of this video in the Best match cache. */
+    /**
+     * Key of this video in the Best match cache: the episode or film a Continue Watching card
+     * resumes, or a catalog movie, whose hero then says Play starts a cached pick (#812).
+     */
     val bestMatchKey: String? = null,
     /**
      * Continue Watching only: the title of the episode Resume (or Play) starts, shown as one line
@@ -103,7 +108,9 @@ data class HeroPreview(
      */
     val resumeEpisodeTitle: String? = null,
     /** Why this title is on Home ("NEW EPISODE", a recommendation reason), shown above the title. */
-    val eyebrowText: String? = null
+    val eyebrowText: String? = null,
+    /** A catalog card: Play/Pause starts it and holding OK opens its options menu (#812). */
+    val isCatalogTitle: Boolean = false
 )
 
 /**
@@ -231,7 +238,11 @@ data class ModernHomePresentationState(
         activeItemKeysByRow = StableMap(),
         itemIdentitiesByRow = StableMap(),
         activeCatalogItemIds = StableSet()
-    )
+    ),
+    /** The Movies / Shows filter in effect (#814): All when the saved one has nothing to show. */
+    val contentFilter: HomeContentFilter = HomeContentFilter.ALL,
+    /** The filters offered above the rows; empty hides the filter (#814). */
+    val contentFilters: StableList<HomeContentFilter> = StableList()
 )
 
 @Immutable
@@ -634,7 +645,13 @@ internal fun buildCatalogItem(
         mdbListRatingOrder = item.mdbListRatingOrder,
         frozenBackdropUrl = frozenBackdrop,
         frozenLogoUrl = frozenLogo,
-        eyebrowText = item.recommendationReason?.takeIf { it.isNotBlank() }
+        eyebrowText = item.recommendationReason?.takeIf { it.isNotBlank() },
+        bestMatchKey = if (item.apiType.equals("movie", ignoreCase = true)) {
+            com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey("movie", item.id)
+        } else {
+            null
+        },
+        isCatalogTitle = true
     )
 
     return ModernCarouselItem(

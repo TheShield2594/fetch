@@ -3370,4 +3370,13 @@
     <string name="youtube_filter_duration_short">Under 4 minutes</string>
     <string name="youtube_filter_duration_medium">4–20 minutes</string>
     <string name="youtube_filter_duration_long">Over 20 minutes</string>
+
+    <!-- Home: Play on a catalog card, Spotlight row and the Movies / Shows filter (#812, #813, #814) -->
+    <string name="home_hero_play_best_match">▶ Play</string>
+    <string name="home_row_spotlight">Spotlight</string>
+    <string name="home_filter_all">All</string>
+    <string name="home_filter_movies">Movies</string>
+    <string name="home_filter_shows">Shows</string>
+    <string name="home_filter_anime">Anime</string>
+    <string name="home_filter_description">Show on Home</string>
 </resources>

@@ -218,8 +218,9 @@ private fun ModernContinueWatchingRowItem(
         if (!isCardFocused || focusEventId != targetEventId) return@LaunchedEffect
     }
 
+    val contentFilterFocused = LocalHomeContentFilterFocused.current
     LaunchedEffect(isTargetItem) {
-        if (isTargetItem && !isCardFocused) {
+        if (isTargetItem && !isCardFocused && !contentFilterFocused.value) {
             runCatching { requester.requestFocus() }
         }
     }
@@ -374,8 +375,9 @@ private fun ModernCatalogRowItem(
         }
     }
 
+    val contentFilterFocused = LocalHomeContentFilterFocused.current
     LaunchedEffect(isTargetItem) {
-        if (isTargetItem && !isCardFocused) {
+        if (isTargetItem && !isCardFocused && !contentFilterFocused.value) {
             runCatching { requester.requestFocus() }
         }
     }
@@ -521,6 +523,7 @@ internal fun ModernRowSection(
     onContinueWatchingOptions: (ContinueWatchingItem) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean,
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit,
+    onCatalogItemPlay: ((MetaPreview, String) -> Unit)? = null,
     onItemFocus: (MetaPreview) -> Unit,
     onPreloadAdjacentItem: (MetaPreview) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>> = androidx.compose.runtime.mutableStateOf(StableMap()),
@@ -541,6 +544,8 @@ internal fun ModernRowSection(
     @Suppress("NAME_SHADOWING") val loadMoreRequestedTotals = loadMoreRequestedTotals.value
     @Suppress("NAME_SHADOWING") val itemFocusRequesters = itemFocusRequesters.value
     val rowKey = row.key
+    // The Spotlight row is always wide cards, whatever the poster setting (#813).
+    @Suppress("NAME_SHADOWING") val useLandscapePosters = useLandscapePosters || rowKey == MODERN_SPOTLIGHT_ROW_KEY
 
     // Per-row derived state: only invalidates when THIS row's focused index
     // changes, not when any other row's index changes in the shared map.
@@ -1036,9 +1041,23 @@ internal fun ModernRowSection(
                                 }
                             }
                             val placeholderFocusBlock = isPlaceholder && index > 0
-                            Box(modifier = if (placeholderFocusBlock) {
+                            // Play/Pause on a catalog card starts its Best match without the detail
+                            // page (#812): the film, or a series' next episode.
+                            val playTarget = metaPreview?.takeIf { payload is ModernPayload.Catalog && !isPlaceholder }
+                            val playModifier = if (onCatalogItemPlay != null && playTarget != null) {
+                                val addonBaseUrl = (payload as ModernPayload.Catalog).addonBaseUrl
+                                Modifier.onPreviewKeyEvent { event ->
+                                    if (!event.key.isPlayKey()) return@onPreviewKeyEvent false
+                                    // Once per press: a held key must not start it again and again.
+                                    if (event.type == KeyEventType.KeyDown && event.nativeKeyEvent.repeatCount == 0) {
+                                        onCatalogItemPlay(playTarget, addonBaseUrl)
+                                    }
+                                    true
+                                }
+                            } else Modifier
+                            Box(modifier = playModifier.then(if (placeholderFocusBlock) {
                                 Modifier.focusProperties { canFocus = false }
-                            } else Modifier) {
+                            } else Modifier)) {
                             ModernCatalogRowItem(
                                 item = item,
                                 payload = payload,
@@ -1722,3 +1741,7 @@ private class AnimatedWidthNode(var width: State<Dp>) : LayoutModifierNode, Modi
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int) =
         measurable.maxIntrinsicHeight(width)
 }
+
+/** The remote's Play and Play/Pause keys, which start a catalog card's title (#812). */
+internal fun Key.isPlayKey(): Boolean =
+    this == Key.MediaPlayPause || this == Key.MediaPlay

@@ -78,6 +78,8 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val modernLandscapePostersEnabledKey = booleanPreferencesKey("modern_landscape_posters_enabled")
     private val heroSectionEnabledKey = booleanPreferencesKey("hero_section_enabled")
     private val posterOptionsHintSeenKey = booleanPreferencesKey("poster_options_hint_seen")
+    private val homeHoldHintSessionsKey = intPreferencesKey("home_hold_hint_sessions")
+    private val homeContentFilterKey = stringPreferencesKey("home_content_filter")
     private val posterLabelsEnabledKey = booleanPreferencesKey("poster_labels_enabled")
     private val catalogAddonNameEnabledKey = booleanPreferencesKey("catalog_addon_name_enabled")
     private val catalogTypeSuffixEnabledKey = booleanPreferencesKey("catalog_type_suffix_enabled")
@@ -251,6 +253,16 @@ class LayoutPreferenceDataStore @Inject constructor(
     /** Whether this profile has been shown the "Hold OK for options" hint on a card. */
     val posterOptionsHintSeen: Flow<Boolean> = profileFlow { prefs ->
         prefs[posterOptionsHintSeenKey] ?: false
+    }
+
+    /** Home sessions that showed "Hold OK for options" in the hero (#812). */
+    val homeHoldHintSessions: Flow<Int> = profileFlow { prefs ->
+        prefs[homeHoldHintSessionsKey] ?: 0
+    }
+
+    /** Home's Movies / Shows filter, by name; null for All (#814). */
+    val homeContentFilter: Flow<String?> = profileFlow { prefs ->
+        prefs[homeContentFilterKey]
     }
 
     /**
@@ -566,6 +578,20 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setPosterOptionsHintSeen() {
         store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterOptionsHintSeenKey] = true
+        }
+    }
+
+    /** Counts a Home session that showed the hold hint; the long-press toast is then not needed. */
+    suspend fun recordHomeHoldHintSession() {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            prefs[homeHoldHintSessionsKey] = (prefs[homeHoldHintSessionsKey] ?: 0) + 1
+            prefs[posterOptionsHintSeenKey] = true
+        }
+    }
+
+    suspend fun setHomeContentFilter(name: String?) {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            if (name == null) prefs.remove(homeContentFilterKey) else prefs[homeContentFilterKey] = name
         }
     }
 

@@ -232,6 +232,11 @@ internal fun DetailChildHost(
                             type = NavType.StringType
                             nullable = true
                             defaultValue = null
+                        },
+                        navArgument("leaveOnPlaybackReturn") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = "false"
                         }
                     )
                 ) { nestedEntry ->

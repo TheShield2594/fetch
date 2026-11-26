@@ -353,7 +353,11 @@ internal fun HeroTitleBlock(
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
     trailerPlaying: () -> Boolean = { false },
     /** A smaller logo and a one-line description, for when the rows below take more of the screen. */
-    compact: Boolean = false
+    compact: Boolean = false,
+    /** Play/Pause on a catalog card starts it, so the hero names a cached pick (#812). */
+    catalogQuickPlay: Boolean = false,
+    /** "Hold OK for options" under a catalog title, for a profile's first few sessions (#812). */
+    showHoldHint: Boolean = false
 ) {
     // The provider reads hero state that is rewritten on every focus move, often with an equal
     // value. Deriving it recomposes this block only when what it shows actually changes. The
@@ -399,7 +403,9 @@ internal fun HeroTitleBlock(
                 mdbListShowOnHero = mdbListShowOnHero,
                 mdbListRatingOrder = mdbListRatingOrder,
                 trailerPlaying = trailerPlaying,
-                compact = compact
+                compact = compact,
+                catalogQuickPlay = catalogQuickPlay,
+                showHoldHint = showHoldHint
             )
         }
     }
@@ -414,7 +420,9 @@ private fun HeroTitleContent(
     mdbListShowOnHero: Boolean = false,
     mdbListRatingOrder: List<String> = com.fetch.tv.domain.model.MDBListSettings.DEFAULT_RATING_ORDER,
     trailerPlaying: () -> Boolean = { false },
-    compact: Boolean = false
+    compact: Boolean = false,
+    catalogQuickPlay: Boolean = false,
+    showHoldHint: Boolean = false
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
@@ -785,6 +793,35 @@ private fun HeroTitleContent(
                 textStyle = labelMedium,
                 modifier = Modifier.graphicsLayer { alpha = metaAlpha }
             )
+        }
+
+        // A catalog card: Play/Pause starts its Best match, so the hero says so where Resume sits
+        // on a Continue Watching card, without a focus stop of its own (#812).
+        if (preview.resumeActionText == null && preview.isCatalogTitle) {
+            val quickPlayMatch = if (catalogQuickPlay) preview.bestMatchKey?.let(bestMatchFor) else null
+            if (quickPlayMatch != null) {
+                val cachedLabel = stringResource(R.string.best_match_cached)
+                val specLine = remember(quickPlayMatch, cachedLabel) {
+                    heroResumeSpecLine(null, quickPlayMatch, cachedLabel)
+                }
+                HeroResumeRow(
+                    actionText = stringResource(R.string.home_hero_play_best_match),
+                    specLine = specLine,
+                    progressFraction = null,
+                    textStyle = labelMedium,
+                    modifier = Modifier.graphicsLayer { alpha = metaAlpha }
+                )
+            }
+            if (showHoldHint) {
+                Text(
+                    text = stringResource(R.string.poster_options_hold_hint),
+                    style = labelMedium,
+                    color = FetchTheme.colors.TextTertiary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.graphicsLayer { alpha = metaAlpha }
+                )
+            }
         }
     }
 }

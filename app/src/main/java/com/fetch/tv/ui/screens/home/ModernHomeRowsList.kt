@@ -83,14 +83,11 @@ internal fun ModernHomeRowsList(
     isVerticalRowsScrollingState: State<Boolean>,
     carouselRows: StableList<HeroCarouselRow>,
     verticalRowListState: LazyListState,
-    focusedItemByRow: StableRef<MutableMap<String, Int>>,
+    /** Rows report focus here, and read the active row, the pending request and the expanded card. */
+    focusController: HomeFocusController,
     rowListStates: StableRef<MutableMap<String, LazyListState>>,
     loadMoreRequestedTotals: StableRef<MutableMap<String, Int>>,
     focusState: HomeScreenFocusState,
-    activeRowKey: State<String?>,
-    activeItemIndex: State<Int>,
-    isFastScrolling: State<Boolean>,
-    onFastScrollingChanged: (Boolean) -> Unit,
     contentFocusRequester: FocusRequester,
     rowsViewportHeight: Dp,
     catalogBottomPadding: Dp,
@@ -106,8 +103,6 @@ internal fun ModernHomeRowsList(
     onContinueWatchingClick: (ContinueWatchingItem) -> Unit,
     onContinueWatchingOptions: (ContinueWatchingItem) -> Unit,
     onRequestLazyCatalogLoad: (String) -> Unit,
-    onBackdropInteraction: () -> Unit,
-    onExpandedCatalogFocusKeyChange: (String?) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean,
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit,
     onItemFocus: (MetaPreview) -> Unit,
@@ -123,7 +118,6 @@ internal fun ModernHomeRowsList(
     effectiveExpandEnabled: Boolean,
     effectiveAutoplayEnabled: Boolean,
     trailerPlaybackTarget: FocusedPosterTrailerPlaybackTarget,
-    expandedCatalogFocusKey: State<String?>,
     expandedTrailerPreviewUrl: () -> String?,
     expandedTrailerPreviewAudioUrl: () -> String?,
     portraitCatalogCardWidth: Dp,
@@ -136,29 +130,19 @@ internal fun ModernHomeRowsList(
     useEpisodeThumbnails: Boolean,
     continueWatchingCardStyle: ContinueWatchingCardStyle,
     continueWatchingCornerRadius: Dp,
-    pendingRowFocusKey: State<String?>,
-    pendingRowFocusIndex: State<Int?>,
-    pendingRowFocusNonce: State<Int>,
-    onPendingRowFocusCleared: () -> Unit,
-    onActiveRowKeyChange: (String?) -> Unit,
-    onActiveItemIndexChange: (Int) -> Unit,
-    lastHeroNavigationAtMs: State<Long>,
-    onLastHeroNavigationAtMsChange: (Long) -> Unit,
-    onHeroFocusSettleDelayChange: (Long) -> Unit,
-    lastFocusedContinueWatchingIndex: State<Int>,
-    onLastFocusedContinueWatchingIndexChange: (Int) -> Unit,
-    focusedCatalogSelection: State<FocusedCatalogSelection?>,
-    onFocusedCatalogSelectionChange: (FocusedCatalogSelection?) -> Unit,
-    focusedHeroMediaNonce: State<Int>,
-    onFocusedHeroMediaNonceChange: (Int) -> Unit,
-    onExpansionInteractionNonceChange: (Int) -> Unit,
     blockLeftOnFirstExpandedItem: Boolean = false,
 ) {
-    // Unwrap StableRef wrappers for internal use (not passed to child composables)
-    val focusedItemByRowMap = focusedItemByRow.value
-
-    val latestOnActiveRowKeyChange = rememberUpdatedState(onActiveRowKeyChange)
-    val latestOnActiveItemIndexChange = rememberUpdatedState(onActiveItemIndexChange)
+    val focusedItemByRow = focusController.stableFocusedItemByRow
+    val focusedItemByRowMap = focusController.focusedItemByRow
+    val activeRowKey = focusController.activeRowKey
+    val activeItemIndex = focusController.activeItemIndex
+    val expandedCatalogFocusKey = focusController.expandedCatalogFocusKey
+    val onFastScrollingChanged = remember(focusController) { { scrolling: Boolean -> focusController.setFastScrolling(scrolling) } }
+    val onPendingRowFocusCleared = remember(focusController) { { focusController.clearPendingRowFocus() } }
+    val onBackdropInteraction = remember(focusController) { { focusController.onBackdropInteraction() } }
+    val onExpandedCatalogFocusKeyChange = remember(focusController) {
+        { key: String? -> focusController.setExpandedCatalogFocusKey(key) }
+    }
 
     val rowFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val stableItemFocusRequestersByRow = remember { mutableMapOf<String, StableRef<MutableMap<Int, FocusRequester>>>() }
@@ -262,7 +246,7 @@ internal fun ModernHomeRowsList(
         }
     }
 
-    val focusRestorerRequester = remember(activeRowKey) {
+    val focusRestorerRequester = remember(focusController) {
         {
             activeRowKey.value?.let { rowFocusRequesters[it] } ?: FocusRequester.Default
         }
@@ -302,7 +286,7 @@ internal fun ModernHomeRowsList(
 
     CompositionLocalProvider(
         LocalBringIntoViewSpec provides verticalRowBringIntoViewSpec,
-        LocalFastScrollActive provides isFastScrolling,
+        LocalFastScrollActive provides focusController.isFastScrolling,
         LocalVerticalRowsScrolling provides isVerticalRowsScrollingState
     ) {
         LazyColumn(
@@ -379,8 +363,7 @@ internal fun ModernHomeRowsList(
                         else {
                             val savedIdx = (focusedItemByRowMap[targetRow.key] ?: 0)
                                 .coerceIn(0, targetRow.maxFocusIndex())
-                            latestOnActiveRowKeyChange.value(targetRow.key)
-                            latestOnActiveItemIndexChange.value(savedIdx)
+                            focusController.landOnRow(targetRow.key, savedIdx)
 
                             val targetItemKey = targetRow.items.list.getOrNull(savedIdx)?.key
                                 ?: "${targetRow.key}_$savedIdx"
@@ -401,54 +384,19 @@ internal fun ModernHomeRowsList(
                 }
                 val stableOnRowItemFocused = remember {
                     { rowKey: String, index: Int, isContinueWatchingRow: Boolean ->
-                        val rowBecameActive = activeRowKey.value != rowKey
-                        val itemChanged = activeItemIndex.value != index
-                        
-                        if (rowBecameActive || itemChanged) {
-                            val now = System.currentTimeMillis()
-                            onHeroFocusSettleDelayChange(MODERN_HERO_FOCUS_DEBOUNCE_MS)
-                            onLastHeroNavigationAtMsChange(now)
-                            onActiveRowKeyChange(rowKey)
-                            onActiveItemIndexChange(index)
-                        }
-
-                        // Always keep the focusedItemByRow map in sync for ALL rows
-                        if (focusedItemByRowMap[rowKey] != index) {
-                            focusedItemByRowMap[rowKey] = index
-                        }
-
-                        // The See all card (index items.size) has no title behind it, so nothing stays selected.
+                        // The See all card (index items.size) has no title behind it.
                         val isSeeAll = latestCarouselRowsForImagePrefetch.value.list
                             .firstOrNull { it.key == rowKey }
                             ?.let { index >= it.items.list.size } == true
-                        if (isSeeAll && focusedCatalogSelection.value != null) {
-                            onFocusedCatalogSelectionChange(null)
-                        }
-
-                        if (isContinueWatchingRow) {
-                            if (lastFocusedContinueWatchingIndex.value != index) {
-                                onLastFocusedContinueWatchingIndexChange(index)
-                            }
-                            if (focusedCatalogSelection.value != null) {
-                                onFocusedCatalogSelectionChange(null)
-                            }
-                        }
+                        focusController.onRowItemFocused(rowKey, index, isContinueWatchingRow, isSeeAll)
                         onRowItemFocusedInternal(rowKey, index, isContinueWatchingRow)
                     }
                 }
                 val isActiveRowLambda = remember(row.key) {
                     { row.key == activeRowKey.value }
                 }
-                val stableOnCatalogSelectionFocused = remember {
-                    { selection: FocusedCatalogSelection ->
-                        val isCollectionFolder = selection.payload is ModernPayload.CollectionFolder
-                        if (focusedCatalogSelection.value != selection || isCollectionFolder) {
-                            onFocusedCatalogSelectionChange(selection)
-                            if (isCollectionFolder) {
-                                onFocusedHeroMediaNonceChange(focusedHeroMediaNonce.value + 1)
-                            }
-                        }
-                    }
+                val stableOnCatalogSelectionFocused = remember(focusController) {
+                    { selection: FocusedCatalogSelection -> focusController.onCatalogSelectionFocused(selection) }
                 }
                 ModernRowSection(
                     row = row,
@@ -461,9 +409,9 @@ internal fun ModernHomeRowsList(
                     focusedItemByRow = focusedItemByRow,
                     rowListStates = rowListStates,
                     loadMoreRequestedTotals = loadMoreRequestedTotals,
-                    pendingRowFocusKey = pendingRowFocusKey,
-                    pendingRowFocusIndex = pendingRowFocusIndex,
-                    pendingRowFocusNonce = pendingRowFocusNonce,
+                    pendingRowFocusKey = focusController.pendingRowFocusKey,
+                    pendingRowFocusIndex = focusController.pendingRowFocusIndex,
+                    pendingRowFocusNonce = focusController.pendingRowFocusNonce,
                     onPendingRowFocusCleared = onPendingRowFocusCleared,
                     onRowItemFocused = stableOnRowItemFocused,
                     useLandscapePosters = useLandscapePosters,

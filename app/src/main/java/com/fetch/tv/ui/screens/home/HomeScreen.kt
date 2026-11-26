@@ -330,15 +330,7 @@ fun HomeScreen(
                 if (!homeStableGateReleased) {
                     Unit
                 } else if (!modernPresentationReady) {
-                    // Hiding the last card for undo can leave Home with no rows, which would take
-                    // the Undo banner with them: it is drawn on its own until the window ends (#816).
-                    val heldRemoval = viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle().value
-                    if (showsStandaloneUndoBanner(modernPresentationReady, heldRemoval)) {
-                        StandaloneContinueWatchingUndoBanner(
-                            pending = checkNotNull(heldRemoval),
-                            onUndo = { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
-                        )
-                    }
+                    Unit
                 } else {
                     // Flip showHomeContentWithAnimation on the next frame so
                     // AnimatedVisibility can run its enter transition.
@@ -399,6 +391,19 @@ fun HomeScreen(
                     .fillMaxSize()
                     .background(FetchTheme.colors.Background)
             )
+        }
+
+        // Hiding the last card for undo can leave Home with no rows: the content unmounts and the
+        // skeleton comes back. The banner is drawn here, after the skeleton, so it stays on top
+        // and usable until the undo window ends (#816).
+        if (homeStableGateReleased) {
+            val heldRemoval = viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle().value
+            if (showsStandaloneUndoBanner(modernPresentationReady, heldRemoval)) {
+                StandaloneContinueWatchingUndoBanner(
+                    pending = checkNotNull(heldRemoval),
+                    onUndo = { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
+                )
+            }
         }
 
         val startupAuthNotice = uiState.startupAuthNotice

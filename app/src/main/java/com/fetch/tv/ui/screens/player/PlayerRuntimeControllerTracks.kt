@@ -699,16 +699,15 @@ private fun PlayerRuntimeController.findStrictMatchingTrackIndex(
     if (exactNameIndex >= 0) return exactNameIndex
 
     // Several names can contain the remembered one ("English" in "English Commentary"): rank
-    // them, so commentary or description is taken only when that is what was remembered (#722).
+    // them, and leave commentary or description the remembered track wasn't to the language
+    // fallback, which also weighs tracks whose names don't contain it (#722).
     val nameContainsIndex = if (!targetName.isNullOrBlank()) {
-        tracks.indices
-            .filter { index ->
-                normalizeTrackMatchValue(tracks[index].name)?.contains(targetName) == true &&
-                        rememberedLanguageMatches(tracks[index].language, target.language)
-            }
-            .maxByOrNull { index ->
-                RememberedTrackFallback.score(tracks[index], target.name, sameVariant = false)
-            } ?: -1
+        val candidates = tracks.filter { track ->
+            normalizeTrackMatchValue(track.name)?.contains(targetName) == true &&
+                    rememberedLanguageMatches(track.language, target.language)
+        }
+        RememberedTrackFallback.pickNameMatch(candidates, target.name)
+            ?.let { picked -> tracks.indexOfFirst { it === picked } } ?: -1
     } else {
         -1
     }

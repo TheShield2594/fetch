@@ -44,6 +44,21 @@ internal object RememberedTrackFallback {
         return score
     }
 
+    /**
+     * The best of [candidates] whose names contain the remembered name, or null when that best one
+     * is commentary or audio description the remembered track was not. Null lets the language
+     * fallback compare every same-language track, so a main track whose name doesn't contain the
+     * remembered one ("Main" for "English") still beats "English Commentary".
+     */
+    fun pickNameMatch(candidates: List<TrackInfo>, rememberedName: String?): TrackInfo? =
+        candidates.maxByOrNull { score(it, rememberedName, sameVariant = false) }
+            ?.takeUnless { isUnwantedKind(it, rememberedName) }
+
+    /** Commentary or audio description when the remembered track was not (or the reverse). */
+    fun isUnwantedKind(candidate: TrackInfo, rememberedName: String?): Boolean =
+        isCommentary(candidate.name) != isCommentary(rememberedName) ||
+            (candidate.describesVideo || isDescription(candidate.name)) != isDescription(rememberedName)
+
     fun isCommentary(name: String?): Boolean = name != null && COMMENTARY.containsMatchIn(name)
 
     fun isDescription(name: String?): Boolean = name != null && DESCRIPTION.containsMatchIn(name)

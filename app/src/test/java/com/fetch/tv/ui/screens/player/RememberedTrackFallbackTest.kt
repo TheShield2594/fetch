@@ -41,6 +41,19 @@ class RememberedTrackFallbackTest {
     }
 
     @Test
+    fun `a name match on unwanted commentary is left to the language fallback`() {
+        val commentary = track(0, "English Commentary")
+        val main = track(1, "Main")
+        // Only the commentary's name contains "English": it is not taken as the name match...
+        assertNull(RememberedTrackFallback.pickNameMatch(listOf(commentary), "English"))
+        // ...so the fallback compares both and the main track wins.
+        assertEquals(1, best(listOf(commentary, main), "English").index)
+        // A wanted commentary is still a name match.
+        assertEquals(commentary, RememberedTrackFallback.pickNameMatch(listOf(commentary), "Commentary"))
+        assertEquals(main, RememberedTrackFallback.pickNameMatch(listOf(main), "Main"))
+    }
+
+    @Test
     fun `ties keep the stream order`() {
         val tracks = listOf(track(0, "English"), track(1, "English"))
         assertEquals(0, best(tracks, null).index)

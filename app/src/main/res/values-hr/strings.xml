@@ -1053,8 +1053,6 @@
     <string name="debug_progress_indicator_default">Zadani</string>
     <string name="debug_progress_indicator_large">Veliki</string>
     <string name="debug_section_features">Prekidači značajki</string>
-    <string name="debug_buffer_logs_title">Omogući BUFFER zapise</string>
-    <string name="debug_buffer_logs_subtitle">Periodički ispisuj dijagnostiku međuspremnika playera u logcat (isključeno prema zadanim postavkama)</string>
     <string name="debug_error_dialog_title">Pogreška reprodukcije</string>
     <string name="debug_error_dialog_subtitle">Došlo je do pogreške tijekom reprodukcije.\n\nPogreška: testna simulirana pogreška – ovo nije stvarni kvar. Izvor je vratio HTTP 503 (Usluga nedostupna).</string>
     <string name="debug_dismiss">Odbaci</string>

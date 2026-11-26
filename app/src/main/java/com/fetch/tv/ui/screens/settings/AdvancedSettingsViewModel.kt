@@ -30,7 +30,6 @@ data class AdvancedSettingsUiState(
 sealed class AdvancedSettingsEvent {
     data class SetFastHorizontalNavigationEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetSmoothBringIntoViewEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
-    data class SetComposeHighlighterEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetPlayerStatsHudEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetRgb565Enabled(val enabled: Boolean) : AdvancedSettingsEvent()
     data class SetHardwareBitmapsEnabled(val enabled: Boolean) : AdvancedSettingsEvent()
@@ -98,11 +97,6 @@ class AdvancedSettingsViewModel @Inject constructor(
             is AdvancedSettingsEvent.SetSmoothBringIntoViewEnabled -> {
                 viewModelScope.launch {
                     layoutPreferenceDataStore.setSmoothBringIntoViewEnabled(event.enabled)
-                }
-            }
-            is AdvancedSettingsEvent.SetComposeHighlighterEnabled -> {
-                viewModelScope.launch {
-                    layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled)
                 }
             }
             is AdvancedSettingsEvent.SetPlayerStatsHudEnabled -> {

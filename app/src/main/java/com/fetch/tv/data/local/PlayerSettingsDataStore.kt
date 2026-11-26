@@ -164,7 +164,6 @@ data class SubtitleStyleSettings(
     val backgroundColor: Int = Color.Transparent.toArgb(),
     val outlineEnabled: Boolean = true,
     val outlineColor: Int = Color.Black.toArgb(),
-    val outlineWidth: Int = 2, // 1-5
     val hdrStyleEnabled: Boolean = false,
     val hdrTextColor: Int = Color.White.toArgb(),
     val hdrBrightness: Int = HDR_BRIGHTNESS_DEFAULT // 0-100, see hdrBrightnessFactor
@@ -190,6 +189,9 @@ data class SubtitleStyleSettings(
     }
 
     companion object {
+        /** The outline's width where a renderer takes one (mpv on ASS, YouTube captions); not a setting (#780). */
+        const val OUTLINE_WIDTH = 2
+
         const val HDR_BRIGHTNESS_MIN = 0
         const val HDR_BRIGHTNESS_MAX = 100
         const val HDR_BRIGHTNESS_DEFAULT = 40
@@ -217,8 +219,7 @@ data class BufferSettings(
     val bufferForPlaybackMs: Int = DEFAULT_BUFFER_FOR_PLAYBACK_MS,
     val bufferForPlaybackAfterRebufferMs: Int = DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
     val targetBufferSizeMb: Int = DEFAULT_TARGET_BUFFER_SIZE_MB,
-    val backBufferDurationMs: Int = DEFAULT_BACK_BUFFER_DURATION_MS,
-    val retainBackBufferFromKeyframe: Boolean = false
+    val backBufferDurationMs: Int = DEFAULT_BACK_BUFFER_DURATION_MS
 ) {
     companion object {
         const val DEFAULT_MIN_BUFFER_MS = 15_000
@@ -361,7 +362,6 @@ data class PlayerSettings(
     val streamReuseLastLinkCacheHours: Int = 1,
     val externalPlayerForwardSubtitles: Boolean = false,
     val externalPlayerSendSkipSegments: Boolean = false,
-    val subtitleOrganizationMode: SubtitleOrganizationMode = SubtitleOrganizationMode.NONE,
 
     // Networking
     val bufferEngineEnabled: Boolean = false,
@@ -376,9 +376,6 @@ data class PlayerSettings(
     val useParallelConnections: Boolean = DEFAULT_USE_PARALLEL_CONNECTIONS,
     val parallelConnectionCount: Int = DEFAULT_PARALLEL_CONNECTION_COUNT,
     val parallelChunkSizeKb: Int = DEFAULT_PARALLEL_CHUNK_SIZE_KB,
-    val enableHttp2: Boolean = DEFAULT_ENABLE_HTTP2,
-    val enableBufferLogs: Boolean = false,
-    val resizeMode: Int = 0,
     // Fetch ExoPlayer Performance Mode
     val fetchPerformanceModeEnabled: Boolean = DEFAULT_FETCH_PERFORMANCE_MODE_ENABLED
 ) {
@@ -471,7 +468,6 @@ data class PlayerSettings(
         const val MAX_PARALLEL_CONNECTION_COUNT = 4
         const val MIN_PARALLEL_CHUNK_SIZE_KB = 256
         const val MAX_PARALLEL_CHUNK_SIZE_KB = 128 * 1024
-        const val DEFAULT_ENABLE_HTTP2 = false
         const val DEFAULT_FETCH_PERFORMANCE_MODE_ENABLED = false
     }
 }
@@ -506,10 +502,6 @@ internal fun resolveFrameRateMatchingMode(
 
 enum class NextEpisodeThresholdMode {
     PERCENTAGE, MINUTES_BEFORE_END
-}
-
-enum class SubtitleOrganizationMode {
-    NONE, BY_LANGUAGE, BY_ADDON
 }
 
 
@@ -668,7 +660,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val dv5ToDv81EnabledKey = booleanPreferencesKey("experimental_dv5_to_dv81_enabled")
     private val dv7ToDv81PreserveMappingEnabledKey = booleanPreferencesKey("experimental_dv7_to_dv81_preserve_mapping_enabled")
     private val dv7HandlingModeKey = stringPreferencesKey("dv7_handling_mode")
-    // Legacy "DV7 - HEVC" boolean, read only to migrate existing users to HDR10_BASE_LAYER.
+    // Legacy "DV7 - HEVC" boolean; the #780 migration folds it into dv7_handling_mode and deletes it.
     private val legacyMapDv7ToHevcKey = booleanPreferencesKey("map_dv7_to_hevc")
     private val dv7LibdoviModeOverrideKey = intPreferencesKey("dv7_libdovi_mode_override")
     private val stripHdr10PlusSeiKey = booleanPreferencesKey("strip_hdr10plus_sei")
@@ -707,7 +699,6 @@ class PlayerSettingsDataStore @Inject constructor(
     private val streamReuseLastLinkCacheHoursKey = intPreferencesKey("stream_reuse_last_link_cache_hours")
     private val externalPlayerForwardSubtitlesKey = booleanPreferencesKey("external_player_forward_subtitles")
     private val externalPlayerSendSkipSegmentsKey = booleanPreferencesKey("external_player_send_skip_segments")
-    private val subtitleOrganizationModeKey = stringPreferencesKey("subtitle_organization_mode")
 
     // Network Keys
     private val vodCacheEnabledKey = booleanPreferencesKey("vod_cache_enabled")
@@ -721,11 +712,8 @@ class PlayerSettingsDataStore @Inject constructor(
     private val parallelConnectionCountKey = intPreferencesKey("parallel_connection_count")
     private val parallelChunkSizeMbKey = intPreferencesKey("parallel_chunk_size_mb")
     private val parallelChunkSizeKbKey = intPreferencesKey("parallel_chunk_size_kb")
-    private val enableHttp2Key = booleanPreferencesKey("enable_http2")
     private val lastPlaybackDiagnosticsKey = stringPreferencesKey("last_playback_diagnostics_json")
 
-    private val enableBufferLogsKey = booleanPreferencesKey("enable_buffer_logs")
-    private val resizeModeKey = intPreferencesKey("resize_mode")
 
     // Subtitle style keys
     private val subtitlePreferredLanguageKey = stringPreferencesKey("subtitle_preferred_language")
@@ -741,7 +729,6 @@ class PlayerSettingsDataStore @Inject constructor(
     private val subtitleOutlineEnabledKey = booleanPreferencesKey("subtitle_outline_enabled")
     private val subtitleUseSystemCaptionStyleKey = booleanPreferencesKey("subtitle_use_system_caption_style")
     private val subtitleOutlineColorKey = intPreferencesKey("subtitle_outline_color")
-    private val subtitleOutlineWidthKey = intPreferencesKey("subtitle_outline_width")
     private val subtitleHdrStyleEnabledKey = booleanPreferencesKey("subtitle_hdr_style_enabled")
     private val subtitleHdrTextColorKey = intPreferencesKey("subtitle_hdr_text_color")
     private val subtitleHdrBrightnessKey = intPreferencesKey("subtitle_hdr_brightness")
@@ -753,7 +740,6 @@ class PlayerSettingsDataStore @Inject constructor(
     private val bufferForPlaybackAfterRebufferMsKey = intPreferencesKey("buffer_for_playback_after_rebuffer_ms")
     private val targetBufferSizeMbKey = intPreferencesKey("target_buffer_size_mb")
     private val backBufferDurationMsKey = intPreferencesKey("back_buffer_duration_ms")
-    private val retainBackBufferFromKeyframeKey = booleanPreferencesKey("retain_back_buffer_from_keyframe")
     private val fetchPerformanceModeEnabledKey = booleanPreferencesKey("fetch_performance_mode_enabled")
 
     private val migrationLoadControlDefaultsAlignedDoneKey = booleanPreferencesKey("migration_load_control_defaults_aligned_done")
@@ -770,6 +756,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val migrationBufferBudgetManagedExoDoneKey = booleanPreferencesKey("migration_buffer_budget_managed_exo_done")
     private val migrationVodCacheBackBufferZeroedDoneKey = booleanPreferencesKey("migration_vod_cache_back_buffer_zeroed_done")
     private val migrationBingeDefaultsDoneKey = booleanPreferencesKey("migration_binge_defaults_done")
+    private val migrationLegacyPlayerKeysFoldedDoneKey = booleanPreferencesKey(MIGRATION_LEGACY_PLAYER_KEYS_FOLDED_DONE)
     init {
         ioScope.launch {
             profileManager.activeProfileId.collect { pid ->
@@ -843,7 +830,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     val currentPlaybackAfterRebuffer = prefs[bufferForPlaybackAfterRebufferMsKey]
                     val currentTargetBuffer = prefs[targetBufferSizeMbKey]
                     val currentBackBuffer = prefs[backBufferDurationMsKey]
-                    val currentRetainBackBuffer = prefs[retainBackBufferFromKeyframeKey]
+                    val currentRetainBackBuffer = prefs[booleanPreferencesKey(REMOVED_RETAIN_BACK_BUFFER_KEY)]
 
                     val previousRetunedDefaultsDetected = currentMin == 50_000 && currentMax == 50_000 && currentPlayback == 5_000 && currentPlaybackAfterRebuffer == BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS && currentTargetBuffer == BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB && (currentBackBuffer == null || currentBackBuffer == BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS) && (currentRetainBackBuffer == null || !currentRetainBackBuffer)
 
@@ -948,6 +935,40 @@ class PlayerSettingsDataStore @Inject constructor(
                     prefs[migrationVodCacheBackBufferZeroedDoneKey] = true
                 }
 
+                // Last, after every migration that still reads them (#780): the read-only legacy
+                // keys are folded into the keys that replaced them, then they and the settings
+                // nothing read are deleted.
+                val legacyKeysFolded = prefs[migrationLegacyPlayerKeysFoldedDoneKey] ?: false
+                if (!legacyKeysFolded) {
+                    if (prefs[dv7HandlingModeKey] == null && prefs[legacyMapDv7ToHevcKey] == true) {
+                        prefs[dv7HandlingModeKey] = Dv7HandlingMode.HDR10_BASE_LAYER.name
+                    }
+                    if (prefs[nextEpisodeThresholdPercentKey] == null) {
+                        prefs[nextEpisodeThresholdPercentLegacyKey]?.let { prefs[nextEpisodeThresholdPercentKey] = it.toFloat() }
+                    }
+                    if (prefs[nextEpisodeThresholdMinutesBeforeEndKey] == null) {
+                        prefs[nextEpisodeThresholdMinutesBeforeEndLegacyKey]?.let {
+                            prefs[nextEpisodeThresholdMinutesBeforeEndKey] = it.toFloat()
+                        }
+                    }
+                    val legacyNormalization = prefs[downmixNormalizationEnabledLegacyKey]
+                    if (prefs[downmixEnabledKey] == null && legacyNormalization != null) prefs[downmixEnabledKey] = true
+                    if (prefs[maintainOriginalAudioOnDownmixKey] == null && legacyNormalization != null) {
+                        prefs[maintainOriginalAudioOnDownmixKey] = !legacyNormalization
+                    }
+                    prefs.remove(legacyMapDv7ToHevcKey)
+                    prefs.remove(nextEpisodeThresholdPercentLegacyKey)
+                    prefs.remove(nextEpisodeThresholdMinutesBeforeEndLegacyKey)
+                    prefs.remove(downmixNormalizationEnabledLegacyKey)
+                    prefs.remove(stringPreferencesKey("subtitle_organization_mode"))
+                    prefs.remove(booleanPreferencesKey("enable_http2"))
+                    prefs.remove(booleanPreferencesKey(REMOVED_RETAIN_BACK_BUFFER_KEY))
+                    prefs.remove(intPreferencesKey("resize_mode"))
+                    prefs.remove(booleanPreferencesKey("enable_buffer_logs"))
+                    prefs.remove(intPreferencesKey("subtitle_outline_width"))
+                    prefs[migrationLegacyPlayerKeysFoldedDoneKey] = true
+                }
+
                 val min = prefs[minBufferMsKey]
                 val max = prefs[maxBufferMsKey]
                 if (min != null && max != null && max < min) prefs[maxBufferMsKey] = min
@@ -1049,17 +1070,12 @@ class PlayerSettingsDataStore @Inject constructor(
                 decoderPriority = prefs[decoderPriorityKey] ?: 1,
                 downmixEnabled =
                     prefs[downmixEnabledKey]
-                        ?: (
-                            prefs[audioOutputChannelsKey] != null ||
-                                prefs[maintainOriginalAudioOnDownmixKey] != null ||
-                                prefs[downmixNormalizationEnabledLegacyKey] != null
-                            ),
+                        ?: (prefs[audioOutputChannelsKey] != null || prefs[maintainOriginalAudioOnDownmixKey] != null),
                 audioOutputChannels = AudioOutputChannels.fromSettingValue(
                     prefs[audioOutputChannelsKey]
                 ),
                 maintainOriginalAudioOnDownmix =
-                    prefs[maintainOriginalAudioOnDownmixKey]
-                        ?: !(prefs[downmixNormalizationEnabledLegacyKey] ?: false),
+                    prefs[maintainOriginalAudioOnDownmixKey] ?: true,
                 tunnelingEnabled = prefs[tunnelingEnabledKey] ?: false,
                 forceOpticalPassthrough = prefs[forceOpticalPassthroughKey] ?: false,
                 skipSilence = prefs[skipSilenceKey] ?: false,
@@ -1108,7 +1124,6 @@ class PlayerSettingsDataStore @Inject constructor(
                 dv7HandlingMode = when {
                     prefs[dv7HandlingModeKey] != null ->
                         Dv7HandlingMode.fromStoredString(prefs[dv7HandlingModeKey])
-                    prefs[legacyMapDv7ToHevcKey] == true -> Dv7HandlingMode.HDR10_BASE_LAYER
                     else -> Dv7HandlingMode.AUTO
                 },
                 dv7LibdoviModeOverride = (prefs[dv7LibdoviModeOverrideKey] ?: -1).coerceIn(-1, 4),
@@ -1165,16 +1180,12 @@ class PlayerSettingsDataStore @Inject constructor(
                         .getOrDefault(PlayerSettings.DEFAULT_NEXT_EPISODE_THRESHOLD_MODE)
                 } ?: PlayerSettings.DEFAULT_NEXT_EPISODE_THRESHOLD_MODE,
                 nextEpisodeThresholdPercent = normalizeHalfStep(
-                    value = prefs[nextEpisodeThresholdPercentKey]
-                        ?: prefs[nextEpisodeThresholdPercentLegacyKey]?.toFloat()
-                        ?: 99f,
+                    value = prefs[nextEpisodeThresholdPercentKey] ?: 99f,
                     min = 97f,
                     max = 100f
                 ),
                 nextEpisodeThresholdMinutesBeforeEnd = normalizeHalfStep(
-                    value = prefs[nextEpisodeThresholdMinutesBeforeEndKey]
-                        ?: prefs[nextEpisodeThresholdMinutesBeforeEndLegacyKey]?.toFloat()
-                        ?: 2f,
+                    value = prefs[nextEpisodeThresholdMinutesBeforeEndKey] ?: 2f,
                     min = 0f,
                     max = 3.5f
                 ),
@@ -1186,7 +1197,6 @@ class PlayerSettingsDataStore @Inject constructor(
                 streamReuseLastLinkCacheHours = (prefs[streamReuseLastLinkCacheHoursKey] ?: 24).coerceIn(1, 168),
                 externalPlayerForwardSubtitles = prefs[externalPlayerForwardSubtitlesKey] ?: false,
                 externalPlayerSendSkipSegments = prefs[externalPlayerSendSkipSegmentsKey] ?: false,
-                subtitleOrganizationMode = parseSubtitleOrganizationMode(prefs[subtitleOrganizationModeKey]),
                 vodCacheEnabled = prefs[vodCacheEnabledKey] ?: PlayerSettings.DEFAULT_VOD_CACHE_ENABLED,
                 vodCacheSizeMode = prefs[vodCacheSizeModeKey]?.let {
                     runCatching { VodCacheSizeMode.valueOf(it) }.getOrDefault(PlayerSettings.DEFAULT_VOD_CACHE_SIZE_MODE)
@@ -1212,9 +1222,6 @@ class PlayerSettingsDataStore @Inject constructor(
                         savedMb * 1024
                     }
                 },
-                enableBufferLogs = prefs[enableBufferLogsKey] ?: false,
-                resizeMode = (prefs[resizeModeKey] ?: 0).coerceIn(0, 4),
-                enableHttp2 = prefs[enableHttp2Key] ?: PlayerSettings.DEFAULT_ENABLE_HTTP2,
                 fetchPerformanceModeEnabled = (prefs[fetchPerformanceModeEnabledKey] ?: PlayerSettings.DEFAULT_FETCH_PERFORMANCE_MODE_ENABLED) &&
                         android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O,
                 subtitleStyle = run {
@@ -1241,7 +1248,6 @@ class PlayerSettingsDataStore @Inject constructor(
                         backgroundColor = prefs[subtitleBackgroundColorKey] ?: Color.Transparent.toArgb(),
                         outlineEnabled = prefs[subtitleOutlineEnabledKey] ?: true,
                         outlineColor = prefs[subtitleOutlineColorKey] ?: Color.Black.toArgb(),
-                        outlineWidth = prefs[subtitleOutlineWidthKey] ?: 2,
                         hdrStyleEnabled = prefs[subtitleHdrStyleEnabledKey] ?: false,
                         hdrTextColor = prefs[subtitleHdrTextColorKey] ?: Color.White.toArgb(),
                         hdrBrightness = prefs[subtitleHdrBrightnessKey] ?: SubtitleStyleSettings.HDR_BRIGHTNESS_DEFAULT
@@ -1253,8 +1259,7 @@ class PlayerSettingsDataStore @Inject constructor(
                     bufferForPlaybackMs = prefs[bufferForPlaybackMsKey] ?: BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
                     bufferForPlaybackAfterRebufferMs = prefs[bufferForPlaybackAfterRebufferMsKey] ?: BufferSettings.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
                     targetBufferSizeMb = prefs[targetBufferSizeMbKey]?.coerceAtLeast(0) ?: BufferSettings.DEFAULT_TARGET_BUFFER_SIZE_MB,
-                    backBufferDurationMs = prefs[backBufferDurationMsKey] ?: BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS,
-                    retainBackBufferFromKeyframe = prefs[retainBackBufferFromKeyframeKey] ?: false
+                    backBufferDurationMs = prefs[backBufferDurationMsKey] ?: BufferSettings.DEFAULT_BACK_BUFFER_DURATION_MS
                 )
             )
         } catch (e: ClassCastException) {
@@ -1494,12 +1499,6 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setEnableBufferLogs(enabled: Boolean) {
-        store(profileManager.currentProfileId()).edit { prefs ->
-            prefs[enableBufferLogsKey] = enabled
-        }
-    }
-
     suspend fun setResolutionMatchingEnabled(enabled: Boolean) {
         store(profileManager.currentProfileId()).edit { prefs ->
             prefs[resolutionMatchingEnabledKey] = enabled
@@ -1686,15 +1685,6 @@ class PlayerSettingsDataStore @Inject constructor(
         }
     }
 
-    suspend fun setSubtitleOrganizationMode(mode: SubtitleOrganizationMode) {
-        store(profileManager.currentProfileId()).edit { prefs ->
-            prefs[subtitleOrganizationModeKey] = mode.name
-        }
-    }
-
-    private fun parseSubtitleOrganizationMode(value: String?): SubtitleOrganizationMode {
-        return when (value) { "BY_LANGUAGE" -> SubtitleOrganizationMode.BY_LANGUAGE; "BY_ADDON" -> SubtitleOrganizationMode.BY_ADDON; else -> SubtitleOrganizationMode.NONE }
-    }
     private fun parseMpvHardwareDecodeMode(value: String?): MpvHardwareDecodeMode {
         return when (value) { "HARDWARE_COPY" -> MpvHardwareDecodeMode.HARDWARE_COPY; "HARDWARE_DIRECT" -> MpvHardwareDecodeMode.HARDWARE_DIRECT; "DISABLED" -> MpvHardwareDecodeMode.DISABLED; "LEGACY_DIRECT_COPY" -> MpvHardwareDecodeMode.LEGACY_DIRECT_COPY; else -> MpvHardwareDecodeMode.AUTO_SAFE }
     }
@@ -1835,7 +1825,6 @@ class PlayerSettingsDataStore @Inject constructor(
         store(profileManager.currentProfileId()).edit { it[subtitleUseSystemCaptionStyleKey] = enabled }
     }
     suspend fun setSubtitleOutlineColor(color: Int) { store(profileManager.currentProfileId()).edit { it[subtitleOutlineColorKey] = color } }
-    suspend fun setSubtitleOutlineWidth(width: Int) { store(profileManager.currentProfileId()).edit { it[subtitleOutlineWidthKey] = width.coerceIn(1, 5) } }
     suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) { store(profileManager.currentProfileId()).edit { it[subtitleHdrStyleEnabledKey] = enabled } }
     suspend fun setSubtitleHdrTextColor(color: Int) { store(profileManager.currentProfileId()).edit { it[subtitleHdrTextColorKey] = color } }
     suspend fun setSubtitleHdrBrightness(brightness: Int) {
@@ -1895,7 +1884,6 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs[backBufferDurationMsKey] = ms.coerceIn(0, maxLimit)
         }
     }
-    suspend fun setBufferRetainBackBufferFromKeyframe(retain: Boolean) { store(profileManager.currentProfileId()).edit { it[retainBackBufferFromKeyframeKey] = retain } }
 
     suspend fun resetBufferSettingsToDefaults() {
         store(profileManager.currentProfileId()).edit { prefs ->
@@ -1921,7 +1909,6 @@ class PlayerSettingsDataStore @Inject constructor(
                 prefs[allowLargeTargetBufferKey] = false
                 prefs[bufferBudgetManagedKey] = true
             }
-            prefs[retainBackBufferFromKeyframeKey] = false
             // VOD cache is grouped with the playback buffer section in the UI
             // (both extend seek-back smoothness), so reset its values here too.
             prefs[vodCacheEnabledKey] = PlayerSettings.DEFAULT_VOD_CACHE_ENABLED
@@ -1936,7 +1923,6 @@ class PlayerSettingsDataStore @Inject constructor(
             prefs.remove(parallelConnectionCountKey)
             prefs[parallelChunkSizeKbKey] = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB
             prefs.remove(parallelChunkSizeMbKey)
-            prefs[enableHttp2Key] = PlayerSettings.DEFAULT_ENABLE_HTTP2
         }
     }
 
@@ -2075,3 +2061,8 @@ class PlayerSettingsDataStore @Inject constructor(
         return isEnabled && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
     }
 }
+
+/** Stored once by "Retain back buffer from keyframe", which nothing applied (#780); read by an old migration. */
+private const val REMOVED_RETAIN_BACK_BUFFER_KEY = "retain_back_buffer_from_keyframe"
+
+internal const val MIGRATION_LEGACY_PLAYER_KEYS_FOLDED_DONE = "migration_legacy_player_keys_folded_done"

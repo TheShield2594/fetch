@@ -639,7 +639,6 @@ class PlayerRuntimeController(
     internal var seekBufferingUiDeferred: Boolean = false
     internal val seekBufferingUiDelayMs = 1000L
 
-    internal var bufferLogsEnabled: Boolean = false
     internal val gainAudioProcessor = GainAudioProcessor()
     internal var trackSelector: DefaultTrackSelector? = null
     internal var currentMediaSession: MediaSession? = null

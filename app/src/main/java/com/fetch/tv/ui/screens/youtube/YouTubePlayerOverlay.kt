@@ -62,10 +62,10 @@ import com.fetch.tv.R
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.data.youtube.YouTubeCaptionCue
 import com.fetch.tv.data.youtube.YouTubeCaptionTrack
+import com.fetch.tv.data.youtube.YouTubeCaptions
 import com.fetch.tv.data.youtube.YouTubeLikeStatus
 import com.fetch.tv.data.youtube.YouTubePlaylistOption
 import com.fetch.tv.data.youtube.YouTubePlaylistPrivacy
-import com.fetch.tv.data.local.resumableMs
 import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeChapter
@@ -75,7 +75,6 @@ import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.data.youtube.YouTubeVideoActions
 import com.fetch.tv.data.youtube.cueAt
 import com.fetch.tv.ui.components.LoadingIndicator
-import com.fetch.tv.ui.components.TrailerPlayer
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.detail.TrailerSeekOverlayState
@@ -116,7 +115,9 @@ fun YouTubePlayerOverlay(
     onPlaybackError: () -> Unit = {},
     onSetQuality: (Int?) -> Unit = {},
     onLoadDetails: () -> Unit = {},
-    onLoadMoreComments: () -> Unit = {}
+    onLoadMoreComments: () -> Unit = {},
+    /** Up Next, started by the end card's countdown rather than picked. */
+    onAutoplayNext: (YouTubeVideo) -> Unit = onPlayNext
 ) {
     val video = playback.video
     var isPaused by remember(video.videoId) { mutableStateOf(false) }
@@ -125,6 +126,8 @@ fun YouTubePlayerOverlay(
     // Per attempt: a Retry's new player must not replay the last attempt's seek.
     var seekToken by remember(video.videoId, playback.attempt) { mutableIntStateOf(0) }
     var seekDeltaMs by remember(video.videoId, playback.attempt) { mutableLongStateOf(0L) }
+    // Held D-pad presses and rewind/fast-forward scrub: the player seeks once they pause.
+    var seekScrub by remember(video.videoId, playback.attempt) { mutableStateOf(false) }
     // Per attempt, not per video: Retry's fresh stream resumes from the saved place again.
     var resumed by remember(video.videoId, playback.attempt) { mutableStateOf(false) }
     // A quality change restarts the stream: it carries on where it was, once, per new link.
@@ -166,8 +169,9 @@ fun YouTubePlayerOverlay(
     val menuActions = playback.actions
         ?: YouTubeVideoActions(likeStatus = null, channelId = video.channelId, channelName = video.channelName, subscribed = null)
 
-    fun seekBy(deltaMs: Long) {
+    fun seekBy(deltaMs: Long, scrub: Boolean = false) {
         seekDeltaMs = deltaMs
+        seekScrub = scrub
         seekToken += 1
         // Where the seek lands, until the next progress report says otherwise: a seek straight
         // after this one (Left to undo an auto-skip) must not measure from the old place.
@@ -306,14 +310,14 @@ fun YouTubePlayerOverlay(
                                 skipNoticeVisible = false
                                 seekTo(undo.startMs)
                             } else {
-                                seekBy(-seekStepMs(native.repeatCount))
+                                seekBy(-seekStepMs(native.repeatCount), scrub = true)
                             }
                             controlsVisible = true
                             true
                         }
                         KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> {
                             if (!canControl) return@onPreviewKeyEvent false
-                            seekBy(seekStepMs(native.repeatCount))
+                            seekBy(seekStepMs(native.repeatCount), scrub = true)
                             controlsVisible = true
                             true
                         }
@@ -336,11 +340,11 @@ fun YouTubePlayerOverlay(
         ) {
             LaunchedEffect(Unit) { focusRequester.requestFocusAfterFrames() }
 
-            if (!playback.videoUrl.isNullOrBlank() && !playback.failed && !ended) {
-                TrailerPlayer(
-                    trailerUrl = playback.videoUrl,
-                    trailerAudioUrl = playback.audioUrl,
-                    isPlaying = true,
+            val videoUrl = playback.videoUrl
+            if (!videoUrl.isNullOrBlank() && !playback.failed && !ended) {
+                YouTubeVideoPlayer(
+                    videoUrl = videoUrl,
+                    audioUrl = playback.audioUrl,
                     onError = { error ->
                         if (!expiredLinkRetried && isExpiredStreamLink(error)) {
                             // Retry carries on from where this attempt stopped, with a fresh link.
@@ -350,17 +354,33 @@ fun YouTubePlayerOverlay(
                             onPlaybackError()
                         }
                     },
+                    onPlayPauseRequest = { play ->
+                        isPaused = !play
+                        controlsVisible = true
+                    },
                     isPaused = isPaused,
                     playbackSpeed = playbackSpeed,
                     seekRequestToken = seekToken,
                     seekDeltaMs = seekDeltaMs,
-                    // A quality change's new link starts where the old one was (#742).
-                    startPositionMs = playback.continueFromMs?.takeIf { resumed && !continued } ?: 0L,
-                    onProgressChanged = progress@{ position, duration ->
+                    seekScrub = seekScrub,
+                    // The link opens where it should start, rather than at 0:00 and then jumping:
+                    // a Retry or a quality change where the last link was (#742), a new video
+                    // where it was left, when its tile says how long it is (#743).
+                    startPositionMs = when {
+                        !resumed -> playback.continueFromMs
+                            ?: YouTubeResume.durationLabelMs(video.duration)?.let {
+                                YouTubeResume.startPositionMs(playback.resumeFromMs, video.watchedPercent, it)
+                            }
+                        !continued -> playback.continueFromMs
+                        else -> null
+                    } ?: 0L,
+                    onProgressChanged = progress@{ position, duration, seeking ->
                         positionMs = position
                         seekState.positionMs = position
                         seekState.durationMs = duration
-                        if (duration <= 0L) return@progress
+                        // A scrub's target only moves the seek bar: skips and saved progress wait
+                        // until it commits, so a target passing a segment doesn't cut the scrub short.
+                        if (duration <= 0L || seeking) return@progress
                         val continueFrom = currentContinueFrom
                         if (!continued && continueFrom != null && resumed) {
                             continued = true
@@ -377,12 +397,11 @@ fun YouTubePlayerOverlay(
                             if (retryFrom != null) continued = true
                             // Otherwise Fetch's own exact place first, then YouTube's percent from the tile.
                             // YouTube's wins when it's clearly further on (watched on another device since).
-                            val target = retryFrom ?: currentResumeFrom
-                                ?.takeUnless { YouTubeResume.youTubeIsAhead(it, duration, video.watchedPercent) }
-                                ?.let { resumableMs(it, duration) }
-                                ?: resumePositionMs(video.watchedPercent, duration)
+                            val target = retryFrom
+                                ?: YouTubeResume.startPositionMs(currentResumeFrom, video.watchedPercent, duration)
                             target?.let {
-                                seekBy(it - position)
+                                // The link usually opened there already; seek only if it didn't.
+                                if (kotlin.math.abs(it - position) > CONTINUE_TOLERANCE_MS) seekBy(it - position)
                                 currentOnResumed(it)
                             }
                             return@progress
@@ -545,6 +564,7 @@ fun YouTubePlayerOverlay(
                 UpNextCard(
                     playback = playback,
                     onPlay = onPlayNext,
+                    onAutoplay = onAutoplayNext,
                     onClose = onDismiss
                 )
             }
@@ -744,13 +764,16 @@ private fun VideoActionsMenu(
 private fun UpNextCard(
     playback: YouTubePlaybackState,
     onPlay: (YouTubeVideo) -> Unit,
+    onAutoplay: (YouTubeVideo) -> Unit,
     onClose: () -> Unit
 ) {
     val next = playback.upNext
     val nextFocus = remember { FocusRequester() }
+    // After enough autoplayed videos in a row, it asks rather than playing on to an empty room.
+    val askStillWatching = playback.autoplay && next != null && shouldAskStillWatching(playback.autoplayStreak, playback.stillWatchingAfter)
     var secondsLeft by remember(next?.videoId) { mutableIntStateOf(UP_NEXT_COUNTDOWN_SECONDS) }
-    var countdownStopped by remember(next?.videoId) { mutableStateOf(!playback.autoplay || next == null) }
-    val currentOnPlay by rememberUpdatedState(onPlay)
+    var countdownStopped by remember(next?.videoId) { mutableStateOf(!playback.autoplay || next == null || askStillWatching) }
+    val currentOnPlay by rememberUpdatedState(onAutoplay)
     val others = remember(playback.related, next) {
         playback.related.filter { it.videoId != next?.videoId }.take(UP_NEXT_RELATED_COUNT)
     }
@@ -791,10 +814,10 @@ private fun UpNextCard(
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                     Text(
-                        text = if (countdownStopped) {
-                            stringResource(R.string.youtube_up_next_select)
-                        } else {
-                            pluralStringResource(R.plurals.youtube_up_next_countdown, secondsLeft, secondsLeft)
+                        text = when {
+                            askStillWatching -> stringResource(R.string.still_watching_title)
+                            countdownStopped -> stringResource(R.string.youtube_up_next_select)
+                            else -> pluralStringResource(R.plurals.youtube_up_next_countdown, secondsLeft, secondsLeft)
                         },
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White
@@ -824,6 +847,9 @@ private fun UpNextCard(
 }
 
 private const val UP_NEXT_COUNTDOWN_SECONDS = 10
+
+/** Whether the end card asks "Are you still watching?": [streak] autoplayed videos reached [after]. */
+internal fun shouldAskStillWatching(streak: Int, after: Int?): Boolean = after != null && streak >= after
 private const val UP_NEXT_RELATED_COUNT = 8
 private val UP_NEXT_CARD_WIDTH = 480.dp
 private val UP_NEXT_RELATED_WIDTH = 280.dp
@@ -857,7 +883,7 @@ private fun CaptionText(
                 Text(
                     text = text,
                     style = textStyle.copy(
-                        drawStyle = Stroke(width = style.outlineWidth.coerceIn(1, 5) * CAPTION_OUTLINE_SCALE),
+                        drawStyle = Stroke(width = SubtitleStyleSettings.OUTLINE_WIDTH * CAPTION_OUTLINE_SCALE),
                         color = Color(style.outlineColor)
                     )
                 )
@@ -876,7 +902,7 @@ private fun CaptionMenu(
 ) {
     val selectedFocus = remember { FocusRequester() }
     val tracks = remember(playback.captionTracks) {
-        playback.captionTracks.sortedWith(compareBy({ it.isTranslated }, { it.isAutoGenerated }, { it.name }))
+        YouTubeCaptions.menuOrder(playback.captionTracks)
     }
     Column(
         modifier = modifier
@@ -1032,16 +1058,6 @@ internal fun isExpiredStreamLink(error: Throwable): Boolean {
         depth++
     }
     return false
-}
-
-/**
- * Where to start from YouTube's watched percentage: nowhere when barely started or nearly
- * finished, since those start over, like YouTube's own apps.
- */
-internal fun resumePositionMs(watchedPercent: Int?, durationMs: Long): Long? {
-    val percent = watchedPercent ?: return null
-    if (percent < 3 || percent > 95 || durationMs <= 0L) return null
-    return durationMs * percent / 100
 }
 
 /**

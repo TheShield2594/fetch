@@ -952,8 +952,6 @@
     <string name="debug_progress_indicator_default">Podrazumevano</string>
     <string name="debug_progress_indicator_large">Veliko</string>
     <string name="debug_section_features">Uključivanje/isključivanje funkcija</string>
-    <string name="debug_buffer_logs_title">Omogući BUFFER dnevnike</string>
-    <string name="debug_buffer_logs_subtitle">Emituj povremenu dijagnostiku bafera plejera u logcat (onemogućeno po podrazumevanoj vrednosti)</string>
     <string name="debug_error_dialog_title">Greška u reprodukciji</string>
     <string name="debug_error_dialog_subtitle">Došlo je do greške tokom reprodukcije.\n\nGreška: Test simulirane greške - ovo nije stvarni otkaz. Izvor je vratio HTTP 503 (Usluga nedostupna).</string>
     <string name="debug_dismiss">Odbaci</string>

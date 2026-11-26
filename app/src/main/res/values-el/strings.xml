@@ -2087,8 +2087,6 @@
   <string name="streams_size">ΜΕΓΕΘΟΣ %1$s</string>
   <string name="action_import">Εισαγωγή</string>
   <string name="action_delete">Διαγραφή</string>
-  <string name="debug_buffer_logs_title">Ενεργοποίηση BUFFER Logs</string>
-  <string name="debug_buffer_logs_subtitle">Αποστολή περιοδικών διαγνωστικών buffer του player στο logcat (απενεργοποιημένο από προεπιλογή)</string>
   <string name="update_error_check_failed">Ο έλεγχος ενημέρωσης απέτυχε</string>
   <string name="update_error_download_failed">Η λήψη απέτυχε</string>
   <string name="update_error_apk_missing">Το ληφθέν αρχείο λείπει</string>

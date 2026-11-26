@@ -825,8 +825,6 @@
     <string name="debug_playback_error_title">Afspilningsfejl-skærm</string>
     <string name="debug_playback_error_subtitle">Vis en simuleret afspilningsfejl-popup</string>
     <string name="debug_section_features">Feature-skift</string>
-    <string name="debug_buffer_logs_title">Aktivér BUFFER-logs</string>
-    <string name="debug_buffer_logs_subtitle">Udsend periodiske buffer-diagnostik til logcat (deaktiveret som standard)</string>
     <string name="debug_error_dialog_title">Afspilningsfejl</string>
     <string name="debug_error_dialog_subtitle">Der opstod en fejl under afspilning.\n\nFejl: Test-simuleret fejl – dette er ikke en reel fejl. Kilden returnerede HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Luk</string>

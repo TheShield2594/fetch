@@ -1020,8 +1020,6 @@
     <string name="debug_progress_indicator_default">Predeterminado</string>
     <string name="debug_progress_indicator_large">Grande</string>
     <string name="debug_section_features">Alternar características</string>
-    <string name="debug_buffer_logs_title">Habilitar registros de BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Emite diagnósticos periódicos del búfer del reproductor en logcat (deshabilitado por defecto)</string>
     <string name="debug_error_dialog_title">Error de reproducción</string>
     <string name="debug_error_dialog_subtitle">Un error ocurrió durante la reproducción.\n\nError: Error simulado de prueba - esto no es una falla real. La fuente devolvió HTTP 503 (Servicio no disponible).</string>
     <string name="debug_dismiss">Descartar</string>

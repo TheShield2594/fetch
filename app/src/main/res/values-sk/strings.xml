@@ -1912,8 +1912,6 @@
 <string name="debug_progress_indicator_small">Malý</string>
 <string name="debug_progress_indicator_default">Predvolený</string>
 <string name="debug_progress_indicator_large">Veľký</string>
-<string name="debug_buffer_logs_title">Povoliť záznamy BUFFER</string>
-<string name="debug_buffer_logs_subtitle">Odosielať pravidelnú diagnostiku vyrovnávacej pamäte prehrávača do logcatu (predvolene vypnuté)</string>
 <string name="external_player_loading_skip_segments">Načítavanie segmentov úvodu/záveru…</string>
 <string name="account_signin_email_title">Prihlásiť sa</string>
 <string name="update_error_check_failed">Kontrola aktualizácie zlyhala</string>

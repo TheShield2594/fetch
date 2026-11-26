@@ -820,8 +820,6 @@
     <string name="debug_playback_error_title">Екран помилки відтворення</string>
     <string name="debug_playback_error_subtitle">Показати імітацію помилки відтворення</string>
     <string name="debug_section_features">Перемикачі функцій</string>
-    <string name="debug_buffer_logs_title">Увімкнути журнали BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Періодично виводити діагностику буфера плеєра в logcat (за замовчуванням вимкнено)</string>
     <string name="debug_error_dialog_title">Помилка відтворення</string>
     <string name="debug_error_dialog_subtitle">Сталася помилка під час відтворення.\n\nПомилка: Тестова симуляція помилки — це не справжній збій. Джерело повернуло HTTP 503 (Сервіс недоступний).</string>
     <string name="debug_dismiss">Закрити</string>

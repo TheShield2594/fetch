@@ -1075,8 +1075,6 @@
     <string name="debug_progress_indicator_default">Alapértelmezett</string>
     <string name="debug_progress_indicator_large">Nagy</string>
     <string name="debug_section_features">Funkciókapcsolók</string>
-    <string name="debug_buffer_logs_title">BUFFER naplók engedélyezése</string>
-    <string name="debug_buffer_logs_subtitle">A lejátszópuffer diagnosztikai adatainak rendszeres küldése a logcatbe (alapértelmezés szerint kikapcsolva)</string>
     <string name="debug_error_dialog_title">Lejátszási hiba</string>
     <string name="debug_error_dialog_subtitle">Hiba történt a lejátszás során.\n\nHiba: Szimulált teszthiba – ez nem valódi meghibásodás. A forrás HTTP 503 (Service Unavailable) kódot küldött.</string>
     <string name="debug_dismiss">Bezárás</string>

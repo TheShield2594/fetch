@@ -942,8 +942,6 @@
     <string name="debug_progress_indicator_default">Standaard</string>
     <string name="debug_progress_indicator_large">Groot</string>
     <string name="debug_section_features">Feature-toggles</string>
-    <string name="debug_buffer_logs_title">BUFFER-logs inschakelen</string>
-    <string name="debug_buffer_logs_subtitle">Stuur periodiek bufferdiagnostiek van de speler naar logcat (standaard uitgeschakeld)</string>
     <string name="debug_error_dialog_title">Afspeelfout</string>
     <string name="debug_error_dialog_subtitle">Er is een fout opgetreden tijdens het afspelen.\n\nFout: Gesimuleerde testfout - dit is geen echte storing. Bron gaf HTTP 503 (Service Unavailable) terug.</string>
     <string name="debug_dismiss">Sluiten</string>

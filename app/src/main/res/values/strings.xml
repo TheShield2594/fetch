@@ -1306,8 +1306,6 @@
     <string name="debug_progress_indicator_default">Default</string>
     <string name="debug_progress_indicator_large">Large</string>
     <string name="debug_section_features">Feature Toggles</string>
-    <string name="debug_buffer_logs_title">Enable BUFFER Logs</string>
-    <string name="debug_buffer_logs_subtitle">Emit periodic player buffer diagnostics to logcat (disabled by default)</string>
     <string name="debug_error_dialog_title">Playback Error</string>
     <string name="debug_error_dialog_subtitle">An error occurred during playback.\n\nError: Test simulated error - this is not a real failure. Source returned HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Dismiss</string>

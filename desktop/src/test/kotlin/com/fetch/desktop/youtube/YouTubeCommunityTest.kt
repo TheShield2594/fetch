@@ -1,5 +1,8 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.tv.data.youtube.DeArrowClient
+import com.fetch.tv.data.youtube.ReturnYouTubeDislikeClient
+import com.fetch.tv.data.youtube.SponsorBlockClient
 import com.fetch.tv.data.youtube.YouTubeSkipSegment
 import com.fetch.tv.data.youtube.YouTubeVoteCounts
 import kotlinx.coroutines.runBlocking
@@ -76,7 +79,7 @@ class YouTubeCommunityTest {
             """{"v": {"titles": [{"title": "Locked", "original": false, "votes": -2, "locked": true}],
                       "thumbnails": [{"timestamp": 1.0, "original": true, "votes": 4}]}}"""
         )
-        val branding = DeArrowClient(YouTubeFakeHttp { 404 to "" }.client).parseBranding(root, "v")!!
+        val branding = DeArrowClient.parseBranding(root, "v")!!
         assertEquals("Locked", branding.title)
         assertNull(branding.thumbnailUrl)
     }

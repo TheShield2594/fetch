@@ -75,7 +75,7 @@ import com.fetch.desktop.youtube.YouTubePlayback
 import com.fetch.desktop.youtube.YouTubePlayerExtras
 import com.fetch.desktop.youtube.YouTubePlayerPanel
 import com.fetch.desktop.youtube.YouTubeUpNextPrompt
-import com.fetch.desktop.youtube.YouTubeCaptions
+import com.fetch.tv.data.youtube.YouTubeCaptions
 import com.fetch.desktop.youtube.label
 import com.fetch.desktop.youtube.youTubeExtras
 import com.fetch.tv.data.youtube.SponsorBlockCategory
@@ -342,7 +342,7 @@ fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, control
  */
 @Composable
 private fun BoxScope.YouTubeCaptionText(state: AppState, session: PlayerSession, extras: YouTubePlayerExtras, controlsVisible: Boolean) {
-    val cue = com.fetch.desktop.youtube.cueAt(extras.captionCues, (session.mpv.position * 1000).toLong()) ?: return
+    val cue = com.fetch.tv.data.youtube.cueAt(extras.captionCues, (session.mpv.position * 1000).toLong()) ?: return
     val density = androidx.compose.ui.platform.LocalDensity.current
     androidx.compose.foundation.layout.BoxWithConstraints(Modifier.matchParentSize()) {
         val heightPx = with(density) { maxHeight.toPx() }

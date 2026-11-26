@@ -316,7 +316,6 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
                 applyStoredAudioDelayForCurrentRouteIfEnabled()
             }
 
-            bufferLogsEnabled = settings.enableBufferLogs
             if (settings.frameRateMatchingMode == FrameRateMatchingMode.OFF) {
                 afrProbeRunning = false
                 _uiState.update { it.clearFrameRateDetection() }

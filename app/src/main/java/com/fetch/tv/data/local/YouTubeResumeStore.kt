@@ -13,19 +13,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.fetch.tv.core.util.runSuspendCatching
-
-/** Where a YouTube video stopped in Fetch, to the millisecond. */
-data class YouTubeResumePoint(
-    val videoId: String,
-    val positionMs: Long,
-    val durationMs: Long,
-    val updatedAtMs: Long
-)
+import com.fetch.tv.data.youtube.YouTubeResume
+import com.fetch.tv.data.youtube.YouTubeResumePoint
 
 /**
  * Each profile's last position in the YouTube videos it watched in Fetch. YouTube's tiles only say
  * how far in by whole percent, and only on the feeds; this keeps the exact place for any video,
- * Up Next and related ones included. Holds the [MAX_ENTRIES] most recent.
+ * Up Next and related ones included. Holds the [YouTubeResume.MAX_POINTS]
+ * most recent; when a place counts is [YouTubeResume]'s rule, shared with the desktop.
  */
 @Singleton
 class YouTubeResumeStore @Inject constructor(
@@ -34,7 +29,6 @@ class YouTubeResumeStore @Inject constructor(
 ) {
     companion object {
         private const val FEATURE = "youtube_resume"
-        const val MAX_ENTRIES = 300
     }
 
     private val entriesKey = stringPreferencesKey("entries")
@@ -68,40 +62,10 @@ class YouTubeResumeStore @Inject constructor(
     ) {
         store(profileId).edit { prefs ->
             val entries = decodeResumePoints(prefs[entriesKey])
-            prefs[entriesKey] = encodeResumePoints(updateResumePoints(entries, videoId, positionMs, durationMs, nowMs, MAX_ENTRIES))
+            prefs[entriesKey] = encodeResumePoints(YouTubeResume.updatePoints(entries, videoId, positionMs, durationMs, nowMs))
         }
     }
 }
-
-/**
- * [entries] with [videoId]'s point moved to the front, or dropped when the video was barely started
- * or nearly finished: those start over, as on YouTube.
- */
-internal fun updateResumePoints(
-    entries: List<YouTubeResumePoint>,
-    videoId: String,
-    positionMs: Long,
-    durationMs: Long,
-    nowMs: Long,
-    max: Int
-): List<YouTubeResumePoint> {
-    val others = entries.filterNot { it.videoId == videoId }
-    val point = YouTubeResumePoint(videoId, positionMs, durationMs, nowMs)
-    return if (resumableMs(point.positionMs, point.durationMs) != null) (listOf(point) + others).take(max) else others
-}
-
-/**
- * [positionMs] when it's worth resuming from: past the first few seconds and short of the end.
- * The same window as [com.fetch.tv.ui.screens.youtube.resumePositionMs] uses for YouTube's percent.
- */
-internal fun resumableMs(positionMs: Long, durationMs: Long): Long? {
-    if (durationMs <= 0L || positionMs <= 0L) return null
-    if (positionMs < MIN_RESUME_MS || positionMs < durationMs * 3 / 100) return null
-    if (positionMs > durationMs * 95 / 100) return null
-    return positionMs
-}
-
-private const val MIN_RESUME_MS = 10_000L
 
 // One point per line: id, position, duration, time saved, tab-separated. Video ids hold neither.
 internal fun encodeResumePoints(entries: List<YouTubeResumePoint>): String =

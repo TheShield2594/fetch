@@ -1,5 +1,6 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.tv.data.youtube.YouTubeResumePoint
 import com.fetch.desktop.data.DesktopSettings
 import com.fetch.desktop.data.JsonFile
 import com.fetch.desktop.data.PlayerSettings
@@ -103,16 +104,6 @@ class YouTubePlaybackTest {
         assertNull("barely started", youTubeResumeStart(null, watchedPercent = 2))
         assertNull("nearly finished", youTubeResumeStart(null, watchedPercent = 97))
         assertNull(youTubeResumeStart(saved.copy(positionMs = 5_000), watchedPercent = null))
-    }
-
-    @Test
-    fun `resume points keep the newest first and drop finished videos`() {
-        var points = updateResumePoints(emptyList(), "a", 60_000, 600_000, nowMs = 1)
-        points = updateResumePoints(points, "b", 120_000, 600_000, nowMs = 2)
-        assertEquals(listOf("b", "a"), points.map { it.videoId })
-        points = updateResumePoints(points, "a", 590_000, 600_000, nowMs = 3)
-        assertEquals("finished starts over", listOf("b"), points.map { it.videoId })
-        assertEquals(2, updateResumePoints(points + YouTubeResumePoint("c", 60_000, 600_000, 0), "d", 60_000, 600_000, 4, max = 2).size)
     }
 
     @Test

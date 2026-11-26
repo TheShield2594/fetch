@@ -480,7 +480,7 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
                 (normalizedOffset * (MPV_SUB_MARGIN_Y_MAX - MPV_SUB_MARGIN_Y_MIN))).toInt()
             val outlineSize = when {
                 !style.outlineEnabled -> 0.0
-                isAssOrSsaSubtitleSelectedNow() -> style.outlineWidth.coerceIn(1, 6).toDouble()
+                isAssOrSsaSubtitleSelectedNow() -> SubtitleStyleSettings.OUTLINE_WIDTH.toDouble()
                 else -> 1.0
             }
             val backgroundAlpha = (style.backgroundColor ushr 24) and 0xFF

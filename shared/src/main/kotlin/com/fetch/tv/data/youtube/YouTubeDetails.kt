@@ -198,19 +198,3 @@ object YouTubeDetailsParser {
 
     private fun JsonElement?.booleanOrFalse(): Boolean = (this as? JsonPrimitive)?.contentOrNull?.toBooleanStrictOrNull() == true
 }
-
-/** Choosing between Fetch's own saved place in a video and YouTube's progress for it. */
-object YouTubeResume {
-    /**
-     * Whether YouTube's progress ([watchedPercent], from the video's card) should win over the place
-     * Fetch saved: the video was finished elsewhere, or watched clearly further on another device
-     * since. Fetch's place stays when the two roughly agree, since it's exact to the second.
-     */
-    fun youTubeIsAhead(savedPositionMs: Long, savedDurationMs: Long, watchedPercent: Int?): Boolean {
-        val percent = watchedPercent ?: return false
-        if (percent > 95) return true
-        if (savedDurationMs <= 0L) return percent > 0
-        val savedPercent = savedPositionMs * 100 / savedDurationMs
-        return percent >= savedPercent + 5
-    }
-}

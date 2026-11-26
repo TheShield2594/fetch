@@ -840,8 +840,6 @@
     <string name="debug_progress_indicator_default">Výchozí</string>
     <string name="debug_progress_indicator_large">Velká</string>
     <string name="debug_section_features">Přepínače funkcí</string>
-    <string name="debug_buffer_logs_title">Zapnout BUFFER logy</string>
-    <string name="debug_buffer_logs_subtitle">Odesílat pravidelnou diagnostiku bufferu přehrávače do logcatu (ve výchozím stavu vypnuto)</string>
     <string name="debug_error_dialog_title">Chyba přehrávání</string>
     <string name="debug_error_dialog_subtitle">Během přehrávání došlo k chybě.\n\nChyba: Test simulované chyby - toto není skutečné selhání. Zdroj vrátil HTTP 503 (Služba nedostupná).</string>
     <string name="debug_dismiss">Zavřít</string>

@@ -1462,7 +1462,7 @@ Concepts are in section 15.3.
 
 #### E3. Contain the YouTube client · P2 · Scope · M
 
-- **Current state:** About 6.3k lines on TV and 2.7k on desktop. `YouTubeResponseParser.kt` (716 lines) and `YouTubeStoryboard.kt` are byte-identical in both apps. It depends on undocumented YouTube internals, and a CI workflow exists to detect breakage. The owner uses it, so it stays.
+- **Current state (done, #779):** The parser, storyboard, models, API client, SponsorBlock, DeArrow, Return YouTube Dislike, caption parsing and the resume rules live once in `shared/src/main/kotlin/com/fetch/tv/data/youtube/` (`YouTubeCommunity.kt`, `YouTubeCaptions.kt`, `YouTubeResume.kt` among them). Each app keeps only its HTTP client, storage and UI: the TV's `data/youtube/*Service.kt` are thin wrappers, and the desktop keeps its WebVTT fallback and labels. Home's YouTube row starts empty, times out after 20 s and catches its errors, and the YouTube player has its own ExoPlayer rather than the trailer pool (#743). It depends on undocumented YouTube internals, and a CI workflow exists to detect breakage. The owner uses it, so it stays.
 - **Problem:** It is the part of the app most likely to break without warning, and each fix is made twice.
 - **Proposal:** Move the parser, storyboard and client into `shared/` so there is one copy. Keep YouTube out of start-up and out of Home's loading path (a failed YouTube row must not delay or break Home). Keep its rail item conditional on sign-in, as today. Treat the breakage workflow as its test suite and keep it.
 - **Why better:** Keeps a feature the owner values at roughly half its upkeep, with its failures fenced off.

@@ -1,5 +1,6 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.tv.data.youtube.YouTubeCaptionTrack
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -51,7 +52,7 @@ class YouTubePlayerExtras(val video: YouTubeVideo, val load: Int) {
     /** The YouTube caption track showing ([YouTubeCaptionTrack.id]); null while off or another subtitle shows. */
     var selectedCaption by mutableStateOf<String?>(null)
     /** The showing track's cues, which Fetch draws itself (the TV's caption renderer); empty while mpv shows it instead. */
-    var captionCues by mutableStateOf<List<com.fetch.desktop.player.autosync.Cue>>(emptyList())
+    var captionCues by mutableStateOf<List<com.fetch.tv.data.youtube.YouTubeCaptionCue>>(emptyList())
     var skipNotice by mutableStateOf<YouTubeSkipNotice?>(null)
     var panel by mutableStateOf<YouTubePlayerPanel?>(null)
     /** The channel's playlists for Save, read when the panel opens; null while loading or failed. */

@@ -1,9 +1,12 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.tv.data.youtube.YouTubeCaptionCue as Cue
+import com.fetch.tv.data.youtube.YouTubeCaptionTrack
+import com.fetch.tv.data.youtube.YouTubeCaptions
+import com.fetch.tv.data.youtube.cueAt
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.player.Argb
 import com.fetch.desktop.player.SubtitleStyle
-import com.fetch.desktop.player.autosync.Cue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -20,20 +23,20 @@ class YouTubeCaptionCuesTest {
             {"tStartMs":4000,"dDurationMs":0,"segs":[{"utf8":"zero"}]},
             {"tStartMs":3500,"dDurationMs":1500,"segs":[{"utf8":"\n"}]},
             {"tStartMs":5000,"dDurationMs":1000,"segs":[{"utf8":"Bye"}]}]}"""
-        assertEquals(listOf(Cue(1_000, 3_000, "Hello there"), Cue(5_000, 6_000, "Bye")), parseJson3(json3))
-        assertTrue(parseJson3("not json").isEmpty())
+        assertEquals(listOf(Cue(1_000, 3_000, "Hello there"), Cue(5_000, 6_000, "Bye")), YouTubeCaptions.parseJson3(json3))
+        assertTrue(YouTubeCaptions.parseJson3("not json").isEmpty())
     }
 
     @Test
     fun `asks for json3 first and falls back to WebVTT`() {
         val asked = mutableListOf<String>()
-        val cues = YouTubeCaptions.cues(track) { url ->
+        val cues = youTubeCaptionCues(track) { url ->
             asked += url
             if ("fmt=vtt" in url) "WEBVTT\n\n00:01.000 --> 00:02.000\nHi\n" else null
         }
         assertEquals(listOf(Cue(1_000, 2_000, "Hi")), cues)
         assertTrue("fmt=json3" in asked[0])
-        assertTrue(YouTubeCaptions.cues(track) { null }.isEmpty())
+        assertTrue(youTubeCaptionCues(track) { null }.isEmpty())
     }
 
     @Test
@@ -52,7 +55,7 @@ class YouTubeCaptionCuesTest {
     @Test
     fun `captions last at most a minute, so the lookup can stop there`() {
         val json3 = """{"events":[{"tStartMs":0,"dDurationMs":90000,"segs":[{"utf8":"Stuck"}]}]}"""
-        val cues = YouTubeCaptions.cues(track) { url -> if ("fmt=json3" in url) json3 else null }
+        val cues = youTubeCaptionCues(track) { url -> if ("fmt=json3" in url) json3 else null }
         assertEquals(listOf(Cue(0, 60_000, "Stuck")), cues)
         assertEquals("Stuck", cueAt(cues, 59_000)?.text)
         assertNull(cueAt(cues, 61_000))

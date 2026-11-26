@@ -30,7 +30,7 @@ pnpm smoke                 # end-to-end check of the health and catalog endpoint
 
 ### "Refusing to start in production due to configuration problems"
 
-The API checks four things before it will start in production, and names the
+The API checks these things before it will start in production, and names the
 ones that failed:
 
 | Message | Fix |
@@ -39,8 +39,9 @@ ones that failed:
 | `API_TOKEN is set to the development default "dev-token"` | As above — `dev-token` is fine locally, never in production |
 | `DATABASE_URL is not set` | Set it, or let compose build it from `POSTGRES_PASSWORD` |
 | `DATABASE_URL uses the development default Postgres password` | Change `POSTGRES_PASSWORD` from `postgres` |
+| `FETCH_SECRET_KEY is shorter than 32 characters` / `is the same as API_TOKEN` | Generate it with `openssl rand -hex 32`. On an install that already has stored credentials, move them onto the new key with `fetch rotate-key` ([below](#stored-credentials-cant-be-decrypted)) |
 
-This is deliberate. All four leave the API reachable by anyone who can route to
+This is deliberate. The first four leave the API reachable by anyone who can route to
 it, and every one of them is easy to leave behind after a local trial run.
 
 ### "WEBHOOK_SECRET not set — webhook endpoints will reject all requests"
@@ -79,6 +80,23 @@ A warning that `FETCH_API_TOKEN is deprecated` means the add-on is still
 configured the old way. It works, but the add-on container holds the server's
 root token; set `FETCH_ADDON_KEY` as above and take `FETCH_API_TOKEN` out of
 the `addon` service.
+
+### Stored credentials can't be decrypted
+
+The API logs `stored credential(s) cannot be decrypted` and names them: the key
+they were encrypted under (`FETCH_SECRET_KEY`, or `API_TOKEN` when that is
+unset) has changed. Put the old value back in `.env` and `docker compose up -d`.
+To change the key without losing them, rotate it instead:
+
+```bash
+docker compose stop api
+docker compose run --rm api fetch rotate-key --old "<current key>" --new "$(openssl rand -hex 32)"
+# then set FETCH_SECRET_KEY to the --new value in .env
+docker compose up -d
+```
+
+It re-encrypts everything in one transaction, or changes nothing and lists the
+credentials it couldn't open. README.md, "Secrets at rest", has the details.
 
 ### Compose refuses to start at all
 
@@ -195,9 +213,10 @@ docker compose exec api fetch reset-2fa <username>
 ```
 
 The account then signs in with its password alone until two-factor is turned on
-again. Rotating `API_TOKEN` has the same effect as losing the phone, since the
-secret is encrypted under it: recovery codes still work, and so does this
-command.
+again. Changing the encryption key (`FETCH_SECRET_KEY`, or `API_TOKEN` without
+one) other than with `fetch rotate-key` has the same effect as losing the phone,
+since the secret is encrypted under it: recovery codes still work, and so does
+this command.
 
 **A Stremio addon URL got out.** Anyone holding a profile's addon URL can read
 that profile's lists in Stremio. Replace it from Settings → Stremio addon →

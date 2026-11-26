@@ -103,8 +103,8 @@ export const credentialsUnreadableAlert = (labels: string[]): NotificationEvent 
   event: "credentials-unreadable",
   title: `Fetch: ${labels.length} stored credential${labels.length === 1 ? "" : "s"} can't be read`,
   body: (
-    `API_TOKEN has changed since ${labels.length === 1 ? "it was" : "they were"} saved: ${labels.join(", ")}. ` +
-    "Restore the previous API_TOKEN, or enter them again in Settings."
+    `The encryption key (FETCH_SECRET_KEY, or API_TOKEN without one) has changed since ${labels.length === 1 ? "it was" : "they were"} saved: ${labels.join(", ")}. ` +
+    "Restore the previous key, or enter them again in Settings."
   ).slice(0, 500),
   path: "/settings",
   severity: "warning",

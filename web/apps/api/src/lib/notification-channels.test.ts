@@ -322,7 +322,7 @@ describe("sendToChannel", () => {
       // This one describes the install's own state rather than anything learned
       // from the target, so it survives the collapse to a verdict intact.
       expect((error as InstanceType<typeof ChannelSendError>).publicMessage).toMatch(
-        /API_TOKEN has changed since it was saved/
+        /encryption key \(FETCH_SECRET_KEY or API_TOKEN\) has changed since it was saved/
       );
     });
 

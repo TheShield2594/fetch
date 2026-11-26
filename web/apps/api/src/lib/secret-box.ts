@@ -13,19 +13,21 @@ import { createCipheriv, createDecipheriv, createHash, createHmac, hkdfSync, ran
 // the step from "has the file" to "has every credential in it".
 //
 // It is explicitly not protection from an attacker already running as the API
-// process. The key derives from `API_TOKEN`, which that process must hold to
-// serve a single request, so anything that can read the environment can read
-// the secrets. Nothing here pretends otherwise; the property bought is that a
-// dump on its own is inert.
+// process. The key derives from a secret that process must hold to serve a
+// single request, so anything that can read the environment can read the
+// secrets. Nothing here pretends otherwise; the property bought is that a dump
+// on its own is inert.
 //
-// The key comes from `API_TOKEN` via HKDF-SHA256 — the same "derive from the
-// one secret the deployment already has" shape as the Stremio addon secret
-// (`lib/stremio-secret.ts`) and profile access tokens (`lib/profile-token.ts`),
-// so it needs no extra configuration and no key file to lose. The cost, and it
-// is a real one, is that rotating `API_TOKEN` makes every stored credential
-// undecryptable: they have to be re-entered from Settings, not merely re-read.
-// The startup pass in `lib/secret-migration.ts` says so in the log rather than
-// leaving it to be discovered at the next sync.
+// The key comes via HKDF-SHA256 from `FETCH_SECRET_KEY`, or from `API_TOKEN`
+// when that is unset — which is every install from before it existed, so
+// upgrading needs nothing (#638). With its own key, `API_TOKEN` (the admin
+// bearer, which scripts hold copies of) can be rotated without touching a
+// stored credential; and the encryption key itself can be rotated with
+// `fetch rotate-key` (`lib/secret-rotation.ts`), which re-encrypts every row.
+// Changing the key any other way makes every stored credential undecryptable:
+// they have to be re-entered from Settings. The startup pass in
+// `lib/secret-migration.ts` says so in the log rather than leaving it to be
+// discovered at the next sync.
 
 /**
  * Marks a value as ciphertext, and versions the construction: a future change
@@ -64,47 +66,48 @@ export const SECRET_CONTEXT = {
 /** The context a KV row's value is encrypted under — its own key. */
 export const kvSecretContext = (key: string): string => `kv:${key}`;
 
-// Derivation is ~a hash, but it happens on every read of every credential, so
-// the result is memoized against the token it came from — keyed rather than
-// stored bare so a test (or a future in-process rotation) that changes
-// `API_TOKEN` doesn't keep encrypting under the old one.
-let cachedKey: { token: string; key: Buffer } | null = null;
+/**
+ * The secret every at-rest key derives from: `FETCH_SECRET_KEY`, or `API_TOKEN`
+ * on an install that hasn't set one (#638). Null with neither (development).
+ */
+export const secretKeyRoot = (env: NodeJS.ProcessEnv = process.env): string | null =>
+  env.FETCH_SECRET_KEY || env.API_TOKEN || null;
 
-const encryptionKey = (): Buffer | null => {
-  const apiToken = process.env.API_TOKEN;
-  if (!apiToken) return null;
-  if (cachedKey?.token === apiToken) return cachedKey.key;
-
-  const key = Buffer.from(hkdfSync("sha256", apiToken, HKDF_SALT, HKDF_INFO, KEY_BYTES));
-  cachedKey = { token: apiToken, key };
-  return key;
-};
+/** Which variable {@link secretKeyRoot} is reading, for messages to the operator. */
+export const secretKeyRootName = (env: NodeJS.ProcessEnv = process.env): "FETCH_SECRET_KEY" | "API_TOKEN" =>
+  env.FETCH_SECRET_KEY ? "FETCH_SECRET_KEY" : "API_TOKEN";
 
 // A second key from the same root, for `secretLookupKey`: equality lookups
 // over encrypted columns get their own key rather than reusing the cipher's.
 const LOOKUP_HKDF_INFO = "fetch-secret-lookup";
-let cachedLookupKey: { token: string; key: Buffer } | null = null;
 
-const lookupKey = (): Buffer | null => {
-  const apiToken = process.env.API_TOKEN;
-  if (!apiToken) return null;
-  if (cachedLookupKey?.token === apiToken) return cachedLookupKey.key;
+type DerivedKeys = { cipher: Buffer; lookup: Buffer };
 
-  const key = Buffer.from(hkdfSync("sha256", apiToken, HKDF_SALT, LOOKUP_HKDF_INFO, KEY_BYTES));
-  cachedLookupKey = { token: apiToken, key };
-  return key;
+// Derivation is ~a hash, but it happens on every read of every credential, so
+// the result is memoized against the root it came from — keyed rather than
+// stored bare so a test, or `fetch rotate-key` deriving the old and the new
+// side by side, doesn't keep encrypting under the wrong one.
+const keyCache = new Map<string, DerivedKeys>();
+
+const keysFor = (root: string): DerivedKeys => {
+  const cached = keyCache.get(root);
+  if (cached) return cached;
+  const keys = {
+    cipher: Buffer.from(hkdfSync("sha256", root, HKDF_SALT, HKDF_INFO, KEY_BYTES)),
+    lookup: Buffer.from(hkdfSync("sha256", root, HKDF_SALT, LOOKUP_HKDF_INFO, KEY_BYTES)),
+  };
+  // Two roots at most in practice (current, and the other side of a rotation).
+  if (keyCache.size >= 4) keyCache.clear();
+  keyCache.set(root, keys);
+  return keys;
 };
 
-/**
- * A deterministic stand-in for `value` that a unique index can hold where the
- * value itself is encrypted (and so different every time it is written):
- * HMAC-SHA256 under a key derived from `API_TOKEN`, bound to `context`. It
- * reveals whether two rows hold the same value and nothing else, and like the
- * ciphertext it changes when `API_TOKEN` does. Without `API_TOKEN` (development
- * only) it is a plain SHA-256.
- */
-export const secretLookupKey = (context: string, value: string): string => {
-  const key = lookupKey();
+const currentKeys = (): DerivedKeys | null => {
+  const root = secretKeyRoot();
+  return root ? keysFor(root) : null;
+};
+
+const lookupKeyUnder = (key: Buffer | null, context: string, value: string): string => {
   const input = `${context}\u0000${value}`;
   return key
     ? createHmac("sha256", key).update(input, "utf8").digest("hex")
@@ -112,11 +115,26 @@ export const secretLookupKey = (context: string, value: string): string => {
 };
 
 /**
- * Whether this process can encrypt at all. False only without `API_TOKEN`,
- * which production refuses to start without — so in practice this is "am I a
- * bare `pnpm dev` with no .env".
+ * A deterministic stand-in for `value` that a unique index can hold where the
+ * value itself is encrypted (and so different every time it is written):
+ * HMAC-SHA256 under a key derived from {@link secretKeyRoot}, bound to
+ * `context`. It reveals whether two rows hold the same value and nothing else,
+ * and like the ciphertext it changes when that root does. Without one
+ * (development only) it is a plain SHA-256.
  */
-export const isSecretEncryptionAvailable = (): boolean => !!process.env.API_TOKEN;
+export const secretLookupKey = (context: string, value: string): string =>
+  lookupKeyUnder(currentKeys()?.lookup ?? null, context, value);
+
+/** {@link secretLookupKey} under an explicit root, for `fetch rotate-key`. */
+export const secretLookupKeyUnder = (root: string, context: string, value: string): string =>
+  lookupKeyUnder(keysFor(root).lookup, context, value);
+
+/**
+ * Whether this process can encrypt at all. False only without `API_TOKEN` or
+ * `FETCH_SECRET_KEY`; production refuses to start without `API_TOKEN` — so in
+ * practice this is "am I a bare `pnpm dev` with no .env".
+ */
+export const isSecretEncryptionAvailable = (): boolean => secretKeyRoot() !== null;
 
 /**
  * Whether a stored value is one of ours. Structural only: a plaintext secret
@@ -135,9 +153,16 @@ export const isEncryptedSecret = (stored: string): boolean =>
  * branch — the startup guard exits before serving a request without a token.
  */
 export const encryptSecret = (context: string, plaintext: string): string => {
-  const key = encryptionKey();
+  const key = currentKeys()?.cipher;
   if (!key) return plaintext;
+  return encryptWith(key, context, plaintext);
+};
 
+/** {@link encryptSecret} under an explicit root, for `fetch rotate-key`. */
+export const encryptSecretUnder = (root: string, context: string, plaintext: string): string =>
+  encryptWith(keysFor(root).cipher, context, plaintext);
+
+const encryptWith = (key: Buffer, context: string, plaintext: string): string => {
   const iv = randomBytes(IV_BYTES);
   const cipher = createCipheriv("aes-256-gcm", key, iv);
   cipher.setAAD(Buffer.from(context, "utf8"));
@@ -160,16 +185,23 @@ export const encryptSecret = (context: string, plaintext: string): string => {
  * dump would otherwise still expose).
  *
  * Null means the value is real ciphertext that this key cannot open — almost
- * always a rotated `API_TOKEN`. Callers treat that as "not configured" rather
+ * always a changed `FETCH_SECRET_KEY` (or `API_TOKEN`, when that is the root). Callers treat that as "not configured" rather
  * than crashing, except where silently re-deriving would break something worse
  * (VAPID keys, whose loss unsubscribes every browser).
  */
 export const decryptSecret = (context: string, stored: string): string | null => {
   if (!isEncryptedSecret(stored)) return stored;
 
-  const key = encryptionKey();
+  const key = currentKeys()?.cipher;
   if (!key) return null;
+  return decryptWith(key, context, stored);
+};
 
+/** {@link decryptSecret} under an explicit root, for `fetch rotate-key`. */
+export const decryptSecretUnder = (root: string, context: string, stored: string): string | null =>
+  isEncryptedSecret(stored) ? decryptWith(keysFor(root).cipher, context, stored) : stored;
+
+const decryptWith = (key: Buffer, context: string, stored: string): string | null => {
   const [, ivRaw, tagRaw, ciphertextRaw] = stored.split(".");
   // `isEncryptedSecret` above already required four parts; this is the same
   // claim in a form the three uses below can rely on.

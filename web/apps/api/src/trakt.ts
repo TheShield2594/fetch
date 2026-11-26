@@ -293,7 +293,7 @@ export class TraktClient {
     const refreshToken = decryptSecret(SECRET_CONTEXT.traktRefreshToken, persistedToken.refreshToken);
     if (accessToken === null || refreshToken === null) {
       throw new Error(
-        "Stored Trakt tokens could not be decrypted — API_TOKEN has changed since they were saved. Reconnect Trakt from Settings."
+        "Stored Trakt tokens could not be decrypted — the encryption key (FETCH_SECRET_KEY or API_TOKEN) has changed since they were saved. Reconnect Trakt from Settings."
       );
     }
 

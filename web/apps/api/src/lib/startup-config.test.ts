@@ -35,4 +35,14 @@ describe("productionConfigIssues", () => {
       productionConfigIssues({ API_TOKEN: STRONG, DATABASE_URL: "postgresql://postgres:postgres@db:5432/fetch" })
     ).toEqual(["DATABASE_URL uses the development default Postgres password"]);
   });
+
+  it("holds FETCH_SECRET_KEY to the same length, and refuses one equal to API_TOKEN (#638)", () => {
+    expect(productionConfigIssues({ API_TOKEN: STRONG, FETCH_SECRET_KEY: "b".repeat(64), DATABASE_URL: DB })).toEqual([]);
+    const short = productionConfigIssues({ API_TOKEN: STRONG, FETCH_SECRET_KEY: "short", DATABASE_URL: DB });
+    expect(short).toHaveLength(1);
+    expect(short[0]).toContain("FETCH_SECRET_KEY is shorter than");
+    const same = productionConfigIssues({ API_TOKEN: STRONG, FETCH_SECRET_KEY: STRONG, DATABASE_URL: DB });
+    expect(same).toEqual([expect.stringContaining("FETCH_SECRET_KEY is the same as API_TOKEN")]);
+    expect(productionConfigIssues({ API_TOKEN: STRONG, FETCH_SECRET_KEY: "", DATABASE_URL: DB })).toEqual([]);
+  });
 });

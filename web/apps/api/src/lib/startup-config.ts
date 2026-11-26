@@ -22,6 +22,16 @@ export const productionConfigIssues = (env: NodeJS.ProcessEnv): string[] => {
       apiToken !== "dev-token" &&
       apiToken.length < MIN_API_TOKEN_LENGTH &&
       `API_TOKEN is shorter than ${MIN_API_TOKEN_LENGTH} characters; every encryption and signing key is derived from it, so generate one with \`openssl rand -hex 32\``,
+    // Held to the same bar as API_TOKEN, which it stands in for as the
+    // encryption root (#638).
+    env.FETCH_SECRET_KEY !== undefined &&
+      env.FETCH_SECRET_KEY !== "" &&
+      env.FETCH_SECRET_KEY.length < MIN_API_TOKEN_LENGTH &&
+      `FETCH_SECRET_KEY is shorter than ${MIN_API_TOKEN_LENGTH} characters; stored credentials are encrypted under it, so generate one with \`openssl rand -hex 32\``,
+    env.FETCH_SECRET_KEY !== undefined &&
+      env.FETCH_SECRET_KEY !== "" &&
+      env.FETCH_SECRET_KEY === apiToken &&
+      "FETCH_SECRET_KEY is the same as API_TOKEN; give it its own value (`fetch rotate-key` moves stored credentials onto it)",
     // A missing DATABASE_URL is not checked here: `lib/prisma.ts` refuses at
     // import time, which is long before this runs, and in every environment
     // rather than production alone.

@@ -390,7 +390,7 @@ internal fun ModernHomeRowsList(
                     },
                 ),
             contentPadding = PaddingValues(
-                top = if (showsContentFilter) HOME_CONTENT_FILTER_BAR_HEIGHT else 0.dp,
+                top = if (showsContentFilter) HOME_CONTENT_FILTER_BAR_HEIGHT else FetchTheme.spacing.none,
                 bottom = rowsViewportHeight
             ),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)

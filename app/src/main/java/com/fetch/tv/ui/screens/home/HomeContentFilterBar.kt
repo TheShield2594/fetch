@@ -17,14 +17,14 @@ import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import com.fetch.tv.R
 import com.fetch.tv.ui.components.FetchChip
+import com.fetch.tv.ui.theme.FetchSizes
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.StableList
 
-/** Room the filter takes above the first row (#814). */
-internal val HOME_CONTENT_FILTER_BAR_HEIGHT = 52.dp
+/** Room the filter takes above the first row (#814): one ordinary control's height. */
+internal val HOME_CONTENT_FILTER_BAR_HEIGHT = FetchSizes.tokens.controls.default
 
 /**
  * All · Movies · Shows (· Anime) above Home's rows (#814). Up from the first row reaches it, and

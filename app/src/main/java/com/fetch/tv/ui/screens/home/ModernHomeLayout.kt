@@ -152,17 +152,17 @@ internal fun ModernHomeSkeleton(
                 .align(Alignment.BottomStart)
                 .padding(
                     start = horizontalPadding,
-                    end = FetchTheme.spacing.xxxl,
                     bottom = layout.rowsViewportHeight + FetchTheme.spacing.lg
                 )
                 .fillMaxWidth(MODERN_HERO_TEXT_WIDTH_FRACTION),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
-            SkeletonBar(width = 360.dp, height = FetchTheme.spacing.xxxl, shimmer = shimmer)
-            SkeletonBar(width = 280.dp, height = FetchTheme.spacing.lg, shimmer = shimmer)
-            SkeletonBar(width = 420.dp, height = FetchTheme.spacing.md, shimmer = shimmer)
+            // Widths are fractions of the hero text column, the same column the real text fills.
+            SkeletonBar(width = 0.8f, height = FetchTheme.spacing.xxxl, shimmer = shimmer)
+            SkeletonBar(width = 0.6f, height = FetchTheme.spacing.lg, shimmer = shimmer)
+            SkeletonBar(width = 0.95f, height = FetchTheme.spacing.md, shimmer = shimmer)
             if (!layout.compactHeroText) {
-                SkeletonBar(width = 340.dp, height = FetchTheme.spacing.md, shimmer = shimmer)
+                SkeletonBar(width = 0.75f, height = FetchTheme.spacing.md, shimmer = shimmer)
             }
         }
         // Rows: a viewport of the same height at the bottom, filled from its top like the list.
@@ -179,8 +179,12 @@ internal fun ModernHomeSkeleton(
                 val cardWidth = if (isContinueWatching) layout.continueWatchingCardWidth else layout.entryRowCardWidth
                 val cardHeight = if (isContinueWatching) layout.continueWatchingCardHeight else layout.entryRowCardHeight
                 Column {
-                    Box(modifier = Modifier.padding(start = horizontalPadding, bottom = MODERN_ROW_TITLE_BOTTOM)) {
-                        SkeletonBar(width = 180.dp, height = layout.rowTitleHeight, shimmer = shimmer)
+                    Box(
+                        modifier = Modifier
+                            .padding(start = horizontalPadding, bottom = MODERN_ROW_TITLE_BOTTOM)
+                            .fillMaxWidth(MODERN_HOME_SKELETON_ROW_TITLE_FRACTION)
+                    ) {
+                        SkeletonBar(width = 1f, height = layout.rowTitleHeight, shimmer = shimmer)
                     }
                     Row(
                         modifier = Modifier
@@ -204,6 +208,9 @@ internal fun ModernHomeSkeleton(
 }
 
 internal const val WIDE_CARD_HEIGHT_RATIO = 0.4f
+
+/** The row title placeholder's share of the screen width. */
+private const val MODERN_HOME_SKELETON_ROW_TITLE_FRACTION = 0.18f
 
 /** Enough rows to fill the tallest viewport; the column clips what does not fit. */
 private const val MODERN_HOME_SKELETON_ROWS = 3

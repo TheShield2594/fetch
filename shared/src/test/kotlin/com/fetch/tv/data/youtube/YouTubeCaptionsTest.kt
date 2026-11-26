@@ -139,6 +139,12 @@ class YouTubeCaptionsTest {
         val fallback = YouTubeCaptions.cues(track, download = { null }, fallback = { listOf(YouTubeCaptionCue(1, 2, "vtt")) })
         assertEquals("vtt", fallback.single().text)
         assertTrue(YouTubeCaptions.cues(track, download = { "not json" }).isEmpty())
+
+        // A number where the text goes isn't text: that link gives nothing, so the next is tried.
+        val numeric = """{"events": [{"tStartMs": 0, "dDurationMs": 1000, "segs": [{"utf8": 42}]}]}"""
+        val real = """{"events": [{"tStartMs": 0, "dDurationMs": 1000, "segs": [{"utf8": "Hi "}, {"utf8": "42"}]}]}"""
+        val picked = YouTubeCaptions.cues(track, download = { url -> if ("/1" in url) numeric else real })
+        assertEquals(listOf(YouTubeCaptionCue(0, 1000, "Hi 42")), picked)
     }
 
     @Test

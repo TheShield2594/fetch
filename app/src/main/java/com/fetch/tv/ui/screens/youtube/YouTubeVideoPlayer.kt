@@ -59,7 +59,8 @@ internal fun YouTubeVideoPlayer(
     seekScrub: Boolean,
     /** Where a new [videoUrl] starts (0 = its default start: a live stream's edge). Read on each new link. */
     startPositionMs: Long,
-    onProgressChanged: (positionMs: Long, durationMs: Long) -> Unit,
+    /** [seeking]: a scrub is waiting to commit, and [positionMs] is its target, not playback's. */
+    onProgressChanged: (positionMs: Long, durationMs: Long, seeking: Boolean) -> Unit,
     onEnded: () -> Unit,
     onError: (PlaybackException) -> Unit,
     /** Play or pause asked from outside the remote's keys (the MediaSession: a voice assistant, a phone). */
@@ -149,9 +150,10 @@ internal fun YouTubeVideoPlayer(
 
     LaunchedEffect(player) {
         while (true) {
-            val position = seek.targetMs ?: player.currentPosition.coerceAtLeast(0L)
+            val pending = seek.targetMs
+            val position = pending ?: player.currentPosition.coerceAtLeast(0L)
             val duration = player.duration.takeIf { it != C.TIME_UNSET && it > 0L } ?: 0L
-            currentOnProgressChanged(position, duration)
+            currentOnProgressChanged(position, duration, pending != null)
             delay(PROGRESS_INTERVAL_MS)
         }
     }
@@ -161,7 +163,23 @@ internal fun YouTubeVideoPlayer(
     DisposableEffect(player, activityLifecycleOwner) {
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                if (playbackState == Player.STATE_ENDED && player.playWhenReady) currentOnEnded()
+                // A scrub still waiting to commit (a rewind pressed just before the end) wins:
+                // ending now would close the player and drop it.
+                if (playbackState == Player.STATE_ENDED && player.playWhenReady && seek.targetMs == null) {
+                    currentOnEnded()
+                }
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                // Headphones unplugged or another app took the audio: the player paused itself,
+                // so the overlay must show paused, or the next OK would "pause" a paused video.
+                if (!playWhenReady && (
+                        reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY ||
+                            reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS
+                        )
+                ) {
+                    currentOnPlayPauseRequest(false)
+                }
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {

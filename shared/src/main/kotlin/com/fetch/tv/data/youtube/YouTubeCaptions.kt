@@ -145,7 +145,10 @@ object YouTubeCaptions {
             val start = (event["tStartMs"] as? JsonPrimitive)?.longOrNull ?: return@mapNotNull null
             val duration = (event["dDurationMs"] as? JsonPrimitive)?.longOrNull ?: return@mapNotNull null
             val text = (event["segs"] as? JsonArray).orEmpty()
-                .joinToString("") { ((it as? JsonObject)?.get("utf8") as? JsonPrimitive)?.contentOrNull.orEmpty() }
+                // Text only: a number there isn't caption text, and would make a broken link look usable.
+                .joinToString("") {
+                    ((it as? JsonObject)?.get("utf8") as? JsonPrimitive)?.takeIf { p -> p.isString }?.contentOrNull.orEmpty()
+                }
                 .trim()
             if (text.isEmpty() || duration <= 0L) null else YouTubeCaptionCue(start, start + duration, text)
         }.sortedBy { it.startMs }

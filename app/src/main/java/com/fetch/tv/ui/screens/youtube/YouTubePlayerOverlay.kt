@@ -374,11 +374,13 @@ fun YouTubePlayerOverlay(
                         !continued -> playback.continueFromMs
                         else -> null
                     } ?: 0L,
-                    onProgressChanged = progress@{ position, duration ->
+                    onProgressChanged = progress@{ position, duration, seeking ->
                         positionMs = position
                         seekState.positionMs = position
                         seekState.durationMs = duration
-                        if (duration <= 0L) return@progress
+                        // A scrub's target only moves the seek bar: skips and saved progress wait
+                        // until it commits, so a target passing a segment doesn't cut the scrub short.
+                        if (duration <= 0L || seeking) return@progress
                         val continueFrom = currentContinueFrom
                         if (!continued && continueFrom != null && resumed) {
                             continued = true

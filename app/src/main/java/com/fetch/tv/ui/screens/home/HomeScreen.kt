@@ -206,9 +206,12 @@ fun HomeScreen(
         }
     }
 
+    // A card held for undo still counts, so hiding the last one doesn't swap Home for the empty
+    // state and take the Undo banner with it (#816).
     val hasAnyContent = uiState.catalogRows.isNotEmpty() ||
         (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
-        hasCollectionContent
+        hasCollectionContent ||
+        viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle().value != null
     val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
         reach = uiState.networkReach,
         hasAnyContent = hasAnyContent,

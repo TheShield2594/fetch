@@ -25,6 +25,8 @@ data class PendingContinueWatchingRemoval(
     val title: String,
     /** Distinguishes two removals of the same title, so a stale timer never commits a newer one. */
     val token: Long,
+    /** The profile the card belonged to; the removal never applies to another one. */
+    val profileId: Int,
     /** The card as it was shown, so the commit can still read it once it is hidden. */
     internal val shownItems: List<ContinueWatchingItem>
 )
@@ -74,6 +76,7 @@ internal fun HomeViewModel.requestContinueWatchingRemoval(
         isNextUp = isNextUp,
         title = title,
         token = ++cwRemovalTokenCounter,
+        profileId = profileManager.currentProfileId(),
         shownItems = shownItems
     )
     _pendingCwRemoval.value = pending
@@ -99,6 +102,12 @@ internal fun HomeViewModel.commitPendingContinueWatchingRemoval(scope: Coroutine
     val pending = _pendingCwRemoval.value ?: return
     cwRemovalCommitJob?.cancel()
     cwRemovalCommitJob = null
+    // The repository writes to whichever profile is active, so a removal held across a profile
+    // switch is dropped rather than applied to the new profile's progress.
+    if (profileManager.currentProfileId() != pending.profileId) {
+        _pendingCwRemoval.value = null
+        return
+    }
     // The removal first, so the underlying lists no longer hold the card when the hold lifts.
     removeContinueWatchingPipeline(
         contentId = pending.contentId,

@@ -39,6 +39,7 @@ class ContinueWatchingUndoTest {
         isNextUp = isNextUp,
         title = "Show $id",
         token = 1L,
+        profileId = 1,
         shownItems = emptyList()
     )
 

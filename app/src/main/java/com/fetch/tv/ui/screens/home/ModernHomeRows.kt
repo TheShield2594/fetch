@@ -1544,6 +1544,7 @@ private fun ModernCarouselCard(
                             error = backgroundPainter,
                             fallback = backgroundPainter,
                             contentScale = imageContentScale,
+                            onSuccess = { cardImageLoadFailed = false },
                             onError = {
                                 cardImageLoadFailed = true
                                 if (!item.metaPreview?.landscapePoster.isNullOrBlank() || !item.metaPreview?.rawPosterUrl.isNullOrBlank()) {

@@ -169,6 +169,9 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     catalogLoadGeneration += 1
     val generation = catalogLoadGeneration
     cancelInFlightCatalogLoads()
+    // Before any early return below: a reload that ends with no catalogs must not leave a
+    // failed row to be retried on the next resume.
+    clearFailedHomeCatalogs()
 
     // On reload (not first load), keep existing UI data visible while new
     // catalogs load in the background to avoid a flash of empty content.
@@ -284,7 +287,6 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             placeholderDescriptors.clear()
         }
         lazyLoadRequestedKeys.clear()
-        clearFailedHomeCatalogs()
 
         (eagerHomeCatalogs + lazyHomeCatalogs).forEach { (addon, catalog) ->
             val key = catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)

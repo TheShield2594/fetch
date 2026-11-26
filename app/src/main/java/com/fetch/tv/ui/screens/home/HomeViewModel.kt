@@ -598,6 +598,8 @@ class HomeViewModel @Inject constructor(
             profileManager.activeProfileId.collect { newId ->
                 if (newId != previousProfileId) {
                     previousProfileId = newId
+                    // A removal held for undo belongs to the previous profile (#816).
+                    undoContinueWatchingRemoval()
                     resetHoldHintForProfile()
                     // Cancel old pipeline — prevents racing writes from stale coroutines.
                     cwPipelineJob?.cancel()

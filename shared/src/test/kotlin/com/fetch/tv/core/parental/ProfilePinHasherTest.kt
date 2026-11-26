@@ -12,7 +12,9 @@ class ProfilePinHasherTest {
         val hash = ProfilePinHasher.hash("1234", iterations = 1_000)
         assertTrue(ProfilePinHasher.verify("1234", hash))
         assertFalse(ProfilePinHasher.verify("1235", hash))
-        assertFalse(hash.contains("1234"))
+        // The PIN is never stored as a field. Not "the string doesn't contain 1234": the salt and
+        // hash are 96 random hex characters, which contain "1234" in about 1 run in 700.
+        assertFalse(hash.split(":").contains("1234"))
     }
 
     @Test

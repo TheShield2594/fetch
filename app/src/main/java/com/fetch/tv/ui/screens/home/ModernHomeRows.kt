@@ -137,10 +137,17 @@ import com.fetch.tv.ui.util.asStable
 import com.fetch.tv.ui.util.contentTextDirection
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collectLatest
+import com.fetch.tv.ui.screens.settings.MemoryBudget
 import kotlinx.coroutines.flow.debounce
 
 private const val MODERN_HORIZONTAL_FOCUS_DEBOUNCE_MS = 140L
-private const val POSTER_PREFETCH_DISTANCE = 1
+private const val POSTER_PREFETCH_DISTANCE = 3
+private const val LOW_RAM_POSTER_PREFETCH_DISTANCE = 1
+
+/** Cards to warm past the right edge of the active row; one on low-RAM devices. */
+private fun posterPrefetchDistance(): Int =
+    if (MemoryBudget.isLowRamTier) LOW_RAM_POSTER_PREFETCH_DISTANCE else POSTER_PREFETCH_DISTANCE
 private const val NESTED_PREFETCH_COUNT = 2
 
 internal val LocalVerticalRowsScrolling = compositionLocalOf<State<Boolean>> { mutableStateOf(false) }
@@ -716,8 +723,6 @@ internal fun ModernRowSection(
         val rowItemCount = row.items.list.size
         LaunchedEffect(
             row.key,
-            isActiveRow,
-            isVerticalRowsScrollingState,
             rowItemCount,
             portraitCatalogCardWidth,
             portraitCatalogCardHeight,
@@ -728,41 +733,34 @@ internal fun ModernRowSection(
             useEpisodeThumbnails,
             blurUnwatchedEpisodes
         ) {
-            if (!isActiveRow() || isVerticalRowsScrollingState.value) return@LaunchedEffect
-            delay(150) // Wait before spamming image requests to survive rapid vertical D-pad scrolls!
             val cwWidthPx = with(density) {
                 continueWatchingArtworkWidth(
                     continueWatchingCardStyle, continueWatchingCardWidth, continueWatchingCardHeight
                 ).roundToPx()
             }
             val cwHeightPx = with(density) { continueWatchingCardHeight.roundToPx() }
+            fun cardSizePx(item: ModernCarouselItem): Pair<Int, Int> = when (item.payload) {
+                is ModernPayload.ContinueWatching -> cwWidthPx to cwHeightPx
+                is ModernPayload.Catalog,
+                is ModernPayload.YouTubeVideo,
+                is ModernPayload.CollectionFolder -> {
+                    val metrics = item.catalogCardMetrics(
+                        useLandscapePosters = useLandscapePosters,
+                        portraitCardWidth = portraitCatalogCardWidth,
+                        portraitCardHeight = portraitCatalogCardHeight,
+                        landscapeCardWidth = landscapeCatalogCardWidth,
+                        landscapeCardHeight = landscapeCatalogCardHeight
+                    )
+                    with(density) { metrics.width.roundToPx() } to with(density) { metrics.height.roundToPx() }
+                }
+            }
             fun imageUrlAndKey(item: ModernCarouselItem): Pair<String, String>? {
                 return when (val payload = item.payload) {
                     is ModernPayload.Catalog,
-                    is ModernPayload.YouTubeVideo -> {
-                        val url = item.imageUrl ?: return null
-                        val metrics = item.catalogCardMetrics(
-                            useLandscapePosters = useLandscapePosters,
-                            portraitCardWidth = portraitCatalogCardWidth,
-                            portraitCardHeight = portraitCatalogCardHeight,
-                            landscapeCardWidth = landscapeCatalogCardWidth,
-                            landscapeCardHeight = landscapeCatalogCardHeight
-                        )
-                        val widthPx = with(density) { metrics.width.roundToPx() }
-                        val heightPx = with(density) { metrics.height.roundToPx() }
-                        url to catalogCardImageCacheKey(url, widthPx, heightPx)
-                    }
+                    is ModernPayload.YouTubeVideo,
                     is ModernPayload.CollectionFolder -> {
                         val url = item.imageUrl ?: return null
-                        val metrics = item.catalogCardMetrics(
-                            useLandscapePosters = useLandscapePosters,
-                            portraitCardWidth = portraitCatalogCardWidth,
-                            portraitCardHeight = portraitCatalogCardHeight,
-                            landscapeCardWidth = landscapeCatalogCardWidth,
-                            landscapeCardHeight = landscapeCatalogCardHeight
-                        )
-                        val widthPx = with(density) { metrics.width.roundToPx() }
-                        val heightPx = with(density) { metrics.height.roundToPx() }
+                        val (widthPx, heightPx) = cardSizePx(item)
                         url to catalogCardImageCacheKey(url, widthPx, heightPx)
                     }
                     is ModernPayload.ContinueWatching -> {
@@ -806,75 +804,28 @@ internal fun ModernRowSection(
                         .build()
                 )
             }
-            // Prefetch initial visible + ahead items immediately when row appears
-            val items = currentRowState.value.items.list
-            withContext(Dispatchers.IO) {
-                for (i in 0 until minOf(POSTER_PREFETCH_DISTANCE, items.size)) {
-                    val item = items.getOrNull(i) ?: continue
-                    val (wPx, hPx) = when (item.payload) {
-                        is ModernPayload.Catalog,
-                        is ModernPayload.YouTubeVideo -> {
-                            val metrics = item.catalogCardMetrics(
-                                useLandscapePosters = useLandscapePosters,
-                                portraitCardWidth = portraitCatalogCardWidth,
-                                portraitCardHeight = portraitCatalogCardHeight,
-                                landscapeCardWidth = landscapeCatalogCardWidth,
-                                landscapeCardHeight = landscapeCatalogCardHeight
-                            )
-                            with(density) { metrics.width.roundToPx() } to with(density) { metrics.height.roundToPx() }
-                        }
-                        is ModernPayload.CollectionFolder -> {
-                            val metrics = item.catalogCardMetrics(
-                                useLandscapePosters = useLandscapePosters,
-                                portraitCardWidth = portraitCatalogCardWidth,
-                                portraitCardHeight = portraitCatalogCardHeight,
-                                landscapeCardWidth = landscapeCatalogCardWidth,
-                                landscapeCardHeight = landscapeCatalogCardHeight
-                            )
-                            with(density) { metrics.width.roundToPx() } to with(density) { metrics.height.roundToPx() }
-                        }
-                        is ModernPayload.ContinueWatching -> cwWidthPx to cwHeightPx
-                    }
-                    enqueueIfNeeded(item, wPx, hPx)
-                }
-            }
-
-            snapshotFlow {
-                rowListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            }
+            // isActiveRow and isVerticalRowsScrollingState keep the same identity for the row's
+            // lifetime, so keying the effect on them ran it once at composition. Observe their
+            // values instead, so the prefetch starts whenever this row becomes the active one.
+            snapshotFlow { isActiveRow() && !isVerticalRowsScrollingState.value }
                 .distinctUntilChanged()
-                .collect { lastVisibleIndex ->
-                    val currentItems = currentRowState.value.items.list
-                    withContext(Dispatchers.IO) {
-                        for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + POSTER_PREFETCH_DISTANCE)) {
-                            val item = currentItems.getOrNull(i) ?: continue
-                            val (wPx, hPx) = when (item.payload) {
-                                is ModernPayload.Catalog,
-                                is ModernPayload.YouTubeVideo -> {
-                                    val metrics = item.catalogCardMetrics(
-                                        useLandscapePosters = useLandscapePosters,
-                                        portraitCardWidth = portraitCatalogCardWidth,
-                                        portraitCardHeight = portraitCatalogCardHeight,
-                                        landscapeCardWidth = landscapeCatalogCardWidth,
-                                        landscapeCardHeight = landscapeCatalogCardHeight
-                                    )
-                                    with(density) { metrics.width.roundToPx() } to with(density) { metrics.height.roundToPx() }
-                                }
-                                is ModernPayload.CollectionFolder -> {
-                                    val metrics = item.catalogCardMetrics(
-                                        useLandscapePosters = useLandscapePosters,
-                                        portraitCardWidth = portraitCatalogCardWidth,
-                                        portraitCardHeight = portraitCatalogCardHeight,
-                                        landscapeCardWidth = landscapeCatalogCardWidth,
-                                        landscapeCardHeight = landscapeCatalogCardHeight
-                                    )
-                                    with(density) { metrics.width.roundToPx() } to with(density) { metrics.height.roundToPx() }
-                                }
-                                is ModernPayload.ContinueWatching -> cwWidthPx to cwHeightPx
-                            }
-                            enqueueIfNeeded(item, wPx, hPx)
-                        }
+                .collectLatest { ready ->
+                    if (!ready) return@collectLatest
+                    delay(150) // Wait before spamming image requests to survive rapid vertical D-pad scrolls!
+                    snapshotFlow {
+                        rowListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
                     }
+                        .distinctUntilChanged()
+                        .collect { lastVisibleIndex ->
+                            val currentItems = currentRowState.value.items.list
+                            withContext(Dispatchers.IO) {
+                                for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + posterPrefetchDistance())) {
+                                    val item = currentItems.getOrNull(i) ?: continue
+                                    val (wPx, hPx) = cardSizePx(item)
+                                    enqueueIfNeeded(item, wPx, hPx)
+                                }
+                            }
+                        }
                 }
         }
 
@@ -1132,11 +1083,28 @@ internal fun ModernRowSection(
                 }
                 if (row.showsSeeAllCard()) {
                     item(key = "${row.key}__see_all", contentType = "modern_see_all_card") {
+                        // See all sits after the last item, so it reports focus as index items.size and
+                        // registers its requester there: the hero and the row's focusRestorer follow it.
+                        val seeAllIndex = row.items.list.size
+                        val requester = itemFocusRequesters.focusRequesterFor(seeAllIndex)
+                        val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)
+                        val onFocused = remember(row.key, seeAllIndex, isContinueWatchingRow) {
+                            {
+                                onExpandedCatalogFocusKeyChange(null)
+                                onRowItemFocused(row.key, seeAllIndex, isContinueWatchingRow)
+                                if (pendingRowFocusKey.value == row.key && (pendingRowFocusIndex.value ?: 0) == seeAllIndex) {
+                                    onPendingRowFocusCleared()
+                                }
+                            }
+                        }
                         ModernSeeAllCard(
                             width = if (useLandscapePosters) landscapeCatalogCardWidth else portraitCatalogCardWidth,
                             height = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight,
                             cornerRadius = posterCardCornerRadius,
-                            onClick = { onSeeAllRow(row) }
+                            onClick = { onSeeAllRow(row) },
+                            modifier = Modifier
+                                .focusRequester(requester)
+                                .onFocusChanged { if (it.isFocused) onFocused() }
                         )
                     }
                 }
@@ -1155,6 +1123,10 @@ internal fun HeroCarouselRow.showsSeeAllCard(): Boolean =
         addonId != MODERN_READY_TONIGHT_ROW_KEY &&
         !isContinueWatchingStyleRow(key) &&
         orderKey() != null
+
+/** Highest focusable index in the row: the See all card, at items.size, when the row has one. */
+internal fun HeroCarouselRow.maxFocusIndex(): Int =
+    if (showsSeeAllCard()) items.list.size else (items.list.size - 1).coerceAtLeast(0)
 
 
 @OptIn(ExperimentalTvMaterial3Api::class)

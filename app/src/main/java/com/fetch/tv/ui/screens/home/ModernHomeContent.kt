@@ -10,7 +10,6 @@ package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PlayLaunchOrigin
-import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.screens.settings.MemoryBudget
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
@@ -107,7 +106,6 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 // Height of the wide card as a fraction of its width, matching the 2.5:1 shape of the mobile card.
-private const val WIDE_CARD_HEIGHT_RATIO = 0.4f
 
 private class FixedState<T>(override val value: T) : State<T>
 
@@ -199,7 +197,7 @@ fun ModernHomeContent(
     }
     val hasCatalogs = uiState.catalogRows.isNotEmpty()
     if (hasCollections && !hasCatalogs && uiState.installedAddonsCount > 0 && uiState.isLoading) {
-        CatalogRowsSkeleton(modifier = Modifier.fillMaxSize())
+        ModernHomeSkeleton(uiState = uiState, modifier = Modifier.fillMaxSize())
         return
     }
 
@@ -320,9 +318,30 @@ fun ModernHomeContent(
         }
     }
 
+    // Home picked in the sidebar while on Home: start over at the first card of the first row.
+    // Scrolling alone left the active row, its saved index and the hero on the old row, so the
+    // sidebar's focus hand-back went to that row and scrolled back down (or found nothing).
+    val latestRowsForScrollToTop = rememberUpdatedState(carouselRows)
     LaunchedEffect(scrollToTopTrigger) {
-        if (scrollToTopTrigger > 0) {
-            verticalRowListState.scrollToItem(0, 0)
+        if (scrollToTopTrigger <= 0) return@LaunchedEffect
+        val firstRow = latestRowsForScrollToTop.value.list.firstOrNull()
+        focusedItemByRow.keys.toList().forEach { focusedItemByRow[it] = 0 }
+        focusedCatalogSelection.value = null
+        expandedCatalogFocusKey.value = null
+        if (firstRow != null) {
+            focusHolder.activeRowKey = firstRow.key
+            focusHolder.activeItemIndex = 0
+            activeRowKey.value = firstRow.key
+            activeItemIndex.intValue = 0
+            focusedItemByRow[firstRow.key] = 0
+            heroItem.value = firstRow.items.firstOrNull()?.heroPreview ?: heroItem.value
+            pendingRowFocusKey.value = firstRow.key
+            pendingRowFocusIndex.value = 0
+            pendingRowFocusNonce.intValue++
+        }
+        verticalRowListState.scrollToItem(0, 0)
+        rowListStates.values.toList().forEach { state ->
+            runCatching { state.scrollToItem(0, 0) }
         }
     }
 
@@ -596,7 +615,7 @@ fun ModernHomeContent(
         LaunchedEffect(activeRow?.key, activeRow?.items?.size) {
             val row = activeRow ?: return@LaunchedEffect
             val savedIdx = focusedItemByRow[row.key] ?: 0
-            val clampedIndex = savedIdx.coerceIn(0, (row.items.size - 1).coerceAtLeast(0))
+            val clampedIndex = savedIdx.coerceIn(0, row.maxFocusIndex())
             if (focusHolder.activeItemIndex != clampedIndex) {
                 focusHolder.activeItemIndex = clampedIndex
                 activeItemIndex.intValue = clampedIndex
@@ -699,28 +718,14 @@ fun ModernHomeContent(
         }
     }
 
-    val portraitBaseWidth = uiState.posterCardWidthDp.dp
-    val portraitBaseHeight = uiState.posterCardHeightDp.dp
-    val portraitModernPosterScale = 1.08f
-    val landscapeModernPosterScale = 1.34f
-    val portraitCatalogCardWidth = portraitBaseWidth * 0.84f * portraitModernPosterScale
-    val portraitCatalogCardHeight = portraitBaseHeight * 0.84f * portraitModernPosterScale
-    val landscapeCatalogCardWidth = portraitBaseWidth * 1.24f * landscapeModernPosterScale
-    val landscapeCatalogCardHeight = landscapeCatalogCardWidth / 1.77f
-    // Poster style reuses the portrait catalog dimensions so its artwork matches the catalogs below it.
+    val homeLayout = rememberModernHomeLayout(uiState)
+    val portraitCatalogCardWidth = homeLayout.portraitCatalogCardWidth
+    val portraitCatalogCardHeight = homeLayout.portraitCatalogCardHeight
+    val landscapeCatalogCardWidth = homeLayout.landscapeCatalogCardWidth
+    val landscapeCatalogCardHeight = homeLayout.landscapeCatalogCardHeight
     val continueWatchingStyle = uiState.continueWatchingCardStyle
-    val continueWatchingScale = 1.34f
-    val continueWatchingCardWidth = when (continueWatchingStyle) {
-        ContinueWatchingCardStyle.POSTER -> portraitCatalogCardWidth
-        // Wide still scales with the poster width setting so it matches the rest of the row.
-        ContinueWatchingCardStyle.WIDE -> portraitBaseWidth * 2.1f
-        ContinueWatchingCardStyle.CARD -> portraitBaseWidth * 1.24f * continueWatchingScale
-    }
-    val continueWatchingCardHeight = when (continueWatchingStyle) {
-        ContinueWatchingCardStyle.POSTER -> portraitCatalogCardHeight
-        ContinueWatchingCardStyle.WIDE -> continueWatchingCardWidth * WIDE_CARD_HEIGHT_RATIO
-        ContinueWatchingCardStyle.CARD -> continueWatchingCardWidth / 1.77f
-    }
+    val continueWatchingCardWidth = homeLayout.continueWatchingCardWidth
+    val continueWatchingCardHeight = homeLayout.continueWatchingCardHeight
 
     val localConfiguration = LocalConfiguration.current
     val screenWidth = localConfiguration.screenWidthDp.dp
@@ -744,7 +749,8 @@ fun ModernHomeContent(
                 }
             }
 
-            val resolvedHeroState = remember(activeCarouselItemState, enrichedPreviews, enrichingItemId, heroItem, uiState.heroEnrichmentEnabled, uiState.homeImdbRatingsVisibility, failedEnrichmentIds) {
+            val seeAllHeroLabel = androidx.compose.ui.res.stringResource(R.string.action_see_all)
+            val resolvedHeroState = remember(activeCarouselItemState, enrichedPreviews, enrichingItemId, heroItem, uiState.heroEnrichmentEnabled, uiState.homeImdbRatingsVisibility, failedEnrichmentIds, seeAllHeroLabel) {
                 derivedStateOf {
                     val activeCarouselItem = activeCarouselItemState.value
                     val activeItemId = activeCarouselItem?.metaPreview?.id
@@ -816,6 +822,28 @@ fun ModernHomeContent(
                         activeRowFallbackBackdrop
                     )
                     
+                    // The See all card (index items.size) has a hero of its own: the row's title and
+                    // "See all" over the backdrop already showing, not the last card's title.
+                    val seeAllRow = activeRow?.takeIf {
+                        it.showsSeeAllCard() && activeItemIndex.intValue >= it.items.size
+                    }
+                    if (seeAllRow != null) {
+                        val seeAllHero = HeroPreview(
+                            title = seeAllRow.title,
+                            logo = null,
+                            description = null,
+                            contentTypeText = null,
+                            yearText = null,
+                            imdbText = null,
+                            genres = emptyList<String>().asStable(),
+                            poster = null,
+                            backdrop = heroBackdrop,
+                            imageUrl = null,
+                            eyebrowText = seeAllHeroLabel
+                        )
+                        return@derivedStateOf Triple(heroBackdrop, seeAllHero, false)
+                    }
+
                     Triple(heroBackdrop, resolvedHero, effectiveEnrichmentActive)
                 }
             }
@@ -1073,40 +1101,9 @@ fun ModernHomeContent(
             }
 
             val localDensity = LocalDensity.current
-            val rowTitleLineHeight = MaterialTheme.typography.titleMedium.lineHeight
-            val rowTitleHeight = remember(rowTitleLineHeight, localDensity) {
-                with(localDensity) {
-                    runCatching { rowTitleLineHeight.toDp() }
-                        .getOrDefault(FetchTheme.spacing.xl)
-                }
-            }
-            val rowsViewportHeightFraction = if (useLandscapePosters) 0.49f else 0.52f
-            // Two whole rows on entry where the cards allow it (landscape cards at the default
-            // size do): the rows grow into the hero up to MODERN_ROWS_VIEWPORT_MAX_FRACTION, and
-            // the hero's text block is shortened to match (compactHeroText below).
-            val entryRowCardHeight = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight
-            // Continue Watching leads Home only while it is on and has something in it.
-            val continueWatchingLeads = uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()
-            val firstRowCardHeight = if (continueWatchingLeads) {
-                maxOf(entryRowCardHeight, continueWatchingCardHeight)
-            } else {
-                entryRowCardHeight
-            }
-            val rowSpacing = FetchTheme.spacing.xl
-            val rowsViewportHeight = remember(
-                screenHeight,
-                rowsViewportHeightFraction,
-                rowTitleHeight,
-                entryRowCardHeight,
-                firstRowCardHeight,
-                rowSpacing
-            ) {
-                val twoRowsHeight = rowTitleHeight * 2 + MODERN_ROW_TITLE_BOTTOM * 2 +
-                    firstRowCardHeight + entryRowCardHeight + rowSpacing + MODERN_ROW_FOCUS_ALLOWANCE
-                maxOf(screenHeight * rowsViewportHeightFraction, twoRowsHeight)
-                    .coerceAtMost(screenHeight * MODERN_ROWS_VIEWPORT_MAX_FRACTION)
-            }
-            val compactHeroText = rowsViewportHeight > screenHeight * rowsViewportHeightFraction
+            val rowTitleHeight = homeLayout.rowTitleHeight
+            val rowsViewportHeight = homeLayout.rowsViewportHeight
+            val compactHeroText = homeLayout.compactHeroText
             val heroBackdropHeight = remember(screenHeight, rowsViewportHeight, rowTitleHeight) { (screenHeight - rowsViewportHeight + rowTitleHeight + 14.dp).coerceAtMost(screenHeight) }
             val verticalRowBringIntoViewSpec = remember(localDensity, defaultBringIntoViewSpec) {
                 val topInsetPx = with(localDensity) { MODERN_ROW_HEADER_FOCUS_INSET.toPx() }

@@ -68,6 +68,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.withContext
+import com.fetch.tv.ui.screens.settings.MemoryBudget
+
+private const val VERTICAL_PREFETCH_MAX_ITEMS_PER_ROW = 7
 
 @OptIn(
     ExperimentalFoundationApi::class,
@@ -177,7 +180,9 @@ internal fun ModernHomeRowsList(
         landscapeCatalogCardHeight
     ) {
         val prefetchAheadRows = 1
-        val prefetchItemsPerRow = 1
+        // A screenful of the next row, so a move down lands on loaded cards, not just the first one.
+        val lowRam = MemoryBudget.isLowRamTier
+        val viewportWidthPx = context.resources.displayMetrics.widthPixels
         snapshotFlow {
             verticalRowListState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
         }
@@ -188,8 +193,13 @@ internal fun ModernHomeRowsList(
                     for (rowOffset in 1..prefetchAheadRows) {
                         val row = latestCarouselRowsForImagePrefetch.value.list
                             .getOrNull(lastVisibleRowIndex + rowOffset) ?: continue
-                        for (i in 0 until minOf(prefetchItemsPerRow, row.items.list.size)) {
+                        var prefetchItemsPerRow = 1
+                        var sized = false
+                        for (i in 0 until row.items.list.size) {
+                            if (i >= prefetchItemsPerRow) break
                             val item = row.items.list[i]
+                            // Continue Watching cards use a different size and cache key; the row sits first anyway.
+                            if (item.payload is ModernPayload.ContinueWatching) continue
                             val url = item.imageUrl ?: continue
                             // Collapsed card size and key, matching what the card itself requests.
                             val metrics = item.catalogCardMetrics(
@@ -202,6 +212,11 @@ internal fun ModernHomeRowsList(
                             val wPx = with(density) { metrics.width.roundToPx() }
                             val hPx = with(density) { metrics.height.roundToPx() }
                             if (wPx <= 0 || hPx <= 0) continue
+                            if (!sized && !lowRam) {
+                                sized = true
+                                prefetchItemsPerRow = (viewportWidthPx / wPx + 1)
+                                    .coerceIn(1, VERTICAL_PREFETCH_MAX_ITEMS_PER_ROW)
+                            }
                             val cacheKey = catalogCardImageCacheKey(url, wPx, hPx)
                             val extras = item.catalogCardImageCacheExtras(imageUrl = url, isLandscapeCustomPoster = false)
                             if (verticalPrefetchImageLoader.memoryCache?.get(MemoryCache.Key(cacheKey, extras)) != null) continue
@@ -364,7 +379,7 @@ internal fun ModernHomeRowsList(
                         if (targetRow == null) null
                         else {
                             val savedIdx = (focusedItemByRowMap[targetRow.key] ?: 0)
-                                .coerceIn(0, (targetRow.items.list.size - 1).coerceAtLeast(0))
+                                .coerceIn(0, targetRow.maxFocusIndex())
                             latestOnActiveRowKeyChange.value(targetRow.key)
                             latestOnActiveItemIndexChange.value(savedIdx)
 
@@ -401,6 +416,14 @@ internal fun ModernHomeRowsList(
                         // Always keep the focusedItemByRow map in sync for ALL rows
                         if (focusedItemByRowMap[rowKey] != index) {
                             focusedItemByRowMap[rowKey] = index
+                        }
+
+                        // The See all card (index items.size) has no title behind it, so nothing stays selected.
+                        val isSeeAll = latestCarouselRowsForImagePrefetch.value.list
+                            .firstOrNull { it.key == rowKey }
+                            ?.let { index >= it.items.list.size } == true
+                        if (isSeeAll && focusedCatalogSelection.value != null) {
+                            onFocusedCatalogSelectionChange(null)
                         }
 
                         if (isContinueWatchingRow) {

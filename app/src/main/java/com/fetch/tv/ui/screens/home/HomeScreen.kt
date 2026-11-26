@@ -43,7 +43,6 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.ui.components.ErrorState
-import com.fetch.tv.ui.components.CatalogRowsSkeleton
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.StateAction
 import androidx.compose.material.icons.Icons
@@ -381,11 +380,11 @@ fun HomeScreen(
         }
 
         if (showHomeLoader) {
-            CatalogRowsSkeleton(
+            ModernHomeSkeleton(
+                uiState = uiState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(FetchTheme.colors.Background),
-                showHero = true
+                    .background(FetchTheme.colors.Background)
             )
         }
 

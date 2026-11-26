@@ -57,7 +57,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
@@ -158,13 +160,30 @@ class HomeViewModel @Inject constructor(
      * replay, so a later collector always starts from current data.
      */
     internal val sharedAllProgress: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.WatchProgress>> by lazy {
-        watchProgressRepository.allProgress.shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
+        watchProgressRepository.allProgress.sharedPerProfile()
     }
     internal val sharedWatchedItems: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.WatchedItem>> by lazy {
-        watchProgressRepository.watchedItems.shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
+        watchProgressRepository.watchedItems.sharedPerProfile()
     }
     internal val sharedNextUpSeeds: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.WatchProgress>> by lazy {
-        watchProgressRepository.observeNextUpSeeds().shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
+        watchProgressRepository.observeNextUpSeeds().sharedPerProfile()
+    }
+
+    /**
+     * Shares [this] once, restarted for each profile and tagged with it. The replayed value can be
+     * the previous profile's right after a switch, so collectors only see values tagged with the
+     * profile active now: a pipeline restarted for the new profile never runs on (or saves) the
+     * old profile's history.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    private fun <T> kotlinx.coroutines.flow.Flow<T>.sharedPerProfile(): kotlinx.coroutines.flow.Flow<T> {
+        val upstream = this
+        val shared = profileManager.activeProfileId
+            .flatMapLatest { profileId -> upstream.map { profileId to it } }
+            .shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
+        return shared
+            .filter { (profileId, _) -> profileId == profileManager.currentProfileId() }
+            .map { (_, value) -> value }
     }
 
     internal val _uiState = MutableStateFlow(HomeUiState())
@@ -367,8 +386,13 @@ class HomeViewModel @Inject constructor(
     internal val cwTmdbIdCache: MutableMap<String, String?> = createLruMap(MAX_CW_CACHE_SIZE)
     // Bounded LRU (TheShield2594/fetch#826). Access-ordered: iterate only under the map's lock and
     // never `get` while iterating its keys.
+    // Evicting a "no next episode" entry also forgets that its older seed was processed: the
+    // recheck of processed seeds keys on these entries, so a seed whose entry is gone would
+    // otherwise never be rechecked this session. It is resolved once more on the next run.
     internal val cwNextUpResolutionCache: MutableMap<String, NextUpResolution?> =
-        boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE)
+        boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE) { key, value ->
+            if (value == null) cwProcessedOlderSeedContentIds.remove(key.substringBefore('|'))
+        }
     internal val cwNextUpNegativeCacheTimestamps: MutableMap<String, Long> =
         boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE)
     internal val discoveredOlderNextUpItems = Collections.synchronizedList(mutableListOf<ContinueWatchingItem.NextUp>())
@@ -523,6 +547,9 @@ class HomeViewModel @Inject constructor(
                     _movieWatchedStatus.value = emptyMap()
                     _pendingWatchedBatch.value = emptyMap()
                     _uiState.update { it.copy(movieWatchedStatus = emptyMap()) }
+                    // The running observer reconciles and saves for the previous profile.
+                    seriesWatchedObserverJob?.cancel()
+                    seriesWatchedObserverJob = null
                     lastSeriesWatchedItemKeys = null
                 }
             }

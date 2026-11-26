@@ -248,4 +248,32 @@ class HeroPresenterTest {
             assertEquals(once, twice)
         }
     }
+
+    @Test
+    fun `a rebound input drives the scene and title`() {
+        val first = androidx.compose.runtime.mutableStateOf(
+            HeroLiveInput(live = live("a"), title = preview("a"), scrolling = false, rapidNavigation = false)
+        )
+        val presenter = HeroPresenter(
+            initialInput = first,
+            initialDisplayedBackdrop = art("a"),
+            initialBackdropTarget = art("a")
+        )
+        assertEquals(art("a"), presenter.scene.value.heroBackdrop)
+        assertEquals("a", presenter.title.value?.title)
+
+        val second = androidx.compose.runtime.mutableStateOf(
+            HeroLiveInput(
+                live = live("b", trailerUrl = "https://video.test/b.m3u8"),
+                title = preview("b"),
+                scrolling = false,
+                rapidNavigation = false
+            )
+        )
+        presenter.bind(second)
+
+        assertEquals("https://video.test/b.m3u8", presenter.scene.value.trailerUrl)
+        assertEquals(art("b"), presenter.scene.value.heroBackdrop)
+        assertEquals("b", presenter.title.value?.title)
+    }
 }

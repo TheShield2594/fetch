@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
@@ -489,8 +490,7 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
             when (result) {
                 is NetworkResult.Success -> {
                     updateCatalogRow(key) { latestRow ->
-                        // Capped: see HOME_CATALOG_ROW_MAX_ITEMS (#826).
-                        latestRow.mergeCatalogPage(result.data).cappedForHome()
+                        latestRow.mergeCatalogPage(result.data)
                     }
                     _loadingCatalogs.update { it - key }
                     scheduleUpdateCatalogRows()
@@ -571,7 +571,9 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
             } else {
                     val catalogRow = displayRowsByKey[key]
                     if (catalogRow != null && catalogRow.items.isNotEmpty()) {
-                        add(HomeRow.Catalog(catalogRow))
+                        // Only the Home row is capped (#826): See all reads the stored row and
+                        // keeps paginating past HOME_CATALOG_ROW_MAX_ITEMS.
+                        add(HomeRow.Catalog(catalogRow.cappedForHome()))
                     } else {
                         val placeholder = placeholdersByKey[key]
                         if (placeholder != null) {
@@ -686,6 +688,9 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
     lastSeriesWatchedItemKeys = allSeriesItemsByKey
     if (allSeriesItemsByKey.isNotEmpty()) {
         seriesWatchedObserverJob?.cancel()
+        // The reconcile saves under this profile only: a switch cancels the observer, and a value
+        // reaching it after the switch is dropped rather than written under the new profile.
+        val observerProfileId = profileManager.currentProfileId()
         seriesWatchedObserverJob = viewModelScope.launch {
             combine(
                 fullyWatchedSeriesIds.fullyWatchedSeriesIds,
@@ -693,6 +698,7 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
             ) { fullyWatched, watchedItems ->
                 fullyWatched to watchedItems
             }.mapLatest { (fullyWatched, watchedItems) ->
+                if (profileManager.currentProfileId() != observerProfileId) return@mapLatest null
                 // On Default: the reconcile groups every watched item. What it touches is
                 // thread-safe (the state holder is synchronized, the badge cache is locked).
                 val effectiveFullyWatched = if (
@@ -701,18 +707,19 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
                     fullyWatched
                 } else {
                     reconcileFullyWatchedFromLocalItems(
-                        profileId = profileManager.currentProfileId(),
+                        profileId = observerProfileId,
                         fullyWatched = fullyWatched,
                         watchedItems = watchedItems,
                         seriesContentIds = allSeriesItemsByKey.values
                     )
                 }
-                buildMap {
+                buildMap<String, Boolean> {
                     allSeriesItemsByKey.forEach { (statusKey, contentId) ->
                         put(statusKey, contentId in effectiveFullyWatched)
                     }
                 }
             }.flowOn(Dispatchers.Default)
+                .filterNotNull()
                 // Home is covered while the player is open; badges catch up once it closes.
                 .pausedWhilePlayerOpen(com.fetch.tv.core.player.PlayerSessionTracker.isSessionOpen)
                 .collect { seriesStatus ->

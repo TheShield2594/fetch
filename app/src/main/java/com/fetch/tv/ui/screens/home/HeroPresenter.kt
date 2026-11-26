@@ -129,11 +129,13 @@ internal fun resolveHeroScene(previous: HeroPresenterState, input: HeroSceneInpu
  */
 @Stable
 internal class HeroPresenter(
-    input: State<HeroLiveInput>,
+    initialInput: State<HeroLiveInput>,
     initialDisplayedBackdrop: String?,
     initialBackdropTarget: String?
 ) {
-    private var input by mutableStateOf(input)
+    // Not named like the constructor parameter: initializers below would read the parameter,
+    // and miss the state bind() swaps in.
+    private var input by mutableStateOf(initialInput)
     private var state by mutableStateOf(HeroPresenterState(backdropTarget = initialBackdropTarget))
     private var displayedBackdrop by mutableStateOf(initialDisplayedBackdrop)
 

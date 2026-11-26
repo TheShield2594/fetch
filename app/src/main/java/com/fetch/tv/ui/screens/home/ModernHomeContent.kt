@@ -938,7 +938,7 @@ fun ModernHomeContent(
             }
             val heroPresenter = remember {
                 HeroPresenter(
-                    input = heroLiveInputState,
+                    initialInput = heroLiveInputState,
                     initialDisplayedBackdrop = HeroBackdropState.lastDisplayedUrl,
                     initialBackdropTarget = HeroBackdropState.lastDisplayedUrl
                         ?: Snapshot.withoutReadObservation { liveHeroSceneState.value.heroBackdrop }

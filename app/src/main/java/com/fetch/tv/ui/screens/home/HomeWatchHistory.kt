@@ -106,19 +106,27 @@ internal fun homeSeriesStatusKeys(items: Sequence<MetaPreview>): Map<String, Str
  * Reads reorder entries, so iterate only while holding the map's lock, and never call `get` on
  * the map while iterating its keys: remove through `entries` instead.
  */
-internal fun <K, V> boundedLruMap(maxSize: Int): MutableMap<K, V> {
+internal fun <K, V> boundedLruMap(
+    maxSize: Int,
+    onEvict: ((key: K, value: V) -> Unit)? = null
+): MutableMap<K, V> {
     require(maxSize > 0)
     val lru = object : LinkedHashMap<K, V>(16, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean = size > maxSize
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean {
+            val evict = size > maxSize
+            if (evict && eldest != null) onEvict?.invoke(eldest.key, eldest.value)
+            return evict
+        }
     }
     return java.util.Collections.synchronizedMap(lru)
 }
 
 /**
- * Most items a Home catalog row keeps as it paginates. Holding Right on a long catalog otherwise
+ * Most items a Home catalog row shows and paginates to. Holding Right on a long catalog otherwise
  * grows the row (and its focus requesters, keys and image requests) without limit for the rest
  * of the session. 300 is several minutes of scrolling at TV repeat rates, well past what anyone
- * browses inline; the row's See all card opens the full grid for the rest.
+ * browses inline. Only the row Home displays is capped: the stored row keeps its paging, so the
+ * See all grid, which reads it, can load the rest.
  */
 internal const val HOME_CATALOG_ROW_MAX_ITEMS = 300
 

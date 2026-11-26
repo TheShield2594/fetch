@@ -236,4 +236,16 @@ class HomeWatchHistoryTest {
         items = (0 until items).map { meta("m$it", ContentType.MOVIE) },
         hasMore = true
     )
+
+    @Test
+    fun `bounded lru map reports each evicted entry`() {
+        val evicted = mutableListOf<Pair<String, Int?>>()
+        val map = boundedLruMap<String, Int?>(maxSize = 2) { key, value -> evicted += key to value }
+        map["a"] = null
+        map["b"] = 2
+        map["c"] = 3
+
+        assertEquals(listOf("a" to null), evicted)
+        assertEquals(setOf("b", "c"), map.keys)
+    }
 }

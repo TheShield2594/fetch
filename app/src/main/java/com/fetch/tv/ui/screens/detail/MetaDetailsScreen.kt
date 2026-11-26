@@ -394,6 +394,12 @@ fun MetaDetailsScreen(
     heroBackdropUrl: String? = null,
     playOnLoad: Boolean = false,
     playOnLoadManually: Boolean = false,
+    /**
+     * With [playOnLoad]: the page was opened only to start playback (Play on a Home card, #812),
+     * so it never shows, and coming back from playback (or from a title that can't play) leaves it
+     * through [onBackPress].
+     */
+    leaveOnPlaybackReturn: Boolean = false,
     onBackPress: () -> Unit,
     onReturnFocusConsumed: () -> Unit = {},
     onNavigateToCastDetail: (personId: Int, personName: String, preferCrew: Boolean) -> Unit = { _, _, _ -> },
@@ -469,7 +475,17 @@ fun MetaDetailsScreen(
     val playOnLoadConsumed = rememberSaveable { mutableStateOf(false) }
     val playOnLoadHandoffDispatched = rememberSaveable { mutableStateOf(false) }
     val playOnLoadReturnObserved = rememberSaveable { mutableStateOf(false) }
-    val suppressInitialPlayOnLoadContent = playOnLoad && !playOnLoadReturnObserved.value
+    val leavesOnPlaybackReturn = playOnLoad && leaveOnPlaybackReturn
+    val suppressInitialPlayOnLoadContent = playOnLoad &&
+        (!playOnLoadReturnObserved.value || leavesOnPlaybackReturn)
+    val latestOnBackPress by rememberUpdatedState(onBackPress)
+    var leftOnPlaybackReturn by remember { mutableStateOf(false) }
+    LaunchedEffect(leavesOnPlaybackReturn, playOnLoadReturnObserved.value) {
+        if (leavesOnPlaybackReturn && playOnLoadReturnObserved.value && !leftOnPlaybackReturn) {
+            leftOnPlaybackReturn = true
+            latestOnBackPress()
+        }
+    }
     val playOnLoadReturnContentReady = !uiState.isLoading && uiState.meta != null
     var playOnLoadReturnRevealRequested by remember(playOnLoad) { mutableStateOf(!playOnLoad) }
     var playOnLoadReturnContentRevealed by remember(playOnLoad) { mutableStateOf(!playOnLoad) }

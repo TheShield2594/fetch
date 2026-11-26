@@ -240,6 +240,21 @@ private fun PlaybackNavHost(
                 onNavigateToFolderDetail = { collectionId, folderId ->
                     navController.navigate(Screen.FolderDetail.createRoute(collectionId, folderId))
                 },
+                onPlayCatalogTitle = { itemId, itemType, addonBaseUrl ->
+                    // The detail page picks the film or the next episode and hands off to its
+                    // Best match at once; Back from playback leaves it again, to this card (#812).
+                    val heroBackdrop = HeroBackdropState.consumeAndClear()
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            itemId = itemId,
+                            itemType = itemType,
+                            addonBaseUrl = addonBaseUrl,
+                            heroBackdropUrl = heroBackdrop,
+                            playOnLoad = true,
+                            leaveOnPlaybackReturn = true
+                        )
+                    )
+                },
                 onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                 onCustomiseHome = { rowKey -> navController.navigate(Screen.CatalogOrder.createRoute(rowKey)) },
                 onOpenYouTube = { navController.navigate(Screen.YouTube.route) { launchSingleTop = true } }
@@ -290,6 +305,11 @@ private fun PlaybackNavHost(
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
+                },
+                navArgument("leaveOnPlaybackReturn") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = "false"
                 }
             )
         ) { backStackEntry ->
@@ -314,6 +334,7 @@ private fun PlaybackNavHost(
             val heroBackdropUrl = detailArgs?.getString("heroBackdropUrl")?.takeIf { it.isNotBlank() }
             val playOnLoad = detailArgs?.getString("playOnLoad")?.toBooleanStrictOrNull() == true
             val manualSelection = detailArgs?.getString("manualSelection")?.toBooleanStrictOrNull() == true
+            val leaveOnPlaybackReturn = detailArgs?.getString("leaveOnPlaybackReturn")?.toBooleanStrictOrNull() == true
             DetailChildHost(parentNavController = navController) { childNav ->
             MetaDetailsScreen(
                 returnFocusSeason = returnFocusSeason,
@@ -322,6 +343,7 @@ private fun PlaybackNavHost(
                 heroBackdropUrl = heroBackdropUrl,
                 playOnLoad = playOnLoad,
                 playOnLoadManually = manualSelection,
+                leaveOnPlaybackReturn = leaveOnPlaybackReturn,
                 onReturnFocusConsumed = {
                     savedState["returnFocusSeason"] = null
                     savedState["returnFocusEpisode"] = null

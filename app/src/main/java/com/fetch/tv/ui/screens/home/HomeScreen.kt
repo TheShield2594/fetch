@@ -85,7 +85,9 @@ fun HomeScreen(
     /** Opens Customise Home, on the given row (its order key) when there is one. */
     onCustomiseHome: (String?) -> Unit = {},
     /** Opens the YouTube screen, which plays the video a YouTube card asked for. */
-    onOpenYouTube: () -> Unit = {}
+    onOpenYouTube: () -> Unit = {},
+    /** Play/Pause on a catalog card: starts the title (id, type, addon) without its detail page (#812). */
+    onPlayCatalogTitle: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -159,7 +161,8 @@ fun HomeScreen(
             }
         }
     }
-    val onCardFocused = remember(posterOptionsViewModel) { { posterOptionsViewModel.onCardFocused() } }
+    // Home says "Hold OK for options" in the hero for a few sessions instead of a one-off toast (#812).
+    val onCardFocused = remember(viewModel) { { viewModel.onHomeCardFocused() } }
 
     LaunchedEffect(
         uiState.isLoading,
@@ -366,7 +369,8 @@ fun HomeScreen(
                             onCardFocused = onCardFocused,
                             onOpenYouTube = onOpenYouTube,
                             isCatalogItemWatched = isCatalogItemWatched,
-                            onCatalogItemLongPress = onCatalogItemLongPress
+                            onCatalogItemLongPress = onCatalogItemLongPress,
+                            onPlayCatalogTitle = onPlayCatalogTitle
                         )
                     }
                 }
@@ -403,17 +407,6 @@ fun HomeScreen(
                     color = FetchTheme.colors.TextPrimary
                 )
             }
-        }
-    }
-
-    // The long-press menu is otherwise invisible: say it exists, once per profile.
-    val showHoldHint by posterOptionsViewModel.showHoldHint.collectAsStateWithLifecycle()
-    val hintContext = androidx.compose.ui.platform.LocalContext.current
-    val holdHintText = stringResource(R.string.poster_options_hold_hint)
-    LaunchedEffect(showHoldHint) {
-        if (showHoldHint) {
-            android.widget.Toast.makeText(hintContext, holdHintText, android.widget.Toast.LENGTH_LONG).show()
-            posterOptionsViewModel.consumeHoldHint()
         }
     }
 
@@ -460,9 +453,21 @@ private fun ModernHomeRoute(
     onCardFocused: () -> Unit = {},
     onOpenYouTube: () -> Unit = {},
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit
+    onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit,
+    onPlayCatalogTitle: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val focusState by viewModel.focusState.collectAsStateWithLifecycle()
+    val catalogQuickPlayAllowed by viewModel.catalogQuickPlayAllowed.collectAsStateWithLifecycle()
+    val showHoldHint by viewModel.showHoldHint.collectAsStateWithLifecycle()
+    // Null on a kids Home or a profile with parental limits: Play/Pause then opens the card like OK.
+    val onCatalogItemPlay: ((MetaPreview, String) -> Unit)? =
+        remember(catalogQuickPlayAllowed, uiState.kidsHome, onPlayCatalogTitle) {
+            if (!catalogQuickPlayAllowed || uiState.kidsHome) {
+                null
+            } else {
+                { item: MetaPreview, addonBaseUrl: String -> onPlayCatalogTitle(item.id, item.apiType, addonBaseUrl) }
+            }
+        }
     val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
     val modernPresentation by viewModel.modernHomePresentation.collectAsStateWithLifecycle()
     // Not delegated: ModernHomeContent reads these inside the hero, so this scope doesn't recompose.
@@ -537,6 +542,9 @@ private fun ModernHomeRoute(
         onRemoveContinueWatching = removeContinueWatching,
         isCatalogItemWatched = isCatalogItemWatched,
         onCatalogItemLongPress = onCatalogItemLongPress,
+        onCatalogItemPlay = onCatalogItemPlay,
+        showHoldHint = showHoldHint && !uiState.kidsHome,
+        onContentFilterSelected = remember(viewModel) { { filter: HomeContentFilter -> viewModel.setHomeContentFilter(filter) } },
         onNavigateToFolderDetail = onNavigateToFolderDetail,
         onSeeAllRow = onSeeAllRow,
         onYouTubeVideoClick = remember(viewModel, onOpenYouTube) {

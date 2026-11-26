@@ -34,7 +34,13 @@ internal data class ModernHomePresentationInput(
     val showImdbRatings: Boolean,
     val detailImdbRatingsVisibility: com.fetch.tv.domain.model.DetailImdbRatingsVisibility =
         com.fetch.tv.domain.model.DetailImdbRatingsVisibility.SHOW_ALL,
-    val localeTag: String
+    val localeTag: String,
+    /** The profile's Movies / Shows filter (#814). */
+    val contentFilter: HomeContentFilter = HomeContentFilter.ALL,
+    /** Watched state by [homeItemStatusKey], so the Spotlight leaves watched titles out (#813). */
+    val watchedStatus: Map<String, Boolean> = emptyMap(),
+    /** The day the Spotlight is picked for; see [spotlightDay]. */
+    val spotlightDay: Long = 0L
 )
 
 internal fun buildModernHomePresentation(
@@ -43,6 +49,11 @@ internal fun buildModernHomePresentation(
     context: Context,
     maxCatalogRows: Int? = null
 ): ModernHomePresentationState {
+    // A saved filter that would leave nothing (its addon was removed, say) falls back to All,
+    // so Home never ends up empty with the filter out of reach.
+    val contentFilters = availableHomeContentFilters(input)
+    val contentFilter = input.contentFilter.takeIf { it in contentFilters } ?: HomeContentFilter.ALL
+    @Suppress("NAME_SHADOWING") val input = input.filteredBy(contentFilter)
     val visibleHomeRows = resolveVisibleHomeRows(input)
     val localizedContext = context.withAppLocale()
     val strContinueWatching = localizedContext.getString(R.string.continue_watching)
@@ -97,6 +108,16 @@ internal fun buildModernHomePresentation(
         } else {
             cache.continueWatchingItems = emptyList()
             cache.continueWatchingRow = null
+            // Nothing to resume: lead with a few featured titles instead (#813). Not on a kids Home.
+            if (!input.kidsHome) {
+                buildSpotlightRow(
+                    sourceRows = visibleHomeRows.mapNotNull { (it as? HomeRow.Catalog)?.row },
+                    input = input,
+                    title = localizedContext.getString(R.string.home_row_spotlight),
+                    strTypeMovie = strTypeMovie,
+                    strTypeSeries = strTypeSeries
+                )?.let(::add)
+            }
         }
 
         // Ready tonight: titles that will start instantly. A single one would only repeat a card
@@ -391,9 +412,58 @@ internal fun buildModernHomePresentation(
     val lookups = buildCarouselRowLookups(rows)
     return ModernHomePresentationState(
         rows = rows.asStable(),
-        lookups = lookups
+        lookups = lookups,
+        contentFilter = contentFilter,
+        contentFilters = contentFilters.asStable()
     )
 }
+
+/**
+ * The Spotlight row: a normal row of wide cards, so focus and the hero treat it like any other.
+ * Its cards get keys of their own, so they never share a focus or expansion key with the same
+ * title in the row it came from. Null with too few titles to feature.
+ */
+private fun buildSpotlightRow(
+    sourceRows: List<CatalogRow>,
+    input: ModernHomePresentationInput,
+    title: String,
+    strTypeMovie: String,
+    strTypeSeries: String
+): HeroCarouselRow? {
+    val picks = pickSpotlight(
+        rows = sourceRows,
+        isWatched = { item -> input.watchedStatus[homeItemStatusKey(item.id, item.apiType)] == true },
+        day = input.spotlightDay
+    )
+    if (picks.size < SPOTLIGHT_MIN_ITEMS) return null
+    val items = picks.map { pick ->
+        val built = buildCatalogItem(
+            item = pick.item,
+            row = pick.row,
+            useLandscapePosters = true,
+            occurrence = 0,
+            strTypeMovie = strTypeMovie,
+            strTypeSeries = strTypeSeries,
+            showFullReleaseDate = input.showFullReleaseDate,
+            showImdbRatings = input.showImdbRatings
+        )
+        val identity = "${pick.item.apiType}:${pick.item.id}"
+        val payload = built.payload as ModernPayload.Catalog
+        built.copy(
+            key = "${MODERN_SPOTLIGHT_ROW_KEY}_$identity",
+            payload = payload.copy(focusKey = "${MODERN_SPOTLIGHT_ROW_KEY}::$identity")
+        )
+    }
+    return HeroCarouselRow(
+        key = MODERN_SPOTLIGHT_ROW_KEY,
+        title = title,
+        globalRowIndex = -1,
+        items = items.asStable()
+    )
+}
+
+/** Fewer than this many titles is not much of a spotlight; the row is left out. */
+private const val SPOTLIGHT_MIN_ITEMS = 3
 
 private fun resolveVisibleHomeRows(input: ModernHomePresentationInput): List<HomeRow> {
     val rows = resolveConfiguredHomeRows(input)

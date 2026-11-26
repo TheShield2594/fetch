@@ -2,6 +2,9 @@ package com.fetch.tv.ui.screens.home
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -94,9 +97,40 @@ data class HeroPreview(
     val resumeProgressFraction: Float? = null,
     /** Continue Watching only: key of this video in the Best match cache. */
     val bestMatchKey: String? = null,
+    /**
+     * Continue Watching only: the title of the episode Resume (or Play) starts, shown as one line
+     * under the logo. The meta line then carries only the episode code, so the title isn't repeated.
+     */
+    val resumeEpisodeTitle: String? = null,
     /** Why this title is on Home ("NEW EPISODE", a recommendation reason), shown above the title. */
     val eyebrowText: String? = null
 )
+
+/**
+ * What the hero shows for the focused card, for TalkBack: the card reads it after its own title so
+ * the year, rating and runtime drawn above the rows are announced with the card. [itemKey] is the
+ * [ModernCarouselItem.key] the hero is showing, so only that card picks it up.
+ */
+@Immutable
+internal data class HeroCardAccessibility(
+    val itemKey: String,
+    val details: String
+)
+
+internal val LocalHeroCardAccessibility =
+    compositionLocalOf<State<HeroCardAccessibility?>> { mutableStateOf(null) }
+
+/** "2024, PG-13, IMDb 7.8, 2h 10m": the hero's year, ratings and runtime, or null with none. */
+internal fun heroAccessibilityDetails(
+    preview: HeroPreview,
+    showImdbRating: Boolean,
+    imdbRatingTemplate: String
+): String? = listOfNotNull(
+    preview.yearText,
+    preview.ageRatingText,
+    preview.imdbText?.takeIf { showImdbRating && it.isNotBlank() }?.let { imdbRatingTemplate.format(it) },
+    preview.runtimeText
+).map { it.trim() }.filter { it.isNotEmpty() }.takeIf { it.isNotEmpty() }?.joinToString(", ")
 
 @Immutable
 sealed class ModernPayload {
@@ -383,6 +417,8 @@ internal fun buildContinueWatchingItem(
                 isSeries && episodeTitle != null -> episodeTitle
                 else -> localizedContentType(context, item.progress.contentType)
             }
+            // The episode title gets its own line under the logo, next to the Resume line.
+            val resumeEpisodeTitle = episodeTitle?.takeIf { isSeries }
             val resumeLabel = context.getString(R.string.cw_resume)
             val timeLeft = formatContinueWatchingProgressLabel(
                 progress = item.progress,
@@ -395,7 +431,11 @@ internal fun buildContinueWatchingItem(
                 title = item.progress.name,
                 logo = item.progress.logo,
                 description = item.episodeDescription,
-                contentTypeText = episodeLabel,
+                contentTypeText = if (resumeEpisodeTitle != null) {
+                    episodeCode ?: localizedContentType(context, item.progress.contentType)
+                } else {
+                    episodeLabel
+                },
                 isSeries = isSeries,
                 yearText = extractYearOrRange(item.releaseInfo),
                 // The time left moves to the spec line under the Resume button.
@@ -412,6 +452,7 @@ internal fun buildContinueWatchingItem(
                     item.progress.contentType,
                     item.progress.videoId
                 ),
+                resumeEpisodeTitle = resumeEpisodeTitle,
                 imdbText = item.episodeImdbRating
                     ?.takeIf { !isSeries || detailImdbRatingsVisibility.showEpisodeRating(isWatched = item.progress.isCompleted()) }
                     ?.let { String.format(Locale.getDefault(), "%.1f", it) },
@@ -436,12 +477,14 @@ internal fun buildContinueWatchingItem(
                 ?.takeIf { it.isNotBlank() && !it.isPlaceholderEpisodeTitle() }
                 ?.localizeEpisodeTitle(context)
             val episodeLabel = if (episodeTitle != null) "$episodeCode · $episodeTitle" else episodeCode
+            // Only an aired episode has a Play line; the episode title sits under the logo beside it.
+            val resumeEpisodeTitle = episodeTitle?.takeIf { item.info.hasAired }
             HeroPreview(
                 title = item.info.name,
                 logo = item.info.logo,
                 description = item.info.episodeDescription
                     ?: item.info.airDateLabel?.let { airsDateTemplate.format(it) },
-                contentTypeText = episodeLabel,
+                contentTypeText = if (resumeEpisodeTitle != null) episodeCode else episodeLabel,
                 isSeries = true,
                 yearText = extractYearOrRange(item.info.releaseInfo),
                 // Next Up, New episode or the air date says why the show is here, so it leads.
@@ -456,6 +499,7 @@ internal fun buildContinueWatchingItem(
                 } else {
                     null
                 },
+                resumeEpisodeTitle = resumeEpisodeTitle,
                 imdbText = item.info.imdbRating
                     ?.takeIf { detailImdbRatingsVisibility.showEpisodeRating(isWatched = false) }
                     ?.let { String.format(Locale.getDefault(), "%.1f", it) },

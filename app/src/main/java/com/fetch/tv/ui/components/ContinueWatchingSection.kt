@@ -216,7 +216,9 @@ fun ContinueWatchingCard(
     cornerRadius: Dp = FetchTheme.radii.md,
     posterTitleOverride: TextStyle? = null,
     /** True when this card's Best match is cached and recently confirmed, so it starts at once. */
-    isReady: Boolean = false
+    isReady: Boolean = false,
+    /** Read after the card's own label, such as the year and rating the Home hero shows for it. */
+    accessibilityDetails: String? = null
 ) {
     val isPosterStyle = cardStyle == ContinueWatchingCardStyle.POSTER
     val isWideStyle = cardStyle == ContinueWatchingCardStyle.WIDE
@@ -395,12 +397,13 @@ fun ContinueWatchingCard(
     val bgCardColor = FetchTheme.colors.BackgroundCard
     val backgroundPainter = remember(bgCardColor) { androidx.compose.ui.graphics.painter.ColorPainter(bgCardColor) }
 
-    val cardLabel = remember(titleText, episodeStr, episodeTitle, badgeText, progress) {
+    val cardLabel = remember(titleText, episodeStr, episodeTitle, badgeText, progress, accessibilityDetails) {
         listOfNotNull(
             titleText,
             episodeStr,
             episodeTitle,
-            badgeText?.takeIf { progress == null }
+            badgeText?.takeIf { progress == null },
+            accessibilityDetails
         ).filter { it.isNotBlank() }.distinct().joinToString(", ")
     }
 

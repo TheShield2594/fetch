@@ -2202,6 +2202,8 @@
     <string name="cd_trakt_logo">Trakt Logo</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>
     <string name="cd_imdb">IMDb</string>
+    <!-- TalkBack, after a focused Home card's title: the IMDb rating the hero shows, e.g. "IMDb 7.8". -->
+    <string name="cd_hero_imdb_rating">IMDb %1$s</string>
     <string name="cd_open_discover">Open discover</string>
     <string name="cd_clear_search">Clear search</string>
     <string name="cd_voice_search">Voice search</string>

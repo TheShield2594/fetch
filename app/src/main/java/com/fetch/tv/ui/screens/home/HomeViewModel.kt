@@ -187,6 +187,11 @@ class HomeViewModel @Inject constructor(
     }
 
     internal val _uiState = MutableStateFlow(HomeUiState())
+    /** A Continue Watching removal waiting out its undo window (#816). */
+    internal val _pendingCwRemoval = MutableStateFlow<PendingContinueWatchingRemoval?>(null)
+    val pendingContinueWatchingRemoval: StateFlow<PendingContinueWatchingRemoval?> = _pendingCwRemoval.asStateFlow()
+    internal var cwRemovalCommitJob: Job? = null
+    internal var cwRemovalTokenCounter = 0L
     internal val shuffleHomeRefresh = MutableStateFlow(HomeShuffleRefresh())
     val uiState: StateFlow<HomeUiState> by lazy { createShuffleHomeState() }
 
@@ -344,12 +349,14 @@ class HomeViewModel @Inject constructor(
     internal var activeCatalogLoadSignature: String? = null
     internal var catalogLoadGeneration: Long = 0L
     internal var catalogsLoadInProgress: Boolean = false
-    internal val trailerPreviewLoadingIds = mutableSetOf<String>()
-    internal val trailerPreviewNegativeCache = mutableSetOf<String>()
+    // Written on Main (focus requests) and on IO (the lookup's completion and enrichment merges),
+    // so both sets must be safe for concurrent access (#810).
+    internal val trailerPreviewLoadingIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    internal val trailerPreviewNegativeCache: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val trailerPreviewUrlsState = mutableStateMapOf<String, String>()
     internal val trailerPreviewAudioUrlsState = mutableStateMapOf<String, String>()
-    internal var activeTrailerPreviewItemId: String? = null
-    internal var trailerPreviewRequestVersion: Long = 0L
+    @Volatile internal var activeTrailerPreviewItemId: String? = null
+    @Volatile internal var trailerPreviewRequestVersion: Long = 0L
     internal var trailerPreviewJob: Job? = null
     internal var currentTmdbSettings: TmdbSettings = TmdbSettings()
     internal var currentMdbListSettings: MDBListSettings = MDBListSettings()
@@ -421,11 +428,12 @@ class HomeViewModel @Inject constructor(
     internal var cwOlderSeedRecheckJob: Job? = null
     internal val fullyWatchedSeriesIds get() = watchedSeriesStateHolder
     internal var tmdbEnrichFocusJob: Job? = null
-    internal var pendingTmdbEnrichItemId: String? = null
+    // Claimed on Main, compared and released on IO by the focus enrichment job (#810).
+    @Volatile internal var pendingTmdbEnrichItemId: String? = null
     /** Item that was focused during startup grace period — will be enriched once grace ends. */
     internal var deferredEnrichItem: MetaPreview? = null
     internal var adjacentItemPrefetchJob: Job? = null
-    internal var pendingAdjacentPrefetchItemId: String? = null
+    @Volatile internal var pendingAdjacentPrefetchItemId: String? = null
     internal val movieWatchedObserverJobs = mutableMapOf<String, Job>()
     internal var movieWatchedBatchJob: Job? = null
     internal var lastMovieWatchedItemKeys: Set<String> = emptySet()
@@ -445,6 +453,12 @@ class HomeViewModel @Inject constructor(
     internal val eagerCatalogLoadCount: Int = 4
     internal val lazyLoadRequestedKeys: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val pendingLazyCatalogs = linkedMapOf<String, Pair<Addon, CatalogDescriptor>>()
+    /** Rows whose load failed and that are waiting for a retry, by catalog key (#799). */
+    internal val failedHomeCatalogs = ConcurrentHashMap<String, FailedHomeCatalog>()
+    internal val failedCatalogRetryJobs = ConcurrentHashMap<String, Job>()
+    internal val retryingHomeCatalogKeys: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    /** Restructured page 1 of the focused row, by row stable key, applied once focus leaves. */
+    internal val deferredFocusedRowRefreshes = ConcurrentHashMap<String, DeferredHomeRowRefresh>()
     /** All placeholder descriptors for homeRow construction. */
     internal data class PlaceholderDescriptor(
         val catalogKey: String,
@@ -841,12 +855,14 @@ class HomeViewModel @Inject constructor(
     fun onEvent(event: HomeEvent) {
         when (event) {
             is HomeEvent.OnLoadMoreCatalog -> loadMoreCatalogItems(event.catalogId, event.addonId, event.type)
-            is HomeEvent.OnRemoveContinueWatching -> removeContinueWatching(
+            is HomeEvent.OnRemoveContinueWatching -> requestContinueWatchingRemoval(
                 contentId = event.contentId,
                 season = event.season,
                 episode = event.episode,
                 isNextUp = event.isNextUp
             )
+            HomeEvent.OnUndoRemoveContinueWatching -> undoContinueWatchingRemoval()
+            HomeEvent.OnCommitPendingRemoval -> commitPendingContinueWatchingRemoval()
             HomeEvent.OnRetry -> viewModelScope.launch { loadAllCatalogs(addonsCache, forceReload = true) }
         }
     }
@@ -940,17 +956,6 @@ class HomeViewModel @Inject constructor(
         loadContinueWatchingPipeline()
     }
 
-    private fun removeContinueWatching(
-        contentId: String,
-        season: Int? = null,
-        episode: Int? = null,
-        isNextUp: Boolean = false
-    ) = removeContinueWatchingPipeline(
-        contentId = contentId,
-        season = season,
-        episode = episode,
-        isNextUp = isNextUp
-    )
 
     private fun observeCollections() = observeCollectionsPipeline()
 
@@ -978,6 +983,7 @@ class HomeViewModel @Inject constructor(
     fun setLiveFocusedRowKey(rowKey: String?) {
         liveFocusedRowKey = rowKey
         onFocusedRowChangedForMdbBatch(rowKey)
+        applyDeferredRowRefreshes(rowKey)
     }
 
     /**
@@ -1004,6 +1010,9 @@ class HomeViewModel @Inject constructor(
     fun refreshHomeCatalogsIfStale() {
         youTubeRow.onHomeVisible()
         if (addonsCache.isEmpty()) return
+        // Failed rows are retried on every return, not only once the TTL has passed: there is
+        // nothing on screen to refresh, so waiting would only keep the row missing (#799).
+        retryFailedHomeCatalogsPipeline()
         val now = android.os.SystemClock.elapsedRealtime()
         if (now - lastHomeCatalogRefreshAtMs < HOME_CATALOG_REFRESH_TTL_MS) return
         lastHomeCatalogRefreshAtMs = now
@@ -1168,6 +1177,11 @@ class HomeViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        // Leaving the app commits a removal still in its undo window. The view model's own scope
+        // is already cancelled here, so the writes run on a scope of their own.
+        commitPendingContinueWatchingRemoval(
+            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+        )
         startupAuthNoticeJob?.cancel()
         posterStatusReconcileJob?.cancel()
         movieWatchedBatchJob?.cancel()

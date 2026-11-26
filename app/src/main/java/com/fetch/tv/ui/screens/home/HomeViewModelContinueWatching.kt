@@ -20,6 +20,7 @@ import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.model.normalizeLanguageCode
 import com.fetch.tv.domain.model.countryToLanguageCode
 import com.fetch.tv.ui.util.parseEpisodeReleaseDate
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
@@ -3417,14 +3418,17 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
     contentId: String,
     season: Int? = null,
     episode: Int? = null,
-    isNextUp: Boolean = false
+    isNextUp: Boolean = false,
+    /** Cards as they were shown when the user removed one; an undo hold hides it from [uiState]. */
+    knownItems: List<ContinueWatchingItem> = emptyList(),
+    scope: CoroutineScope = viewModelScope
 ) {
     if (isNextUp) {
         val dismissedId = contentId.trim()
         // The shown state first: a shuffle card exists only there, and it carries the seed.
         val shown = uiState.value
         val state = _uiState.value
-        val info = (shown.continueWatchingItems + shown.upcomingItems + state.continueWatchingItems + state.upcomingItems)
+        val info = (knownItems + shown.continueWatchingItems + shown.upcomingItems + state.continueWatchingItems + state.upcomingItems)
             .firstNotNullOfOrNull { item ->
                 (item as? ContinueWatchingItem.NextUp)?.info?.takeIf { it.contentId.trim() == dismissedId }
             }
@@ -3449,37 +3453,37 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
                 }
             )
         }
-        viewModelScope.launch {
+        scope.launch {
             traktSettingsDataStore.addNextUpDismissal(dismissal)
         }
         return
     }
     // Removing a series episode would otherwise bring the show straight back as Up Next,
     // seeded from its earlier watched episodes (TheShield2594/fetch#801).
-    val removedProgress = (uiState.value.continueWatchingItems + _uiState.value.continueWatchingItems)
+    val removedProgress = (knownItems + uiState.value.continueWatchingItems + _uiState.value.continueWatchingItems)
         .firstNotNullOfOrNull { item ->
             (item as? ContinueWatchingItem.InProgress)?.progress?.takeIf { it.contentId == contentId }
         }
     val dismissal = removedProgress?.let { inProgressRemovalDismissal(it, System.currentTimeMillis()) }
-    viewModelScope.launch {
-        // Optimistic UI: remove the item from the CW list immediately
-        // so the user sees instant feedback while the DataStore write propagates.
-        _uiState.update { state ->
-            state.copy(
-                continueWatchingItems = state.continueWatchingItems.filterNot { item ->
-                    when (item) {
-                        is ContinueWatchingItem.InProgress -> item.progress.contentId == contentId
-                        is ContinueWatchingItem.NextUp -> item.info.contentId == contentId
-                    }
-                },
-                upcomingItems = state.upcomingItems.filterNot { item ->
-                    when (item) {
-                        is ContinueWatchingItem.InProgress -> item.progress.contentId == contentId
-                        is ContinueWatchingItem.NextUp -> item.info.contentId == contentId
-                    }
+    // Optimistic UI: remove the item from the CW list immediately, before an undo hold on the
+    // shown state lifts, so the card never flashes back while the DataStore write propagates.
+    _uiState.update { state ->
+        state.copy(
+            continueWatchingItems = state.continueWatchingItems.filterNot { item ->
+                when (item) {
+                    is ContinueWatchingItem.InProgress -> item.progress.contentId == contentId
+                    is ContinueWatchingItem.NextUp -> item.info.contentId == contentId
                 }
-            )
-        }
+            },
+            upcomingItems = state.upcomingItems.filterNot { item ->
+                when (item) {
+                    is ContinueWatchingItem.InProgress -> item.progress.contentId == contentId
+                    is ContinueWatchingItem.NextUp -> item.info.contentId == contentId
+                }
+            }
+        )
+    }
+    scope.launch {
         // Before the removal, so the pipeline run it triggers already sees the dismissal.
         // Playing the show again clears it (WatchProgressRepositoryImpl.saveProgress).
         dismissal?.let { traktSettingsDataStore.addNextUpDismissal(it) }

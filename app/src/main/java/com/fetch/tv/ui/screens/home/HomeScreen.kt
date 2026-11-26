@@ -98,6 +98,10 @@ fun HomeScreen(
                 viewModel.beginShuffleHomeVisit()
                 viewModel.refreshHomeCatalogsIfStale()
             }
+            // Leaving Home, or the app, carries out a removal still in its undo window (#816).
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onEvent(HomeEvent.OnCommitPendingRemoval)
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
@@ -514,8 +518,13 @@ private fun ModernHomeRoute(
     // readiness ticker or provides LocalReadyBestMatchKeys for it (TheShield2594/fetch#826).
     // "Ready tonight" keeps its own timer in the presentation pipeline, and the ready check above
     // still runs because that row reads what it saves.
+    val pendingCwRemoval by viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle()
     ModernHomeContent(
         uiState = uiState,
+        pendingContinueWatchingRemoval = pendingCwRemoval,
+        onUndoRemoveContinueWatching = remember(viewModel) {
+            { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
+        },
         cachedBestMatches = shownBestMatches,
         queuedVideoIds = queuedVideoIds,
         onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },

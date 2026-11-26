@@ -162,6 +162,7 @@ internal fun HomeViewModel.clearCatalogData() {
         placeholderDescriptors.clear()
     }
     lazyLoadRequestedKeys.clear()
+    clearFailedHomeCatalogs()
 }
 
 /** Drops loaded rows whose key is not in [keys], with their item index entries. */

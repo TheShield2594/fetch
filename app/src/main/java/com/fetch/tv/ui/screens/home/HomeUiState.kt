@@ -185,6 +185,9 @@ sealed class HomeEvent {
         val episode: Int? = null,
         val isNextUp: Boolean = false
     ) : HomeEvent()
+    data object OnUndoRemoveContinueWatching : HomeEvent()
+    /** Home is being left: a removal still in its undo window is carried out now. */
+    data object OnCommitPendingRemoval : HomeEvent()
     data object OnRetry : HomeEvent()
 }
 

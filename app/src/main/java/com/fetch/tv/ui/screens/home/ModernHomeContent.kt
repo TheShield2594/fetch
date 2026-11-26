@@ -162,7 +162,10 @@ fun ModernHomeContent(
     blockLeftOnFirstExpandedItem: Boolean = false,
     cachedBestMatches: Map<String, com.fetch.tv.data.local.CachedBestMatch> = emptyMap(),
     queuedVideoIds: Set<String> = emptySet(),
-    onToggleQueue: (ContinueWatchingItem) -> Unit = {}
+    onToggleQueue: (ContinueWatchingItem) -> Unit = {},
+    /** A Continue Watching removal waiting out its undo window, or null (#816). */
+    pendingContinueWatchingRemoval: PendingContinueWatchingRemoval? = null,
+    onUndoRemoveContinueWatching: () -> Unit = {}
 ) {
     val latestCachedBestMatches = rememberUpdatedState(cachedBestMatches)
     val onRowItemFocusedPassedDown = rememberUpdatedState(onRowItemFocusedCallback)
@@ -656,6 +659,29 @@ fun ModernHomeContent(
     val continueWatchingStyle = uiState.continueWatchingCardStyle
     val continueWatchingCardWidth = homeLayout.continueWatchingCardWidth
     val continueWatchingCardHeight = homeLayout.continueWatchingCardHeight
+
+    val cwUndoFocusRequester = remember { FocusRequester() }
+    val cwUndoHasFocus = remember { mutableStateOf(false) }
+    val latestContinueWatchingCount = rememberUpdatedState(uiState.continueWatchingItems.size)
+    val returnFocusToContinueWatching: () -> Unit = remember(focusController) {
+        {
+            if (latestContinueWatchingCount.value > 0) {
+                focusController.requestRowFocus(
+                    MODERN_CONTINUE_WATCHING_ROW_KEY,
+                    focusController.lastFocusedContinueWatchingIndex.value.coerceAtLeast(0)
+                )
+            } else {
+                focusController.requestRowFocus(null, null)
+            }
+        }
+    }
+    // The banner going away on its own must not leave focus nowhere.
+    LaunchedEffect(pendingContinueWatchingRemoval == null) {
+        if (pendingContinueWatchingRemoval == null && cwUndoHasFocus.value) {
+            cwUndoHasFocus.value = false
+            returnFocusToContinueWatching()
+        }
+    }
 
     val localConfiguration = LocalConfiguration.current
     val screenWidth = localConfiguration.screenWidthDp.dp
@@ -1219,7 +1245,35 @@ fun ModernHomeContent(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .onFocusChanged { contentHasFocus.value = it.hasFocus }
+                    .onPreviewKeyEvent { event ->
+                        // While the undo banner shows, Up from the Continue Watching row reaches it.
+                        if (pendingContinueWatchingRemoval == null ||
+                            focusController.activeRowKey.value != MODERN_CONTINUE_WATCHING_ROW_KEY ||
+                            event.nativeKeyEvent.keyCode != android.view.KeyEvent.KEYCODE_DPAD_UP
+                        ) {
+                            return@onPreviewKeyEvent false
+                        }
+                        if (event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown) {
+                            runCatching { cwUndoFocusRequester.requestFocus() }
+                        }
+                        true
+                    }
             )
+            pendingContinueWatchingRemoval?.let { pending ->
+                ContinueWatchingUndoBanner(
+                    pending = pending,
+                    undoFocusRequester = cwUndoFocusRequester,
+                    onUndo = {
+                        returnFocusToContinueWatching()
+                        onUndoRemoveContinueWatching()
+                    },
+                    onReturnToRow = returnFocusToContinueWatching,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = FetchTheme.spacing.screen.vertical)
+                        .onFocusChanged { cwUndoHasFocus.value = it.hasFocus }
+                )
+            }
             }
     }
 

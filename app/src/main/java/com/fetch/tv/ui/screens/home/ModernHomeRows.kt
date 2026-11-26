@@ -12,6 +12,7 @@ import com.fetch.tv.ui.theme.FetchTheme
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -152,6 +153,8 @@ private const val LOW_RAM_POSTER_PREFETCH_DISTANCE = 1
 private fun posterPrefetchDistance(): Int =
     if (MemoryBudget.isLowRamTier) LOW_RAM_POSTER_PREFETCH_DISTANCE else POSTER_PREFETCH_DISTANCE
 private const val NESTED_PREFETCH_COUNT = 2
+/** Inactive row titles, close to TextSecondary over the dark Home backdrop (#819). */
+private const val INACTIVE_ROW_TITLE_ALPHA = 0.65f
 
 internal val LocalVerticalRowsScrolling = compositionLocalOf<State<Boolean>> { mutableStateOf(false) }
 
@@ -585,8 +588,13 @@ internal fun ModernRowSection(
         val rowTitle = row.title
         val textColor = FetchTheme.colors.TextPrimary
         val screenHorizontal = FetchTheme.spacing.screen.horizontal
-        val textModifier = remember(rowTitleBottom, screenHorizontal) {
-            Modifier.padding(start = screenHorizontal, end = screenHorizontal, bottom = rowTitleBottom)
+        // The focused row's title stays at full strength and the others dim, so the active row reads
+        // at a glance (#819). isActiveRow is read in the layer, so a focus move redraws the title
+        // without recomposing the row.
+        val textModifier = remember(rowTitleBottom, screenHorizontal, isActiveRow) {
+            Modifier
+                .padding(start = screenHorizontal, end = screenHorizontal, bottom = rowTitleBottom)
+                .graphicsLayer { alpha = if (isActiveRow()) 1f else INACTIVE_ROW_TITLE_ALPHA }
         }
         // One line, because the hero backdrop height reserves a single title line for each row.
         val rowSubtitle = row.subtitle
@@ -1106,6 +1114,7 @@ internal fun ModernRowSection(
                             height = if (useLandscapePosters) landscapeCatalogCardHeight else portraitCatalogCardHeight,
                             cornerRadius = posterCardCornerRadius,
                             onClick = { onSeeAllRow(row) },
+                            expandEnabled = effectiveExpandEnabled,
                             modifier = Modifier
                                 .focusRequester(requester)
                                 .onFocusChanged { if (it.isFocused) onFocused() }
@@ -1196,8 +1205,10 @@ private fun ModernCarouselCard(
         cardWidth
     }
     val animatedCardWidthState = if (focusedPosterBackdropExpandEnabled) {
+        // The motion tokens' focus spring, and a snap under reduced motion (#819).
         animateDpAsState(
             targetValue = targetCardWidth,
+            animationSpec = if (FetchTheme.fullMotion) FetchMotion.focusSpring() else snap(),
             label = "modernCardWidth"
         )
     } else {
@@ -1297,6 +1308,8 @@ private fun ModernCarouselCard(
 
     val revalidationKey = com.fetch.tv.core.image.rememberImageRevalidationKey(imageUrl)
     var customPosterLoadFailed by remember(imageUrl) { mutableStateOf(false) }
+    // Any failure of the card's artwork, so a poster without it still says what it is.
+    var cardImageLoadFailed by remember(imageUrl) { mutableStateOf(false) }
     val imageModel = remember(context, imageUrl, requestWidthPx, requestHeightPx, revalidationKey) {
         imageUrl?.let {
             val cacheExtras = item.catalogCardImageCacheExtras(
@@ -1351,12 +1364,22 @@ private fun ModernCarouselCard(
             !(useLandscapeAsExpanded && !trailerFirstFrameRendered) &&
             (effectiveIgnoreLandscapePoster || isBackdropExpanded || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)
     // Title text drawn in place of a missing or failed logo; it needs the same bottom scrim.
-    val showsFallbackTitle =
+    // A portrait poster whose artwork is missing or failed gets it too, unless the label under
+    // the card already names it: it was a blank tile until focused (#819).
+    val portraitArtworkMissing =
+        !useLandscapeOverlayTreatment &&
+            !isBackdropExpanded &&
+            !isCollectionFolder &&
+            !showLabels &&
+            !item.imageUrl.isPlaceholder() &&
+            (!hasImage || cardImageLoadFailed)
+    val showsFallbackTitle = item.title.isNotBlank() && (portraitArtworkMissing || (
         !hasLandscapeLogo &&
             (useLandscapeOverlayTreatment || isBackdropExpanded) &&
             !isCollectionFolder &&
             !(useLandscapeAsExpanded && !trailerFirstFrameRendered) &&
             (effectiveIgnoreLandscapePoster || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)
+        ))
     var longPressTriggered by remember { mutableStateOf(false) }
     val longPressKeyTracker = rememberLongPressKeyTracker()
     val backgroundCardColor = FetchTheme.colors.BackgroundCard
@@ -1503,6 +1526,7 @@ private fun ModernCarouselCard(
                             fallback = backgroundPainter,
                             contentScale = imageContentScale,
                             onError = {
+                                cardImageLoadFailed = true
                                 if (!item.metaPreview?.landscapePoster.isNullOrBlank() || !item.metaPreview?.rawPosterUrl.isNullOrBlank()) {
                                     customPosterLoadFailed = true
                                 }
@@ -1585,11 +1609,11 @@ private fun ModernCarouselCard(
                             textDirection = item.title.contentTextDirection()
                         ),
                         color = Color.White,
-                        maxLines = 2,
+                        maxLines = if (portraitArtworkMissing) 3 else 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .align(Alignment.BottomStart)
-                            .fillMaxWidth(0.62f)
+                            .fillMaxWidth(if (portraitArtworkMissing) 1f else 0.62f)
                             .padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.md)
                     )
                 }

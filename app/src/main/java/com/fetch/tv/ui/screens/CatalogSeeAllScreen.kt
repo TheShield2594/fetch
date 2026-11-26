@@ -158,6 +158,38 @@ fun CatalogSeeAllScreen(
         items.indexOfFirst { catalogItemFocusKey(it) == key }.takeIf { it >= 0 } ?: 0
     }
 
+    val requestNextPage: (com.fetch.tv.domain.model.CatalogRow) -> Unit = { row ->
+        if (row.hasMore && !row.isLoading) {
+            if (serverCatalog != null) {
+                serverCatalog.loadMore()
+            } else if (isSearchMode) {
+                searchViewModel.onEvent(
+                    SearchEvent.LoadMoreCatalog(row.catalogId, row.addonId, row.apiType)
+                )
+            } else {
+                viewModel.onEvent(
+                    HomeEvent.OnLoadMoreCatalog(row.catalogId, row.addonId, row.apiType)
+                )
+            }
+        }
+    }
+
+    // A row whose loaded titles are all hidden ("Not interested", the profile limit) has no grid
+    // to scroll, so scroll paging never asks for the next page. Fetch a few on its own, then leave
+    // it to the Load more action in the empty state (#789).
+    var emptyGridAutoPages by remember(catalogKey) { mutableIntStateOf(0) }
+    val emptyRowWithMore = catalogRow != null && catalogRow.items.isEmpty() && catalogRow.hasMore
+    LaunchedEffect(catalogKey, emptyRowWithMore, catalogRow?.isLoading) {
+        val row = catalogRow ?: return@LaunchedEffect
+        if (!emptyRowWithMore) {
+            if (row.items.isNotEmpty()) emptyGridAutoPages = 0
+            return@LaunchedEffect
+        }
+        if (row.isLoading || emptyGridAutoPages >= EMPTY_GRID_AUTO_PAGES) return@LaunchedEffect
+        emptyGridAutoPages++
+        requestNextPage(row)
+    }
+
     // Load more when scrolling near the bottom
     LaunchedEffect(gridState, catalogRow?.items?.size) {
         snapshotFlow {
@@ -168,20 +200,7 @@ fun CatalogSeeAllScreen(
             .distinctUntilChanged()
             .collect { (lastVisible, total) ->
                 if (total > 0 && lastVisible >= total - 10) {
-                    val row = catalogRow
-                    if (row != null && row.hasMore && !row.isLoading) {
-                        if (serverCatalog != null) {
-                            serverCatalog.loadMore()
-                        } else if (isSearchMode) {
-                            searchViewModel.onEvent(
-                                SearchEvent.LoadMoreCatalog(row.catalogId, row.addonId, row.apiType)
-                            )
-                        } else {
-                            viewModel.onEvent(
-                                HomeEvent.OnLoadMoreCatalog(row.catalogId, row.addonId, row.apiType)
-                            )
-                        }
-                    }
+                    catalogRow?.let(requestNextPage)
                 }
             }
     }
@@ -379,6 +398,17 @@ fun CatalogSeeAllScreen(
                 cardWidth = posterCardStyle.width,
                 cardHeight = posterCardStyle.height
             )
+        } else if (catalogRow != null && catalogRow.hasMore) {
+            // Everything loaded so far is hidden, but later pages may hold titles (#789).
+            EmptyScreenState(
+                title = stringResource(R.string.discover_empty_hidden_title),
+                subtitle = stringResource(R.string.discover_empty_hidden_subtitle),
+                icon = Icons.Default.GridView,
+                action = com.fetch.tv.ui.components.StateAction(stringResource(R.string.discover_load_more)) {
+                    emptyGridAutoPages = 0
+                    requestNextPage(catalogRow)
+                }
+            )
         } else {
             EmptyScreenState(
                 title = stringResource(R.string.catalog_see_all_empty_title),
@@ -408,6 +438,9 @@ fun CatalogSeeAllScreen(
         )
     }
 }
+
+/** Pages See all fetches on its own while every loaded title is hidden, before offering Load more. */
+private const val EMPTY_GRID_AUTO_PAGES = 5
 
 /** How long See-all waits for a missing catalog once nothing is loading it any more. */
 private const val MISSING_CATALOG_WAIT_MS = 4_000L

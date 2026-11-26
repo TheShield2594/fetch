@@ -98,7 +98,8 @@ class TitleVisibilityTest {
             catalogRows = listOf(
                 row(preview("tt1"), preview("tt2")),
                 row(preview("tt1"), addonId = "server.c123"),
-                row(preview("tt1"))
+                // A row the filter empties goes once it has no more pages (#789).
+                row(preview("tt1")).copy(hasMore = false)
             ),
             discoverResults = listOf(preview("tt1"), preview("tt3"))
         )
@@ -107,6 +108,21 @@ class TitleVisibilityTest {
 
         assertEquals(listOf(listOf("tt2"), listOf("tt1")), filtered.catalogRows.map { r -> r.items.map { it.id } })
         assertEquals(listOf("tt3"), filtered.discoverResults.map { it.id })
+    }
+
+    @Test
+    fun `a search row the filter empties stays while it has more pages, so See all can page on`() {
+        val state = SearchUiState(
+            catalogRows = listOf(
+                row(preview("tt1")).copy(catalogId = "paged", hasMore = true),
+                row(preview("tt1")).copy(catalogId = "done", hasMore = false)
+            )
+        )
+
+        val filtered = state.withoutNotInterested(visibility())
+
+        assertEquals(listOf("paged"), filtered.catalogRows.map { it.catalogId })
+        assertTrue(filtered.catalogRows.single().items.isEmpty())
     }
 
     @Test

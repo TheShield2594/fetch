@@ -1209,7 +1209,7 @@ class SearchViewModel @Inject constructor(
         val state = _uiState.value
         if (discoverJob?.isActive != true &&
             state.discoverInitialized &&
-            state.discoverResults.size < DISCOVER_MIN_RESULTS &&
+            discoverShownCount(state.discoverResults) < DISCOVER_MIN_RESULTS &&
             discoverCursors.any { it.hasMore }
         ) {
             fetchDiscoverContent(reset = false)
@@ -1267,7 +1267,11 @@ class SearchViewModel @Inject constructor(
                 }
                 val keepFilling = runDiscoverRound(firstRound = firstRound, genre = state.selectedDiscoverGenre)
                 firstRound = false
-                if (!keepFilling || ++fillRounds > DISCOVER_MAX_FILL_ROUNDS) break
+                if (!keepFilling) break
+                // An empty grid keeps paging past the fill cap: with every loaded title hidden there
+                // is nothing to scroll, so nothing else would fetch the next page. The unproductive-
+                // round pause still bounds it, and the empty state then offers Load more (#789).
+                if (++fillRounds > DISCOVER_MAX_FILL_ROUNDS && discoverShownCount(_uiState.value.discoverResults) > 0) break
             }
         }
     }
@@ -1343,12 +1347,15 @@ class SearchViewModel @Inject constructor(
         }
         discoverMergedItems = appendDiscoverRound(mergedBefore, releasedPages)
 
-        val previousVisible = _uiState.value.discoverResults.size
+        val previousShown = discoverShownCount(_uiState.value.discoverResults)
         val visible = applyDiscoverFilters(discoverMergedItems, _uiState.value.discoverFilters)
+        // Counted as shown: "Not interested" titles and titles above the profile's limit are left
+        // out on the way to the grid (#650, #789), so a round of hidden titles adds nothing.
+        val shown = discoverShownCount(visible)
         val hasMore = nextCursors.any { it.hasMore }
         val allFailed = successes == 0
         if (!firstRound) {
-            if (visible.size > previousVisible) discoverUnproductiveRounds = 0 else discoverUnproductiveRounds++
+            if (shown > previousShown) discoverUnproductiveRounds = 0 else discoverUnproductiveRounds++
         }
         val paused = hasMore && (allFailed || discoverUnproductiveRounds >= DISCOVER_MAX_UNPRODUCTIVE_ROUNDS)
         val error = firstError
@@ -1364,9 +1371,13 @@ class SearchViewModel @Inject constructor(
                 discoverPagingPaused = paused
             )
         }
-        // Counted as shown: "Not interested" titles are left out on the way to the grid (#650).
-        val shown = titleVisibility.visibility.value.filterSuggestions(visible).size
         return hasMore && !paused && shown < DISCOVER_MIN_RESULTS
+    }
+
+    /** How many of [results] reach the grid after the profile limit and "Not interested". */
+    private fun discoverShownCount(results: List<MetaPreview>): Int {
+        val allowed = if (parentalControls.filtersContent()) results.filter(parentalControls::isAllowed) else results
+        return titleVisibility.visibility.value.filterSuggestions(allowed).size
     }
 
     private suspend fun fetchDiscoverPage(

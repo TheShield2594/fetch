@@ -1441,7 +1441,13 @@ internal fun PlayerRuntimeController.initializePlayer(
                                     TrackingScrobbleAction.STOP -> emitStopScrobbleForCurrentProgress()
                                     TrackingScrobbleAction.START, null -> Unit
                                 }
-                                saveWatchProgress()
+                                saveWatchProgress(
+                                    if (effectivePlaybackState == Player.STATE_ENDED) {
+                                        WatchProgressSaveReason.NATURAL_END
+                                    } else {
+                                        WatchProgressSaveReason.PLAYBACK
+                                    }
+                                )
                             }
                         }
                         refreshStableProgressResetGate()
@@ -2123,6 +2129,7 @@ internal fun PlayerRuntimeController.resetLoadingOverlayForNewStream() {
     endDetectionArmed = false
     mpvEofSeenClear = false
     hasMarkedCurrentEpisodeCompleted = false
+    currentEpisodeCompletionIsFinal = false
     shouldEnforceAutoplayOnFirstReady = true
     userPausedManually = false
     timeoutRecoveryAttempts = 0

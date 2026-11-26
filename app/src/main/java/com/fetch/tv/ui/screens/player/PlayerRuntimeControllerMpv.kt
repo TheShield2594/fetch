@@ -281,9 +281,14 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
         mpvView?.setPaused(true)
         emitPauseScrobbleForCurrentProgress()
         stopWatchProgressSaving()
-        saveWatchProgress()
+        // The app is going to the background and can be killed there: this counts as leaving.
+        saveWatchProgress(WatchProgressSaveReason.LEAVING)
         stopProgressUpdates()
-        _uiState.update { it.copy(isPlaying = false) }
+        // Not buffering either: a stale flag from a cache stall would read as loading, and the
+        // server report skips loading snapshots, so the PAUSE would never be sent.
+        _uiState.update { it.copy(isPlaying = false, isBuffering = false) }
+        // The tick that reports to media servers stops in the background: report the pause now.
+        reportServerPlayback()
         return
     }
     _exoPlayer?.let { player ->
@@ -350,6 +355,19 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
         return
     }
 
+    if (isUsingMpvEngine()) {
+        // pauseForLifecycle stopped the tick; it would otherwise only restart on the next Play
+        // press, leaving the timeline, tracks and server reporting frozen (TheShield2594/fetch#732).
+        if (mpvView != null && !isReleasingPlayer) {
+            startProgressUpdates()
+            if (userPausedManually && !_uiState.value.isPlaying) {
+                schedulePauseOverlay()
+                showControlsTemporarily()
+            }
+        }
+        return
+    }
+
     val player = _exoPlayer
     if (player != null && !isUsingMpvEngine()) {
         // Restore automatic audio focus handling that was disabled in pauseForLifecycle().
@@ -403,12 +421,16 @@ internal fun PlayerRuntimeController.updateMpvTracksOnTick() {
     tryAutoSelectPreferredSubtitleFromAvailableTracks()
 }
 
-/** mpv only reports the video transfer once it has decoded video params, so this is re-read each tick. */
+/**
+ * mpv never reports HDR video. It renders through `vo=gpu` / `gpu-next` on an OpenGL ES context,
+ * which tone-maps PQ and HLG to SDR, so the picture on screen is SDR whatever the source. Flagging
+ * it HDR dimmed subtitles for a picture that was not HDR (TheShield2594/fetch#733). Cleared on
+ * each tick in case an ExoPlayer session flagged it before an engine switch.
+ */
 private fun PlayerRuntimeController.updateMpvHdrVideoState() {
     if (!isUsingMpvEngine()) return
-    val isHdrVideo = mpvView?.readVideoIsHdr() ?: return
-    if (_uiState.value.isHdrVideo != isHdrVideo) {
-        _uiState.update { it.copy(isHdrVideo = isHdrVideo) }
+    if (_uiState.value.isHdrVideo) {
+        _uiState.update { it.copy(isHdrVideo = false) }
     }
 }
 
@@ -772,7 +794,7 @@ internal fun PlayerRuntimeController.pauseForStillWatchingPrompt() {
     userPausedManually = true
     setPlaybackPaused(true)
     if (isUsingMpvEngine()) {
-        stopProgressUpdates()
+        // The progress tick keeps running while paused (TheShield2594/fetch#732).
         stopWatchProgressSaving()
         emitPauseScrobbleForCurrentProgress()
     }

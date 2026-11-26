@@ -1065,6 +1065,9 @@ class SearchViewModel @Inject constructor(
         // shimmer) stay up.
         if (!hasRenderedFirstCatalog && catalogsMap.isNotEmpty()) {
             if (pendingCatalogResponses > 0) {
+                // An update scheduled earlier (after an error, before any results) would otherwise
+                // paint these rows before the window ends.
+                catalogRowsUpdateJob?.cancel()
                 if (firstRenderJob?.isActive != true) {
                     firstRenderJob = viewModelScope.launch {
                         kotlinx.coroutines.delay(FIRST_RESULTS_SETTLE_MS)

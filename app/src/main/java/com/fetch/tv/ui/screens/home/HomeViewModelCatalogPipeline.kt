@@ -699,30 +699,39 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
                 fullyWatched to watchedItems
             }.mapLatest { (fullyWatched, watchedItems) ->
                 if (profileManager.currentProfileId() != observerProfileId) return@mapLatest null
-                // On Default: the reconcile groups every watched item. What it touches is
-                // thread-safe (the state holder is synchronized, the badge cache is locked).
-                val effectiveFullyWatched = if (
+                // On Default: the reconcile groups every watched item. It only computes; the
+                // holder write happens on Main below.
+                val reconcile = if (
                     watchProgressRepository.activeProviderOwnsCompletedHistoryProjection()
                 ) {
-                    fullyWatched
+                    SeriesWatchedReconcile(fullyWatched, holderUpdate = null)
                 } else {
                     reconcileFullyWatchedFromLocalItems(
-                        profileId = observerProfileId,
                         fullyWatched = fullyWatched,
                         watchedItems = watchedItems,
                         seriesContentIds = allSeriesItemsByKey.values
                     )
                 }
-                buildMap<String, Boolean> {
+                val status = buildMap<String, Boolean> {
                     allSeriesItemsByKey.forEach { (statusKey, contentId) ->
-                        put(statusKey, contentId in effectiveFullyWatched)
+                        put(statusKey, contentId in reconcile.fullyWatched)
                     }
                 }
+                reconcile to status
             }.flowOn(Dispatchers.Default)
                 .filterNotNull()
                 // Home is covered while the player is open; badges catch up once it closes.
                 .pausedWhilePlayerOpen(com.fetch.tv.core.player.PlayerSessionTracker.isSessionOpen)
-                .collect { seriesStatus ->
+                .collect { (reconcile, seriesStatus) ->
+                    // On Main, like the profile-switch handler: a switch either happened before
+                    // this check (the result is dropped) or happens after the write, and then
+                    // clears the holder and cancels this observer.
+                    if (profileManager.currentProfileId() != observerProfileId) return@collect
+                    reconcile.holderUpdate?.let { (ids, validatedIds) ->
+                        if (ids != fullyWatchedSeriesIds.fullyWatchedSeriesIds.value) {
+                            fullyWatchedSeriesIds.updateWithValidation(ids, validatedIds, profileId = observerProfileId)
+                        }
+                    }
                     _uiState.update { state ->
                         val merged = state.movieWatchedStatus
                             .filterKeys { it !in allSeriesItemsByKey.keys } + seriesStatus
@@ -737,12 +746,21 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
     }
 }
 
+/**
+ * The fully watched series once local watched items are merged in, and the holder update that
+ * merge needs (ids, validated ids), if any. Pure apart from reading the badge cache, so it can run
+ * off Main; the caller applies the update.
+ */
+internal data class SeriesWatchedReconcile(
+    val fullyWatched: Set<String>,
+    val holderUpdate: Pair<Set<String>, Set<String>>?
+)
+
 private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
-    profileId: Int,
     fullyWatched: Set<String>,
     watchedItems: List<WatchedItem>,
     seriesContentIds: Iterable<String>
-): Set<String> {
+): SeriesWatchedReconcile {
     val watchedEpisodesByContentId = watchedItems
         .filter { it.season != null && it.episode != null }
         .groupBy { it.contentId }
@@ -760,12 +778,9 @@ private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
             }
         }
     }
-    if (cacheResolvedIds.isEmpty()) return fullyWatched
+    if (cacheResolvedIds.isEmpty()) return SeriesWatchedReconcile(fullyWatched, holderUpdate = null)
     val mergedHolderIds = (fullyWatched - cacheResolvedIds) + cacheResolvedFullyWatched
-    if (mergedHolderIds != fullyWatchedSeriesIds.fullyWatchedSeriesIds.value) {
-        fullyWatchedSeriesIds.updateWithValidation(mergedHolderIds, cacheResolvedIds, profileId = profileId)
-    }
-    return mergedHolderIds
+    return SeriesWatchedReconcile(mergedHolderIds, holderUpdate = mergedHolderIds to cacheResolvedIds)
 }
 
 /**

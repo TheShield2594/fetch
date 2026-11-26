@@ -262,6 +262,11 @@ class PlayerRuntimeController(
             }
         }
         mediaSourceFactory.logVodCacheStats()
+        // Title-scoped work that releasePlayer() leaves running across stream switches.
+        metaFetchJob?.cancel()
+        metaFetchJob = null
+        nextSourceJob?.cancel()
+        nextSourceJob = null
         releaseProcessWideReferences()
         mediaSourceFactory.evictCachedSession()
         releasePlayer()
@@ -319,7 +324,10 @@ class PlayerRuntimeController(
                 .map { it.isPlaying }
                 .distinctUntilChanged()
                 .collect { isPlaying ->
-                    com.fetch.tv.core.recommendations.TvRecommendationManager.isPlaybackActive.value = isPlaying
+                    com.fetch.tv.core.recommendations.TvRecommendationManager.setPlaybackActive(
+                        this@PlayerRuntimeController,
+                        isPlaying
+                    )
                 }
         }
     }
@@ -510,6 +518,9 @@ class PlayerRuntimeController(
     internal var sleepTimerPromptEndsAtMs: Long = 0L
 
     internal var isInBackground: Boolean = false
+    // Playing when ON_PAUSE arrived, and not hidden (ON_STOP) since: a transient pause such as the
+    // Assistant overlay, after which ON_RESUME carries on playing.
+    internal var resumePlaybackAfterTransientPause: Boolean = false
     internal var pendingBackgroundCrashRecovery: Boolean = false
     // ExoPlayer stopped on ON_STOP so its codecs are released while the app is hidden.
     internal var exoStoppedForLifecycle: Boolean = false

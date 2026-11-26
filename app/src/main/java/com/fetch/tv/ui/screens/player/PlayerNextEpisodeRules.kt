@@ -25,8 +25,12 @@ object PlayerNextEpisodeRules {
             return if (index < 0) null else sorted.getOrNull(index + 1)
         }
 
+        // Specials (season 0) only advance to the next special, and regular seasons never pick one:
+        // sorted together, the last special would roll into S01E01.
+        val watchingSpecial = currentSeason == 0
         val sortedEpisodes = videos
             .filter { it.season != null && it.episode != null }
+            .filter { (it.season == 0) == watchingSpecial }
             .sortedWith(compareBy<Video> { it.season ?: Int.MAX_VALUE }.thenBy { it.episode ?: Int.MAX_VALUE })
 
         val currentIndex = sortedEpisodes.indexOfFirst {

@@ -40,6 +40,19 @@ class PlayerNextEpisodeRulesTest {
     }
 
     @Test
+    fun `the last special does not roll into the first episode`() {
+        val videos = listOf(ep(0, 1), ep(0, 2), ep(1, 1), ep(1, 2))
+        assertNull(PlayerNextEpisodeRules.resolveNextEpisode(videos, currentSeason = 0, currentEpisode = 2))
+        assertEquals("s0e2", PlayerNextEpisodeRules.resolveNextEpisode(videos, currentSeason = 0, currentEpisode = 1)?.id)
+    }
+
+    @Test
+    fun `the season finale does not continue into specials`() {
+        val videos = listOf(ep(0, 1), ep(1, 1), ep(1, 2))
+        assertNull(PlayerNextEpisodeRules.resolveNextEpisode(videos, currentSeason = 1, currentEpisode = 2))
+    }
+
+    @Test
     fun `returns null after the very last episode`() {
         val videos = listOf(ep(1, 1), ep(1, 2))
         val next = PlayerNextEpisodeRules.resolveNextEpisode(videos, currentSeason = 1, currentEpisode = 2)

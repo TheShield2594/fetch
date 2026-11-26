@@ -140,4 +140,20 @@ class SidecarCueOrderingTest {
 
         assertEquals(listOf("b"), texts(collectActiveSidecarCues(cues, 2_000_000L)))
     }
+
+    @Test
+    fun `the next boundary is the nearer of an active cue's end and the next start`() {
+        val cues = listOf(entry(1_000, 5_000, "a"), entry(3_000, 4_000, "b"), entry(6_000, 7_000, "c"))
+        assertEquals(4_000_000L, nextSidecarCueBoundaryUs(cues, positionUs = 3_500_000L))
+        assertEquals(6_000_000L, nextSidecarCueBoundaryUs(cues, positionUs = 5_500_000L))
+        assertEquals(null, nextSidecarCueBoundaryUs(cues, positionUs = 8_000_000L))
+    }
+
+    @Test
+    fun `render delay waits for the boundary but no longer than the poll`() {
+        assertEquals(21L, sidecarRenderDelayMs(nextBoundaryUs = 1_020_000L, positionUs = 1_000_000L, playbackSpeed = 1f))
+        assertEquals(11L, sidecarRenderDelayMs(nextBoundaryUs = 1_020_000L, positionUs = 1_000_000L, playbackSpeed = 2f))
+        assertEquals(100L, sidecarRenderDelayMs(nextBoundaryUs = 9_000_000L, positionUs = 1_000_000L, playbackSpeed = 1f))
+        assertEquals(100L, sidecarRenderDelayMs(nextBoundaryUs = 1_020_000L, positionUs = 1_000_000L, playbackSpeed = 0f))
+    }
 }

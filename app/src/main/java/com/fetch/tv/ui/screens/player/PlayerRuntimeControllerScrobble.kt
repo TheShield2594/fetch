@@ -65,22 +65,6 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
                 )
                 persistedTrackPreference = loaded
             } ?: Log.d(PlayerRuntimeController.TAG, "TRACK_PREF load: skipped (contentId is null)")
-            // Subtitle delay is keyed per-videoId, so it is loaded separately
-            // from the track selection above. This happens before
-            // initializePlayer() because the renderers factory snapshots
-            // subtitleDelayUs from _uiState.value.subtitleDelayMs on build.
-            currentVideoId?.takeIf { it.isNotBlank() }?.let { vid ->
-                // Apply unconditionally: with no saved value the delay goes back
-                // to 0, so an earlier episode's offset can't linger here.
-                val savedDelayMs = trackPreferenceDataStore.loadSubtitleDelayMs(vid) ?: 0
-                subtitleDelayUs.set(savedDelayMs.toLong() * 1000L)
-                _uiState.update { it.copy(subtitleDelayMs = savedDelayMs) }
-                if (isUsingMpvEngine()) mpvView?.setSubtitleDelayMs(savedDelayMs)
-                Log.d(
-                    PlayerRuntimeController.TAG,
-                    "TRACK_PREF load: restored subtitleDelayMs=$savedDelayMs for videoId=$vid"
-                )
-            }
         } else {
             Log.d(
                 PlayerRuntimeController.TAG,
@@ -93,6 +77,22 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
                 message = "skipped=true reason=persisted-already-set " +
                     "audio=${persistedTrackPreference?.audio?.language}/${persistedTrackPreference?.audio?.name} " +
                     "subtitle=${persistedTrackPreference?.subtitle?.javaClass?.simpleName ?: "none"}"
+            )
+        }
+        // Subtitle delay is keyed per video and release, so it is loaded on every
+        // preparation (a source switch too), separately from the track selection above. This happens before
+        // initializePlayer() because the renderers factory snapshots
+        // subtitleDelayUs from _uiState.value.subtitleDelayMs on build.
+        subtitleDelayStorageKey()?.let { vid ->
+            // Apply unconditionally: with no saved value the delay goes back
+            // to 0, so an earlier episode's offset can't linger here.
+            val savedDelayMs = trackPreferenceDataStore.loadSubtitleDelayMs(vid) ?: 0
+            subtitleDelayUs.set(savedDelayMs.toLong() * 1000L)
+            _uiState.update { it.copy(subtitleDelayMs = savedDelayMs) }
+            if (isUsingMpvEngine()) mpvView?.setSubtitleDelayMs(savedDelayMs)
+            Log.d(
+                PlayerRuntimeController.TAG,
+                "TRACK_PREF load: restored subtitleDelayMs=$savedDelayMs for videoId=$vid"
             )
         }
         contentId?.takeIf { it.isNotBlank() }?.let { id ->

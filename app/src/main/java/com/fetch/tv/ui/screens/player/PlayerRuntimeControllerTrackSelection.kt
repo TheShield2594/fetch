@@ -719,7 +719,36 @@ private fun PlayerRuntimeController.currentTrackPreferenceForPersistence(): Play
     return rememberedTrackPreference ?: persistedTrackPreference ?: PlayerRuntimeController.TrackPreference()
 }
 
+/**
+ * Where the subtitle delay is stored: the video plus the release playing it, so an offset tuned
+ * against one encode is not re-applied to another release of the same episode. Without a video id
+ * (no contentId either) the release alone keys it.
+ */
+internal fun PlayerRuntimeController.subtitleDelayStorageKey(): String? {
+    val vid = currentVideoId?.takeIf { it.isNotBlank() } ?: contentId?.takeIf { it.isNotBlank() }
+    val release = currentFilename?.takeIf { it.isNotBlank() }
+        ?: currentStreamCacheKey?.takeIf { it.isNotBlank() }
+    return subtitleDelayStorageKey(vid, release)
+}
+
+internal fun subtitleDelayStorageKey(videoId: String?, release: String?): String? = when {
+    videoId != null && release != null -> "$videoId|$release"
+    videoId != null -> videoId
+    release != null -> "release|$release"
+    else -> null
+}
+
+internal fun PlayerRuntimeController.persistSubtitleDelay() {
+    val key = subtitleDelayStorageKey() ?: return
+    val currentDelayMs = _uiState.value.subtitleDelayMs
+    scope.launch {
+        trackPreferenceDataStore.saveSubtitleDelayMs(key, currentDelayMs.takeIf { it != 0 })
+    }
+}
+
 internal fun PlayerRuntimeController.persistTrackPreference() {
+    // Saved before the contentId check: a delay is worth keeping even when the title has no id.
+    persistSubtitleDelay()
     val id = contentId ?: return
     // Use the currently-effective preference (remembered OR previously persisted)
     // so that a delay-only change does not wipe a previously-saved track selection.
@@ -752,17 +781,6 @@ internal fun PlayerRuntimeController.persistTrackPreference() {
         audioTrackId = audio?.trackId
     )
     scope.launch { trackPreferenceDataStore.save(id, persisted) }
-    // Subtitle delay is keyed per-videoId (not per-contentId) because a delay
-    // calibrated against one episode release rarely applies to the next
-    // episode. Scoping it to the exact video prevents cross-episode leakage.
-    // See issue #1063 discussion.
-    val vid = currentVideoId?.takeIf { it.isNotBlank() }
-    if (vid != null) {
-        val currentDelayMs = _uiState.value.subtitleDelayMs
-        scope.launch {
-            trackPreferenceDataStore.saveSubtitleDelayMs(vid, currentDelayMs.takeIf { it != 0 })
-        }
-    }
 }
 
 internal fun PlayerRuntimeController.captureCurrentAudioSelectionForSubtitleRefresh(

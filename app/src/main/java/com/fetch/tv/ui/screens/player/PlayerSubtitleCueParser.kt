@@ -9,11 +9,70 @@ internal object PlayerSubtitleCueParser {
             .replace("\r\n", "\n")
             .replace('\r', '\n')
 
-        return if (looksLikeVtt(cleanedText, sourceUrl)) {
-            parseVtt(cleanedText)
-        } else {
-            parseSrt(cleanedText)
+        return when {
+            looksLikeAss(cleanedText, sourceUrl) -> parseAss(cleanedText)
+            looksLikeVtt(cleanedText, sourceUrl) -> parseVtt(cleanedText)
+            else -> parseSrt(cleanedText)
         }
+    }
+
+    private val assEventsHeaderRegex = Regex("""(?im)^\[Events]\s*$""")
+    private val assDialogueRegex = Regex("""(?im)^Dialogue:""")
+
+    /** ASS override blocks such as `{\an8}` or `{\i1}`, which some SRT files carry too. */
+    private val assOverrideTagRegex = Regex("""\{\\[^}]*\}""")
+
+    private val defaultAssEventFormat = listOf(
+        "layer", "start", "end", "style", "name", "marginl", "marginr", "marginv", "effect", "text"
+    )
+
+    private fun looksLikeAss(text: String, sourceUrl: String): Boolean {
+        val normalizedUrl = sourceUrl.substringBefore('?').substringBefore('#').lowercase()
+        if (normalizedUrl.endsWith(".ass") || normalizedUrl.endsWith(".ssa")) return true
+        if (text.trimStart().startsWith("[Script Info]", ignoreCase = true)) return true
+        return assEventsHeaderRegex.containsMatchIn(text) && assDialogueRegex.containsMatchIn(text)
+    }
+
+    /**
+     * ASS/SSA: reads the `[Events]` section's `Format:` line for the Start, End and Text columns
+     * (falling back to the standard layout) and turns each `Dialogue:` line into a cue.
+     */
+    private fun parseAss(text: String): List<SubtitleSyncCue> {
+        var inEvents = false
+        var format = defaultAssEventFormat
+        val cues = mutableListOf<SubtitleSyncCue>()
+        for (rawLine in text.lines()) {
+            val line = rawLine.trim()
+            if (line.startsWith("[")) {
+                inEvents = line.equals("[Events]", ignoreCase = true)
+                continue
+            }
+            if (!inEvents) continue
+            if (line.startsWith("Format:", ignoreCase = true)) {
+                format = line.substringAfter(':').split(',').map { it.trim().lowercase() }
+                continue
+            }
+            if (!line.startsWith("Dialogue:", ignoreCase = true)) continue
+            val startIndex = format.indexOf("start")
+            val endIndex = format.indexOf("end")
+            val textIndex = format.indexOf("text")
+            // Text is the last column and may itself contain commas.
+            if (startIndex < 0 || endIndex < 0 || textIndex != format.lastIndex) continue
+            val fields = line.substringAfter(':').split(',', limit = format.size)
+            if (fields.size < format.size) continue
+            val startTimeMs = parseTimestampMs(fields[startIndex].trim()) ?: continue
+            val endTimeMs = parseTimestampMs(fields[endIndex].trim()) ?: continue
+            if (endTimeMs - startTimeMs <= 0) continue
+            val cueText = normalizeCueText(
+                fields[textIndex]
+                    .replace("\\N", "\n")
+                    .replace("\\n", "\n")
+                    .replace("\\h", " ")
+            )
+            if (cueText.isBlank()) continue
+            cues += SubtitleSyncCue(startTimeMs = startTimeMs, endTimeMs = endTimeMs, text = cueText)
+        }
+        return cues.sortedBy { it.startTimeMs }
     }
 
     private fun looksLikeVtt(text: String, sourceUrl: String): Boolean {
@@ -155,6 +214,7 @@ internal object PlayerSubtitleCueParser {
     private fun normalizeCueText(text: String): String {
         return SubtitleMojibakeSanitizer.sanitize(
             text
+                .replace(assOverrideTagRegex, "")
                 .replace(Regex("""<(?:\d+:)?\d{1,2}:\d{2}(?:[.,]\d+)?>"""), "")
                 .replace(Regex("""</?[a-zA-Z0-9._-]+(?: [^>]*)?>"""), "")
                 .replace("&nbsp;", " ")

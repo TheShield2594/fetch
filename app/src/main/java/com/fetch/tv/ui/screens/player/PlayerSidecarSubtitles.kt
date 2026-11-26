@@ -177,8 +177,7 @@ internal fun PlayerRuntimeController.startSidecarAddonSubtitle(
             )
 
             while (isActive && isCurrent()) {
-                renderSidecarCuesAtCurrentPosition()
-                delay(SIDECAR_RENDER_INTERVAL_MS)
+                delay(renderSidecarCuesAtCurrentPosition())
             }
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
@@ -242,35 +241,44 @@ internal fun PlayerRuntimeController.commitPreparedSidecarSubtitle(
                 activeSidecarSubtitleKey == newUrl &&
                 activeSidecarGeneration == committedGeneration
             ) {
-                renderSidecarCuesAtCurrentPosition()
-                delay(SIDECAR_RENDER_INTERVAL_MS)
+                delay(renderSidecarCuesAtCurrentPosition())
             }
         }
     }
     return true
 }
 
-internal fun PlayerRuntimeController.renderSidecarCuesAtCurrentPosition() {
+/**
+ * Renders the cues active now and returns how long to wait before the next render: until the next
+ * cue boundary (a start or an end), so cues change on time rather than on a 100 ms grid, but never
+ * longer than [SIDECAR_RENDER_INTERVAL_MS], so seeks and delay changes are still picked up.
+ */
+internal fun PlayerRuntimeController.renderSidecarCuesAtCurrentPosition(): Long {
     val cues = sidecarTimedCues
-    if (cues.isEmpty() || activeSidecarSubtitleKey == null) return
-    val player = _exoPlayer ?: return
+    if (cues.isEmpty() || activeSidecarSubtitleKey == null) return SIDECAR_RENDER_INTERVAL_MS
+    val player = _exoPlayer ?: return SIDECAR_RENDER_INTERVAL_MS
     val positionUs = (
         player.currentPosition.coerceAtLeast(0L) * 1_000L +
             audioDelayUs.get() -
             subtitleDelayUs.get()
         ).coerceAtLeast(0L)
+    val nextDelayMs = sidecarRenderDelayMs(
+        nextBoundaryUs = nextSidecarCueBoundaryUs(cues, positionUs),
+        positionUs = positionUs,
+        playbackSpeed = if (player.isPlaying) player.playbackParameters.speed else 0f
+    )
     val active = collectActiveSidecarCues(cues, positionUs)
     val stripSdh = currentPlayerSettingsForReport.subtitleStyle.stripSdh
     // Sign before sanitising, filtering and merging to skip that work while cues are
     // unchanged. stripSdh is included because it changes what filtering removes.
     val signature = activeCueSignature(active, stripSdh)
-    if (signature == lastSidecarCueSignature) return
+    if (signature == lastSidecarCueSignature) return nextDelayMs
     lastSidecarCueSignature = signature
     val sanitized = active.map { SubtitleMojibakeSanitizer.sanitizeCue(it) }
     val filtered = if (stripSdh) SubtitleSdhFilter.filterCues(sanitized) else sanitized
     val merged = PlayerSubtitleUtils.mergeOverlappingCues(filtered)
-    val currentKey = activeSidecarSubtitleKey ?: return
-    val currentGeneration = activeSidecarGeneration.takeIf { it != 0L } ?: return
+    val currentKey = activeSidecarSubtitleKey ?: return nextDelayMs
+    val currentGeneration = activeSidecarGeneration.takeIf { it != 0L } ?: return nextDelayMs
     postToSubtitleView { view ->
         if (
             activeSidecarSubtitleKey == currentKey &&
@@ -280,6 +288,32 @@ internal fun PlayerRuntimeController.renderSidecarCuesAtCurrentPosition() {
             view.setCues(merged)
         }
     }
+    return nextDelayMs
+}
+
+/** The first cue start or end after [positionUs], or null when none follows. [cues] ordered by start. */
+internal fun nextSidecarCueBoundaryUs(cues: List<CuesWithTiming>, positionUs: Long): Long? {
+    var next: Long? = null
+    for (entry in cues) {
+        if (entry.startTimeUs > positionUs) {
+            // Later entries start later still, so this start bounds every remaining boundary.
+            return minOf(next ?: entry.startTimeUs, entry.startTimeUs)
+        }
+        val end = when {
+            entry.endTimeUs != C.TIME_UNSET -> entry.endTimeUs
+            entry.durationUs != C.TIME_UNSET -> entry.startTimeUs + entry.durationUs
+            else -> continue
+        }
+        if (end > positionUs) next = minOf(next ?: end, end)
+    }
+    return next
+}
+
+/** Wall-clock wait until [nextBoundaryUs] at [playbackSpeed], capped by the poll interval. */
+internal fun sidecarRenderDelayMs(nextBoundaryUs: Long?, positionUs: Long, playbackSpeed: Float): Long {
+    if (nextBoundaryUs == null || playbackSpeed <= 0f) return SIDECAR_RENDER_INTERVAL_MS
+    val untilMs = ((nextBoundaryUs - positionUs) / 1_000.0 / playbackSpeed).toLong() + 1L
+    return untilMs.coerceIn(SIDECAR_MIN_RENDER_DELAY_MS, SIDECAR_RENDER_INTERVAL_MS)
 }
 
 private fun PlayerRuntimeController.postToSubtitleView(block: (SubtitleView) -> Unit) {
@@ -437,5 +471,6 @@ internal fun activeCueSignature(cues: List<Cue>, stripSdh: Boolean): Long {
 }
 
 private const val SIDECAR_RENDER_INTERVAL_MS = 100L
+private const val SIDECAR_MIN_RENDER_DELAY_MS = 5L
 private const val EMPTY_CUE_SIGNATURE = 0x4E5556494FL // "FETCH"
 private const val EMPTY_CUE_SIGNATURE_SDH = 0x4E5556494F01L

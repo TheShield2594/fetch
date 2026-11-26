@@ -8,6 +8,7 @@ import com.fetch.tv.data.local.MpvHardwareDecodeMode
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import `is`.xyz.mpv.BaseMPVView
 import `is`.xyz.mpv.MPV
+import `is`.xyz.mpv.MPVNode
 import `is`.xyz.mpv.Utils
 import java.util.Locale
 import kotlin.math.pow
@@ -40,6 +41,9 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
     private val aspectReapplyRunnable = Runnable {
         applyAspectModeInternal(currentAspectMode, allowRetry = true)
     }
+
+    // The surface mpv was last given through surfaceCreated(), until it is destroyed or mpv released.
+    private var attachedSurface: android.view.Surface? = null
 
     fun ensureInitialized() {
         if (initialized) return
@@ -92,6 +96,13 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
                 playFile(url)
                 deferredLoadUntilSurface = true
             }
+        } else if (isAttachedTo(holder.surface)) {
+            // The surface is already attached, so no surfaceCreated() will pick up a playFile().
+            pendingInitialMediaUrl = null
+            pendingInitialStartOption = null
+            mpv.command("loadfile", url, "replace")
+            deferredLoadUntilSurface = false
+            hasQueuedInitialMedia = true
         } else {
             pendingInitialMediaUrl = null
             pendingInitialStartOption = null
@@ -107,6 +118,7 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         super.surfaceCreated(holder)
+        attachedSurface = holder.surface
         deferredLoadUntilSurface = false
         val url = pendingInitialMediaUrl ?: return
         val startOption = pendingInitialStartOption
@@ -128,11 +140,21 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         mpv.command("loadfile", url, "replace", LOADFILE_DEFAULT_INDEX, options)
     }
 
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        attachedSurface = null
+        super.surfaceDestroyed(holder)
+    }
+
+    private fun isAttachedTo(surface: android.view.Surface?): Boolean =
+        initialized && surface != null && surface.isValid && surface === attachedSurface
+
     private fun ensureSurfaceAttachedIfAlreadyAvailable() {
         if (!initialized) return
         val currentHolder = holder
         val currentSurface = currentHolder.surface ?: return
         if (!currentSurface.isValid) return
+        // attachSurface() takes a new JNI global reference each call: attach a surface once.
+        if (currentSurface === attachedSurface) return
         runCatching {
             // Some fallback transitions initialize mpv after the Surface is already alive.
             // In that path, SurfaceHolder callback may not fire again, so force attach.
@@ -237,7 +259,10 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
 
     fun durationMs(): Long {
         if (!initialized) return 0L
-        val seconds = mpv.getPropertyDouble("duration/full") ?: 0.0
+        // Same fallback as currentPositionMs(): builds without the /full sub-property report null.
+        val seconds = mpv.getPropertyDouble("duration/full")
+            ?: mpv.getPropertyDouble("duration")
+            ?: 0.0
         return (seconds * 1000.0).roundToLong().coerceAtLeast(0L)
     }
 
@@ -275,7 +300,12 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         }
     }
 
-    fun applyAudioLanguagePreferences(languages: List<String>) {
+    /**
+     * Sets mpv's audio language list. With [reselect], mpv also re-picks the audio track now
+     * (`aid=auto`); without it, the list only applies to the next file, so a track the user chose
+     * (or one already playing) is kept.
+     */
+    fun applyAudioLanguagePreferences(languages: List<String>, reselect: Boolean = true) {
         if (!initialized) return
         val normalized = languages
             .mapNotNull { language ->
@@ -286,7 +316,7 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
             // Empty value resets language preference back to default behavior.
             mpv.setPropertyString("alang", normalized.joinToString(","))
             // Re-run automatic audio selection with the latest preferences.
-            mpv.setPropertyString("aid", "auto")
+            if (reselect) mpv.setPropertyString("aid", "auto")
         }.onFailure {
             Log.w(TAG, "Failed to set audio language preference: ${it.message}")
         }
@@ -670,6 +700,7 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         runCatching { destroy() }
             .onFailure { Log.w(TAG, "Failed to destroy libmpv view cleanly: ${it.message}") }
         initialized = false
+        attachedSurface = null
         hasQueuedInitialMedia = false
         lastMediaRequestKey = null
         pendingInitialMediaUrl = null
@@ -687,6 +718,8 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         mpv.setOptionString("gpu-context", "android")
         mpv.setOptionString("opengl-es", "yes")
         mpv.setOptionString("user-agent", PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
+        // Streams are direct links: the youtube-dl hook only adds a probe and log noise per load.
+        mpv.setOptionString("ytdl", "no")
         // Preserve native ASS/SSA styling behavior on MPV.
         mpv.setOptionString("sub-ass-override", "no")
         mpv.setOptionString("sub-codepage", "auto:utf-8")
@@ -738,21 +771,26 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
     }
 
     private fun applyHeaders(headers: Map<String, String>) {
-        if (headers.isEmpty()) {
-            mpv.setPropertyString("http-header-fields", "")
-            return
-        }
-        val raw = headers.entries
-            .filter { it.key.isNotBlank() && it.value.isNotBlank() }
-            .sortedWith(compareBy({ it.key.lowercase(Locale.ROOT) }, { it.value }))
-            .joinToString(separator = ",") { (key, value) ->
-                val escapedHeader = "$key: $value"
-                    .replace("\\", "\\\\")
-                    .replace(",", "\\,")
-                escapedHeader
-            }
+        // CR/LF in an add-on supplied value would end the header line and inject another one.
+        val lines = headers.entries
+            .map { (key, value) -> key.stripLineBreaks().trim() to value.stripLineBreaks().trim() }
+            .filter { (key, value) -> key.isNotBlank() && value.isNotBlank() }
+            .sortedWith(compareBy({ it.first.lowercase(Locale.ROOT) }, { it.second }))
+            .map { (key, value) -> "$key: $value" }
+        // A node array sets the list item by item, so commas and backslashes in values need no
+        // escaping (the string form's escaping is easy to get wrong).
+        val setAsNode = runCatching {
+            mpv.setPropertyNode(
+                "http-header-fields",
+                MPVNode.ArrayNode(lines.map { MPVNode.StringNode(it) }.toTypedArray())
+            )
+        }.isSuccess
+        if (setAsNode) return
+        val raw = lines.joinToString(separator = ",") { it.replace(",", "\\,") }
         mpv.setPropertyString("http-header-fields", raw)
     }
+
+    private fun String.stripLineBreaks(): String = replace("\r", "").replace("\n", "")
 
     private fun buildMediaRequestKey(url: String, headers: Map<String, String>): String {
         val normalizedHeaders = headers.entries

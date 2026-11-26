@@ -276,4 +276,19 @@ class HeroPresenterTest {
         assertEquals(art("b"), presenter.scene.value.heroBackdrop)
         assertEquals("b", presenter.title.value?.title)
     }
+
+    @Test
+    fun `a scroll starting before the settled art loads keeps the art on screen`() {
+        val results = play(
+            HeroPresenterState(backdropTarget = art("a")),
+            HeroSceneInput(live = live("b"), title = preview("b"), displayedBackdrop = art("a")),
+            HeroSceneInput(live = live("c"), title = preview("c"), scrolling = true, displayedBackdrop = art("a")),
+            HeroSceneInput(live = live("c"), title = preview("c"), scrolling = false, displayedBackdrop = art("a"))
+        )
+
+        assertEquals(art("b"), results[0].scene.heroBackdrop)
+        assertEquals("b", results[1].scene.preview?.title)
+        assertEquals(art("a"), results[1].scene.heroBackdrop)
+        assertEquals(art("c"), results[2].scene.heroBackdrop)
+    }
 }

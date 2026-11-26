@@ -84,7 +84,9 @@ internal fun resolveHeroScene(previous: HeroPresenterState, input: HeroSceneInpu
 
     val nextHeld: ModernHeroSceneState? = when {
         input.scrolling -> when {
-            held.hasTitle -> held
+            // On the backdrop shown: a settled card whose art was still loading when the scroll
+            // began must not crossfade in mid-scroll (#804). Settling again re-targets its art.
+            held.hasTitle -> held!!.onDisplayedBackdrop(displayed)
             else -> {
                 val candidate = when {
                     live.hasTitle -> live

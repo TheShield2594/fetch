@@ -13,7 +13,6 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -365,10 +364,17 @@ internal fun HeroTitleBlock(
     val textTransition: ContentTransform = if (FetchTheme.fullMotion) {
         val fadeMs = FetchMotion.tokens.durations.quick
         val easing = FetchMotion.tokens.easings.standard
-        (fadeIn(tween(fadeMs, delayMillis = fadeMs, easing = easing)) togetherWith
-            fadeOut(tween(fadeMs, easing = easing))).using(null)
+        ContentTransform(
+            targetContentEnter = fadeIn(tween(fadeMs, delayMillis = fadeMs, easing = easing)),
+            initialContentExit = fadeOut(tween(fadeMs, easing = easing)),
+            sizeTransform = null
+        )
     } else {
-        (EnterTransition.None togetherWith ExitTransition.None).using(null)
+        ContentTransform(
+            targetContentEnter = EnterTransition.None,
+            initialContentExit = ExitTransition.None,
+            sizeTransform = null
+        )
     }
 
     AnimatedContent(

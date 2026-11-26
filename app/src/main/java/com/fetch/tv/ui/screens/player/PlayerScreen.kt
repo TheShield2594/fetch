@@ -569,7 +569,8 @@ fun PlayerScreen(
                 }
                 Lifecycle.Event.ON_RESUME -> {
                     // Re-create the MediaSession so media controls work in foreground.
-                    // Don't auto-resume playback — let the user press play.
+                    // Playback resumes only after a transient pause (no ON_STOP, e.g. the
+                    // Assistant overlay); after the app was hidden the user presses play.
                     viewModel.resumeForLifecycle()
                 }
                 else -> {}

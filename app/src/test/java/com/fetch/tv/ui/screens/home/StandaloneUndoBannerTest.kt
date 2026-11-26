@@ -11,7 +11,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.performSemanticsAction
 import com.fetch.tv.ui.theme.FetchTheme
 import org.junit.Assert.assertNull
 import org.junit.Rule
@@ -68,7 +69,9 @@ class StandaloneUndoBannerTest {
         val undo = compose.onNodeWithText("Undo")
         undo.assertIsDisplayed()
         undo.assertIsFocused()
-        undo.performClick()
+        // TV buttons act on OK and on the accessibility click, not on touch, so the click is
+        // sent as the semantics action (what TalkBack and a remote's select both reach).
+        undo.performSemanticsAction(SemanticsActions.OnClick)
         compose.waitForIdle()
 
         assertNull(held)

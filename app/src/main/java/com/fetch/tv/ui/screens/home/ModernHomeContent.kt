@@ -781,6 +781,7 @@ fun ModernHomeContent(
                             resumeTimeLeftText = activeCarouselItem?.heroPreview?.resumeTimeLeftText,
                             resumeProgressFraction = activeCarouselItem?.heroPreview?.resumeProgressFraction,
                             bestMatchKey = activeCarouselItem?.heroPreview?.bestMatchKey,
+                            resumeEpisodeTitle = activeCarouselItem?.heroPreview?.resumeEpisodeTitle,
                             eyebrowText = activeCarouselItem?.heroPreview?.eyebrowText
                         )
                     } else null
@@ -1299,6 +1300,31 @@ fun ModernHomeContent(
             val stableOnItemFocus = remember(onItemFocus) { { item: MetaPreview -> onItemFocus(item) } }
             val stableOnPreloadAdjacentItem = remember(onPreloadAdjacentItem) { { item: MetaPreview -> onPreloadAdjacentItem(item) } }
 
+            // The hero's year, ratings and runtime, for the focused card to read out with its title:
+            // the hero itself is display-only, so TalkBack would never reach them.
+            val heroImdbRatingTemplate = androidx.compose.ui.res.stringResource(R.string.cd_hero_imdb_rating)
+            val showHeroImdbRatings = uiState.homeImdbRatingsVisibility.showRatings
+            val heroCardAccessibilityState = remember(
+                activeCarouselItemState,
+                resolvedHeroState,
+                showHeroImdbRatings,
+                heroImdbRatingTemplate
+            ) {
+                derivedStateOf {
+                    val itemKey = activeCarouselItemState.value?.key
+                    val hero = resolvedHeroState.value.second
+                    if (itemKey == null || hero == null) {
+                        null
+                    } else {
+                        heroAccessibilityDetails(hero, showHeroImdbRatings, heroImdbRatingTemplate)
+                            ?.let { HeroCardAccessibility(itemKey = itemKey, details = it) }
+                    }
+                }
+            }
+
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalHeroCardAccessibility provides heroCardAccessibilityState
+            ) {
             ModernHomeRowsList(
                 carouselRows = carouselRows,
                 verticalRowListState = verticalRowListState,
@@ -1376,6 +1402,7 @@ fun ModernHomeContent(
                     .align(Alignment.BottomStart)
                     .onFocusChanged { contentHasFocus.value = it.hasFocus }
             )
+            }
     }
 
     val selectedOptionsItem = optionsItem.value

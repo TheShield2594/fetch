@@ -192,13 +192,13 @@ private fun PauseMetadataView(
                 )
             }
 
-            if (!year.isNullOrBlank()) {
-                val episodeLabel = if (type in listOf("series", "tv") && season != null && episode != null) {
-                    stringResource(R.string.season_episode_format, season, episode)
-                } else {
-                    null
-                }
-
+            // SxEy shows even when the year is unknown.
+            val episodeLabel = if (type in listOf("series", "tv") && season != null && episode != null) {
+                stringResource(R.string.season_episode_format, season, episode)
+            } else {
+                null
+            }
+            if (!year.isNullOrBlank() || episodeLabel != null) {
                 Text(
                     text = joinPlayerMeta(year, episodeLabel),
                     style = MaterialTheme.typography.bodyLarge,

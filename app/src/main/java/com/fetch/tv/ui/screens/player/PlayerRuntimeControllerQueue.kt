@@ -4,6 +4,7 @@ import com.fetch.tv.data.local.QueueItem
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 
 /** The queue without the video that is playing now; its head is the "Up next in queue" card. */
 internal fun upcomingQueueItems(queue: List<QueueItem>, currentVideoId: String?): List<QueueItem> =
@@ -82,10 +83,14 @@ internal fun PlayerRuntimeController.removeQueueItem(videoId: String) {
 /**
  * Undo for [removeQueueItem]: adds [item] back (at the end) and moves it up to [index], where it
  * sat before. The store only appends and moves one place at a time, so this walks it back.
+ *
+ * Restores run one after another in the order they were asked for, so an Undo of Clear all can
+ * hand over every item at once (lowest index first) and each lands where it was. They run in the
+ * controller's scope, so closing the Queue panel doesn't cut the sequence short.
  */
 internal fun PlayerRuntimeController.restoreQueueItem(item: QueueItem, index: Int) {
     scope.launch {
-        runCatching {
+        queueRestoreMutex.withLock { runCatching {
             episodeQueueStore.add(item)
             val restored = episodeQueueStore.items.first()
             val current = restored.indexOfFirst { it.videoId == item.videoId }
@@ -93,7 +98,7 @@ internal fun PlayerRuntimeController.restoreQueueItem(item: QueueItem, index: In
             repeat((current - index.coerceAtLeast(0)).coerceAtLeast(0)) {
                 episodeQueueStore.move(item.videoId, up = true)
             }
-        }
+        } }
     }
 }
 

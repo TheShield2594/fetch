@@ -7,6 +7,12 @@ import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -36,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
@@ -203,7 +210,7 @@ internal fun ModernHeroMediaLayer(
                         alpha = 1f - transitionProgressState.value
                     },
                 contentScale = ContentScale.Crop,
-                alignment = Alignment.TopEnd
+                alignment = HERO_BACKDROP_CROP_ALIGNMENT
             )
         }
         if (shouldPlay) {
@@ -350,21 +357,46 @@ internal fun HeroTitleBlock(
 
     val displayPreview = currentPreview ?: stablePreview
     if (displayPreview == null) return
-    
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.BottomStart
-    ) {
-        HeroTitleContent(
-            previewProvider = { displayPreview },
-            bestMatchFor = bestMatchFor,
-            portraitMode = portraitMode,
-            showImdbRatings = showImdbRatings,
-            mdbListShowOnHero = mdbListShowOnHero,
-            mdbListRatingOrder = mdbListRatingOrder,
-            trailerPlaying = trailerPlaying,
-            compact = compact
+
+    // A new title fades the old text out, then the new one in, so the block changes with the art
+    // instead of cutting in a single frame. Keyed on the title: enrichment filling in the same
+    // title's details updates it in place. No slide, and reduced motion swaps at once.
+    val textTransition: ContentTransform = if (FetchTheme.fullMotion) {
+        val fadeMs = FetchMotion.tokens.durations.quick
+        val easing = FetchMotion.tokens.easings.standard
+        ContentTransform(
+            targetContentEnter = fadeIn(tween(fadeMs, delayMillis = fadeMs, easing = easing)),
+            initialContentExit = fadeOut(tween(fadeMs, easing = easing)),
+            sizeTransform = null
         )
+    } else {
+        ContentTransform(
+            targetContentEnter = EnterTransition.None,
+            initialContentExit = ExitTransition.None,
+            sizeTransform = null
+        )
+    }
+
+    AnimatedContent(
+        targetState = displayPreview,
+        modifier = modifier,
+        transitionSpec = { textTransition },
+        contentAlignment = Alignment.BottomStart,
+        contentKey = { it.title },
+        label = "heroTitleBlockFade"
+    ) { preview ->
+        Box(contentAlignment = Alignment.BottomStart) {
+            HeroTitleContent(
+                previewProvider = { preview },
+                bestMatchFor = bestMatchFor,
+                portraitMode = portraitMode,
+                showImdbRatings = showImdbRatings,
+                mdbListShowOnHero = mdbListShowOnHero,
+                mdbListRatingOrder = mdbListRatingOrder,
+                trailerPlaying = trailerPlaying,
+                compact = compact
+            )
+        }
     }
 }
 
@@ -396,8 +428,9 @@ private fun HeroTitleContent(
     val headlineLarge = MaterialTheme.typography.headlineLarge
     val labelMedium = MaterialTheme.typography.labelMedium
     val bodyMedium = MaterialTheme.typography.bodyMedium
-    val logoHeight = if (compact) 64.dp else 100.dp
-    val logoMaxWidthPx = remember(density) { with(density) { 220.dp.roundToPx() } }
+    val logoHeight = if (compact) HERO_LOGO_COMPACT_HEIGHT else HERO_LOGO_MAX_HEIGHT
+    // Decoded at the size it is drawn, so the larger logo stays sharp.
+    val logoMaxWidthPx = remember(density) { with(density) { HERO_LOGO_MAX_WIDTH.roundToPx() } }
     val logoHeightPx = remember(density, logoHeight) { with(density) { logoHeight.roundToPx() } }
 
     val logoModel = remember(context, preview.logo, logoMaxWidthPx, logoHeightPx) {
@@ -460,7 +493,7 @@ private fun HeroTitleContent(
                 onError = { logoLoadFailed = true },
                 modifier = Modifier
                     .height(logoHeight)
-                    .widthIn(min = 100.dp, max = 220.dp)
+                    .widthIn(min = 100.dp, max = HERO_LOGO_MAX_WIDTH)
                     .fillMaxWidth(),
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.CenterStart
@@ -474,6 +507,20 @@ private fun HeroTitleContent(
                 overflow = TextOverflow.Ellipsis
             )
         }
+
+        // Which episode Resume starts, by name: the meta line below only carries "S2 E5".
+        preview.resumeEpisodeTitle
+            ?.takeIf { it.isNotBlank() && preview.resumeActionText != null }
+            ?.let { episodeTitle ->
+                Text(
+                    text = episodeTitle,
+                    style = MaterialTheme.typography.titleMedium.copy(textDirection = episodeTitle.contentTextDirection()),
+                    color = FetchTheme.colors.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.graphicsLayer { alpha = metaAlpha }
+                )
+            }
 
         val strStatusEnded = stringResource(if (preview.isSeries) R.string.series_status_ended else R.string.movie_status_ended)
         val strStatusContinuing = stringResource(if (preview.isSeries) R.string.series_status_continuing else R.string.movie_status_continuing)
@@ -820,6 +867,15 @@ private fun HeroProgressLine(fraction: Float, color: Color) {
 
 private val HERO_PROGRESS_LINE_WIDTH = 280.dp
 private val HERO_ACTION_MAX_WIDTH = 240.dp
+private val HERO_LOGO_MAX_WIDTH = 360.dp
+private val HERO_LOGO_MAX_HEIGHT = 140.dp
+private val HERO_LOGO_COMPACT_HEIGHT = 96.dp
+
+/**
+ * Crops the backdrop about its centre, a little towards the top: faces sit in the middle and upper
+ * part of most art, where a right-anchored crop cut them off or left them under the scrim.
+ */
+private val HERO_BACKDROP_CROP_ALIGNMENT = BiasAlignment(horizontalBias = 0f, verticalBias = -0.4f)
 
 @Composable
 private fun HeroImdbMeta(

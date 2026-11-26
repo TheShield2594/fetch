@@ -156,6 +156,19 @@ internal val LocalVerticalRowsScrolling = compositionLocalOf<State<Boolean>> { m
  */
 internal val LocalFastScrollActive = compositionLocalOf<State<Boolean>> { mutableStateOf(false) }
 
+/**
+ * The hero's details for TalkBack while the hero shows the card with [itemKey], else null. Derived,
+ * so a focus move recomposes only the cards gaining or losing them, not every card on screen.
+ */
+@Composable
+private fun rememberHeroAccessibilityDetails(itemKey: String): String? {
+    val heroAccessibility = LocalHeroCardAccessibility.current
+    val details by remember(heroAccessibility, itemKey) {
+        derivedStateOf { heroAccessibility.value?.takeIf { it.itemKey == itemKey }?.details }
+    }
+    return details
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ModernContinueWatchingRowItem(
@@ -200,6 +213,7 @@ private fun ModernContinueWatchingRowItem(
 
     val readyKeys = LocalReadyBestMatchKeys.current
     val isReady = remember(item, readyKeys) { item.bestMatchKey()?.let { it in readyKeys } == true }
+    val heroAccessibilityDetails = rememberHeroAccessibilityDetails(continueWatchingItemKey(item))
 
     ContinueWatchingCard(
         item = item,
@@ -213,6 +227,7 @@ private fun ModernContinueWatchingRowItem(
         cornerRadius = continueWatchingCornerRadius,
         isFocused = isCardFocused,
         isReady = isReady,
+        accessibilityDetails = heroAccessibilityDetails,
         modifier = modifier
             .focusRequester(requester)
             .onFocusChanged {
@@ -1175,6 +1190,7 @@ private fun ModernCarouselCard(
     val cardShape = remember(cardCornerRadius) { RoundedCornerShape(cardCornerRadius) }
     val context = LocalContext.current
     val density = LocalDensity.current
+    val heroAccessibilityDetails = rememberHeroAccessibilityDetails(item.key)
     val expandedCardWidth = if (useLandscapeOverlayTreatment) {
         cardWidth
     } else {
@@ -1445,7 +1461,12 @@ private fun ModernCarouselCard(
             focusedShadow = FetchTheme.focus.cardShadow,
             // Name the card itself: the artwork can be missing, and the title sits outside it.
             // The label replaces the logo and fallback title inside, so the title is read once.
-            label = item.title,
+            // The hero's year, ratings and runtime follow while the hero shows this card.
+            label = if (heroAccessibilityDetails != null) {
+                listOf(item.title, heroAccessibilityDetails).filter { it.isNotBlank() }.joinToString(", ")
+            } else {
+                item.title
+            },
             stateDescription = if (isWatched) stringResource(R.string.episodes_cd_watched) else null
         ) {
             Box(

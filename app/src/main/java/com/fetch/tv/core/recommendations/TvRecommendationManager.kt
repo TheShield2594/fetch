@@ -63,6 +63,20 @@ class TvRecommendationManager @Inject constructor(
     companion object {
         const val TAG = "TvRecommendation"
         val isPlaybackActive = MutableStateFlow(false)
+        private val playbackActiveOwner = java.util.concurrent.atomic.AtomicReference<Any?>(null)
+
+        /**
+         * Marks playback active for [owner]. Clearing only takes effect when [owner] is the one that
+         * last set it, so a player released after the next one started can't clear the flag.
+         */
+        fun setPlaybackActive(owner: Any, active: Boolean) {
+            if (active) {
+                playbackActiveOwner.set(owner)
+                isPlaybackActive.value = true
+            } else if (playbackActiveOwner.compareAndSet(owner, null)) {
+                isPlaybackActive.value = false
+            }
+        }
     }
 
     /**

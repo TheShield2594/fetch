@@ -16,7 +16,9 @@ internal fun PlayerRuntimeController.releasePlayer(
 ) {
     logScrobbleDiagnostic("release_player", "flushPlaybackState=$flushPlaybackState")
     isReleasingPlayer = true
-    com.fetch.tv.core.recommendations.TvRecommendationManager.isPlaybackActive.value = false
+    // Only clears the flag if this controller set it: a stale controller released after the next
+    // player started must not let recommendation work run during that playback.
+    com.fetch.tv.core.recommendations.TvRecommendationManager.setPlaybackActive(this, false)
     if (flushPlaybackState) {
         flushPlaybackSnapshotForSwitchOrExit()
     }
@@ -37,6 +39,16 @@ internal fun PlayerRuntimeController.releasePlayer(
     mpvTrackRefreshJob = null
     mpvTrackRefreshInProgress = false
     hideControlsJob?.cancel()
+    cancelFirstFrameWatchdog()
+    cancelStallWatchdog()
+    seekBufferingUiJob?.cancel()
+    seekBufferingUiJob = null
+    // The cancelled job was the one that would have cleared this after its grace window.
+    seekBufferingUiDeferred = false
+    // A pending pause-overlay timer would otherwise show the overlay over the next stream.
+    pauseOverlayJob?.cancel()
+    pauseOverlayJob = null
+    _uiState.update { it.copy(showPauseOverlay = false) }
     watchProgressSaveJob?.cancel()
     seekProgressSyncJob?.cancel()
     seekSourceLogJob?.cancel()

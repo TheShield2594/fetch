@@ -348,6 +348,7 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     }
                     updateMpvTracksOnTick()
                     updateActiveSkipInterval(pos)
+                    maybeRestartScrobbleAfterSeekBack(isPlayingNow = playingNow && !cacheBuffering)
                     if (!_playbackTimeline.value.isLive) {
                         evaluatePostPlayOverlayVisibility(
                             positionMs = pos,
@@ -366,7 +367,16 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                 continue
             }
 
-            _exoPlayer?.let { player ->
+            val exo = _exoPlayer
+            val exoIdle = exo != null && !exo.isPlaying &&
+                exo.playbackState != androidx.media3.common.Player.STATE_BUFFERING
+            if (exoIdle && isInBackground) {
+                // Paused behind another app: nothing on screen to update, so tick rarely.
+                reportServerPlayback()
+                delay(EXO_BACKGROUND_IDLE_TICK_MS)
+                continue
+            }
+            exo?.let { player ->
                 val pos = player.currentPosition.coerceAtLeast(0L)
                 val playerDuration = player.duration
                 if (playerDuration > lastKnownDuration) {
@@ -387,6 +397,7 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     rebufferTotalMs = rebufferTotalMs
                 )
                 updateActiveSkipInterval(pos)
+                maybeRestartScrobbleAfterSeekBack(isPlayingNow = player.isPlaying)
                 if (!_playbackTimeline.value.isLive) {
                     evaluatePostPlayOverlayVisibility(
                         positionMs = pos,
@@ -416,10 +427,14 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
             }
             reportServerPlayback()
             refreshChaptersOnTick()
-            delay(500)
+            // Paused with no scrub in progress: the position isn't moving, so a slower tick will do.
+            delay(if (exoIdle && pendingPreviewSeekPosition == null) EXO_PAUSED_TICK_MS else 500L)
         }
     }
 }
+
+private const val EXO_PAUSED_TICK_MS = 1_000L
+private const val EXO_BACKGROUND_IDLE_TICK_MS = 2_000L
 
 /**
  * Whether mpv is waiting for data. `core-idle` is also true for a plain pause and for the
@@ -595,6 +610,8 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
         .copy(progressPercent = fallbackPercent)
     // Reaching the credits marker finishes the title even before the length-based threshold.
     val finishedByCredits = duration > 0L && isPlaybackFinishedAt(position, duration)
+    // With no known length the stored percent is a placeholder, so only the natural end can finish it.
+    val finishedWithUnknownDuration = duration <= 0L && reason == WatchProgressSaveReason.NATURAL_END
 
     // Saves run one at a time, in the order they were requested: a below-threshold save decided
     // just before the natural end must not land after the completion and replace it.
@@ -606,7 +623,7 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
         )
         val normalizedProgress = progress.copy(contentId = effectiveContentId)
         val action = watchProgressSaveAction(
-            reachedEnd = normalizedProgress.isCompleted() || finishedByCredits,
+            reachedEnd = normalizedProgress.isCompleted() || finishedByCredits || finishedWithUnknownDuration,
             reason = reason,
             alreadyMarkedCompleted = hasMarkedCurrentEpisodeCompleted,
             completionMarkIsFinal = currentEpisodeCompletionIsFinal
@@ -722,6 +739,18 @@ internal fun PlayerRuntimeController.buildScrobbleItem(): TrackingMediaReference
                 media.kind == TrackingMediaKind.ANIME ||
                 media.episode != null)
     }
+}
+
+/**
+ * A start skipped because playback resumed at or past 80% is sent once the user seeks back below it
+ * and plays on, as [emitScrobbleStart] promises. Not after a completion scrobble: that one already
+ * recorded the watch.
+ */
+internal fun PlayerRuntimeController.maybeRestartScrobbleAfterSeekBack(isPlayingNow: Boolean) {
+    if (!isPlayingNow || userPausedManually || !hasRenderedFirstFrame) return
+    if (hasRequestedScrobbleStartForCurrentItem || hasSentCompletionScrobbleForCurrentItem) return
+    if (currentPlaybackProgressPercent() >= 80f) return
+    emitScrobbleStart()
 }
 
 internal fun PlayerRuntimeController.emitScrobbleStart() {
@@ -1093,6 +1122,8 @@ internal fun PlayerRuntimeController.cancelPauseOverlay() {
 }
 
 fun PlayerRuntimeController.onUserInteraction() {
+    // Someone is holding the remote, so the run of unattended auto-plays starts over.
+    if (_uiState.value.postPlayMode !is PostPlayMode.StillWatching) consecutiveAutoPlayCount = 0
     if (_uiState.value.showPauseOverlay) {
         cancelPauseOverlay()
         showControlsTemporarily()
@@ -1115,7 +1146,8 @@ fun PlayerRuntimeController.hideControls() {
 }
 
 fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
-    if (event != PlayerEvent.OnParentalGuideHide) {
+    // These two come from overlays finishing on their own, not from the remote.
+    if (event != PlayerEvent.OnParentalGuideHide && event != PlayerEvent.OnHideDisplayModeInfo) {
         onUserInteraction()
     }
     when (event) {
@@ -1245,7 +1277,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             if (isLiveSeekBlocked()) return
             pendingPreviewSeekPosition = null
             val origin = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
-            val target = event.position
+            // Same bounds as OnSeekBy; mpv reports 0 until the duration is known, so 0 is unknown.
+            val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
+            val target = event.position.coerceAtLeast(0L).coerceAtMost(maxDuration)
             seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
             updatePlaybackTimeline(currentPosition = target)
             updateSeekFeedback(originMs = origin, targetMs = target, committed = true)

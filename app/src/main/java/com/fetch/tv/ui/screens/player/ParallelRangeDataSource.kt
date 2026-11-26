@@ -169,6 +169,9 @@ internal class ParallelRangeDataSource(
             @Volatile var depthStepIntervalMs: Long = RATE_LIMIT_DEPTH_STEP_BASE_MS
             val rateLimitEscalation = AtomicInteger(0)
             val activeSources: MutableSet<DataSource> = java.util.concurrent.ConcurrentHashMap.newKeySet()
+            // The connection downloading each chunk, so evicting a chunk can abort its download:
+            // cancel() on a CompletableFuture does not interrupt the thread running it.
+            val chunkSources = ConcurrentHashMap<Long, DataSource>()
 
             val inFlight = ConcurrentHashMap<Long, InFlightChunk>()
             @Volatile var lastUsedAtMs: Long = SystemClock.uptimeMillis()
@@ -287,7 +290,12 @@ internal class ParallelRangeDataSource(
         ) {
             val future = session.futures.remove(chunkIndex) ?: return
             session.lastTouch.remove(chunkIndex)
-            if (!future.cancel(true) && future.isDone && !future.isCancelled) {
+            if (future.cancel(true)) {
+                // Closing the connection unblocks the read, and the cancelled future stops the retry.
+                session.chunkSources.remove(chunkIndex)?.let { ds ->
+                    try { ds.close() } catch (_: Exception) {}
+                }
+            } else if (future.isDone && !future.isCancelled) {
                 try {
                     releaseSessionBuffer(future.get().buffer, session.chunkSize, poolCap)
                 } catch (_: Exception) {
@@ -692,6 +700,9 @@ internal class ParallelRangeDataSource(
         var diagBootstrapMs = -1L
 
         var openLength: Long
+        // The whole file's length, when this open can tell it: a Content-Range total, or an
+        // unbounded open's length. A bounded open without Content-Range only knows its own range.
+        var knownFileTotal = C.LENGTH_UNSET.toLong()
         val boundedProbeLength = if (dataSpec.length != C.LENGTH_UNSET.toLong()) {
             minOf(dataSpec.length, BOOTSTRAP_READ_BYTES)
         } else {
@@ -704,6 +715,7 @@ internal class ParallelRangeDataSource(
             onResolvedUri(resolvedUri)
             val probeTotal = parseContentRangeTotal(probeSource.responseHeaders)
             if (probeTotal != C.LENGTH_UNSET.toLong()) {
+                knownFileTotal = probeTotal
                 val remaining = (probeTotal - dataSpec.position).coerceAtLeast(0L)
                 openLength = if (dataSpec.length != C.LENGTH_UNSET.toLong()) {
                     minOf(dataSpec.length, remaining)
@@ -716,6 +728,9 @@ internal class ParallelRangeDataSource(
                 try { probeSource.close() } catch (_: Exception) {}
                 openLength = probeSource.open(dataSpec)
                 diagProbeOpenMs = SystemClock.uptimeMillis() - diagOpenStartMs
+                if (dataSpec.length == C.LENGTH_UNSET.toLong() && openLength != C.LENGTH_UNSET.toLong()) {
+                    knownFileTotal = dataSpec.position + openLength
+                }
             }
         } catch (e: Exception) {
             probeSource.close()
@@ -746,7 +761,11 @@ internal class ParallelRangeDataSource(
         bytesRemaining = openLength
 
         attachedSession.resolvedUri = resolvedUri
-        attachedSession.totalLength = totalFileLength
+        // A bounded open's end is not the file's end: storing it would cap every later open
+        // that reuses this session.
+        if (knownFileTotal != C.LENGTH_UNSET.toLong()) {
+            attachedSession.totalLength = knownFileTotal
+        }
 
         Log.d(TAG, "Parallel mode: ${parallelConnections} connections, ${chunkSize / 1024 / 1024}MB chunks, " +
                 "file=${totalFileLength / 1024 / 1024}MB, resolved=${resolvedUri?.host}")
@@ -864,9 +883,13 @@ internal class ParallelRangeDataSource(
         }
 
         if (currentChunkIndex != chunkIndex || currentChunk == null) {
-            val activeSession = session ?: return C.RESULT_END_OF_INPUT
+            // A torn-down session is not the end of the file: reporting END_OF_INPUT would end
+            // playback early, an IOException lets the player retry or recover.
+            val activeSession = session
+                ?: throw java.io.IOException("Parallel chunk session was torn down")
             ensureChunkScheduled(chunkIndex)
-            val future = activeSession.futures[chunkIndex] ?: return C.RESULT_END_OF_INPUT
+            val future = activeSession.futures[chunkIndex]
+                ?: throw java.io.IOException("Chunk $chunkIndex is no longer scheduled")
             activeSession.noteRead(chunkIndex)
 
             if (!future.isDone) {
@@ -1209,6 +1232,7 @@ internal class ParallelRangeDataSource(
         val ds = upstreamFactory.createDataSource()
         transferListeners.forEach { ds.addTransferListener(it) }
         activeSession.activeSources.add(ds)
+        activeSession.chunkSources[chunkIndex] = ds
         try {
             val uri = activeSession.resolvedUri ?: activeSession.requestUri
             val spec = DataSpec.Builder()
@@ -1227,6 +1251,7 @@ internal class ParallelRangeDataSource(
             return chunk
         } finally {
             activeSession.activeSources.remove(ds)
+            activeSession.chunkSources.remove(chunkIndex, ds)
             try { ds.close() } catch (_: Exception) {}
         }
     }

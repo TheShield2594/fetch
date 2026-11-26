@@ -181,16 +181,24 @@ private suspend fun PlayerRuntimeController.enrichDescriptionFromTmdb(id: String
                         deviceLanguages = resolveDeviceAudioLanguages(),
                         contentOriginalLanguage = tmdbLang
                     )
+                    // Once playback has started, or the user has picked a track this session,
+                    // re-running track selection would switch the audio under them. The new
+                    // language still applies to the next build: initialization reads
+                    // contentLanguage and mpvPreferredAudioLanguages.
+                    val mayReselectAudio = !hasRenderedFirstFrame &&
+                        rememberedTrackPreference?.audio == null
                     if (resolved.isNotEmpty()) {
-                        _exoPlayer?.let { player ->
-                            player.trackSelectionParameters = player.trackSelectionParameters
-                                .buildUpon()
-                                .setPreferredAudioLanguages(*resolved.toTypedArray())
-                                .build()
+                        if (mayReselectAudio) {
+                            _exoPlayer?.let { player ->
+                                player.trackSelectionParameters = player.trackSelectionParameters
+                                    .buildUpon()
+                                    .setPreferredAudioLanguages(*resolved.toTypedArray())
+                                    .build()
+                            }
                         }
                         if (isUsingMpvEngine()) {
                             mpvPreferredAudioLanguages = resolved
-                            mpvView?.applyAudioLanguagePreferences(resolved)
+                            mpvView?.applyAudioLanguagePreferences(resolved, reselect = mayReselectAudio)
                         }
                     }
                 }
@@ -416,7 +424,9 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(positionM
     val shouldEnterStillWatching = shouldPromptStillWatching(state.nextEpisode.hasAired)
 
     if (shouldEnterStillWatching) {
-        enterStillWatchingPromptMode()
+        // Let this episode play out: the prompt is entered at its natural end
+        // (resetPostPlayStateAfterPlaybackEnded), not at the card threshold mid-credits.
+        return
     } else {
         val ne = state.nextEpisode
         val isUnplayable = !ne.hasAired ||

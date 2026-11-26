@@ -91,6 +91,8 @@ internal class MpvEventRelay(
 
     override fun logMessage(prefix: String, level: Int, text: String) {
         if (!active.get() || epoch != controller.mpvEventRelayEpoch) return
+        // Filter on mpv's thread: most lines are dropped, and each kept one costs a main-thread hop.
+        if (!isMpvLogLineWorthRecording(prefix, level, text)) return
         controller.scope.launch {
             if (!active.get() || epoch != controller.mpvEventRelayEpoch) return@launch
             controller.onMpvLogLine(prefix, level, text)
@@ -177,12 +179,17 @@ private fun PlayerRuntimeController.onMpvCoreShutdown() {
     )
 }
 
-internal fun PlayerRuntimeController.onMpvLogLine(prefix: String, level: Int, text: String) {
-    val isHttp = MPV_HTTP_ERROR_REGEX.containsMatchIn(text)
-    if (level > MPV.mpvLogLevel.MPV_LOG_LEVEL_INFO) return
+/** Whether a log line is kept for diagnostics; pure, so it can run on mpv's log thread. */
+internal fun isMpvLogLineWorthRecording(prefix: String, level: Int, text: String): Boolean {
+    if (level > MPV.mpvLogLevel.MPV_LOG_LEVEL_INFO) return false
     val isInfo = level > MPV.mpvLogLevel.MPV_LOG_LEVEL_WARN
-    if (isInfo && !mpvInfoLineIsUseful(text)) return
-    if (!isInfo && level > MPV.mpvLogLevel.MPV_LOG_LEVEL_ERROR && !isHttp && !mpvWarnLineIsUseful(prefix, text)) return
+    if (isInfo) return mpvInfoLineIsUseful(text)
+    if (level <= MPV.mpvLogLevel.MPV_LOG_LEVEL_ERROR) return true
+    return MPV_HTTP_ERROR_REGEX.containsMatchIn(text) || mpvWarnLineIsUseful(prefix, text)
+}
+
+internal fun PlayerRuntimeController.onMpvLogLine(prefix: String, level: Int, text: String) {
+    if (!isMpvLogLineWorthRecording(prefix, level, text)) return
     val body = text.replace(MPV_URL_REGEX, "").trim().take(300)
     if (body.isEmpty()) return
     val line = if (prefix.isBlank()) body else "[${prefix.trim()}] $body"

@@ -237,7 +237,7 @@ private fun StreamInfoContent(data: StreamInfoData) {
             InfoItem(label = stringResource(R.string.stream_info_channels), value = data.audioChannels)
             InfoItem(
                 label = stringResource(R.string.stream_info_sample_rate),
-                value = data.audioSampleRate?.let { stringResource(R.string.audio_sample_rate_khz, it / 1000) }
+                value = data.audioSampleRate?.let { stringResource(R.string.audio_sample_rate_khz, formatSampleRateKhz(it)) }
             )
             InfoItem(
                 label = stringResource(R.string.stream_info_language),
@@ -313,13 +313,21 @@ private fun formatBitrate(bps: Int): String {
 
 internal fun formatResolution(width: Int, height: Int): String {
     val maxDim = maxOf(width, height)
+    val minDim = minOf(width, height)
     val label = when {
         maxDim >= 3600 -> "4K"
         maxDim >= 2400 -> "1440p"
         maxDim >= 1800 -> "1080p"
         maxDim >= 1200 -> "720p"
-        maxDim >= 800 -> "480p"
-        else -> "${minOf(width, height)}p"
+        // The SD tier spans 854 × 480, 960 × 540 and 1024 × 576: the short side tells them
+        // apart, while scope crops (854 × 357) still read as 480p.
+        maxDim >= 800 -> when {
+            minDim >= 600 -> "${minDim}p"
+            minDim >= 576 -> "576p"
+            minDim >= 540 -> "540p"
+            else -> "480p"
+        }
+        else -> "${minDim}p"
     }
     return "$width × $height ($label)"
 }

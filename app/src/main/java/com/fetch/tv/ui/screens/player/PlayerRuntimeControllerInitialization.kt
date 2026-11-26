@@ -1180,14 +1180,17 @@ internal fun PlayerRuntimeController.initializePlayer(
                         seekSourceLogJob?.cancel()
                         seekSourceLogJob = scope.launch {
                             delay(SEEK_SOURCE_SETTLE_MS)
-                            val heldForTitle = mediaSourceFactory.vodCacheBytesForKey(
-                                currentStreamCacheKey,
-                                currentStreamUrl
-                            )
+                            val cacheKey = currentStreamCacheKey
+                            val streamUrl = currentStreamUrl
+                            val durationMs = _exoPlayer?.duration ?: -1L
+                            // Summing the span set walks the whole cache index: keep it off the main thread.
+                            val heldForTitle = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                mediaSourceFactory.vodCacheBytesForKey(cacheKey, streamUrl)
+                            }
                             Log.i(
                                 PlayerRuntimeController.TAG,
                                 "SEEK_SOURCE: toMs=$seekedToMs " +
-                                    "durationMs=${_exoPlayer?.duration ?: -1L} " +
+                                    "durationMs=$durationMs " +
                                     "titleCachedMb=${if (heldForTitle < 0L) -1L else heldForTitle / (1024L * 1024L)}"
                             )
                         }
@@ -1429,6 +1432,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                     }
 
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        // releasePlayer() already flushed the snapshot; its pause() must not save again.
+                        if (isReleasingPlayer) {
+                            _uiState.update { it.copy(isPlaying = isPlaying) }
+                            return
+                        }
                         logScrobbleDiagnostic(
                             "exo_is_playing_changed",
                             "isPlaying=$isPlaying playbackState=$playbackState playWhenReady=$playWhenReady " +

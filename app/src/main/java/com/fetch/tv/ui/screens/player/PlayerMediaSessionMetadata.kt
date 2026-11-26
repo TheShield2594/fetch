@@ -73,6 +73,12 @@ internal fun PlayerRuntimeController.updateMediaSessionMetadata() {
                     }
                     .setMediaMetadata(metadata)
                     .build()
+                // Updated in place, without rebuilding the source: buildUpon() keeps the
+                // localConfiguration (uri, customCacheKey) that canUpdateMediaItem compares, and
+                // the wrappers delegate it (WrappingMediaSource → AudioDelayMediaSource,
+                // MergingMediaSource → its first source for sidecar subtitles). If any source in
+                // the chain could not, Media3 would rebuild it with the default factory and drop
+                // the stream's headers, so a new wrapper must keep delegating these two methods.
                 player.replaceMediaItem(player.currentMediaItemIndex, updated)
             }
             // No current MediaItem yet (e.g. player just built, source not set) means there is

@@ -85,7 +85,8 @@ fun PostPlayOverlay(
     blurUnwatchedEpisodes: Boolean,
     nextEpisodeFocusRequester: FocusRequester,
     progressBarFocusRequester: FocusRequester?,
-    leftFocusRequester: FocusRequester?,
+    /** The Skip pill, which sits at the start edge; `start` follows the layout direction (RTL). */
+    startFocusRequester: FocusRequester?,
     onPlayNext: () -> Unit,
     onContinueStillWatching: () -> Unit,
     onDismissStillWatching: () -> Unit,
@@ -147,10 +148,10 @@ fun PostPlayOverlay(
                     }
                 }
                 .then(
-                    if (progressBarFocusRequester != null || leftFocusRequester != null) {
+                    if (progressBarFocusRequester != null || startFocusRequester != null) {
                         Modifier.focusProperties {
                             progressBarFocusRequester?.let { down = it }
-                            leftFocusRequester?.let { left = it }
+                            startFocusRequester?.let { start = it }
                         }
                     } else {
                         Modifier

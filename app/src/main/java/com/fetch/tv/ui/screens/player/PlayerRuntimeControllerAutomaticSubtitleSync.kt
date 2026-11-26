@@ -62,6 +62,10 @@ internal fun PlayerRuntimeController.autoSyncExtractorsFactory(
 /**
  * Starts the embedded subtitle index download while the stream opens, so a later AutoSync run
  * finds it cached or joins the in-flight load instead of starting when a subtitle is selected.
+ *
+ * Only when an add-on subtitle is expected (the title's saved pick is one): the index can cost up
+ * to 24 MB and 16 range requests, wasted when no add-on subtitle is ever chosen. Otherwise the
+ * AutoSync run started by picking one loads it then.
  */
 internal fun PlayerRuntimeController.prefetchAutoSyncIndex(
     url: String,
@@ -69,6 +73,10 @@ internal fun PlayerRuntimeController.prefetchAutoSyncIndex(
 ) {
     AutoSyncPreferences.ensureLoaded(context)
     if (!AutoSyncPreferences.isEnabled(context)) return
+    val expectsAddonSubtitle =
+        (rememberedTrackPreference ?: persistedTrackPreference)?.subtitle is
+            PlayerRuntimeController.RememberedSubtitleSelection.Addon
+    if (!expectsAddonSubtitle) return
     EmbeddedSubtitleTimelineLoader.prefetch(scope, url, headers)
 }
 

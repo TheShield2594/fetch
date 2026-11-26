@@ -128,7 +128,20 @@ object DolbyVisionCodecFallback {
      * firmware refuses to create it (seen on some Chinese Amlogic ROMs with
      * incomplete DV licensing).
      */
+    // Whether a codec can be created does not change while the app runs, and creating a hardware
+    // codec on every selector call is slow and can briefly hold a decoder another app needs.
+    private val instantiationProbeCache = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
+    // Only successes are cached: a codec can be briefly unavailable (held by another app), and
+    // caching that failure would hide the decoder until the process restarts.
     private fun probeCodecInstantiation(componentName: String): Boolean {
+        if (instantiationProbeCache[componentName] == true) return true
+        val usable = probeCodecInstantiationUncached(componentName)
+        if (usable) instantiationProbeCache[componentName] = true
+        return usable
+    }
+
+    private fun probeCodecInstantiationUncached(componentName: String): Boolean {
         return runCatching {
             val codec = MediaCodec.createByCodecName(componentName)
             codec.release()

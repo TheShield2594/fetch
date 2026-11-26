@@ -991,7 +991,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 extension == "avi" -> MimeTypes.VIDEO_AVI
                 extension == "mpeg" || extension == "mpg" -> MimeTypes.VIDEO_MPEG
                 else -> inferMimeTypeFromQuery(queryPart)
-                    ?: inferMimeTypeFromDelimitedToken(pathPart)
+                    ?: inferMimeTypeFromPathTokens(pathPart)
                     ?: inferMimeTypeFromDelimitedToken(queryPart)
             }
         }
@@ -1055,6 +1055,35 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             return null
         }
 
+        /**
+         * Manifest hints in an extensionless path. Only a whole segment (`/m3u8/`, `/mpd/`), a
+         * Smooth Streaming `.ism` segment, or a suffix of the last segment (`stream_mpd`) count:
+         * a token inside some other segment (`/m3u-collection/`) says nothing about the stream.
+         */
+        private fun inferMimeTypeFromPathTokens(path: String): String? {
+            if (path.isBlank()) return null
+            val segments = path.substringAfter("://").split('/').filter { it.isNotBlank() }
+            // The first piece of an absolute URL is the host.
+            val pathSegments = if (path.contains("://")) segments.drop(1) else segments
+            for (segment in pathSegments) {
+                manifestMimeForToken(segment)?.let { return it }
+                if (segment.endsWith(".ism") || segment.endsWith(".isml")) return MimeTypes.APPLICATION_SS
+            }
+            pathSegments.lastOrNull()?.let { last ->
+                TRAILING_MANIFEST_TOKEN_PATTERN.find(last)?.let { match ->
+                    manifestMimeForToken(match.groupValues[1])?.let { return it }
+                }
+            }
+            return if (PLAYLIST_HLS_PATTERN.containsMatchIn(path)) MimeTypes.APPLICATION_M3U8 else null
+        }
+
+        private fun manifestMimeForToken(token: String): String? = when (token) {
+            "m3u8", "m3u" -> MimeTypes.APPLICATION_M3U8
+            "mpd" -> MimeTypes.APPLICATION_MPD
+            "ism", "isml" -> MimeTypes.APPLICATION_SS
+            else -> null
+        }
+
         private fun inferMimeTypeFromDelimitedToken(value: String): String? {
             if (value.isBlank()) return null
 
@@ -1086,6 +1115,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         private val PLAYLIST_HLS_PATTERN = Regex("/(playlist|hls|manifest|master|vs)/(?!stream$|list$|info$|details$)[a-zA-Z0-9_/-]+$")
         private val DELIMITED_MPD_PATTERN = Regex("(^|[=/_.?&-])mpd($|[=/_.?&-])")
         private val DELIMITED_SS_PATTERN = Regex("(^|[=/_.?&-])(ism|isml)($|[=/_.?&-])")
+        private val TRAILING_MANIFEST_TOKEN_PATTERN = Regex("[._-](m3u8|m3u|mpd|ism|isml)$")
 
         /**
          * Extracts `user:pass` from a URL's userinfo component and converts it

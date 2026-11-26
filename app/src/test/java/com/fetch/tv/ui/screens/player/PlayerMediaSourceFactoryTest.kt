@@ -73,6 +73,28 @@ class PlayerMediaSourceFactoryTest {
     }
 
     @Test
+    fun `inferMimeType ignores manifest tokens inside other path segments`() {
+        assertNull(PlayerMediaSourceFactory.inferMimeType(url = "https://example.com/m3u-collection/abc123", filename = null))
+        assertNull(PlayerMediaSourceFactory.inferMimeType(url = "https://example.com/files/the-mpd-show/42", filename = null))
+    }
+
+    @Test
+    fun `inferMimeType still reads whole manifest segments and trailing tokens`() {
+        assertEquals(
+            MimeTypes.APPLICATION_M3U8,
+            PlayerMediaSourceFactory.inferMimeType(url = "https://example.com/live/m3u8/abc123", filename = null)
+        )
+        assertEquals(
+            MimeTypes.APPLICATION_MPD,
+            PlayerMediaSourceFactory.inferMimeType(url = "https://example.com/play/stream_mpd", filename = null)
+        )
+        assertEquals(
+            MimeTypes.APPLICATION_SS,
+            PlayerMediaSourceFactory.inferMimeType(url = "https://example.com/video.ism/manifest", filename = null)
+        )
+    }
+
+    @Test
     fun `inferMimeType recognizes explicit format query values`() {
         val mimeType = PlayerMediaSourceFactory.inferMimeType(
             url = "https://example.com/playback?format=m3u8",

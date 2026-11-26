@@ -272,6 +272,7 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
         e.printStackTrace()
     }
 
+    resumePlaybackAfterTransientPause = !userPausedManually && hasActivePlayIntent()
     // Mark as user-paused so autoplay logic doesn't resume playback.
     userPausedManually = true
     shouldEnforceAutoplayOnFirstReady = false
@@ -307,6 +308,8 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
  * position, so [startForLifecycle] can prepare it again, paused, where it was.
  */
 internal fun PlayerRuntimeController.stopForLifecycle() {
+    // Hidden, not just covered by an overlay: coming back waits for the user to press play.
+    resumePlaybackAfterTransientPause = false
     if (isUsingMpvEngine()) return
     val player = _exoPlayer ?: return
     if (player.playbackState == androidx.media3.common.Player.STATE_IDLE) return
@@ -338,6 +341,8 @@ internal fun PlayerRuntimeController.mediaSessionPlayer(player: androidx.media3.
 
 internal fun PlayerRuntimeController.resumeForLifecycle() {
     isInBackground = false
+    val resumeTransientPause = resumePlaybackAfterTransientPause
+    resumePlaybackAfterTransientPause = false
 
     // If the codec crashed while in background, the player was released to free
     // resources. Rebuild it now with the saved position so the user comes back
@@ -360,7 +365,10 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
         // press, leaving the timeline, tracks and server reporting frozen (TheShield2594/fetch#732).
         if (mpvView != null && !isReleasingPlayer) {
             startProgressUpdates()
-            if (userPausedManually && !_uiState.value.isPlaying) {
+            if (resumeTransientPause && userPausedManually) {
+                // Only an overlay covered the player (it was never hidden): carry on playing.
+                onEvent(PlayerEvent.OnPlay)
+            } else if (userPausedManually && !_uiState.value.isPlaying) {
                 schedulePauseOverlay()
                 showControlsTemporarily()
             }
@@ -375,7 +383,10 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
 
         // A pause for the background left a still frame with no controls; show them, and the
         // pause overlay after its delay, as a pause from the remote does (#705).
-        if (userPausedManually && !_uiState.value.isPlaying) {
+        if (resumeTransientPause && userPausedManually) {
+            // Only an overlay covered the player (it was never hidden): carry on playing.
+            onEvent(PlayerEvent.OnPlay)
+        } else if (userPausedManually && !_uiState.value.isPlaying) {
             schedulePauseOverlay()
             showControlsTemporarily()
         }
@@ -614,6 +625,10 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
         pendingResumeProgress = null
         return
     }
+
+    // Until the requested file has loaded, position and duration can still be the previous
+    // file's: an "already at target" read off them would drop the resume seek.
+    if (!view.isPositionFromRequestedMedia()) return
 
     val target = when {
         savedResume != null && durationMs > 0L -> {

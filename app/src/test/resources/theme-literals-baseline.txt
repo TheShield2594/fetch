@@ -171,7 +171,7 @@ com/fetch/tv/ui/screens/detail/TrailerSection.kt|DP|3
 com/fetch/tv/ui/screens/filterrows/FilterRowsScreen.kt|DP|1
 com/fetch/tv/ui/screens/home/ModernHomeContent.kt|DP|1
 com/fetch/tv/ui/screens/home/ModernHomeHero.kt|ALPHA|14
-com/fetch/tv/ui/screens/home/ModernHomeHero.kt|DP|7
+com/fetch/tv/ui/screens/home/ModernHomeHero.kt|DP|6
 com/fetch/tv/ui/screens/home/ModernHomeHero.kt|PERCENT_RADIUS|1
 com/fetch/tv/ui/screens/home/ModernHomeHero.kt|SPACING_AS_STROKE|2
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|ALPHA|1

@@ -73,7 +73,7 @@ web/
    cp .env.example .env
    ```
 
-   - **Required:** `API_TOKEN` and `POSTGRES_PASSWORD` — `docker compose up` will refuse to start without them. Generate a token with `openssl rand -hex 32`; the API refuses to start in production with one shorter than 32 characters, since every encryption and signing key is derived from it. Changing it later has a cost — see [Secrets at rest](#secrets-at-rest).
+   - **Required:** `API_TOKEN` and `POSTGRES_PASSWORD` — `docker compose up` will refuse to start without them. Generate a token with `openssl rand -hex 32`; the API refuses to start in production with one shorter than 32 characters, since signing keys are derived from it. **Recommended:** `FETCH_SECRET_KEY`, generated the same way, so stored credentials are encrypted under a key of their own rather than `API_TOKEN`. Changing either later has a cost — see [Secrets at rest](#secrets-at-rest).
    - **Required, after the first start:** `FETCH_ADDON_KEY`, the add-on service's own credential, derived from `API_TOKEN` — see step 2.
    - **Recommended:** `FETCH_PUBLIC_URL` — the address you open the website at: `http://LAN-IP:7002` on a plain LAN install, or `https://fetch.example.com` behind a [reverse proxy](#reverse-proxy-setup). Every other public URL (the API's, the add-on's, the allowed origins, the Trakt redirect) is derived from it, and each service logs what it derived when it starts. Nothing defaults to an example address any more; a service warns at startup if any URL still names `192.168.1.25`, the example address these docs use.
    - **Optional integrations:** `TMDB_API_KEY`, `TRAKT_CLIENT_ID` (in `api` service). Trakt needs only the app's Client ID: sign-in uses PKCE, so there is no Client Secret to set. `TMDB_API_KEY` can also be set from the app instead: the setup wizard asks for it, and **Settings → TMDB Metadata** changes it later. A key saved there takes precedence over this variable. When the variable is the key in use (none is saved in Settings), that Settings section is left out, since there is nothing to enter.
@@ -722,33 +722,52 @@ Every credential Fetch stores on your behalf is encrypted in the database with A
 | TMDB, OMDB and RPDB API keys | `KV` |
 | AI provider config, including its `Authorization` header (one per account) | `KV` |
 | VAPID private key (web push) | `KV` |
+| Two-factor sign-in secrets | `Account.totpSecret`, `Account.totpPendingSecret` |
 
 Notification channel URLs are also write-only: Settings shows them masked (`https://ntfy.sh/…`). An add-on's manifest URL is still sent in full to its own profile's website and TV, which need it to run the add-on. A keyed hash of the manifest URL (`ProfileAddon.manifestUrlKey`) is stored beside it so one profile can't install the same add-on twice; it reveals only whether two rows hold the same URL.
 
 **Not encrypted:** web-push subscriptions (`PushSubscription.endpoint`, `p256dh` and `auth`). `p256dh` is a public key, and sending to a subscription also needs the VAPID private key above, so a dump alone can't push to anyone's browser.
 
-The key is derived from `API_TOKEN` with HKDF-SHA256 — the same "derive from the one secret you already have" approach as the add-on URL secret and profile access tokens — so there is no extra variable to set and no key file to lose. Each value is also bound to the column it lives in, so a ciphertext lifted out of one row and pasted into another fails to decrypt rather than being accepted somewhere it doesn't belong.
+The key is derived with HKDF-SHA256 from `FETCH_SECRET_KEY`, or from `API_TOKEN` when that is unset (every install from before `FETCH_SECRET_KEY` existed, so upgrading needs nothing). Each value is also bound to the column it lives in, so a ciphertext lifted out of one row and pasted into another fails to decrypt rather than being accepted somewhere it doesn't belong.
 
-**What this protects against:** a copy of the database — a `pg_dump` on a NAS, the `pgdata` volume, an old backup. Without `API_TOKEN`, none of the credentials in it can be read.
+**Set `FETCH_SECRET_KEY`.** `API_TOKEN` is also the admin bearer token, and copies of it end up in scripts. With the encryption key under the same value, a leaked script token can't be rotated without losing every stored credential. With its own key, it can. On a new install, set `FETCH_SECRET_KEY` (`openssl rand -hex 32`) before the first start. On an existing one, move onto it with `fetch rotate-key` as below; just adding it to `.env` makes every stored credential unreadable. The API refuses to start in production with a `FETCH_SECRET_KEY` shorter than 32 characters, or one equal to `API_TOKEN`.
 
-**What it does not protect against:** anyone who can already run code as the API container or read its environment. The process needs `API_TOKEN` to serve a single request, so it necessarily holds the key. Encryption at rest raises the cost of a stolen file, not of a compromised host.
+**What this protects against:** a copy of the database — a `pg_dump` on a NAS, the `pgdata` volume, an old backup. Without the key, none of the credentials in it can be read.
 
-**Rotating `API_TOKEN` invalidates every stored credential.** This is the real cost of deriving the key from it. Nothing is lost that can't be re-entered, but it is re-entry, not a restart:
+**What it does not protect against:** anyone who can already run code as the API container or read its environment. The process needs the key to serve a single request, so it necessarily holds it. Encryption at rest raises the cost of a stolen file, not of a compromised host.
+
+Rows written before this shipped are read back unchanged and encrypted in place on the next start, so upgrading needs nothing from you. A deployment running without `API_TOKEN` or `FETCH_SECRET_KEY` at all (development only — production refuses to start without one) keeps writing plaintext, and logs a warning saying so.
+
+#### Rotating the encryption key
+
+`fetch rotate-key` decrypts every stored credential with the old key and encrypts it with the new one, in one database transaction. If any value can't be opened with `--old` (the wrong key, or a credential that was already unreadable), it changes nothing and lists what stopped it. Stop the API first, so nothing is saved under the old key while the rotation runs:
+
+```sh
+docker compose stop api
+NEW_KEY=$(openssl rand -hex 32)
+# --old is the current key: FETCH_SECRET_KEY if set, otherwise API_TOKEN.
+docker compose run --rm api fetch rotate-key --old "<current key>" --new "$NEW_KEY"
+# Set FETCH_SECRET_KEY=$NEW_KEY in .env, then:
+docker compose up -d
+```
+
+The keys are passed on the command line, so they land in your shell history; clear it afterwards if that matters on your host. Moving from `API_TOKEN` onto a new `FETCH_SECRET_KEY` is the same command with `--old` set to `API_TOKEN`. It leaves `API_TOKEN`, add-on URLs and profile unlocks as they are.
+
+**Changing the key any other way invalidates every stored credential.** Nothing is lost that can't be re-entered, but it is re-entry, not a restart:
 
 1. On the next start the API logs an error naming each credential it can no longer decrypt.
 2. Reconnect Trakt, and re-enter the API keys and notification tokens, from Settings.
-3. Web push is the exception worth planning around: the VAPID keypair identifies this server to every browser that ever subscribed, so it cannot be regenerated without silently unsubscribing all of them. Rather than do that quietly, the API refuses to send push at all and says why. Restore the old `API_TOKEN` if you have it; otherwise delete the `push:vapidKeys` row and have each browser re-subscribe.
+3. Web push is the exception worth planning around: the VAPID keypair identifies this server to every browser that ever subscribed, so it cannot be regenerated without silently unsubscribing all of them. Rather than do that quietly, the API refuses to send push at all and says why. Restore the old key if you have it; otherwise delete the `push:vapidKeys` row and have each browser re-subscribe.
 
-Rotating also invalidates everything else derived from it, so plan a rotation as a maintenance task, not a config edit. In full, a new `API_TOKEN` means:
+#### Rotating `API_TOKEN`
 
-- every stored credential above is unreadable until re-entered (a notification channel whose URL can't be read says so in Settings: remove it and add it again; an add-on whose URL can't be read drops out of the list until it is reinstalled or the TV next syncs);
+With `FETCH_SECRET_KEY` set, stored credentials don't depend on `API_TOKEN`. Without it, rotate the encryption key onto `FETCH_SECRET_KEY` first (above), or every stored credential becomes unreadable. Either way, `API_TOKEN` is still the root of other keys, so plan a rotation as a maintenance task, not a config edit. A new `API_TOKEN` means:
+
 - every profile unlock (a PIN-protected profile has to be unlocked again);
 - every add-on URL, the built-in Stremio catalog and the separate add-on service alike — reinstall each from Settings (one profile's URL can be replaced on its own, without rotating anything: Settings → Stremio addon → Change this profile's addon URL);
-- every account's two-factor sign-in secret: those accounts sign in with a recovery code, then turn two-factor off and on again (or run `fetch reset-2fa <username>`);
 - `FETCH_ADDON_KEY`, which is derived from it: run `docker compose exec api fetch addon-key` again, put the new value in `.env`, and `docker compose up -d addon` (the scrobble token media players send to the add-on changes with it);
-- scripts and anything else holding the old token as a bearer.
-
-Rows written before this shipped are read back unchanged and encrypted in place on the next start, so upgrading needs nothing from you. A deployment running without `API_TOKEN` at all (development only — production refuses to start without one) keeps writing plaintext, and logs a warning saying so.
+- scripts and anything else holding the old token as a bearer;
+- without `FETCH_SECRET_KEY` only: every stored credential above is unreadable until re-entered (a notification channel whose URL can't be read says so in Settings: remove it and add it again; an add-on whose URL can't be read drops out of the list until it is reinstalled or the TV next syncs), and every account's two-factor sign-in secret, so those accounts sign in with a recovery code, then turn two-factor off and on again (or run `fetch reset-2fa <username>`).
 
 ### Webhook secret placement
 

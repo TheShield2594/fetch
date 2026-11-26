@@ -102,6 +102,10 @@ services:
       # parameters). 1–60000, default 1000; 0 turns the logging off.
       DATABASE_SLOW_QUERY_MS: ${DATABASE_SLOW_QUERY_MS}
       API_TOKEN: ${API_TOKEN:?Set API_TOKEN in a .env file next to docker-compose.yml — see README.md}
+      # The key stored credentials are encrypted under. Unset, they are
+      # encrypted under API_TOKEN, as before it existed. Change it only with
+      # `fetch rotate-key` — README.md, "Secrets at rest".
+      FETCH_SECRET_KEY: ${FETCH_SECRET_KEY:-}
       # The address people open the website at; the public URLs below are
       # derived from it when they are unset (see the top of this file).
       FETCH_PUBLIC_URL: ${FETCH_PUBLIC_URL:-}

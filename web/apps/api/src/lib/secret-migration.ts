@@ -7,6 +7,7 @@ import {
   isEncryptedSecret,
   isSecretEncryptionAvailable,
   kvSecretContext,
+  secretKeyRootName,
   secretLookupKey,
 } from "./secret-box.js";
 import { invalidateKv } from "./kv.js";
@@ -28,7 +29,7 @@ import { VAPID_KEYS_KV } from "./push.js";
 // One startup error naming every affected credential is that cause.
 
 /** KV rows that hold a credential rather than a preference. */
-const SECRET_KV_KEYS = [
+export const SECRET_KV_KEYS = [
   TMDB_API_KEY_KV,
   OMDB_API_KEY_KV,
   RPDB_API_KEY_KV,
@@ -160,8 +161,9 @@ export const encryptStoredSecrets = async (logger: FastifyBaseLogger): Promise<S
   if (sweep.unreadable.length > 0) {
     logger.error(
       { credentials: sweep.unreadable },
-      `${sweep.unreadable.length} stored credential(s) cannot be decrypted, which means API_TOKEN has changed since they were saved. ` +
-        "Restore the previous API_TOKEN, or re-enter these from Settings — they are unusable until you do."
+      `${sweep.unreadable.length} stored credential(s) cannot be decrypted, which means ${secretKeyRootName()} has changed since they were saved. ` +
+        `Restore the previous ${secretKeyRootName()}, or re-enter these from Settings — they are unusable until you do. ` +
+        "To change the key without losing them, use `fetch rotate-key` (README, \"Secrets at rest\")."
     );
   }
 

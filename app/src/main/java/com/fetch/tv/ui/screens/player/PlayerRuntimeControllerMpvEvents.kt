@@ -203,9 +203,12 @@ internal fun PlayerRuntimeController.handleMpvPlaybackError(
     detailedErrorOverride: String? = null,
     allowEngineFailover: Boolean = true
 ) {
+    // A stale mpv error after an mpv-to-ExoPlayer switch is dropped here. After an
+    // ExoPlayer-to-mpv startup failover, mpv's own errors must still be handled: the failover
+    // flag only stops a second engine switch (maybeAutoSwitchInternalPlayerOnStartupError),
+    // not retries or the next source (#695).
     if (!isUsingMpvEngine()) return
     if (isReleasingPlayer) return
-    if (startupEngineFailoverTriggered) return
     if (mpvErrorRecoveryArmed) return
     if (_uiState.value.error != null) return
     if (!mpvErrorHandlingInProgress.compareAndSet(false, true)) return
@@ -350,7 +353,6 @@ internal fun PlayerRuntimeController.maybeRunMpvStartupWatchdog(view: FetchMpvSu
 
     val enabled = _uiState.value.error == null &&
         !isReleasingPlayer &&
-        !startupEngineFailoverTriggered &&
         !mpvErrorRecoveryArmed &&
         currentStreamUrl.isNotBlank() &&
         !isInBackground &&

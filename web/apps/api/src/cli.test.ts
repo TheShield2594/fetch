@@ -28,3 +28,29 @@ describe("fetch addon-key", () => {
     expect(await run(["addon-key"], () => {})).toBe(2);
   });
 });
+
+describe("fetch rotate-key (#638)", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  const refused = async (argv: string[]) => {
+    const errors: string[] = [];
+    vi.spyOn(console, "error").mockImplementation((line: unknown) => void errors.push(String(line)));
+    const { run } = await import("./cli.js");
+    expect(await run(argv, () => {})).toBe(2);
+    return errors.join("\n");
+  };
+
+  it("needs both keys", async () => {
+    expect(await refused(["rotate-key", "--old", "a".repeat(64)])).toContain("needs both --old and --new");
+  });
+
+  it("refuses the same key twice, a short new key, and API_TOKEN as the new key", async () => {
+    vi.stubEnv("API_TOKEN", "t".repeat(64));
+    expect(await refused(["rotate-key", "--old", "a".repeat(64), "--new", "a".repeat(64)])).toContain("the same key");
+    expect(await refused(["rotate-key", "--old", "a".repeat(64), "--new", "short"])).toContain("at least 32");
+    expect(await refused(["rotate-key", "--old", "a".repeat(64), "--new", "t".repeat(64)])).toContain("--new is API_TOKEN");
+  });
+});

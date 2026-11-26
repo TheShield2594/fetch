@@ -5,8 +5,13 @@ import {
   encryptIfPlaintext,
   encryptSecret,
   isEncryptedSecret,
+  decryptSecretUnder,
+  encryptSecretUnder,
   isSecretEncryptionAvailable,
   kvSecretContext,
+  secretKeyRoot,
+  secretLookupKey,
+  secretLookupKeyUnder,
 } from "./secret-box.js";
 import { present } from "./test-fixtures/present.js";
 
@@ -19,6 +24,7 @@ beforeEach(() => {
 afterEach(() => {
   if (originalToken === undefined) delete process.env.API_TOKEN;
   else process.env.API_TOKEN = originalToken;
+  delete process.env.FETCH_SECRET_KEY;
 });
 
 describe("encryptSecret", () => {
@@ -130,5 +136,45 @@ describe("encryptIfPlaintext", () => {
     expect(encrypted).not.toBeNull();
     expect(decryptSecret(context, encrypted!)).toBe("raw-key");
     expect(encryptIfPlaintext(context, encrypted!)).toBeNull();
+  });
+});
+
+describe("FETCH_SECRET_KEY (#638)", () => {
+  it("is the root when set, and API_TOKEN is the fallback", () => {
+    expect(secretKeyRoot({ API_TOKEN: "t" })).toBe("t");
+    expect(secretKeyRoot({ API_TOKEN: "t", FETCH_SECRET_KEY: "k" })).toBe("k");
+    expect(secretKeyRoot({ API_TOKEN: "t", FETCH_SECRET_KEY: "" })).toBe("t");
+    expect(secretKeyRoot({})).toBeNull();
+  });
+
+  it("encrypts under FETCH_SECRET_KEY, so changing API_TOKEN keeps values readable", () => {
+    process.env.FETCH_SECRET_KEY = "separate-secret-key";
+    const context = SECRET_CONTEXT.traktAccessToken;
+    const stored = encryptSecret(context, "access");
+    const lookup = secretLookupKey(context, "access");
+
+    process.env.API_TOKEN = "a-rotated-api-token";
+    expect(decryptSecret(context, stored)).toBe("access");
+    expect(secretLookupKey(context, "access")).toBe(lookup);
+  });
+
+  it("reads what was saved under API_TOKEN until a FETCH_SECRET_KEY is set", () => {
+    const context = SECRET_CONTEXT.traktAccessToken;
+    const stored = encryptSecret(context, "access");
+    expect(decryptSecretUnder("test-api-token", context, stored)).toBe("access");
+
+    process.env.FETCH_SECRET_KEY = "separate-secret-key";
+    expect(decryptSecret(context, stored)).toBeNull();
+  });
+
+  it("encrypts and looks up under an explicit root the same way as under the current one", () => {
+    const context = SECRET_CONTEXT.profileAddonManifestUrl;
+    process.env.FETCH_SECRET_KEY = "explicit-root";
+    const stored = encryptSecretUnder("explicit-root", context, "https://addon.example/manifest.json");
+    expect(decryptSecret(context, stored)).toBe("https://addon.example/manifest.json");
+    expect(secretLookupKeyUnder("explicit-root", context, "x")).toBe(secretLookupKey(context, "x"));
+    expect(decryptSecretUnder("other-root", context, stored)).toBeNull();
+    // Plaintext comes back as it is, as with decryptSecret.
+    expect(decryptSecretUnder("other-root", context, "plain")).toBe("plain");
   });
 });

@@ -1086,8 +1086,9 @@ internal fun PlayerRuntimeController.setSubtitleDelayMs(targetMs: Int, showOverl
     }
 
     refreshActiveSubtitleTrackAfterTimingChange()
-    // Remember the delay so it survives to the next session (issue #1063).
-    persistTrackPreference()
+    // Remember the delay so it survives to the next session (issue #1063). Only the delay: the
+    // track choice is not this path's to rewrite (#691).
+    persistSubtitleDelay()
 
     if (!showOverlay || keepInlineInSubtitleOverlay) {
         hideSubtitleDelayOverlayJob?.cancel()

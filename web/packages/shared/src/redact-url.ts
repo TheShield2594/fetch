@@ -30,7 +30,7 @@ const redactPair = (pair: string): string => {
   // No `=` means no value to leak — a bare `?token` says nothing on its own.
   if (eq === -1) return pair;
   const key = pair.slice(0, eq);
-  if (!SENSITIVE_QUERY_PARAMS.has(decodeKey(key).toLowerCase())) return pair;
+  if (!isSensitiveQueryParam(key)) return pair;
   return `${key}=${REDACTED}`;
 };
 
@@ -45,19 +45,42 @@ const decodeKey = (key: string): string => {
   }
 };
 
+// Two routes carry a secret in the path itself, where Stremio needs it because
+// an add-on URL is all it keeps (#636):
+// - the addon service's `/u/<profileId>/<profileKey>/…`
+// - the API's `/addon/stremio/<secret>/…`
+// The segment after each prefix is masked wherever it appears in the path, so a
+// path prefix in front (`/api/addon/stremio/…`) or a full URL (Sentry's
+// `request.url`) is caught too. The profile id stays readable: it names a
+// profile, proves nothing, and is what makes the line useful.
+const SENSITIVE_PATH_SEGMENTS: readonly RegExp[] = [
+  /(\/u\/[^/?#]+\/)[^/?#]+/g,
+  /(\/addon\/stremio\/)[^/?#]+/g,
+];
+
+const redactPath = (path: string): string =>
+  SENSITIVE_PATH_SEGMENTS.reduce((current, pattern) => current.replace(pattern, `$1${REDACTED}`), path);
+
+/** Returns a raw query string (no leading `?`) with sensitive values masked. */
+export const redactQueryString = (query: string): string => query.split("&").map(redactPair).join("&");
+
 /**
- * Returns `url` with the values of known-sensitive query parameters replaced,
- * leaving the path and every other parameter intact so logs stay useful.
+ * Returns `url` with the secret path segments and the values of known-sensitive
+ * query parameters replaced, leaving everything else intact so logs stay useful.
  */
 export const redactUrl = (url: string): string => {
   const queryStart = url.indexOf("?");
-  if (queryStart === -1) return url;
+  if (queryStart === -1) return redactPath(url);
 
   const path = url.slice(0, queryStart);
   const query = url.slice(queryStart + 1);
 
-  return `${path}?${query.split("&").map(redactPair).join("&")}`;
+  return `${redactPath(path)}?${redactQueryString(query)}`;
 };
+
+/** Whether a query parameter's name is one {@link redactUrl} masks. */
+export const isSensitiveQueryParam = (key: string): boolean =>
+  SENSITIVE_QUERY_PARAMS.has(decodeKey(key).toLowerCase());
 
 /**
  * The fields Fastify's default `req` serializer reads. Declared structurally so

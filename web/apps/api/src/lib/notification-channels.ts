@@ -259,7 +259,7 @@ export const sendToChannel = async (
   const token = channel.token === null ? null : decryptSecret(SECRET_CONTEXT.notificationChannelToken, channel.token);
   if (channel.token !== null && token === null) {
     const detail =
-      "stored token could not be decrypted — API_TOKEN has changed since it was saved. Re-enter the token in Settings.";
+      "stored token could not be decrypted — the encryption key (FETCH_SECRET_KEY or API_TOKEN) has changed since it was saved. Re-enter the token in Settings.";
     // Safe to repeat back: it describes this install's own state, not anything
     // learned from the target.
     throw new ChannelSendError("misconfigured", `${channel.name}: ${detail}`, {
@@ -272,7 +272,7 @@ export const sendToChannel = async (
   const url = decryptSecret(SECRET_CONTEXT.notificationChannelUrl, channel.url);
   if (url === null) {
     const detail =
-      "stored URL could not be decrypted — API_TOKEN has changed since it was saved. Re-enter the URL in Settings.";
+      "stored URL could not be decrypted — the encryption key (FETCH_SECRET_KEY or API_TOKEN) has changed since it was saved. Re-enter the URL in Settings.";
     throw new ChannelSendError("misconfigured", `${channel.name}: ${detail}`, {
       publicMessage: `The ${detail}`,
     });

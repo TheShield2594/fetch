@@ -267,7 +267,13 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                         durationMs = playerDuration
                     )
                     val playingNow = view.isPlayingNow()
-                    val cacheBuffering = view.isPausedForCacheNow() || view.isCoreIdleNow()
+                    val eofNow = view.isEofReached()
+                    val cacheBuffering = isMpvBuffering(
+                        pausedForCache = view.isPausedForCacheNow(),
+                        coreIdle = view.isCoreIdleNow(),
+                        paused = !playingNow,
+                        eofReached = eofNow
+                    )
                     var firstFrameReady = hasRenderedFirstFrame
                     if (!firstFrameReady) {
                         // A player started paused (#706) never plays or moves; at 0:00 a loaded
@@ -317,7 +323,6 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     val effectiveDuration = maxOf(playerDuration, lastKnownDuration)
                     val nearEnd = endDetectionArmed && playerDuration > 0L &&
                         pos >= (effectiveDuration - PlayerNextEpisodeRules.NEAR_END_MS)
-                    val eofNow = view.isEofReached()
                     if (!eofNow) mpvEofSeenClear = true
                     val mpvEofReached = mpvEofSeenClear && eofNow
                     val naturalEnded = !view.isLiveStreamNow() && (nearEnd || mpvEofReached) && shouldTreatAsNaturalPlaybackCompletion(
@@ -413,6 +418,18 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
     }
 }
 
+/**
+ * Whether mpv is waiting for data. `core-idle` is also true for a plain pause and for the
+ * keep-open pause at the end of the file, so on its own it is not buffering
+ * (TheShield2594/fetch#732): only an unpaused core that is idle before the end is.
+ */
+internal fun isMpvBuffering(
+    pausedForCache: Boolean,
+    coreIdle: Boolean,
+    paused: Boolean,
+    eofReached: Boolean
+): Boolean = pausedForCache || (coreIdle && !paused && !eofReached)
+
 internal fun PlayerRuntimeController.stopProgressUpdates() {
     progressJob?.cancel()
     progressJob = null
@@ -445,17 +462,17 @@ internal fun PlayerRuntimeController.saveWatchProgressIfNeeded() {
 
     if (kotlin.math.abs(currentPosition - lastSavedPosition) >= saveThresholdMs) {
         lastSavedPosition = currentPosition
-        saveWatchProgressInternal(currentPosition, duration, syncRemote = false)
+        saveWatchProgressInternal(currentPosition, duration, WatchProgressSaveReason.PLAYBACK, syncRemote = false)
     }
 }
 
-internal fun PlayerRuntimeController.saveWatchProgress() {
+internal fun PlayerRuntimeController.saveWatchProgress(reason: WatchProgressSaveReason) {
     if (!hasRenderedFirstFrame) return
     if (isLiveForWatchProgress()) return
     val currentPosition = currentPlaybackPositionMs() ?: return
     val duration = getEffectiveDuration(currentPosition)
     if (isShortPlaceholderDuration(duration)) return
-    saveWatchProgressInternal(currentPosition, duration)
+    saveWatchProgressInternal(currentPosition, duration, reason)
 }
 
 internal fun PlayerRuntimeController.getEffectiveDuration(position: Long): Long {
@@ -508,7 +525,7 @@ internal fun PlayerRuntimeController.handleNaturalPlaybackEnded() {
     }
 
     emitCompletionScrobbleStop(progressPercent = 99.5f)
-    saveWatchProgress()
+    saveWatchProgress(WatchProgressSaveReason.NATURAL_END)
     // "End of this title": nothing follows it, the player closes. Set before the screen sees
     // playbackEnded, so it takes this exit rather than the next episode.
     if (stopForSleepTimerAtEnd()) return
@@ -557,7 +574,12 @@ internal fun PlayerRuntimeController.currentWatchProgress(
 internal fun PlayerRuntimeController.isLiveForWatchProgress(): Boolean =
     _playbackTimeline.value.isLive || LivePlaybackUiPolicy.isLiveContent(contentType, contentId)
 
-internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, duration: Long, syncRemote: Boolean = true) {
+internal fun PlayerRuntimeController.saveWatchProgressInternal(
+    position: Long,
+    duration: Long,
+    reason: WatchProgressSaveReason,
+    syncRemote: Boolean = true
+) {
     if (isLiveForWatchProgress()) return
     val parentContentId = contentId?.takeIf { it.isNotEmpty() } ?: return
     val parentContentType = contentType?.takeIf { it.isNotEmpty() } ?: return
@@ -578,31 +600,82 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(position: Long, d
             profileId = profileId
         )
         val normalizedProgress = progress.copy(contentId = effectiveContentId)
-        if (normalizedProgress.isCompleted() || finishedByCredits) {
-            if (!hasMarkedCurrentEpisodeCompleted) {
-                hasMarkedCurrentEpisodeCompleted = true
-                watchProgressRepository.markAsCompleted(
+        val action = watchProgressSaveAction(
+            reachedEnd = normalizedProgress.isCompleted() || finishedByCredits,
+            reason = reason,
+            alreadyMarkedCompleted = hasMarkedCurrentEpisodeCompleted,
+            completionMarkIsFinal = currentEpisodeCompletionIsFinal
+        )
+        when (action) {
+            WatchProgressSaveAction.MARK_COMPLETED -> {
+                if (!hasMarkedCurrentEpisodeCompleted) {
+                    hasMarkedCurrentEpisodeCompleted = true
+                    currentEpisodeCompletionIsFinal = reason == WatchProgressSaveReason.NATURAL_END
+                    watchProgressRepository.markAsCompleted(
+                        normalizedProgress,
+                        profileId = profileId,
+                        broadcastTrackingHistory = false
+                    )
+                } else if (reason == WatchProgressSaveReason.NATURAL_END) {
+                    currentEpisodeCompletionIsFinal = true
+                }
+                runCatching { tvRecommendationManager.onProgressRemoved(normalizedProgress.contentId) }
+            }
+            WatchProgressSaveAction.SAVE_IN_PROGRESS -> {
+                // A completion marked when the app went to the background is withdrawn once
+                // playback carries on below the threshold, so the title keeps a resume point.
+                hasMarkedCurrentEpisodeCompleted = false
+                currentEpisodeCompletionIsFinal = false
+                watchProgressRepository.saveProgress(
                     normalizedProgress,
                     profileId = profileId,
-                    broadcastTrackingHistory = false
+                    syncRemote = syncRemote
                 )
+                runCatching { tvRecommendationManager.updateSingleWatchNextProgram(normalizedProgress) }
             }
-            runCatching { tvRecommendationManager.onProgressRemoved(normalizedProgress.contentId) }
-        } else if (!hasMarkedCurrentEpisodeCompleted) {
-            // Only save in-progress when the episode has not already been
-            // marked as completed during this playback session.  After
-            // natural playback completion the player can report stale
-            // position/duration values (e.g. duration=0 → fallbackPercent=5)
-            // which would overwrite the completed entry in the mutation
-            // store and push an incorrect low-progress value to remote.
-            watchProgressRepository.saveProgress(
-                normalizedProgress,
-                profileId = profileId,
-                syncRemote = syncRemote
-            )
-            runCatching { tvRecommendationManager.updateSingleWatchNextProgram(normalizedProgress) }
+            WatchProgressSaveAction.SKIP -> Unit
         }
     }
+}
+
+/** What a progress save is for; only the end of playback or leaving the player may mark watched. */
+internal enum class WatchProgressSaveReason {
+    /** Periodic, pause and seek saves: they move the resume point and never mark watched. */
+    PLAYBACK,
+
+    /** Playback reached the end by itself. */
+    NATURAL_END,
+
+    /** The player is closing, switching source, or going to the background. */
+    LEAVING
+}
+
+internal enum class WatchProgressSaveAction { MARK_COMPLETED, SAVE_IN_PROGRESS, SKIP }
+
+/**
+ * Decides what a progress save does (TheShield2594/fetch#690).
+ *
+ * - Past the watched threshold, only [WatchProgressSaveReason.NATURAL_END] and
+ *   [WatchProgressSaveReason.LEAVING] mark the title watched. A playback save there is skipped,
+ *   so the last resume point below the threshold stays and a seek back can still be saved.
+ * - Below the threshold, progress is saved unless the title was marked at its natural end in
+ *   this session: the player can then report stale position/duration values (e.g. duration=0 →
+ *   fallbackPercent=5) that would overwrite the completed entry and push a low value to remote.
+ *   A mark made when leaving (the app went to the background) is not final: playback that
+ *   carries on below the threshold saves its position again.
+ */
+internal fun watchProgressSaveAction(
+    reachedEnd: Boolean,
+    reason: WatchProgressSaveReason,
+    alreadyMarkedCompleted: Boolean,
+    completionMarkIsFinal: Boolean
+): WatchProgressSaveAction = when {
+    reachedEnd && reason == WatchProgressSaveReason.PLAYBACK -> WatchProgressSaveAction.SKIP
+    reachedEnd -> WatchProgressSaveAction.MARK_COMPLETED
+    !alreadyMarkedCompleted -> WatchProgressSaveAction.SAVE_IN_PROGRESS
+    completionMarkIsFinal -> WatchProgressSaveAction.SKIP
+    reason == WatchProgressSaveReason.NATURAL_END -> WatchProgressSaveAction.SKIP
+    else -> WatchProgressSaveAction.SAVE_IN_PROGRESS
 }
 
 internal fun PlayerRuntimeController.currentPlaybackProgressPercent(): Float {
@@ -828,7 +901,7 @@ internal fun PlayerRuntimeController.livePositionForSourceSwitch(): Long? {
 internal fun PlayerRuntimeController.flushPlaybackSnapshotForSwitchOrExit() {
     logScrobbleDiagnostic("flush_switch_or_exit")
     emitStopScrobbleForCurrentProgress()
-    saveWatchProgress()
+    saveWatchProgress(WatchProgressSaveReason.LEAVING)
 }
 
 internal fun PlayerRuntimeController.logScrobbleDiagnostic(
@@ -848,7 +921,9 @@ internal fun PlayerRuntimeController.scheduleProgressSyncAfterSeek() {
     seekProgressSyncJob?.cancel()
     seekProgressSyncJob = scope.launch {
         delay(seekProgressSyncDebounceMs)
-        saveWatchProgress()
+        // A seek only moves the resume point. Landing in the credits must not mark the title
+        // watched: an overshot fast-forward is followed by a seek back (TheShield2594/fetch#690).
+        saveWatchProgress(WatchProgressSaveReason.PLAYBACK)
 
         val progressPercent = currentPlaybackProgressPercent()
         emitSeekScrobbleRestart(progressPercent = progressPercent)
@@ -1045,10 +1120,12 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 if (playing) {
                     userPausedManually = true
                     setPlaybackPaused(true)
-                    stopProgressUpdates()
+                    // The tick keeps running while paused, as it does for ExoPlayer: it updates the
+                    // buffered bar, skip markers after a seek, tracks and HDR state, the loading
+                    // overlay, and reports the pause to media servers (TheShield2594/fetch#732).
                     stopWatchProgressSaving()
                     // Match ExoPlayer's onIsPlayingChanged: a paused app can be killed in the background.
-                    saveWatchProgress()
+                    saveWatchProgress(WatchProgressSaveReason.PLAYBACK)
                     emitPauseScrobbleForCurrentProgress()
                     schedulePauseOverlay()
                 } else {

@@ -408,6 +408,17 @@ internal fun DiscoverSection(
                 ErrorState(message = uiState.discoverError, onRetry = onRetry)
             }
 
+            uiState.discoverInitialized && uiState.discoverHasMore && uiState.discoverSourceCount > 0 -> {
+                // Every title loaded so far is hidden or filtered out, and later pages may hold
+                // more. There is no grid to scroll, so paging needs a way on, paused or not (#789).
+                EmptyScreenState(
+                    title = stringResource(R.string.discover_empty_hidden_title),
+                    subtitle = stringResource(R.string.discover_empty_hidden_subtitle),
+                    icon = Icons.Default.Search,
+                    action = StateAction(stringResource(R.string.discover_load_more), onLoadMore)
+                )
+            }
+
             uiState.discoverInitialized && filters.narrowsResults && uiState.discoverSourceCount > 0 -> {
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_filtered_title),

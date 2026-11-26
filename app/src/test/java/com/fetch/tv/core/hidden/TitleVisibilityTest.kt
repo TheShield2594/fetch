@@ -110,6 +110,21 @@ class TitleVisibilityTest {
     }
 
     @Test
+    fun `a search row the filter empties stays while it has more pages, so See all can page on`() {
+        val state = SearchUiState(
+            catalogRows = listOf(
+                row(preview("tt1")).copy(catalogId = "paged", hasMore = true),
+                row(preview("tt1")).copy(catalogId = "done", hasMore = false)
+            )
+        )
+
+        val filtered = state.withoutNotInterested(visibility())
+
+        assertEquals(listOf("paged"), filtered.catalogRows.map { it.catalogId })
+        assertTrue(filtered.catalogRows.single().items.isEmpty())
+    }
+
+    @Test
     fun `more like this leaves them out and the collection keeps them`() {
         val state = MetaDetailsUiState(
             moreLikeThis = listOf(preview("tt1"), preview("tt2")),

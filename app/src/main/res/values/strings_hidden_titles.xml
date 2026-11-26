@@ -19,4 +19,7 @@
     <string name="hidden_titles_empty_subtitle">Hold OK on a poster and choose Not interested to stop a title coming back</string>
     <string name="hidden_titles_restore_hint">Select to restore</string>
     <string name="hidden_titles_sync_note">Hidden titles follow this profile to your other TVs and the Fetch website, and are kept in backups.</string>
+    <!-- Discover and Search See all when every loaded title is hidden but more pages remain (#789) -->
+    <string name="discover_empty_hidden_title">Nothing to show yet</string>
+    <string name="discover_empty_hidden_subtitle">The titles loaded so far are hidden or filtered out. Later pages may have more</string>
 </resources>

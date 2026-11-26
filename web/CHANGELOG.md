@@ -11,6 +11,8 @@ onward: one to three sentences per entry, with the reasoning in the PR.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-11-26
+
 ### Added
 
 - **The TV and the server check each other's version.** `GET /version` reports the server's version, an `apiVersion` for the TV to check, the oldest TV app it serves and its features. A TV below that gets one "Update Fetch on this TV" answer (`426`, `code: "tv_app_too_old"`) instead of a sync that fails part-way, the TVs page flags it, and the TV says "Update your Fetch server" when the server is too old for it. See [docs/compatibility.md](docs/compatibility.md) ([#639](https://github.com/TheShield2594/fetch/issues/639)).
@@ -634,7 +636,8 @@ name.
 - The addon's mutation-token check no longer assumes the incoming token is a string — a repeated query param (`?token=a&token=b`) would have thrown instead of being rejected cleanly.
 - `dockerpublish.yml` reads the git ref type/name from the runner's `GITHUB_REF_TYPE`/`GITHUB_REF_NAME` environment variables instead of interpolating `github.ref_type`/`github.ref_name` into a shell script.
 
-[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.6.0...HEAD
+[Unreleased]: https://github.com/TheShield2594/fetch/compare/web-v0.6.1...HEAD
+[0.6.1]: https://github.com/TheShield2594/fetch/compare/web-v0.6.0...web-v0.6.1
 [0.6.0]: https://github.com/TheShield2594/fetch/compare/web-v0.5.0...web-v0.6.0
 [0.5.0]: https://github.com/TheShield2594/fetch/compare/web-v0.4.0...web-v0.5.0
 [0.4.0]: https://github.com/TheShield2594/fetch/compare/web-v0.3.0...web-v0.4.0

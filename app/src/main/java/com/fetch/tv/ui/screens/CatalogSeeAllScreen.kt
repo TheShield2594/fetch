@@ -136,11 +136,17 @@ fun CatalogSeeAllScreen(
     }
     val filterState by filtersViewModel.state.collectAsStateWithLifecycle()
     val genreActive = filterState.genre != null
+    // Home's watched map only covers titles in Home's rows; a genre page can hold others.
+    val genreWatchedMovieIds by filtersViewModel.watchedMovieIds.collectAsStateWithLifecycle()
+    val genreWatchedSeriesIds by filtersViewModel.watchedSeriesIds.collectAsStateWithLifecycle()
+    val useWatchedSets = isSearchMode || genreActive
+    val watchedMovieSet = if (isSearchMode) searchWatchedMovieIds?.value.orEmpty() else genreWatchedMovieIds
+    val watchedSeriesSet = if (isSearchMode) searchWatchedSeriesIds?.value.orEmpty() else genreWatchedSeriesIds
     val isWatched: (MetaPreview) -> Boolean = { item ->
-        if (isSearchMode) {
+        if (useWatchedSets) {
             val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-            if (isSeries) item.id in (searchWatchedSeriesIds?.value ?: emptySet())
-            else item.id in (searchWatchedMovieIds?.value ?: emptySet())
+            val ids = if (isSeries) watchedSeriesSet else watchedMovieSet
+            item.id in ids || item.imdbId?.let { it in ids } == true
         } else {
             uiState.movieWatchedStatus[
                 com.fetch.tv.ui.screens.home.homeItemStatusKey(item.id, item.apiType)
@@ -149,11 +155,7 @@ fun CatalogSeeAllScreen(
     }
     val baseRow = if (genreActive) filterState.genreRow else sourceRow
     val watchedSnapshot = if (filterState.hideWatched) {
-        if (isSearchMode) {
-            (searchWatchedMovieIds?.value to searchWatchedSeriesIds?.value)
-        } else {
-            uiState.movieWatchedStatus
-        }
+        if (useWatchedSets) watchedMovieSet to watchedSeriesSet else uiState.movieWatchedStatus
     } else {
         null
     }
@@ -458,7 +460,7 @@ fun CatalogSeeAllScreen(
                 cardHeight = posterCardStyle.height
             )
         } else if (catalogRow != null && !catalogRow.hasMore && filterState.isFiltering &&
-            baseRow?.items?.isNotEmpty() == true
+            (baseRow?.items?.isNotEmpty() == true || (genreActive && sourceRow?.items?.isNotEmpty() == true))
         ) {
             // The filters, not the catalog, emptied the grid.
             EmptyScreenState(

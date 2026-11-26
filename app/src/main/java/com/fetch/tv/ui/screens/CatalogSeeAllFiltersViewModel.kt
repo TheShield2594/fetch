@@ -27,9 +27,11 @@ import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -62,8 +64,18 @@ class CatalogSeeAllFiltersViewModel @Inject constructor(
     private val addonRepository: AddonRepository,
     private val catalogRepository: CatalogRepository,
     private val titleVisibilityFilter: TitleVisibilityFilter,
-    private val parentalControls: ParentalControls
+    private val parentalControls: ParentalControls,
+    watchProgressRepository: com.fetch.tv.domain.repository.WatchProgressRepository,
+    watchedSeriesStateHolder: com.fetch.tv.data.local.WatchedSeriesStateHolder
 ) : ViewModel() {
+
+    /**
+     * Watched movies and fully watched shows, for genre results: Home's watched map only covers
+     * titles in its own rows, and a genre page can bring in titles none of them loaded.
+     */
+    val watchedMovieIds: StateFlow<Set<String>> = watchProgressRepository.observeWatchedMovieIds()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+    val watchedSeriesIds: StateFlow<Set<String>> = watchedSeriesStateHolder.fullyWatchedSeriesIds
 
     private val _state = MutableStateFlow(SeeAllFilterState())
     val state: StateFlow<SeeAllFilterState> = _state.asStateFlow()
@@ -79,6 +91,10 @@ class CatalogSeeAllFiltersViewModel @Inject constructor(
         // "Not interested", hide-watched and the profile limit can change while the genre grid is up.
         viewModelScope.launch {
             titleVisibilityFilter.visibility.collect { publishGenreRow() }
+        }
+        viewModelScope.launch {
+            // A profile limit or blocked-title list that changes while the grid is up.
+            parentalControls.filterRevision.collect { publishGenreRow() }
         }
     }
 

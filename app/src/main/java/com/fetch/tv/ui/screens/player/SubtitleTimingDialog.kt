@@ -161,7 +161,7 @@ private fun SyncPromptPanel(
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
     ) {
         Text(
             text = stringResource(R.string.subtitle_timing_press_sync),

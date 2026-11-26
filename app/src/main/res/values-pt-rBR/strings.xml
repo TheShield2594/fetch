@@ -971,8 +971,6 @@
     <string name="debug_progress_indicator_default">Padrão</string>
     <string name="debug_progress_indicator_large">Grande</string>
     <string name="debug_section_features">Recursos Experimentais</string>
-    <string name="debug_buffer_logs_title">Ativar Logs de Buffer</string>
-    <string name="debug_buffer_logs_subtitle">Envia relatórios periódicos de carregamento do vídeo para o sistema (logcat). Desativado por padrão.</string>
     <string name="debug_error_dialog_title">Erro de Reprodução</string>
     <string name="debug_error_dialog_subtitle">Ocorreu um erro durante a reprodução.\n\nErro: Teste simulado (não é uma falha real). A fonte retornou HTTP 503.</string>
     <string name="debug_dismiss">Fechar</string>

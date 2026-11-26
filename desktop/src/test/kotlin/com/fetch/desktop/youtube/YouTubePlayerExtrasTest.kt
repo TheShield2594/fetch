@@ -1,5 +1,7 @@
 package com.fetch.desktop.youtube
 
+import com.fetch.tv.data.youtube.YouTubeCaptions
+import com.fetch.tv.data.youtube.languageMatches
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.MpvProgress

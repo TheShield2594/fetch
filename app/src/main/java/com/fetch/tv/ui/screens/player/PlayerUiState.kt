@@ -4,7 +4,6 @@ package com.fetch.tv.ui.screens.player
 
 import androidx.media3.common.C
 import androidx.media3.common.TrackGroup
-import androidx.media3.ui.AspectRatioFrameLayout
 import com.fetch.tv.core.streams.StreamBadgePlacement
 import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.InternalPlayerEngine
@@ -242,8 +241,7 @@ data class PlayerUiState(
     val libassRenderType: LibassRenderType = LibassRenderType.OVERLAY_OPEN_GL,
     val displayModeInfo: DisplayModeInfo? = null,
     val showDisplayModeInfo: Boolean = false,
-    // Aspect ratio / resize mode
-    val resizeMode: Int = AspectRatioFrameLayout.RESIZE_MODE_FIT,
+    // Aspect ratio
     val aspectMode: AspectMode = AspectMode.ORIGINAL,
     val tunneledSurfaceFill: Boolean = false,
     val tunnelingEnabled: Boolean = false,

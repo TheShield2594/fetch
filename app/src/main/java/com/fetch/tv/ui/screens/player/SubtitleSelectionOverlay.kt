@@ -659,7 +659,8 @@ private fun SubtitleSelectionOverlaySession(
                             persistedStyleFocusKey = it
                         },
                         onEvent = onEvent,
-                        isStyleDisabledByLibass = isStyleDisabledByLibass
+                        isStyleDisabledByLibass = isStyleDisabledByLibass,
+                        isLookFromSystemStyle = !isUsingMpv && systemCaptionStyleApplies(metaContext, subtitleStyle)
                     )
                 }
             }
@@ -864,7 +865,12 @@ private fun SubtitleStyleRail(
     focusRequesters: Map<String, FocusRequester>,
     onStyleFocused: (String) -> Unit,
     onEvent: (PlayerEvent) -> Unit,
-    isStyleDisabledByLibass: Boolean = false
+    isStyleDisabledByLibass: Boolean = false,
+    /**
+     * The TV's caption style replaces size, colours and outline on the standard player (#453), so
+     * those steppers would change nothing on screen (#780). Delay and position stay the app's.
+     */
+    isLookFromSystemStyle: Boolean = false
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val moveLeftKey = if (isRtl) android.view.KeyEvent.KEYCODE_DPAD_RIGHT else android.view.KeyEvent.KEYCODE_DPAD_LEFT
@@ -874,6 +880,8 @@ private fun SubtitleStyleRail(
         }
     }
     val styleCardModifier = if (isStyleDisabledByLibass) Modifier.alpha(0.35f) else Modifier
+    val dispatchLookEvent: (PlayerEvent) -> Unit = { event -> if (!isLookFromSystemStyle) dispatchStyleEvent(event) }
+    val lookCardModifier = if (isLookFromSystemStyle && !isStyleDisabledByLibass) Modifier.alpha(0.35f) else styleCardModifier
     val styleRailModifier = if (isStyleDisabledByLibass) Modifier.focusProperties { canFocus = false } else Modifier
     RailColumn(
         width = 212.dp,
@@ -941,13 +949,13 @@ private fun SubtitleStyleRail(
             item {
                 OverlaySectionCard(
                     title = stringResource(R.string.subtitle_style_font_size),
-                    modifier = styleCardModifier
+                    modifier = lookCardModifier
                 ) {
                     StepperRow(
                         label = stringResource(R.string.subtitle_style_font_size),
                         value = "${subtitleStyle.size}%",
-                        onDecrease = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size - 10)) },
-                        onIncrease = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size + 10)) },
+                        onDecrease = { dispatchLookEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size - 10)) },
+                        onIncrease = { dispatchLookEvent(PlayerEvent.OnSetSubtitleSize(subtitleStyle.size + 10)) },
                         onMoveLeft = onMoveLeft,
                         decrementFocusRequester = focusRequesters[StyleFocusKey.FontSizeDecrease],
                         incrementFocusRequester = focusRequesters[StyleFocusKey.FontSizeIncrease],
@@ -960,7 +968,7 @@ private fun SubtitleStyleRail(
             item {
                 OverlaySectionCard(
                     title = stringResource(R.string.subtitle_style_bold),
-                    modifier = styleCardModifier
+                    modifier = lookCardModifier
                 ) {
                     ToggleChip(
                         label = if (subtitleStyle.bold) stringResource(R.string.subtitle_style_on) else stringResource(R.string.subtitle_style_off),
@@ -969,7 +977,7 @@ private fun SubtitleStyleRail(
                         focusRequester = focusRequesters[StyleFocusKey.Bold],
                         focusKey = StyleFocusKey.Bold,
                         onFocused = onStyleFocused,
-                        onClick = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleBold(!subtitleStyle.bold)) }
+                        onClick = { dispatchLookEvent(PlayerEvent.OnSetSubtitleBold(!subtitleStyle.bold)) }
                     )
                 }
             }
@@ -980,7 +988,7 @@ private fun SubtitleStyleRail(
                     } else {
                         stringResource(R.string.subtitle_style_text_color)
                     },
-                    modifier = styleCardModifier
+                    modifier = lookCardModifier
                 ) {
                     ColorChipRow(
                         colors = SubtitleTextColorPresets,
@@ -989,7 +997,7 @@ private fun SubtitleStyleRail(
                         focusRequesters = focusRequesters,
                         focusKeyPrefix = StyleFocusKey.TextColorPrefix,
                         onFocused = onStyleFocused,
-                        onColorSelected = { color -> dispatchStyleEvent(PlayerEvent.OnSetSubtitleTextColor(color)) }
+                        onColorSelected = { color -> dispatchLookEvent(PlayerEvent.OnSetSubtitleTextColor(color)) }
                     )
                 }
             }
@@ -1000,7 +1008,7 @@ private fun SubtitleStyleRail(
                     } else {
                         stringResource(R.string.subtitle_style_text_opacity)
                     },
-                    modifier = styleCardModifier
+                    modifier = lookCardModifier
                 ) {
                     val currentColor = Color(subtitleStyle.textColor)
                     val currentAlphaPercent = (currentColor.alpha * 100f).roundToInt().coerceIn(0, 100)
@@ -1013,11 +1021,11 @@ private fun SubtitleStyleRail(
                         value = "$currentAlphaPercent%",
                         onDecrease = {
                             val newAlpha = (currentAlphaPercent - 10).coerceAtLeast(0) / 100f
-                            dispatchStyleEvent(PlayerEvent.OnSetSubtitleTextColor(currentColor.copy(alpha = newAlpha).toArgb()))
+                            dispatchLookEvent(PlayerEvent.OnSetSubtitleTextColor(currentColor.copy(alpha = newAlpha).toArgb()))
                         },
                         onIncrease = {
                             val newAlpha = (currentAlphaPercent + 10).coerceAtMost(100) / 100f
-                            dispatchStyleEvent(PlayerEvent.OnSetSubtitleTextColor(currentColor.copy(alpha = newAlpha).toArgb()))
+                            dispatchLookEvent(PlayerEvent.OnSetSubtitleTextColor(currentColor.copy(alpha = newAlpha).toArgb()))
                         },
                         onMoveLeft = onMoveLeft,
                         decrementFocusRequester = focusRequesters[StyleFocusKey.OpacityDecrease],
@@ -1032,16 +1040,16 @@ private fun SubtitleStyleRail(
                 item {
                     OverlaySectionCard(
                         title = stringResource(R.string.subtitle_style_brightness_hdr),
-                        modifier = styleCardModifier
+                        modifier = lookCardModifier
                     ) {
                         StepperRow(
                             label = stringResource(R.string.subtitle_style_brightness_hdr),
                             value = "${subtitleStyle.hdrBrightness}%",
                             onDecrease = {
-                                dispatchStyleEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness - 10))
+                                dispatchLookEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness - 10))
                             },
                             onIncrease = {
-                                dispatchStyleEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness + 10))
+                                dispatchLookEvent(PlayerEvent.OnSetSubtitleHdrBrightness(subtitleStyle.hdrBrightness + 10))
                             },
                             onMoveLeft = onMoveLeft,
                             decrementFocusRequester = focusRequesters[StyleFocusKey.HdrBrightnessDecrease],
@@ -1056,7 +1064,7 @@ private fun SubtitleStyleRail(
             item {
                 OverlaySectionCard(
                     title = stringResource(R.string.subtitle_style_outline),
-                    modifier = styleCardModifier
+                    modifier = lookCardModifier
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)) {
                         ToggleChip(
@@ -1066,7 +1074,7 @@ private fun SubtitleStyleRail(
                             focusRequester = focusRequesters[StyleFocusKey.OutlineToggle],
                             focusKey = StyleFocusKey.OutlineToggle,
                             onFocused = onStyleFocused,
-                            onClick = { dispatchStyleEvent(PlayerEvent.OnSetSubtitleOutlineEnabled(!subtitleStyle.outlineEnabled)) }
+                            onClick = { dispatchLookEvent(PlayerEvent.OnSetSubtitleOutlineEnabled(!subtitleStyle.outlineEnabled)) }
                         )
                         ColorChipRow(
                             colors = SubtitleOutlineColorPresets,
@@ -1078,9 +1086,9 @@ private fun SubtitleStyleRail(
                             onFocused = onStyleFocused,
                             onColorSelected = { color ->
                                 if (!subtitleStyle.outlineEnabled) {
-                                    dispatchStyleEvent(PlayerEvent.OnSetSubtitleOutlineEnabled(true))
+                                    dispatchLookEvent(PlayerEvent.OnSetSubtitleOutlineEnabled(true))
                                 }
-                                dispatchStyleEvent(PlayerEvent.OnSetSubtitleOutlineColor(color))
+                                dispatchLookEvent(PlayerEvent.OnSetSubtitleOutlineColor(color))
                             }
                         )
                     }

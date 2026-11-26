@@ -1101,8 +1101,6 @@
     <string name="debug_progress_indicator_default">Par défaut</string>
     <string name="debug_progress_indicator_large">Grand</string>
     <string name="debug_section_features">Options expérimentales</string>
-    <string name="debug_buffer_logs_title">Activer les journaux BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Émettre périodiquement les diagnostics de la mémoire tampon du lecteur dans logcat (désactivé par défaut)</string>
     <string name="debug_error_dialog_title">Erreur de lecture</string>
     <string name="debug_error_dialog_subtitle">Une erreur est survenue pendant la lecture.\n\nErreur&#160;: erreur simulée de test, il ne s’agit pas d’une vraie panne. La source a renvoyé HTTP 503 (service indisponible).</string>
     <string name="debug_dismiss">Fermer</string>

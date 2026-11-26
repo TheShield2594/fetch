@@ -813,8 +813,6 @@
     <string name="debug_playback_error_title">Página de erro de reprodução</string>
     <string name="debug_playback_error_subtitle">Mostrar um popup simulado de erro de reprodução</string>
     <string name="debug_section_features">Alternadores de Funcionalidades (Toggles)</string>
-    <string name="debug_buffer_logs_title">Ativar registos BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Emite diagnósticos periódicos do buffer do leitor para o logcat (desativado por predefinição).</string>
     <string name="debug_error_dialog_title">Erro de Reprodução</string>
     <string name="debug_error_dialog_subtitle">Ocorreu um erro durante a reprodução.\n\nErro: Erro simulado de teste - isto não é uma falha real. A fonte devolveu HTTP 503 (Serviço Indisponível).</string>
     <string name="debug_dismiss">Fechar</string>

@@ -1171,14 +1171,18 @@ open class MainActivity : ComponentActivity() {
                             }
 
                             val isTrailerPlaying by trailerPlayerPool.isTrailerPlaying.collectAsStateWithLifecycle()
-                            LaunchedEffect(isTrailerPlaying) {
-                                if (!isTrailerPlaying) ambientIdleController.onInteraction()
+                            // The YouTube player, paused or not: ambient mode would close it (#743).
+                            val isYouTubeShowing by com.fetch.tv.ui.screens.youtube.YouTubePlayerPresence.isShowing
+                                .collectAsStateWithLifecycle()
+                            LaunchedEffect(isTrailerPlaying, isYouTubeShowing) {
+                                if (!isTrailerPlaying && !isYouTubeShowing) ambientIdleController.onInteraction()
                             }
                             AmbientModeHost(
                                 controller = ambientIdleController,
                                 allowed = currentRoute?.startsWith("player/") != true &&
                                     autoNextOverlay == null &&
-                                    !isTrailerPlaying,
+                                    !isTrailerPlaying &&
+                                    !isYouTubeShowing,
                                 onShown = { trailerPlayerPool.stop() }
                             )
                         }

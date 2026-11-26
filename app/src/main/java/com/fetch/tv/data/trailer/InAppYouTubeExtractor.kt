@@ -1068,11 +1068,12 @@ class InAppYouTubeExtractor internal constructor(
     }
 
     /**
-     * Drops the streams the trailer player can't show, which it would play as audio over a black
+     * Drops the streams the players can't show, which they would play as audio over a black
      * screen:
      *  - HDR. Trailers render through a TextureView, which has no HDR output, and the SHIELD's
      *    VP9 decoder fails outright on YouTube's 10-bit HDR streams. YouTube also serves an SDR
-     *    version, so nothing is lost.
+     *    version, so nothing is lost. The YouTube player renders to a SurfaceView (#743), but
+     *    the decoder problem still rules HDR out there until it is tested per device.
      *  - Codecs, profiles or sizes this device has no decoder for, such as 4K AV1 on most TV boxes.
      * When none is left, the adaptive source is skipped and the HLS manifest or a progressive file
      * is used instead.

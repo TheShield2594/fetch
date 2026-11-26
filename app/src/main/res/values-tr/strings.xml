@@ -1101,8 +1101,6 @@
     <string name="debug_progress_indicator_default">Varsayılan</string>
     <string name="debug_progress_indicator_large">Büyük</string>
     <string name="debug_section_features">Özellik Anahtarları</string>
-    <string name="debug_buffer_logs_title">BUFFER Günlüklerini Etkinleştir</string>
-    <string name="debug_buffer_logs_subtitle">Oynatıcı arabellek tanılamalarını düzenli olarak logcat\'e yazar (varsayılan olarak kapalıdır)</string>
     <string name="debug_error_dialog_title">Oynatma Hatası</string>
     <string name="debug_error_dialog_subtitle">Oynatma sırasında bir hata oluştu.\n\nHata: Test simülasyon hatası - bu gerçek bir hata değil. Kaynak HTTP 503 döndürdü (Hizmet Kullanılamıyor).</string>
     <string name="debug_dismiss">Kapat</string>

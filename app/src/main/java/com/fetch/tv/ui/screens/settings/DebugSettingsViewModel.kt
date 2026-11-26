@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.fetch.tv.R
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.LibraryPreferences
-import com.fetch.tv.data.local.PlayerSettingsDataStore
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.model.SavedLibraryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +22,6 @@ import kotlin.random.Random
 @HiltViewModel
 class DebugSettingsViewModel @Inject constructor(
     private val layoutPreferenceDataStore: LayoutPreferenceDataStore,
-    private val playerSettingsDataStore: PlayerSettingsDataStore,
     private val libraryPreferences: LibraryPreferences,
     @ApplicationContext private val context: Context,
     private val profileManager: com.fetch.tv.core.profile.ProfileManager
@@ -38,21 +36,12 @@ class DebugSettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(composeHighlighterEnabled = enabled) }
             }
         }
-        // Buffer logs state
-        viewModelScope.launch {
-            playerSettingsDataStore.playerSettings.collectLatest { settings ->
-                _uiState.update { it.copy(bufferLogsEnabled = settings.enableBufferLogs) }
-            }
-        }
     }
 
     fun onEvent(event: DebugSettingsEvent) {
         when (event) {
             is DebugSettingsEvent.ToggleComposeHighlighter -> {
                 viewModelScope.launch { layoutPreferenceDataStore.setComposeHighlighterEnabled(event.enabled) }
-            }
-            is DebugSettingsEvent.ToggleBufferLogs -> {
-                viewModelScope.launch { playerSettingsDataStore.setEnableBufferLogs(event.enabled) }
             }
             is DebugSettingsEvent.GenerateLibraryItems -> {
                 viewModelScope.launch {
@@ -129,13 +118,11 @@ class DebugSettingsViewModel @Inject constructor(
 
 data class DebugSettingsUiState(
     val composeHighlighterEnabled: Boolean = false,
-    val bufferLogsEnabled: Boolean = false,
     val generateLibraryLoading: Boolean = false,
     val generateLibraryResult: String? = null
 )
 
 sealed class DebugSettingsEvent {
     data class ToggleComposeHighlighter(val enabled: Boolean) : DebugSettingsEvent()
-    data class ToggleBufferLogs(val enabled: Boolean) : DebugSettingsEvent()
     data class GenerateLibraryItems(val count: Int) : DebugSettingsEvent()
 }

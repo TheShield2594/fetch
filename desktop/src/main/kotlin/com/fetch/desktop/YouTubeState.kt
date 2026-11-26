@@ -11,15 +11,16 @@ import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.player.MpvProgress
 import com.fetch.desktop.skip.Segment
 import com.fetch.desktop.skip.SkipPlanner
-import com.fetch.desktop.youtube.DeArrowClient
-import com.fetch.desktop.youtube.ReturnYouTubeDislikeClient
-import com.fetch.desktop.youtube.SponsorBlockClient
+import com.fetch.tv.data.youtube.DeArrowClient
+import com.fetch.tv.data.youtube.ReturnYouTubeDislikeClient
+import com.fetch.tv.data.youtube.SponsorBlockClient
 import com.fetch.desktop.youtube.YOUTUBE_HOME_ROW_CACHE_TTL_MS
 import com.fetch.desktop.youtube.MpvOsdNote
 import com.fetch.desktop.youtube.YouTubeCaptionPreference
-import com.fetch.desktop.youtube.YouTubeCaptionTrack
-import com.fetch.desktop.youtube.YouTubeCaptions
-import com.fetch.desktop.youtube.cues
+import com.fetch.tv.data.youtube.YouTubeCaptionTrack
+import com.fetch.tv.data.youtube.YouTubeCaptions
+import com.fetch.desktop.youtube.youTubeCaptionCues
+import com.fetch.desktop.youtube.webVttUrl
 import com.fetch.desktop.youtube.YouTubePlayerExtras
 import com.fetch.desktop.youtube.YouTubeSkipNotice
 import com.fetch.desktop.youtube.YouTubeUpNext
@@ -33,7 +34,7 @@ import com.fetch.desktop.youtube.YouTubePlayback
 import com.fetch.desktop.youtube.YouTubeSettings
 import com.fetch.desktop.youtube.addRecentSearch
 import com.fetch.desktop.youtube.appendPage
-import com.fetch.desktop.youtube.updateResumePoints
+import com.fetch.tv.data.youtube.YouTubeResume
 import com.fetch.desktop.youtube.youTubeHomeRowAllowed
 import com.fetch.desktop.youtube.youTubeHomeRowVideos
 import com.fetch.desktop.youtube.youTubeResumeStart
@@ -1096,7 +1097,7 @@ class YouTubeState(
         session.mpv.selectSubtitle(null)
         if (track == null) return
         scope.launch {
-            val cues = withContext(Dispatchers.IO) { YouTubeCaptions.cues(track, ::downloadCaption) }
+            val cues = withContext(Dispatchers.IO) { youTubeCaptionCues(track, ::downloadCaption) }
             if (extras.selectedCaption != track.id || session.youTubeExtras() !== extras) return@launch
             if (cues.isNotEmpty()) {
                 extras.captionCues = cues
@@ -1146,7 +1147,7 @@ class YouTubeState(
         if (sample.durationSec <= 0) return
         saveLocal(
             localData.copy(
-                resume = updateResumePoints(localData.resume, videoId, (sample.positionSec * 1000).toLong(), (sample.durationSec * 1000).toLong(), now())
+                resume = YouTubeResume.updatePoints(localData.resume, videoId, (sample.positionSec * 1000).toLong(), (sample.durationSec * 1000).toLong(), now())
             )
         )
     }

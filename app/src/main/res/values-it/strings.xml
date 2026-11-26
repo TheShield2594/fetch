@@ -939,8 +939,6 @@
 <string name="debug_progress_indicator_default">Predefinito</string>
 <string name="debug_progress_indicator_large">Grande</string>
 <string name="debug_section_features">Interruttori funzionalità</string>
-<string name="debug_buffer_logs_title">Attiva log BUFFER</string>
-<string name="debug_buffer_logs_subtitle">Emetti diagnostica periodica del buffer del player su logcat (disattivato per impostazione predefinita)</string>
 <string name="debug_error_dialog_title">Errore di riproduzione</string>
 <string name="debug_error_dialog_subtitle">Si è verificato un errore durante la riproduzione.\n\nErrore: Errore simulato di test - questo non è un vero guasto. La sorgente ha restituito HTTP 503 (Servizio non disponibile).</string>
 <string name="debug_dismiss">Chiudi</string>

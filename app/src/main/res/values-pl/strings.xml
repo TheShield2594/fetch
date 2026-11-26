@@ -1962,8 +1962,6 @@
 
     <string name="subtitle_language_unknown">Nieznany</string>
 
-    <string name="debug_buffer_logs_title">Włącz logi BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Emituj okresową diagnostykę bufora odtwarzacza do logcat (domyślnie wyłączone)</string>
 
     <string name="dv7_handling_title">Obsługa Dolby Vision Profile 7</string>
     <string name="dv7_handling_dialog_subtitle">Wybierz sposób przetwarzania strumieni DV Profile 7 podczas odtwarzania.</string>

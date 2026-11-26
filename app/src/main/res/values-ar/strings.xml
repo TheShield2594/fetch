@@ -832,8 +832,6 @@
     <string name="debug_playback_error_title">شاشة خطأ التشغيل</string>
     <string name="debug_playback_error_subtitle">إظهار نافذة خطأ تشغيل وهمية</string>
     <string name="debug_section_features">مفاتيح الميزات</string>
-    <string name="debug_buffer_logs_title">تفعيل تسجيل (BUFFER)</string>
-    <string name="debug_buffer_logs_subtitle">إرسال تقارير دورية لتشخيص ذاكرة تخزين المشغل إلى logcat (معطل افتراضياً)</string>
     <string name="debug_error_dialog_title">خطأ في التشغيل</string>
     <string name="debug_error_dialog_subtitle">حدث خطأ أثناء التشغيل.\n\nخطأ: خطأ تجريبي محاكى - هذا ليس فشلاً حقيقياً. المصدر أعاد رمز HTTP 503 (الخدمة غير متوفرة).</string>
     <string name="debug_dismiss">إغلاق</string>

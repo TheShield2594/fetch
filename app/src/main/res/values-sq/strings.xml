@@ -852,8 +852,6 @@
     <string name="debug_progress_indicator_default">Parazgjedhur</string>
     <string name="debug_progress_indicator_large">I madh</string>
     <string name="debug_section_features">Aktivizuesit e veçorive</string>
-    <string name="debug_buffer_logs_title">Aktivizo regjistrat BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Shkruaj periodikisht diagnostikime të buffer-it të luajtësit në logcat (çaktivizuar si parazgjedhje)</string>
     <string name="debug_error_dialog_title">Gabim riprodhimi</string>
     <string name="debug_error_dialog_subtitle">Ndodhi një gabim gjatë riprodhimit.\n\nGabim: Gabim testues i simuluar - ky nuk është një dështim real. Burimi ktheu HTTP 503 (Shërbimi nuk është i disponueshëm).</string>
     <string name="debug_dismiss">Mbyll</string>

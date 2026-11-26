@@ -15,21 +15,19 @@ class YouTubePlaybackRulesTest {
     private val sponsor = YouTubeSkipSegment(startMs = 10_000, endMs = 40_000, category = "sponsor")
 
     @Test
+    fun `the end card asks once autoplay has started enough videos in a row`() {
+        assertEquals(false, shouldAskStillWatching(streak = 2, after = 3))
+        assertEquals(true, shouldAskStillWatching(streak = 3, after = 3))
+        assertEquals(false, shouldAskStillWatching(streak = 10, after = null))
+    }
+
+    @Test
     fun `a segment is skipped once, and not in its last half second`() {
         assertEquals(sponsor, segmentToSkip(listOf(sponsor), 10_000, emptySet()))
         assertEquals(sponsor, segmentToSkip(listOf(sponsor), 25_000, emptySet()))
         assertNull(segmentToSkip(listOf(sponsor), 25_000, setOf(sponsor)))
         assertNull(segmentToSkip(listOf(sponsor), 39_700, emptySet()))
         assertNull(segmentToSkip(listOf(sponsor), 9_999, emptySet()))
-    }
-
-    @Test
-    fun `resume skips videos barely started or nearly done`() {
-        assertEquals(300_000L, resumePositionMs(50, 600_000))
-        assertNull(resumePositionMs(2, 600_000))
-        assertNull(resumePositionMs(97, 600_000))
-        assertNull(resumePositionMs(null, 600_000))
-        assertNull(resumePositionMs(50, 0))
     }
 
     @Test

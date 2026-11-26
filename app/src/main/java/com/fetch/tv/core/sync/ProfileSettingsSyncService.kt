@@ -16,6 +16,7 @@ import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.backend.SyncBackends
 import com.fetch.tv.data.local.ContinueWatchingEnrichmentCache
 import com.fetch.tv.data.local.ExperienceModeDataStore
+import com.fetch.tv.data.local.MIGRATION_LEGACY_PLAYER_KEYS_FOLDED_DONE
 import com.fetch.tv.data.local.ProfileDataStoreFactory
 import com.fetch.tv.data.local.StreamBadgeSettingsDataStore
 import com.fetch.tv.data.local.TmdbSettingsDataStore
@@ -116,17 +117,17 @@ private val localOnlyPlayerProfileSettingsKeys = setOf(
     "parallel_connection_count",
     "parallel_chunk_size_mb",
     "parallel_chunk_size_kb",
-    "enable_http2",
+    "enable_http2", // removed (#780)
     "last_playback_diagnostics_json",
-    "enable_buffer_logs",
-    "resize_mode",
+    "enable_buffer_logs", // removed (#780)
+    "resize_mode", // removed (#780)
     "min_buffer_ms",
     "max_buffer_ms",
     "buffer_for_playback_ms",
     "buffer_for_playback_after_rebuffer_ms",
     "target_buffer_size_mb",
     "back_buffer_duration_ms",
-    "retain_back_buffer_from_keyframe",
+    "retain_back_buffer_from_keyframe", // removed (#780)
     "migration_load_control_defaults_aligned_done",
     "migration_load_control_defaults_retuned_done",
     "migration_load_control_min_buffer_retuned_done",
@@ -140,7 +141,14 @@ private val localOnlyPlayerProfileSettingsKeys = setOf(
     "migration_allow_large_target_buffer_off_done",
     "migration_buffer_budget_managed_exo_done",
     "migration_vod_cache_back_buffer_zeroed_done",
-    "fetch_performance_mode_enabled"
+    MIGRATION_LEGACY_PLAYER_KEYS_FOLDED_DONE,
+    "fetch_performance_mode_enabled",
+    // Removed (#780): nothing read them. Kept out of the blob so an older device's backup can't
+    // write them back after the migration deleted them.
+    "subtitle_organization_mode",
+    "subtitle_outline_width",
+    "next_episode_threshold_percent",
+    "next_episode_threshold_minutes_before_end"
 )
 
 // 4K trailers depend on the device's RAM, so a choice made on one device must not reach another.

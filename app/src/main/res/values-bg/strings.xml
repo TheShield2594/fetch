@@ -828,8 +828,6 @@
     <string name="debug_playback_error_title">Екран за грешка при възпроизвеждане</string>
     <string name="debug_playback_error_subtitle">Покажи симулиран popup за грешка при възпроизвеждане</string>
     <string name="debug_section_features">Флагове на функции</string>
-    <string name="debug_buffer_logs_title">Включи BUFFER логове</string>
-    <string name="debug_buffer_logs_subtitle">Излъчвай периодични диагностики на плейър буфера към logcat (изключено по подразбиране)</string>
     <string name="debug_error_dialog_title">Грешка при възпроизвеждане</string>
     <string name="debug_error_dialog_subtitle">Възникна грешка по време на възпроизвеждане.\n\nГрешка: Тестова симулирана грешка - това не е реална повреда. Източникът върна HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">Затвори</string>

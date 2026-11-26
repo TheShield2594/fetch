@@ -97,6 +97,13 @@ data class YouTubePlaybackState(
     val upNext: YouTubeVideo? = null,
     val related: List<YouTubeVideo> = emptyList(),
     val autoplay: Boolean = YouTubeSettingsDataStore.DEFAULT_AUTOPLAY_ENABLED,
+    /** Videos autoplay has started in a row, this one included, since one was picked by hand. */
+    val autoplayStreak: Int = 0,
+    /**
+     * After how many autoplayed videos the end card asks "Are you still watching?" instead of
+     * counting down: the player's own setting (Playback › Are You Still Watching?); null when off.
+     */
+    val stillWatchingAfter: Int? = null,
     /** The like and subscribe state, once the watch page has loaded. */
     val actions: YouTubeVideoActions? = null,
     /** YouTube refused the last like or subscribe; the change was undone. */
@@ -244,6 +251,9 @@ class YouTubeViewModel @Inject constructor(
     private val playRequests: YouTubePlayRequests,
     authDataStore: YouTubeAuthDataStore
 ) : ViewModel() {
+    // Videos the end card's countdown started in a row; a video picked by hand resets it.
+    private var autoplayStreak = 0
+
     internal companion object {
         /**
          * How long a tab's feed stays as loaded. Coming back to a tab later than this (or to the
@@ -544,7 +554,13 @@ class YouTubeViewModel @Inject constructor(
         loadMoreJobs += job
     }
 
+    /** Plays a video picked by hand: the autoplay streak starts over. */
     fun play(video: YouTubeVideo) {
+        autoplayStreak = 0
+        startPlayback(video)
+    }
+
+    private fun startPlayback(video: YouTubeVideo) {
         qualityJob?.cancel()
         detailsJob?.cancel()
         playbackJob?.cancel()
@@ -560,7 +576,7 @@ class YouTubeViewModel @Inject constructor(
         _uiState.update { state ->
             // Playing the same video again (Retry) is a new attempt: it resumes from the saved place.
             val attempt = state.playback?.takeIf { it.video.videoId == video.videoId }?.attempt?.plus(1) ?: 0
-            state.copy(playback = YouTubePlaybackState(video, attempt = attempt))
+            state.copy(playback = YouTubePlaybackState(video, attempt = attempt, autoplayStreak = autoplayStreak))
         }
         playbackJob = viewModelScope.launch {
             val modes = setting(YouTubeSettingsDataStore.DEFAULT_SPONSOR_BLOCK_MODES) { settings.sponsorBlockModes.first() }
@@ -630,11 +646,18 @@ class YouTubeViewModel @Inject constructor(
             if (source != null) orNull { setUpCaptions(video, source.captionsJson, info?.captions) }
             val next = watchNext.await()?.let { feedFilter.apply(it) }
             val autoplayEnabled = autoplay.await()
+            val stillWatchingAfter = setting<Int?>(null) {
+                playerSettings.playerSettings.first()
+                    .takeIf { it.stillWatchingEnabled }
+                    ?.stillWatchingEpisodeThreshold
+                    ?.coerceAtLeast(1)
+            }
             updatePlayback(video) {
                 it.copy(
                     upNext = next?.next,
                     related = next?.related.orEmpty(),
                     autoplay = autoplayEnabled,
+                    stillWatchingAfter = stillWatchingAfter,
                     actions = next?.actions,
                     playlist = next?.playlist,
                     chapters = next?.chapters.orEmpty()
@@ -808,7 +831,7 @@ class YouTubeViewModel @Inject constructor(
     }
 
     fun retryPlayback() {
-        _uiState.value.playback?.video?.let(::play)
+        _uiState.value.playback?.video?.let(::startPlayback)
     }
 
     fun closePlayback() {
@@ -1088,9 +1111,18 @@ class YouTubeViewModel @Inject constructor(
             .filterNot { it.isEmpty() }
     )
 
+    /** A video picked on the end card: the autoplay streak starts over. */
     fun playNext(next: YouTubeVideo) {
         markProgressOnCard()
-        play(next)
+        autoplayStreak = 0
+        startPlayback(next)
+    }
+
+    /** Up Next, started by the end card's countdown. */
+    fun autoplayNext(next: YouTubeVideo) {
+        markProgressOnCard()
+        autoplayStreak += 1
+        startPlayback(next)
     }
 
     /** Sends the last position to history and shows it on the video's card, without reloading the feed. */

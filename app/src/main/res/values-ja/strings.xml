@@ -823,8 +823,6 @@
     <string name="debug_playback_error_title">再生エラー画面</string>
     <string name="debug_playback_error_subtitle">模擬再生エラーポップアップを表示</string>
     <string name="debug_section_features">機能トグル</string>
-    <string name="debug_buffer_logs_title">BUFFERログを有効にする</string>
-    <string name="debug_buffer_logs_subtitle">プレーヤーバッファ診断をlogcatに定期的に出力します（デフォルト無効）</string>
     <string name="debug_error_dialog_title">再生エラー</string>
     <string name="debug_error_dialog_subtitle">再生中にエラーが発生しました。\n\nエラー: テストシミュレーションエラー - 実際の障害ではありません。ソースがHTTP 503（サービス利用不可）を返しました</string>
     <string name="debug_dismiss">閉じる</string>

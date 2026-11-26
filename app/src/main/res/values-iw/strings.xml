@@ -1102,8 +1102,6 @@
     <string name="debug_progress_indicator_default">ברירת מחדל</string>
     <string name="debug_progress_indicator_large">גדול</string>
     <string name="debug_section_features">הפעלת פיצ׳רים</string>
-    <string name="debug_buffer_logs_title">הפעלת לוגים של BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">שליחת אבחוני מאגר נגן תקופתיים ל-logcat (כבוי כברירת מחדל)</string>
     <string name="debug_error_dialog_title">שגיאת הפעלה</string>
     <string name="debug_error_dialog_subtitle">אירעה שגיאה במהלך ההפעלה.\n\nשגיאה: שגיאה מדומה לבדיקה - זו אינה כשל אמיתי. המקור החזיר HTTP 503 (Service Unavailable).</string>
     <string name="debug_dismiss">סגירה</string>

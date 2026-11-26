@@ -1000,8 +1000,6 @@
     <string name="debug_progress_indicator_default">默认</string>
     <string name="debug_progress_indicator_large">大</string>
     <string name="debug_section_features">功能开关</string>
-    <string name="debug_buffer_logs_title">启用 BUFFER 日志</string>
-    <string name="debug_buffer_logs_subtitle">将周期性播放器缓冲诊断输出到 logcat (默认禁用)</string>
     <string name="debug_error_dialog_title">播放错误</string>
     <string name="debug_error_dialog_subtitle">播放期间发生错误。\n\n错误：测试模拟错误 - 这不是真正的失败。来源返回 HTTP 503 (服务不可用)。</string>
     <string name="debug_dismiss">关闭</string>

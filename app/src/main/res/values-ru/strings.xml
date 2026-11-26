@@ -1572,8 +1572,6 @@
     <string name="trakt_more_like_this_source_dialog_subtitle">Выберите источник рекомендаций на страницах деталей.</string>
     <string name="trakt_more_like_this_source_trakt">Trakt</string>
     <string name="trakt_more_like_this_source_tmdb">TMDB</string>
-    <string name="debug_buffer_logs_title">Включить журналы BUFFER</string>
-    <string name="debug_buffer_logs_subtitle">Периодически выводить диагностику буфера плеера в logcat (по умолчанию отключено)</string>
     <string name="profile_editor_tab_avatar">Аватар</string>
     <string name="profile_editor_tab_background">Фон</string>
     <string name="profile_choose_background">Выберите фон профиля</string>

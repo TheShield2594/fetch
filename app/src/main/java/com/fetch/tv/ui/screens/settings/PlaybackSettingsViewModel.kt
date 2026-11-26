@@ -19,7 +19,6 @@ import com.fetch.tv.data.local.StreamAutoPlayMode
 import com.fetch.tv.data.local.AudioOutputChannels
 import com.fetch.tv.data.local.AutoSkipSegmentType
 import com.fetch.tv.data.local.MpvHardwareDecodeMode
-import com.fetch.tv.data.local.SubtitleOrganizationMode
 import com.fetch.tv.data.local.VodCacheSizeMode
 import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.domain.repository.AddonRepository
@@ -267,10 +266,6 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setSubtitleOutlineColor(color)
     }
 
-    suspend fun setSubtitleOutlineWidth(width: Int) {
-        playerSettingsDataStore.setSubtitleOutlineWidth(width)
-    }
-
     suspend fun setSubtitleHdrStyleEnabled(enabled: Boolean) {
         playerSettingsDataStore.setSubtitleHdrStyleEnabled(enabled)
     }
@@ -281,10 +276,6 @@ class PlaybackSettingsViewModel @Inject constructor(
 
     suspend fun setSubtitleHdrBrightness(brightness: Int) {
         playerSettingsDataStore.setSubtitleHdrBrightness(brightness)
-    }
-
-    suspend fun setSubtitleOrganizationMode(mode: SubtitleOrganizationMode) {
-        playerSettingsDataStore.setSubtitleOrganizationMode(mode)
     }
 
     // Buffer settings functions
@@ -330,10 +321,6 @@ class PlaybackSettingsViewModel @Inject constructor(
 
     suspend fun setBufferBackBufferDurationMs(ms: Int) {
         playerSettingsDataStore.setBufferBackBufferDurationMs(ms)
-    }
-
-    suspend fun setBufferRetainBackBufferFromKeyframe(retain: Boolean) {
-        playerSettingsDataStore.setBufferRetainBackBufferFromKeyframe(retain)
     }
 
     @androidx.annotation.OptIn(UnstableApi::class)

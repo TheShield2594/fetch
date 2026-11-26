@@ -341,6 +341,7 @@ fun YouTubeScreen(
             onSelectCaption = viewModel::selectCaption,
             onToggleCaptions = viewModel::toggleCaptions,
             onPlayNext = viewModel::playNext,
+            onAutoplayNext = viewModel::autoplayNext,
             onDismiss = viewModel::closePlayback,
             onRetry = viewModel::retryPlayback,
             onRate = viewModel::rate,

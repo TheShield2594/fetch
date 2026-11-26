@@ -6,6 +6,7 @@ import com.fetch.tv.data.youtube.SponsorBlockCategory
 import com.fetch.tv.data.youtube.SponsorBlockMode
 import com.fetch.tv.data.youtube.YouTubeAccount
 import com.fetch.tv.data.youtube.YouTubeResume
+import com.fetch.tv.data.youtube.YouTubeResumePoint
 import com.fetch.tv.data.youtube.YouTubeFeedFilter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -153,15 +154,6 @@ class YouTubeAuthFile(private val file: File) : YouTubeAuthStore {
     }
 }
 
-/** Where a YouTube video stopped in Fetch, to the millisecond. */
-@Serializable
-data class YouTubeResumePoint(
-    val videoId: String,
-    val positionMs: Long,
-    val durationMs: Long,
-    val updatedAtMs: Long
-)
-
 /** A profile's YouTube searches and resume points, in `youtube.json`. */
 @Serializable
 data class YouTubeLocalData(
@@ -175,8 +167,7 @@ fun youTubeDataFile(dir: File) = JsonFile(File(dir, "youtube.json"), YouTubeLoca
 
 fun youTubeAuthFile(dir: File) = YouTubeAuthFile(File(dir, "youtube-auth.json"))
 
-/** The TV's numbers: the most resume points kept, and the most recent searches. */
-const val YOUTUBE_MAX_RESUME_POINTS = 300
+/** The TV's number of recent searches kept. */
 const val YOUTUBE_MAX_RECENT_SEARCHES = 10
 
 /** [query] first, with any earlier copy of it (ignoring case) dropped, keeping [max]. */
@@ -186,41 +177,13 @@ fun addRecentSearch(current: List<String>, query: String, max: Int = YOUTUBE_MAX
 }
 
 /**
- * [entries] with [videoId]'s point moved to the front, or dropped when the video was barely started
- * or nearly finished: those start over, as on YouTube (the TV's YouTubeResumeStore).
- */
-fun updateResumePoints(
-    entries: List<YouTubeResumePoint>,
-    videoId: String,
-    positionMs: Long,
-    durationMs: Long,
-    nowMs: Long,
-    max: Int = YOUTUBE_MAX_RESUME_POINTS
-): List<YouTubeResumePoint> {
-    val others = entries.filterNot { it.videoId == videoId }
-    val point = YouTubeResumePoint(videoId, positionMs, durationMs, nowMs)
-    return if (resumableMs(positionMs, durationMs) != null) (listOf(point) + others).take(max) else others
-}
-
-/** [positionMs] when it's worth resuming from: past the first few seconds and short of the end. */
-fun resumableMs(positionMs: Long, durationMs: Long): Long? {
-    if (durationMs <= 0L || positionMs <= 0L) return null
-    if (positionMs < MIN_RESUME_MS || positionMs < durationMs * 3 / 100) return null
-    if (positionMs > durationMs * 95 / 100) return null
-    return positionMs
-}
-
-private const val MIN_RESUME_MS = 10_000L
-
-/**
  * Where mpv starts [video]: the exact place Fetch saved (unless YouTube's progress is clearly
  * further on, from another device), else how far YouTube's own progress bar says (as a percentage, since the length isn't known before mpv opens it). Nothing when barely
- * started or nearly finished, as on TV.
+ * started or nearly finished, as on TV
+ * (the rules are [YouTubeResume]'s, shared with it).
  */
 fun youTubeResumeStart(saved: YouTubeResumePoint?, watchedPercent: Int?): String? {
     saved?.takeUnless { YouTubeResume.youTubeIsAhead(it.positionMs, it.durationMs, watchedPercent) }
-        ?.let { point -> resumableMs(point.positionMs, point.durationMs)?.let { return "%.1f".format(java.util.Locale.ROOT, it / 1000.0) } }
-    val percent = watchedPercent ?: return null
-    if (percent < 3 || percent > 95) return null
-    return "$percent%"
+        ?.let { point -> YouTubeResume.resumableMs(point.positionMs, point.durationMs)?.let { return "%.1f".format(java.util.Locale.ROOT, it / 1000.0) } }
+    return YouTubeResume.resumablePercent(watchedPercent)?.let { "$it%" }
 }

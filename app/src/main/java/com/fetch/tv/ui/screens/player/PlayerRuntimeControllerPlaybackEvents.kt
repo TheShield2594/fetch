@@ -1790,7 +1790,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 playerSettingsDataStore.setSubtitleBold(defaults.bold)
                 playerSettingsDataStore.setSubtitleOutlineEnabled(defaults.outlineEnabled)
                 playerSettingsDataStore.setSubtitleOutlineColor(defaults.outlineColor)
-                playerSettingsDataStore.setSubtitleOutlineWidth(defaults.outlineWidth)
                 playerSettingsDataStore.setSubtitleVerticalOffset(defaults.verticalOffset)
                 playerSettingsDataStore.setSubtitleBackgroundColor(defaults.backgroundColor)
             }

@@ -164,6 +164,16 @@ internal fun HomeViewModel.clearCatalogData() {
     lazyLoadRequestedKeys.clear()
 }
 
+/** Drops loaded rows whose key is not in [keys], with their item index entries. */
+internal fun HomeViewModel.retainCatalogRows(keys: Set<String>) {
+    synchronized(catalogStateLock) {
+        val staleKeys = catalogsMap.keys.filter { it !in keys }
+        staleKeys.forEach { key ->
+            reindexCatalogRow(key, catalogsMap.remove(key), null)
+        }
+    }
+}
+
 internal fun HomeViewModel.snapshotCatalogKeys(): Set<String> = synchronized(catalogStateLock) {
     catalogsMap.keys.toSet()
 }

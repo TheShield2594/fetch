@@ -50,6 +50,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -130,6 +131,14 @@ class HomeViewModel @Inject constructor(
         private const val MAX_ENRICHMENT_CACHE_SIZE = 64
         private const val MAX_PREFETCH_CACHE_SIZE = 64
         private const val MAX_CW_CACHE_SIZE = 64
+        /**
+         * Next-up resolutions, one per seed episode and unaired setting. A negative entry stops a
+         * caught-up series being looked up again each run, so the cap sits well above the 300
+         * recent seeds a run considers; it only bounds a session that keeps adding seeds.
+         */
+        private const val MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE = 600
+        private val SHARED_WATCH_HISTORY_STARTED =
+            SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000L, replayExpirationMillis = 0L)
 
         private fun <K, V> createLruMap(maxSize: Int): MutableMap<K, V> {
             val lru = object : LinkedHashMap<K, V>(maxSize + 4, 0.75f, true) {
@@ -138,6 +147,24 @@ class HomeViewModel @Inject constructor(
             }
             return java.util.Collections.synchronizedMap(lru)
         }
+    }
+
+    /*
+     * Watch history, collected once per Home (TheShield2594/fetch#824). The repository builds a
+     * new chain per collector, and Continue Watching, Because you watched, Episode Shuffle and
+     * the series-watched badges each collected these, so every progress save ran the merge
+     * (and the per-chain metadata reset) several times over. Shared with a replay of the latest
+     * value; stopped a few seconds after the last collector leaves, without keeping a stale
+     * replay, so a later collector always starts from current data.
+     */
+    internal val sharedAllProgress: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.WatchProgress>> by lazy {
+        watchProgressRepository.allProgress.shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
+    }
+    internal val sharedWatchedItems: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.WatchedItem>> by lazy {
+        watchProgressRepository.watchedItems.shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
+    }
+    internal val sharedNextUpSeeds: kotlinx.coroutines.flow.Flow<List<com.fetch.tv.domain.model.WatchProgress>> by lazy {
+        watchProgressRepository.observeNextUpSeeds().shareIn(viewModelScope, SHARED_WATCH_HISTORY_STARTED, replay = 1)
     }
 
     internal val _uiState = MutableStateFlow(HomeUiState())
@@ -338,8 +365,12 @@ class HomeViewModel @Inject constructor(
     @Volatile
     internal var cwLastShowIdSiblings: Map<String, Set<String>> = emptyMap()
     internal val cwTmdbIdCache: MutableMap<String, String?> = createLruMap(MAX_CW_CACHE_SIZE)
-    internal val cwNextUpResolutionCache = Collections.synchronizedMap(mutableMapOf<String, NextUpResolution?>())
-    internal val cwNextUpNegativeCacheTimestamps = ConcurrentHashMap<String, Long>()
+    // Bounded LRU (TheShield2594/fetch#826). Access-ordered: iterate only under the map's lock and
+    // never `get` while iterating its keys.
+    internal val cwNextUpResolutionCache: MutableMap<String, NextUpResolution?> =
+        boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE)
+    internal val cwNextUpNegativeCacheTimestamps: MutableMap<String, Long> =
+        boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE)
     internal val discoveredOlderNextUpItems = Collections.synchronizedList(mutableListOf<ContinueWatchingItem.NextUp>())
     internal val cwLastProcessedNextUpContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwProcessedOlderSeedContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
@@ -368,6 +399,8 @@ class HomeViewModel @Inject constructor(
     internal var movieWatchedBatchJob: Job? = null
     internal var lastMovieWatchedItemKeys: Set<String> = emptySet()
     internal var seriesWatchedObserverJob: Job? = null
+    /** Series the running [seriesWatchedObserverJob] covers; null forces the next reconcile to restart it. */
+    internal var lastSeriesWatchedItemKeys: Map<String, String>? = null
     @Volatile
     internal var externalMetaPrefetchEnabled: Boolean = false
     @Volatile
@@ -490,6 +523,7 @@ class HomeViewModel @Inject constructor(
                     _movieWatchedStatus.value = emptyMap()
                     _pendingWatchedBatch.value = emptyMap()
                     _uiState.update { it.copy(movieWatchedStatus = emptyMap()) }
+                    lastSeriesWatchedItemKeys = null
                 }
             }
         }

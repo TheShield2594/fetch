@@ -820,12 +820,12 @@ internal fun ModernRowSection(
                         .distinctUntilChanged()
                         .collect { lastVisibleIndex ->
                             val currentItems = currentRowState.value.items.list
-                            withContext(Dispatchers.IO) {
-                                for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + posterPrefetchDistance())) {
-                                    val item = currentItems.getOrNull(i) ?: continue
-                                    val (wPx, hPx) = cardSizePx(item)
-                                    enqueueIfNeeded(item, wPx, hPx)
-                                }
+                            // enqueue is already asynchronous; sizing a few cards is cheap, so
+                            // this stays on Main rather than hopping to IO and back.
+                            for (i in (lastVisibleIndex + 1)..(lastVisibleIndex + posterPrefetchDistance())) {
+                                val item = currentItems.getOrNull(i) ?: continue
+                                val (wPx, hPx) = cardSizePx(item)
+                                enqueueIfNeeded(item, wPx, hPx)
                             }
                         }
                 }
@@ -951,14 +951,7 @@ internal fun ModernRowSection(
                             else -> item.key
                         }
                     },
-                    contentType = { _, item ->
-                        when (val payload = item.payload) {
-                            is ModernPayload.ContinueWatching -> "modern_cw_card"
-                            is ModernPayload.Catalog -> if (payload.itemId.startsWith("__placeholder_")) "placeholder" else payload.itemType
-                            is ModernPayload.CollectionFolder -> "modern_collection_folder_card"
-                            is ModernPayload.YouTubeVideo -> "modern_youtube_card"
-                        }
-                    }
+                    contentType = { _, item -> modernCarouselItemContentType(item) }
                 ) { index, item ->
                     val requester = itemFocusRequesters.focusRequesterFor(index)
                     val isContinueWatchingRow = isContinueWatchingStyleRow(row.key)

@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import com.fetch.tv.domain.model.MetaPreview
 import kotlinx.coroutines.launch
@@ -231,6 +233,14 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
             val index = pinnedKeys.indexOf(catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id))
             if (index >= 0) index else Int.MAX_VALUE
         }
+
+        // A reload keeps rows on screen while it runs, but rows of removed addons or now-disabled
+        // catalogs never come back: drop them so the map doesn't keep them for the session (#826).
+        retainCatalogRows(
+            catalogsToLoad.mapTo(HashSet()) { (addon, catalog) ->
+                catalogKey(addonId = addon.id, type = catalog.apiType, catalogId = catalog.id)
+            }
+        )
 
         val allCatalogsToLoad = catalogsToLoad
         if (allCatalogsToLoad.isEmpty()) {
@@ -479,8 +489,8 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
             when (result) {
                 is NetworkResult.Success -> {
                     updateCatalogRow(key) { latestRow ->
-                        val mergedRow = latestRow.mergeCatalogPage(result.data)
-                        mergedRow
+                        // Capped: see HOME_CATALOG_ROW_MAX_ITEMS (#826).
+                        latestRow.mergeCatalogPage(result.data).cappedForHome()
                     }
                     _loadingCatalogs.update { it - key }
                     scheduleUpdateCatalogRows()
@@ -619,6 +629,7 @@ internal fun HomeViewModel.schedulePosterStatusReconcilePipeline(rows: List<Cata
     }
 }
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<CatalogRow>) {
     val allMovieItemsByKey = linkedMapOf<String, String>()
     rows.asSequence()
@@ -632,16 +643,7 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
         }
     val desiredMovieKeys = allMovieItemsByKey.keys
 
-    val allSeriesItemsByKey = linkedMapOf<String, String>()
-    rows.asSequence()
-        .flatMap { row -> row.items.asSequence() }
-        .filter { it.apiType.equals("series", ignoreCase = true) || it.apiType.equals("tv", ignoreCase = true) }
-        .forEach { item ->
-            val key = homeItemStatusKey(item.id, item.apiType)
-            if (key !in allSeriesItemsByKey) {
-                allSeriesItemsByKey[key] = item.id
-            }
-        }
+    val allSeriesItemsByKey = homeSeriesStatusKeys(rows.asSequence().flatMap { row -> row.items.asSequence() })
 
 
     if (desiredMovieKeys != lastMovieWatchedItemKeys) {
@@ -676,15 +678,23 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
 
     // Update series watched status from CW pipeline's fully-watched resolution.
     // This piggybacks on the meta lookups CW already performs — no extra network calls.
+    // Keyed on the series on screen, so a catalog update that shows the same series leaves the
+    // running observer alone instead of restarting it and regrouping every watched item (#824).
+    if (allSeriesItemsByKey == lastSeriesWatchedItemKeys && seriesWatchedObserverJob?.isActive == true) {
+        return
+    }
+    lastSeriesWatchedItemKeys = allSeriesItemsByKey
     if (allSeriesItemsByKey.isNotEmpty()) {
         seriesWatchedObserverJob?.cancel()
         seriesWatchedObserverJob = viewModelScope.launch {
             combine(
                 fullyWatchedSeriesIds.fullyWatchedSeriesIds,
-                watchProgressRepository.watchedItems
+                sharedWatchedItems
             ) { fullyWatched, watchedItems ->
                 fullyWatched to watchedItems
-            }.collectLatest { (fullyWatched, watchedItems) ->
+            }.mapLatest { (fullyWatched, watchedItems) ->
+                // On Default: the reconcile groups every watched item. What it touches is
+                // thread-safe (the state holder is synchronized, the badge cache is locked).
                 val effectiveFullyWatched = if (
                     watchProgressRepository.activeProviderOwnsCompletedHistoryProjection()
                 ) {
@@ -697,18 +707,22 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
                         seriesContentIds = allSeriesItemsByKey.values
                     )
                 }
-                val seriesStatus = buildMap {
+                buildMap {
                     allSeriesItemsByKey.forEach { (statusKey, contentId) ->
                         put(statusKey, contentId in effectiveFullyWatched)
                     }
                 }
-                _uiState.update { state ->
-                    val merged = state.movieWatchedStatus
-                        .filterKeys { it !in allSeriesItemsByKey.keys } + seriesStatus
-                    if (state.movieWatchedStatus == merged) state
-                    else state.copy(movieWatchedStatus = merged)
+            }.flowOn(Dispatchers.Default)
+                // Home is covered while the player is open; badges catch up once it closes.
+                .pausedWhilePlayerOpen(com.fetch.tv.core.player.PlayerSessionTracker.isSessionOpen)
+                .collect { seriesStatus ->
+                    _uiState.update { state ->
+                        val merged = state.movieWatchedStatus
+                            .filterKeys { it !in allSeriesItemsByKey.keys } + seriesStatus
+                        if (state.movieWatchedStatus == merged) state
+                        else state.copy(movieWatchedStatus = merged)
+                    }
                 }
-            }
         }
     } else {
         seriesWatchedObserverJob?.cancel()

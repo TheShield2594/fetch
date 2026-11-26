@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
@@ -510,62 +509,57 @@ private fun ModernHomeRoute(
         delay(READY_CHECK_SETTLE_MS)
         viewModel.runReadyCheck(readyCheckItems)
     }
-    // Ready means cached and confirmed in the last day; the dot and "Ready tonight" both read this.
-    val readinessNow by remember { readinessTicks() }.collectAsStateWithLifecycle(initialValue = System.currentTimeMillis())
     val shownBestMatches = if (uiState.kidsHome) emptyMap() else cachedBestMatches
-    val readyBestMatchKeys = remember(shownBestMatches, readinessNow) {
-        // The tick only re-runs this as picks expire. A pick saved since the last tick (the ready
-        // check runs while Home shows) would be "in the future" of the tick's time and miss its dot.
-        readyBestMatchKeys(shownBestMatches, readinessClock(readinessNow))
-    }
-    CompositionLocalProvider(LocalReadyBestMatchKeys provides readyBestMatchKeys) {
-        ModernHomeContent(
-            uiState = uiState,
-            cachedBestMatches = shownBestMatches,
-            queuedVideoIds = queuedVideoIds,
-            onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },
-            modernPresentation = modernPresentation,
-            focusState = focusState,
-            scrollToTopTrigger = scrollToTopTrigger,
-            enrichingItemId = enrichingItemId,
-            enrichedPreviews = enrichedPreviews,
-            failedEnrichmentIds = failedEnrichmentIds,
-            trailerPreviewUrls = viewModel.trailerPreviewUrls,
-            trailerPreviewAudioUrls = viewModel.trailerPreviewAudioUrls,
-            onNavigateToDetail = onNavigateToDetail,
-            onContinueWatchingClick = onContinueWatchingClick,
-            onContinueWatchingStartFromBeginning = onContinueWatchingStartFromBeginning,
-            onContinueWatchingPlayManually = onContinueWatchingPlayManually,
-            showContinueWatchingManualPlayOption = showContinueWatchingManualPlayOption,
-            onRequestTrailerPreview = requestTrailerPreview,
-            onLoadMoreCatalog = loadMoreCatalog,
-            onRemoveContinueWatching = removeContinueWatching,
-            isCatalogItemWatched = isCatalogItemWatched,
-            onCatalogItemLongPress = onCatalogItemLongPress,
-            onNavigateToFolderDetail = onNavigateToFolderDetail,
-            onSeeAllRow = onSeeAllRow,
-            onYouTubeVideoClick = remember(viewModel, onOpenYouTube) {
-                { video: com.fetch.tv.data.youtube.YouTubeVideo ->
-                    viewModel.youTubeRow.play(video)
-                    onOpenYouTube()
-                }
-            },
-            onItemFocus = remember(viewModel, onCardFocused) {
-                { item ->
-                    viewModel.onItemFocus(item)
-                    onCardFocused()
-                }
-            },
-            onPreloadAdjacentItem = preloadAdjacentItem,
-            onSaveFocusState = saveModernFocusState,
-            onFocusedRowKeyChanged = remember(viewModel) {
-                { key: String? -> viewModel.setLiveFocusedRowKey(key) }
-            },
-            onRequestLazyCatalogLoad = remember(viewModel) {
-                { catalogKey: String -> viewModel.requestLazyCatalogLoad(catalogKey) }
+    // No Home card draws the ready dot (both cards ignore isReady), so Home no longer runs a
+    // readiness ticker or provides LocalReadyBestMatchKeys for it (TheShield2594/fetch#826).
+    // "Ready tonight" keeps its own timer in the presentation pipeline, and the ready check above
+    // still runs because that row reads what it saves.
+    ModernHomeContent(
+        uiState = uiState,
+        cachedBestMatches = shownBestMatches,
+        queuedVideoIds = queuedVideoIds,
+        onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },
+        modernPresentation = modernPresentation,
+        focusState = focusState,
+        scrollToTopTrigger = scrollToTopTrigger,
+        enrichingItemId = enrichingItemId,
+        enrichedPreviews = enrichedPreviews,
+        failedEnrichmentIds = failedEnrichmentIds,
+        trailerPreviewUrls = viewModel.trailerPreviewUrls,
+        trailerPreviewAudioUrls = viewModel.trailerPreviewAudioUrls,
+        onNavigateToDetail = onNavigateToDetail,
+        onContinueWatchingClick = onContinueWatchingClick,
+        onContinueWatchingStartFromBeginning = onContinueWatchingStartFromBeginning,
+        onContinueWatchingPlayManually = onContinueWatchingPlayManually,
+        showContinueWatchingManualPlayOption = showContinueWatchingManualPlayOption,
+        onRequestTrailerPreview = requestTrailerPreview,
+        onLoadMoreCatalog = loadMoreCatalog,
+        onRemoveContinueWatching = removeContinueWatching,
+        isCatalogItemWatched = isCatalogItemWatched,
+        onCatalogItemLongPress = onCatalogItemLongPress,
+        onNavigateToFolderDetail = onNavigateToFolderDetail,
+        onSeeAllRow = onSeeAllRow,
+        onYouTubeVideoClick = remember(viewModel, onOpenYouTube) {
+            { video: com.fetch.tv.data.youtube.YouTubeVideo ->
+                viewModel.youTubeRow.play(video)
+                onOpenYouTube()
             }
-        )
-    }
+        },
+        onItemFocus = remember(viewModel, onCardFocused) {
+            { item ->
+                viewModel.onItemFocus(item)
+                onCardFocused()
+            }
+        },
+        onPreloadAdjacentItem = preloadAdjacentItem,
+        onSaveFocusState = saveModernFocusState,
+        onFocusedRowKeyChanged = remember(viewModel) {
+            { key: String? -> viewModel.setLiveFocusedRowKey(key) }
+        },
+        onRequestLazyCatalogLoad = remember(viewModel) {
+            { catalogKey: String -> viewModel.requestLazyCatalogLoad(catalogKey) }
+        }
+    )
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)

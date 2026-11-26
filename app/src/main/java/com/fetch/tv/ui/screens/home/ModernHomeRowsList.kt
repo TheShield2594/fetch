@@ -65,11 +65,9 @@ import com.fetch.tv.ui.util.StableRef
 import com.fetch.tv.ui.util.dpadVerticalFastScroll
 import com.fetch.tv.ui.util.recompositionHighlighter
 import com.fetch.tv.ui.components.rememberPlaceholderShimmerOffsetState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.withContext
 import com.fetch.tv.ui.screens.settings.MemoryBudget
 
 private const val VERTICAL_PREFETCH_MAX_ITEMS_PER_ROW = 7
@@ -191,46 +189,45 @@ internal fun ModernHomeRowsList(
             .distinctUntilChanged()
             .debounce(240L) // VERTICAL_PREFETCH_DEBOUNCE_MS
             .collect { lastVisibleRowIndex ->
-                withContext(Dispatchers.IO) {
-                    for (rowOffset in 1..prefetchAheadRows) {
-                        val row = latestCarouselRowsForImagePrefetch.value.list
-                            .getOrNull(lastVisibleRowIndex + rowOffset) ?: continue
-                        var prefetchItemsPerRow = 1
-                        var sized = false
-                        for (i in 0 until row.items.list.size) {
-                            if (i >= prefetchItemsPerRow) break
-                            val item = row.items.list[i]
-                            // Continue Watching cards use a different size and cache key; the row sits first anyway.
-                            if (item.payload is ModernPayload.ContinueWatching) continue
-                            val url = item.imageUrl ?: continue
-                            // Collapsed card size and key, matching what the card itself requests.
-                            val metrics = item.catalogCardMetrics(
-                                useLandscapePosters = useLandscapePosters,
-                                portraitCardWidth = portraitCatalogCardWidth,
-                                portraitCardHeight = portraitCatalogCardHeight,
-                                landscapeCardWidth = landscapeCatalogCardWidth,
-                                landscapeCardHeight = landscapeCatalogCardHeight
-                            )
-                            val wPx = with(density) { metrics.width.roundToPx() }
-                            val hPx = with(density) { metrics.height.roundToPx() }
-                            if (wPx <= 0 || hPx <= 0) continue
-                            if (!sized && !lowRam) {
-                                sized = true
-                                prefetchItemsPerRow = (viewportWidthPx / wPx + 1)
-                                    .coerceIn(1, VERTICAL_PREFETCH_MAX_ITEMS_PER_ROW)
-                            }
-                            val cacheKey = catalogCardImageCacheKey(url, wPx, hPx)
-                            val extras = item.catalogCardImageCacheExtras(imageUrl = url, isLandscapeCustomPoster = false)
-                            if (verticalPrefetchImageLoader.memoryCache?.get(MemoryCache.Key(cacheKey, extras)) != null) continue
-                            verticalPrefetchImageLoader.enqueue(
-                                ImageRequest.Builder(context)
-                                    .data(url)
-                                    .memoryCacheKey(cacheKey)
-                                    .memoryCacheKeyExtras(extras)
-                                    .size(width = wPx, height = hPx)
-                                    .build()
-                            )
+                // enqueue is already asynchronous: run the sizing on Main, no IO hop.
+                for (rowOffset in 1..prefetchAheadRows) {
+                    val row = latestCarouselRowsForImagePrefetch.value.list
+                        .getOrNull(lastVisibleRowIndex + rowOffset) ?: continue
+                    var prefetchItemsPerRow = 1
+                    var sized = false
+                    for (i in 0 until row.items.list.size) {
+                        if (i >= prefetchItemsPerRow) break
+                        val item = row.items.list[i]
+                        // Continue Watching cards use a different size and cache key; the row sits first anyway.
+                        if (item.payload is ModernPayload.ContinueWatching) continue
+                        val url = item.imageUrl ?: continue
+                        // Collapsed card size and key, matching what the card itself requests.
+                        val metrics = item.catalogCardMetrics(
+                            useLandscapePosters = useLandscapePosters,
+                            portraitCardWidth = portraitCatalogCardWidth,
+                            portraitCardHeight = portraitCatalogCardHeight,
+                            landscapeCardWidth = landscapeCatalogCardWidth,
+                            landscapeCardHeight = landscapeCatalogCardHeight
+                        )
+                        val wPx = with(density) { metrics.width.roundToPx() }
+                        val hPx = with(density) { metrics.height.roundToPx() }
+                        if (wPx <= 0 || hPx <= 0) continue
+                        if (!sized && !lowRam) {
+                            sized = true
+                            prefetchItemsPerRow = (viewportWidthPx / wPx + 1)
+                                .coerceIn(1, VERTICAL_PREFETCH_MAX_ITEMS_PER_ROW)
                         }
+                        val cacheKey = catalogCardImageCacheKey(url, wPx, hPx)
+                        val extras = item.catalogCardImageCacheExtras(imageUrl = url, isLandscapeCustomPoster = false)
+                        if (verticalPrefetchImageLoader.memoryCache?.get(MemoryCache.Key(cacheKey, extras)) != null) continue
+                        verticalPrefetchImageLoader.enqueue(
+                            ImageRequest.Builder(context)
+                                .data(url)
+                                .memoryCacheKey(cacheKey)
+                                .memoryCacheKeyExtras(extras)
+                                .size(width = wPx, height = hPx)
+                                .build()
+                        )
                     }
                 }
             }
@@ -397,7 +394,7 @@ internal fun ModernHomeRowsList(
             itemsIndexed(
                 items = carouselRows.list,
                 key = { index, row -> rowListKeys.getOrNull(index) ?: "${row.key}_$index" },
-                contentType = { _, row -> row.apiType ?: "modern_home_row" }
+                contentType = { _, row -> modernHomeRowContentType(row) }
             ) { _, row ->
                 val stableOnContinueWatchingOptions = remember(onContinueWatchingOptions) {
                     { item: ContinueWatchingItem -> onContinueWatchingOptions(item) }

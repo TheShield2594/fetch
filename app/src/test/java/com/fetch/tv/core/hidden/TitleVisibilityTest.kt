@@ -98,7 +98,8 @@ class TitleVisibilityTest {
             catalogRows = listOf(
                 row(preview("tt1"), preview("tt2")),
                 row(preview("tt1"), addonId = "server.c123"),
-                row(preview("tt1"))
+                // A row the filter empties goes once it has no more pages (#789).
+                row(preview("tt1")).copy(hasMore = false)
             ),
             discoverResults = listOf(preview("tt1"), preview("tt3"))
         )

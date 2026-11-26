@@ -107,3 +107,29 @@ internal fun StandaloneContinueWatchingUndoBanner(
         )
     }
 }
+
+/**
+ * Home's full-screen layer: the loading skeleton, and above it the standalone Undo banner when the
+ * held card was Home's last row. Kept in one place so the banner is always drawn after (over) the
+ * skeleton (#816).
+ */
+@Composable
+internal fun HomeLoaderAndUndoLayer(
+    uiState: HomeUiState,
+    showLoader: Boolean,
+    showStandaloneUndo: Boolean,
+    pending: PendingContinueWatchingRemoval?,
+    onUndo: () -> Unit
+) {
+    if (showLoader) {
+        ModernHomeSkeleton(
+            uiState = uiState,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(FetchTheme.colors.Background)
+        )
+    }
+    if (showStandaloneUndo && pending != null) {
+        StandaloneContinueWatchingUndoBanner(pending = pending, onUndo = onUndo)
+    }
+}

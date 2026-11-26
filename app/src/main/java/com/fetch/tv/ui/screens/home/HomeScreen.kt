@@ -206,12 +206,13 @@ fun HomeScreen(
         }
     }
 
+    val pendingCwRemovalForLayer by viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle()
     // A card held for undo still counts, so hiding the last one doesn't swap Home for the empty
     // state and take the Undo banner with it (#816).
     val hasAnyContent = uiState.catalogRows.isNotEmpty() ||
         (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
         hasCollectionContent ||
-        viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle().value != null
+        pendingCwRemovalForLayer != null
     val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
         reach = uiState.networkReach,
         hasAnyContent = hasAnyContent,
@@ -384,27 +385,14 @@ fun HomeScreen(
             }
         }
 
-        if (showHomeLoader) {
-            ModernHomeSkeleton(
-                uiState = uiState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(FetchTheme.colors.Background)
-            )
-        }
-
-        // Hiding the last card for undo can leave Home with no rows: the content unmounts and the
-        // skeleton comes back. The banner is drawn here, after the skeleton, so it stays on top
-        // and usable until the undo window ends (#816).
-        if (homeStableGateReleased) {
-            val heldRemoval = viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle().value
-            if (showsStandaloneUndoBanner(modernPresentationReady, heldRemoval)) {
-                StandaloneContinueWatchingUndoBanner(
-                    pending = checkNotNull(heldRemoval),
-                    onUndo = { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
-                )
-            }
-        }
+        HomeLoaderAndUndoLayer(
+            uiState = uiState,
+            showLoader = showHomeLoader,
+            showStandaloneUndo = homeStableGateReleased &&
+                showsStandaloneUndoBanner(modernPresentationReady, pendingCwRemovalForLayer),
+            pending = pendingCwRemovalForLayer,
+            onUndo = { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
+        )
 
         val startupAuthNotice = uiState.startupAuthNotice
         if (startupAuthNotice != null) {

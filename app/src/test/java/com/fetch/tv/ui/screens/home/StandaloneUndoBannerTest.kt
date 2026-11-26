@@ -1,9 +1,11 @@
 package com.fetch.tv.ui.screens.home
 
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
@@ -11,7 +13,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.fetch.tv.ui.theme.FetchTheme
-import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,17 +46,19 @@ class StandaloneUndoBannerTest {
 
     @Test
     fun `Undo stays visible and usable over the Home skeleton`() {
-        var undos = 0
+        // The same layer HomeScreen draws: the skeleton is up because the held card was Home's
+        // last row, and the hold is cleared by Undo as the view model's undo does.
+        var held by mutableStateOf<PendingContinueWatchingRemoval?>(pending)
         compose.setContent {
             FetchTheme {
                 Box(Modifier.fillMaxSize()) {
-                    ModernHomeSkeleton(
+                    HomeLoaderAndUndoLayer(
                         uiState = HomeUiState(),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(FetchTheme.colors.Background)
+                        showLoader = true,
+                        showStandaloneUndo = showsStandaloneUndoBanner(presentationReady = false, pending = held),
+                        pending = held,
+                        onUndo = { held = null }
                     )
-                    StandaloneContinueWatchingUndoBanner(pending = pending, onUndo = { undos++ })
                 }
             }
         }
@@ -65,6 +69,9 @@ class StandaloneUndoBannerTest {
         undo.assertIsDisplayed()
         undo.assertIsFocused()
         undo.performClick()
-        assertEquals(1, undos)
+        compose.waitForIdle()
+
+        assertNull(held)
+        compose.onNodeWithText("Removed Show").assertDoesNotExist()
     }
 }

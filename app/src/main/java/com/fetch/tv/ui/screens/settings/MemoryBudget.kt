@@ -27,9 +27,13 @@ object MemoryBudget {
     private const val LOW_RAM_CONVERSION_RATIO = 0.95f
     private const val HIGH_RAM_CONVERSION_RATIO = 0.75f
 
-    private const val BUFFER_OVERHEAD = 2
-    private const val PREFETCH_DEPTH_LOWER_MULTIPLE = 2
     private const val PREFETCH_DEPTH_UPPER_MULTIPLE = 4
+
+    /**
+     * Chunks a parallel session may hold past its chunk cap before eviction stops waiting on the
+     * touch guard (ParallelRangeDataSource's hard-over margin).
+     */
+    const val EVICTION_SLACK_CHUNKS = 2
 
     const val MIN_CONNECTIONS = 2
     const val MAX_CONNECTIONS = 4
@@ -139,8 +143,26 @@ object MemoryBudget {
     fun effectiveBufferMb(stored: Int): Int =
         if (stored > 0) stored else defaultBufferSizeMb
 
+    /**
+     * Chunks a parallel session keeps on top of its prefetch depth: the chunk behind the playhead
+     * and side chunks (the file's index at its tail, pinned reads). Fewer on low-RAM devices.
+     */
+    val sessionSlackChunks: Int = if (isLowRamTier) 2 else 4
+
+    /** The prefetch depth outside performance mode, and the floor in it. */
+    fun defaultPrefetchDepth(connectionCount: Int): Int = connectionCount + 1
+
+    /**
+     * Chunks one parallel session can hold at once with [prefetchDepth] chunks ahead: its chunk
+     * cap plus the eviction slack. Idle pooled chunks are reused by the next chunk scheduled, so
+     * they come out of the same count (#735).
+     */
+    fun retainedChunkCount(prefetchDepth: Int): Int =
+        prefetchDepth + sessionSlackChunks + EVICTION_SLACK_CHUNKS
+
+    /** Chunks a session with [connectionCount] connections holds at the default prefetch depth. */
     fun bufferCount(connectionCount: Int): Int =
-        connectionCount + BUFFER_OVERHEAD
+        retainedChunkCount(defaultPrefetchDepth(connectionCount))
 
     fun parallelOverheadMb(connectionCount: Int, chunkSizeMb: Int): Int =
         bufferCount(connectionCount) * chunkSizeMb
@@ -148,6 +170,12 @@ object MemoryBudget {
     fun totalUsageMb(bufferMb: Int, connectionCount: Int, chunkSizeMb: Int, parallelEnabled: Boolean): Int =
         bufferMb + if (parallelEnabled) parallelOverheadMb(connectionCount, chunkSizeMb) else 0
 
+    /**
+     * Performance mode's prefetch depth: as deep as the chunks the session then retains (see
+     * [retainedChunkCount]) fit in [safeNativeLimitMb] beside [reserveBufferMb], up to four chunks
+     * per connection. Never below [defaultPrefetchDepth], which is what plays without performance
+     * mode; there is no larger floor that would overrun a small budget (#735).
+     */
     fun prefetchDepthChunks(
         connections: Int,
         chunkSizeMb: Int,
@@ -155,13 +183,10 @@ object MemoryBudget {
         reserveBufferMb: Int,
     ): Int {
         val chunkMb = chunkSizeMb.coerceAtLeast(1)
-        val chunkBudgetMb = (safeNativeLimitMb - reserveBufferMb.coerceAtLeast(0))
-            .coerceAtLeast(chunkMb * PREFETCH_DEPTH_LOWER_MULTIPLE)
-        val byBudget = chunkBudgetMb / chunkMb
-        return byBudget.coerceIn(
-            connections * PREFETCH_DEPTH_LOWER_MULTIPLE,
-            connections * PREFETCH_DEPTH_UPPER_MULTIPLE
-        )
+        val chunkBudgetMb = (safeNativeLimitMb - reserveBufferMb.coerceAtLeast(0)).coerceAtLeast(0)
+        val byBudget = chunkBudgetMb / chunkMb - sessionSlackChunks - EVICTION_SLACK_CHUNKS
+        val floor = defaultPrefetchDepth(connections)
+        return byBudget.coerceAtMost(connections * PREFETCH_DEPTH_UPPER_MULTIPLE).coerceAtLeast(floor)
     }
 
     /** Hard chunk-size ceiling for this device tier; binds everywhere, including performance mode. */

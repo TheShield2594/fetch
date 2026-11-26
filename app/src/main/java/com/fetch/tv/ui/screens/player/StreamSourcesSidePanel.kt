@@ -115,11 +115,32 @@ internal fun StreamSourcesSidePanel(
         }
     }
     val firstStreamKey = streamKeys.firstOrNull()
+    val currentStreamIndex = remember(
+        uiState.sourceFilteredStreams,
+        uiState.currentStreamInfoHash,
+        uiState.currentStreamFileIdx,
+        uiState.currentStreamAddonName,
+        uiState.currentStreamUrl,
+        uiState.currentStreamName,
+    ) {
+        findCurrentStreamIndex(
+            streams = uiState.sourceFilteredStreams,
+            currentStreamInfoHash = uiState.currentStreamInfoHash,
+            currentStreamFileIdx = uiState.currentStreamFileIdx,
+            currentStreamAddonName = uiState.currentStreamAddonName,
+            currentStreamUrl = uiState.currentStreamUrl,
+            currentStreamName = uiState.currentStreamName
+        )
+    }
+    // Where focus lands when the panel opens or results reload: the playing stream when it is
+    // in the list (#719), otherwise the first result.
+    val initialStreamKey = streamKeys.getOrNull(currentStreamIndex) ?: firstStreamKey
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     streamKeys.forEach { key ->
         streamFocusRequesters.focusRequesterFor(key)
     }
-    var firstCardHasFocus by remember(firstStreamKey) { mutableStateOf(false) }
+    // The key of the stream card that holds focus right now, or null.
+    var focusedNowKey by remember { mutableStateOf<String?>(null) }
 
     var focusedStreamKey by remember { mutableStateOf<String?>(null) }
     var closeButtonHasFocus by remember { mutableStateOf(false) }
@@ -171,12 +192,13 @@ internal fun StreamSourcesSidePanel(
     }
 
     LaunchedEffect(firstStreamFocusRequestId) {
-        val requestedKey = firstStreamKey
+        val requestedKey = initialStreamKey
         if (firstStreamFocusRequestId <= 0 || requestedKey == null) return@LaunchedEffect
-        streamListState.scrollToItem(0)
+        val requestedIndex = streamKeys.indexOf(requestedKey).coerceAtLeast(0)
+        streamListState.scrollToItem(requestedIndex)
         repeat(30) {
             withFrameNanos { }
-            if (firstCardHasFocus) return@LaunchedEffect
+            if (focusedNowKey == requestedKey) return@LaunchedEffect
             runCatching { streamFocusRequesters.getValue(requestedKey).requestFocus() }
         }
     }
@@ -207,8 +229,12 @@ internal fun StreamSourcesSidePanel(
         }
     }
 
-    // Reset scroll position to top when addon filter changes
+    // Reset scroll position to top when addon filter changes. Not on the first run: that would
+    // undo the scroll to the playing stream when the panel opens with cached results.
+    var lastAddonFilter by remember { mutableStateOf(uiState.sourceSelectedAddonFilter) }
     LaunchedEffect(uiState.sourceSelectedAddonFilter) {
+        if (uiState.sourceSelectedAddonFilter == lastAddonFilter) return@LaunchedEffect
+        lastAddonFilter = uiState.sourceSelectedAddonFilter
         streamListState.scrollToItem(0)
     }
 
@@ -354,15 +380,6 @@ internal fun StreamSourcesSidePanel(
                 }
 
                 else -> {
-                    val currentStreamIndex = findCurrentStreamIndex(
-                        streams = uiState.sourceFilteredStreams,
-                        currentStreamInfoHash = uiState.currentStreamInfoHash,
-                        currentStreamFileIdx = uiState.currentStreamFileIdx,
-                        currentStreamAddonName = uiState.currentStreamAddonName,
-                        currentStreamUrl = uiState.currentStreamUrl,
-                        currentStreamName = uiState.currentStreamName
-                    )
-
 
                     val lastVisibleIndex = remember(streamListState) {
                         androidx.compose.runtime.derivedStateOf {
@@ -455,11 +472,12 @@ internal fun StreamSourcesSidePanel(
                                 exclusion = uiState.sourceStreamExclusions.takeIf { it.isNotEmpty() }?.get(stream.stableKey()),
                                 onClick = { onStreamSelected(stream) },
                                 onFocusChanged = { focused ->
+                                    val key = streamKeys[index]
                                     if (focused) {
-                                        focusedStreamKey = streamKeys[index]
-                                    }
-                                    if (index == 0) {
-                                        firstCardHasFocus = focused
+                                        focusedStreamKey = key
+                                        focusedNowKey = key
+                                    } else if (focusedNowKey == key) {
+                                        focusedNowKey = null
                                     }
                                 },
                                 onUpKey = if (index == 0 && chipFocusRequesters.isNotEmpty()) {{
@@ -476,7 +494,7 @@ internal fun StreamSourcesSidePanel(
     }
 }
 
-private fun findCurrentStreamIndex(
+internal fun findCurrentStreamIndex(
     streams: List<Stream>,
     currentStreamInfoHash: String?,
     currentStreamFileIdx: Int?,

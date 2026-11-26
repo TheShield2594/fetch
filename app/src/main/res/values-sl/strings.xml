@@ -2185,6 +2185,7 @@
     <string name="custom_theme_low_contrast">Besedilo bi bilo na teh barvah težko berljivo. Za shranjevanje izberite barve s podobnejšo svetlostjo.</string>
     <string name="youtube_options_quality">Kakovost</string>
     <string name="youtube_quality_auto">Samodejno (do %1$dp)</string>
+    <string name="youtube_quality_auto_playing">Samodejno (%1$dp)</string>
     <string name="youtube_quality_failed">Ta kakovost za ta videoposnetek ni na voljo</string>
     <string name="youtube_options_details">O tem videoposnetku</string>
     <string name="youtube_details_loading">Nalaganje …</string>

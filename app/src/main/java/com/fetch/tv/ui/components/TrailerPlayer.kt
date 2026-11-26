@@ -62,6 +62,11 @@ fun TrailerPlayer(
     muted: Boolean = false,
     seekRequestToken: Int = 0,
     seekDeltaMs: Long = 0L,
+    /**
+     * Where a new [trailerUrl] starts, read when the link changes. A stream swapped mid-video
+     * (another quality) starts at the place it was, rather than at 0:00 and then jumping.
+     */
+    startPositionMs: Long = 0L,
     onProgressChanged: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> },
     onRemoteKey: (keyCode: Int, action: Int, repeatCount: Int) -> Boolean = { _, _, _ -> false },
     cropToFill: Boolean = false,
@@ -141,9 +146,12 @@ fun TrailerPlayer(
                 val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
                 val videoSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(trailerUrl))
                 val audioSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(trailerAudioUrl))
-                player.setMediaSource(MergingMediaSource(videoSource, audioSource))
+                val merged = MergingMediaSource(videoSource, audioSource)
+                // Only a real position: 0 would pin a live stream to its start, not its live edge.
+                if (startPositionMs > 0L) player.setMediaSource(merged, startPositionMs) else player.setMediaSource(merged)
             } else {
-                player.setMediaItem(MediaItem.fromUri(trailerUrl))
+                val item = MediaItem.fromUri(trailerUrl)
+                if (startPositionMs > 0L) player.setMediaItem(item, startPositionMs) else player.setMediaItem(item)
             }
             player.prepare()
             player.playWhenReady = true

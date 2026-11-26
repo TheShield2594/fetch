@@ -116,6 +116,12 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
     var parallelChunkSizeKb: Int = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB
     // Performance mode lets the chunk data source prefetch deeper, within the heap budget.
     var fetchPerformanceModeEnabled: Boolean = PlayerSettings.DEFAULT_FETCH_PERFORMANCE_MODE_ENABLED
+    /**
+     * The chunk source's prefetch depth for this session, worked out with the session's memory
+     * budget when playback starts so the chunk memory charged there is what the source holds.
+     * Null: the depth that plays without performance mode.
+     */
+    var parallelPrefetchDepthChunks: Int? = null
 
     // Reported only: both decide which target the helper hands the load control, so a log without
     // them cannot say why a run used the size it did.
@@ -134,18 +140,9 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
             .build()
     }
 
-    private fun computePrefetchDepthChunks(
-        connections: Int,
-        chunkBytes: Long
-    ): Int {
-        if (!fetchPerformanceModeEnabled) return connections + 1
-        val chunkMb = (chunkBytes / (1024L * 1024L)).toInt().coerceAtLeast(1)
-        val safeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
-        val reserveMb = FetchExoPlayerPerformanceHelper.targetBufferSizeMb.coerceAtLeast(0)
-        return com.fetch.tv.ui.screens.settings.MemoryBudget.prefetchDepthChunks(
-            connections, chunkMb, safeLimitMb, reserveMb
-        )
-    }
+    private fun computePrefetchDepthChunks(connections: Int): Int =
+        (parallelPrefetchDepthChunks ?: com.fetch.tv.ui.screens.settings.MemoryBudget.defaultPrefetchDepth(connections))
+            .coerceAtLeast(com.fetch.tv.ui.screens.settings.MemoryBudget.defaultPrefetchDepth(connections))
 
     fun configureSubtitleParsing(
         extractorsFactory: ExtractorsFactory?,
@@ -231,10 +228,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 okHttpFactory,
                 sessionConnections,
                 sessionChunkBytes,
-                prefetchDepthChunks = computePrefetchDepthChunks(
-                    sessionConnections,
-                    sessionChunkBytes
-                ),
+                prefetchDepthChunks = computePrefetchDepthChunks(sessionConnections),
                 shouldAllowBackgroundPrefetch = { parallelStartupPrefetchUnlocked.get() },
                 onResolvedUri = { resolved -> currentVodCacheResolvedUrl = resolved?.toString() }
             )
@@ -325,6 +319,8 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
 
     fun shutdown() {
         ParallelRangeDataSource.releaseRetainedSession()
+        // Idle chunks are kept between closes for the next seek; playback is over now (#735).
+        ParallelRangeDataSource.releaseIdleBuffers()
     }
 
     // The counters are all zero at playback start, so the start line never shows what the cache

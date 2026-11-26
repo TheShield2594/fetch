@@ -42,6 +42,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -50,6 +51,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import com.fetch.tv.core.player.LocalTrailerPlayerPool
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -256,14 +258,26 @@ fun PostPlayRecommendationOverlay(
             }
 
             key(recommendation.trailerVideoUrl ?: recommendation.id) {
-                TrailerPlayer(
-                    trailerUrl = recommendation.trailerVideoUrl,
-                    trailerAudioUrl = recommendation.trailerAudioUrl,
-                    isPlaying = state.isTrailerPlaying,
-                    onEnded = onTrailerEnded,
-                    cropToFill = true,
-                    modifier = Modifier.fillMaxSize()
-                )
+                // The trailer player is shared with Home and built on first use, so it is composed
+                // only once this trailer plays: until then the main player plays alone, without a
+                // second ExoPlayer held for the rest of the session (#787).
+                var trailerStarted by remember { mutableStateOf(false) }
+                LaunchedEffect(state.isTrailerPlaying) {
+                    if (state.isTrailerPlaying) trailerStarted = true
+                }
+                if (trailerStarted || state.isTrailerPlaying) {
+                    TrailerPlayer(
+                        trailerUrl = recommendation.trailerVideoUrl,
+                        trailerAudioUrl = recommendation.trailerAudioUrl,
+                        isPlaying = state.isTrailerPlaying,
+                        onEnded = onTrailerEnded,
+                        cropToFill = true,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    // Back in the main player, give the instance up; Home rebuilds it when needed.
+                    val pool = LocalTrailerPlayerPool.current
+                    DisposableEffect(pool) { onDispose { pool?.yield() } }
+                }
             }
 
             Box(

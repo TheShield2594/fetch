@@ -5,6 +5,7 @@ package com.fetch.tv.ui.screens.settings
 import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MemoryBudgetTest {
@@ -15,22 +16,41 @@ class MemoryBudgetTest {
         // case 1: parallel disabled
         assertEquals(50, MemoryBudget.totalUsageMb(50, 4, 32, false))
         
-        // case 2: parallel enabled
-        // bufferCount(4) = 4 + 2 = 6
-        // overhead = 6 * 32 = 192
-        // total = 50 + 192 = 242
-        assertEquals(242, MemoryBudget.totalUsageMb(50, 4, 32, true))
+        // case 2: parallel enabled: the buffer plus every chunk the session holds
+        assertEquals(50 + MemoryBudget.bufferCount(4) * 32, MemoryBudget.totalUsageMb(50, 4, 32, true))
     }
 
     @Test
     fun testParallelOverheadMb() {
-        // 3 parallel connections with 8 MB chunk size:
-        // bufferCount(3) = 3 + 2 = 5 chunks * 8 MB = 40 MB
-        assertEquals(40, MemoryBudget.parallelOverheadMb(connectionCount = 3, chunkSizeMb = 8))
+        assertEquals(MemoryBudget.bufferCount(3) * 8, MemoryBudget.parallelOverheadMb(connectionCount = 3, chunkSizeMb = 8))
+        assertEquals(MemoryBudget.bufferCount(4) * 8, MemoryBudget.parallelOverheadMb(connectionCount = 4, chunkSizeMb = 8))
+    }
 
-        // 4 parallel connections with 8 MB chunks:
-        // bufferCount(4) = 4 + 2 = 6 chunks * 8 MB = 48 MB
-        assertEquals(48, MemoryBudget.parallelOverheadMb(connectionCount = 4, chunkSizeMb = 8))
+    @Test
+    fun bufferCountIsWhatAParallelSessionRetains() {
+        // The default depth (connections + 1), the session's slack over it, and the eviction slack.
+        val slack = MemoryBudget.sessionSlackChunks + MemoryBudget.EVICTION_SLACK_CHUNKS
+        assertEquals(4 + 1 + slack, MemoryBudget.bufferCount(4))
+        assertEquals(2 + 1 + slack, MemoryBudget.bufferCount(2))
+        assertEquals(MemoryBudget.bufferCount(4), MemoryBudget.retainedChunkCount(MemoryBudget.defaultPrefetchDepth(4)))
+    }
+
+    @Test
+    fun prefetchDepthHasNoFloorAboveTheDefaultDepth() {
+        // Low-RAM, 4 connections of 16 MB, a budget with no room for deeper prefetch: the default
+        // depth, not the old floor of two chunks per connection (#735).
+        assertEquals(5, MemoryBudget.prefetchDepthChunks(4, 16, safeNativeLimitMb = 100, reserveBufferMb = 50))
+    }
+
+    @Test
+    fun prefetchDepthFitsWhatTheSessionRetains() {
+        // 400 MB of room for 16 MB chunks is 25 chunks; the slack comes out of it.
+        val slack = MemoryBudget.sessionSlackChunks + MemoryBudget.EVICTION_SLACK_CHUNKS
+        val depth = MemoryBudget.prefetchDepthChunks(2, 16, safeNativeLimitMb = 450, reserveBufferMb = 50)
+        assertEquals((25 - slack).coerceAtMost(8), depth)
+        assertTrue(MemoryBudget.retainedChunkCount(depth) * 16 <= 400)
+        // Plenty of room: capped at four chunks a connection.
+        assertEquals(16, MemoryBudget.prefetchDepthChunks(4, 8, safeNativeLimitMb = 4_000, reserveBufferMb = 0))
     }
 
     @Test
@@ -117,8 +137,10 @@ class MemoryBudgetTest {
 
     @Test
     fun sessionChunksLeaveTheMinimumBuffer() {
-        // 100 MB session, 4 connections (6 chunks): 16 MB chunks would take 96 MB; 12 MB leaves 28.
-        assertEquals(12, MemoryBudget.sessionChunkMb(100, 4, 16))
+        // A session that can't hold its chunks at 16 MB beside the minimum buffer gets smaller ones.
+        val chunks = MemoryBudget.bufferCount(4)
+        val budget = MemoryBudget.MIN_BUFFER_MB + chunks * 12
+        assertEquals(12, MemoryBudget.sessionChunkMb(budget, 4, 16))
         // Plenty of budget: the setting stands.
         assertEquals(16, MemoryBudget.sessionChunkMb(400, 4, 16))
         // Never below the minimum chunk.
@@ -127,11 +149,12 @@ class MemoryBudgetTest {
 
     @Test
     fun parallelIsOffWhenTheSmallestChunksCannotFit() {
-        // 4 connections: 6 chunks of 8 MB plus the 25 MB buffer = 73 MB.
-        assertEquals(false, MemoryBudget.parallelFits(50, 4))
-        assertEquals(true, MemoryBudget.parallelFits(73, 4))
-        // Two connections: 4 chunks of 8 MB plus 25 MB = 57 MB.
+        // Every retained chunk at 8 MB plus the 25 MB buffer.
+        val fits4 = MemoryBudget.MIN_BUFFER_MB + MemoryBudget.bufferCount(4) * MemoryBudget.MIN_CHUNK_MB
+        assertEquals(false, MemoryBudget.parallelFits(fits4 - 1, 4))
+        assertEquals(true, MemoryBudget.parallelFits(fits4, 4))
+        val fits2 = MemoryBudget.MIN_BUFFER_MB + MemoryBudget.bufferCount(2) * MemoryBudget.MIN_CHUNK_MB
         assertEquals(false, MemoryBudget.parallelFits(50, 2))
-        assertEquals(true, MemoryBudget.parallelFits(100, 2))
+        assertEquals(true, MemoryBudget.parallelFits(fits2, 2))
     }
 }

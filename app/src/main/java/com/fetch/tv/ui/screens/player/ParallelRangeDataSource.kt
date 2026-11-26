@@ -90,7 +90,6 @@ internal class ParallelRangeDataSource(
             }
         }
 
-        private val activeInstances = java.util.concurrent.atomic.AtomicInteger(0)
         private val globalBufferPool = ConcurrentHashMap<Long, ConcurrentLinkedDeque<PooledBuffer>>()
 
         private fun freeDirectBuffer(buffer: ByteBuffer) {
@@ -444,7 +443,8 @@ internal class ParallelRangeDataSource(
                 while (session.futures.size > session.chunkCap) {
                     val now = SystemClock.uptimeMillis()
 
-                    val hardOver = session.futures.size > session.chunkCap + 2
+                    val hardOver = session.futures.size > session.chunkCap +
+                        com.fetch.tv.ui.screens.settings.MemoryBudget.EVICTION_SLACK_CHUNKS
 
                     val readerIdx = session.lastReadChunkIndex
                     val eligible = session.futures.keys
@@ -464,6 +464,13 @@ internal class ParallelRangeDataSource(
             }
         }
 
+        /**
+         * Frees every idle pooled chunk, of every size. Called when playback ends
+         * (PlayerMediaSourceFactory.shutdown), not on each close: ExoPlayer closes and reopens
+         * one source on every seek, and clearing then made each seek reallocate its chunks (#735).
+         */
+        internal fun releaseIdleBuffers() = clearGlobalPool()
+
         private fun clearGlobalPool() {
             // Drain the deques but keep them mapped: a worker recycling a chunk right now may
             // already hold one, and a deque dropped from the map strands what it adds (#76).
@@ -472,12 +479,8 @@ internal class ParallelRangeDataSource(
                     freeBuffer(pool.pollFirst() ?: break)
                 }
             }
-            Log.d(TAG, "Cleared global buffer pool as all ParallelRangeDataSource instances are closed")
+            Log.d(TAG, "Cleared global buffer pool")
         }
-    }
-
-    init {
-        activeInstances.incrementAndGet()
     }
 
     // Readers lease the memory per copy; it is recycled once, after release and the last lease.
@@ -567,8 +570,9 @@ internal class ParallelRangeDataSource(
     private var bytesServedThisOpen: Long = 0L
     private var inFlightServeLogged: Boolean = false
 
+    // MemoryBudget.retainedChunkCount charges the same slack, so the budget matches what is held.
     private val sessionChunkCap: Int = effectivePrefetchDepth +
-        if (com.fetch.tv.ui.screens.settings.MemoryBudget.isLowRamTier) 2 else 4
+        com.fetch.tv.ui.screens.settings.MemoryBudget.sessionSlackChunks
 
     override fun open(dataSpec: DataSpec): Long {
         val isSubtitle = dataSpec.uri.getQueryParameter("fetch_type") == "subtitle"
@@ -1529,11 +1533,6 @@ internal class ParallelRangeDataSource(
 
             resetLocalReadState()
             session = null
-
-            val active = activeInstances.decrementAndGet()
-            if (active <= 0) {
-                clearGlobalPool()
-            }
         }
     }
 

@@ -97,6 +97,8 @@ fun YouTubePlayerOverlay(
     playback: YouTubePlaybackState,
     onProgress: (positionMs: Long, durationMs: Long) -> Unit,
     onSelectCaption: (YouTubeCaptionTrack?) -> Unit,
+    /** The remote's CC button: captions off, or on in the saved or preferred language. */
+    onToggleCaptions: () -> Unit,
     onPlayNext: (YouTubeVideo) -> Unit,
     onDismiss: () -> Unit,
     onRetry: () -> Unit,
@@ -151,6 +153,10 @@ fun YouTubePlayerOverlay(
 
     val focusRequester = remember { FocusRequester() }
     val saveFocusRequester = remember { FocusRequester() }
+    val retryFocusRequester = remember { FocusRequester() }
+    // The quality a pick is fetching, for the spinner on its row; the menu stays open meanwhile.
+    var pendingQuality by remember(video.videoId) { mutableStateOf<Int?>(null) }
+    var qualityPickInFlight by remember(video.videoId) { mutableStateOf(false) }
     val canControl = !playback.videoUrl.isNullOrBlank() && !playback.isLoading && !playback.failed
     // Without the watch page (it failed, or hasn't loaded), the menu still offers Save and the tile's channel.
     val menuActions = playback.actions
@@ -159,6 +165,9 @@ fun YouTubePlayerOverlay(
     fun seekBy(deltaMs: Long) {
         seekDeltaMs = deltaMs
         seekToken += 1
+        // Where the seek lands, until the next progress report says otherwise: a seek straight
+        // after this one (Left to undo an auto-skip) must not measure from the old place.
+        positionMs = (positionMs + deltaMs).coerceAtLeast(0L)
         // Until the next progress report, the playhead and the offer are unknown.
         offeredSkip = null
     }
@@ -181,6 +190,18 @@ fun YouTubePlayerOverlay(
     // Closing the Save list goes back to the Save entry.
     LaunchedEffect(playlistPickerClosed) {
         if (playlistPickerClosed > 0) saveFocusRequester.requestFocusAfterFrames()
+    }
+    // On failure, Retry takes focus so the first OK press retries; back on the video once it goes.
+    LaunchedEffect(playback.failed) {
+        if (playback.failed) retryFocusRequester.requestFocusAfterFrames()
+        else focusRequester.requestFocusAfterFrames()
+    }
+    // A quality pick keeps its menu open with a spinner, and closes it once the stream is back.
+    LaunchedEffect(playback.qualityLoading) {
+        if (playback.qualityLoading || !qualityPickInFlight) return@LaunchedEffect
+        qualityPickInFlight = false
+        pendingQuality = null
+        if (optionsPage == PlaybackOptionsPage.QUALITY) closeMenus()
     }
     LaunchedEffect(skipNoticeToken) {
         if (skipNoticeToken == 0) return@LaunchedEffect
@@ -227,10 +248,7 @@ fun YouTubePlayerOverlay(
                         KeyEvent.KEYCODE_CAPTIONS -> {
                             if (!canControl || playback.captionTracks.isEmpty()) return@onPreviewKeyEvent false
                             // The remote's CC button turns captions on or off without the menu.
-                            onSelectCaption(
-                                if (playback.selectedCaption != null) null
-                                else playback.captionTracks.first()
-                            )
+                            onToggleCaptions()
                             true
                         }
                         KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_ESCAPE -> {
@@ -324,6 +342,8 @@ fun YouTubePlayerOverlay(
                     playbackSpeed = playbackSpeed,
                     seekRequestToken = seekToken,
                     seekDeltaMs = seekDeltaMs,
+                    // A quality change's new link starts where the old one was (#742).
+                    startPositionMs = playback.continueFromMs?.takeIf { resumed && !continued } ?: 0L,
                     onProgressChanged = progress@{ position, duration ->
                         positionMs = position
                         seekState.positionMs = position
@@ -332,7 +352,10 @@ fun YouTubePlayerOverlay(
                         val continueFrom = currentContinueFrom
                         if (!continued && continueFrom != null && resumed) {
                             continued = true
-                            seekBy(continueFrom - position)
+                            // The new link already started there; seek only if it didn't.
+                            if (kotlin.math.abs(continueFrom - position) > CONTINUE_TOLERANCE_MS) {
+                                seekBy(continueFrom - position)
+                            }
                             return@progress
                         }
                         if (!resumed) {
@@ -432,7 +455,10 @@ fun YouTubePlayerOverlay(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
-                    Button(onClick = onRetry) { Text(text = stringResource(R.string.action_retry)) }
+                    Button(
+                        onClick = onRetry,
+                        modifier = Modifier.focusRequester(retryFocusRequester)
+                    ) { Text(text = stringResource(R.string.action_retry)) }
                 }
             }
 
@@ -552,7 +578,7 @@ fun YouTubePlayerOverlay(
                         playback.selectedCaption?.let { captionLabel(it) } ?: stringResource(R.string.youtube_captions_off)
                     },
                     speed = playbackSpeed,
-                    qualityLabel = qualityLabel(playback.quality, playback.defaultQuality),
+                    qualityLabel = playingQualityLabel(playback.quality, playback.playingHeight, playback.defaultQuality),
                     currentChapter = chapterAt(playback.chapters, positionMs)?.title,
                     hasChapters = playback.chapters.isNotEmpty(),
                     onOpen = { page ->
@@ -564,10 +590,17 @@ fun YouTubePlayerOverlay(
                 PlaybackOptionsPage.QUALITY -> QualityMenu(
                     quality = playback.quality,
                     defaultQuality = playback.defaultQuality,
+                    available = playback.availableQualities,
                     loading = playback.qualityLoading,
+                    pending = pendingQuality,
                     onSelect = { quality ->
-                        onSetQuality(quality)
-                        closeMenus()
+                        if (quality == playback.quality && !playback.qualityLoading) {
+                            closeMenus()
+                        } else {
+                            pendingQuality = quality
+                            qualityPickInFlight = true
+                            onSetQuality(quality)
+                        }
                     },
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
@@ -951,6 +984,8 @@ private const val CAPTION_OUTLINE_SCALE = 2f
 
 private const val CONTROLS_HIDE_DELAY_MS = 3_000L
 private const val SKIP_NOTICE_MS = 2_500L
+/** How far from the place it should carry on from a swapped stream may start before it seeks. */
+private const val CONTINUE_TOLERANCE_MS = 2_000L
 
 /** 10 seconds a press; holding the button speeds up to 30 seconds, then a minute. */
 internal fun seekStepMs(repeatCount: Int): Long = when {

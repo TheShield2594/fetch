@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import androidx.metrics.performance.PerformanceMetricsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -897,8 +898,14 @@ fun ModernHomeContent(
                     Triple(url, audioUrl, playbackKey)
                 }
             }
-            val shouldPlayHeroTrailerState = remember(shouldPlayCatalogHeroTrailerState, shouldPlayCollectionHeroVideoState) {
-                derivedStateOf { shouldPlayCatalogHeroTrailerState.value || shouldPlayCollectionHeroVideoState.value }
+            // Only while Home is resumed: a hero video must not start (or restart) behind another
+            // screen or a paused activity (#787).
+            val heroLifecycleState = lifecycleOwner.lifecycle.currentStateAsState()
+            val shouldPlayHeroTrailerState = remember(shouldPlayCatalogHeroTrailerState, shouldPlayCollectionHeroVideoState, heroLifecycleState) {
+                derivedStateOf {
+                    heroLifecycleState.value.isAtLeast(Lifecycle.State.RESUMED) &&
+                        (shouldPlayCatalogHeroTrailerState.value || shouldPlayCollectionHeroVideoState.value)
+                }
             }
             val heroMediaMutedState = remember(uiState.focusedPosterBackdropTrailerMuted) {
                 derivedStateOf { uiState.focusedPosterBackdropTrailerMuted }

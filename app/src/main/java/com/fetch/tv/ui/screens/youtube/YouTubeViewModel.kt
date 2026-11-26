@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import javax.inject.Inject
@@ -121,6 +122,10 @@ data class YouTubePlaybackState(
     val continueFromMs: Long? = null,
     /** A quality change is fetching its stream. */
     val qualityLoading: Boolean = false,
+    /** The quality class of the stream playing ("1080" for 1080p), when known. */
+    val playingHeight: Int? = null,
+    /** The qualities this video offers on this device, tallest first; empty when unknown. */
+    val availableQualities: List<Int> = emptyList(),
     /** What's under the player: the description, numbers and comments. Null until asked for. */
     val details: YouTubeVideoDetails? = null,
     val detailsLoading: Boolean = false,
@@ -251,6 +256,9 @@ class YouTubeViewModel @Inject constructor(
         /** How often a playing video's position is kept for resuming it in Fetch. */
         const val RESUME_SAVE_INTERVAL_MS = 15_000L
 
+        /** How long a found stream waits on SponsorBlock, so a segment at 0:00 is skipped. */
+        const val SEGMENTS_WAIT_MS = 1_500L
+
         /** How long typing pauses before YouTube is asked for suggestions. */
         const val SUGGEST_DEBOUNCE_MS = 250L
 
@@ -268,6 +276,8 @@ class YouTubeViewModel @Inject constructor(
     private val loadMoreJobs = mutableListOf<Job>()
     private var playbackJob: Job? = null
     private var captionJob: Job? = null
+    /** The caption languages to try, best first: the last one picked, then Settings' languages. */
+    private var captionLanguages: List<String> = emptyList()
     private var menuJob: Job? = null
     private var playingPlaylistsJob: Job? = null
     private var watchSession: YouTubeWatchSession? = null
@@ -571,11 +581,28 @@ class YouTubeViewModel @Inject constructor(
             } catch (e: Exception) {
                 null
             }
+            // SponsorBlock usually answers before the stream is found. Give it a moment more, so a
+            // segment at 0:00 is known before the first frame; otherwise it is applied on arrival,
+            // without waiting on the watch page and captions (#787).
+            val earlySegments = if (source == null) null else withTimeoutOrNull(SEGMENTS_WAIT_MS) { segments.await() }
+            if (earlySegments == null) {
+                launch {
+                    val skipSegments = segments.await()
+                    updatePlayback(video) { it.copy(skipSegments = skipSegments) }
+                }
+            }
             updatePlayback(video) { playback ->
                 if (source == null || source.videoUrl.isBlank()) {
                     playback.copy(isLoading = false, failed = true)
                 } else {
-                    playback.copy(videoUrl = source.videoUrl, audioUrl = source.audioUrl, isLoading = false)
+                    playback.copy(
+                        skipSegments = earlySegments ?: playback.skipSegments,
+                        videoUrl = source.videoUrl,
+                        audioUrl = source.audioUrl,
+                        isLoading = false,
+                        playingHeight = source.videoHeight,
+                        availableQualities = source.videoQualities
+                    )
                 }
             }
             val info = playerInfo.await()
@@ -591,8 +618,6 @@ class YouTubeViewModel @Inject constructor(
             updatePlayback(video) { it.copy(storyboard = storyboard) }
             // Captions are extra: if setting them up fails, the video plays without them.
             if (source != null) orNull { setUpCaptions(video, source.captionsJson, info?.captions) }
-            val skipSegments = segments.await()
-            updatePlayback(video) { it.copy(skipSegments = skipSegments) }
             val next = watchNext.await()?.let { feedFilter.apply(it) }
             val autoplayEnabled = autoplay.await()
             updatePlayback(video) {
@@ -631,6 +656,8 @@ class YouTubeViewModel @Inject constructor(
         val video = _uiState.value.playback?.video ?: return
         captionJob?.cancel()
         viewModelScope.launch { orNull { settings.setCaptionPreference(track != null, track?.languageCode) } }
+        // Turning captions off forgets the language in Settings; CC brings this one back.
+        track?.let { captionLanguages = (listOf(it.languageCode) + captionLanguages).distinct() }
         updatePlayback(video) {
             it.copy(selectedCaption = track, captionCues = emptyList(), captionsFailed = false, captionsLoading = track != null)
         }
@@ -649,6 +676,7 @@ class YouTubeViewModel @Inject constructor(
         val (enabled, savedLanguage) = settings.captionPreference()
         // The last language picked here, then the subtitle languages from Fetch's playback settings.
         val languages = listOfNotNull(savedLanguage, style.preferredLanguage, style.secondaryPreferredLanguage)
+        captionLanguages = languages
         val blocks = listOf(
             extractorCaptions?.let { runCatching { Json.parseToJsonElement(it) }.getOrNull() },
             signedInCaptions
@@ -711,6 +739,8 @@ class YouTubeViewModel @Inject constructor(
                     videoUrl = source.videoUrl,
                     audioUrl = source.audioUrl,
                     quality = height,
+                    playingHeight = source.videoHeight,
+                    availableQualities = source.videoQualities.ifEmpty { it.availableQualities },
                     // Where playback is as the new stream arrives; it kept playing meanwhile.
                     continueFromMs = lastPositionMs,
                     qualityLoading = false
@@ -1248,6 +1278,19 @@ class YouTubeViewModel @Inject constructor(
                 related = playback.related.map { it.withBranding(branding[it.videoId]) }
             )
         }
+    }
+
+    /** The remote's CC button: off when on, else the saved or preferred language's track. */
+    fun toggleCaptions() {
+        val playback = _uiState.value.playback ?: return
+        if (playback.captionTracks.isEmpty()) return
+        if (playback.selectedCaption != null) {
+            selectCaption(null)
+            return
+        }
+        val track = pickDefaultCaptionTrack(playback.captionTracks, captionLanguages)
+            ?: playback.captionTracks.first()
+        selectCaption(track)
     }
 
     private fun updatePlayback(video: YouTubeVideo, transform: (YouTubePlaybackState) -> YouTubePlaybackState) {

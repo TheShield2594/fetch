@@ -305,6 +305,11 @@ fun ModernHomeContent(
     // Disabled when the sidebar owns focus (expanded) so Back can exit the app.
     val backScrollScope = rememberCoroutineScope()
     val contentHasFocus = remember { mutableStateOf(false) }
+    // True while a chip in the Movies / Shows filter has focus (#814). Cards don't take focus then,
+    // Back moves focus down into the rows, and the Spotlight doesn't rotate (Up from the Spotlight
+    // to the filter keeps Spotlight the active row).
+    val contentFilterFocused = remember { mutableStateOf(false) }
+    val rowsFocusRequester = LocalContentFocusRequester.current
     // The hero's full-screen trailer state, handed up from below once it exists (in a SideEffect,
     // so the derivation here follows it without this composable reading it).
     val fullscreenTrailerPlayingSource = remember { mutableStateOf<State<Boolean>>(FixedState(false)) }
@@ -312,6 +317,7 @@ fun ModernHomeContent(
         derivedStateOf {
             if (!contentHasFocus.value) return@derivedStateOf false
             if (fullscreenTrailerPlayingSource.value.value) return@derivedStateOf true
+            if (contentFilterFocused.value) return@derivedStateOf true
             val rowKey = activeRowKey.value ?: return@derivedStateOf false
             homeBackStep(
                 focusedRowKey = rowKey,
@@ -325,6 +331,14 @@ fun ModernHomeContent(
             if (fullscreenTrailerPlayingSource.value.value) {
                 // Dismisses the full-screen trailer.
                 focusController.clearCatalogSelection()
+                return@BackHandler
+            }
+            if (contentFilterFocused.value) {
+                // Back on the filter goes down to the rows: the rows' focus restorer lands on the
+                // active row's remembered card. A row focus request would be held back while the
+                // filter has focus, and the target card may already be the target, so it would
+                // not ask again.
+                runCatching { rowsFocusRequester.requestFocus() }
                 return@BackHandler
             }
             val rowKey = activeRowKey.value ?: return@BackHandler
@@ -358,9 +372,6 @@ fun ModernHomeContent(
     // SPOTLIGHT_ADVANCE_MS, so the hero walks through the featured titles (#813). Any key restarts
     // the wait (spotlightKeyNonce), and reduced motion turns it off.
     val spotlightKeyNonce = remember { mutableIntStateOf(0) }
-    // Up from the Spotlight to the filter keeps Spotlight the active row, so this stops the rotation
-    // taking focus back from the filter.
-    val contentFilterFocused = remember { mutableStateOf(false) }
     val spotlightRotates = FetchTheme.fullMotion
     IsolatedReadScope {
         val restingOnSpotlight = spotlightRotates &&

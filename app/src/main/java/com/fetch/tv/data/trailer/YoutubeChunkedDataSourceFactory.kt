@@ -8,6 +8,7 @@ import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.TransferListener
+import java.io.IOException
 
 /**
  * A DataSource.Factory that wraps DefaultHttpDataSource and appends YouTube's
@@ -101,35 +102,41 @@ class YoutubeChunkedDataSourceFactory(
             }
 
             val bytesRead = upstream.read(buffer, offset, length)
-            if (bytesRead == C.RESULT_END_OF_INPUT) {
-                // Current chunk exhausted — open the next one
-                val chunkBytesReceived = bytesReadInChunk
-                upstream.close()
+            if (bytesRead != C.RESULT_END_OF_INPUT) {
+                bytesReadInChunk += bytesRead
+                return bytesRead
+            }
 
-                // If this chunk returned fewer bytes than requested, the stream is done
-                if (chunkBytesReceived < (currentChunkEnd - currentChunkStart + 1)) {
+            // Current chunk exhausted — open the next one
+            val chunkBytesReceived = bytesReadInChunk
+            upstream.close()
+
+            // If this chunk returned fewer bytes than requested, the stream is done
+            if (chunkBytesReceived < (currentChunkEnd - currentChunkStart + 1)) {
+                return C.RESULT_END_OF_INPUT
+            }
+
+            currentChunkStart += chunkBytesReceived
+            if (totalContentLength != C.LENGTH_UNSET.toLong()) {
+                totalContentLength -= chunkBytesReceived
+                if (totalContentLength <= 0) {
                     return C.RESULT_END_OF_INPUT
-                }
-
-                currentChunkStart += chunkBytesReceived
-                if (totalContentLength != C.LENGTH_UNSET.toLong()) {
-                    totalContentLength -= chunkBytesReceived
-                    if (totalContentLength <= 0) {
-                        return C.RESULT_END_OF_INPUT
-                    }
-                }
-
-                return try {
-                    openNextChunk()
-                    upstream.read(buffer, offset, length)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Failed to open next chunk at $currentChunkStart: ${e.message}")
-                    C.RESULT_END_OF_INPUT
                 }
             }
 
-            bytesReadInChunk += bytesRead
-            return bytesRead
+            // A failed open (a network blip, or a 403 once the link has expired) is an error, not
+            // the end of the video: reported as the end, the player finished early and Up Next
+            // autoplayed instead of offering Retry (#740).
+            try {
+                openNextChunk()
+            } catch (e: IOException) {
+                Log.w(TAG, "Failed to open next chunk at $currentChunkStart: ${e.message}")
+                throw e
+            }
+            val nextRead = upstream.read(buffer, offset, length)
+            // Counted like any other read, or the chunk looks short and playback stops at its end.
+            if (nextRead != C.RESULT_END_OF_INPUT) bytesReadInChunk += nextRead
+            return nextRead
         }
 
         override fun getUri(): Uri? = upstream.uri ?: currentUri

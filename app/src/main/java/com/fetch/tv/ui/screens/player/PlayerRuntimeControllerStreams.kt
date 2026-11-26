@@ -832,18 +832,24 @@ internal fun PlayerRuntimeController.switchToSourceStream(
                     resolutionMatchingEnabled = playerSettings.resolutionMatchingEnabled,
                     mimeType = currentStreamMimeType
                 )
-                player.setMediaSource(
-                    mediaSourceFactory.createMediaSource(
-                        context = context,
-                        url = playbackUrl,
-                        headers = playbackHeaders,
-                        filename = currentFilename,
-                        responseHeaders = currentStreamResponseHeaders,
-                        mimeTypeOverride = currentStreamMimeType,
-                        audioDelayUsProvider = audioDelayUs::get,
-                        cacheKey = currentStreamCacheKey
-                    )
+                val newSource = mediaSourceFactory.createMediaSource(
+                    context = context,
+                    url = playbackUrl,
+                    headers = playbackHeaders,
+                    filename = currentFilename,
+                    responseHeaders = currentStreamResponseHeaders,
+                    mimeTypeOverride = currentStreamMimeType,
+                    audioDelayUsProvider = audioDelayUs::get,
+                    cacheKey = currentStreamCacheKey
                 )
+                // Open the new source at the carried-over position, not at 0 and then seek (#707).
+                val startPosition = takePendingSeekAsStartPosition()
+                if (startPosition != null) {
+                    player.setMediaSource(newSource, startPosition)
+                    updatePlaybackTimeline(currentPosition = startPosition)
+                } else {
+                    player.setMediaSource(newSource)
+                }
                 player.playWhenReady = true
                 player.prepare()
             } catch (e: Exception) {

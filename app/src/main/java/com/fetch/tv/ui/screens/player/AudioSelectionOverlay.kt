@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -103,17 +104,27 @@ internal fun AudioSelectionOverlay(
         mutableStateOf<AudioControlFocusTarget?>(null)
     }
 
-    LaunchedEffect(visible, tracks, selectedIndex) {
-        if (!visible) return@LaunchedEffect
+    // Whether focus is anywhere inside the panel: the open and amp-step focus moves below act
+    // only until it is, so they never pull focus back from where the user has moved (#720).
+    var panelHasFocus by remember { mutableStateOf(false) }
+    val currentTracks by rememberUpdatedState(tracks)
+    val currentSelectedIndex by rememberUpdatedState(selectedIndex)
 
-        if (tracks.isNotEmpty()) {
-            val selectedListIndex = tracks.indexOfFirst { it.index == selectedIndex }.takeIf { it >= 0 } ?: 0
+    // Once per open, and again only when tracks first arrive; not on every tracks or selection
+    // change. Retried each frame until focus lands rather than after a fixed delay, so an early
+    // D-pad press is not sent to the transport row behind the panel.
+    LaunchedEffect(visible, tracks.isEmpty()) {
+        if (!visible) {
+            panelHasFocus = false
+            return@LaunchedEffect
+        }
+        val openTracks = currentTracks
+        val target = if (openTracks.isNotEmpty()) {
+            val selectedListIndex = openTracks.indexOfFirst { it.index == currentSelectedIndex }.takeIf { it >= 0 } ?: 0
             listState.scrollToItem(selectedListIndex)
-            delay(120)
-            runCatching { tracksFocusRequester.requestFocus() }
+            tracksFocusRequester
         } else {
-            delay(120)
-            val initialControlsFocusRequester = when {
+            when {
                 canDecreaseDelay -> delayMinusFocusRequester
                 canIncreaseDelay -> delayPlusFocusRequester
                 canDecreaseAmp -> ampMinusFocusRequester
@@ -122,7 +133,11 @@ internal fun AudioSelectionOverlay(
                 canIncreaseCenterMix -> centerPlusFocusRequester
                 else -> persistFocusRequester
             }
-            runCatching { initialControlsFocusRequester.requestFocus() }
+        }
+        repeat(30) {
+            withFrameNanos { }
+            if (panelHasFocus) return@LaunchedEffect
+            runCatching { target.requestFocus() }
         }
     }
 
@@ -138,7 +153,10 @@ internal fun AudioSelectionOverlay(
             AudioControlFocusTarget.CenterPlus -> canIncreaseCenterMix
             AudioControlFocusTarget.Persist -> true
         }
-        if (!targetCanFocus) return@LaunchedEffect
+        if (!targetCanFocus) {
+            pendingControlFocusTarget = null
+            return@LaunchedEffect
+        }
         val controlFocusRequester = when (target) {
             AudioControlFocusTarget.DelayMinus -> delayMinusFocusRequester
             AudioControlFocusTarget.DelayPlus -> delayPlusFocusRequester
@@ -148,16 +166,20 @@ internal fun AudioSelectionOverlay(
             AudioControlFocusTarget.CenterPlus -> centerPlusFocusRequester
             AudioControlFocusTarget.Persist -> persistFocusRequester
         }
-        delay(80)
-        controlFocusRequester.requestFocusAfterFrames(frames = 2)
-        delay(200)
-        runCatching { controlFocusRequester.requestFocus() }
+        // Only when the step lost focus (its button recomposed away): no delayed re-focus, which
+        // sent a quick Down press after "+" back to the amp button (#720).
+        withFrameNanos { }
+        if (!panelHasFocus) {
+            controlFocusRequester.requestFocusAfterFrames(frames = 0)
+        }
         pendingControlFocusTarget = null
     }
 
     PlayerSidePanel(visible = visible, modifier = modifier, drawSurface = true) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .onFocusChanged { panelHasFocus = it.hasFocus },
             verticalArrangement = Arrangement.Top
         ) {
             Text(

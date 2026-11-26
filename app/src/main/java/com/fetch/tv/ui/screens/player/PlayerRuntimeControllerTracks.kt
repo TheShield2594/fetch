@@ -470,6 +470,14 @@ private fun Tracks.hasDolbyVisionConvertibleVideoTrack(): Boolean {
     return false
 }
 
+/** Whether a track's language is the remembered one, comparing codes ("eng" and "en" alike). */
+internal fun rememberedLanguageMatches(trackLanguage: String?, rememberedLanguage: String?): Boolean {
+    if (rememberedLanguage.isNullOrBlank()) return true
+    if (trackLanguage.isNullOrBlank()) return false
+    if (trackLanguage.trim().equals(rememberedLanguage.trim(), ignoreCase = true)) return true
+    return PlayerSubtitleUtils.matchesLanguageCode(trackLanguage, rememberedLanguage)
+}
+
 internal fun PlayerRuntimeController.normalizeTrackMatchValue(value: String?): String? = value
     ?.lowercase()
     ?.replace(Regex("\\s+"), " ")
@@ -667,12 +675,11 @@ private fun PlayerRuntimeController.findStrictMatchingTrackIndex(
 ): Int {
     val targetTrackId = normalizeTrackMatchValue(target.trackId)
     val targetName = normalizeTrackMatchValue(target.name)
-    val targetLang = normalizeTrackMatchValue(target.language)
 
     val exactTrackIdIndex = if (!targetTrackId.isNullOrBlank()) {
         tracks.indexOfFirst { track ->
             normalizeTrackMatchValue(track.trackId) == targetTrackId &&
-                    (targetLang.isNullOrBlank() || normalizeTrackMatchValue(track.language) == targetLang) &&
+                    rememberedLanguageMatches(track.language, target.language) &&
                     (targetName.isNullOrBlank() || normalizeTrackMatchValue(track.name) == targetName ||
                             normalizeTrackMatchValue(track.name)?.contains(targetName) == true)
         }
@@ -684,7 +691,7 @@ private fun PlayerRuntimeController.findStrictMatchingTrackIndex(
     val exactNameIndex = if (!targetName.isNullOrBlank()) {
         tracks.indexOfFirst { track ->
             normalizeTrackMatchValue(track.name) == targetName &&
-                    (targetLang.isNullOrBlank() || normalizeTrackMatchValue(track.language) == targetLang)
+                    rememberedLanguageMatches(track.language, target.language)
         }
     } else {
         -1
@@ -694,7 +701,7 @@ private fun PlayerRuntimeController.findStrictMatchingTrackIndex(
     val nameContainsIndex = if (!targetName.isNullOrBlank()) {
         tracks.indexOfFirst { track ->
             normalizeTrackMatchValue(track.name)?.contains(targetName) == true &&
-                    (targetLang.isNullOrBlank() || normalizeTrackMatchValue(track.language) == targetLang)
+                    rememberedLanguageMatches(track.language, target.language)
         }
     } else {
         -1
@@ -721,7 +728,10 @@ private fun PlayerRuntimeController.findLanguageFallbackTrackIndex(
             !trackLang.isNullOrBlank() &&
                     (trackLang == targetLang ||
                             trackLang.startsWith("$targetLang-") ||
-                            trackLang.startsWith("${targetLang}_"))
+                            trackLang.startsWith("${targetLang}_") ||
+                            // mpv reports "eng", ExoPlayer "en": a preference saved under one
+                            // engine still matches under the other (#722).
+                            rememberedLanguageMatches(tracks[index].language, target.language))
         }
 
         // If the remembered track was forced, only consider forced candidates.
@@ -736,14 +746,20 @@ private fun PlayerRuntimeController.findLanguageFallbackTrackIndex(
         if (filteredCandidates.size <= 1) {
             filteredCandidates.firstOrNull() ?: -1
         } else {
-            filteredCandidates.firstOrNull { index ->
+            // Not simply the first same-language track: that could be commentary or audio
+            // description in a new release. Ties keep the stream's order (#722).
+            filteredCandidates.maxBy { index ->
                 val trackVariant = PlayerSubtitleUtils.detectTrackLanguageVariant(
                     language = tracks[index].language,
                     name = tracks[index].name,
                     trackId = tracks[index].trackId
                 )
-                trackVariant == targetVariant
-            } ?: filteredCandidates.first()
+                RememberedTrackFallback.score(
+                    candidate = tracks[index],
+                    rememberedName = target.name,
+                    sameVariant = trackVariant == targetVariant
+                )
+            }
         }
     } else {
         -1
@@ -1072,6 +1088,14 @@ internal fun PlayerRuntimeController.applyPersistedTrackPreference(
                             maybeRunAutomaticSubtitleSync(addonFallback) // AutoSync hook
                             updatedAddonSubtitle = addonFallback
                             updatedPending = updatedPending.copy(subtitle = null)
+                        } else if (state.isLoadingAddonSubtitles) {
+                            // Addon subtitles are still arriving: keep the preference, so the
+                            // fallback is searched again once they have loaded (#722).
+                            logSwitchTrace(
+                                stage = "restore-subtitle-internal-no-match",
+                                message = "action=defer reason=addon-subtitles-loading variant=$resolvedVariant " +
+                                        "addonPool=${state.addonSubtitles.size}"
+                            )
                         } else {
                             logSwitchTrace(
                                 stage = "restore-subtitle-internal-no-match",

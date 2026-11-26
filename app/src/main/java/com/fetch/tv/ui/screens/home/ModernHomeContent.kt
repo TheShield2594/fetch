@@ -38,6 +38,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -148,6 +149,12 @@ fun ModernHomeContent(
     onRemoveContinueWatching: (String, Int?, Int?, Boolean) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean = { false },
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit = { _, _, _ -> },
+    /** Play/Pause on a catalog card (#812); null leaves the key alone (a kids or limited profile). */
+    onCatalogItemPlay: ((MetaPreview, String) -> Unit)? = null,
+    /** "Hold OK for options" in the hero, for a profile's first few sessions (#812). */
+    showHoldHint: Boolean = false,
+    /** A chip picked in the Movies / Shows filter above the rows (#814). */
+    onContentFilterSelected: (HomeContentFilter) -> Unit = {},
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     /** Opens a catalog row's full grid, from the See all card at the end of the row. */
     onSeeAllRow: (HeroCarouselRow) -> Unit = {},
@@ -263,8 +270,37 @@ fun ModernHomeContent(
     var lastRequestedTrailerFocusKey by remember { mutableStateOf<String?>(null) }
     var endedCollectionHeroVideoPlaybackKey by remember { mutableStateOf<String?>(null) }
 
-    // Improved Back navigation: when focused item is not the first in a row,
-    // scroll the row to the start and focus the first item instead of opening the sidebar.
+    val latestRowsForScrollToTop = rememberUpdatedState(carouselRows)
+
+    // Moves focus to the first row and scrolls Home to the top. With [resetRows] every row starts
+    // over at its first card (Home picked in the sidebar while on Home); without it the first row
+    // keeps its remembered card and the other rows keep their place (Back from a lower row, #817).
+    // Scrolling alone left the active row, its saved index and the hero on the old row, so the
+    // sidebar's focus hand-back went to that row and scrolled back down (or found nothing).
+    suspend fun focusFirstRowAtTop(resetRows: Boolean) {
+        val firstRow = latestRowsForScrollToTop.value.list.firstOrNull()
+        if (resetRows) focusedItemByRow.keys.toList().forEach { focusedItemByRow[it] = 0 }
+        focusController.clearCatalogSelection()
+        if (firstRow != null) {
+            val index = if (resetRows) 0
+            else (focusedItemByRow[firstRow.key] ?: 0).coerceIn(0, firstRow.maxFocusIndex())
+            focusController.setActive(firstRow.key, index)
+            focusedItemByRow[firstRow.key] = index
+            focusController.requestRowFocus(firstRow.key, index)
+        }
+        verticalRowListState.scrollToItem(0, 0)
+        if (resetRows) {
+            rowListStates.values.toList().forEach { state ->
+                runCatching { state.scrollToItem(0, 0) }
+            }
+        }
+    }
+
+    // Back on Home, before it opens the sidebar (#817):
+    // 1. on a card past the first in a row: scroll that row to its start;
+    // 2. on the first card of a row below the first: scroll Home to the top and focus the first
+    //    row's remembered card;
+    // 3. on the first card of the first row: not handled here, so Back opens the sidebar.
     // Disabled when the sidebar owns focus (expanded) so Back can exit the app.
     val backScrollScope = rememberCoroutineScope()
     val contentHasFocus = remember { mutableStateOf(false) }
@@ -276,8 +312,11 @@ fun ModernHomeContent(
             if (!contentHasFocus.value) return@derivedStateOf false
             if (fullscreenTrailerPlayingSource.value.value) return@derivedStateOf true
             val rowKey = activeRowKey.value ?: return@derivedStateOf false
-            val itemIndex = focusedItemByRow[rowKey] ?: 0
-            itemIndex > 0
+            homeBackStep(
+                focusedRowKey = rowKey,
+                focusedItemIndex = focusedItemByRow[rowKey] ?: 0,
+                firstRowKey = latestRowsForScrollToTop.value.list.firstOrNull()?.key
+            ) != HomeBackStep.OPEN_SIDEBAR
         }
     }
     IsolatedReadScope {
@@ -288,32 +327,54 @@ fun ModernHomeContent(
                 return@BackHandler
             }
             val rowKey = activeRowKey.value ?: return@BackHandler
-            val listState = rowListStates[rowKey]
-            focusedItemByRow[rowKey] = 0
-            focusController.requestRowFocus(rowKey, 0)
-            backScrollScope.launch {
-                listState?.scrollToItem(0, 0)
+            val step = homeBackStep(
+                focusedRowKey = rowKey,
+                focusedItemIndex = focusedItemByRow[rowKey] ?: 0,
+                firstRowKey = latestRowsForScrollToTop.value.list.firstOrNull()?.key
+            )
+            when (step) {
+                HomeBackStep.ROW_START -> {
+                    val listState = rowListStates[rowKey]
+                    focusedItemByRow[rowKey] = 0
+                    focusController.requestRowFocus(rowKey, 0)
+                    backScrollScope.launch {
+                        listState?.scrollToItem(0, 0)
+                    }
+                }
+                HomeBackStep.TOP_ROW -> backScrollScope.launch { focusFirstRowAtTop(resetRows = false) }
+                HomeBackStep.OPEN_SIDEBAR -> Unit
             }
         }
     }
 
     // Home picked in the sidebar while on Home: start over at the first card of the first row.
-    // Scrolling alone left the active row, its saved index and the hero on the old row, so the
-    // sidebar's focus hand-back went to that row and scrolled back down (or found nothing).
-    val latestRowsForScrollToTop = rememberUpdatedState(carouselRows)
     LaunchedEffect(scrollToTopTrigger) {
         if (scrollToTopTrigger <= 0) return@LaunchedEffect
-        val firstRow = latestRowsForScrollToTop.value.list.firstOrNull()
-        focusedItemByRow.keys.toList().forEach { focusedItemByRow[it] = 0 }
-        focusController.clearCatalogSelection()
-        if (firstRow != null) {
-            focusController.setActive(firstRow.key, 0)
-            focusedItemByRow[firstRow.key] = 0
-            focusController.requestRowFocus(firstRow.key, 0)
-        }
-        verticalRowListState.scrollToItem(0, 0)
-        rowListStates.values.toList().forEach { state ->
-            runCatching { state.scrollToItem(0, 0) }
+        focusFirstRowAtTop(resetRows = true)
+    }
+
+    // While focus rests on the Spotlight untouched, move to its next card every
+    // SPOTLIGHT_ADVANCE_MS, so the hero walks through the featured titles (#813). Any key restarts
+    // the wait (spotlightKeyNonce), and reduced motion turns it off.
+    val spotlightKeyNonce = remember { mutableIntStateOf(0) }
+    val spotlightRotates = FetchTheme.fullMotion
+    IsolatedReadScope {
+        val restingOnSpotlight = spotlightRotates &&
+            contentHasFocus.value &&
+            !isSidebarExpanded.value &&
+            activeRowKey.value == MODERN_SPOTLIGHT_ROW_KEY
+        LaunchedEffect(restingOnSpotlight, spotlightKeyNonce.intValue) {
+            if (!restingOnSpotlight) return@LaunchedEffect
+            while (true) {
+                delay(SPOTLIGHT_ADVANCE_MS)
+                if (!lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) continue
+                if (fullscreenTrailerPlayingSource.value.value) continue
+                val row = latestRowsForScrollToTop.value.list
+                    .firstOrNull { it.key == MODERN_SPOTLIGHT_ROW_KEY } ?: break
+                if (row.items.size < 2) break
+                val next = ((focusedItemByRow[row.key] ?: 0) + 1) % row.items.size
+                focusController.requestRowFocus(row.key, next)
+            }
         }
     }
 
@@ -518,6 +579,19 @@ fun ModernHomeContent(
         }
     }
 
+    // A new Movies / Shows filter (#814) can take away the row focus was last on. Focus is on the
+    // filter then, so point the active row (and the hero, and Down) at the new first row.
+    val appliedContentFilter = remember { mutableStateOf(presentation.contentFilter) }
+    LaunchedEffect(presentation.contentFilter, carouselRows) {
+        if (appliedContentFilter.value == presentation.contentFilter) return@LaunchedEffect
+        appliedContentFilter.value = presentation.contentFilter
+        val firstRow = carouselRows.list.firstOrNull() ?: return@LaunchedEffect
+        val index = (focusedItemByRow[firstRow.key] ?: 0).coerceIn(0, firstRow.maxFocusIndex())
+        focusController.clearCatalogSelection()
+        focusController.setActive(firstRow.key, index)
+        focusedItemByRow[firstRow.key] = index
+    }
+
     LaunchedEffect(focusState.verticalScrollIndex, focusState.verticalScrollOffset) {
         val targetIndex = focusState.verticalScrollIndex
         val targetOffset = focusState.verticalScrollOffset
@@ -718,7 +792,8 @@ fun ModernHomeContent(
                             resumeProgressFraction = activeCarouselItem?.heroPreview?.resumeProgressFraction,
                             bestMatchKey = activeCarouselItem?.heroPreview?.bestMatchKey,
                             resumeEpisodeTitle = activeCarouselItem?.heroPreview?.resumeEpisodeTitle,
-                            eyebrowText = activeCarouselItem?.heroPreview?.eyebrowText
+                            eyebrowText = activeCarouselItem?.heroPreview?.eyebrowText,
+                            isCatalogTitle = activeCarouselItem?.heroPreview?.isCatalogTitle == true
                         )
                     } else null
 
@@ -1091,6 +1166,8 @@ fun ModernHomeContent(
                 // while focus passes over a gap.
                 previewProvider = { heroPresenter.title.value },
                 bestMatchFor = { key -> latestCachedBestMatches.value[key] },
+                catalogQuickPlay = onCatalogItemPlay != null,
+                showHoldHint = showHoldHint,
                 portraitMode = !useLandscapePosters,
                 compact = compactHeroText,
                 showImdbRatings = uiState.homeImdbRatingsVisibility.showRatings,
@@ -1191,6 +1268,7 @@ fun ModernHomeContent(
                 onPreloadAdjacentItem = stableOnPreloadAdjacentItem,
                 isCatalogItemWatched = isCatalogItemWatched,
                 onCatalogItemLongPress = onCatalogItemLongPress,
+                onCatalogItemPlay = onCatalogItemPlay,
                 enrichedPreviews = stableEnrichedPreviews,
                 trailerPreviewUrls = stableTrailerPreviewUrls,
                 trailerPreviewAudioUrls = stableTrailerPreviewAudioUrls,
@@ -1216,9 +1294,17 @@ fun ModernHomeContent(
                 continueWatchingCornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
                 blockLeftOnFirstExpandedItem = blockLeftOnFirstExpandedItem,
                 isVerticalRowsScrollingState = isVerticalRowsScrollingState,
+                contentFilters = presentation.contentFilters,
+                contentFilter = presentation.contentFilter,
+                onContentFilterSelected = onContentFilterSelected,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .onFocusChanged { contentHasFocus.value = it.hasFocus }
+                    // Any key stops the Spotlight's rotation until focus rests again (#813).
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) spotlightKeyNonce.intValue++
+                        false
+                    }
             )
             }
     }

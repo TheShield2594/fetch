@@ -289,8 +289,10 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
             _currentLocaleTag,
             posterOverlay,
             bestMatches,
-            readyWatchlistCandidates.combine(youTubeRow.videos) { watchlist, videos -> watchlist to videos }
-        ) { state, localeTag, overlay, entries, (watchlist, youTubeVideos) ->
+            combine(readyWatchlistCandidates, youTubeRow.videos, homeContentFilter) { watchlist, videos, filter ->
+                Triple(watchlist, videos, filter)
+            }
+        ) { state, localeTag, overlay, entries, (watchlist, youTubeVideos, contentFilter) ->
                 val readyKeys = readyBestMatchKeys(entries, System.currentTimeMillis())
                 ModernHomePresentationInput(
                     homeRows = state.homeRows,
@@ -312,7 +314,10 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     showFullReleaseDate = state.showFullReleaseDate,
                     showImdbRatings = state.homeImdbRatingsVisibility.showRatings && !state.kidsHome,
                     detailImdbRatingsVisibility = state.detailImdbRatingsVisibility,
-                    localeTag = localeTag
+                    localeTag = localeTag,
+                    contentFilter = contentFilter,
+                    watchedStatus = state.movieWatchedStatus,
+                    spotlightDay = spotlightDay()
                 )
             }
             // Compare by row structure only (keys + item counts), not by
@@ -333,6 +338,9 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     && old.showFullReleaseDate == new.showFullReleaseDate
                     && old.showImdbRatings == new.showImdbRatings
                     && old.localeTag == new.localeTag
+                    && old.contentFilter == new.contentFilter
+                    && old.watchedStatus == new.watchedStatus
+                    && old.spotlightDay == new.spotlightDay
                     && old.catalogRows.size == new.catalogRows.size
             }
             .debounce {

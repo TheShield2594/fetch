@@ -113,6 +113,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     companion object {
         internal const val TAG = "HomeViewModel"
+        /** Home sessions that show "Hold OK for options" in the hero before it goes quiet (#812). */
+        internal const val HOME_HOLD_HINT_SESSIONS = 3
         internal const val STARTUP_GRACE_PERIOD_MS = 1_500L
         /** Longest a catalog-row rebuild is held back while arrivals keep restarting its debounce. */
         internal const val CATALOG_UPDATE_MAX_WAIT_MS = 600L
@@ -253,6 +255,50 @@ class HomeViewModel @Inject constructor(
 
     private val _scrollToTopTrigger = MutableStateFlow(0)
     val scrollToTopTrigger: StateFlow<Int> = _scrollToTopTrigger.asStateFlow()
+
+    /** The profile's Movies / Shows filter above the rows (#814). */
+    val homeContentFilter: StateFlow<HomeContentFilter> = layoutPreferenceDataStore.homeContentFilter
+        .map(HomeContentFilter::fromStored)
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, HomeContentFilter.ALL)
+
+    fun setHomeContentFilter(filter: HomeContentFilter) {
+        if (filter == homeContentFilter.value) return
+        viewModelScope.launch {
+            runCatching {
+                layoutPreferenceDataStore.setHomeContentFilter(filter.takeIf { it != HomeContentFilter.ALL }?.name)
+            }
+        }
+    }
+
+    /**
+     * Play/Pause on a catalog card starts it without the detail page (#812). A kids profile and
+     * one with parental limits keep OK's behaviour, as the detail page is where those checks show.
+     */
+    val catalogQuickPlayAllowed: StateFlow<Boolean> = parentalControls.activeRestrictions
+        .map { !it.isKidsProfile && !it.isRestricted }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val _showHoldHint = MutableStateFlow(false)
+
+    /** "Hold OK for options" in the hero, for a profile's first [HOME_HOLD_HINT_SESSIONS] Home sessions (#812). */
+    val showHoldHint: StateFlow<Boolean> = _showHoldHint.asStateFlow()
+
+    private var holdHintChecked = false
+
+    /** Call once a card on Home has focus: counts this session towards the hold hint's few. */
+    fun onHomeCardFocused() {
+        if (holdHintChecked) return
+        holdHintChecked = true
+        viewModelScope.launch {
+            val sessions = runCatching { layoutPreferenceDataStore.homeHoldHintSessions.first() }.getOrNull()
+                ?: return@launch
+            if (sessions >= HOME_HOLD_HINT_SESSIONS) return@launch
+            _showHoldHint.value = true
+            runCatching { layoutPreferenceDataStore.recordHomeHoldHintSession() }
+        }
+    }
 
     internal val _currentLocaleTag = MutableStateFlow(LocaleCache.localeTag)
 

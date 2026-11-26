@@ -10,6 +10,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -105,6 +106,8 @@ internal fun ModernHomeRowsList(
     onRequestLazyCatalogLoad: (String) -> Unit,
     isCatalogItemWatched: (MetaPreview) -> Boolean,
     onCatalogItemLongPress: (MetaPreview, String, String?) -> Unit,
+    /** Play/Pause on a catalog card (#812); null where it does nothing (a kids or limited profile). */
+    onCatalogItemPlay: ((MetaPreview, String) -> Unit)? = null,
     onItemFocus: (MetaPreview) -> Unit,
     onPreloadAdjacentItem: (MetaPreview) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>>,
@@ -131,6 +134,10 @@ internal fun ModernHomeRowsList(
     continueWatchingCardStyle: ContinueWatchingCardStyle,
     continueWatchingCornerRadius: Dp,
     blockLeftOnFirstExpandedItem: Boolean = false,
+    /** Filters offered above the rows; empty for none (#814). */
+    contentFilters: StableList<HomeContentFilter> = StableList(),
+    contentFilter: HomeContentFilter = HomeContentFilter.ALL,
+    onContentFilterSelected: (HomeContentFilter) -> Unit = {},
 ) {
     val focusedItemByRow = focusController.stableFocusedItemByRow
     val focusedItemByRowMap = focusController.focusedItemByRow
@@ -284,14 +291,25 @@ internal fun ModernHomeRowsList(
         }
     }
 
+    val showsContentFilter = contentFilters.list.isNotEmpty()
+    // The filter sits in the space above the first row, so it shows (and takes focus) only while
+    // Home is scrolled to the top; lower rows scroll up under where it was.
+    val contentFilterVisible by remember(verticalRowListState) {
+        derivedStateOf {
+            verticalRowListState.firstVisibleItemIndex == 0 &&
+                verticalRowListState.firstVisibleItemScrollOffset == 0
+        }
+    }
+
     CompositionLocalProvider(
         LocalBringIntoViewSpec provides verticalRowBringIntoViewSpec,
         LocalFastScrollActive provides focusController.isFastScrolling,
         LocalVerticalRowsScrolling provides isVerticalRowsScrollingState
     ) {
+      Box(modifier = modifier.fillMaxWidth()) {
         LazyColumn(
             state = verticalRowListState,
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .recompositionHighlighter()
                 .height(rowsViewportHeight)
@@ -371,7 +389,10 @@ internal fun ModernHomeRowsList(
                         }
                     },
                 ),
-            contentPadding = PaddingValues(bottom = rowsViewportHeight),
+            contentPadding = PaddingValues(
+                top = if (showsContentFilter) HOME_CONTENT_FILTER_BAR_HEIGHT else 0.dp,
+                bottom = rowsViewportHeight
+            ),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)
         ) {
             itemsIndexed(
@@ -439,6 +460,7 @@ internal fun ModernHomeRowsList(
                     onContinueWatchingOptions = stableOnContinueWatchingOptions,
                     isCatalogItemWatched = isCatalogItemWatched,
                     onCatalogItemLongPress = onCatalogItemLongPress,
+                    onCatalogItemPlay = onCatalogItemPlay,
                     onItemFocus = onItemFocus,
                     onPreloadAdjacentItem = onPreloadAdjacentItem,
                     enrichedPreviews = enrichedPreviews,
@@ -458,5 +480,18 @@ internal fun ModernHomeRowsList(
                 )
             }
         }
+        if (showsContentFilter) {
+            HomeContentFilterBar(
+                filters = contentFilters,
+                selected = contentFilter,
+                onSelected = onContentFilterSelected,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = FetchTheme.spacing.screen.horizontal)
+                    .graphicsLayer { alpha = if (contentFilterVisible) trailerContentAlpha() else 0f },
+                focusable = contentFilterVisible
+            )
+        }
+      }
     }
 }

@@ -111,6 +111,8 @@ class HomeViewModel @Inject constructor(
     companion object {
         internal const val TAG = "HomeViewModel"
         internal const val STARTUP_GRACE_PERIOD_MS = 1_500L
+        /** Longest a catalog-row rebuild is held back while arrivals keep restarting its debounce. */
+        internal const val CATALOG_UPDATE_MAX_WAIT_MS = 600L
         internal const val CONTINUE_WATCHING_ENRICHMENT_GRACE_PERIOD_MS = 1_000L
         private const val CONTINUE_WATCHING_WINDOW_MS = 30L * 24 * 60 * 60 * 1000
         private const val MAX_RECENT_PROGRESS_ITEMS = 300
@@ -290,6 +292,8 @@ class HomeViewModel @Inject constructor(
         if (MemoryBudget.isLowRamTier) LOW_RAM_CATALOG_LOAD_CONCURRENCY else CATALOG_LOAD_CONCURRENCY
     )
     internal var pendingCatalogLoads = 0
+    /** When the oldest not-yet-run [scheduleUpdateCatalogRows] request was made; 0 when none waits. */
+    internal var catalogUpdateFirstRequestedAtMs = 0L
     internal val activeCatalogLoadJobs = mutableSetOf<Job>()
     internal var activeCatalogLoadSignature: String? = null
     internal var catalogLoadGeneration: Long = 0L
@@ -996,6 +1000,11 @@ class HomeViewModel @Inject constructor(
 
     internal fun scheduleUpdateCatalogRows() {
         catalogUpdateJob?.cancel()
+        // Each call restarts the debounce, so a steady trickle of arrivals could otherwise put
+        // the rebuild off indefinitely. Cap how long the first waiting request is held.
+        val now = android.os.SystemClock.elapsedRealtime()
+        val firstRequestedAt = catalogUpdateFirstRequestedAtMs.takeIf { it > 0L } ?: now
+        catalogUpdateFirstRequestedAtMs = firstRequestedAt
         catalogUpdateJob = viewModelScope.launch {
             val debounceMs = when {
                 // First render: use a moderate debounce so near-simultaneous
@@ -1011,7 +1020,9 @@ class HomeViewModel @Inject constructor(
                 pendingCatalogLoads > 0 -> 200L
                 else -> 80L
             }
-            delay(debounceMs)
+            val waitedMs = android.os.SystemClock.elapsedRealtime() - firstRequestedAt
+            delay(debounceMs.coerceAtMost((CATALOG_UPDATE_MAX_WAIT_MS - waitedMs).coerceAtLeast(0L)))
+            catalogUpdateFirstRequestedAtMs = 0L
             updateCatalogRows()
         }
     }

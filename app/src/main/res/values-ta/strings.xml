@@ -2106,6 +2106,13 @@
     <string name="youtube_action_subscribed">சந்தா செலுத்தியுள்ளீர்கள்</string>
     <string name="youtube_action_failed">YouTube அதை ஏற்கவில்லை. மீண்டும் முயலவும்.</string>
     <string name="youtube_play_failed">இந்த வீடியோவை இயக்க முடியாது</string>
+    <string name="youtube_play_failed_age_restricted">இந்த வீடியோ வயது வரம்புக்குட்பட்டது, இங்கே இயக்க முடியாது</string>
+    <string name="youtube_play_failed_sign_in">இந்த வீடியோ தனிப்பட்டது அல்லது உறுப்பினர்களுக்கு மட்டும்</string>
+    <string name="youtube_play_failed_region">இந்த வீடியோ உங்கள் நாட்டில் கிடைக்கவில்லை</string>
+    <string name="youtube_play_failed_live_not_started">இந்த நேரலை இன்னும் தொடங்கவில்லை</string>
+    <string name="youtube_play_failed_unavailable">இந்த வீடியோ கிடைக்கவில்லை</string>
+    <string name="youtube_play_failed_rate_limited">இந்தச் சாதனத்திலிருந்து வரும் கோரிக்கைகளை YouTube கட்டுப்படுத்துகிறது. சில நிமிடங்களில் மீண்டும் முயலவும்</string>
+    <string name="youtube_play_failed_network">YouTube-ஐ அணுக முடியவில்லை. உங்கள் இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்</string>
     <string name="youtube_switch_channel_hint">சேனலை மாற்ற தேர்ந்தெடுக்கவும்</string>
     <string name="youtube_channel_picker_title">சேனலைத் தேர்ந்தெடுக்கவும்</string>
     <string name="youtube_channel_picker_subtitle">நீங்கள் தேர்ந்தெடுக்கும் சேனலிலிருந்தே உங்கள் ஊட்டங்கள், வரலாறு மற்றும் தேடல்கள் வரும்.</string>

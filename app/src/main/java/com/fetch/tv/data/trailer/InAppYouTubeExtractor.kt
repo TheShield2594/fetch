@@ -39,6 +39,7 @@ private val VISITOR_DATA_REGEX = Regex("\"VISITOR_DATA\":\"([^\"]+)\"")
 private val QUALITY_LABEL_REGEX = Regex("(\\d{2,4})p")
 private val BOT_CHECK_REGEX = Regex("\\bbot\\b", RegexOption.IGNORE_CASE)
 private val AGE_CHECK_REGEX = Regex("\\bage\\b", RegexOption.IGNORE_CASE)
+private val REGION_CHECK_REGEX = Regex("\\b(country|region)\\b", RegexOption.IGNORE_CASE)
 private const val HTTP_TOO_MANY_REQUESTS = 429
 
 /** YouTube is refusing requests from this device; see [YouTubeRateLimitGate]. */
@@ -46,6 +47,82 @@ private class RateLimitedException(message: String) : Exception(message)
 
 /** Every client asked to sign in, which a fresh visitor id from the watch page can fix. */
 private class StaleConfigException : Exception()
+
+/**
+ * Why the extractor found nothing to play (TheShield2594/fetch#741), so the screen can say what
+ * is wrong instead of one message for every cause.
+ */
+enum class YouTubeExtractionFailure {
+    /** The video is age-restricted; extraction is anonymous, so it can't be confirmed. */
+    AGE_RESTRICTED,
+
+    /** Private, members-only or otherwise sign-in only. */
+    SIGN_IN_REQUIRED,
+
+    /** Not available in this country. */
+    REGION_BLOCKED,
+
+    /** A live stream or premiere that hasn't started. */
+    LIVE_NOT_STARTED,
+
+    /** Removed, or unplayable for a reason YouTube didn't classify. */
+    UNAVAILABLE,
+
+    /** YouTube is refusing requests from this device for a while (bot check or 429). */
+    RATE_LIMITED,
+
+    /** YouTube answered, but no stream it gave could be played here. */
+    NO_PLAYABLE_STREAM,
+
+    /** A network error or timeout. */
+    FAILED
+}
+
+/** What [InAppYouTubeExtractor.extractPlaybackSourceResult] found. */
+sealed interface YouTubeExtractionResult {
+    data class Success(val source: TrailerPlaybackSource) : YouTubeExtractionResult
+    data class Failure(val reason: YouTubeExtractionFailure) : YouTubeExtractionResult
+}
+
+/**
+ * Why a client's player response refuses the video, from its `playabilityStatus` [status] and
+ * [reason]; null when it is playable. The reasons are English, as the clients ask with `hl=en`.
+ */
+internal fun failureForPlayability(status: String?, reason: String?): YouTubeExtractionFailure? {
+    val text = reason.orEmpty()
+    return when (status) {
+        null, "OK" -> null
+        "LIVE_STREAM_OFFLINE" -> YouTubeExtractionFailure.LIVE_NOT_STARTED
+        "LOGIN_REQUIRED" -> when {
+            BOT_CHECK_REGEX.containsMatchIn(text) -> YouTubeExtractionFailure.RATE_LIMITED
+            AGE_CHECK_REGEX.containsMatchIn(text) -> YouTubeExtractionFailure.AGE_RESTRICTED
+            else -> YouTubeExtractionFailure.SIGN_IN_REQUIRED
+        }
+        else -> when {
+            AGE_CHECK_REGEX.containsMatchIn(text) -> YouTubeExtractionFailure.AGE_RESTRICTED
+            REGION_CHECK_REGEX.containsMatchIn(text) -> YouTubeExtractionFailure.REGION_BLOCKED
+            text.contains("members", ignoreCase = true) || text.contains("private", ignoreCase = true) ->
+                YouTubeExtractionFailure.SIGN_IN_REQUIRED
+            else -> YouTubeExtractionFailure.UNAVAILABLE
+        }
+    }
+}
+
+/**
+ * The reason to report when every client refused: the most specific one any of them gave. A
+ * property of the video (age, region, sign-in) beats a vague "unavailable".
+ */
+internal fun mostSpecificFailure(failures: Collection<YouTubeExtractionFailure>): YouTubeExtractionFailure? =
+    listOf(
+        YouTubeExtractionFailure.AGE_RESTRICTED,
+        YouTubeExtractionFailure.REGION_BLOCKED,
+        YouTubeExtractionFailure.SIGN_IN_REQUIRED,
+        YouTubeExtractionFailure.LIVE_NOT_STARTED,
+        YouTubeExtractionFailure.UNAVAILABLE
+    ).firstOrNull { it in failures }
+
+/** Extraction ended on a known [reason]; carried out of the client loop to [InAppYouTubeExtractor.extract]. */
+private class ExtractionFailedException(val reason: YouTubeExtractionFailure) : Exception(reason.name)
 
 private data class YouTubeClient(
     val key: String,
@@ -137,6 +214,12 @@ private class ClientStreams {
 
     /** The first client's storyboard spec, for seek previews. */
     var storyboardSpec: String? = null
+
+    /**
+     * A client said the video is live now. Its adaptive formats are then segment streams that the
+     * progressive merging source can't play, so only the HLS manifest is used.
+     */
+    var isLive: Boolean = false
 
     fun isEmpty(): Boolean =
         manifestUrls.isEmpty() && progressive.isEmpty() && adaptiveVideo.isEmpty() && adaptiveAudio.isEmpty()
@@ -345,6 +428,13 @@ class InAppYouTubeExtractor internal constructor(
         youtubeUrl: String,
         maxVideoHeight: Int = Int.MAX_VALUE
     ): TrailerPlaybackSource? =
+        (extractPlaybackSourceResult(youtubeUrl, maxVideoHeight) as? YouTubeExtractionResult.Success)?.source
+
+    /** [extractPlaybackSource], with the reason when nothing can be played. */
+    suspend fun extractPlaybackSourceResult(
+        youtubeUrl: String,
+        maxVideoHeight: Int = Int.MAX_VALUE
+    ): YouTubeExtractionResult =
         extract(youtubeUrl, singleUrl = false, maxVideoHeight = maxVideoHeight)
 
     /**
@@ -353,25 +443,26 @@ class InAppYouTubeExtractor internal constructor(
      * every quality and lists the audio as its own rendition, then a progressive file.
      */
     suspend fun extractSingleUrl(youtubeUrl: String): String? =
-        extract(youtubeUrl, singleUrl = true)?.videoUrl
+        (extract(youtubeUrl, singleUrl = true) as? YouTubeExtractionResult.Success)?.source?.videoUrl
 
     private suspend fun extract(
         youtubeUrl: String,
         singleUrl: Boolean,
         maxVideoHeight: Int = Int.MAX_VALUE
-    ): TrailerPlaybackSource? = withContext(Dispatchers.IO) {
-        if (youtubeUrl.isBlank()) return@withContext null
+    ): YouTubeExtractionResult = withContext(Dispatchers.IO) {
+        if (youtubeUrl.isBlank()) return@withContext YouTubeExtractionResult.Failure(YouTubeExtractionFailure.UNAVAILABLE)
         if (rateLimitGate.isBlocked()) {
             Log.w(
                 TAG,
                 "YouTube is rate limiting, skipping extraction for another " +
                     "${rateLimitGate.remainingMs() / 1000}s: ${summarizeUrl(youtubeUrl)}"
             )
-            return@withContext null
+            return@withContext YouTubeExtractionResult.Failure(YouTubeExtractionFailure.RATE_LIMITED)
         }
 
         Log.d(TAG, "Starting Kotlin extraction for ${summarizeUrl(youtubeUrl)}")
         var source: TrailerPlaybackSource? = null
+        var failure = YouTubeExtractionFailure.NO_PLAYABLE_STREAM
         try {
             source = try {
                 attemptExtraction(youtubeUrl, forceRefreshConfig = false, singleUrl, maxVideoHeight)
@@ -384,15 +475,22 @@ class InAppYouTubeExtractor internal constructor(
         } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
             // A timeout is a failed attempt, not a cancellation of the caller.
             Log.w(TAG, "Kotlin extractor timed out for $youtubeUrl")
+            failure = YouTubeExtractionFailure.FAILED
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: RateLimitedException) {
             val cooldownMs = rateLimitGate.onRateLimited()
             Log.w(TAG, "YouTube is rate limiting (${e.message}), pausing extraction for ${cooldownMs / 1000}s")
+            failure = YouTubeExtractionFailure.RATE_LIMITED
         } catch (e: StaleConfigException) {
             Log.w(TAG, "Every client still asks to sign in with a fresh watch config for $youtubeUrl")
+            failure = YouTubeExtractionFailure.SIGN_IN_REQUIRED
+        } catch (e: ExtractionFailedException) {
+            Log.w(TAG, "YouTube won't play ${summarizeUrl(youtubeUrl)}: ${e.reason}")
+            failure = e.reason
         } catch (error: Exception) {
             Log.w(TAG, "Kotlin extractor failed for $youtubeUrl: ${error.message}")
+            failure = YouTubeExtractionFailure.FAILED
         }
 
         if (source == null) {
@@ -406,7 +504,7 @@ class InAppYouTubeExtractor internal constructor(
             )
         }
 
-        source
+        source?.let { YouTubeExtractionResult.Success(it) } ?: YouTubeExtractionResult.Failure(failure)
     }
 
     private suspend fun attemptExtraction(
@@ -434,6 +532,8 @@ class InAppYouTubeExtractor internal constructor(
         val pendingClients = CLIENTS.iterator()
         var loginRequiredCount = 0
         var botCheckCount = 0
+        val refusals = mutableListOf<YouTubeExtractionFailure>()
+        var answeredCount = 0
 
         suspend fun queryNextClient() {
             kotlinx.coroutines.yield()
@@ -447,8 +547,10 @@ class InAppYouTubeExtractor internal constructor(
                     cookieHeader = null
                 )
 
+                answeredCount++
                 val playabilityStatus = playerResponse.mapValue("playabilityStatus")
                 val status = playabilityStatus?.stringValue("status")
+                failureForPlayability(status, playabilityStatus?.stringValue("reason"))?.let { refusals += it }
                 if (status == "LOGIN_REQUIRED") {
                     val reason = playabilityStatus?.stringValue("reason").orEmpty()
                     when {
@@ -478,6 +580,9 @@ class InAppYouTubeExtractor internal constructor(
                         ?.stringValue("spec")
                         ?.takeIf { it.isNotBlank() }
                 }
+                if (playerResponse.mapValue("videoDetails")?.booleanValue("isLive") == true) {
+                    streams.isLive = true
+                }
                 val streamingData = playerResponse.mapValue("streamingData") ?: return
                 addClientStreams(client, streamingData, streams)
             } catch (e: RateLimitedException) {
@@ -491,8 +596,7 @@ class InAppYouTubeExtractor internal constructor(
 
         // Ask the clients one at a time and stop once the first source kind we'd use is
         // covered. The rest are only asked if that source turns out to be unplayable.
-        val preferredKind = sourcePreference(singleUrl).first()
-        while (pendingClients.hasNext() && !streams.covers(preferredKind, ::playableVideo)) {
+        while (pendingClients.hasNext() && !streams.covers(sourcePreference(singleUrl, streams.isLive).first(), ::playableVideo)) {
             queryNextClient()
         }
 
@@ -506,17 +610,22 @@ class InAppYouTubeExtractor internal constructor(
                 invalidateConfig()
                 throw StaleConfigException()
             }
+            // Every client that answered refused the video: say why. With no answer at all, the
+            // requests themselves failed.
+            mostSpecificFailure(refusals)?.let { throw ExtractionFailedException(it) }
+            if (answeredCount == 0) throw ExtractionFailedException(YouTubeExtractionFailure.FAILED)
             return null
         }
 
-        pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.let { return it.copy(captionsJson = streams.captionsJson, storyboardSpec = streams.storyboardSpec) }
+        // A silent video is only settled for once every client has been asked.
+        pickPlaybackSource(streams, singleUrl, maxVideoHeight, allowVideoOnly = !pendingClients.hasNext())?.let { return it.copy(captionsJson = streams.captionsJson, storyboardSpec = streams.storyboardSpec) }
         if (!pendingClients.hasNext()) return null
 
         Log.d(TAG, "No playable source from the first clients, asking the rest")
         while (pendingClients.hasNext()) {
             queryNextClient()
         }
-        return pickPlaybackSource(streams, singleUrl, maxVideoHeight)?.copy(captionsJson = streams.captionsJson, storyboardSpec = streams.storyboardSpec)
+        return pickPlaybackSource(streams, singleUrl, maxVideoHeight, allowVideoOnly = true)?.copy(captionsJson = streams.captionsJson, storyboardSpec = streams.storyboardSpec)
     }
 
     private fun addClientStreams(client: YouTubeClient, streamingData: Map<*, *>, streams: ClientStreams) {
@@ -611,9 +720,12 @@ class InAppYouTubeExtractor internal constructor(
     private suspend fun pickPlaybackSource(
         streams: ClientStreams,
         singleUrl: Boolean,
-        maxVideoHeight: Int
+        maxVideoHeight: Int,
+        allowVideoOnly: Boolean
     ): TrailerPlaybackSource? {
-        for (kind in sourcePreference(singleUrl)) {
+        // Video with no audio, kept only for when no other kind plays (#741).
+        var videoOnly: TrailerPlaybackSource? = null
+        for (kind in sourcePreference(singleUrl, streams.isLive)) {
             kotlinx.coroutines.yield()
             val source = when (kind) {
                 // Adaptive video + audio (best quality, separate streams)
@@ -629,7 +741,7 @@ class InAppYouTubeExtractor internal constructor(
                     val bestAudio = pickBestForClient(streams.adaptiveAudio, PREFERRED_SEPARATE_CLIENT)
                     val resolvedVideo = bestVideo?.url?.let { resolveReachableUrl(it) }
                     val resolvedAudio = if (resolvedVideo != null) bestAudio?.url?.let { resolveReachableUrl(it) } else null
-                    resolvedVideo?.let {
+                    val adaptive = resolvedVideo?.let {
                         TrailerPlaybackSource(
                             videoUrl = it,
                             audioUrl = resolvedAudio,
@@ -639,6 +751,15 @@ class InAppYouTubeExtractor internal constructor(
                                 .distinct()
                                 .sortedDescending()
                         )
+                    }
+                    // Unreachable audio: try the HLS manifest and progressive file, which carry
+                    // their own, before settling for a silent video.
+                    if (adaptive != null && resolvedAudio == null) {
+                        Log.w(TAG, "Adaptive audio unreachable, trying the other source kinds first")
+                        videoOnly = adaptive
+                        null
+                    } else {
+                        adaptive
                     }
                 }
                 // HLS manifest (1080p, always works for COPPA/kids content). The manifests are
@@ -661,7 +782,7 @@ class InAppYouTubeExtractor internal constructor(
             }
             if (source != null) return source
         }
-        return null
+        return videoOnly?.takeIf { allowVideoOnly }
     }
 
     private fun pickBestManifest(manifestUrls: List<Triple<String, Int, String>>): ManifestCandidate? {
@@ -918,8 +1039,11 @@ class InAppYouTubeExtractor internal constructor(
      * The order in which source kinds are tried. A single-URL source can't use the adaptive
      * formats, because their video and audio are separate files.
      */
-    internal fun sourcePreference(singleUrl: Boolean): List<PlaybackSourceKind> =
-        if (singleUrl) {
+    internal fun sourcePreference(singleUrl: Boolean, isLive: Boolean = false): List<PlaybackSourceKind> =
+        if (isLive) {
+            // A live video's adaptive formats are segment streams and it has no progressive file.
+            listOf(PlaybackSourceKind.HLS_MANIFEST)
+        } else if (singleUrl) {
             listOf(PlaybackSourceKind.HLS_MANIFEST, PlaybackSourceKind.PROGRESSIVE)
         } else {
             listOf(PlaybackSourceKind.ADAPTIVE, PlaybackSourceKind.HLS_MANIFEST, PlaybackSourceKind.PROGRESSIVE)

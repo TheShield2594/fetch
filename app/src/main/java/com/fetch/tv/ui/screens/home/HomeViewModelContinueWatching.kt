@@ -3382,6 +3382,7 @@ internal fun HomeViewModel.releaseRestoredNextUpDismissals(current: NextUpDismis
     val restored = previous.orEmpty() - current.byContentId.keys
     if (restored.isEmpty()) return
     cwProcessedOlderSeedContentIds -= restored
+    cwEvictedNegativeNextUpContentIds -= restored
     // Eligible until the older-seed pass tries them, even if the badge pipeline validates
     // them again in the meantime.
     cwRestoredNextUpIds += restored

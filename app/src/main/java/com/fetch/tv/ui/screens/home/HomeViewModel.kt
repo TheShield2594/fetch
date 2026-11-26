@@ -391,9 +391,14 @@ class HomeViewModel @Inject constructor(
     // rechecked (and its deadline still scheduled) once its validation goes stale.
     internal val cwNextUpResolutionCache: MutableMap<String, NextUpResolution?> =
         boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE) { key, value ->
-            if (value == null) cwEvictedNegativeNextUpContentIds.add(key.substringBefore('|'))
+            val contentId = key.substringBefore('|')
+            // Only processed older seeds are rechecked, so only they need remembering; this keeps
+            // the set within cwProcessedOlderSeedContentIds (one entry per series in the history).
+            if (value == null && contentId in cwProcessedOlderSeedContentIds) {
+                cwEvictedNegativeNextUpContentIds.add(contentId)
+            }
         }
-    /** Series whose "no next episode" entry the bounded cache evicted; at most one per series. */
+    /** Processed older seeds whose "no next episode" entry the bounded cache evicted. */
     internal val cwEvictedNegativeNextUpContentIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     internal val cwNextUpNegativeCacheTimestamps: MutableMap<String, Long> =
         boundedLruMap(MAX_CW_NEXT_UP_RESOLUTION_CACHE_SIZE)

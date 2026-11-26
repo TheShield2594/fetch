@@ -2,6 +2,7 @@ import { ItemType, ListItemType, Prisma } from "@prisma/client";
 import {
   TraktClient,
   computeTokenExpiresAt,
+  setTraktRefreshListener,
   type TraktPlaybackPayload,
   type TraktScrobblePayload,
   type TraktWatchlistMutationPayload,
@@ -21,6 +22,7 @@ import { watchEventDedupWhere, type WatchEventDedupKey } from "./watch-event-ded
 import type { SeriesProgressCandidate } from "./types.js";
 import type { FastifyRequest } from "fastify";
 import { TRAKT_ID_SOURCES, externalIdsFor } from "./content-id.js";
+import { sendAdminAlert, traktSignInAlert } from "./admin-alerts.js";
 
 export { computeTokenExpiresAt };
 
@@ -38,10 +40,42 @@ export const getTraktClient = async (profileId: string): Promise<TraktClient> =>
   return client;
 };
 
+// Profiles already alerted for a Trakt sign-in that can't be renewed, so the
+// poll retrying every few minutes doesn't send one each time. Cleared when the
+// token refreshes again or the profile reconnects. In memory: after a restart
+// a still-broken sign-in alerts once more, which is no bad thing. A profile
+// counts as alerted only once a channel took the alert; one whose send is in
+// flight is held off separately, and a send that reached no channel leaves the
+// next rejection free to try again.
+const traktReconnectAlerted = new Set<string>();
+const traktReconnectSending = new Set<string>();
+
+setTraktRefreshListener({
+  rejected: (profileId, logger) => {
+    if (traktReconnectAlerted.has(profileId) || traktReconnectSending.has(profileId)) return;
+    traktReconnectSending.add(profileId);
+    void (async () => {
+      const profile = await prisma.profile.findUnique({ where: { id: profileId }, select: { name: true } });
+      const delivered = await sendAdminAlert(traktSignInAlert(profile?.name ?? "a profile"), logger);
+      if (delivered > 0) traktReconnectAlerted.add(profileId);
+    })()
+      .catch((error: unknown) => logger.warn({ error }, "Trakt sign-in alert could not be sent"))
+      .finally(() => traktReconnectSending.delete(profileId));
+  },
+  refreshed: (profileId) => {
+    traktReconnectAlerted.delete(profileId);
+  },
+});
+
 /** Drops a cached client, after its profile reconnects or disconnects. No profile drops them all. */
 export const resetTraktClient = (profileId?: string) => {
-  if (profileId === undefined) traktClients.clear();
-  else traktClients.delete(profileId);
+  if (profileId === undefined) {
+    traktClients.clear();
+    traktReconnectAlerted.clear();
+  } else {
+    traktClients.delete(profileId);
+    traktReconnectAlerted.delete(profileId);
+  }
 };
 
 export const isTraktConfigured = (): boolean =>

@@ -107,6 +107,12 @@ On Fire TV, the Android TV launcher features (the Watch Next row, the Fetch chan
 screen and Fetch results in the system search) use Android TV provider APIs that the Fire OS
 launcher isn't known to show. Inside Fetch everything works the same.
 
+Google is retiring the Android TV Watch Next API in the second half of 2027 in favour of its
+Engage SDK, which is invite-only and may not be open to apps distributed outside Google Play. Until
+that is settled, Fetch keeps using Watch Next, so the launcher's Continue Watching row may stop
+showing Fetch on Google TV from then; Continue Watching inside Fetch is unaffected. See
+[docs/architecture/engage-sdk-spike.md](docs/architecture/engage-sdk-spike.md).
+
 ## Build
 
 ```bash

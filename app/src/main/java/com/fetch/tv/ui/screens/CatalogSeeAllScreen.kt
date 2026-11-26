@@ -84,6 +84,7 @@ fun CatalogSeeAllScreen(
     serverCatalog: ServerCatalogViewModel? = null,
     viewModel: HomeViewModel = hiltViewModel(),
     posterOptionsViewModel: com.fetch.tv.ui.components.posteroptions.PosterOptionsViewModel = hiltViewModel(),
+    filtersViewModel: CatalogSeeAllFiltersViewModel = hiltViewModel(),
     onNavigateToDetail: (String, String, String) -> Unit,
     onBackPress: () -> Unit
 ) {
@@ -116,15 +117,52 @@ fun CatalogSeeAllScreen(
     }
     val serverRow = serverCatalog?.row?.collectAsStateWithLifecycle()
     val serverFailure = serverCatalog?.failure?.collectAsStateWithLifecycle()
-    val catalogRow = when {
+    val sourceRow = when {
         serverCatalog != null -> serverRow?.value
         isSearchMode -> searchCatalogRow
         else -> homeCatalogRow
     }
 
-    LaunchedEffect(catalogKey, isSearchMode, catalogRow != null) {
-        if (!isSearchMode && serverCatalog == null && catalogRow == null) {
+    LaunchedEffect(catalogKey, isSearchMode, sourceRow != null) {
+        if (!isSearchMode && serverCatalog == null && sourceRow == null) {
             viewModel.requestLazyCatalogLoad(catalogKey)
+        }
+    }
+
+    // Genre, year, rating, sort and hide-watched (#651). A genre swaps in its own paged row; the
+    // rest filter whichever row is up.
+    LaunchedEffect(addonId, type, catalogId, isSearchMode) {
+        filtersViewModel.bind(addonId, type, catalogId, fromSearch = isSearchMode)
+    }
+    val filterState by filtersViewModel.state.collectAsStateWithLifecycle()
+    val genreActive = filterState.genre != null
+    // Home's watched map only covers titles in Home's rows; a genre page can hold others.
+    val genreWatchedMovieIds by filtersViewModel.watchedMovieIds.collectAsStateWithLifecycle()
+    val genreWatchedSeriesIds by filtersViewModel.watchedSeriesIds.collectAsStateWithLifecycle()
+    val useWatchedSets = isSearchMode || genreActive
+    val watchedMovieSet = if (isSearchMode) searchWatchedMovieIds?.value.orEmpty() else genreWatchedMovieIds
+    val watchedSeriesSet = if (isSearchMode) searchWatchedSeriesIds?.value.orEmpty() else genreWatchedSeriesIds
+    val isWatched: (MetaPreview) -> Boolean = { item ->
+        if (useWatchedSets) {
+            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+            val ids = if (isSeries) watchedSeriesSet else watchedMovieSet
+            item.id in ids || item.imdbId?.let { it in ids } == true
+        } else {
+            uiState.movieWatchedStatus[
+                com.fetch.tv.ui.screens.home.homeItemStatusKey(item.id, item.apiType)
+            ] == true
+        }
+    }
+    val baseRow = if (genreActive) filterState.genreRow else sourceRow
+    val watchedSnapshot = if (filterState.hideWatched) {
+        if (useWatchedSets) watchedMovieSet to watchedSeriesSet else uiState.movieWatchedStatus
+    } else {
+        null
+    }
+    val catalogRow = remember(baseRow, filterState.filters, filterState.hideWatched, watchedSnapshot) {
+        baseRow?.let { row ->
+            val visible = seeAllVisibleItems(row.items, filterState.filters, filterState.hideWatched, isWatched)
+            if (visible === row.items) row else row.copy(items = visible)
         }
     }
 
@@ -134,9 +172,9 @@ fun CatalogSeeAllScreen(
     var missingCatalogWaitExpired by remember(catalogKey) { mutableStateOf(false) }
     var missingCatalogRetries by remember(catalogKey) { mutableIntStateOf(0) }
     val sourceStillLoading = if (isSearchMode) searchUiState?.value?.isSearching == true else uiState.isLoading
-    LaunchedEffect(catalogKey, catalogRow == null, sourceStillLoading, missingCatalogRetries) {
+    LaunchedEffect(catalogKey, sourceRow == null, sourceStillLoading, missingCatalogRetries) {
         missingCatalogWaitExpired = false
-        if (serverCatalog == null && catalogRow == null && !sourceStillLoading) {
+        if (serverCatalog == null && sourceRow == null && !sourceStillLoading) {
             kotlinx.coroutines.delay(MISSING_CATALOG_WAIT_MS)
             missingCatalogWaitExpired = true
         }
@@ -160,7 +198,9 @@ fun CatalogSeeAllScreen(
 
     val requestNextPage: (com.fetch.tv.domain.model.CatalogRow) -> Unit = { row ->
         if (row.hasMore && !row.isLoading) {
-            if (serverCatalog != null) {
+            if (genreActive) {
+                filtersViewModel.loadMoreGenre()
+            } else if (serverCatalog != null) {
                 serverCatalog.loadMore()
             } else if (isSearchMode) {
                 searchViewModel.onEvent(
@@ -177,7 +217,9 @@ fun CatalogSeeAllScreen(
     // A row whose loaded titles are all hidden ("Not interested", the profile limit) has no grid
     // to scroll, so scroll paging never asks for the next page. Fetch a few on its own, then leave
     // it to the Load more action in the empty state (#789).
-    var emptyGridAutoPages by remember(catalogKey) { mutableIntStateOf(0) }
+    var emptyGridAutoPages by remember(catalogKey, filterState.genre, filterState.filters, filterState.hideWatched) {
+        mutableIntStateOf(0)
+    }
     val emptyRowWithMore = catalogRow != null && catalogRow.items.isEmpty() && catalogRow.hasMore
     LaunchedEffect(catalogKey, emptyRowWithMore, catalogRow?.isLoading) {
         val row = catalogRow ?: return@LaunchedEffect
@@ -262,11 +304,32 @@ fun CatalogSeeAllScreen(
             }
         }
 
+        if (sourceRow != null) {
+            com.fetch.tv.ui.screens.search.SeeAllFilterBar(
+                genres = filterState.genres,
+                selectedGenre = filterState.genre,
+                filters = filterState.filters,
+                hideWatched = filterState.hideWatched,
+                onSelectGenre = { genre -> filtersViewModel.selectGenre(genre, sourceRow) },
+                onSelectYearRange = filtersViewModel::selectYearRange,
+                onSelectMinRating = filtersViewModel::selectMinRating,
+                onSelectSort = filtersViewModel::selectSort,
+                onToggleHideWatched = filtersViewModel::toggleHideWatched,
+                modifier = Modifier.padding(
+                    start = FetchTheme.spacing.screen.horizontal,
+                    end = FetchTheme.spacing.screen.horizontal,
+                    top = FetchTheme.spacing.md
+                )
+            )
+        }
+
         Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
         val failure = serverFailure?.value
         val isCatalogLoading = when {
+            genreActive && filterState.genreFailed -> false
+            genreActive -> catalogRow?.isLoading ?: true
             catalogRow != null -> catalogRow.isLoading
             serverCatalog != null -> failure == null
             else -> !missingCatalogWaitExpired
@@ -296,15 +359,7 @@ fun CatalogSeeAllScreen(
                         items = catalogRow.items,
                         key = { index, _ -> seeAllItemKeys.getOrElse(index) { "${catalogRow.stableKey()}_$index" } }
                     ) { index, item ->
-                        val isWatched = if (isSearchMode) {
-                            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-                            if (isSeries) item.id in (searchWatchedSeriesIds?.value ?: emptySet())
-                            else item.id in (searchWatchedMovieIds?.value ?: emptySet())
-                        } else {
-                            uiState.movieWatchedStatus[
-                                com.fetch.tv.ui.screens.home.homeItemStatusKey(item.id, item.apiType)
-                            ] == true
-                        }
+                        val isWatched = isWatched(item)
                         val itemFocusKey = catalogItemFocusKey(item)
                         GridContentCard(
                             item = item,
@@ -382,6 +437,12 @@ fun CatalogSeeAllScreen(
                     }
                 }
             }
+        } else if (genreActive && filterState.genreFailed) {
+            ErrorState(
+                message = stringResource(R.string.catalog_see_all_genre_failed),
+                onRetry = { filtersViewModel.retryGenre(sourceRow) },
+                requestInitialFocus = false
+            )
         } else if (catalogRow == null && failure != null && serverCatalog != null) {
             // A media server that failed to load isn't an empty catalog: say why and offer Retry.
             // Nothing else on the screen can take focus, so Retry does.
@@ -397,6 +458,18 @@ fun CatalogSeeAllScreen(
                     .padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.md),
                 cardWidth = posterCardStyle.width,
                 cardHeight = posterCardStyle.height
+            )
+        } else if (catalogRow != null && !catalogRow.hasMore && filterState.isFiltering &&
+            (baseRow?.items?.isNotEmpty() == true || (genreActive && sourceRow?.items?.isNotEmpty() == true))
+        ) {
+            // The filters, not the catalog, emptied the grid.
+            EmptyScreenState(
+                title = stringResource(R.string.discover_empty_filtered_title),
+                subtitle = stringResource(R.string.discover_empty_filtered_subtitle),
+                icon = Icons.Default.GridView,
+                action = com.fetch.tv.ui.components.StateAction(stringResource(R.string.discover_clear_filters)) {
+                    filtersViewModel.clearFilters(sourceRow)
+                }
             )
         } else if (catalogRow != null && catalogRow.hasMore) {
             // Everything loaded so far is hidden, but later pages may hold titles (#789).

@@ -90,7 +90,7 @@ import com.fetch.tv.ui.util.localizedGenreLabel
 private enum class DiscoverFilterKind { GENRE, YEAR, RATING, SORT }
 
 /** One choice in an open filter row. */
-private data class DiscoverChoice(
+internal data class DiscoverChoice(
     val label: String,
     val selected: Boolean,
     val onSelect: () -> Unit
@@ -164,26 +164,9 @@ internal fun DiscoverSection(
         if (typeFocusRequester.requestFocusAfterFrames(frames = 1)) onInitialFocusHandled()
     }
 
-    fun yearLabel(range: DiscoverYearRange?): String = when {
-        range == null -> resources.getString(R.string.discover_year_any)
-        range.from != null && range.from == range.to -> range.from.toString()
-        range.from == null && range.to != null -> resources.getString(R.string.discover_year_before, range.to + 1)
-        else -> resources.getString(R.string.discover_year_decade, range.from ?: 0)
-    }
-    fun ratingLabel(minRating: Int?): String =
-        if (minRating == null) {
-            resources.getString(R.string.discover_rating_any)
-        } else {
-            resources.getString(R.string.discover_rating_min, minRating)
-        }
-    fun sortLabel(sort: DiscoverSort): String = resources.getString(
-        when (sort) {
-            DiscoverSort.CATALOG -> R.string.discover_sort_catalog
-            DiscoverSort.RATING -> R.string.discover_sort_rating
-            DiscoverSort.NEWEST -> R.string.discover_sort_newest
-            DiscoverSort.TITLE -> R.string.discover_sort_title
-        }
-    )
+    fun yearLabel(range: DiscoverYearRange?): String = discoverYearLabel(resources, range)
+    fun ratingLabel(minRating: Int?): String = discoverRatingLabel(resources, minRating)
+    fun sortLabel(sort: DiscoverSort): String = discoverSortLabel(resources, sort)
     val allGenresLabel = stringResource(R.string.discover_genre_default)
     val selectedGenreLabel = uiState.selectedDiscoverGenre?.let { localizedGenreLabel(it) } ?: allGenresLabel
 
@@ -267,35 +250,7 @@ internal fun DiscoverSection(
                         onClick = { openFilter = if (expanded) null else kind },
                         modifier = Modifier.focusRequester(filterChipRequesters.getValue(kind))
                     ) { contentColor ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
-                        ) {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = contentColor.copy(alpha = 0.7f)
-                            )
-                            Text(
-                                text = value,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    textDirection = value.contentTextDirection()
-                                ),
-                                color = contentColor,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Icon(
-                                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                contentDescription = if (expanded) {
-                                    stringResource(R.string.cd_collapse, title)
-                                } else {
-                                    stringResource(R.string.cd_expand, title)
-                                },
-                                modifier = Modifier.size(FetchTheme.sizes.icons.sm),
-                                tint = contentColor
-                            )
-                        }
+                        DiscoverFilterChipLabel(title, value, expanded, contentColor)
                     }
                 }
             }
@@ -439,9 +394,67 @@ internal fun DiscoverSection(
     }
 }
 
+internal fun discoverYearLabel(resources: android.content.res.Resources, range: DiscoverYearRange?): String = when {
+    range == null -> resources.getString(R.string.discover_year_any)
+    range.from != null && range.from == range.to -> range.from.toString()
+    range.from == null && range.to != null -> resources.getString(R.string.discover_year_before, range.to + 1)
+    else -> resources.getString(R.string.discover_year_decade, range.from ?: 0)
+}
+
+internal fun discoverRatingLabel(resources: android.content.res.Resources, minRating: Int?): String =
+    if (minRating == null) {
+        resources.getString(R.string.discover_rating_any)
+    } else {
+        resources.getString(R.string.discover_rating_min, minRating)
+    }
+
+internal fun discoverSortLabel(resources: android.content.res.Resources, sort: DiscoverSort): String =
+    resources.getString(
+        when (sort) {
+            DiscoverSort.CATALOG -> R.string.discover_sort_catalog
+            DiscoverSort.RATING -> R.string.discover_sort_rating
+            DiscoverSort.NEWEST -> R.string.discover_sort_newest
+            DiscoverSort.TITLE -> R.string.discover_sort_title
+        }
+    )
+
+/** A filter chip's content: its name, the current value, and an arrow for whether its choices are open. */
+@Composable
+internal fun DiscoverFilterChipLabel(title: String, value: String, expanded: Boolean, contentColor: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelMedium,
+            color = contentColor.copy(alpha = 0.7f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelLarge.copy(
+                textDirection = value.contentTextDirection()
+            ),
+            color = contentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Icon(
+            imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = if (expanded) {
+                stringResource(R.string.cd_collapse, title)
+            } else {
+                stringResource(R.string.cd_expand, title)
+            },
+            modifier = Modifier.size(FetchTheme.sizes.icons.sm),
+            tint = contentColor
+        )
+    }
+}
+
 /** The open filter's choices as a row of chips under the filter bar. */
 @Composable
-private fun DiscoverChoiceRow(
+internal fun DiscoverChoiceRow(
     choices: List<DiscoverChoice>,
     focusRequester: FocusRequester,
     onChoose: (DiscoverChoice) -> Unit,
@@ -483,7 +496,7 @@ private fun DiscoverChoiceRow(
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun DiscoverChip(
+internal fun DiscoverChip(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,

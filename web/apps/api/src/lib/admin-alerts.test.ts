@@ -6,7 +6,8 @@ vi.mock("./integration-owner.js", () => ({ outboundScopeForProfile: async () => 
 const sendToChannel = vi.fn();
 vi.mock("./notification-channels.js", () => ({ sendToChannel: (...a: unknown[]) => sendToChannel(...a) }));
 
-const { JOB_ALERT_AFTER_FAILURES, jobAlertFor, sendAdminAlert, tvSyncAlert } = await import("./admin-alerts.js");
+const { JOB_ALERT_AFTER_FAILURES, credentialsUnreadableAlert, jobAlertFor, sendAdminAlert, traktSignInAlert, tvSyncAlert } =
+  await import("./admin-alerts.js");
 
 const streak = (failures: number, previousFailures: number) => ({
   job: "trakt-history-poll",
@@ -63,5 +64,38 @@ describe("sendAdminAlert", () => {
 
     prismaMock.notificationChannel.findMany.mockRejectedValue(new Error("db down"));
     await expect(sendAdminAlert(tvSyncAlert({ name: "Living room" }, "timeout"), log)).resolves.toBe(0);
+  });
+});
+
+describe("credentialsUnreadableAlert", () => {
+  it("names every credential and what to do", () => {
+    const alert = credentialsUnreadableAlert(["TMDB API key", "Trakt tokens (Kids)"]);
+
+    expect(alert).toMatchObject({ event: "credentials-unreadable", severity: "warning" });
+    expect(alert.title).toContain("2 stored credentials");
+    expect(alert.body).toContain("TMDB API key, Trakt tokens (Kids)");
+    expect(alert.body).toContain("API_TOKEN");
+  });
+
+  it("keeps a long list within the body limit", () => {
+    const alert = credentialsUnreadableAlert(Array.from({ length: 100 }, (_, i) => `Add-on URL ${i}`));
+
+    expect(alert.body.length).toBeLessThanOrEqual(500);
+    expect(alert.title).toContain("100 stored credentials");
+  });
+
+  it("says one credential in the singular", () => {
+    expect(credentialsUnreadableAlert(["VAPID keys"]).title).toContain("1 stored credential can't");
+  });
+});
+
+describe("traktSignInAlert", () => {
+  it("names the profile and links to the Trakt settings", () => {
+    expect(traktSignInAlert("Kids")).toMatchObject({
+      event: "trakt-reconnect-needed",
+      severity: "warning",
+      path: "/settings?section=trakt",
+      title: expect.stringContaining("Kids"),
+    });
   });
 });

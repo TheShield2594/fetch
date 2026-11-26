@@ -833,9 +833,14 @@ Two kinds of event are sent. `upcoming-episode` goes to every enabled channel
 of the profile. The server's own alerts go to the enabled channels the admin
 marked `adminAlerts`, on an admin account's profiles: `job-failing` when a
 background job has failed three runs in a row (once, not on every failure
-after), `job-recovered` when it next succeeds, and `tv-sync-failing` when a TV
-that was syncing reports a failed sync. A generic webhook receives the event
-name in `event`.
+after), `job-recovered` when it next succeeds, `tv-sync-failing` when a TV
+that was syncing reports a failed sync, `credentials-unreadable` when the
+startup sweep finds stored credentials the current `API_TOKEN` can't decrypt
+(sent on each start until they are fixed; a channel whose own URL is among them
+can't carry it, so the startup log stays the record), and
+`trakt-reconnect-needed` when Trakt refuses to renew a profile's sign-in (once,
+until it refreshes again or the profile reconnects). A generic webhook receives
+the event name in `event`.
 
 A generic `webhook` receives `{ event, title, message, url, data }`; for an
 upcoming episode, `data` carries `seriesImdbId`, `seriesName`, `season`,

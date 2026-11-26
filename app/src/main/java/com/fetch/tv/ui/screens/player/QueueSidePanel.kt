@@ -24,9 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,8 +52,6 @@ import com.fetch.tv.data.local.QueueItem
 import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.localizeEpisodeTitle
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 
 /** "S2 E6 · Title" for an episode, the title alone otherwise. */
 @Composable
@@ -74,7 +70,6 @@ internal fun queueItemSubtitle(item: QueueItem): String? {
 private data class RemovedQueueItem(val item: QueueItem, val index: Int)
 
 /** Longest an Undo waits for one restored item to settle before putting back the next. */
-private const val QUEUE_RESTORE_SETTLE_TIMEOUT_MS = 2_000L
 
 /** The player's Queue panel: what plays after this, in order, with play, reorder and remove. */
 @Composable
@@ -98,31 +93,12 @@ internal fun QueueSidePanel(
     // The last removal (one row, or every row for Clear all), kept while the panel is open so
     // it can be undone from here.
     var lastRemoved by remember { mutableStateOf<List<RemovedQueueItem>>(emptyList()) }
-    // Items an Undo is putting back, in queue order. One at a time: each restore walks its
-    // item up from the end of the queue, so the next starts once the previous has settled.
-    var pendingRestores by remember { mutableStateOf<List<RemovedQueueItem>>(emptyList()) }
-    val currentItems by rememberUpdatedState(items)
 
     // A removal takes focus to its Undo, which sits where the removed row was reached from.
     LaunchedEffect(lastRemoved) {
         if (lastRemoved.isEmpty()) return@LaunchedEffect
         withFrameNanos { }
         runCatching { undoFocusRequester.requestFocus() }
-    }
-
-    // Keyed on the head: an Undo appending to the tail must not restart, and so re-dispatch,
-    // the restore still settling.
-    val pendingHead = pendingRestores.firstOrNull()
-    LaunchedEffect(pendingHead) {
-        val head = pendingHead ?: return@LaunchedEffect
-        onRestore(head.item, head.index)
-        withTimeoutOrNull(QUEUE_RESTORE_SETTLE_TIMEOUT_MS) {
-            snapshotFlow {
-                val at = currentItems.indexOfFirst { it.videoId == head.item.videoId }
-                at >= 0 && at <= head.index
-            }.first { it }
-        }
-        pendingRestores = pendingRestores.drop(1)
     }
 
     // On open, and again when the focused row was removed, so focus never falls out of the panel.
@@ -206,7 +182,9 @@ internal fun QueueSidePanel(
                     text = stringResource(R.string.player_queue_undo),
                     onClick = {
                         lastRemoved = emptyList()
-                        pendingRestores = pendingRestores + removed.sortedBy { it.index }
+                        // Lowest index first: the controller restores them in this order, one at
+                        // a time, and keeps going if the panel closes.
+                        removed.sortedBy { it.index }.forEach { onRestore(it.item, it.index) }
                     },
                     isPrimary = false,
                     modifier = Modifier.focusRequester(undoFocusRequester)

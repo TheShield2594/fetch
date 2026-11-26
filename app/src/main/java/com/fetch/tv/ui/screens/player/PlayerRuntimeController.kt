@@ -476,6 +476,8 @@ class PlayerRuntimeController(
     internal var currentEpisodeCompletionIsFinal: Boolean = false
     /** Serializes watch-progress saves so a later save never lands before an earlier one. */
     internal val watchProgressSaveMutex = kotlinx.coroutines.sync.Mutex()
+    // Queue restores run one at a time, in the order requested (see restoreQueueItem).
+    internal val queueRestoreMutex = kotlinx.coroutines.sync.Mutex()
     internal var lastKnownDuration: Long = 0L
 
     internal var playbackStartedForParentalGuide = false

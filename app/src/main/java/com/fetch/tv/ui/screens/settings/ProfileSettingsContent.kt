@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.settings
 
+import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import com.fetch.tv.ui.theme.FetchTheme
 
 import androidx.compose.foundation.layout.Arrangement
@@ -10,8 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,7 +57,7 @@ internal fun ProfileSettingsContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
+                    .focusSafeHorizontalScroll(),
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
             ) {
                 profiles.forEach { profile ->

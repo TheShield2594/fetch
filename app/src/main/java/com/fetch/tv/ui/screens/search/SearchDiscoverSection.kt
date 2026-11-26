@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
+import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalResources
 import com.fetch.tv.ui.components.FetchMediaCard
@@ -10,7 +11,6 @@ import com.fetch.tv.ui.screens.home.HeroBackdropState
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -186,7 +185,7 @@ internal fun DiscoverSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
+                    .focusSafeHorizontalScroll(),
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -467,7 +466,7 @@ internal fun DiscoverChoiceRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
+            .focusSafeHorizontalScroll()
             .onFocusChanged { state ->
                 if (hadFocus && !state.hasFocus) onFocusLeft()
                 hadFocus = state.hasFocus

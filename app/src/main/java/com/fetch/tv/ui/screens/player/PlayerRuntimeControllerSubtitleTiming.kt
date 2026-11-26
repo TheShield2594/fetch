@@ -101,8 +101,9 @@ internal fun PlayerRuntimeController.applySubtitleAutoSyncCue(cueStartTimeMs: Lo
             subtitleAutoSyncError = null
         )
     }
-    // Remember the delay so it survives to the next session (issue #1063).
-    persistTrackPreference()
+    // Remember the delay so it survives to the next session (issue #1063). Only the delay: the
+    // track choice is not this path's to rewrite (#691).
+    persistSubtitleDelay()
     refreshActiveSubtitleTrackAfterTimingChange()
     scheduleHideSubtitleDelayOverlay()
 }

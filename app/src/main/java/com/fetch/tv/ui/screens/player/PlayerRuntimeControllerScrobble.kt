@@ -64,7 +64,11 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
                         "result=${if (loaded == null) "null (no saved preference)" else "audio=${loaded.audio?.language}/${loaded.audio?.name} subtitle=${loaded.subtitle?.javaClass?.simpleName}"}"
                 )
                 persistedTrackPreference = loaded
-            } ?: Log.d(PlayerRuntimeController.TAG, "TRACK_PREF load: skipped (contentId is null)")
+                loadedTrackPreference = loaded
+            } ?: run {
+                loadedTrackPreference = null
+                Log.d(PlayerRuntimeController.TAG, "TRACK_PREF load: skipped (contentId is null)")
+            }
         } else {
             Log.d(
                 PlayerRuntimeController.TAG,

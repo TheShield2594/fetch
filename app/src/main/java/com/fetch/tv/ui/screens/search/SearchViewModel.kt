@@ -170,6 +170,8 @@ class SearchViewModel @Inject constructor(
     private var lastCompletedRequestKey: String? = null
     private var hasRenderedFirstCatalog = false
     private var pendingCatalogResponses = 0
+    /** Holds a run's first paint until its catalogs have answered (see scheduleCatalogRowsUpdate). */
+    private var firstRenderJob: Job? = null
 
     /** One catalog Discover pages through, and where its next page starts. */
     private data class DiscoverSourceCursor(
@@ -208,6 +210,12 @@ class SearchViewModel @Inject constructor(
          * it waits longer than the suggestion debounce to avoid a request storm per keystroke.
          */
         const val LIVE_SEARCH_DEBOUNCE_MS = 350L
+
+        /**
+         * How long a search's first answer waits for the other catalogs before it is shown anyway,
+         * so the first results on screen are already ranked across addons.
+         */
+        const val FIRST_RESULTS_SETTLE_MS = 800L
 
         const val MAX_SUGGESTIONS = 8
         /** Splits titles and queries into words. */
@@ -622,6 +630,8 @@ class SearchViewModel @Inject constructor(
         catalogOrder.clear()
         hasRenderedFirstCatalog = false
         pendingCatalogResponses = 0
+        firstRenderJob?.cancel()
+        firstRenderJob = null
     }
 
     private var peopleJob: Job? = null
@@ -658,6 +668,8 @@ class SearchViewModel @Inject constructor(
         searchGeneration++
         searchRunJob?.cancel()
         searchRunJob = null
+        firstRenderJob?.cancel()
+        firstRenderJob = null
         activeSearchJobs.forEach { it.cancel() }
         activeSearchJobs = emptyList()
         // Snapshot first: a cancelled job's completion handler removes its key.
@@ -1046,13 +1058,34 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun scheduleCatalogRowsUpdate() {
+        // A run's first paint waits for every catalog to answer, or FIRST_RESULTS_SETTLE_MS after
+        // the first one does. Painting the first answer at once put the fastest addon's
+        // popularity order on screen, then re-ranked it a moment later as the rest arrived, so
+        // the top result changed under the user. Until then the previous query's rows (or the
+        // shimmer) stay up.
+        if (!hasRenderedFirstCatalog && catalogsMap.isNotEmpty()) {
+            if (pendingCatalogResponses > 0) {
+                if (firstRenderJob?.isActive != true) {
+                    firstRenderJob = viewModelScope.launch {
+                        kotlinx.coroutines.delay(FIRST_RESULTS_SETTLE_MS)
+                        if (!hasRenderedFirstCatalog) {
+                            hasRenderedFirstCatalog = true
+                            catalogRowsUpdateJob?.cancel()
+                            updateCatalogRowsNow()
+                        }
+                    }
+                }
+                return
+            }
+            firstRenderJob?.cancel()
+            firstRenderJob = null
+            catalogRowsUpdateJob?.cancel()
+            hasRenderedFirstCatalog = true
+            updateCatalogRowsNow()
+            return
+        }
         catalogRowsUpdateJob?.cancel()
         catalogRowsUpdateJob = viewModelScope.launch {
-            if (!hasRenderedFirstCatalog && catalogsMap.isNotEmpty()) {
-                hasRenderedFirstCatalog = true
-                updateCatalogRowsNow()
-                return@launch
-            }
             val debounceMs = when {
                 pendingCatalogResponses > 5 -> 220L
                 pendingCatalogResponses > 0 -> 140L

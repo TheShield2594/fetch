@@ -1,11 +1,10 @@
 package com.fetch.tv.ui.screens.search
 
-import androidx.compose.foundation.horizontalScroll
+import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,7 +69,7 @@ internal fun SeeAllFilterBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
+                .focusSafeHorizontalScroll(),
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.library
 
+import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import com.fetch.tv.core.util.runSuspendCatching
 import android.view.KeyEvent as AndroidKeyEvent
 import com.fetch.tv.ui.components.FetchButtonStyle
@@ -54,8 +55,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
@@ -824,7 +823,7 @@ private fun LibraryTabRow(
     val rowDescription = stringResource(R.string.library_tabs_description)
     Row(
         modifier = modifier
-            .horizontalScroll(rememberScrollState())
+            .focusSafeHorizontalScroll()
             .semantics { contentDescription = rowDescription },
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
@@ -906,7 +905,7 @@ private fun LibrarySelectorsRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+            .focusSafeHorizontalScroll(),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {

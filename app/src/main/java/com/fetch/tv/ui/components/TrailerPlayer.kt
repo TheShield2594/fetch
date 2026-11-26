@@ -14,6 +14,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -86,6 +87,8 @@ fun TrailerPlayer(
     val lifecycleOwner = LocalLifecycleOwner.current
     val activityLifecycleOwner = remember(context) { context as? androidx.lifecycle.LifecycleOwner ?: lifecycleOwner }
     val currentIsPlaying by rememberUpdatedState(isPlaying)
+    val currentIsPaused by rememberUpdatedState(isPaused)
+    val currentStartPositionMs by rememberUpdatedState(startPositionMs)
     val currentTrailerUrl by rememberUpdatedState(trailerUrl)
     val currentTrailerAudioUrl by rememberUpdatedState(trailerAudioUrl)
     val currentOnEnded by rememberUpdatedState(onEnded)
@@ -118,12 +121,54 @@ fun TrailerPlayer(
     // Use the shared pool instance instead of creating a new ExoPlayer per focus.
     // The pool keeps one ExoPlayer alive across poster focus changes, eliminating
     // the expensive create/teardown cycle that was the app-launch bottleneck.
-    val trailerPlayer = remember(trailerUrl, resolvedPool) {
+    // Bumped on resume when the held player was released meanwhile (a memory trim once the app
+    // was hidden, or the full-screen player), so a fresh one is acquired instead of a dead one
+    // that prepares without an error and shows black (#698).
+    // Not keyed on the link: the lifecycle observer outlives a link change when the pool hands
+    // back the same instance, and must bump the state this composition reads.
+    var playerEpoch by remember(resolvedPool) { mutableIntStateOf(0) }
+    val trailerPlayer = remember(trailerUrl, resolvedPool, playerEpoch) {
         if (trailerUrl != null) {
             resolvedPool?.acquire()
         } else {
             null
         }
+    }
+
+    // Where playback was when the app went to the background. The stream is stopped and cleared
+    // then (decoders freed); on return it reopens here, not at 0:00 (#698). One holder for the
+    // composable's life, for the same reason as the epoch; it records which link it belongs to.
+    val backgroundedAt = remember { BackgroundedPosition() }
+
+    // The audio link last loaded: a new audio stream for the same video link must still reload.
+    val loadedAudio = remember { LoadedAudio() }
+
+    // The seek request last applied. A re-acquired player re-runs the seek effect with the same
+    // token; replaying it there (duration still unknown, so clamped to 0) restarted at 0:00.
+    val appliedSeek = remember { AppliedSeek() }
+
+    // Loads this link into [player] from [startMs] (0 = its default start: a live stream's edge).
+    fun loadInto(player: ExoPlayer, url: String, audioUrl: String?, startMs: Long) {
+        loadedAudio.url = audioUrl
+        if (!audioUrl.isNullOrBlank()) {
+            val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
+            val videoSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(url))
+            val audioSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(audioUrl))
+            val merged = MergingMediaSource(videoSource, audioSource)
+            if (startMs > 0L) player.setMediaSource(merged, startMs) else player.setMediaSource(merged)
+        } else {
+            val item = MediaItem.fromUri(url)
+            if (startMs > 0L) player.setMediaItem(item, startMs) else player.setMediaItem(item)
+        }
+        player.prepare()
+    }
+
+    // The start for a (re)load: the place playback was backgrounded at, once, else the caller's.
+    fun takeStartPosition(url: String): Long {
+        val resumeAt = backgroundedAt.positionMs.takeIf { backgroundedAt.url == url } ?: 0L
+        backgroundedAt.url = null
+        backgroundedAt.positionMs = 0L
+        return if (resumeAt > 0L) resumeAt else currentStartPositionMs
     }
 
     // Configure player settings when acquired
@@ -141,20 +186,17 @@ fun TrailerPlayer(
         val player = trailerPlayer ?: return@LaunchedEffect
         player.volume = if (muted) 0f else 1f
         if (isPlaying && trailerUrl != null) {
-            hasRenderedFirstFrame = false
-            if (!trailerAudioUrl.isNullOrBlank()) {
-                val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
-                val videoSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(trailerUrl))
-                val audioSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(trailerAudioUrl))
-                val merged = MergingMediaSource(videoSource, audioSource)
+            // The lifecycle observer below may already have loaded this link on resume (from
+            // where it was backgrounded); loading it again here would restart it at the start.
+            val alreadyLoaded = player.playbackState != Player.STATE_IDLE &&
+                player.currentMediaItem?.localConfiguration?.uri?.toString() == trailerUrl &&
+                loadedAudio.url == trailerAudioUrl
+            if (!alreadyLoaded) {
+                hasRenderedFirstFrame = false
                 // Only a real position: 0 would pin a live stream to its start, not its live edge.
-                if (startPositionMs > 0L) player.setMediaSource(merged, startPositionMs) else player.setMediaSource(merged)
-            } else {
-                val item = MediaItem.fromUri(trailerUrl)
-                if (startPositionMs > 0L) player.setMediaItem(item, startPositionMs) else player.setMediaItem(item)
+                loadInto(player, trailerUrl, trailerAudioUrl, takeStartPosition(trailerUrl))
             }
-            player.prepare()
-            player.playWhenReady = true
+            player.playWhenReady = !currentIsPaused
         } else {
             hasRenderedFirstFrame = false
             player.playWhenReady = false
@@ -210,7 +252,13 @@ fun TrailerPlayer(
 
     LaunchedEffect(seekRequestToken, seekDeltaMs, trailerPlayer) {
         val player = trailerPlayer ?: return@LaunchedEffect
-        if (seekRequestToken <= 0) return@LaunchedEffect
+        if (seekRequestToken <= 0) {
+            // The caller reset its tokens (a new attempt): its next request is a new one.
+            appliedSeek.token = 0
+            return@LaunchedEffect
+        }
+        if (seekRequestToken == appliedSeek.token) return@LaunchedEffect
+        appliedSeek.token = seekRequestToken
         val duration = player.duration.takeIf { it > 0 } ?: 0L
         val current = player.currentPosition
         val target = (current + seekDeltaMs).coerceIn(0L, duration.coerceAtLeast(0L))
@@ -258,27 +306,37 @@ fun TrailerPlayer(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
-                    if (currentIsPlaying && !currentTrailerUrl.isNullOrBlank()) {
+                    if (resolvedPool != null && !resolvedPool.isLive(player)) {
+                        // Released while hidden: acquire a fresh player. Its effects load the
+                        // link from the backgrounded position.
+                        playerEpoch += 1
+                        return@LifecycleEventObserver
+                    }
+                    val url = currentTrailerUrl
+                    if (currentIsPlaying && !url.isNullOrBlank()) {
                         if (player.currentMediaItem == null) {
-                            if (!currentTrailerAudioUrl.isNullOrBlank()) {
-                                val mediaSourceFactory = DefaultMediaSourceFactory(YoutubeChunkedDataSourceFactory())
-                                val videoSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(currentTrailerUrl!!))
-                                val audioSource = mediaSourceFactory.createMediaSource(MediaItem.fromUri(currentTrailerAudioUrl!!))
-                                player.setMediaSource(MergingMediaSource(videoSource, audioSource))
-                            } else {
-                                player.setMediaItem(MediaItem.fromUri(currentTrailerUrl!!))
-                            }
-                            player.prepare()
+                            hasRenderedFirstFrame = false
+                            loadInto(player, url, currentTrailerAudioUrl, takeStartPosition(url))
                         }
-                        player.playWhenReady = true
+                        player.playWhenReady = !currentIsPaused
                     }
                 }
                 Lifecycle.Event.ON_PAUSE,
                 Lifecycle.Event.ON_STOP -> {
-                    player.playWhenReady = false
-                    player.pause()
-                    player.stop()
-                    player.clearMediaItems()
+                    // Keep the place before the stream is cleared; a live stream rejoins its edge.
+                    runCatching {
+                        if (player.currentMediaItem != null && !player.isCurrentMediaItemLive) {
+                            val position = player.currentPosition
+                            if (position > 0L) {
+                                backgroundedAt.url = currentTrailerUrl
+                                backgroundedAt.positionMs = position
+                            }
+                        }
+                        player.playWhenReady = false
+                        player.pause()
+                        player.stop()
+                        player.clearMediaItems()
+                    }
                 }
                 // Do NOT release on destroy — the pool owns the lifecycle.
                 else -> Unit
@@ -289,8 +347,9 @@ fun TrailerPlayer(
         onDispose {
             runCatching { activityLifecycleOwner.lifecycle.removeObserver(observer) }
             runCatching { player.removeListener(listener) }
-            // Only stop — never release. The pool manages the ExoPlayer lifecycle.
-            resolvedPool?.stop()
+            // Only stop — never release. The pool manages the ExoPlayer lifecycle. And only this
+            // instance: after a re-acquire the pool's live player belongs to the new effect.
+            resolvedPool?.stop(player)
         }
     }
 
@@ -344,4 +403,18 @@ fun TrailerPlayer(
             )
         }
     }
+}
+
+private class LoadedAudio {
+    var url: String? = null
+}
+
+private class AppliedSeek {
+    var token: Int = 0
+}
+
+/** A plain holder: written from lifecycle callbacks and read once, so it needn't be observable. */
+private class BackgroundedPosition {
+    var url: String? = null
+    var positionMs: Long = 0L
 }

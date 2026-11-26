@@ -150,6 +150,9 @@ fun YouTubePlayerOverlay(
     var playlistPickerClosed by remember(video.videoId) { mutableIntStateOf(0) }
     var positionMs by remember(video.videoId) { mutableLongStateOf(0L) }
     var ended by remember(video.videoId) { mutableStateOf(false) }
+    // Per video, across attempts: an expired link is re-extracted once by itself; a second
+    // failure offers Retry, so a link that keeps failing never loops (#740).
+    var expiredLinkRetried by remember(video.videoId) { mutableStateOf(false) }
 
     val focusRequester = remember { FocusRequester() }
     val saveFocusRequester = remember { FocusRequester() }
@@ -337,7 +340,15 @@ fun YouTubePlayerOverlay(
                     trailerUrl = playback.videoUrl,
                     trailerAudioUrl = playback.audioUrl,
                     isPlaying = true,
-                    onError = { onPlaybackError() },
+                    onError = { error ->
+                        if (!expiredLinkRetried && isExpiredStreamLink(error)) {
+                            // Retry carries on from where this attempt stopped, with a fresh link.
+                            expiredLinkRetried = true
+                            onRetry()
+                        } else {
+                            onPlaybackError()
+                        }
+                    },
                     isPaused = isPaused,
                     playbackSpeed = playbackSpeed,
                     seekRequestToken = seekToken,
@@ -992,6 +1003,21 @@ internal fun seekStepMs(repeatCount: Int): Long = when {
     repeatCount >= 20 -> 60_000L
     repeatCount >= 8 -> 30_000L
     else -> 10_000L
+}
+
+/** A 403 or 410 from googlevideo: the stream link expired (a long pause) or was revoked. */
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+internal fun isExpiredStreamLink(error: Throwable): Boolean {
+    var cause: Throwable? = error
+    var depth = 0
+    while (cause != null && depth < 8) {
+        if (cause is androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException) {
+            return cause.responseCode == 403 || cause.responseCode == 410
+        }
+        cause = cause.cause
+        depth++
+    }
+    return false
 }
 
 /**

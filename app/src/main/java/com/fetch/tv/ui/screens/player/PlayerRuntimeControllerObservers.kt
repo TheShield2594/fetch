@@ -652,6 +652,18 @@ internal fun PlayerRuntimeController.resolvePendingInitialResumePosition(): Long
     return target.coerceAtLeast(0L)
 }
 
+/**
+ * A queued seek (a source switch, retry or recovery) to use as the new source's start position, so
+ * the stream opens at that place instead of at byte 0 and then seeking: two cold range requests on
+ * a debrid link (#707). Null for live content, whose queued seek still waits for STATE_READY.
+ * Not consumed: the caller clears it once the source is set, so a failure before that (and the
+ * failover it starts) keeps the position.
+ */
+internal fun PlayerRuntimeController.pendingSeekStartPosition(): Long? {
+    if (LivePlaybackUiPolicy.isLiveContent(contentType, contentId)) return null
+    return _uiState.value.pendingSeekPosition?.takeIf { it > 0L }
+}
+
 internal fun PlayerRuntimeController.clearPendingInitialResumePosition() {
     pendingResumeProgress = null
     _uiState.update { it.copy(pendingSeekPosition = null) }

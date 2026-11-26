@@ -1122,7 +1122,11 @@ internal fun PlayerRuntimeController.initializePlayer(
                 applySubtitlePreferences(preferred, secondary)
                 applyStartupSubtitlePreparation(startupSubtitlePreparation)
                 val startupSubtitleConfigurations = buildStartupSubtitleConfigurations(startupSubtitlePreparation)
-                val initialResumePosition = resolvePendingInitialResumePosition()
+                // Saved progress first; otherwise a queued seek from a source switch, retry or
+                // recovery, so the source opens there rather than at 0 (#707).
+                val initialResumePosition = resolvePendingInitialResumePosition().takeIf { it > 0L }
+                    ?: pendingSeekStartPosition()
+                    ?: 0L
                 playbackAnalyticsDiagnostics.setStartupStartPosition(initialResumePosition)
                 playbackAnalyticsDiagnostics.recordRawEventLine(
                     "PLAYER_INIT: engine=EXOPLAYER host=${url.safeHost()} " +

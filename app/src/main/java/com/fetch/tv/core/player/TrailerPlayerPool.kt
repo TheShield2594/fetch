@@ -135,6 +135,21 @@ class TrailerPlayerPool @Inject constructor(
     }
 
     /**
+     * Stops [player] only if it is still the pool's live instance. A caller holding an instance
+     * released by [yield] must not stop the fresh one another caller has since acquired.
+     */
+    fun stop(player: ExoPlayer) {
+        if (player === _player) stop()
+    }
+
+    /**
+     * Whether [player] is still the pool's live instance, not one [yield] (a memory trim or the
+     * full-screen player) has released. A released ExoPlayer prepares without an error and shows
+     * nothing, so a caller re-acquires instead of reusing it.
+     */
+    fun isLive(player: ExoPlayer): Boolean = !released.get() && !yielded.get() && player === _player
+
+    /**
      * Releases codec resources so the detail-screen player can claim hardware decoders.
      * The ExoPlayer instance is released here; [reclaim] will create a fresh one.
      */

@@ -410,11 +410,16 @@ internal fun SubtitleSelectionOverlay(
             }
         }
 
+        // Once per open: languageItems is rebuilt on every addon response, and scrolling back to
+        // the initial language each time pulled the rail away from where the user had moved (#720).
+        var initialLanguageScrolled by remember(visible) { mutableStateOf(false) }
         LaunchedEffect(visible, sessionInitialLanguageKey, languageItems) {
-            if (!visible) return@LaunchedEffect
+            if (!visible || initialLanguageScrolled) return@LaunchedEffect
             val targetIndex = languageItems.indexOfFirst { it.key == sessionInitialLanguageKey }
             if (targetIndex >= 0) {
+                // Set once the scroll completes: a cancelled scroll (the list changed) retries.
                 languageListState.scrollItemIntoView(targetIndex)
+                initialLanguageScrolled = true
             }
         }
 

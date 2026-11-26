@@ -466,6 +466,8 @@ class PlayerRuntimeController(
     internal var hasMarkedCurrentEpisodeCompleted: Boolean = false
     /** The completion mark came from the natural end, so later in-progress saves are stale. */
     internal var currentEpisodeCompletionIsFinal: Boolean = false
+    /** Serializes watch-progress saves so a later save never lands before an earlier one. */
+    internal val watchProgressSaveMutex = kotlinx.coroutines.sync.Mutex()
     internal var lastKnownDuration: Long = 0L
 
     internal var playbackStartedForParentalGuide = false

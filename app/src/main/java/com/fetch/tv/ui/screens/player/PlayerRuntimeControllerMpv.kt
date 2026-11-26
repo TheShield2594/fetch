@@ -284,7 +284,9 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
         // The app is going to the background and can be killed there: this counts as leaving.
         saveWatchProgress(WatchProgressSaveReason.LEAVING)
         stopProgressUpdates()
-        _uiState.update { it.copy(isPlaying = false) }
+        // Not buffering either: a stale flag from a cache stall would read as loading, and the
+        // server report skips loading snapshots, so the PAUSE would never be sent.
+        _uiState.update { it.copy(isPlaying = false, isBuffering = false) }
         // The tick that reports to media servers stops in the background: report the pause now.
         reportServerPlayback()
         return

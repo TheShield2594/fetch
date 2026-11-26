@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 
 internal const val AUDIO_AMPLIFICATION_MIN_DB = 0
 internal const val AUDIO_AMPLIFICATION_MAX_DB = 10
@@ -321,7 +322,9 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     // The playerDuration check stays: lastKnownDuration can still hold the previous
                     // stream's value until it resets.
                     val effectiveDuration = maxOf(playerDuration, lastKnownDuration)
-                    val nearEnd = endDetectionArmed && playerDuration > 0L &&
+                    // Only while playing: the tick also runs while paused (#732), and a paused seek
+                    // to the last moments must not end the title. mpv's own end of file still does.
+                    val nearEnd = endDetectionArmed && playingNow && playerDuration > 0L &&
                         pos >= (effectiveDuration - PlayerNextEpisodeRules.NEAR_END_MS)
                     if (!eofNow) mpvEofSeenClear = true
                     val mpvEofReached = mpvEofSeenClear && eofNow
@@ -593,7 +596,9 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
     // Reaching the credits marker finishes the title even before the length-based threshold.
     val finishedByCredits = duration > 0L && isPlaybackFinishedAt(position, duration)
 
-    scope.launch(kotlinx.coroutines.NonCancellable) {
+    // Saves run one at a time, in the order they were requested: a below-threshold save decided
+    // just before the natural end must not land after the completion and replace it.
+    scope.launch(kotlinx.coroutines.NonCancellable) { watchProgressSaveMutex.withLock {
         val effectiveContentId = watchProgressRepository.normalizeParentContentId(
             parentContentId = progress.contentId,
             videoId = progress.videoId,
@@ -635,7 +640,7 @@ internal fun PlayerRuntimeController.saveWatchProgressInternal(
             }
             WatchProgressSaveAction.SKIP -> Unit
         }
-    }
+    } }
 }
 
 /** What a progress save is for; only the end of playback or leaving the player may mark watched. */

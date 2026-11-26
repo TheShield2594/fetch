@@ -108,6 +108,8 @@ private const val PLAYER_RELEASE_TIMEOUT_MS = 3000L
 private const val PLAYER_REBUILD_SETTLE_DELAY_MS = 120L
 private const val ADAPTIVE_QUALITY_INCREASE_MIN_DURATION_MS = 2_000
 private const val ADAPTIVE_INITIAL_BITRATE_ESTIMATE_BPS = 25_000_000L
+/** About what DefaultLoadControl targets for one video and one audio track on its own. */
+private const val STOCK_LOAD_CONTROL_MAX_TARGET_MB = 144
 
 internal data class StartupSubtitlePreparation(
     val fetchedSubtitles: List<Subtitle>,
@@ -510,8 +512,22 @@ internal fun PlayerRuntimeController.initializePlayer(
             } else {
                 settingsChunkMb
             }
+            // Performance mode prefetches deeper when the budget has room. The depth is set here,
+            // with the session's budget, so the chunks charged below are the ones the source holds.
+            val prefetchDepth = if (useChunkSessionSource && playerSettings.fetchPerformanceModeEnabled) {
+                MemoryBudget.prefetchDepthChunks(
+                    connections = playerSettings.parallelConnectionCount,
+                    chunkSizeMb = sessionChunkMb,
+                    safeNativeLimitMb = FetchExoPlayerPerformanceHelper.getSafeBufferLimitMb(context)
+                        .coerceAtMost(playbackBudgetMb),
+                    reserveBufferMb = FetchExoPlayerPerformanceHelper.targetBufferSizeMb
+                        .coerceAtMost(playbackBudgetMb)
+                )
+            } else {
+                MemoryBudget.defaultPrefetchDepth(playerSettings.parallelConnectionCount)
+            }
             val parallelOverheadMb = if (useChunkSessionSource) {
-                MemoryBudget.parallelOverheadMb(playerSettings.parallelConnectionCount, sessionChunkMb)
+                MemoryBudget.retainedChunkCount(prefetchDepth) * sessionChunkMb
             } else {
                 0
             }
@@ -602,7 +618,12 @@ internal fun PlayerRuntimeController.initializePlayer(
                     "BUFFER_GATE: engine=exo-stock master=off; DefaultLoadControl " +
                             "(1.5s back buffer, no VOD cache) host=${url.safeHost()}"
                 )
+                // Within the session's budget, less the parallel chunks: the stock target (about
+                // 144 MB for video and audio) alone overruns a low-RAM device's budget (#735).
+                val stockTargetMb = (playbackBudgetMb - parallelOverheadMb)
+                    .coerceIn(MemoryBudget.MIN_BUFFER_MB, STOCK_LOAD_CONTROL_MAX_TARGET_MB)
                 DefaultLoadControl.Builder()
+                    .setTargetBufferBytes(stockTargetMb * 1024 * 1024)
                     .setBackBuffer(1_500, /* retainBackBufferFromKeyframe = */ true)
                     .build()
             }
@@ -621,6 +642,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             if (playerSettings.parallelNetworkEnabled) {
                 mediaSourceFactory.useParallelConnections = playerSettings.useParallelConnections && parallelFitsBudget
                 mediaSourceFactory.parallelConnectionCount = playerSettings.parallelConnectionCount
+                mediaSourceFactory.parallelPrefetchDepthChunks = prefetchDepth
                 mediaSourceFactory.parallelChunkSizeKb = if (sessionChunkMb < settingsChunkMb) {
                     sessionChunkMb * 1024
                 } else {
@@ -629,6 +651,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             } else {
                 // Reset each playback so the factory doesn't keep last stream's state.
                 mediaSourceFactory.useParallelConnections = false
+                mediaSourceFactory.parallelPrefetchDepthChunks = null
             }
 
             // Log the effective state (post-gating), not the raw settings.

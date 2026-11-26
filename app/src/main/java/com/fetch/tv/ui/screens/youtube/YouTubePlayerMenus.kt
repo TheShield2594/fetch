@@ -152,15 +152,32 @@ internal fun SpeedMenu(
     LaunchedEffect(Unit) { selectedFocus.requestFocusAfterFrames() }
 }
 
-/** The heights the player's Quality list offers, tallest first, after Auto. */
-internal val QUALITY_OPTIONS = listOf(2160, 1440, 1080, 720, 480, 360)
+/**
+ * The heights the player's Quality list offers after Auto, tallest first: the ones this video has
+ * on this device (#742). Nothing but Auto when they aren't known (an HLS manifest, which adapts).
+ */
+internal fun qualityOptions(available: List<Int>): List<Int?> =
+    listOf<Int?>(null) + available.distinct().sortedDescending()
 
+/** A row of the Quality list: Auto with Settings' cap, or a height. */
 @Composable
 internal fun qualityLabel(quality: Int?, defaultQuality: Int): String =
     if (quality == null) {
         stringResource(R.string.youtube_quality_auto, defaultQuality)
     } else {
         stringResource(R.string.youtube_quality_height, quality)
+    }
+
+/**
+ * The quality shown on the options menu: the height actually playing, which can be below the one
+ * picked when the video has nothing taller; Auto (with its cap) when it isn't known.
+ */
+@Composable
+internal fun playingQualityLabel(quality: Int?, playingHeight: Int?, defaultQuality: Int): String =
+    when {
+        playingHeight == null -> qualityLabel(quality, defaultQuality)
+        quality == null -> stringResource(R.string.youtube_quality_auto_playing, playingHeight)
+        else -> stringResource(R.string.youtube_quality_height, playingHeight)
     }
 
 /**
@@ -171,12 +188,16 @@ internal fun qualityLabel(quality: Int?, defaultQuality: Int): String =
 internal fun QualityMenu(
     quality: Int?,
     defaultQuality: Int,
+    available: List<Int>,
     loading: Boolean,
+    /** The quality being fetched while [loading]; its row shows the spinner. */
+    pending: Int?,
     onSelect: (Int?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val selectedFocus = remember { FocusRequester() }
-    val options: List<Int?> = listOf<Int?>(null) + QUALITY_OPTIONS
+    // The current pick stays listed even when the new stream's list lacks it, so it shows as selected.
+    val options = remember(available, quality) { qualityOptions(available + listOfNotNull(quality)) }
     PlayerMenuPanel(title = stringResource(R.string.youtube_options_quality), modifier = modifier) {
         LazyColumn(
             modifier = Modifier.heightIn(max = CAPTION_MENU_MAX_HEIGHT),
@@ -187,7 +208,7 @@ internal fun QualityMenu(
                 CaptionMenuRow(
                     label = qualityLabel(option, defaultQuality),
                     selected = selected && !loading,
-                    loading = selected && loading,
+                    loading = loading && option == pending,
                     onClick = { onSelect(option) },
                     modifier = if (selected) Modifier.focusRequester(selectedFocus) else Modifier
                 )

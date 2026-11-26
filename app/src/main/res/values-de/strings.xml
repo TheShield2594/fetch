@@ -2268,6 +2268,7 @@
     <string name="custom_theme_low_contrast">Text wäre auf diesen Farben schwer lesbar. Wähle Farben mit ähnlicherer Helligkeit, um zu speichern.</string>
     <string name="youtube_options_quality">Qualität</string>
     <string name="youtube_quality_auto">Automatisch (bis %1$dp)</string>
+    <string name="youtube_quality_auto_playing">Automatisch (%1$dp)</string>
     <string name="youtube_quality_failed">Diese Qualität gibt es für dieses Video nicht</string>
     <string name="youtube_options_details">Über dieses Video</string>
     <string name="youtube_details_loading">Wird geladen…</string>

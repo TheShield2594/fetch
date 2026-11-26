@@ -2278,6 +2278,7 @@
     <string name="custom_theme_low_contrast">Teks akan sulit dibaca pada warna-warna ini. Pilih warna dengan kecerahan yang lebih mirip untuk menyimpan.</string>
     <string name="youtube_options_quality">Kualitas</string>
     <string name="youtube_quality_auto">Otomatis (hingga %1$dp)</string>
+    <string name="youtube_quality_auto_playing">Otomatis (%1$dp)</string>
     <string name="youtube_quality_failed">Kualitas itu tidak tersedia untuk video ini</string>
     <string name="youtube_options_details">Tentang video ini</string>
     <string name="youtube_details_loading">Memuat…</string>

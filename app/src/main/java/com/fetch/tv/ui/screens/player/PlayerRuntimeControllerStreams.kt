@@ -64,7 +64,7 @@ internal fun PlayerRuntimeController.scheduleSourceBadgeApplication() {
                 val fullFiltered = tab.streams
                 sourceFilterFullList = fullFiltered
                 val pageEnd = current.sourceFilteredStreams.size.coerceAtMost(fullFiltered.size)
-                    .coerceAtLeast(SOURCE_FILTER_PAGE_SIZE.coerceAtMost(fullFiltered.size))
+                    .coerceAtLeast(sourcePageEnd(fullFiltered, current))
                 current.copy(
                     sourceAllStreams = updatedAll,
                     sourceFilteredStreams = if (pageEnd >= fullFiltered.size) fullFiltered
@@ -266,11 +266,7 @@ internal fun PlayerRuntimeController.loadSourceStreams(forceRefresh: Boolean) {
                         val tab = sourceTab(badgePreserved, it.sourceSelectedAddonFilter)
                         val filteredStreams = tab.streams
                         sourceFilterFullList = filteredStreams
-                        val paginatedStreams = if (filteredStreams.size > SOURCE_FILTER_PAGE_SIZE) {
-                            filteredStreams.subList(0, SOURCE_FILTER_PAGE_SIZE)
-                        } else {
-                            filteredStreams
-                        }
+                        val paginatedStreams = filteredStreams.subList(0, sourcePageEnd(filteredStreams, it))
                         it.copy(
                             isLoadingSourceStreams = false,
                             sourceAllStreams = badgePreserved,
@@ -350,11 +346,7 @@ internal fun PlayerRuntimeController.filterSourceStreamsByAddon(addonName: Strin
     val tab = sourceTab(_uiState.value.sourceAllStreams, addonName)
     val fullFiltered = tab.streams
     sourceFilterFullList = fullFiltered
-    val paginatedStreams = if (fullFiltered.size > SOURCE_FILTER_PAGE_SIZE) {
-        fullFiltered.subList(0, SOURCE_FILTER_PAGE_SIZE)
-    } else {
-        fullFiltered
-    }
+    val paginatedStreams = fullFiltered.subList(0, sourcePageEnd(fullFiltered, _uiState.value))
     _uiState.update {
         it.copy(
             sourceSelectedAddonFilter = addonName,
@@ -375,6 +367,27 @@ internal fun PlayerRuntimeController.expandSourceFilteredStreamsIfNeeded() {
 }
 
 private const val SOURCE_FILTER_PAGE_SIZE = 100
+
+/**
+ * End of the first page of [full]: one page, or further when the playing stream ranks below it,
+ * so the Sources panel can focus and scroll to it on open (#719).
+ */
+private fun sourcePageEnd(full: List<Stream>, state: PlayerUiState): Int {
+    if (full.size <= SOURCE_FILTER_PAGE_SIZE) return full.size
+    val playingIndex = findCurrentStreamIndex(
+        streams = full,
+        currentStreamInfoHash = state.currentStreamInfoHash,
+        currentStreamFileIdx = state.currentStreamFileIdx,
+        currentStreamAddonName = state.currentStreamAddonName,
+        currentStreamUrl = state.currentStreamUrl,
+        currentStreamName = state.currentStreamName
+    )
+    if (playingIndex < SOURCE_FILTER_PAGE_SIZE) return SOURCE_FILTER_PAGE_SIZE
+    // A few rows past the playing stream, so it is not the last item in the list.
+    return (playingIndex + 1 + SOURCE_PAGE_TAIL).coerceAtMost(full.size)
+}
+
+private const val SOURCE_PAGE_TAIL = 20
 
 private suspend fun PlayerRuntimeController.updateSourceChipsForFetchStart(
     type: String,
@@ -868,7 +881,9 @@ internal fun PlayerRuntimeController.dismissEpisodesPanel() {
         it.copy(
             activeOverlay = it.activeOverlay.closing(PlayerOverlay.EPISODES),
             showEpisodeStreams = false,
-            isLoadingEpisodeStreams = false
+            isLoadingEpisodeStreams = false,
+            // Reopening lands on the playing episode, not the one last peeked at (#719).
+            episodeStreamsForVideoId = null
         )
     }
     scheduleHideControls()

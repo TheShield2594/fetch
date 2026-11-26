@@ -84,6 +84,25 @@ internal data class StreamCandidate(
     val isHdr: Boolean = false
 )
 
+/** Quality classes YouTube labels streams with, smallest first. */
+private val QUALITY_CLASSES = intArrayOf(144, 240, 360, 480, 720, 1080, 1440, 2160, 4320)
+
+/**
+ * The quality class a stream is labelled with ("1080p"), from its size. Widescreen streams are
+ * shorter than their class (2560x1072 is 1440p) and portrait ones are taller (1080x1920 is
+ * 1080p), so the class is read from the 16:9 box the frame fits in.
+ */
+internal fun youTubeQualityClass(width: Int, height: Int): Int {
+    if (width <= 0) return height.coerceAtLeast(0)
+    val long = maxOf(width, height)
+    val short = minOf(width, height)
+    val boxHeight = maxOf(short, long * 9 / 16)
+    // A little slack for encodes a few rows off their class (1920x1088).
+    return QUALITY_CLASSES.firstOrNull { it * 103 / 100 >= boxHeight } ?: boxHeight
+}
+
+internal fun StreamCandidate.qualityClass(): Int = youTubeQualityClass(width, height)
+
 internal enum class PlaybackSourceKind {
     ADAPTIVE,
     HLS_MANIFEST,
@@ -599,8 +618,9 @@ class InAppYouTubeExtractor internal constructor(
             val source = when (kind) {
                 // Adaptive video + audio (best quality, separate streams)
                 PlaybackSourceKind.ADAPTIVE -> {
+                    val playable = playableVideo(streams.adaptiveVideo)
                     val bestVideo = pickBestForClient(
-                        capVideoHeight(playableVideo(streams.adaptiveVideo), maxVideoHeight),
+                        capVideoHeight(playable, maxVideoHeight),
                         PREFERRED_SEPARATE_CLIENT
                     )
                     if (bestVideo != null) {
@@ -609,7 +629,17 @@ class InAppYouTubeExtractor internal constructor(
                     val bestAudio = pickBestForClient(streams.adaptiveAudio, PREFERRED_SEPARATE_CLIENT)
                     val resolvedVideo = bestVideo?.url?.let { resolveReachableUrl(it) }
                     val resolvedAudio = if (resolvedVideo != null) bestAudio?.url?.let { resolveReachableUrl(it) } else null
-                    resolvedVideo?.let { TrailerPlaybackSource(videoUrl = it, audioUrl = resolvedAudio) }
+                    resolvedVideo?.let {
+                        TrailerPlaybackSource(
+                            videoUrl = it,
+                            audioUrl = resolvedAudio,
+                            videoHeight = bestVideo.qualityClass(),
+                            videoQualities = playable.map { candidate -> candidate.qualityClass() }
+                                .filter { quality -> quality > 0 }
+                                .distinct()
+                                .sortedDescending()
+                        )
+                    }
                 }
                 // HLS manifest (1080p, always works for COPPA/kids content). The manifests are
                 // only downloaded here, once the adaptive streams have failed.
@@ -617,9 +647,17 @@ class InAppYouTubeExtractor internal constructor(
                     pickBestManifest(streams.manifestUrls)
                         ?.let { TrailerPlaybackSource(videoUrl = it.manifestUrl, audioUrl = null) }
                 // Progressive (combined video+audio, usually low quality)
-                PlaybackSourceKind.PROGRESSIVE ->
-                    sortCandidates(streams.progressive).firstOrNull()?.url?.let { resolveReachableUrl(it) }
-                        ?.let { TrailerPlaybackSource(videoUrl = it, audioUrl = null) }
+                PlaybackSourceKind.PROGRESSIVE -> {
+                    val best = sortCandidates(streams.progressive).firstOrNull()
+                    best?.url?.let { resolveReachableUrl(it) }
+                        ?.let {
+                            TrailerPlaybackSource(
+                                videoUrl = it,
+                                audioUrl = null,
+                                videoHeight = best.qualityClass().takeIf { quality -> quality > 0 }
+                            )
+                        }
+                }
             }
             if (source != null) return source
         }
@@ -930,11 +968,16 @@ class InAppYouTubeExtractor internal constructor(
             format.stringValue("qualityLabel").orEmpty().contains("HDR", ignoreCase = true)
     }
 
-    /** Streams within the 16:9 box of [maxHeight], or all of them when none fits. */
+    /**
+     * Streams whose quality class (see [qualityClass]) is at most [maxHeight]. When none fits,
+     * the lowest class there is: the closest to the cap, rather than the tallest stream (#742).
+     */
     internal fun capVideoHeight(items: List<StreamCandidate>, maxHeight: Int): List<StreamCandidate> {
-        if (maxHeight == Int.MAX_VALUE) return items
-        val maxWidth = maxHeight * 16 / 9
-        return items.filter { it.height <= maxHeight && it.width <= maxWidth }.ifEmpty { items }
+        if (maxHeight == Int.MAX_VALUE || items.isEmpty()) return items
+        val fitting = items.filter { it.qualityClass() <= maxHeight }
+        if (fitting.isNotEmpty()) return fitting
+        val lowest = items.minOf { it.qualityClass() }
+        return items.filter { it.qualityClass() == lowest }
     }
 
     private fun pickBestForClient(items: List<StreamCandidate>, clientKey: String): StreamCandidate? {

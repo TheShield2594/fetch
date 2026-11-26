@@ -431,72 +431,74 @@ internal fun HomeViewModel.requestTrailerPreviewPipeline(
 
     trailerPreviewJob?.cancel()
     trailerPreviewJob = viewModelScope.launch(Dispatchers.IO) {
-        try {
-            // Debounce: wait for focus to settle before hitting network
-            delay(180)
+        // Debounce: wait for focus to settle before hitting network
+        delay(180)
 
-            // Only the LATEST request proceeds — all earlier ones are stale
-            if (trailerPreviewRequestVersion != requestVersion) {
-                return@launch
-            }
+        // Only the LATEST request proceeds — all earlier ones are stale
+        if (trailerPreviewRequestVersion != requestVersion) {
+            return@launch
+        }
 
-            val tmdbId = try {
-                tmdbService.ensureTmdbId(itemId, apiType)
-            } catch (_: Exception) {
-                null
-            }
+        val tmdbId = try {
+            tmdbService.ensureTmdbId(itemId, apiType)
+        } catch (_: Exception) {
+            null
+        }
 
-            val trailerSource = trailerService.getTrailerPlaybackSource(
-                title = title,
-                year = extractYear(releaseInfo),
-                tmdbId = tmdbId,
-                type = apiType
-            )
+        val trailerSource = trailerService.getTrailerPlaybackSource(
+            title = title,
+            year = extractYear(releaseInfo),
+            tmdbId = tmdbId,
+            type = apiType
+        )
 
-            withContext(Dispatchers.Main) {
-                if (trailerSource?.videoUrl.isNullOrBlank()) {
-                    val fallbackSource = resolvedFallbackYtId?.let { ytId ->
-                        trailerService.getTrailerPlaybackSourceFromYouTubeUrl(
-                            youtubeUrl = "https://www.youtube.com/watch?v=$ytId",
-                            title = title,
-                            year = extractYear(releaseInfo)
-                        )
+        withContext(Dispatchers.Main) {
+            if (trailerSource?.videoUrl.isNullOrBlank()) {
+                val fallbackSource = resolvedFallbackYtId?.let { ytId ->
+                    trailerService.getTrailerPlaybackSourceFromYouTubeUrl(
+                        youtubeUrl = "https://www.youtube.com/watch?v=$ytId",
+                        title = title,
+                        year = extractYear(releaseInfo)
+                    )
+                }
+                if (fallbackSource?.videoUrl != null) {
+                    if (trailerPreviewUrlsState[itemId] != fallbackSource.videoUrl) {
+                        trailerPreviewUrlsState[itemId] = fallbackSource.videoUrl
                     }
-                    if (fallbackSource?.videoUrl != null) {
-                        if (trailerPreviewUrlsState[itemId] != fallbackSource.videoUrl) {
-                            trailerPreviewUrlsState[itemId] = fallbackSource.videoUrl
-                        }
-                        val fallbackAudio = fallbackSource.audioUrl
-                        if (fallbackAudio.isNullOrBlank()) {
-                            trailerPreviewAudioUrlsState.remove(itemId)
-                        } else if (trailerPreviewAudioUrlsState[itemId] != fallbackAudio) {
-                            trailerPreviewAudioUrlsState[itemId] = fallbackAudio
-                        }
-                    } else {
-                        // While YouTube is rate limiting, a miss isn't remembered, so the
-                        // trailer comes back on a later focus once the pause is over.
-                        if (!trailerService.isRateLimited()) {
-                            trailerPreviewNegativeCache.add(itemId)
-                        }
-                        trailerPreviewUrlsState.remove(itemId)
+                    val fallbackAudio = fallbackSource.audioUrl
+                    if (fallbackAudio.isNullOrBlank()) {
                         trailerPreviewAudioUrlsState.remove(itemId)
+                    } else if (trailerPreviewAudioUrlsState[itemId] != fallbackAudio) {
+                        trailerPreviewAudioUrlsState[itemId] = fallbackAudio
                     }
                 } else {
-                    val videoUrl = trailerSource.videoUrl
-                    if (trailerPreviewUrlsState[itemId] != videoUrl) {
-                        trailerPreviewUrlsState[itemId] = videoUrl
+                    // While YouTube is rate limiting, a miss isn't remembered, so the
+                    // trailer comes back on a later focus once the pause is over.
+                    if (!trailerService.isRateLimited()) {
+                        trailerPreviewNegativeCache.add(itemId)
                     }
-                    val audioUrl = trailerSource.audioUrl
-                    if (audioUrl.isNullOrBlank()) {
-                        trailerPreviewAudioUrlsState.remove(itemId)
-                    } else if (trailerPreviewAudioUrlsState[itemId] != audioUrl) {
-                        trailerPreviewAudioUrlsState[itemId] = audioUrl
-                    }
+                    trailerPreviewUrlsState.remove(itemId)
+                    trailerPreviewAudioUrlsState.remove(itemId)
+                }
+            } else {
+                val videoUrl = trailerSource.videoUrl
+                if (trailerPreviewUrlsState[itemId] != videoUrl) {
+                    trailerPreviewUrlsState[itemId] = videoUrl
+                }
+                val audioUrl = trailerSource.audioUrl
+                if (audioUrl.isNullOrBlank()) {
+                    trailerPreviewAudioUrlsState.remove(itemId)
+                } else if (trailerPreviewAudioUrlsState[itemId] != audioUrl) {
+                    trailerPreviewAudioUrlsState[itemId] = audioUrl
                 }
             }
-        } finally {
-            trailerPreviewLoadingIds.remove(itemId)
         }
+    }.also { job ->
+        // Released on completion rather than in the body's finally: a focus that moves on
+        // during the debounce cancels this job before it is dispatched, and a body that never
+        // runs never reaches its finally, which left the id stuck in the loading set and the
+        // title without a trailer for the rest of the session (#810).
+        job.invokeOnCompletion { trailerPreviewLoadingIds.remove(itemId) }
     }
 }
 

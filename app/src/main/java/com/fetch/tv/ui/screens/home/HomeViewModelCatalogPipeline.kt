@@ -169,6 +169,9 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     catalogLoadGeneration += 1
     val generation = catalogLoadGeneration
     cancelInFlightCatalogLoads()
+    // Before any early return below: a reload that ends with no catalogs must not leave a
+    // failed row to be retried on the next resume.
+    clearFailedHomeCatalogs()
 
     // On reload (not first load), keep existing UI data visible while new
     // catalogs load in the background to avoid a flash of empty content.
@@ -386,6 +389,7 @@ internal fun HomeViewModel.loadCatalogPipeline(
                         if (!isRefresh || !mergeRefreshedCatalogRow(key, result.data, requestedByUser, forceReplace)) {
                             replaceCatalogRow(key, result.data)
                         }
+                        onHomeCatalogLoaded(key)
                         // Trigger MDBList batch for newly loaded catalog data.
                         onCatalogRowItemsChanged(key)
                         // Remove placeholder descriptor now that real data is available
@@ -430,6 +434,8 @@ internal fun HomeViewModel.loadCatalogPipeline(
                         if (pendingCatalogLoads == 0) {
                             catalogsLoadInProgress = false
                         }
+                        // Remember the row and retry it, instead of losing it for the session.
+                        onHomeCatalogLoadFailed(errorKey, addon, catalog, generation)
                         // Same as the success path: drop the failed row's placeholder now.
                         scheduleUpdateCatalogRows()
                     }
@@ -814,6 +820,8 @@ internal fun HomeViewModel.mergeRefreshedCatalogRow(
      *  Forces a full row replacement even if IDs haven't changed. */
     forceReplace: Boolean = false
 ): Boolean {
+    // A newer page supersedes one held back for the focused row.
+    deferredFocusedRowRefreshes.remove(fresh.stableKey())
     val current = readCatalogRow(key) ?: return false
     if (current.items.isEmpty()) return false
     if (fresh.items.isEmpty()) return true
@@ -855,8 +863,12 @@ internal fun HomeViewModel.mergeRefreshedCatalogRow(
     }
 
     // The row was restructured. Rebuilding it drops the cards under the focus ring, so leave the
-    // focused row alone and pick it up once focus has moved on.
-    return rowHasFocus && !requestedByUser
+    // focused row alone and apply the new page as soon as focus moves off it (#799).
+    if (rowHasFocus && !requestedByUser) {
+        deferredFocusedRowRefreshes[fresh.stableKey()] = DeferredHomeRowRefresh(key, fresh)
+        return true
+    }
+    return false
 }
 
 

@@ -100,6 +100,10 @@ fun HomeScreen(
                 viewModel.beginShuffleHomeVisit()
                 viewModel.refreshHomeCatalogsIfStale()
             }
+            // Leaving Home, or the app, carries out a removal still in its undo window (#816).
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.onEvent(HomeEvent.OnCommitPendingRemoval)
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
@@ -202,9 +206,13 @@ fun HomeScreen(
         }
     }
 
+    val pendingCwRemovalForLayer by viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle()
+    // A card held for undo still counts, so hiding the last one doesn't swap Home for the empty
+    // state and take the Undo banner with it (#816).
     val hasAnyContent = uiState.catalogRows.isNotEmpty() ||
         (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
-        hasCollectionContent
+        hasCollectionContent ||
+        pendingCwRemovalForLayer != null
     val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
         reach = uiState.networkReach,
         hasAnyContent = hasAnyContent,
@@ -377,14 +385,14 @@ fun HomeScreen(
             }
         }
 
-        if (showHomeLoader) {
-            ModernHomeSkeleton(
-                uiState = uiState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(FetchTheme.colors.Background)
-            )
-        }
+        HomeLoaderAndUndoLayer(
+            uiState = uiState,
+            showLoader = showHomeLoader,
+            showStandaloneUndo = homeStableGateReleased &&
+                showsStandaloneUndoBanner(modernPresentationReady, pendingCwRemovalForLayer),
+            pending = pendingCwRemovalForLayer,
+            onUndo = { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
+        )
 
         val startupAuthNotice = uiState.startupAuthNotice
         if (startupAuthNotice != null) {
@@ -519,8 +527,13 @@ private fun ModernHomeRoute(
     // readiness ticker or provides LocalReadyBestMatchKeys for it (TheShield2594/fetch#826).
     // "Ready tonight" keeps its own timer in the presentation pipeline, and the ready check above
     // still runs because that row reads what it saves.
+    val pendingCwRemoval by viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle()
     ModernHomeContent(
         uiState = uiState,
+        pendingContinueWatchingRemoval = pendingCwRemoval,
+        onUndoRemoveContinueWatching = remember(viewModel) {
+            { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
+        },
         cachedBestMatches = shownBestMatches,
         queuedVideoIds = queuedVideoIds,
         onToggleQueue = remember(viewModel) { { item: ContinueWatchingItem -> viewModel.toggleQueued(item) } },

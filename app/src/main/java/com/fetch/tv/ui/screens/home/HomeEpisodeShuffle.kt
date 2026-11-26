@@ -69,6 +69,8 @@ internal fun HomeViewModel.createShuffleHomeState(): StateFlow<HomeUiState> {
         }
     }.combine(parentalControls.filterRevision) { state, _ ->
         filterContinueWatchingForProfile(state, parentalControls)
+    }.combine(_pendingCwRemoval) { state, pending ->
+        hidePendingContinueWatchingRemoval(state, pending)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, HomeUiState())
 }
 

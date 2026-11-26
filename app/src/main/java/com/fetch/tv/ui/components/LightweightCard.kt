@@ -102,8 +102,10 @@ fun LightweightCard(
     // Reduced motion keeps the ring and drops the growth.
     val targetScale = if (FetchTheme.fullMotion) focusedScale else 1f
     // Read only in the draw layer below, so the lift animates without recomposing the card.
+    // Holding OK presses the card in a little, as Apple TV does; reduced motion keeps it still.
+    val pressScale = if (pressed && FetchTheme.fullMotion) PRESSED_SCALE else 1f
     val scale = animateFloatAsState(
-        targetValue = if (focused) targetScale else 1f,
+        targetValue = (if (focused) targetScale else 1f) * pressScale,
         animationSpec = FetchMotion.focusSpring(),
         label = "cardScale"
     )
@@ -203,6 +205,8 @@ fun LightweightCard(
 
 private const val FOCUSED_Z_INDEX = 0.5f
 private const val NON_FOCUSED_Z_INDEX = 0f
+/** How far a card presses in while OK is held, relative to its focused size (#819). */
+private const val PRESSED_SCALE = 0.97f
 
 private val SELECT_KEY_CODES = intArrayOf(
     AndroidKeyEvent.KEYCODE_DPAD_CENTER,

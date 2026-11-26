@@ -2134,6 +2134,13 @@
     <string name="youtube_action_subscribed">Telah berlangganan</string>
     <string name="youtube_action_failed">YouTube tidak menerimanya. Coba lagi.</string>
     <string name="youtube_play_failed">Video ini tidak dapat diputar</string>
+    <string name="youtube_play_failed_age_restricted">Video ini dibatasi usia dan tidak dapat diputar di sini</string>
+    <string name="youtube_play_failed_sign_in">Video ini bersifat pribadi atau hanya untuk anggota</string>
+    <string name="youtube_play_failed_region">Video ini tidak tersedia di negara Anda</string>
+    <string name="youtube_play_failed_live_not_started">Siaran langsung ini belum dimulai</string>
+    <string name="youtube_play_failed_unavailable">Video ini tidak tersedia</string>
+    <string name="youtube_play_failed_rate_limited">YouTube membatasi permintaan dari perangkat ini. Coba lagi dalam beberapa menit</string>
+    <string name="youtube_play_failed_network">Tidak dapat menghubungi YouTube. Periksa koneksi Anda dan coba lagi</string>
     <string name="youtube_switch_channel_hint">Pilih untuk beralih channel</string>
     <string name="youtube_channel_picker_title">Pilih channel</string>
     <string name="youtube_channel_picker_subtitle">Feed, riwayat, dan pencarian Anda berasal dari channel yang Anda pilih.</string>

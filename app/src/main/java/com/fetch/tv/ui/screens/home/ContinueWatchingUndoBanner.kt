@@ -3,10 +3,14 @@ package com.fetch.tv.ui.screens.home
 import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -68,6 +72,38 @@ internal fun ContinueWatchingUndoBanner(
                     if (act) onReturnToRow()
                     true
                 }
+        )
+    }
+}
+
+/** Whether Home has no rows to host the banner, so it must be drawn on its own. */
+internal fun showsStandaloneUndoBanner(
+    presentationReady: Boolean,
+    pending: PendingContinueWatchingRemoval?
+): Boolean = !presentationReady && pending != null
+
+/**
+ * The banner when the held card was Home's last row: nothing else is on screen to take focus,
+ * so Undo takes it, and there is no row to return to.
+ */
+@Composable
+internal fun StandaloneContinueWatchingUndoBanner(
+    pending: PendingContinueWatchingRemoval,
+    onUndo: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(pending.token) { runCatching { focusRequester.requestFocus() } }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        ContinueWatchingUndoBanner(
+            pending = pending,
+            undoFocusRequester = focusRequester,
+            onUndo = onUndo,
+            onReturnToRow = {},
+            modifier = Modifier.padding(
+                top = FetchTheme.spacing.screen.vertical,
+                start = FetchTheme.spacing.screen.horizontal,
+                end = FetchTheme.spacing.screen.horizontal
+            )
         )
     }
 }

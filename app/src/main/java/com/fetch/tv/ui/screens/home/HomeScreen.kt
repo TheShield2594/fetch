@@ -330,7 +330,15 @@ fun HomeScreen(
                 if (!homeStableGateReleased) {
                     Unit
                 } else if (!modernPresentationReady) {
-                    Unit
+                    // Hiding the last card for undo can leave Home with no rows, which would take
+                    // the Undo banner with them: it is drawn on its own until the window ends (#816).
+                    val heldRemoval = viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle().value
+                    if (showsStandaloneUndoBanner(modernPresentationReady, heldRemoval)) {
+                        StandaloneContinueWatchingUndoBanner(
+                            pending = checkNotNull(heldRemoval),
+                            onUndo = { viewModel.onEvent(HomeEvent.OnUndoRemoveContinueWatching) }
+                        )
+                    }
                 } else {
                     // Flip showHomeContentWithAnimation on the next frame so
                     // AnimatedVisibility can run its enter transition.

@@ -2,6 +2,8 @@ package com.fetch.tv.ui.screens.home
 
 import com.fetch.tv.domain.model.WatchProgress
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Test
@@ -69,6 +71,18 @@ class ContinueWatchingUndoTest {
         val shown = hidePendingContinueWatchingRemoval(state, pending("a", isNextUp = true))
         assertEquals(listOf("a"), shown.continueWatchingItems.map { it.contentId() })
         assertEquals(emptyList<String>(), shown.upcomingItems.map { it.contentId() })
+    }
+
+    @Test
+    fun `hiding the last card keeps the Undo banner on screen`() {
+        // The held card was Home's only row: the presentation is empty, so the banner is drawn
+        // on its own rather than leaving with the rows.
+        val state = HomeUiState(continueWatchingItems = listOf(inProgress("a")))
+        val shown = hidePendingContinueWatchingRemoval(state, pending("a", isNextUp = false))
+        assertTrue(shown.continueWatchingItems.isEmpty())
+        assertTrue(showsStandaloneUndoBanner(presentationReady = false, pending = pending("a", isNextUp = false)))
+        assertFalse(showsStandaloneUndoBanner(presentationReady = true, pending = pending("a", isNextUp = false)))
+        assertFalse(showsStandaloneUndoBanner(presentationReady = false, pending = null))
     }
 
     @Test

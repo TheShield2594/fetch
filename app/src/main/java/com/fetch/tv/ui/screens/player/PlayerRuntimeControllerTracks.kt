@@ -1454,10 +1454,18 @@ internal fun selectedAudioLanguageTarget(track: TrackInfo): String? {
     }?.code
 }
 
-private fun addonSubtitleIsForced(subtitle: Subtitle): Boolean {
+internal fun addonSubtitleIsForced(subtitle: Subtitle): Boolean {
     return listOf(subtitle.id, subtitle.url, subtitle.addonName).any {
         it.contains("forced", ignoreCase = true)
     }
+}
+
+/**
+ * The first addon subtitle in [target]'s language that is a full one. Every full-subtitle pick goes
+ * through here, so a forced addon is only ever chosen by the forced-only branch (#771).
+ */
+internal fun List<Subtitle>.firstFullSubtitleFor(target: String): Subtitle? = firstOrNull { subtitle ->
+    !addonSubtitleIsForced(subtitle) && PlayerSubtitleUtils.matchesLanguageCode(subtitle.lang, target)
 }
 
 private fun addonSubtitleMatchesLanguage(subtitle: Subtitle, target: String): Boolean {
@@ -1733,9 +1741,7 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
         // If internal match is secondary and a primary addon match exists, prefer the addon.
         if (matchedTargetPosition > 0 && addonSubtitlesLoaded) {
             val primaryTarget = targets.first()
-            val primaryAddonMatch = state.addonSubtitles.firstOrNull { subtitle ->
-                PlayerSubtitleUtils.matchesLanguageCode(subtitle.lang, primaryTarget)
-            }
+            val primaryAddonMatch = state.addonSubtitles.firstFullSubtitleFor(primaryTarget)
             if (primaryAddonMatch != null) {
                 autoSubtitleSelected = true
                 Log.d(
@@ -1837,10 +1843,7 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
     val addonMatch = run {
         // Try each target in priority order so primary language is preferred over secondary.
         for (target in targets) {
-            val match = state.addonSubtitles.firstOrNull { subtitle ->
-                !addonSubtitleIsForced(subtitle) &&
-                    PlayerSubtitleUtils.matchesLanguageCode(subtitle.lang, target)
-            }
+            val match = state.addonSubtitles.firstFullSubtitleFor(target)
             if (match != null) {
                 Log.d(
                     PlayerRuntimeController.TAG,

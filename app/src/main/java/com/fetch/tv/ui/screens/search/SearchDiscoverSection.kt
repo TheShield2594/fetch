@@ -460,17 +460,28 @@ internal fun DiscoverChoiceRow(
     onChoose: (DiscoverChoice) -> Unit,
     onFocusLeft: () -> Unit
 ) {
-    // The choices close when focus leaves them (Up to the filters, Down to the grid), but not
-    // before focus has first arrived. They wrap onto as many lines as they need, like a menu
-    // opening downwards: as one sideways row, a long list (Genres) went off screen and Down,
-    // the natural press in a drop-down, left it and closed it straight away.
+    // The choices wrap onto as many lines as they need, like a menu opening downwards, so Down
+    // moves through a long list (Genres) instead of leaving it.
+    //
+    // They close only when focus goes back Up to the filter chips; Back and picking a choice close
+    // them too. Leaving Down to the posters keeps them open: closing then removed the block while
+    // the remote was still on it, focus was dropped, and it landed back on the first chip, so the
+    // list seemed to pop back up as soon as it was entered.
     var hadFocus by remember { mutableStateOf(false) }
+    var leavingUp by remember { mutableStateOf(false) }
     val focusIndex = choices.indexOfFirst { it.selected }.coerceAtLeast(0)
     androidx.compose.foundation.layout.FlowRow(
         modifier = Modifier
             .fillMaxWidth()
+            .onPreviewKeyEvent { event ->
+                if (event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN) {
+                    leavingUp = event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_DPAD_UP
+                }
+                false
+            }
             .onFocusChanged { state ->
-                if (hadFocus && !state.hasFocus) onFocusLeft()
+                // By now focus is already on the chip above, so removing the choices is safe.
+                if (hadFocus && !state.hasFocus && leavingUp) onFocusLeft()
                 hadFocus = state.hasFocus
             },
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),

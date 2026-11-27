@@ -1278,6 +1278,7 @@ class SearchViewModel @Inject constructor(
                     discoverFilters = next,
                     discoverResults = discoverSortedShown,
                     discoverSortedTitleCount = discoverSortedCount,
+                    discoverHasMore = needsFill || discoverHasMoreTitles(next),
                     // A load already running carries on into the fill; it reads the new filters.
                     discoverLoading = needsFill || it.discoverLoading,
                     discoverPagingPaused = false
@@ -1309,21 +1310,51 @@ class SearchViewModel @Inject constructor(
         discoverSortedCount = 0
     }
 
-    /** Sorts the titles loaded since the last batch and appends them below it. */
+    /**
+     * Sorts the next batch of loaded titles, at most [DISCOVER_SORT_BATCH_SIZE], and appends it
+     * below the last. A round can load more than that (several catalogs with large pages); the rest
+     * waits for the next batch.
+     */
     private fun placeDiscoverSortedBatch(filters: DiscoverFilters) {
         val merged = discoverMergedItems
+        val start = discoverSortedCount.coerceAtMost(merged.size)
+        val end = minOf(merged.size, start + DISCOVER_SORT_BATCH_SIZE)
         discoverSortedShown = appendDiscoverSortedBatch(
             shown = discoverSortedShown,
-            batch = merged.subList(discoverSortedCount.coerceAtMost(merged.size), merged.size),
+            batch = merged.subList(start, end),
             filters = filters
         )
-        discoverSortedCount = merged.size
+        discoverSortedCount = end
     }
+
+    /** Titles loaded but not yet placed in a sorted batch. */
+    private fun discoverBufferedCount(): Int =
+        (discoverMergedItems.size - discoverSortedCount).coerceAtLeast(0)
+
+    /** Whether more can come: a catalog has more pages, or (sorted) loaded titles wait for a batch. */
+    private fun discoverHasMoreTitles(filters: DiscoverFilters): Boolean =
+        discoverCursors.any { it.hasMore } || (filters.sorted && discoverBufferedCount() > 0)
 
     private fun loadNextDiscoverResults() {
         val state = _uiState.value
         if (state.discoverLoading || state.discoverLoadingMore) return
-        if (discoverCursors.none { it.hasMore }) return
+        val filters = state.discoverFilters
+        val canFetch = discoverCursors.any { it.hasMore }
+        // A full batch already loaded, or the last titles once the catalogs are done, is placed
+        // without a request.
+        if (filters.sorted && (discoverBufferedCount() >= DISCOVER_SORT_BATCH_SIZE || (!canFetch && discoverBufferedCount() > 0))) {
+            placeDiscoverSortedBatch(filters)
+            _uiState.update {
+                it.copy(
+                    discoverResults = discoverSortedShown,
+                    discoverSortedTitleCount = discoverSortedCount,
+                    discoverHasMore = discoverHasMoreTitles(filters),
+                    discoverPagingPaused = false
+                )
+            }
+            return
+        }
+        if (!canFetch) return
         // Scroll paging never asks while paused, so a request now is the Load more cell resuming it.
         if (state.discoverPagingPaused) discoverUnproductiveRounds = 0
         fetchDiscoverContent(reset = false)
@@ -1487,7 +1518,7 @@ class SearchViewModel @Inject constructor(
                         discoverLoadingMore = false,
                         discoverResults = discoverSortedShown,
                         discoverSortedTitleCount = discoverSortedCount,
-                        discoverHasMore = hasMore,
+                        discoverHasMore = discoverHasMoreTitles(filters),
                         discoverError = if (firstRound && allFailed) error else null,
                         discoverPagingPaused = paused
                     )

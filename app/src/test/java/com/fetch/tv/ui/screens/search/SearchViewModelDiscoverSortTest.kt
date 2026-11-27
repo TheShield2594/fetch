@@ -111,6 +111,30 @@ class SearchViewModelDiscoverSortTest {
         assertEquals((0 until state.discoverResults.size).map { "tt$it" }, state.discoverResults.map { it.id })
     }
 
+    @Test
+    fun `a round larger than a batch keeps the rest for the next batch`() = runTest(mainDispatcher) {
+        // One page of 400 titles: more than a batch arrives at once.
+        val viewModel = newViewModel(PagedCatalog(pageSize = 400, pages = 1))
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+        viewModel.onEvent(SearchEvent.SelectDiscoverSort(DiscoverSort.RATING))
+        advanceUntilIdle()
+
+        val first = viewModel.uiState.value
+        assertEquals(300, first.discoverSortedTitleCount)
+        assertEquals(300, first.discoverResults.size)
+        assertTrue("the last 100 titles wait for Load more", first.discoverHasMore)
+
+        viewModel.onEvent(SearchEvent.LoadNextDiscoverResults)
+        advanceUntilIdle()
+
+        val second = viewModel.uiState.value
+        assertEquals(400, second.discoverSortedTitleCount)
+        assertEquals(first.discoverResults.map { it.id }, second.discoverResults.take(300).map { it.id })
+        assertEquals(400, second.discoverResults.size)
+        assertFalse(second.discoverHasMore)
+    }
+
     /** One browsable catalog: [pages] pages of [pageSize] titles, with ratings in no order. */
     private class PagedCatalog(private val pageSize: Int, private val pages: Int) : CatalogRepository {
         override fun getCatalog(

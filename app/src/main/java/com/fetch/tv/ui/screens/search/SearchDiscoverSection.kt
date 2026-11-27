@@ -138,10 +138,11 @@ internal fun DiscoverSection(
     val blockFilterFocus = restorePending && focusedItemIndex >= 0
     LaunchedEffect(restoreTargetMissing) {
         if (!restoreTargetMissing) return@LaunchedEffect
-        onRestoreFocusedItemHandled()
-        // Nothing in the grid to return to: the selected type chip takes focus instead.
+        // Nothing in the grid to return to: the selected type chip takes focus instead. The
+        // restore is cleared only afterwards, since clearing it ends this effect.
         if (types.isNotEmpty()) typeFocusRequester.requestFocusAfterFrames(frames = 1)
         onInitialFocusHandled()
+        onRestoreFocusedItemHandled()
     }
 
     // Discover opens on its filters, so the remote starts on something visible. Returning from a

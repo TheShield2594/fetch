@@ -1213,6 +1213,21 @@ private fun PlaybackNavHost(
                             heroBackdropUrl = heroBackdrop
                         )
                     )
+                },
+                // Play/Pause on a card: the detail page picks the film or the next episode and
+                // hands off to its Best match at once, then steps aside on Back (#857, #812).
+                onPlayTitle = { itemId, itemType, addonBaseUrl ->
+                    val heroBackdrop = HeroBackdropState.consumeAndClear()
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            itemId = itemId,
+                            itemType = itemType,
+                            addonBaseUrl = addonBaseUrl,
+                            heroBackdropUrl = heroBackdrop,
+                            playOnLoad = true,
+                            leaveOnPlaybackReturn = true
+                        )
+                    )
                 }
             )
         }

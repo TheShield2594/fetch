@@ -92,7 +92,9 @@ fun GridContentCard(
     // "4K DV" / "Ready": the title's Best match is saved and fresh, so it starts at once (#854).
     readyLabel: String? = null,
     // Play/Pause on the remote: starts the title without its detail page (#856, as Home's #812).
-    onPlay: (() -> Unit)? = null
+    onPlay: (() -> Unit)? = null,
+    // The title is on the watchlist or a list: a bookmark in the corner (#857).
+    inLibrary: Boolean = false
 ) {
     val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
     val density = LocalDensity.current
@@ -129,7 +131,8 @@ fun GridContentCard(
         true -> stringResource(R.string.library_selection_cd_selected)
         false -> stringResource(R.string.library_selection_cd_not_selected)
     }
-    val cardStateDescription = listOfNotNull(selectionState, newEpisodeBadge, readyLabel).joinToString(", ").ifBlank { null }
+    val savedState = if (inLibrary) stringResource(R.string.card_state_saved) else null
+    val cardStateDescription = listOfNotNull(selectionState, newEpisodeBadge, readyLabel, savedState).joinToString(", ").ifBlank { null }
     val fullMotion = FetchTheme.fullMotion
 
     Column(
@@ -385,6 +388,14 @@ fun GridContentCard(
                 if (readyLabel != null && selected == null) {
                     ReadyChip(
                         label = readyLabel,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
+                            .zIndex(2f)
+                    )
+                }
+                if (inLibrary && readyLabel == null && selected == null) {
+                    SavedMarker(
                         modifier = Modifier
                             .align(Alignment.TopStart)
                             .padding(start = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)

@@ -262,6 +262,38 @@ class DiscoverBrowseTest {
         defaultGenre = defaultGenre
     )
 
+    @Test
+    fun `hide watched leaves out watched titles and counts as narrowing (#857)`() {
+        val items = listOf(item("a"), item("b"), item("c"))
+        val filters = DiscoverFilters(hideWatched = true)
+        assertTrue(filters.narrowsResults)
+        assertEquals(listOf("a", "c"), applyDiscoverFilters(items, filters) { it.id == "b" }.map { it.id })
+    }
+
+    @Test
+    fun `include unrated keeps titles with no rating beside a minimum rating (#857)`() {
+        val items = listOf(item("high", rating = 8.2f), item("low", rating = 5.1f), item("none"))
+        assertEquals(listOf("high"), applyDiscoverFilters(items, DiscoverFilters(minRating = 7)).map { it.id })
+        assertEquals(
+            listOf("high", "none"),
+            applyDiscoverFilters(items, DiscoverFilters(minRating = 7, includeUnrated = true)).map { it.id }
+        )
+    }
+
+    @Test
+    fun `reset shows once anything is set, sort and include unrated included (#857)`() {
+        assertEquals(false, DiscoverFilters().anySet)
+        assertTrue(DiscoverFilters(sort = DiscoverSort.TITLE).anySet)
+        assertTrue(DiscoverFilters(includeUnrated = true).anySet)
+        assertTrue(DiscoverFilters(hideWatched = true).anySet)
+    }
+
+    @Test
+    fun `the toggles survive being stored (#857)`() {
+        val filters = DiscoverFilters(minRating = 6, sort = DiscoverSort.RATING, hideWatched = true, includeUnrated = true)
+        assertEquals(filters, filters.toStored().toDiscoverFilters())
+    }
+
     private fun item(
         id: String,
         type: ContentType = ContentType.MOVIE,

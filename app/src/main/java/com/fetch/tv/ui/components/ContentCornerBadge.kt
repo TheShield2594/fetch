@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -115,6 +116,25 @@ fun ReadyChip(
             style = MaterialTheme.typography.labelSmall,
             color = FetchTheme.colors.TextPrimary,
             maxLines = 1
+        )
+    }
+}
+
+/** A bookmark on a card whose title is on the watchlist or a list (#857). Decoration only. */
+@Composable
+fun SavedMarker(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(FetchTheme.spacing.xl)
+            .clip(FetchTheme.shapes.badge)
+            .background(FetchTheme.colors.Scrim),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Bookmark,
+            contentDescription = null,
+            tint = FetchTheme.colors.TextPrimary,
+            modifier = Modifier.size(FetchTheme.spacing.lg)
         )
     }
 }

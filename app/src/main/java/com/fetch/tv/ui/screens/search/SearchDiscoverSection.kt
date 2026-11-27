@@ -111,6 +111,14 @@ internal fun DiscoverSection(
     onSelectMinRating: (Int?) -> Unit,
     onSelectSort: (DiscoverSort) -> Unit,
     onClearFilters: () -> Unit,
+    /** Hide watched, Include unrated and the Reset chip (#857). */
+    onToggleHideWatched: () -> Unit = {},
+    onToggleIncludeUnrated: () -> Unit = {},
+    onResetFilters: () -> Unit = {},
+    /** Ids of saved titles, for the cards' bookmark (#857). */
+    libraryIds: Set<String> = emptySet(),
+    /** Play/Pause on a card starts it (#857, as Home's #812); null where that isn't allowed. */
+    onItemPlay: ((MetaPreview) -> Unit)? = null,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
@@ -231,6 +239,19 @@ internal fun DiscoverSection(
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // One way back to Discover's defaults, there only when something is set; first, so it
+                    // stays in view however long the row gets (#857).
+                    if (filters.anySet || uiState.selectedDiscoverGenre != null) {
+                        com.fetch.tv.ui.components.FetchChip(
+                            label = stringResource(R.string.discover_reset_filters),
+                            selected = false,
+                            focusEnabled = !blockFilterFocus,
+                            onClick = {
+                                openFilter = null
+                                onResetFilters()
+                            }
+                        )
+                    }
                     DiscoverFilterChips(
                         genres = genres,
                         selectedGenre = uiState.selectedDiscoverGenre,
@@ -242,6 +263,27 @@ internal fun DiscoverSection(
                         onSelectMinRating = onSelectMinRating,
                         onSelectSort = onSelectSort,
                         focusEnabled = !blockFilterFocus
+                    )
+                    // Beside the rating once one is set: keep titles that have no rating (#857).
+                    if (filters.minRating != null) {
+                        com.fetch.tv.ui.components.FetchChip(
+                            label = stringResource(R.string.discover_include_unrated),
+                            selected = filters.includeUnrated,
+                            focusEnabled = !blockFilterFocus,
+                            onClick = {
+                                openFilter = null
+                                onToggleIncludeUnrated()
+                            }
+                        )
+                    }
+                    com.fetch.tv.ui.components.FetchChip(
+                        label = stringResource(R.string.catalog_see_all_hide_watched),
+                        selected = filters.hideWatched,
+                        focusEnabled = !blockFilterFocus,
+                        onClick = {
+                            openFilter = null
+                            onToggleHideWatched()
+                        }
                     )
                 }
             }
@@ -274,6 +316,8 @@ internal fun DiscoverSection(
                         backEnabled = openFilter == null,
                         fadeInOnEnter = fadeIn,
                         progressByContentId = progressByContentId,
+                        libraryIds = libraryIds,
+                        onItemPlay = onItemPlay,
                         items = uiState.discoverResults,
                         posterCardStyle = posterCardStyle,
                         watchedMovieIds = watchedMovieIds,
@@ -412,6 +456,8 @@ internal fun DiscoverGrid(
     onItemClick: (Int, MetaPreview) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
     filterKey: String = "",
+    libraryIds: Set<String> = emptySet(),
+    onItemPlay: ((MetaPreview) -> Unit)? = null,
     progressByContentId: Map<String, Float> = emptyMap(),
     /** Fade the grid in as it first shows, in place of the loading skeleton (#853). */
     fadeInOnEnter: Boolean = false,
@@ -582,6 +628,8 @@ internal fun DiscoverGrid(
                 // card room to grow (#850).
                 modifier = browseGridItemMotion(),
                 progress = progressByContentId[item.id],
+                inLibrary = isLibraryItem(item, libraryIds),
+                onPlay = onItemPlay?.let { play -> { play(item) } },
                 focusRequester = focusReq,
                 onFocused = {
                     onItemFocused(index)

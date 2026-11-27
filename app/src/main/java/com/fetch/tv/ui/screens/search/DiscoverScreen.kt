@@ -39,12 +39,16 @@ import kotlin.math.roundToInt
 fun DiscoverScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     showBuiltInHeader: Boolean = true,
-    onNavigateToDetail: (String, String, String) -> Unit
+    onNavigateToDetail: (String, String, String) -> Unit,
+    /** Play/Pause on a card: starts the title (id, type, addon) without its detail page (#857). */
+    onPlayTitle: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     val progressByContentId by viewModel.progressByContentId.collectAsStateWithLifecycle()
+    val libraryIds by viewModel.libraryIds.collectAsStateWithLifecycle()
+    val quickPlayAllowed by viewModel.quickPlayAllowed.collectAsStateWithLifecycle()
     val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
     val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -133,6 +137,25 @@ fun DiscoverScreen(
                 onSelectSort = {
                     discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverSort(it))
+                },
+                libraryIds = libraryIds,
+                onItemPlay = if (!quickPlayAllowed) null else ({ item ->
+                    discoverFocusedItemKey = discoverItemKey(item)
+                    pendingDiscoverRestoreOnResume = true
+                    HeroBackdropState.update(item.backdropUrl)
+                    onPlayTitle(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
+                }),
+                onToggleHideWatched = {
+                    discoverFocusedItemKey = null
+                    viewModel.onEvent(SearchEvent.ToggleDiscoverHideWatched)
+                },
+                onToggleIncludeUnrated = {
+                    discoverFocusedItemKey = null
+                    viewModel.onEvent(SearchEvent.ToggleDiscoverIncludeUnrated)
+                },
+                onResetFilters = {
+                    discoverFocusedItemKey = null
+                    viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
                 },
                 onClearFilters = {
                     discoverFocusedItemKey = null

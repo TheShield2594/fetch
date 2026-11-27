@@ -19,6 +19,12 @@
     <string name="layout_browse_hero">Hero on Discover and Library</string>
     <string name="layout_browse_hero_sub">Show the focused title’s art, logo and details above the grid.</string>
 
+    <!-- TalkBack state of a card whose title is on the watchlist or a list (#857). -->
+    <string name="card_state_saved">Saved</string>
+    <!-- Discover filter chips (#857): keep unrated titles with a minimum rating, and clear every filter. -->
+    <string name="discover_include_unrated">Include unrated</string>
+    <string name="discover_reset_filters">Reset</string>
+
     <!-- The corner chip on a card that starts at once; shown when the stream's quality isn't known (#854). -->
     <string name="library_card_ready">Ready</string>
 

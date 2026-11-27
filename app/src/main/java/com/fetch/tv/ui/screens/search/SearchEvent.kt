@@ -23,6 +23,11 @@ sealed interface SearchEvent {
     data class SelectDiscoverSort(val sort: DiscoverSort) : SearchEvent
     /** Clears the year and rating filters; the sort stays. */
     data object ClearDiscoverFilters : SearchEvent
+    /** Discover's Hide watched and Include unrated toggles (#857). */
+    data object ToggleDiscoverHideWatched : SearchEvent
+    data object ToggleDiscoverIncludeUnrated : SearchEvent
+    /** The Reset chip: genre, year, rating, sort and both toggles back to their defaults (#857). */
+    data object ResetDiscoverFilters : SearchEvent
     /** Loads the next page from every Discover catalog that has more. */
     data object LoadNextDiscoverResults : SearchEvent
     /** Reloads Discover from the first page of every catalog after an error. */

@@ -187,6 +187,14 @@ class SearchViewModel @Inject constructor(
     /** Every title loaded so far, merged across catalogs, before the year, rating and sort filters. */
     private var discoverMergedItems: List<MetaPreview> = emptyList()
 
+    /**
+     * Under a Rating, Newest or Title sort (#843): the grid as shown, batch after sorted batch, and
+     * how many of [discoverMergedItems] those batches cover. Titles loaded past that wait for the
+     * next batch, so new titles are only ever appended below, never sorted in above.
+     */
+    private var discoverSortedShown: List<MetaPreview> = emptyList()
+    private var discoverSortedCount = 0
+
     /** Paging rounds in a row that added nothing the filters keep. */
     private var discoverUnproductiveRounds = 0
     private var hideUnreleasedContent = false
@@ -200,6 +208,15 @@ class SearchViewModel @Inject constructor(
 
         /** Rounds in a row that add nothing visible before scroll paging pauses. */
         const val DISCOVER_MAX_UNPRODUCTIVE_ROUNDS = 3
+
+        /**
+         * Titles one sorted batch covers: a Rating, Newest or Title sort loads this many (or all
+         * there are) before sorting once, and Load more adds another batch below.
+         */
+        const val DISCOVER_SORT_BATCH_SIZE = 300
+
+        /** Most paging rounds one sorted batch may take; the batch is sorted with what came. */
+        const val DISCOVER_SORT_MAX_ROUNDS = 12
 
         /** Failed pages in a row before a catalog is left out of further paging. */
         const val DISCOVER_MAX_SOURCE_FAILURES = 2
@@ -237,6 +254,7 @@ class SearchViewModel @Inject constructor(
                     discoverJob = null
                     discoverCursors = emptyList()
                     discoverMergedItems = emptyList()
+                    resetDiscoverSortedBatches()
                     discoverUnproductiveRounds = 0
                     _uiState.update {
                         it.copy(
@@ -1191,6 +1209,12 @@ class SearchViewModel @Inject constructor(
             preferredType = discoverSelectionDataStore.getSelectedType(),
             currentType = _uiState.value.selectedDiscoverType
         ) ?: "movie"
+        // The sort and filters last used on this profile, the first time Discover loads (#851).
+        val storedFilters = if (_uiState.value.discoverInitialized) {
+            _uiState.value.discoverFilters
+        } else {
+            com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.getFilters().toDiscoverFilters() }.getOrDefault(DiscoverFilters())
+        }
 
         _uiState.update {
             it.copy(
@@ -1198,6 +1222,7 @@ class SearchViewModel @Inject constructor(
                 discoverCatalogs = discoverCatalogs,
                 selectedDiscoverType = selectedType,
                 selectedDiscoverGenre = null,
+                discoverFilters = storedFilters,
                 discoverInitialized = true,
                 discoverLoading = false,
                 discoverResults = emptyList(),
@@ -1228,28 +1253,71 @@ class SearchViewModel @Inject constructor(
         fetchDiscoverContent(reset = true)
     }
 
-    /** Year, rating and sort run on the titles already loaded, so they apply without a request. */
+    /**
+     * Year, rating and sort run on the titles already loaded. In catalog order they apply at once.
+     * A Rating, Newest or Title sort orders one batch of [DISCOVER_SORT_BATCH_SIZE] titles: when
+     * fewer are loaded and more can come, the rest load behind the loading state first, so the
+     * order is set once rather than reshuffled as pages arrive (#843).
+     */
     private fun updateDiscoverFilters(transform: (DiscoverFilters) -> DiscoverFilters) {
         val current = _uiState.value.discoverFilters
         val next = transform(current)
         if (next == current) return
         discoverUnproductiveRounds = 0
+        resetDiscoverSortedBatches()
+        viewModelScope.launch {
+            com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.setFilters(next.toStored()) }
+        }
+        val state = _uiState.value
+        val canLoadMore = state.discoverInitialized && discoverCursors.any { it.hasMore }
+        if (next.sorted) {
+            val needsFill = canLoadMore && discoverMergedItems.size < DISCOVER_SORT_BATCH_SIZE
+            if (!needsFill) placeDiscoverSortedBatch(next)
+            _uiState.update {
+                it.copy(
+                    discoverFilters = next,
+                    discoverResults = discoverSortedShown,
+                    discoverSortedTitleCount = discoverSortedCount,
+                    // A load already running carries on into the fill; it reads the new filters.
+                    discoverLoading = needsFill || it.discoverLoading,
+                    discoverPagingPaused = false
+                )
+            }
+            if (needsFill) fetchDiscoverContent(reset = false)
+            return
+        }
         _uiState.update {
             it.copy(
                 discoverFilters = next,
                 discoverResults = applyDiscoverFilters(discoverMergedItems, next),
+                discoverSortedTitleCount = 0,
                 discoverPagingPaused = false
             )
         }
         // A narrower filter can leave the grid short; top it up from the catalogs still paging.
-        val state = _uiState.value
+        val updated = _uiState.value
         if (discoverJob?.isActive != true &&
-            state.discoverInitialized &&
-            discoverShownCount(state.discoverResults) < DISCOVER_MIN_RESULTS &&
-            discoverCursors.any { it.hasMore }
+            canLoadMore &&
+            discoverShownCount(updated.discoverResults) < DISCOVER_MIN_RESULTS
         ) {
             fetchDiscoverContent(reset = false)
         }
+    }
+
+    private fun resetDiscoverSortedBatches() {
+        discoverSortedShown = emptyList()
+        discoverSortedCount = 0
+    }
+
+    /** Sorts the titles loaded since the last batch and appends them below it. */
+    private fun placeDiscoverSortedBatch(filters: DiscoverFilters) {
+        val merged = discoverMergedItems
+        discoverSortedShown = appendDiscoverSortedBatch(
+            shown = discoverSortedShown,
+            batch = merged.subList(discoverSortedCount.coerceAtMost(merged.size), merged.size),
+            filters = filters
+        )
+        discoverSortedCount = merged.size
     }
 
     private fun loadNextDiscoverResults() {
@@ -1280,12 +1348,14 @@ class SearchViewModel @Inject constructor(
                 )
                 discoverCursors = sources.map { DiscoverSourceCursor(catalog = it) }
                 discoverMergedItems = emptyList()
+                resetDiscoverSortedBatches()
                 discoverUnproductiveRounds = 0
                 _uiState.update {
                     it.copy(
                         discoverLoading = sources.isNotEmpty(),
                         discoverLoadingMore = false,
                         discoverResults = emptyList(),
+                        discoverSortedTitleCount = 0,
                         discoverSourceCount = sources.size,
                         discoverHasMore = sources.isNotEmpty(),
                         discoverError = null,
@@ -1296,18 +1366,30 @@ class SearchViewModel @Inject constructor(
             }
 
             var firstRound = reset
-            var fillRounds = 0
+            var rounds = 0
             while (true) {
                 if (!firstRound) {
                     _uiState.update { it.copy(discoverLoadingMore = true, discoverPagingPaused = false) }
                 }
-                val keepFilling = runDiscoverRound(firstRound = firstRound, genre = state.selectedDiscoverGenre)
+                val keepFilling = runDiscoverRound(
+                    firstRound = firstRound,
+                    genre = state.selectedDiscoverGenre,
+                    lastSortedRound = rounds + 1 >= DISCOVER_SORT_MAX_ROUNDS
+                )
                 firstRound = false
+                rounds++
                 if (!keepFilling) break
-                // An empty grid keeps paging past the fill cap: with every loaded title hidden there
-                // is nothing to scroll, so nothing else would fetch the next page. The unproductive-
-                // round pause still bounds it, and the empty state then offers Load more (#789).
-                if (++fillRounds > DISCOVER_MAX_FILL_ROUNDS && discoverShownCount(_uiState.value.discoverResults) > 0) break
+                // A sorted batch runs until it is full (runDiscoverRound says when). In catalog
+                // order, an empty grid keeps paging past the fill cap: with every loaded title
+                // hidden there is nothing to scroll, so nothing else would fetch the next page. The
+                // unproductive-round pause still bounds it, and the empty state then offers Load
+                // more (#789).
+                if (!_uiState.value.discoverFilters.sorted &&
+                    rounds > DISCOVER_MAX_FILL_ROUNDS &&
+                    discoverShownCount(_uiState.value.discoverResults) > 0
+                ) {
+                    break
+                }
             }
         }
     }
@@ -1315,8 +1397,10 @@ class SearchViewModel @Inject constructor(
     /**
      * Fetches one page from every catalog that has more, appends them in catalog order, and
      * re-applies the filters. Returns whether the grid is still short and another round should run.
+     * Under a sort, the grid only changes once a batch is full; [lastSortedRound] closes the batch
+     * with what has come.
      */
-    private suspend fun runDiscoverRound(firstRound: Boolean, genre: String?): Boolean {
+    private suspend fun runDiscoverRound(firstRound: Boolean, genre: String?, lastSortedRound: Boolean = false): Boolean {
         val cursors = discoverCursors
         val activeIndices = cursors.indices.filter { cursors[it].hasMore }
         if (activeIndices.isEmpty()) {
@@ -1383,13 +1467,42 @@ class SearchViewModel @Inject constructor(
         }
         discoverMergedItems = appendDiscoverRound(mergedBefore, releasedPages)
 
+        val hasMore = nextCursors.any { it.hasMore }
+        val allFailed = successes == 0
+        val filters = _uiState.value.discoverFilters
+        if (filters.sorted) {
+            // A round counts when it loads titles: the batch is sorted once it is full, so how
+            // many the filters keep cannot tell yet, and catalogs without ratings still count.
+            if (!firstRound) {
+                if (discoverMergedItems.size > mergedBefore.size) discoverUnproductiveRounds = 0 else discoverUnproductiveRounds++
+            }
+            val paused = hasMore && (allFailed || discoverUnproductiveRounds >= DISCOVER_MAX_UNPRODUCTIVE_ROUNDS)
+            val batchFull = discoverMergedItems.size - discoverSortedCount >= DISCOVER_SORT_BATCH_SIZE
+            if (!hasMore || paused || batchFull || lastSortedRound) {
+                placeDiscoverSortedBatch(filters)
+                val error = firstError
+                _uiState.update {
+                    it.copy(
+                        discoverLoading = false,
+                        discoverLoadingMore = false,
+                        discoverResults = discoverSortedShown,
+                        discoverSortedTitleCount = discoverSortedCount,
+                        discoverHasMore = hasMore,
+                        discoverError = if (firstRound && allFailed) error else null,
+                        discoverPagingPaused = paused
+                    )
+                }
+                return false
+            }
+            _uiState.update { it.copy(discoverHasMore = hasMore) }
+            return true
+        }
+
         val previousShown = discoverShownCount(_uiState.value.discoverResults)
         val visible = applyDiscoverFilters(discoverMergedItems, _uiState.value.discoverFilters)
         // Counted as shown: "Not interested" titles and titles above the profile's limit are left
         // out on the way to the grid (#650, #789), so a round of hidden titles adds nothing.
         val shown = discoverShownCount(visible)
-        val hasMore = nextCursors.any { it.hasMore }
-        val allFailed = successes == 0
         if (!firstRound) {
             if (shown > previousShown) discoverUnproductiveRounds = 0 else discoverUnproductiveRounds++
         }

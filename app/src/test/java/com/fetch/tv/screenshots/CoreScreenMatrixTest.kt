@@ -115,6 +115,12 @@ class CoreScreenMatrixTest(private val variant: Variant) {
     @Test
     fun search() = check("search") { SampleSearch() }
 
+    /** Landscape poster mode, the default: Discover's cards are landscape-wide in their cells (#842). */
+    @Test
+    fun discoverLandscape() = check("discover-landscape") {
+        CompositionLocalProvider(com.fetch.tv.ui.components.LocalLandscapePosterMode provides true) { SampleDiscoverGrid() }
+    }
+
     @Test
     fun player() = check("player") { SamplePlayerPause() }
 
@@ -239,6 +245,34 @@ internal fun SampleSearch() {
                 )
             }
         }
+    }
+}
+
+/** Discover's results grid on its own, the full width of the screen. */
+@Composable
+internal fun SampleDiscoverGrid() {
+    val items = remember { Samples.catalogRows.flatMap { it.items } }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(FetchTheme.colors.Background)
+            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical)
+    ) {
+        DiscoverGrid(
+            items = items,
+            posterCardStyle = PosterCardDefaults.Style,
+            focusResults = false,
+            firstItemFocusRequester = remember { FocusRequester() },
+            focusedItemIndex = 0,
+            shouldRestoreFocusedItem = false,
+            onRestoreFocusedItemHandled = {},
+            onItemFocused = {},
+            canLoadMore = true,
+            isLoadingMore = false,
+            autoLoadPaused = true,
+            onLoadMore = {},
+            onItemClick = { _, _ -> }
+        )
     }
 }
 

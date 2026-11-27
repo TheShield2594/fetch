@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.fetch.tv.domain.model.PosterShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -557,15 +558,25 @@ fun CatalogRowsSkeleton(
     }
 }
 
-/** Placeholder posters for grid screens, such as the library and "See all", while they load. */
+/**
+ * Placeholder cards for grid screens, such as the Library, Discover and "See all", while they
+ * load: the shape the cards will have, with a bar where each title goes, so the screen keeps its
+ * shape when the content arrives (#848). [cardWidth] and [cardHeight] are the poster size; with
+ * [landscape] (landscape poster mode by default) the cards are drawn as GridContentCard draws
+ * them, as wide as the poster is tall, at 16:9.
+ */
 @Composable
 fun PosterGridSkeleton(
     modifier: Modifier = Modifier,
     rowCount: Int = 3,
     cardWidth: Dp = FetchTheme.components.posterCard.width,
-    cardHeight: Dp = FetchTheme.components.posterCard.height
+    cardHeight: Dp = FetchTheme.components.posterCard.height,
+    landscape: Boolean = LocalLandscapePosterMode.current,
+    showLabel: Boolean = true
 ) {
     val shimmer = rememberSkeletonShimmer()
+    val width = if (landscape) cardHeight else cardWidth
+    val height = if (landscape) width / PosterShape.LANDSCAPE.aspectRatio() else cardHeight
     Column(
         modifier = modifier.fillMaxWidth().clipToBounds(),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
@@ -576,17 +587,30 @@ fun PosterGridSkeleton(
                 horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
             ) {
                 repeat(SKELETON_ROW_CARDS) {
-                    SkeletonBar(
-                        width = cardWidth,
-                        height = cardHeight,
-                        shimmer = shimmer,
-                        cornerRadius = FetchTheme.radii.sm
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+                        SkeletonBar(
+                            width = width,
+                            height = height,
+                            shimmer = shimmer,
+                            cornerRadius = FetchTheme.radii.sm
+                        )
+                        if (showLabel) {
+                            // The title line under each card.
+                            SkeletonBar(
+                                width = width * SKELETON_LABEL_WIDTH_FRACTION,
+                                height = FetchTheme.spacing.lg,
+                                shimmer = shimmer
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
+
+/** A title bar is shorter than its card, as titles rarely fill the width. */
+private const val SKELETON_LABEL_WIDTH_FRACTION = 0.7f
 
 /** Enough cards to run past the right edge of a 1080p screen at the smallest card size. */
 private const val SKELETON_ROW_CARDS = 12

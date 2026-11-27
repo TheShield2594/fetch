@@ -1985,7 +1985,6 @@
     <string name="library_list_privacy_link">Anyone with the link</string>
     <string name="library_list_privacy_friends">Friends</string>
     <string name="library_list_privacy_public">Public</string>
-    <string name="library_filter_option_count" translatable="false">%1$s (%2$d)</string>
     <string name="library_action_connect_provider">Connect %1$s</string>
     <string name="library_action_search_titles">Search for titles</string>
     <string name="library_empty_filtered_title">Nothing matches these filters</string>
@@ -2085,6 +2084,12 @@
     <plurals name="discover_source_count">
         <item quantity="one">From %d catalog</item>
         <item quantity="other">From %d catalogs</item>
+    </plurals>
+    <!-- Discover's summary line under a Rating, Newest or Title sort: "From 3 catalogs · 300 titles sorted". -->
+    <string name="discover_summary_sorted">%1$s · %2$s</string>
+    <plurals name="discover_sort_coverage">
+        <item quantity="one">%d title sorted</item>
+        <item quantity="other">%d titles sorted</item>
     </plurals>
     <string name="discover_clear_filters">Clear filters</string>
     <string name="discover_empty_filtered_title">Nothing matches these filters</string>

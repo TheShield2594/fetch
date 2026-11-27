@@ -7,7 +7,8 @@ import java.util.Locale
 /**
  * Discover browses every addon catalog of the chosen type at once. This file holds the pure parts:
  * which catalogs to ask, how their pages merge, and the year, rating and sort filters, which run on
- * the merged items because addon catalogs only take a genre.
+ * the merged items because addon catalogs only take a genre. A sort therefore orders the titles
+ * loaded, not the whole catalog: it covers a fixed batch at a time, and says how many.
  */
 
 /** Order of the merged Discover grid. */
@@ -33,6 +34,13 @@ data class DiscoverFilters(
 ) {
     val narrowsResults: Boolean
         get() = yearRange != null || minRating != null
+
+    /**
+     * Whether the grid is re-ordered (Rating, Newest, Title). Sorted grids load and sort a fixed
+     * batch of titles at a time, so a page arriving never moves titles already shown (#843).
+     */
+    val sorted: Boolean
+        get() = sort != DiscoverSort.CATALOG
 }
 
 /** Rating thresholds offered by the Rating filter. */
@@ -177,4 +185,40 @@ internal fun applyDiscoverFilters(
         )
         DiscoverSort.TITLE -> filtered.sortedWith { a, b -> titleCollator.compare(a.name, b.name) }
     }
+}
+
+/**
+ * Appends one sorted batch to a sorted grid (#843): [batch] (titles loaded since the last batch)
+ * is filtered and sorted on its own and goes below [shown], so titles already on screen never move.
+ */
+internal fun appendDiscoverSortedBatch(
+    shown: List<MetaPreview>,
+    batch: List<MetaPreview>,
+    filters: DiscoverFilters
+): List<MetaPreview> {
+    if (batch.isEmpty()) return shown
+    val seen = shown.mapTo(HashSet(shown.size * 2)) { discoverItemKey(it) }
+    val added = applyDiscoverFilters(batch, filters).filter { seen.add(discoverItemKey(it)) }
+    return if (added.isEmpty()) shown else shown + added
+}
+
+/** [DiscoverFilters] as stored per profile (#851). */
+internal fun DiscoverFilters.toStored(): com.fetch.tv.data.local.StoredDiscoverFilters =
+    com.fetch.tv.data.local.StoredDiscoverFilters(
+        sort = sort.takeIf { it != DiscoverSort.CATALOG }?.name,
+        minRating = minRating,
+        yearRange = yearRange?.let { "${it.from ?: ""}..${it.to ?: ""}" }
+    )
+
+/** Stored filters back as [DiscoverFilters]; anything unreadable falls back to its default. */
+internal fun com.fetch.tv.data.local.StoredDiscoverFilters.toDiscoverFilters(): DiscoverFilters {
+    val range = yearRange?.split("..")?.takeIf { it.size == 2 }?.let { (from, to) ->
+        DiscoverYearRange(from = from.toIntOrNull(), to = to.toIntOrNull())
+            .takeIf { it.from != null || it.to != null }
+    }
+    return DiscoverFilters(
+        yearRange = range,
+        minRating = minRating?.takeIf { it in DISCOVER_RATING_THRESHOLDS },
+        sort = DiscoverSort.entries.firstOrNull { it.name == sort } ?: DiscoverSort.CATALOG
+    )
 }

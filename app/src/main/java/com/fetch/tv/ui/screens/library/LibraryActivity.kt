@@ -49,7 +49,9 @@ data class LibraryActivityItem(
     val at: Long,
     val addonBaseUrl: String? = null,
     /** 0..100 for In progress; null on History. */
-    val progressPercent: Int? = null
+    val progressPercent: Int? = null,
+    /** Landscape art for landscape cards (#848), so they don't crop the portrait poster. */
+    val backdrop: String? = null
 ) {
     val key: String get() = "$type:$id"
 
@@ -64,7 +66,7 @@ data class LibraryActivityItem(
         name = title,
         poster = poster,
         posterShape = PosterShape.POSTER,
-        background = null,
+        background = backdrop,
         logo = null,
         description = null,
         releaseInfo = detail,
@@ -83,7 +85,11 @@ data class LibraryHistoryMonth(
  * One entry per title, at its most recent watch, newest first. A series appears once, with the
  * episode watched last, so a show binged last month is one poster rather than a screenful.
  */
-internal fun libraryHistoryItems(watched: List<WatchedItem>): List<LibraryActivityItem> =
+internal fun libraryHistoryItems(
+    watched: List<WatchedItem>,
+    /** A title's backdrop from the cached meta, if known: watched entries carry no backdrop. */
+    backdropFor: (id: String, type: String) -> String? = { _, _ -> null }
+): List<LibraryActivityItem> =
     watched.asSequence()
         .filter { it.contentId.isNotBlank() && it.watchedAt > 0L }
         .groupBy { it.contentId }
@@ -98,7 +104,8 @@ internal fun libraryHistoryItems(watched: List<WatchedItem>): List<LibraryActivi
                 poster = latest.poster ?: entries.firstNotNullOfOrNull { it.poster },
                 season = latest.season,
                 episode = latest.episode,
-                at = latest.watchedAt
+                at = latest.watchedAt,
+                backdrop = backdropFor(latest.contentId, latest.contentType)
             )
         }
         .sortedByDescending { it.at }
@@ -122,7 +129,11 @@ internal fun groupHistoryByMonth(
  * that is genuinely under way: the repository's Continue Watching list already leaves out
  * finished items.
  */
-internal fun libraryInProgressItems(progress: List<WatchProgress>): List<LibraryActivityItem> =
+internal fun libraryInProgressItems(
+    progress: List<WatchProgress>,
+    /** Fallback backdrop from the cached meta, for progress stored without one. */
+    backdropFor: (id: String, type: String) -> String? = { _, _ -> null }
+): List<LibraryActivityItem> =
     progress.asSequence()
         .filter { it.contentId.isNotBlank() }
         .groupBy { it.contentId }
@@ -140,7 +151,10 @@ internal fun libraryInProgressItems(progress: List<WatchProgress>): List<Library
                 episode = latest.episode,
                 at = latest.lastWatched,
                 addonBaseUrl = latest.addonBaseUrl,
-                progressPercent = percent?.toInt()?.coerceIn(0, 100)
+                progressPercent = percent?.toInt()?.coerceIn(0, 100),
+                backdrop = latest.backdrop
+                    ?: entries.firstNotNullOfOrNull { it.backdrop }
+                    ?: backdropFor(latest.contentId, latest.contentType)
             )
         }
         .sortedByDescending { it.at }

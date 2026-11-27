@@ -105,6 +105,36 @@ class LibraryActivityTest {
     }
 
     @Test
+    fun `activity cards carry landscape art from progress, else the cached meta`() {
+        fun progress(id: String, backdrop: String?) = WatchProgress(
+            contentId = id,
+            contentType = "movie",
+            name = id,
+            poster = "poster-$id",
+            backdrop = backdrop,
+            logo = null,
+            videoId = id,
+            season = null,
+            episode = null,
+            episodeTitle = null,
+            position = 100L,
+            duration = 1_000L,
+            lastWatched = 10L
+        )
+
+        val items = libraryInProgressItems(
+            listOf(progress("tt-stored", "stored-art"), progress("tt-cached", null))
+        ) { id, _ -> "cached-$id" }
+
+        assertEquals("stored-art", items.single { it.id == "tt-stored" }.backdrop)
+        assertEquals("cached-tt-cached", items.single { it.id == "tt-cached" }.backdrop)
+        assertEquals("stored-art", items.single { it.id == "tt-stored" }.toMetaPreview(null).background)
+
+        val history = libraryHistoryItems(listOf(watched("tt1", at(2026, 1, 1)))) { id, _ -> "art-$id" }
+        assertEquals("art-tt1", history.single().backdrop)
+    }
+
+    @Test
     fun `no history gives no months`() {
         assertEquals(emptyList<LibraryHistoryMonth>(), groupHistoryByMonth(emptyList()))
         assertNull(libraryHistoryItems(emptyList()).firstOrNull())

@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "@fetch/shared": "workspace:*",
-    "@fastify/rate-limit": "^11.2.2",
+    "@fastify/rate-limit": "^11.3.0",
     "fastify": "^5.12.8"
   },
   "devDependencies": {
     "tsx": "^4.23.15",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }

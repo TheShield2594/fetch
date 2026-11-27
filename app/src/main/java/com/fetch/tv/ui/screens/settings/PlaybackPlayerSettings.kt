@@ -207,7 +207,11 @@ internal fun PlaybackPlayerInterfaceSection(
         selected = settings.seekFeedbackLingerMs,
         valueText = stringResource(
             R.string.playback_seconds_decimal_value,
-            String.format(java.util.Locale.getDefault(), "%.1f", settings.seekFeedbackLingerMs / 1_000f)
+            String.format(
+                androidx.compose.ui.platform.LocalConfiguration.current.locales[0],
+                "%.1f",
+                settings.seekFeedbackLingerMs / 1_000f
+            )
         ),
         onValueChange = { ms -> onUpdate { setSeekFeedbackLingerMs(ms) } },
         enabled = internalPlayer

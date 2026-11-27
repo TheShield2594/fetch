@@ -998,9 +998,9 @@ private fun EpisodeItem(
                             .padding(6.dp)
                             .clip(RoundedCornerShape(FetchTheme.radii.md))
                             .background(FetchTheme.colors.Player.Scrim)
-                            .padding(horizontal = 6.dp, vertical = 3.dp),
+                            .padding(horizontal = FetchTheme.spacing.xs, vertical = FetchTheme.spacing.xxs),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)
                     ) {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,

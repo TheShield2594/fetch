@@ -80,6 +80,8 @@ private val playbackSectionSearchTitles: Map<PlaybackSection, List<Int>> = mapOf
         R.string.playback_seek_back_step,
         R.string.playback_seek_forward_step,
         R.string.playback_controls_auto_hide,
+        R.string.playback_seek_feedback_linger,
+        R.string.playback_pause_overlay_delay,
         R.string.playback_parental_guide
     ),
     PlaybackSection.AUDIO to listOf(

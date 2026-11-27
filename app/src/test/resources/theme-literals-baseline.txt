@@ -187,7 +187,7 @@ com/fetch/tv/ui/screens/player/AudioSelectionOverlay.kt|FOCUS_SCALE|3
 com/fetch/tv/ui/screens/player/AudioSelectionOverlay.kt|SPACING_AS_STROKE|3
 com/fetch/tv/ui/screens/player/DisplayModeOverlay.kt|DP|3
 com/fetch/tv/ui/screens/player/DisplayModeOverlay.kt|SPACING_AS_STROKE|1
-com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt|DP|12
+com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt|DP|11
 com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt|FOCUS_SCALE|2
 com/fetch/tv/ui/screens/player/EpisodesSidePanel.kt|SPACING_AS_STROKE|4
 com/fetch/tv/ui/screens/player/LoadingOverlay.kt|ALPHA|2

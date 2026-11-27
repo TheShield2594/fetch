@@ -31,7 +31,7 @@ internal fun ModernHeroScene(
         onFirstFrameRendered = onFirstFrameRendered,
         onBackdropDisplayed = {
             // Kept in sync for navigation transitions into Detail.
-            HeroBackdropState.update(it)
+            HeroBackdropState.showOnHome(it)
             onBackdropDisplayed(it)
         },
         modifier = modifier,

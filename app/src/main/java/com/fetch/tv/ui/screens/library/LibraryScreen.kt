@@ -269,13 +269,17 @@ fun LibraryScreen(
         }
     }
 
-    LaunchedEffect(uiState.isLoading) {
-        if (uiState.isLoading) {
-            pendingPrimaryFocus = true
-        }
-    }
+    // A sync no longer takes the screen (#846): the header stays, so focus stays where it is and
+    // isn't sent back to the tab when the sync starts or ends.
+    val savedGridLoading = uiState.isLoading && tab.listScope != null
 
     LaunchedEffect(uiState.isLoading, uiState.sourceMode, uiState.listTabs.size) {
+        if (uiState.isLoading && pendingPrimaryFocus) {
+            // Opening the Library during its first sync: the tabs are up, so start on the
+            // selected one; a title to come back to is restored once the grid has it.
+            primaryFocusRequester.requestFocusAfterFrames(frames = 0)
+            if (lastFocusedPosterKey == null) pendingPrimaryFocus = false
+        }
         if (!uiState.isLoading && pendingPrimaryFocus && tab == LibraryTab.SERVERS && serverFocusTarget != null) {
             pendingPrimaryFocus = false
         }
@@ -360,7 +364,7 @@ fun LibraryScreen(
         else -> stringResource(R.string.library_source_local)
     }
     val shownCount = when {
-        uiState.isLoading -> null
+        savedGridLoading -> null
         tab.listScope != null -> uiState.visibleItems.size
         tab == LibraryTab.IN_PROGRESS -> inProgressItems?.size
         tab == LibraryTab.HISTORY -> historyMonths?.sumOf { it.items.size }
@@ -377,7 +381,7 @@ fun LibraryScreen(
     // cached meta once the focus prefetch lands. Off in Layout, on low-RAM devices and on Servers.
     val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
     val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
-    val heroAllowed = heroSetting && !FetchTheme.lowRamDevice && tab != LibraryTab.SERVERS && !uiState.isLoading
+    val heroAllowed = heroSetting && !FetchTheme.lowRamDevice && tab != LibraryTab.SERVERS && !savedGridLoading
     val movieLabel = com.fetch.tv.ui.util.localizedContentType("movie")
     val seriesLabel = com.fetch.tv.ui.util.localizedContentType("series")
     val heroItem = remember(heroAllowed, tab, lastFocusedPosterKey, uiState.visibleItems, inProgressItems, historyMonths) {
@@ -454,7 +458,8 @@ fun LibraryScreen(
                 }
             )
         },
-        filters = if (tab.listScope != null && !uiState.isLoading) {
+        // Kept while a sync runs, so the Sync button that started it keeps the focus (#846).
+        filters = if (tab.listScope != null) {
             @Composable {
                 LibrarySelectorsRow(
                     actions = {
@@ -529,23 +534,12 @@ fun LibraryScreen(
         gridViewport = gridViewport
     )
 
-    if (uiState.isLoading) {
-        val loadingFocusRequester = remember { FocusRequester() }
-        LaunchedEffect(uiState.isLoading) {
-            runCatching { loadingFocusRequester.requestFocus() }
-        }
+    if (savedGridLoading) {
         val syncingText = stringResource(R.string.library_syncing_library)
 
-        // The header and its tabs stay up while the library syncs (#850); the grid's place holds
-        // focus, and is named so TalkBack doesn't land on an unlabelled element.
+        // Only the Watchlist and Lists grids wait for the provider's first sync; the header, the
+        // other tabs and the filters stay usable, so nothing here needs to hold focus (#846, #850).
         Box(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .focusRequester(loadingFocusRequester)
-                    .focusable()
-                    .semantics { contentDescription = syncingText }
-            )
             Column(
                 modifier = Modifier.padding(start = FetchTheme.spacing.screen.horizontal, top = com.fetch.tv.ui.components.BrowseDefaults.gridTopPadding),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
@@ -808,7 +802,10 @@ fun LibraryScreen(
                     val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
-                onItemClick = { itemId, itemType, addonBaseUrl -> onNavigateToDetail(itemId, itemType, addonBaseUrl) },
+                onItemClick = { itemId, itemType, addonBaseUrl ->
+                    HeroBackdropState.update(viewModel.getCachedBackdrop(itemId, itemType))
+                    onNavigateToDetail(itemId, itemType, addonBaseUrl)
+                },
                 onSeeAll = { row -> onNavigateToCatalogSeeAll(row.catalogId, row.addonId, row.apiType) },
                 onItemLongPress = { item, addonBaseUrl -> viewModel.posterOptions.show(item, addonBaseUrl) }
             )
@@ -912,6 +909,8 @@ fun LibraryScreen(
         state = posterOptionsState,
         controller = viewModel.posterOptions,
         onNavigateToDetail = { id, type, addonBaseUrl ->
+            // Go to details from the options menu hands over the backdrop too (#847).
+            HeroBackdropState.update(viewModel.getCachedBackdrop(id, type))
             onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
         },
         extraActions = { target ->

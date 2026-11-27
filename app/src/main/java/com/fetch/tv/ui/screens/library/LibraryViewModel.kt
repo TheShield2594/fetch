@@ -160,6 +160,21 @@ internal fun libraryReadyChipText(labels: List<String>, fallback: String): Strin
 
 private const val READY_CHIP_MAX_LABELS = 2
 
+/**
+ * Whether the Library is still waiting for [source]'s first answer (#846): it is syncing with
+ * nothing to show yet, and has never answered. Once it has (a finished sync, or any titles),
+ * [source] joins [answered] and an empty library is shown as empty.
+ */
+internal fun libraryFirstLoadPending(
+    isSyncing: Boolean,
+    isEmpty: Boolean,
+    source: Pair<Int, LibrarySourceMode>,
+    answered: MutableSet<Pair<Int, LibrarySourceMode>>
+): Boolean {
+    if (!isSyncing || !isEmpty) answered += source
+    return isSyncing && isEmpty && source !in answered
+}
+
 /** Whether [entry] starts at once: a movie whose Best match is in [readyKeys]. */
 internal fun libraryEntryReady(entry: LibraryEntry, readyKeys: Set<String>): Boolean =
     entry.type.equals("movie", ignoreCase = true) &&
@@ -409,6 +424,12 @@ class LibraryViewModel @Inject constructor(
         ).joinToString(" ")
         if (result.failed > 0) setError(message) else setTransientMessage(message)
     }
+
+    /**
+     * Profile and source pairs that have given their first answer (#846): after that an empty
+     * library is the empty state, and a sync shows only on the Sync button.
+     */
+    private val answeredSources = mutableSetOf<Pair<Int, LibrarySourceMode>>()
 
     private class ListManagementContext(val profileId: Int, val source: LibrarySourceMode)
     private var listManagementContext: ListManagementContext? = null
@@ -912,7 +933,12 @@ class LibraryViewModel @Inject constructor(
                         manageSelectedListKey = nextManageSelected,
                         isTrackingAuthenticated = isTrackingAuthenticated,
                         isSyncing = isSyncing,
-                        isLoading = isSyncing && items.isEmpty()
+                        isLoading = libraryFirstLoadPending(
+                            isSyncing = isSyncing,
+                            isEmpty = items.isEmpty(),
+                            source = profileManager.activeProfileId.value to sourceMode,
+                            answered = answeredSources
+                        )
                     )
                     updated.withVisibleItems()
                 }

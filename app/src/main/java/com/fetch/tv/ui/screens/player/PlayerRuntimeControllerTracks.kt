@@ -4,6 +4,7 @@ package com.fetch.tv.ui.screens.player
 
 import com.fetch.tv.data.local.SubtitleMode
 import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
+import com.fetch.tv.data.local.suppressPlayerTextAutoSelect
 import android.net.Uri
 import android.util.Log
 import androidx.media3.common.C
@@ -1896,9 +1897,11 @@ internal fun PlayerRuntimeController.applySubtitlePreferences(preferred: String,
                     _uiState.value.selectedAddonSubtitle == null
             // Suppress ExoPlayer auto-select when forced mode is active —
             // our custom logic handles track selection.
-            val useForcedSubtitles = _uiState.value.subtitleStyle.forcedOnlyForMatchingAudio
-            val shouldSuppressExoAutoSelect = useForcedSubtitles && !autoSubtitleSelected
-            if (!userDisabledSubtitles && !shouldSuppressExoAutoSelect) {
+            val style = _uiState.value.subtitleStyle
+            val shouldSuppressExoAutoSelect = style.suppressPlayerTextAutoSelect && !autoSubtitleSelected
+            // Off never hands text selection back to ExoPlayer: a forced track it wants is
+            // selected explicitly, and ExoPlayer left to itself would pick a full one.
+            if (!userDisabledSubtitles && !shouldSuppressExoAutoSelect && style.mode != SubtitleMode.OFF) {
                 builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
             }
             if (!shouldSuppressExoAutoSelect) {

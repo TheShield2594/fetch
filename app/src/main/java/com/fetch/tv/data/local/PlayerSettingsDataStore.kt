@@ -155,6 +155,14 @@ enum class SubtitleMode { AUTO, OFF, ON }
  * viewer reads. Auto and Off both follow the "Use forced subtitles" setting (Off then goes no
  * further, so with that setting off it shows nothing); On never does.
  */
+/**
+ * Whether ExoPlayer must not pick a subtitle by itself, leaving the choice to the player's own
+ * auto-selection: when forced-only applies, and always in Off, which never wants a full track
+ * whatever the "Use forced subtitles" setting says.
+ */
+val SubtitleStyleSettings.suppressPlayerTextAutoSelect: Boolean
+    get() = forcedOnlyForMatchingAudio || mode == SubtitleMode.OFF
+
 val SubtitleStyleSettings.forcedOnlyForMatchingAudio: Boolean
     get() = when (mode) {
         SubtitleMode.AUTO -> useForcedSubtitles

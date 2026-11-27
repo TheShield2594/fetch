@@ -2,6 +2,7 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.data.local.suppressPlayerTextAutoSelect
 import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
 import android.content.Context
 import android.content.res.Resources
@@ -858,7 +859,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                     setParameters(buildUponParameters().setPreferredAudioRoleFlags(C.ROLE_FLAG_DESCRIBES_VIDEO))
                 }
                 // Forced mode: disable ExoPlayer auto text selection; our logic handles it.
-                if (playerSettings.subtitleStyle.forcedOnlyForMatchingAudio) {
+                if (playerSettings.subtitleStyle.suppressPlayerTextAutoSelect) {
                     setParameters(buildUponParameters().setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true))
                 }
                 // When forced subtitles are disabled, tell ExoPlayer to ignore

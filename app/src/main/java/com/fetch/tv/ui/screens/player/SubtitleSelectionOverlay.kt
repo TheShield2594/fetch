@@ -253,6 +253,20 @@ private fun SubtitleSelectionOverlaySession(
     var selectedOptionId by remember(visible) {
         mutableStateOf(sessionInitialSelectedOptionId)
     }
+    // The mark follows the player's actual selection while the panel is open, so a track Auto or On
+    // picks after a mode change (or Off clearing one) shows here. Focus memory is not touched.
+    var lastObservedSelection by remember(visible) { mutableStateOf(selectedInternalIndex to selectedAddonSubtitle) }
+    LaunchedEffect(visible, selectedInternalIndex, selectedAddonSubtitle) {
+        if (!visible) return@LaunchedEffect
+        val observed = selectedInternalIndex to selectedAddonSubtitle
+        if (observed == lastObservedSelection) return@LaunchedEffect
+        lastObservedSelection = observed
+        selectedOptionId = selectedSubtitleOptionId(
+            internalTracks = internalTracks,
+            selectedInternalIndex = selectedInternalIndex,
+            selectedAddonSubtitle = selectedAddonSubtitle
+        )
+    }
     val subtitleOptions = remember(
         selectedLanguageKey,
         selectedOptionId,

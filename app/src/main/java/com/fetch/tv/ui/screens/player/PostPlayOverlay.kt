@@ -242,6 +242,8 @@ private fun AutoPlayBody(
                 mode.searching -> stringResource(R.string.next_episode_finding_source)
                 !mode.sourceName.isNullOrBlank() && mode.countdownSec != null ->
                     stringResource(R.string.next_episode_playing_via, mode.sourceName, mode.countdownSec)
+                !mode.sourceName.isNullOrBlank() && mode.waitingForEnd ->
+                    stringResource(R.string.next_episode_playing_via_at_end, mode.sourceName)
                 else -> null
             }
             if (statusText != null) {

@@ -1430,6 +1430,56 @@ internal fun PlayerRuntimeController.cancelNextEpisodePreload() {
     nextEpisodePreloadTriggered = false
 }
 
+/** Whether autoplay's countdown may run now, from the playhead and this file's skip segments (#693). */
+private fun PlayerRuntimeController.autoPlayCountdownMayStart(countdownSec: Int): Boolean {
+    if (_uiState.value.playbackEnded) return true
+    val timeline = _playbackTimeline.value
+    return PlayerNextEpisodeRules.autoPlayCountdownMayStart(
+        positionMs = timeline.currentPosition,
+        durationMs = maxOf(timeline.duration, lastKnownDuration),
+        skipIntervals = skipIntervals,
+        thresholdMode = nextEpisodeThresholdModeSetting,
+        thresholdPercent = nextEpisodeThresholdPercentSetting,
+        thresholdMinutesBeforeEnd = nextEpisodeThresholdMinutesBeforeEndSetting,
+        countdownSec = countdownSec
+    )
+}
+
+/**
+ * Holds the picked source on the card until the countdown may start: the file's last seconds or
+ * its end. Returns true when the user asked to start now instead (Play, Next), false otherwise.
+ */
+private suspend fun PlayerRuntimeController.waitForAutoPlayCountdownStart(
+    nextInfo: NextEpisodeInfo,
+    sourceName: String,
+    countdownSec: Int
+): Boolean {
+    val startNow = CompletableDeferred<Unit>()
+    nextEpisodeStartNowSignal = startNow
+    _uiState.update { current ->
+        current.copy(
+            postPlayMode = PostPlayMode.AutoPlay(
+                nextEpisode = current.nextEpisode ?: nextInfo,
+                searching = false,
+                sourceName = sourceName,
+                countdownTotalSec = countdownSec,
+                waitingForEnd = true,
+            ),
+        )
+    }
+    try {
+        while (!startNow.isCompleted) {
+            if (autoPlayCountdownMayStart(countdownSec)) return false
+            withTimeoutOrNull(AUTO_PLAY_END_WAIT_POLL_MS) { startNow.await() }
+        }
+        return true
+    } finally {
+        if (nextEpisodeStartNowSignal === startNow) nextEpisodeStartNowSignal = null
+    }
+}
+
+private const val AUTO_PLAY_END_WAIT_POLL_MS = 250L
+
 internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = false) {
     val nextVideo = nextEpisodeVideo ?: return
     val type = contentType ?: return
@@ -1441,8 +1491,13 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
         return
     }
     val activeAutoPlay = state.postPlayMode as? PostPlayMode.AutoPlay
+    if (activeAutoPlay?.waitingForEnd == true && userInitiated) {
+        // A source is already picked and waits for the end of the file: start it now.
+        nextEpisodeStartNowSignal?.complete(Unit)
+        return
+    }
     if (activeAutoPlay != null &&
-        (activeAutoPlay.searching || activeAutoPlay.countdownSec != null)
+        (activeAutoPlay.searching || activeAutoPlay.countdownSec != null || activeAutoPlay.waitingForEnd)
     ) {
         return
     }
@@ -1652,9 +1707,20 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
             val streamToPlay = selectedStream
             if (streamToPlay != null) {
                 val sourceName = (streamToPlay.name?.takeIf { it.isNotBlank() } ?: streamToPlay.addonName).trim()
+                val autoCountdown = autoPlayCountdownSecondsSetting.coerceAtLeast(1)
+                // Without credits markers the card shows at the threshold, which can be minutes
+                // before the end: wait for the file's last seconds before counting down (#693).
+                var startedByUser = userInitiated
+                if (!startedByUser && !autoPlayCountdownMayStart(autoCountdown)) {
+                    startedByUser = waitForAutoPlayCountdownStart(
+                        nextInfo = nextInfo,
+                        sourceName = sourceName,
+                        countdownSec = autoCountdown
+                    )
+                }
                 // The countdown is a chance to cancel an automatic start; a start the user asked
                 // for (Next, the card's Play, the remote's Next key) begins at once.
-                val countdownTotal = if (userInitiated) 0 else autoPlayCountdownSecondsSetting.coerceAtLeast(1)
+                val countdownTotal = if (startedByUser) 0 else autoCountdown
                 for (remaining in countdownTotal downTo 1) {
                     _uiState.update { current ->
                         val episodeForMode = current.nextEpisode ?: nextInfo
@@ -1680,7 +1746,7 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                 switchToEpisodeStream(
                     stream = streamToPlay,
                     forcedTargetVideo = nextVideo,
-                    isAutoPlay = !userInitiated
+                    isAutoPlay = !startedByUser
                 )
             } else {
                 _uiState.update {

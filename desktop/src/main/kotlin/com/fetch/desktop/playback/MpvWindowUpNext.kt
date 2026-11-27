@@ -8,7 +8,8 @@ import com.fetch.desktop.skip.Segment
  * Up Next, preloading and the queue for playback in mpv's own window, which Fetch follows over
  * IPC: the built-in player's `PositionWatch`, driven by mpv's `time-pos` and `duration`.
  *
- * - At the next-episode threshold mpv's OSD counts down [COUNTDOWN_SEC] seconds of playback
+ * - At the next-episode threshold (without credits markers, in the file's last seconds, #693)
+ *   mpv's OSD counts down [COUNTDOWN_SEC] seconds of playback
  *   ("Up Next: S1 E4 · starting in 5 s"), then the window closes and [movedOn] is set, for the
  *   app to start the next episode. Alt+N keeps watching instead ([onCancelled]).
  * - "Preload next episode sources" asks the addons ahead, as in the built-in player ([onPreload]).
@@ -60,11 +61,17 @@ class MpvWindowUpNext(
         val from = countdownFrom
         if (from == null) {
             if (!reached) return emptyList()
+            // Without credits markers the threshold can be minutes before the end: count down in
+            // the file's last seconds instead of cutting its ending (#693).
+            if (!NextEpisodeRules.countdownMayStart(positionSec, durationSec, segments, ap, COUNTDOWN_SEC)) return emptyList()
             countdownFrom = positionSec
             return show(COUNTDOWN_SEC)
         }
-        if (positionSec < from - 1.0 && !reached) {
-            // Seeked back before the threshold: wait for it again.
+        if (positionSec < from - 1.0 &&
+            (!reached || !NextEpisodeRules.countdownMayStart(positionSec, durationSec, segments, ap, COUNTDOWN_SEC))
+        ) {
+            // Seeked back before the threshold, or out of the last seconds the countdown runs in
+            // without credits markers: wait for it again.
             countdownFrom = null
             lastShown = null
             return listOf(MpvProgress.showTextCommand("", 1))

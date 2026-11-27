@@ -208,10 +208,19 @@ fun HomeScreen(
     val pendingCwRemovalForLayer by viewModel.pendingContinueWatchingRemoval.collectAsStateWithLifecycle()
     // A card held for undo still counts, so hiding the last one doesn't swap Home for the empty
     // state and take the Undo banner with it (#816).
-    val hasAnyContent = uiState.catalogRows.isNotEmpty() ||
-        (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
-        hasCollectionContent ||
-        pendingCwRemovalForLayer != null
+    // Only what can be drawn counts: a catalog that loaded with no items is not on screen, so all
+    // empty loads reach "No catalogs" and failed ones the error with Retry (#798).
+    val drawableContent = HomeDrawableContent(
+        hasCatalogItems = hasCatalogContent,
+        hasCatalogRowsBesidePlaceholders = uiState.catalogRows.isNotEmpty() &&
+            uiState.homeRows.any { it is HomeRow.PlaceholderCatalog },
+        hasCollections = hasCollectionContent,
+        hasContinueWatching = uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty(),
+        hasPendingContinueWatchingRemoval = pendingCwRemovalForLayer != null
+    )
+    val hasAnyContent = drawableContent.any
+    // The load error with Retry replaces Home only when nothing can be drawn.
+    val showLoadError = uiState.errorKind != null && !hasAnyContent
     val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
         reach = uiState.networkReach,
         hasAnyContent = hasAnyContent,
@@ -224,7 +233,7 @@ fun HomeScreen(
         uiState.isLoading && !hasAnyContent -> true
         uiState.errorKind == HomeErrorKind.NO_ADDONS && uiState.catalogRows.isEmpty() -> !homeStableGateReleased
         uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent -> !homeStableGateReleased
-        uiState.errorKind != null && uiState.catalogRows.isEmpty() -> false
+        showLoadError -> false
         !uiState.isLoading && !hasAnyContent -> !homeStableGateReleased
         else -> !homeStableGateReleased || !modernPresentationReady || !showHomeContentWithAnimation
     }
@@ -299,7 +308,7 @@ fun HomeScreen(
                 }
             }
 
-            uiState.errorKind != null && uiState.catalogRows.isEmpty() -> {
+            showLoadError -> {
                 ErrorState(
                     message = uiState.error ?: stringResource(R.string.error_generic),
                     onRetry = { viewModel.onEvent(HomeEvent.OnRetry) },

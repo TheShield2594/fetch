@@ -50,6 +50,44 @@ object PlayerNextEpisodeRules {
         thresholdPercent: Float,
         thresholdMinutesBeforeEnd: Float
     ): Boolean {
+        val (credits, scene) = creditsAndScene(skipIntervals, durationMs)
+        return NextEpisodeCardRules.shouldShow(
+            positionSec = positionMs / 1_000.0,
+            durationSec = durationMs / 1_000.0,
+            credits = credits,
+            postCreditsScene = scene,
+            threshold = threshold(thresholdMode, thresholdPercent, thresholdMinutesBeforeEnd)
+        )
+    }
+
+    /**
+     * Whether autoplay's [countdownSec]-second countdown may run now that the card is up: at once
+     * when the credits timed the card, otherwise only in the file's last seconds (#693).
+     */
+    fun autoPlayCountdownMayStart(
+        positionMs: Long,
+        durationMs: Long,
+        skipIntervals: List<SkipInterval>,
+        thresholdMode: NextEpisodeThresholdMode,
+        thresholdPercent: Float,
+        thresholdMinutesBeforeEnd: Float,
+        countdownSec: Int
+    ): Boolean {
+        val (credits, scene) = creditsAndScene(skipIntervals, durationMs)
+        return NextEpisodeCardRules.countdownMayStart(
+            positionSec = positionMs / 1_000.0,
+            durationSec = durationMs / 1_000.0,
+            credits = credits,
+            postCreditsScene = scene,
+            threshold = threshold(thresholdMode, thresholdPercent, thresholdMinutesBeforeEnd),
+            countdownSec = countdownSec
+        )
+    }
+
+    private fun creditsAndScene(
+        skipIntervals: List<SkipInterval>,
+        durationMs: Long
+    ): Pair<List<NextEpisodeCardRules.Credits>, NextEpisodeCardRules.PostCreditsScene?> {
         val outros = skipIntervals.filter { it.type in OUTRO_SEGMENT_TYPES && it.endTime > it.startTime }
         // The same post-credits detection as the Skip button, so the card never covers the scene.
         val scene = if (durationMs > 0L) {
@@ -57,15 +95,10 @@ object PlayerNextEpisodeRules {
         } else {
             null
         }
-        return NextEpisodeCardRules.shouldShow(
-            positionSec = positionMs / 1_000.0,
-            durationSec = durationMs / 1_000.0,
-            credits = outros.map { NextEpisodeCardRules.Credits(it.startTime, it.endTime) },
-            postCreditsScene = scene?.let {
+        return outros.map { NextEpisodeCardRules.Credits(it.startTime, it.endTime) } to
+            scene?.let {
                 NextEpisodeCardRules.PostCreditsScene(it.startTime, it.endTime, guessed = it.provider == "heuristic")
-            },
-            threshold = threshold(thresholdMode, thresholdPercent, thresholdMinutesBeforeEnd)
-        )
+            }
     }
 
     fun threshold(

@@ -432,7 +432,7 @@ internal fun HomeViewModel.loadCatalogPipeline(
                             catalogsLoadInProgress = false
                         }
                         // Remember the row and retry it, instead of losing it for the session.
-                        onHomeCatalogLoadFailed(errorKey, addon, catalog, generation)
+                        onHomeCatalogLoadFailed(errorKey, addon, catalog, generation, result.message)
                         // Same as the success path: drop the failed row's placeholder now.
                         scheduleUpdateCatalogRows()
                     }
@@ -607,15 +607,27 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
 
     // Clear any stale error when content is now available (e.g., catalogs
     // loaded after the initial startup race set an error).
-    val hasContent = computedHomeRows.isNotEmpty() || displayRows.isNotEmpty()
+    // Only rows Home can draw count: a catalog that loaded empty is not on screen, so it must not
+    // hide the error and Retry when the others failed (#798). Placeholders, collections and
+    // approved rows are all in computedHomeRows.
+    val hasContent = computedHomeRows.isNotEmpty() || displayRows.any { it.items.isNotEmpty() }
 
     _uiState.update { state ->
+        // With nothing to show once every load has settled, a failed catalog means the load
+        // failed: show the error with Retry, not "No catalogs" (#798).
+        val error = homeErrorAfterRowsUpdate(
+            hasContent = hasContent,
+            pendingLoads = pendingCatalogLoads,
+            failedCatalogs = failedHomeCatalogs.size,
+            firstFailureMessage = firstHomeCatalogErrorMessage,
+            current = HomeErrorState(kind = state.errorKind, message = state.error)
+        )
         state.copy(
             catalogRows = if (state.catalogRows == displayRows) state.catalogRows else displayRows,
             homeRows = if (state.homeRows == computedHomeRows) state.homeRows else computedHomeRows,
             isLoading = false,
-            error = if (hasContent) null else state.error,
-            errorKind = if (hasContent) null else state.errorKind
+            error = error.message,
+            errorKind = error.kind
         )
     }
 

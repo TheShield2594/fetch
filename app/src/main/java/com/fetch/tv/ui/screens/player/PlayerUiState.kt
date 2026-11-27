@@ -38,6 +38,11 @@ sealed interface PostPlayMode {
         val countdownSec: Int? = null,
         /** Length of the whole countdown, which the up-next fill is paced against. */
         val countdownTotalSec: Int = AUTO_PLAY_COUNTDOWN_SECONDS,
+        /**
+         * A source is picked and the countdown waits for the end of the file: there are no credits
+         * markers, so the card's threshold says nothing about where the episode's content ends (#693).
+         */
+        val waitingForEnd: Boolean = false,
     ) : PostPlayMode
 
     data class StillWatching(
@@ -55,7 +60,7 @@ sealed interface PostPlayMode {
 
     fun blocksNaturalCompletion(): Boolean = when (this) {
         is StillWatching -> true
-        is AutoPlay -> searching || countdownSec != null
+        is AutoPlay -> searching || countdownSec != null || waitingForEnd
     }
 }
 

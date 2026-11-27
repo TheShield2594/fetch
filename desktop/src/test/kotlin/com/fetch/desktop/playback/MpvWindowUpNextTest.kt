@@ -2,6 +2,8 @@ package com.fetch.desktop.playback
 
 import com.fetch.desktop.data.AutoPlaySettings
 import com.fetch.desktop.player.MpvProgress
+import com.fetch.desktop.skip.Segment
+import com.fetch.desktop.skip.SegmentType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -19,26 +21,49 @@ class MpvWindowUpNextTest {
         settings: AutoPlaySettings = AutoPlaySettings(),
         next: String? = "S1 E4 · The Next One",
         queue: List<String> = emptyList(),
-        calls: Calls = Calls()
+        calls: Calls = Calls(),
+        segments: List<Segment> = emptyList()
     ) = MpvWindowUpNext(
-        settings = { settings }, segments = emptyList(), nextLabel = next, timeoutSeconds = { 5 },
+        settings = { settings }, segments = segments, nextLabel = next, timeoutSeconds = { 5 },
         upcoming = { queue }, onPreload = { calls.preloads++ }, onCancelled = { calls.cancels++ }
     )
 
     @Test
-    fun `the threshold counts down on mpv's OSD by playback time, then closes the window`() {
+    fun `without credits it counts down on mpv's OSD in the last seconds, then closes the window (#693)`() {
         val u = upNext()
         assertTrue(u.onTimes(100.0, duration).isEmpty())
         assertTrue("before the threshold", u.onTimes(2_370.0, duration).isEmpty())
-        val first = u.onTimes(2_376.0, duration).single()
+        assertTrue("past the threshold, but the ending still plays", u.onTimes(2_376.0, duration).isEmpty())
+        assertTrue(u.onTimes(2_394.0, duration).isEmpty())
+        val first = u.onTimes(2_395.0, duration).single()
         assertTrue(first.contains("Up Next: S1 E4 · The Next One") && first.contains("Starting in 5 s"))
-        assertTrue("the same second isn't shown twice", u.onTimes(2_376.4, duration).isEmpty())
-        assertTrue(u.onTimes(2_377.1, duration).single().contains("Starting in 4 s"))
+        assertTrue("the same second isn't shown twice", u.onTimes(2_395.4, duration).isEmpty())
+        assertTrue(u.onTimes(2_396.1, duration).single().contains("Starting in 4 s"))
         assertFalse(u.movedOn)
-        val last = u.onTimes(2_381.0, duration)
+        val last = u.onTimes(2_400.0, duration)
         assertEquals(MpvProgress.QUIT_COMMAND, last.last())
         assertTrue(u.movedOn)
-        assertTrue("nothing more once it moved on", u.onTimes(2_382.0, duration).isEmpty())
+        assertTrue("nothing more once it moved on", u.onTimes(2_400.0, duration).isEmpty())
+    }
+
+    @Test
+    fun `without credits a seek back out of the last seconds waits for them again`() {
+        val u = upNext()
+        u.onTimes(100.0, duration)
+        assertTrue(u.onTimes(2_395.0, duration).single().contains("Starting in 5 s"))
+        // Still past the 99 % threshold, but out of the countdown's last 5 s.
+        assertEquals(listOf(MpvProgress.showTextCommand("", 1)), u.onTimes(2_380.0, duration))
+        assertTrue(u.onTimes(2_381.0, duration).isEmpty())
+        assertTrue(u.onTimes(2_395.0, duration).single().contains("Starting in 5 s"))
+    }
+
+    @Test
+    fun `credits near the end start the countdown when they start`() {
+        val u = upNext(segments = listOf(Segment(SegmentType.OUTRO, 2_300.0, 2_398.0)))
+        u.onTimes(100.0, duration)
+        assertTrue(u.onTimes(2_299.0, duration).isEmpty())
+        assertTrue(u.onTimes(2_300.0, duration).single().contains("Starting in 5 s"))
+        assertEquals(MpvProgress.QUIT_COMMAND, u.onTimes(2_305.0, duration).last())
     }
 
     @Test
@@ -46,7 +71,7 @@ class MpvWindowUpNextTest {
         val u = upNext()
         assertTrue(u.onTimes(2_390.0, duration).isEmpty())
         assertTrue(u.onTimes(2_000.0, duration).isEmpty())
-        assertTrue(u.onTimes(2_380.0, duration).isNotEmpty())
+        assertTrue(u.onTimes(2_396.0, duration).isNotEmpty())
     }
 
     @Test
@@ -54,10 +79,10 @@ class MpvWindowUpNextTest {
         val calls = Calls()
         val u = upNext(calls = calls)
         u.onTimes(100.0, duration)
-        u.onTimes(2_376.0, duration)
+        u.onTimes(2_395.0, duration)
         val cleared = u.onTimes(1_000.0, duration)
         assertEquals(listOf(MpvProgress.showTextCommand("", 1)), cleared)
-        assertTrue(u.onTimes(2_376.0, duration).single().contains("Starting in 5 s"))
+        assertTrue(u.onTimes(2_395.0, duration).single().contains("Starting in 5 s"))
         assertTrue(u.onClientMessage(listOf(MpvWindowUpNext.CANCEL_MESSAGE)).single().contains("Up Next cancelled"))
         assertEquals(1, calls.cancels)
         assertTrue(u.onTimes(2_390.0, duration).isEmpty())

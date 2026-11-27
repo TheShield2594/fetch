@@ -10,7 +10,8 @@ package com.fetch.tv.core.player
  *   when it is shorter than the threshold's window, not at all (autoplay takes over at the end);
  * - otherwise the card shows when the credits start, unless they end well before the file does,
  *   when the threshold applies instead.
- * Without credits the threshold applies.
+ * Without credits the threshold applies to the card, and autoplay's countdown waits for the last
+ * seconds of the file ([countdownMayStart], #693).
  *
  * Each app finds the credits and the scene after them with its own skip-segment rules.
  */
@@ -54,10 +55,9 @@ object NextEpisodeCardRules {
             is Threshold.Percent -> positionSec / durationSec >= clampPercent(threshold.percent) / 100.0
             is Threshold.MinutesBeforeEnd -> durationSec - positionSec <= clampMinutes(threshold.minutes) * 60.0
         }
-        val validCredits = credits.filter { it.endSec > it.startSec }
-        if (validCredits.isEmpty()) return byThreshold
-        val fromEnd = secondsFromEnd(durationSec, threshold)
+        if (!timedByCredits(durationSec, credits, postCreditsScene, threshold)) return byThreshold
         if (postCreditsScene != null) {
+            val fromEnd = secondsFromEnd(durationSec, threshold)
             val trigger = durationSec - fromEnd
             val sceneEnd = postCreditsScene.endSec.coerceAtMost(durationSec)
             return when {
@@ -66,8 +66,40 @@ object NextEpisodeCardRules {
                 else -> positionSec >= maxOf(sceneEnd, trigger)
             }
         }
-        val gapAfterCredits = durationSec - validCredits.maxOf { it.endSec }
-        return if (gapAfterCredits > fromEnd) byThreshold else positionSec >= validCredits.minOf { it.startSec }
+        return positionSec >= credits.filter { it.endSec > it.startSec }.minOf { it.startSec }
+    }
+
+    /**
+     * Whether autoplay's countdown may run at [positionSec], once the card is up. When the card
+     * was timed by the credits (it shows as they start, or after the scene that follows them), the
+     * countdown runs at once. Otherwise the card shows at the threshold, which can be minutes
+     * before the end, so the countdown waits for the file's last [countdownSec] seconds and the
+     * next episode starts at the end rather than cutting the final scene (#693).
+     */
+    fun countdownMayStart(
+        positionSec: Double,
+        durationSec: Double,
+        credits: List<Credits>,
+        postCreditsScene: PostCreditsScene?,
+        threshold: Threshold,
+        countdownSec: Int
+    ): Boolean {
+        if (durationSec <= 0.0) return true
+        if (timedByCredits(durationSec, credits, postCreditsScene, threshold)) return true
+        return durationSec - positionSec <= countdownSec.coerceAtLeast(0)
+    }
+
+    /** Whether [shouldShow] times the card from the credits rather than the threshold alone. */
+    fun timedByCredits(
+        durationSec: Double,
+        credits: List<Credits>,
+        postCreditsScene: PostCreditsScene?,
+        threshold: Threshold
+    ): Boolean {
+        val validCredits = credits.filter { it.endSec > it.startSec }
+        if (validCredits.isEmpty()) return false
+        if (postCreditsScene != null) return true
+        return durationSec - validCredits.maxOf { it.endSec } <= secondsFromEnd(durationSec, threshold)
     }
 
     /** Seconds before the end the threshold stands at. */

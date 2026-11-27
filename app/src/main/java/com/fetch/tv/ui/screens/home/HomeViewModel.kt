@@ -509,6 +509,9 @@ class HomeViewModel @Inject constructor(
     internal val failedHomeCatalogs = ConcurrentHashMap<String, FailedHomeCatalog>()
     internal val failedCatalogRetryJobs = ConcurrentHashMap<String, Job>()
     internal val retryingHomeCatalogKeys: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    /** The first catalog error of the current load, for Home's error state when nothing loaded (#798). */
+    @Volatile
+    internal var firstHomeCatalogErrorMessage: String? = null
     /** Restructured page 1 of the focused row, by row stable key, applied once focus leaves. */
     internal val deferredFocusedRowRefreshes = ConcurrentHashMap<String, DeferredHomeRowRefresh>()
     /** All placeholder descriptors for homeRow construction. */

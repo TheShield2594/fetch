@@ -22,4 +22,18 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Nada assistido ainda</string>
     <string name="library_history_empty_subtitle">O que você termina, e o que seu serviço de rastreamento marca como assistido, aparece aqui por mês.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Outras páginas</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d título</item>
+        <item quantity="many">%1$d de títulos</item>
+        <item quantity="other">%1$d títulos</item>
+    </plurals>
+    <string name="library_card_ready">Pronto</string>
+    <string name="layout_browse_hero">Destaque em Descobrir e Biblioteca</string>
+    <string name="layout_browse_hero_sub">Mostra a imagem, o logo e os detalhes do título selecionado acima da grade.</string>
+    <string name="card_state_saved">Salvo</string>
+    <string name="discover_include_unrated">Incluir sem avaliação</string>
+    <string name="discover_reset_filters">Redefinir</string>
 </resources>

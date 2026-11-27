@@ -23,4 +23,17 @@
     <string name="library_history_empty_title">Все още нищо не е гледано</string>
     <string name="library_history_empty_subtitle">Това, което догледаш, и това, което услугата ти за проследяване отбележи като гледано, се показва тук по месеци.</string>
     <string name="library_watched_filter_ready">Готово за пускане</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Други страници</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d заглавие</item>
+        <item quantity="other">%1$d заглавия</item>
+    </plurals>
+    <string name="library_card_ready">Готово</string>
+    <string name="layout_browse_hero">Акцент в Discover и Библиотека</string>
+    <string name="layout_browse_hero_sub">Показва изображението, логото и подробностите за избраното заглавие над решетката.</string>
+    <string name="card_state_saved">Запазено</string>
+    <string name="discover_include_unrated">Включи без оценка</string>
+    <string name="discover_reset_filters">Нулиране</string>
 </resources>

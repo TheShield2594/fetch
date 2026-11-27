@@ -22,4 +22,19 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Nic jeszcze nie obejrzano</string>
     <string name="library_history_empty_subtitle">Tutaj, według miesięcy, pojawia się to, co obejrzysz do końca, i to, co usługa śledzenia oznaczy jako obejrzane.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Inne strony</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d tytuł</item>
+        <item quantity="few">%1$d tytuły</item>
+        <item quantity="many">%1$d tytułów</item>
+        <item quantity="other">%1$d tytułu</item>
+    </plurals>
+    <string name="library_card_ready">Gotowy</string>
+    <string name="layout_browse_hero">Baner w Odkrywaj i Bibliotece</string>
+    <string name="layout_browse_hero_sub">Pokazuje obraz, logo i szczegóły wybranego tytułu nad siatką.</string>
+    <string name="card_state_saved">Zapisano</string>
+    <string name="discover_include_unrated">Uwzględnij bez oceny</string>
+    <string name="discover_reset_filters">Resetuj</string>
 </resources>

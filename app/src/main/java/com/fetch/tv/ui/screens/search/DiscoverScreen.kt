@@ -174,6 +174,9 @@ fun DiscoverScreen(
             state = posterOptionsState,
             controller = viewModel.posterOptions,
             showNotInterested = true,
+            // Saving is what Discover's menu is mostly for: first and focused, so Menu then OK
+            // adds a title to (or takes it off) the library, with the menu's confirmation (#857).
+            libraryActionFirst = true,
             onNavigateToDetail = { id, type, addonBaseUrl ->
                 pendingDiscoverRestoreOnResume = true
                 val clickedItem = uiState.discoverResults.firstOrNull { it.id == id }

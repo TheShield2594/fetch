@@ -3,6 +3,7 @@ package com.fetch.tv.ui.screens.search
 import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import com.fetch.tv.ui.components.browseGridItemMotion
 import com.fetch.tv.ui.components.browseGridFastScroll
+import com.fetch.tv.ui.components.restoreBrowseFocus
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.components.FetchMediaCard
@@ -207,6 +208,7 @@ internal fun DiscoverSection(
         modifier = modifier,
         layoutKey = uiState.selectedDiscoverType,
         heroBackdrop = heroTarget?.backdrop,
+        heroPoster = heroTarget?.poster,
         hero = if (showHero) {
             @Composable { com.fetch.tv.ui.components.hero.BrowseHeroTitle(heroTarget) }
         } else {
@@ -511,11 +513,8 @@ internal fun DiscoverGrid(
         val target = effectiveFocusedItemIndex
         if (target in 0 until totalCells) {
             // A card far down the grid may not be composed yet (a long scroll, or a grid rebuilt
-            // after the app was stopped), and focus can only go to a composed card.
-            if (gridState.layoutInfo.visibleItemsInfo.none { it.index == target }) {
-                runCatching { gridState.scrollToItem(target) }
-            }
-            restoreFocusRequester.requestFocusAfterFrames(frames = 1)
+            // after the app was stopped): the browse screens' one restore step scrolls it in (#850).
+            gridState.restoreBrowseFocus(target, restoreFocusRequester)
         }
         if (localShouldRestoreFocusedItem) {
             localShouldRestoreFocusedItem = false

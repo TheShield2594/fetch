@@ -25,4 +25,16 @@
 
     <!-- Library watched filter -->
     <string name="library_watched_filter_ready">すぐに再生可能</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">その他のページ</string>
+    <plurals name="library_title_count">
+        <item quantity="other">%1$d件</item>
+    </plurals>
+    <string name="library_card_ready">準備完了</string>
+    <string name="layout_browse_hero">ディスカバーとライブラリのヒーロー</string>
+    <string name="layout_browse_hero_sub">選択中のタイトルの画像、ロゴ、詳細をグリッドの上に表示します。</string>
+    <string name="card_state_saved">保存済み</string>
+    <string name="discover_include_unrated">評価なしも含める</string>
+    <string name="discover_reset_filters">リセット</string>
 </resources>

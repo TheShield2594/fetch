@@ -59,6 +59,7 @@ import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.browseGridFastScroll
+import com.fetch.tv.ui.components.restoreBrowseFocus
 import androidx.compose.ui.focus.onFocusChanged
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.PosterCardDefaults
@@ -261,16 +262,8 @@ fun CatalogSeeAllScreen(
         if (items.isEmpty()) return@LaunchedEffect
 
         val targetIndex = focusedItemIndex.coerceIn(0, items.lastIndex)
-        val isTargetVisible = gridState.layoutInfo.visibleItemsInfo.any { it.index == targetIndex }
-        if (!isTargetVisible) {
-            gridState.animateScrollToItem(targetIndex)
-        }
-        repeat(2) { withFrameNanos { } }
-        try {
-            restoreFocusRequester.requestFocus()
-            shouldRestoreFocus = false
-        } catch (_: IllegalStateException) {
-        }
+        // The browse screens' one restore step (#850).
+        if (gridState.restoreBrowseFocus(targetIndex, restoreFocusRequester)) shouldRestoreFocus = false
     }
 
     val filterBarFocusRequester = remember { FocusRequester() }
@@ -283,8 +276,7 @@ fun CatalogSeeAllScreen(
         onFocusFirstCard = {
             shouldRestoreFocus = false
             focusedItemKey = catalogRow?.items?.firstOrNull()?.let(::catalogItemFocusKey)
-            repeat(2) { withFrameNanos { } }
-            runCatching { restoreFocusRequester.requestFocus() }.getOrDefault(false)
+            gridState.restoreBrowseFocus(0, restoreFocusRequester)
         },
         onFocusHeader = {
             if (sourceRow == null || runCatching { filterBarFocusRequester.requestFocus() }.getOrDefault(false) != true) {

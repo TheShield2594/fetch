@@ -22,4 +22,19 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Пока ничего не просмотрено</string>
     <string name="library_history_empty_subtitle">Здесь по месяцам появляется то, что вы досмотрели, и то, что ваш сервис отслеживания отметил как просмотренное.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Другие страницы</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d тайтл</item>
+        <item quantity="few">%1$d тайтла</item>
+        <item quantity="many">%1$d тайтлов</item>
+        <item quantity="other">%1$d тайтла</item>
+    </plurals>
+    <string name="library_card_ready">Готово</string>
+    <string name="layout_browse_hero">Обложка в Навигаторе и Библиотеке</string>
+    <string name="layout_browse_hero_sub">Показывает изображение, логотип и описание выбранного тайтла над сеткой.</string>
+    <string name="card_state_saved">Сохранено</string>
+    <string name="discover_include_unrated">Включая без оценки</string>
+    <string name="discover_reset_filters">Сбросить</string>
 </resources>

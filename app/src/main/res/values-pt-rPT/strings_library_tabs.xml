@@ -25,4 +25,18 @@
 
     <!-- Watched filter -->
     <string name="library_watched_filter_ready">Prontos a reproduzir</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Outras páginas</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d título</item>
+        <item quantity="many">%1$d de títulos</item>
+        <item quantity="other">%1$d títulos</item>
+    </plurals>
+    <string name="library_card_ready">Pronto</string>
+    <string name="layout_browse_hero">Destaque em Descobrir e Biblioteca</string>
+    <string name="layout_browse_hero_sub">Mostra a imagem, o logótipo e os detalhes do título selecionado acima da grelha.</string>
+    <string name="card_state_saved">Guardado</string>
+    <string name="discover_include_unrated">Incluir sem classificação</string>
+    <string name="discover_reset_filters">Repor</string>
 </resources>

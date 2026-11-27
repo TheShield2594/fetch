@@ -69,6 +69,7 @@ import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.browseGridItemMotion
 import com.fetch.tv.ui.components.browseGridFastScroll
+import com.fetch.tv.ui.components.restoreBrowseFocus
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.pluralStringResource
@@ -292,13 +293,8 @@ fun LibraryScreen(
 
             // requestFocus() reports false while the target is not laid out yet, so each try
             // waits for the next frame rather than a fixed delay.
-            var focused = false
-            if (restoreIndex != null && restoreRequester != null) {
-                if (gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0) {
-                    runCatching { gridState.scrollToItem(restoreIndex) }
-                }
-                focused = restoreRequester.requestFocusAfterFrames(frames = 0)
-            }
+            val focused = restoreIndex != null && restoreRequester != null &&
+                gridState.restoreBrowseFocus(restoreIndex, restoreRequester)
 
             if (!focused) {
                 primaryFocusRequester.requestFocusAfterFrames(frames = 0)
@@ -339,16 +335,9 @@ fun LibraryScreen(
         if (uiState.sortSelectionVersion <= 0L) return@LaunchedEffect
         val targetKey = firstVisiblePosterKey ?: return@LaunchedEffect
         runCatching { gridState.scrollToItem(0) }
-        // The poster's requester is registered when it composes, so look it up each frame, and
-        // stop once the user has focused a poster of their own.
-        val focusedBefore = lastFocusedPosterKey
-        repeat(6) {
-            if (lastFocusedPosterKey != focusedBefore) return@LaunchedEffect
-            val focused = posterFocusRequesters[targetKey]
-                ?.let { requester -> runCatching { requester.requestFocus() }.getOrDefault(false) }
-                ?: false
-            if (focused) return@LaunchedEffect
-            withFrameNanos { }
+        // A new sort starts on its first title, by the browse screens' one restore step (#850).
+        posterFocusRequesters[targetKey]?.let { requester ->
+            gridState.restoreBrowseFocus(0, requester)
         }
     }
 
@@ -418,6 +407,7 @@ fun LibraryScreen(
         collapsed = collapsed,
         layoutKey = tab,
         heroBackdrop = heroTarget?.backdrop,
+        heroPoster = heroTarget?.poster,
         hero = if (showHero) {
             @Composable { com.fetch.tv.ui.components.hero.BrowseHeroTitle(heroTarget) }
         } else {

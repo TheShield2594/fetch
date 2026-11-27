@@ -11,6 +11,8 @@ import com.fetch.tv.ui.theme.FetchTheme
  * glide to their new places on the `move` token, and cards that come or go fade. None under
  * reduced motion or on a low-RAM device, where the grid changes in one frame as before.
  */
+// An extension on the grid item's scope, not on Modifier: animateItem only exists there.
+@Suppress("ModifierFactoryExtensionFunction")
 @Composable
 fun LazyGridItemScope.browseGridItemMotion(): Modifier =
     if (FetchTheme.fullMotion && !FetchTheme.lowRamDevice) {

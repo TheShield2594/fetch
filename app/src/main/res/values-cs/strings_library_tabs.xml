@@ -25,4 +25,19 @@
 
     <!-- Library watched filter -->
     <string name="library_watched_filter_ready">Připraveno k přehrání</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Další stránky</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titul</item>
+        <item quantity="few">%1$d tituly</item>
+        <item quantity="many">%1$d titulu</item>
+        <item quantity="other">%1$d titulů</item>
+    </plurals>
+    <string name="library_card_ready">Připraveno</string>
+    <string name="layout_browse_hero">Úvodní pás v Objevovat a Knihovně</string>
+    <string name="layout_browse_hero_sub">Zobrazí obrázek, logo a podrobnosti vybraného titulu nad mřížkou.</string>
+    <string name="card_state_saved">Uloženo</string>
+    <string name="discover_include_unrated">Včetně nehodnocených</string>
+    <string name="discover_reset_filters">Obnovit</string>
 </resources>

@@ -24,4 +24,19 @@
     <string name="library_history_empty_subtitle">Тут по місяцях з\'являється те, що ви додивилися, і те, що ваш сервіс відстеження позначив як переглянуте.</string>
 
     <string name="library_watched_filter_ready">Готові до перегляду</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Інші сторінки</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d тайтл</item>
+        <item quantity="few">%1$d тайтли</item>
+        <item quantity="many">%1$d тайтлів</item>
+        <item quantity="other">%1$d тайтла</item>
+    </plurals>
+    <string name="library_card_ready">Готово</string>
+    <string name="layout_browse_hero">Обкладинка в Навігаторі та Бібліотеці</string>
+    <string name="layout_browse_hero_sub">Показує зображення, логотип і опис вибраного тайтла над сіткою.</string>
+    <string name="card_state_saved">Збережено</string>
+    <string name="discover_include_unrated">Разом із неоціненими</string>
+    <string name="discover_reset_filters">Скинути</string>
 </resources>

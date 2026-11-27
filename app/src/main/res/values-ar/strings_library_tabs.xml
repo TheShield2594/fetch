@@ -22,4 +22,21 @@
     <!-- History tab -->
     <string name="library_history_empty_title">لم تشاهد شيئاً بعد</string>
     <string name="library_history_empty_subtitle">ما تُنهي مشاهدته، وما تحدده خدمة التتبع كمُشاهَد، يظهر هنا مرتباً حسب الشهر.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">صفحات أخرى</string>
+    <plurals name="library_title_count">
+        <item quantity="zero">لا عناوين</item>
+        <item quantity="one">عنوان واحد</item>
+        <item quantity="two">عنوانان</item>
+        <item quantity="few">%1$d عناوين</item>
+        <item quantity="many">%1$d عنوانًا</item>
+        <item quantity="other">%1$d عنوان</item>
+    </plurals>
+    <string name="library_card_ready">جاهز</string>
+    <string name="layout_browse_hero">الواجهة في استكشاف والمكتبة</string>
+    <string name="layout_browse_hero_sub">عرض صورة العنوان المحدد وشعاره وتفاصيله فوق الشبكة.</string>
+    <string name="card_state_saved">محفوظ</string>
+    <string name="discover_include_unrated">تضمين غير المقيَّمة</string>
+    <string name="discover_reset_filters">إعادة ضبط</string>
 </resources>

@@ -25,4 +25,17 @@
 
     <!-- Library watched filter -->
     <string name="library_watched_filter_ready">இயக்கத் தயார்</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">பிற பக்கங்கள்</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d தலைப்பு</item>
+        <item quantity="other">%1$d தலைப்புகள்</item>
+    </plurals>
+    <string name="library_card_ready">தயார்</string>
+    <string name="layout_browse_hero">கண்டறிதல் மற்றும் நூலகத்தில் முதன்மைப் பகுதி</string>
+    <string name="layout_browse_hero_sub">தேர்ந்தெடுத்த தலைப்பின் படம், லோகோ, விவரங்களைக் கட்டத்தின் மேலே காட்டும்.</string>
+    <string name="card_state_saved">சேமிக்கப்பட்டது</string>
+    <string name="discover_include_unrated">மதிப்பீடு இல்லாதவற்றையும் சேர்</string>
+    <string name="discover_reset_filters">மீட்டமை</string>
 </resources>

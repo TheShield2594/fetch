@@ -22,4 +22,16 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Chưa xem gì</string>
     <string name="library_history_empty_subtitle">Nội dung bạn xem xong, và nội dung được dịch vụ theo dõi đánh dấu là đã xem, sẽ hiển thị ở đây theo tháng.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Trang khác</string>
+    <plurals name="library_title_count">
+        <item quantity="other">%1$d tựa</item>
+    </plurals>
+    <string name="library_card_ready">Sẵn sàng</string>
+    <string name="layout_browse_hero">Ảnh nổi bật trong Khám phá và Thư viện</string>
+    <string name="layout_browse_hero_sub">Hiển thị ảnh, logo và thông tin của tựa đang chọn phía trên lưới.</string>
+    <string name="card_state_saved">Đã lưu</string>
+    <string name="discover_include_unrated">Bao gồm tựa chưa có điểm</string>
+    <string name="discover_reset_filters">Đặt lại</string>
 </resources>

@@ -21,6 +21,9 @@ import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.StableList
 import com.fetch.tv.ui.util.formatHeroRuntime
 import kotlinx.coroutines.delay
+import coil3.imageLoader
+import coil3.request.allowHardware
+import coil3.toBitmap
 import java.util.Locale
 
 /** How long focus rests on a card before the band follows it, as on Home. */
@@ -82,9 +85,28 @@ fun rememberBrowseHeroTarget(candidate: HeroPreview?): HeroPreview? {
  * along the top for the tabs and the clock. With no backdrop yet, the previous one holds.
  */
 @Composable
-fun BrowseHeroBackdrop(backdrop: String?, modifier: Modifier = Modifier) {
+fun BrowseHeroBackdrop(backdrop: String?, modifier: Modifier = Modifier, poster: String? = null) {
     val bgColor = FetchTheme.colors.Background
+    // Before any backdrop has loaded (a Library title whose meta isn't cached yet), the band
+    // takes its colour from the poster; once art has been shown, the previous art holds instead.
+    val posterTint = rememberPosterTint(poster)
     BoxWithConstraints(modifier = modifier) {
+        if (posterTint != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .drawWithCache {
+                        val wash = Brush.horizontalGradient(
+                            colorStops = arrayOf(
+                                0.0f to bgColor,
+                                BROWSE_HERO_TINT_START to posterTint,
+                                1.0f to posterTint
+                            )
+                        )
+                        onDrawBehind { drawRect(wash) }
+                    }
+            )
+        }
         val density = LocalDensity.current
         val widthPx = with(density) { maxWidth.roundToPx() }.coerceAtLeast(1)
         val heightPx = with(density) { maxHeight.roundToPx() }.coerceAtLeast(1)
@@ -120,6 +142,54 @@ fun BrowseHeroBackdrop(backdrop: String?, modifier: Modifier = Modifier) {
 }
 
 private const val BROWSE_HERO_TOP_SCRIM_ALPHA = 0.7f
+private const val BROWSE_HERO_TINT_START = 0.45f
+
+/** How much of the poster's own colour the wash keeps, over the background, so text stays legible. */
+private const val BROWSE_HERO_TINT_STRENGTH = 0.35f
+
+/** Side of the copy of the poster averaged for its colour: tiny, so it is cheap to decode. */
+private const val BROWSE_HERO_TINT_SAMPLE_PX = 8
+
+/**
+ * The poster's average colour, blended into the background, for the band's wash while no backdrop
+ * has loaded (#852). Null until it is known, without a poster, and on low-RAM devices.
+ */
+@Composable
+private fun rememberPosterTint(poster: String?): Color? {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val background = FetchTheme.colors.Background
+    val enabled = !FetchTheme.lowRamDevice
+    var tint by remember { mutableStateOf<Color?>(null) }
+    LaunchedEffect(poster, enabled, background) {
+        if (!enabled || poster.isNullOrBlank()) return@LaunchedEffect
+        val request = coil3.request.ImageRequest.Builder(context)
+            .data(poster)
+            .size(BROWSE_HERO_TINT_SAMPLE_PX, BROWSE_HERO_TINT_SAMPLE_PX)
+            .allowHardware(false)
+            .build()
+        val result = context.imageLoader.execute(request) as? coil3.request.SuccessResult ?: return@LaunchedEffect
+        val average = averageColor(result.image.toBitmap()) ?: return@LaunchedEffect
+        tint = androidx.compose.ui.graphics.lerp(background, average, BROWSE_HERO_TINT_STRENGTH)
+    }
+    return tint
+}
+
+/** The mean colour of [bitmap]'s pixels, or null for an empty one. */
+private fun averageColor(bitmap: android.graphics.Bitmap): Color? {
+    val count = bitmap.width * bitmap.height
+    if (count == 0) return null
+    val pixels = IntArray(count)
+    bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+    var r = 0L
+    var g = 0L
+    var b = 0L
+    pixels.forEach { p ->
+        r += (p shr 16) and 0xFF
+        g += (p shr 8) and 0xFF
+        b += p and 0xFF
+    }
+    return Color(red = (r / count).toInt(), green = (g / count).toInt(), blue = (b / count).toInt())
+}
 private const val BROWSE_HERO_TOP_SCRIM_END = 0.3f
 
 /** The band's text: the logo (or title), the meta line and a short synopsis, fading with the art. */

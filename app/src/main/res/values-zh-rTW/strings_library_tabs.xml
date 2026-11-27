@@ -22,4 +22,16 @@
     <!-- History tab -->
     <string name="library_history_empty_title">還沒有觀看紀錄</string>
     <string name="library_history_empty_subtitle">你看完的內容，以及追蹤服務標記為已觀看的內容，會依月份顯示在這裡。</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">其他頁面</string>
+    <plurals name="library_title_count">
+        <item quantity="other">%1$d 部</item>
+    </plurals>
+    <string name="library_card_ready">就緒</string>
+    <string name="layout_browse_hero">在探索和媒體庫中顯示焦點大圖</string>
+    <string name="layout_browse_hero_sub">在網格上方顯示所選影片的圖片、標誌和詳細資訊。</string>
+    <string name="card_state_saved">已儲存</string>
+    <string name="discover_include_unrated">包含無評分</string>
+    <string name="discover_reset_filters">重設</string>
 </resources>

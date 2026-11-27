@@ -25,4 +25,16 @@
 
     <!-- Watched filter -->
     <string name="library_watched_filter_ready">Siap diputar</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Halaman lain</string>
+    <plurals name="library_title_count">
+        <item quantity="other">%1$d judul</item>
+    </plurals>
+    <string name="library_card_ready">Siap</string>
+    <string name="layout_browse_hero">Hero di Temukan dan Pustaka</string>
+    <string name="layout_browse_hero_sub">Tampilkan gambar, logo, dan detail judul yang dipilih di atas kisi.</string>
+    <string name="card_state_saved">Disimpan</string>
+    <string name="discover_include_unrated">Sertakan yang belum dinilai</string>
+    <string name="discover_reset_filters">Atur ulang</string>
 </resources>

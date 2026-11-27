@@ -22,4 +22,17 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Δεν έχετε δει τίποτα ακόμα</string>
     <string name="library_history_empty_subtitle">Ό,τι ολοκληρώνετε και ό,τι επισημαίνει η υπηρεσία παρακολούθησής σας ως προβληθέν εμφανίζεται εδώ ανά μήνα.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Άλλες σελίδες</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d τίτλος</item>
+        <item quantity="other">%1$d τίτλοι</item>
+    </plurals>
+    <string name="library_card_ready">Έτοιμο</string>
+    <string name="layout_browse_hero">Προβολή στην Ανακάλυψη και τη Βιβλιοθήκη</string>
+    <string name="layout_browse_hero_sub">Εμφανίζει την εικόνα, το λογότυπο και τις λεπτομέρειες του επιλεγμένου τίτλου πάνω από το πλέγμα.</string>
+    <string name="card_state_saved">Αποθηκευμένο</string>
+    <string name="discover_include_unrated">Συμπερίληψη χωρίς βαθμολογία</string>
+    <string name="discover_reset_filters">Επαναφορά</string>
 </resources>

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_selection_start">Auswählen</string>
-    <plurals name="library_selection_count">
-        <item quantity="one">%d ausgewählt</item>
-        <item quantity="other">%d ausgewählt</item>
-    </plurals>
     <string name="library_selection_hint">OK wählt einen Titel · Menü springt zu diesen Aktionen · Zurück beendet</string>
     <string name="library_selection_remove">Entfernen</string>
     <string name="library_selection_mark_watched">Als gesehen markieren</string>
@@ -49,4 +45,12 @@
         <item quantity="one">%d Titel blieb unverändert: ändere ihn über sein eigenes Menü.</item>
         <item quantity="other">%d Titel blieben unverändert: ändere sie über ihre eigenen Menüs.</item>
     </plurals>
+
+    <!-- Select all, #856 -->
+    <plurals name="library_selection_count_of">
+        <item quantity="one">%1$d von %2$d ausgewählt</item>
+        <item quantity="other">%1$d von %2$d ausgewählt</item>
+    </plurals>
+    <string name="library_selection_select_all">Alle auswählen</string>
+    <string name="library_selection_clear">Leeren</string>
 </resources>

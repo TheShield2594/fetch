@@ -24,4 +24,18 @@
     <string name="library_history_empty_subtitle">Ce termini de vizionat și ce marchează serviciul tău de urmărire ca vizionat apar aici, grupate pe luni.</string>
 
     <string name="library_watched_filter_ready">Gata de redare</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Alte pagini</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titlu</item>
+        <item quantity="few">%1$d titluri</item>
+        <item quantity="other">%1$d de titluri</item>
+    </plurals>
+    <string name="library_card_ready">Gata</string>
+    <string name="layout_browse_hero">Prezentare în Descoperă și Bibliotecă</string>
+    <string name="layout_browse_hero_sub">Afișează imaginea, sigla și detaliile titlului selectat deasupra grilei.</string>
+    <string name="card_state_saved">Salvat</string>
+    <string name="discover_include_unrated">Include fără evaluare</string>
+    <string name="discover_reset_filters">Resetează</string>
 </resources>

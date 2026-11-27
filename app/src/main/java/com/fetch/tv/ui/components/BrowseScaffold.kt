@@ -47,6 +47,7 @@ import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.util.dpadVerticalFastScroll
 import kotlinx.coroutines.launch
+import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.core.util.runSuspendCatching
 
 /**
@@ -77,6 +78,8 @@ fun BrowseScaffold(
      * filters, and is left out of the cards' fitting, so it never shrinks the posters.
      */
     heroBackdrop: String? = null,
+    /** The focused title's poster, whose colour washes the band until a backdrop has loaded. */
+    heroPoster: String? = null,
     hero: (@Composable () -> Unit)? = null,
     content: @Composable BoxScope.(gridViewport: Dp) -> Unit
 ) {
@@ -97,7 +100,7 @@ fun BrowseScaffold(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
         if (hero != null) {
-            BrowseHeroArt(visible = !collapsed, backdrop = heroBackdrop, modifier = Modifier.matchParentSize())
+            BrowseHeroArt(visible = !collapsed, backdrop = heroBackdrop, poster = heroPoster, modifier = Modifier.matchParentSize())
         }
         Column(
             modifier = Modifier
@@ -177,7 +180,7 @@ private fun <T> snapSpec() = androidx.compose.animation.core.snap<T>()
 
 /** The band's art behind the header, fading out as the header folds (#852). */
 @Composable
-private fun BrowseHeroArt(visible: Boolean, backdrop: String?, modifier: Modifier) {
+private fun BrowseHeroArt(visible: Boolean, backdrop: String?, poster: String?, modifier: Modifier) {
     val fullMotion = FetchTheme.fullMotion
     AnimatedVisibility(
         visible = visible,
@@ -185,7 +188,7 @@ private fun BrowseHeroArt(visible: Boolean, backdrop: String?, modifier: Modifie
         enter = fadeIn(if (fullMotion) FetchMotion.enterTween() else snapSpec()),
         exit = fadeOut(if (fullMotion) FetchMotion.exitTween() else snapSpec())
     ) {
-        com.fetch.tv.ui.components.hero.BrowseHeroBackdrop(backdrop = backdrop, modifier = Modifier.fillMaxSize())
+        com.fetch.tv.ui.components.hero.BrowseHeroBackdrop(backdrop = backdrop, poster = poster, modifier = Modifier.fillMaxSize())
     }
 }
 
@@ -366,6 +369,17 @@ fun BrowseBackHandler(
             }
         }
     }
+}
+
+/**
+ * The browse screens' one focus-restore step (#850): brings the card at [index] into view if it
+ * isn't, then gives it focus once it is composed and laid out. Each screen decides which card by
+ * its key; this is how it gets there. False when the card couldn't take focus.
+ */
+suspend fun LazyGridState.restoreBrowseFocus(index: Int, requester: FocusRequester): Boolean {
+    if (index < 0) return false
+    if (layoutInfo.visibleItemsInfo.none { it.index == index }) runSuspendCatching { scrollToItem(index) }
+    return requester.requestFocusAfterFrames(frames = 1)
 }
 
 /**

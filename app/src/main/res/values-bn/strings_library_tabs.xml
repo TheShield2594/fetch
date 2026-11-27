@@ -22,4 +22,17 @@
     <!-- History tab -->
     <string name="library_history_empty_title">এখনও কিছু দেখা হয়নি</string>
     <string name="library_history_empty_subtitle">আপনি যা শেষ করেন, এবং আপনার ট্র্যাকিং সার্ভিস যা দেখা হয়েছে বলে চিহ্নিত করে, তা মাস অনুযায়ী এখানে দেখা যায়।</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">অন্যান্য পৃষ্ঠা</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$dটি টাইটেল</item>
+        <item quantity="other">%1$dটি টাইটেল</item>
+    </plurals>
+    <string name="library_card_ready">রেডি</string>
+    <string name="layout_browse_hero">ডিসকভার ও লাইব্রেরিতে হিরো</string>
+    <string name="layout_browse_hero_sub">গ্রিডের উপরে নির্বাচিত টাইটেলের ছবি, লোগো ও বিবরণ দেখান।</string>
+    <string name="card_state_saved">সংরক্ষিত</string>
+    <string name="discover_include_unrated">রেটিং ছাড়া টাইটেলও দেখান</string>
+    <string name="discover_reset_filters">রিসেট</string>
 </resources>

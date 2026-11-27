@@ -25,4 +25,17 @@
 
     <!-- Library watched filter -->
     <string name="library_watched_filter_ready">Redo att spela upp</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Andra sidor</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titel</item>
+        <item quantity="other">%1$d titlar</item>
+    </plurals>
+    <string name="library_card_ready">Redo</string>
+    <string name="layout_browse_hero">Framhävning i Utforska och Bibliotek</string>
+    <string name="layout_browse_hero_sub">Visar bild, logotyp och detaljer för den valda titeln ovanför rutnätet.</string>
+    <string name="card_state_saved">Sparad</string>
+    <string name="discover_include_unrated">Ta med utan betyg</string>
+    <string name="discover_reset_filters">Återställ</string>
 </resources>

@@ -22,4 +22,18 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Još ništa nije pogledano</string>
     <string name="library_history_empty_subtitle">Ono što pogledaš do kraja i ono što tvoja usluga praćenja označi kao pogledano prikazuje se ovdje po mjesecima.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Ostale stranice</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d naslov</item>
+        <item quantity="few">%1$d naslova</item>
+        <item quantity="other">%1$d naslova</item>
+    </plurals>
+    <string name="library_card_ready">Spremno</string>
+    <string name="layout_browse_hero">Istaknuti prikaz u Otkrij i Biblioteci</string>
+    <string name="layout_browse_hero_sub">Prikazuje sliku, logotip i pojedinosti odabranog naslova iznad mreže.</string>
+    <string name="card_state_saved">Spremljeno</string>
+    <string name="discover_include_unrated">Uključi bez ocjene</string>
+    <string name="discover_reset_filters">Poništi</string>
 </resources>

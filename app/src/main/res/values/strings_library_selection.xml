@@ -2,11 +2,6 @@
 <resources>
     <!-- Library multi-select (#653). The button that starts choosing several titles at once. -->
     <string name="library_selection_start">Select</string>
-    <!-- The bar shown while choosing titles. -->
-    <plurals name="library_selection_count">
-        <item quantity="one">%d selected</item>
-        <item quantity="other">%d selected</item>
-    </plurals>
     <!-- How many of the titles shown are chosen (#856). %1$d chosen, %2$d shown. -->
     <plurals name="library_selection_count_of">
         <item quantity="one">%1$d of %2$d selected</item>

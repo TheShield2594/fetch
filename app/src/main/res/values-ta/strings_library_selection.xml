@@ -2,10 +2,6 @@
 <resources>
     <!-- Library multi-select (#653) -->
     <string name="library_selection_start">தேர்ந்தெடு</string>
-    <plurals name="library_selection_count">
-        <item quantity="one">%d தேர்ந்தெடுக்கப்பட்டது</item>
-        <item quantity="other">%d தேர்ந்தெடுக்கப்பட்டன</item>
-    </plurals>
     <string name="library_selection_hint">OK ஒரு தலைப்பைத் தேர்ந்தெடுக்கும் · Menu இந்தச் செயல்களுக்குச் செல்லும் · Back முடிக்கும்</string>
     <string name="library_selection_remove">அகற்று</string>
     <string name="library_selection_mark_watched">பார்த்ததாகக் குறி</string>
@@ -48,4 +44,12 @@
         <item quantity="one">%d தலைப்பு அப்படியே விடப்பட்டது: அதன் சொந்த மெனுவிலிருந்து மாற்றவும்.</item>
         <item quantity="other">%d தலைப்புகள் அப்படியே விடப்பட்டன: அவற்றின் சொந்த மெனுக்களிலிருந்து மாற்றவும்.</item>
     </plurals>
+
+    <!-- Select all, #856 -->
+    <plurals name="library_selection_count_of">
+        <item quantity="one">%2$d இல் %1$d தேர்ந்தெடுக்கப்பட்டது</item>
+        <item quantity="other">%2$d இல் %1$d தேர்ந்தெடுக்கப்பட்டன</item>
+    </plurals>
+    <string name="library_selection_select_all">அனைத்தையும் தேர்ந்தெடு</string>
+    <string name="library_selection_clear">அழி</string>
 </resources>

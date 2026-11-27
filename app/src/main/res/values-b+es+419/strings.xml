@@ -956,7 +956,7 @@
     <string name="mdblist_ratings_connected_account">Usando la cuenta conectada</string>
     <string name="mdblist_ratings_key_override_subtitle">Una clave de API reemplaza tu cuenta conectada para las calificaciones. Bórrala para volver a usar la cuenta conectada.</string>
     <string name="mdblist_show_on_hero_title">Usar calificaciones en el hero</string>
-    <string name="mdblist_show_on_hero_subtitle">Mostrar las calificaciones de MDBList en el carrusel del hero (moderno y clásico/cuadrícula)</string>
+    <string name="mdblist_show_on_hero_subtitle">Mostrar las calificaciones de MDBList en el carrusel del hero</string>
     <string name="mdblist_rating_order_subtitle">Las primeras 3 calificaciones habilitadas y disponibles se muestran en el hero moderno. Usa las flechas para cambiar el orden.</string>
     <string name="mdblist_dialog_title">Clave API de MDBList</string>
     <string name="mdblist_dialog_placeholder">Ingresa la clave API de MDBList</string>
@@ -1206,7 +1206,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Escanea un código QR para instalar o eliminar add-ons desde tu teléfono</string>
     <string name="addon_manage_collections_from_phone_subtitle">Escanea un código QR para administrar las carpetas de Inicio desde tu teléfono</string>
     <string name="addon_reorder_title">Reordenar catálogos de inicio</string>
-    <string name="addon_reorder_subtitle">Controla el orden de las filas de catálogos y de carpetas en Inicio (Clásico + Moderno + Cuadrícula)</string>
+    <string name="addon_reorder_subtitle">Controla el orden de las filas de catálogos y de carpetas en Inicio</string>
     <string name="addon_qr_scan_instruction">Escanea con tu teléfono para administrar addons, catálogos y carpetas de Inicio</string>
     <string name="addon_qr_addons_only_scan_instruction">Escanea con tu teléfono para instalar o eliminar add-ons</string>
     <string name="addon_qr_collections_scan_instruction">Escanea con tu teléfono para administrar las carpetas de Inicio</string>
@@ -1230,8 +1230,6 @@
     <string name="addon_confirm_total_catalogs">Total de catálogos: %1$d</string>
     <string name="addon_catalogs_types">Catálogos: %1$d - Tipos: %2$s</string>
 
-    <string name="catalog_order_title">Reordenar Catálogos de Inicio</string>
-    <string name="catalog_order_subtitle">Esto controla el orden de la fila de catálogos en Inicio (Clásico + Moderno + Cuadrícula).</string>
     <string name="catalog_order_follow_addons">Seguir el orden de los addons</string>
     <string name="catalog_order_follow_addons_desc">Los catálogos siguen el orden definido en los addons. Las filas de carpetas aún pueden moverse entre addons.</string>
     <string name="catalog_order_empty">Aún no hay catálogos de inicio disponibles.</string>
@@ -1698,7 +1696,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">No hay addons de catálogo instalados</string>
 
     <!-- Player errors -->
 

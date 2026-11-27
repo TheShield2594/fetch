@@ -45,11 +45,8 @@ private const val DEFAULT_MAX_FRAME_DT_SEC = 0.048f
 private enum class FastScrollMode { None, Vertical }
 
 /**
- * Adds the Modern-home fast-scroll behaviour to any scrollable container.
- *
- * Matches the inline implementation that shipped in ModernHomeContent and
- * ClassicHomeContent, extracted here so we stop copy-pasting the same key
- * handling into every vertical list.
+ * Adds Home's fast-scroll behaviour to any scrollable container, so every vertical list shares the
+ * same key handling instead of copying it.
  *
  * Behaviour:
  *

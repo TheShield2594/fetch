@@ -80,7 +80,7 @@ internal fun buildModernHomePresentation(
             val continueWatchingRow = if (reuseContinueWatchingRow) {
                 checkNotNull(cache.continueWatchingRow)
             } else {
-                HeroCarouselRow(
+                HomeRowModel(
                     key = MODERN_CONTINUE_WATCHING_ROW_KEY,
                     title = strContinueWatching,
                     globalRowIndex = -1,
@@ -88,7 +88,6 @@ internal fun buildModernHomePresentation(
                         buildContinueWatchingItem(
                             item = item,
                             useLandscapePosters = input.useLandscapePosters,
-                            showImdbRatings = input.showImdbRatings,
                             detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
                             airsDateTemplate = strAirsDate,
                             upcomingLabel = strUpcoming,
@@ -129,7 +128,6 @@ internal fun buildModernHomePresentation(
                 buildContinueWatchingItem(
                     item = item,
                     useLandscapePosters = input.useLandscapePosters,
-                    showImdbRatings = input.showImdbRatings,
                     detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
                     airsDateTemplate = strAirsDate,
                     upcomingLabel = strUpcoming,
@@ -144,12 +142,11 @@ internal fun buildModernHomePresentation(
                     occurrence = 0,
                     strTypeMovie = strTypeMovie,
                     strTypeSeries = strTypeSeries,
-                    showFullReleaseDate = input.showFullReleaseDate,
-                    showImdbRatings = input.showImdbRatings
+                    showFullReleaseDate = input.showFullReleaseDate
                 )
             }
             add(
-                HeroCarouselRow(
+                HomeRowModel(
                     key = MODERN_READY_TONIGHT_ROW_KEY,
                     title = localizedContext.getString(R.string.home_row_ready_tonight),
                     subtitle = localizedContext.getString(R.string.home_row_ready_tonight_explainer),
@@ -171,7 +168,7 @@ internal fun buildModernHomePresentation(
             val upcomingRow = if (reuseUpcomingRow) {
                 checkNotNull(cache.upcomingRow)
             } else {
-                HeroCarouselRow(
+                HomeRowModel(
                     key = MODERN_UPCOMING_ROW_KEY,
                     title = strUpcomingSectionTitle,
                     globalRowIndex = -1,
@@ -179,7 +176,6 @@ internal fun buildModernHomePresentation(
                         buildContinueWatchingItem(
                             item = item,
                             useLandscapePosters = input.useLandscapePosters,
-                            showImdbRatings = input.showImdbRatings,
                             detailImdbRatingsVisibility = input.detailImdbRatingsVisibility,
                             airsDateTemplate = strAirsDate,
                             upcomingLabel = strUpcoming,
@@ -202,7 +198,7 @@ internal fun buildModernHomePresentation(
         // A kids Home never shows it, whatever the loader sent.
         if (input.youTubeVideos.isNotEmpty() && !input.kidsHome) {
             add(
-                HeroCarouselRow(
+                HomeRowModel(
                     key = MODERN_YOUTUBE_ROW_KEY,
                     title = localizedContext.getString(R.string.youtube_home_row_label),
                     globalRowIndex = -1,
@@ -241,7 +237,7 @@ internal fun buildModernHomePresentation(
                     } else {
                         val rowItemOccurrenceCounts = mutableMapOf<String, Int>()
                         val rowItemCache = cache.catalogItemCache.getOrPut(rowKey) { mutableMapOf() }
-                        HeroCarouselRow(
+                        HomeRowModel(
                             key = rowKey,
                             title = catalogRowTitle(
                                 row = row,
@@ -281,7 +277,6 @@ internal fun buildModernHomePresentation(
                                         strTypeMovie = strTypeMovie,
                                         strTypeSeries = strTypeSeries,
                                         showFullReleaseDate = input.showFullReleaseDate,
-                                        showImdbRatings = input.showImdbRatings,
                                         previousCachedItem = cachedItem?.carouselItem
                                     ).copy(key = row.stableItemKey(item, occurrence))
                                     rowItemCache[cacheKey] = CachedCarouselItem(
@@ -329,7 +324,7 @@ internal fun buildModernHomePresentation(
                         }
                     } else {
                         val occurrenceCounts = mutableMapOf<String, Int>()
-                        HeroCarouselRow(
+                        HomeRowModel(
                             key = rowKey,
                             title = collection.title,
                             globalRowIndex = index,
@@ -389,7 +384,7 @@ internal fun buildModernHomePresentation(
                     } else {
                         homeRow.catalogName.replaceFirstChar { it.uppercase() }
                     }
-                    val placeholderRow = HeroCarouselRow(
+                    val placeholderRow = HomeRowModel(
                         key = stableRowKey,
                         title = placeholderTitle,
                         globalRowIndex = index,
@@ -429,7 +424,7 @@ private fun buildSpotlightRow(
     title: String,
     strTypeMovie: String,
     strTypeSeries: String
-): HeroCarouselRow? {
+): HomeRowModel? {
     val picks = pickSpotlight(
         rows = sourceRows,
         isWatched = { item -> input.watchedStatus[homeItemStatusKey(item.id, item.apiType)] == true },
@@ -444,8 +439,7 @@ private fun buildSpotlightRow(
             occurrence = 0,
             strTypeMovie = strTypeMovie,
             strTypeSeries = strTypeSeries,
-            showFullReleaseDate = input.showFullReleaseDate,
-            showImdbRatings = input.showImdbRatings
+            showFullReleaseDate = input.showFullReleaseDate
         )
         val identity = "${pick.item.apiType}:${pick.item.id}"
         val payload = built.payload as ModernPayload.Catalog
@@ -454,7 +448,7 @@ private fun buildSpotlightRow(
             payload = payload.copy(focusKey = "${MODERN_SPOTLIGHT_ROW_KEY}::$identity")
         )
     }
-    return HeroCarouselRow(
+    return HomeRowModel(
         key = MODERN_SPOTLIGHT_ROW_KEY,
         title = title,
         globalRowIndex = -1,
@@ -511,14 +505,11 @@ private fun Collection.hasVisibleFolders(): Boolean {
     return folders.isNotEmpty()
 }
 
-internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): CarouselRowLookups {
+internal fun buildCarouselRowLookups(carouselRows: List<HomeRowModel>): CarouselRowLookups {
     val rowIndexByKey = LinkedHashMap<String, Int>(carouselRows.size)
-    val rowByKey = LinkedHashMap<String, HeroCarouselRow>(carouselRows.size)
+    val rowByKey = LinkedHashMap<String, HomeRowModel>(carouselRows.size)
     val rowKeyByGlobalRowIndex = LinkedHashMap<Int, String>(carouselRows.size)
-    val firstHeroPreviewByRow = LinkedHashMap<String, HeroPreview>(carouselRows.size)
-    val fallbackBackdropByRow = LinkedHashMap<String, String>(carouselRows.size)
     val activeRowKeys = LinkedHashSet<String>(carouselRows.size)
-    val activeItemKeysByRow = LinkedHashMap<String, Set<String>>(carouselRows.size)
     val itemIdentitiesByRow = LinkedHashMap<String, StableList<String>>(carouselRows.size)
     val activeCatalogItemIds = LinkedHashSet<String>()
 
@@ -528,16 +519,10 @@ internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): Carou
         if (row.globalRowIndex >= 0) {
             rowKeyByGlobalRowIndex[row.globalRowIndex] = row.key
         }
-        row.items.list.firstOrNull()?.heroPreview?.let { firstHeroPreviewByRow[row.key] = it }
-        row.items.list.firstNotNullOfOrNull { item ->
-            item.heroPreview.backdrop?.takeIf { it.isNotBlank() }
-        }?.let { fallbackBackdropByRow[row.key] = it }
         activeRowKeys += row.key
 
-        val itemKeys = LinkedHashSet<String>(row.items.list.size)
         val itemIdentities = ArrayList<String>(row.items.list.size)
         row.items.list.forEach { item ->
-            itemKeys.add(item.key)
             when (val payload = item.payload) {
                 is ModernPayload.Catalog -> {
                     itemIdentities += "${payload.itemType}:${payload.itemId}"
@@ -554,7 +539,6 @@ internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): Carou
                 }
             }
         }
-        activeItemKeysByRow[row.key] = itemKeys
         itemIdentitiesByRow[row.key] = itemIdentities.asStable()
     }
 
@@ -562,10 +546,7 @@ internal fun buildCarouselRowLookups(carouselRows: List<HeroCarouselRow>): Carou
         rowIndexByKey = rowIndexByKey.asStable(),
         rowByKey = rowByKey.asStable(),
         rowKeyByGlobalRowIndex = rowKeyByGlobalRowIndex.asStable(),
-        firstHeroPreviewByRow = firstHeroPreviewByRow.asStable(),
-        fallbackBackdropByRow = fallbackBackdropByRow.asStable(),
         activeRowKeys = activeRowKeys.asStable(),
-        activeItemKeysByRow = activeItemKeysByRow.asStable(),
         itemIdentitiesByRow = itemIdentitiesByRow.asStable(),
         activeCatalogItemIds = activeCatalogItemIds.asStable()
     )

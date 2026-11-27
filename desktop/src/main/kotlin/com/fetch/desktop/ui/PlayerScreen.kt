@@ -219,7 +219,7 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         // Paused for a few seconds with the controls gone: what's on, as on TV.
         if (state.settings.player.pauseOverlay) PauseOverlay(session, visible = mpv.paused && !controlsVisible)
         if (session.showInfo) StreamInfoOverlay(session, Modifier.align(Alignment.TopEnd).padding(top = 96.dp, end = 32.dp), footer = { StatsHudToggle(state) })
-        session.upNextCountdown(mpv.position, mpv.duration, state.settings.player.upNextPromptSeconds)?.let { seconds ->
+        session.upNextCountdown(mpv.position, mpv.duration)?.let { seconds ->
             UpNextCard(
                 session = session,
                 seconds = seconds,

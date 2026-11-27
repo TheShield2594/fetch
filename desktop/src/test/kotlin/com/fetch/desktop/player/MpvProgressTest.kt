@@ -95,6 +95,6 @@ class MpvProgressTest {
     fun `gives up when mpv exits before opening its socket`() = runBlocking {
         val socket = Files.createTempDirectory("mpv-test").resolve("never.sock").toFile()
         val process = ProcessBuilder("true").start().also { it.waitFor() }
-        assertEquals(null, MpvProgress.follow(socket, process) {})
+        assertEquals(MpvProgress.Ending(null, reachedEnd = false), MpvProgress.followToEnd(socket, process) {})
     }
 }

@@ -507,7 +507,7 @@
     <string name="addon_manage_from_phone_title">Hantera från telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skanna en QR-kod för att hantera tillägg, kataloger och Hem-mappar från din telefon</string>
     <string name="addon_reorder_title">Ordna om hemkataloger</string>
-    <string name="addon_reorder_subtitle">Styr ordningen på katalog- och mapprader på Hem (Klassisk + Modern + Rutnät)</string>
+    <string name="addon_reorder_subtitle">Styr ordningen på katalog- och mapprader på Hem</string>
     <string name="addon_qr_scan_instruction">Skanna med din telefon för att hantera tillägg, kataloger och Hem-mappar</string>
     <string name="addon_qr_close">Stäng</string>
     <string name="addon_confirm_title">Bekräfta tilläggsändringar &amp; katalogändringar</string>
@@ -522,8 +522,6 @@
     <string name="addon_confirm_confirm">Tillämpa ändringar</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Ordna om hemkataloger</string>
-    <string name="catalog_order_subtitle">Detta styr katalogradordning på Hem (Klassisk + Modern + Rutnät).</string>
     <string name="catalog_order_empty">Inga hemkataloger tillgängliga ännu.</string>
     <string name="catalog_order_disabled_on_home">Inaktiverad på Hem</string>
     <string name="catalog_order_enable">Aktivera</string>
@@ -1104,7 +1102,6 @@
     <string name="search_no_results_filter_subtitle">Prova ett annat filter, eller Alla.</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Inga katalogtillägg installerade</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Den här källan har ingen strömlänk. Välj en annan källa.</string>

@@ -229,7 +229,7 @@ private data class MainUiPrefs(
     val amoledSurfacesMode: Boolean = false,
     val highContrast: Boolean = false,
     val reduceMotion: Boolean = false,
-    val hasChosenLayout: Boolean? = null,
+    val homeSetUp: Boolean? = null,
     val experienceMode: ExperienceMode? = null,
     val experienceModeLoaded: Boolean = false,
     val addonSetupSkipped: Boolean = false,
@@ -489,11 +489,11 @@ open class MainActivity : ComponentActivity() {
                     )
                 }
                 val layoutAndFeaturesFlow = combine(
-                    layoutPreferenceDataStore.hasChosenLayout,
+                    layoutPreferenceDataStore.homeSetUp,
                     layoutPreferenceDataStore.sidebarCollapsedByDefault,
-                ) { hasChosenLayout, sidebarCollapsed ->
+                ) { homeSetUp, sidebarCollapsed ->
                     MainUiPrefs(
-                        hasChosenLayout = hasChosenLayout,
+                        homeSetUp = homeSetUp,
                         sidebarCollapsed = sidebarCollapsed,
                     )
                 }
@@ -523,7 +523,7 @@ open class MainActivity : ComponentActivity() {
                     landscapePrefsFlow
                 ) { themePrefs, layoutPrefs, extraPrefs, (landscapePosterMode, alwaysBackdropWithLogo, trailerCropToFill) ->
                     themePrefs.copy(
-                        hasChosenLayout = layoutPrefs.hasChosenLayout,
+                        homeSetUp = layoutPrefs.homeSetUp,
                         sidebarCollapsed = layoutPrefs.sidebarCollapsed,
                         addonSetupSkipped = extraPrefs.addonSetupSkipped,
                         smoothBringIntoViewEnabled = extraPrefs.smoothBringIntoViewEnabled,
@@ -536,7 +536,7 @@ open class MainActivity : ComponentActivity() {
                 }
             }
             val mainUiPrefs by key(activeProfileId, startupSession) {
-                mainUiPrefsFlow.collectAsStateWithLifecycle(initialValue = MainUiPrefs(hasChosenLayout = null))
+                mainUiPrefsFlow.collectAsStateWithLifecycle(initialValue = MainUiPrefs(homeSetUp = null))
             }
             val installedAddons by key(activeProfileId, startupSession) {
                 remember(addonRepository) {
@@ -576,7 +576,7 @@ open class MainActivity : ComponentActivity() {
                 val splashPrefs = remember {
                     context.getSharedPreferences("startup_splash", android.content.Context.MODE_PRIVATE)
                 }
-                val splashPreferencesReady = mainUiPrefs.hasChosenLayout != null && mainUiPrefs.experienceModeLoaded
+                val splashPreferencesReady = mainUiPrefs.homeSetUp != null && mainUiPrefs.experienceModeLoaded
                 val splashBackground = remember(
                     profileBgSelection, activeProfile, activeProfileId,
                     focusedSplashColor, focusedSplashBgUrl, focusedSplashCacheKey,
@@ -696,7 +696,7 @@ open class MainActivity : ComponentActivity() {
                         )
                     } else {
 
-                    val layoutChosen = mainUiPrefs.hasChosenLayout
+                    val layoutChosen = mainUiPrefs.homeSetUp
                     val prefsLoading = layoutChosen == null || !mainUiPrefs.experienceModeLoaded || installedAddons == null
                     if (!prefsLoading) {
                     val effectiveExperienceMode = mainUiPrefs.experienceMode
@@ -1535,9 +1535,6 @@ private fun FetchSidebarScaffold(
     val contentRestoreRequester = remember { FocusRequester() }
     var pendingContentFocusRestore by remember { mutableStateOf(false) }
     var pendingSidebarFocusRequest by remember { mutableStateOf(false) }
-    // Bumped on every key event the drawer sees so the auto-collapse timer
-    // resets while the user navigates between drawer items.
-    var legacyDrawerInteractionVersion by remember { mutableIntStateOf(0) }
 
 
     // Back on a sidebar page: see rootBackAction. Only Home with the sidebar open leaves the app.
@@ -1641,9 +1638,6 @@ private fun FetchSidebarScaffold(
                         .selectableGroup()
                         .sidebarFocusEntry(selectedDrawerRoute?.let(drawerItemFocusRequesters::get))
                         .onPreviewKeyEvent { keyEvent ->
-                            if (keyEvent.type == KeyEventType.KeyDown) {
-                                legacyDrawerInteractionVersion++
-                            }
                             val closeKey = if (isRtl) Key.DirectionLeft else Key.DirectionRight
                             if (keyEvent.key == closeKey && keyEvent.type == KeyEventType.KeyDown) {
                                 drawerState.setValue(DrawerValue.Closed)
@@ -1836,15 +1830,6 @@ private fun navigateToDrawerRoute(
     } catch (e: IllegalArgumentException) {
         Log.w("FetchNavigation", "Route not found in nav graph: $targetRoute", e)
     }
-}
-
-private fun isBlockedContentKey(key: Key): Boolean {
-    return key == Key.DirectionUp ||
-        key == Key.DirectionDown ||
-        key == Key.DirectionLeft ||
-        key == Key.DirectionRight ||
-        key == Key.DirectionCenter ||
-        key == Key.Enter
 }
 
 @Composable

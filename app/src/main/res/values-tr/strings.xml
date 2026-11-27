@@ -962,7 +962,7 @@
     <string name="mdblist_ratings_connected_account">Bağlı hesap kullanılıyor</string>
     <string name="mdblist_ratings_key_override_subtitle">Girilen API anahtarı, derecelendirmeler için bağlı hesabınızın yerine geçer. Bağlı hesabı tekrar kullanmak için anahtarı temizleyin.</string>
     <string name="mdblist_show_on_hero_title">Hero Alanında Puanları Göster</string>
-    <string name="mdblist_show_on_hero_subtitle">Hero karuselinde MDBList puanlarını göster (modern ve klasik/ızgara)</string>
+    <string name="mdblist_show_on_hero_subtitle">Hero karuselinde MDBList puanlarını göster</string>
     <string name="mdblist_rating_order_subtitle">Etkin ve kullanılabilir ilk 3 puan modern hero alanında gösterilir. Sıralamak için okları kullanın.</string>
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">MDBList API Anahtarını Girin</string>
@@ -1208,7 +1208,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Eklenti yüklemek veya kaldırmak için telefonunuzdan QR kodu tarayın</string>
     <string name="addon_manage_collections_from_phone_subtitle">Telefondan Ana Sayfa klasörlerini yönetmek için QR kodunu tarayın</string>
     <string name="addon_reorder_title">Ana Sayfa Kataloglarını Yeniden Sırala</string>
-    <string name="addon_reorder_subtitle">Ana sayfadaki (Klasik + Modern + Grid) katalog ve klasör satırı sıralamasını yönet</string>
+    <string name="addon_reorder_subtitle">Ana sayfadaki katalog ve klasör satırı sıralamasını yönet</string>
     <string name="addon_qr_scan_instruction">Eklentileri, katalogları ve Ana Sayfa klasörlerini yönetmek için telefonla bu kodu tarayın</string>
     <string name="addon_qr_addons_only_scan_instruction">Eklenti yüklemek veya kaldırmak için telefonunuzla tarayın</string>
     <string name="addon_qr_collections_scan_instruction">Ana Sayfa klasörlerini yönetmek için telefonla bu kodu tarayın</string>
@@ -1230,8 +1230,6 @@
     <string name="addon_pending_collections_replace">%1$d klasör satırı mevcut Ana Sayfa klasörlerinizin yerine geçecek</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Ana Sayfa Kataloglarını Yeniden Sırala</string>
-    <string name="catalog_order_subtitle">Bu seçenek, Ana sayfadaki katalog satırı sırasını (Klasik/Modern/Izgara) kontrol eder.</string>
     <string name="catalog_order_follow_addons">Eklenti sırasını takip et</string>
     <string name="catalog_order_follow_addons_desc">Kataloglar eklenti manifest sırasına göre dizilir. Klasör satırları yine eklentiler arasında taşınabilir.</string>
     <string name="catalog_order_empty">Henüz mevcut ana sayfa kataloğu yok.</string>
@@ -1854,7 +1852,6 @@
     <string name="search_no_results_filter_subtitle">Başka bir filtre ya da Tümü\'nü deneyin.</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Kurulu katalog eklentisi yok</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Bu kaynağın yayın bağlantısı yok. Başka bir kaynak seçin.</string>

@@ -27,8 +27,6 @@ interface PlayerControls {
     fun seekTo(seconds: Double)
     fun seekBy(seconds: Double)
     fun changeSpeed(value: Double)
-    /** False when something else keeps this player on what it is playing. */
-    fun mayChangeMedia(userInitiated: Boolean = true): Boolean = true
 }
 
 class MpvControls(private val mpv: EmbeddedMpv) : PlayerControls {
@@ -73,38 +71,19 @@ class PlayerSession(val mpv: EmbeddedMpv) {
     /** A YouTube video's seek bar marks, actions and menus; see [com.fetch.desktop.youtube.youTubeExtras]. */
     var youTube: com.fetch.desktop.youtube.YouTubePlayerExtras? by mutableStateOf(null)
 
-    /** The segment to offer a Skip button for at [position]: one that isn't skipped automatically. */
-    fun skippable(position: Double): Segment? =
-        if (!skipButton) null
-        else segments.firstOrNull { !it.skipsAutomatically(autoSkip) && position >= it.startSec && position < it.endSec - 1.0 }
-
     /**
-     * When the Up Next card shows: at the next-episode threshold when the app set one ([upNextAt],
-     * which also holds it back for a post-credits scene), else [promptSeconds] before the end or
-     * from the start of the credits. Null when there's nothing next.
+     * When the Up Next card shows: at the next-episode threshold the app set ([upNextAt], which
+     * also holds it back for a post-credits scene). Null when there's nothing next.
      */
-    fun upNextCountdown(position: Double, duration: Double, promptSeconds: Int): Int? {
+    fun upNextCountdown(position: Double, duration: Double): Int? {
         if (nextEpisode == null || upNextDismissed) return null
         // From the next-episode threshold (Settings › Up Next), as on TV.
-        val threshold = upNextAt ?: return upNextCountdown(segments, position, duration, promptSeconds)
+        val threshold = upNextAt ?: return null
         return if (threshold(position, duration)) (duration - position).toInt().coerceAtLeast(0) else null
     }
 
     /** Whether the next-episode threshold is reached at (position, duration); set by the app. */
     var upNextAt: ((Double, Double) -> Boolean)? = null
-}
-
-/**
- * Seconds left when the Up Next card should show: from [promptSeconds] before the end, or from
- * the start of the credits when IntroDB knows them. Null before that.
- */
-fun upNextCountdown(segments: List<Segment>, position: Double, duration: Double, promptSeconds: Int): Int? {
-    if (duration <= 0) return null
-    val remaining = duration - position
-    val credits = segments.firstOrNull { it.type == SegmentType.OUTRO }
-    val inCredits = credits != null && position >= credits.startSec
-    if (remaining > promptSeconds && !inCredits) return null
-    return remaining.toInt().coerceAtLeast(0)
 }
 
 /** "Are you still watching?" before Up Next starts another episode. */

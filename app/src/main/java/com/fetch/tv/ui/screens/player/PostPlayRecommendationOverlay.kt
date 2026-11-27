@@ -101,6 +101,7 @@ import com.fetch.tv.ui.util.localizedGenreLabel
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import java.util.Locale
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.util.isSelectKey
 
 @Composable
 fun PostPlayRecommendationOverlay(
@@ -860,12 +861,6 @@ private fun rememberPostPlayRecommendationIcon(@RawRes iconRes: Int): Painter {
             .build()
     }
     return rememberAsyncImagePainter(model = request)
-}
-
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
 }
 
 private fun isSelectOrMenuKey(keyCode: Int): Boolean {

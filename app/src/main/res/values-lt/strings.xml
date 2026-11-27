@@ -500,7 +500,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_manage_from_phone_title">Valdyti iš telefono</string>
     <string name="addon_manage_from_phone_subtitle">Skenuokite QR kodą, kad valdytumėte priedus, katalogus ir pagrindinio ekrano aplankus iš savo telefono</string>
     <string name="addon_reorder_title">Keisti pradinio ekrano katalogų tvarką</string>
-    <string name="addon_reorder_subtitle">Valdo katalogų ir aplankų eilučių eiliškumą pradiniame ekrane (Klasikinis + Modernus + Tinklelis)</string>
+    <string name="addon_reorder_subtitle">Valdo katalogų ir aplankų eilučių eiliškumą pradiniame ekrane</string>
     <string name="addon_qr_scan_instruction">Skenuokite telefonu, kad valdytumėte priedus, katalogus ir pagrindinio ekrano aplankus</string>
     <string name="addon_qr_close">Uždaryti</string>
     <string name="addon_confirm_title">Patvirtinti priedų ir katalogų pakeitimus</string>
@@ -515,8 +515,6 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="addon_confirm_confirm">Taikyti pakeitimus</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Keisti pradinio ekrano katalogų tvarką</string>
-    <string name="catalog_order_subtitle">Valdo katalogų eiliškumą pradiniame ekrane (Klasikinis + Modernus + Tinklelis).</string>
     <string name="catalog_order_empty">Kol kas pradinio ekrano katalogų nėra.</string>
     <string name="catalog_order_disabled_on_home">Išjungta pradiniame ekrane</string>
     <string name="catalog_order_enable">Įjungti</string>

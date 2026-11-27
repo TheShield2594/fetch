@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
  * Creating and tearing down ExoPlayer for every poster focus is extremely expensive
  * (codec init, hardware decoder allocation). This pool keeps one instance alive and
  * reuses it across focus changes. The player is stopped and cleared between uses but
- * never released until the process dies or [release] is explicitly called.
+ * never released except by [yield] (a memory trim or the full-screen player).
  *
  * When the full-screen player needs hardware decoders, call [yield] to free
  * codec resources without destroying the instance. Call [reclaim] when returning to
@@ -55,7 +55,6 @@ class TrailerPlayerPool @Inject constructor(
 
     private var _player: ExoPlayer? = null
     private val yielded = AtomicBoolean(false)
-    private val released = AtomicBoolean(false)
     private val settingsScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _isTrailerPlaying = MutableStateFlow(false)
     val isTrailerPlaying: StateFlow<Boolean> = _isTrailerPlaying.asStateFlow()
@@ -91,10 +90,8 @@ class TrailerPlayerPool @Inject constructor(
 
     /**
      * Returns the shared trailer ExoPlayer, creating it lazily if needed.
-     * Returns null only if [release] was called (process shutdown).
      */
-    fun acquire(): ExoPlayer? {
-        if (released.get()) return null
+    fun acquire(): ExoPlayer {
         if (yielded.get()) {
             // Reclaim was not called yet but someone wants the player — rebuild.
             reclaim()
@@ -147,7 +144,7 @@ class TrailerPlayerPool @Inject constructor(
      * full-screen player) has released. A released ExoPlayer prepares without an error and shows
      * nothing, so a caller re-acquires instead of reusing it.
      */
-    fun isLive(player: ExoPlayer): Boolean = !released.get() && !yielded.get() && player === _player
+    fun isLive(player: ExoPlayer): Boolean = !yielded.get() && player === _player
 
     /**
      * Releases codec resources so the detail-screen player can claim hardware decoders.
@@ -170,25 +167,9 @@ class TrailerPlayerPool @Inject constructor(
      * Re-creates the player after a [yield]. Safe to call multiple times.
      */
     fun reclaim() {
-        if (released.get()) return
         if (yielded.compareAndSet(true, false)) {
             Log.d(TAG, "Reclaiming trailer player")
             // Player will be lazily created on next acquire()
-        }
-    }
-
-    /**
-     * Permanently releases the player. Called on process death / Application.onTerminate.
-     */
-    fun release() {
-        if (released.compareAndSet(false, true)) {
-            _isTrailerPlaying.value = false
-            _player?.let { player ->
-                runCatching { player.stop() }
-                runCatching { player.clearMediaItems() }
-                runCatching { player.release() }
-            }
-            _player = null
         }
     }
 
@@ -213,8 +194,6 @@ class TrailerPlayerPool @Inject constructor(
         val trackSelector = DefaultTrackSelector(context).apply {
             setParameters(
                 buildUponParameters()
-                    .setMaxVideoSizeSd()
-                    .clearVideoSizeConstraints()
                     .setForceHighestSupportedBitrate(true)
                     .setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE)
             )

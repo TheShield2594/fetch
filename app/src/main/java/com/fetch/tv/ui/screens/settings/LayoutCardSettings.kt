@@ -36,6 +36,7 @@ import com.fetch.tv.core.build.AppFeaturePolicy
 import com.fetch.tv.core.poster.CustomPosterScreen
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
+import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 
 @Composable
 internal fun LayoutContinueWatchingSection(
@@ -50,7 +51,16 @@ internal fun LayoutContinueWatchingSection(
     )
 
     if (uiState.continueWatchingEnabled) {
-        // The card style is no longer offered here: Home keeps drawing whichever style is stored.
+        ChoiceRow(
+            title = stringResource(R.string.layout_cw_card_style),
+            selectedValue = uiState.continueWatchingCardStyle,
+            options = listOf(
+                PresetOption(stringResource(R.string.layout_cw_card_style_card), ContinueWatchingCardStyle.CARD),
+                PresetOption(stringResource(R.string.layout_cw_card_style_wide), ContinueWatchingCardStyle.WIDE),
+                PresetOption(stringResource(R.string.layout_cw_card_style_poster), ContinueWatchingCardStyle.POSTER)
+            ),
+            onSelected = { style -> onEvent(LayoutSettingsEvent.SetContinueWatchingCardStyle(style)) }
+        )
         val episodeThumbnailsApply = uiState.continueWatchingCardStyle != ContinueWatchingCardStyle.POSTER
         if (episodeThumbnailsApply) {
             SettingsToggleRow(
@@ -168,9 +178,9 @@ internal fun ContinueWatchingSortModeRow(
     }
 }
 
-// Every row left in the section is about in-app trailers.
+// Expand-on-focus only applies to portrait posters; every other row is about in-app trailers.
 internal fun LayoutSettingsUiState.focusedPosterHasOptions(): Boolean =
-    AppFeaturePolicy.inAppTrailerPlaybackEnabled
+    !modernLandscapePostersEnabled || AppFeaturePolicy.inAppTrailerPlaybackEnabled
 
 @Composable
 internal fun LayoutFocusedPosterSection(
@@ -180,6 +190,29 @@ internal fun LayoutFocusedPosterSection(
     val isModernLandscape = uiState.modernLandscapePostersEnabled
     val showAutoplayRow = AppFeaturePolicy.inAppTrailerPlaybackEnabled &&
         (uiState.focusedPosterBackdropExpandEnabled || isModernLandscape)
+
+    if (!isModernLandscape) {
+        SettingsToggleRow(
+            title = stringResource(R.string.layout_expand_focused_card),
+            subtitle = stringResource(R.string.layout_expand_focused_card_sub),
+            checked = uiState.focusedPosterBackdropExpandEnabled,
+            onToggle = {
+                onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropExpandEnabled(!uiState.focusedPosterBackdropExpandEnabled))
+            }
+        )
+        if (uiState.focusedPosterBackdropExpandEnabled) {
+            ChoiceRow(
+                title = stringResource(R.string.layout_expand_delay),
+                selectedValue = uiState.focusedPosterBackdropExpandDelaySeconds,
+                options = EXPAND_DELAY_OPTIONS_SECONDS.map { seconds ->
+                    PresetOption(stringResource(R.string.layout_expand_delay_value, seconds), seconds)
+                },
+                onSelected = { seconds ->
+                    onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropExpandDelaySeconds(seconds))
+                }
+            )
+        }
+    }
 
     if (showAutoplayRow) {
         SettingsToggleRow(
@@ -197,6 +230,23 @@ internal fun LayoutFocusedPosterSection(
                 checked = uiState.focusedPosterBackdropTrailerMuted,
                 onToggle = {
                     onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerMuted(!uiState.focusedPosterBackdropTrailerMuted))
+                }
+            )
+            ChoiceRow(
+                title = stringResource(R.string.layout_trailer_target),
+                selectedValue = uiState.focusedPosterBackdropTrailerPlaybackTarget,
+                options = listOf(
+                    PresetOption(
+                        stringResource(R.string.layout_trailer_target_hero),
+                        FocusedPosterTrailerPlaybackTarget.HERO_MEDIA
+                    ),
+                    PresetOption(
+                        stringResource(R.string.layout_trailer_target_card),
+                        FocusedPosterTrailerPlaybackTarget.EXPANDED_CARD
+                    )
+                ),
+                onSelected = { target ->
+                    onEvent(LayoutSettingsEvent.SetFocusedPosterBackdropTrailerPlaybackTarget(target))
                 }
             )
         }
@@ -237,13 +287,13 @@ internal fun LayoutPosterCardSection(
         PresetOption(stringResource(R.string.layout_preset_pill), 16)
     )
 
-    OptionRow(
+    ChoiceRow(
         title = stringResource(R.string.layout_card_width),
         selectedValue = uiState.posterCardWidthDp,
         options = widthOptions,
         onSelected = { width -> onEvent(LayoutSettingsEvent.SetPosterCardWidth(width)) }
     )
-    OptionRow(
+    ChoiceRow(
         title = stringResource(R.string.layout_card_radius),
         selectedValue = uiState.posterCardCornerRadiusDp,
         options = radiusOptions,
@@ -361,11 +411,11 @@ internal fun ContinueWatchingSortModeDialog(
 }
 
 @Composable
-private fun OptionRow(
+private fun <T : Any> ChoiceRow(
     title: String,
-    selectedValue: Int,
-    options: List<PresetOption>,
-    onSelected: (Int) -> Unit
+    selectedValue: T,
+    options: List<PresetOption<T>>,
+    onSelected: (T) -> Unit
 ) {
     val selectedLabel = options.firstOrNull { it.value == selectedValue }?.label ?: stringResource(R.string.layout_custom)
 
@@ -416,7 +466,9 @@ private fun ValueChip(
     )
 }
 
-private data class PresetOption(
+private data class PresetOption<T : Any>(
     val label: String,
-    val value: Int
+    val value: T
 )
+
+private val EXPAND_DELAY_OPTIONS_SECONDS = listOf(0, 1, 2, 3, 5, 8)

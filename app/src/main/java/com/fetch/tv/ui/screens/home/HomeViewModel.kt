@@ -55,7 +55,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
@@ -121,10 +120,6 @@ class HomeViewModel @Inject constructor(
         /** Longest a catalog-row rebuild is held back while arrivals keep restarting its debounce. */
         internal const val CATALOG_UPDATE_MAX_WAIT_MS = 600L
         internal const val CONTINUE_WATCHING_ENRICHMENT_GRACE_PERIOD_MS = 1_000L
-        private const val CONTINUE_WATCHING_WINDOW_MS = 30L * 24 * 60 * 60 * 1000
-        private const val MAX_RECENT_PROGRESS_ITEMS = 300
-        private const val MAX_NEXT_UP_LOOKUPS = 24
-        private const val MAX_NEXT_UP_CONCURRENCY = 4
         // A permit is held for the whole load, so with 3 the 4th eager row and the hero-only
         // catalogs queue behind the first three. Devices with headroom take one more at a time.
         private const val LOW_RAM_CATALOG_LOAD_CONCURRENCY = 3
@@ -243,11 +238,6 @@ class HomeViewModel @Inject constructor(
     internal val _modernHomePresentation = MutableStateFlow(ModernHomePresentationState())
     val modernHomePresentation: StateFlow<ModernHomePresentationState> = _modernHomePresentation.asStateFlow()
 
-    internal val _movieWatchedStatus = MutableStateFlow<Map<String, Boolean>>(emptyMap())
-    val movieWatchedStatus: StateFlow<Map<String, Boolean>> = _movieWatchedStatus.asStateFlow()
-
-    // Pending batch of watched status updates — debounced before emission.
-    internal val _pendingWatchedBatch = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     /** True once the CW pipeline has completed its first emission (items or empty). */
     internal val _initialCwResolved = MutableStateFlow(false)
     val initialCwResolved: StateFlow<Boolean> = _initialCwResolved.asStateFlow()
@@ -347,9 +337,6 @@ class HomeViewModel @Inject constructor(
     val enrichingItemId: StateFlow<String?> = _enrichingItemId.asStateFlow()
     internal fun setEnrichingItemId(id: String?) { _enrichingItemId.value = id }
 
-    internal val _lastEnrichedPreview = MutableStateFlow<MetaPreview?>(null)
-    val lastEnrichedPreview: StateFlow<MetaPreview?> = _lastEnrichedPreview.asStateFlow()
-
     internal val _enrichedPreviews = MutableStateFlow<Map<String, MetaPreview>>(emptyMap())
     val enrichedPreviews: StateFlow<Map<String, MetaPreview>> = _enrichedPreviews.asStateFlow()
 
@@ -432,8 +419,6 @@ class HomeViewModel @Inject constructor(
     internal val prefetchedExternalMetaIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
     internal val backgroundMetaPrefetchedIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
     internal val externalMetaPrefetchInFlightIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
-    internal var externalMetaPrefetchJob: Job? = null
-    internal var pendingExternalMetaPrefetchItemId: String? = null
     internal val prefetchedTmdbIds: MutableSet<String> = Collections.newSetFromMap(createLruMap(MAX_PREFETCH_CACHE_SIZE))
 
     /** Items an enrichment merge was applied for. */
@@ -502,7 +487,6 @@ class HomeViewModel @Inject constructor(
     internal var deferredEnrichItem: MetaPreview? = null
     internal var adjacentItemPrefetchJob: Job? = null
     @Volatile internal var pendingAdjacentPrefetchItemId: String? = null
-    internal val movieWatchedObserverJobs = mutableMapOf<String, Job>()
     internal var movieWatchedBatchJob: Job? = null
     internal var lastMovieWatchedItemKeys: Set<String> = emptySet()
     internal var seriesWatchedObserverJob: Job? = null
@@ -545,22 +529,6 @@ class HomeViewModel @Inject constructor(
         get() = trailerPreviewAudioUrlsState
 
     init {
-        // Accumulates individual watched status changes and flushes them as a single
-        // update after 150ms of inactivity, preventing N separate recompositions.
-        viewModelScope.launch {
-            _pendingWatchedBatch
-                .debounce(150L)
-                .collect { batch ->
-                    if (batch.isNotEmpty()) {
-                        val snapshot = _pendingWatchedBatch.value
-                        _pendingWatchedBatch.value = emptyMap()
-                        if (snapshot.isNotEmpty()) {
-                            _movieWatchedStatus.update { current -> current + snapshot }
-                        }
-                    }
-                }
-        }
-
         observeStartupAuthNotice()
         observeNetworkReach()
         viewModelScope.launch {
@@ -637,8 +605,6 @@ class HomeViewModel @Inject constructor(
                     // Clear watched badges so they don't leak between profiles.
                     watchedSeriesStateHolder.clearInMemory()
                     watchedSeriesStateHolder.loadFromDisk(profileId = newId)
-                    _movieWatchedStatus.value = emptyMap()
-                    _pendingWatchedBatch.value = emptyMap()
                     _uiState.update { it.copy(movieWatchedStatus = emptyMap()) }
                     // The running observer reconciles and saves for the previous profile.
                     seriesWatchedObserverJob?.cancel()
@@ -1142,9 +1108,6 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadAllCatalogs(addons: List<Addon>, forceReload: Boolean = false) =
         loadAllCatalogsPipeline(addons, forceReload)
 
-    private fun loadCatalog(addon: Addon, catalog: CatalogDescriptor, generation: Long) =
-        loadCatalogPipeline(addon, catalog, generation)
-
     private fun loadMoreCatalogItems(catalogId: String, addonId: String, type: String) =
         loadMoreCatalogItemsPipeline(catalogId, addonId, type)
 
@@ -1206,11 +1169,6 @@ class HomeViewModel @Inject constructor(
     /**
      * Saves the current focus and scroll state for restoration when returning to this screen.
      */
-    // When true, the next saveFocusState call is suppressed and the flag
-    // is reset.  Used during layout switches to prevent the outgoing
-    // layout's onDispose from poisoning the incoming layout's focus state.
-    internal var suppressFocusSave: Boolean = false
-
     fun saveFocusState(
         verticalScrollIndex: Int,
         verticalScrollOffset: Int,
@@ -1221,10 +1179,6 @@ class HomeViewModel @Inject constructor(
         focusedRowIndex: Int = 0,
         focusedItemIndex: Int = 0
     ) {
-        if (suppressFocusSave) {
-            suppressFocusSave = false
-            return
-        }
         val nextState = _focusState.value.copy(
             verticalScrollIndex = verticalScrollIndex,
             verticalScrollOffset = verticalScrollOffset,
@@ -1258,8 +1212,6 @@ class HomeViewModel @Inject constructor(
         movieWatchedBatchJob?.cancel()
         seriesWatchedObserverJob?.cancel()
         cancelInFlightCatalogLoads()
-        movieWatchedObserverJobs.values.forEach { it.cancel() }
-        movieWatchedObserverJobs.clear()
         super.onCleared()
     }
 }

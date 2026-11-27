@@ -323,7 +323,7 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
             // Compare by row structure only (keys + item counts), not by
             // item content.  TMDB/meta enrichment changes item fields but
             // not the row structure — the hero section reads enriched data
-            // via lastEnrichedPreview instead.
+            // via enrichedPreviews instead.
             .distinctUntilChanged { old, new ->
                 old.homeRows === new.homeRows
                     && old.becauseYouWatchedRows == new.becauseYouWatchedRows
@@ -388,8 +388,6 @@ internal fun HomeViewModel.observeExternalMetaPrefetchPreferencePipeline() {
             .collectLatest { enabled ->
                 externalMetaPrefetchEnabled = enabled
                 if (!enabled) {
-                    externalMetaPrefetchJob?.cancel()
-                    pendingExternalMetaPrefetchItemId = null
                     externalMetaPrefetchInFlightIds.clear()
                 }
             }
@@ -861,7 +859,6 @@ private fun HomeViewModel.updateCatalogItemWithTmdb(itemId: String, enrichment: 
     clearEnrichmentFailure(itemId)
 
     findCatalogItemById(itemId)?.let { enriched ->
-        _lastEnrichedPreview.value = enriched
         addEnrichedPreview(itemId, enriched)
     }
 }
@@ -903,16 +900,13 @@ internal fun HomeViewModel.updateCatalogItemsMdbListRatings(
         if (changed) state.copy(catalogRows = updatedRows) else state
     }
 
-    var lastEnriched: MetaPreview? = null
     ratingsById.keys.forEach { itemId ->
         val existing = _enrichedPreviews.value[itemId] ?: return@forEach
         val enriched = findCatalogItemById(itemId)
         if (enriched != null && enriched != existing) {
             addEnrichedPreview(itemId, enriched)
-            lastEnriched = enriched
         }
     }
-    lastEnriched?.let { _lastEnrichedPreview.value = it }
 }
 
 private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) {
@@ -945,7 +939,6 @@ private fun HomeViewModel.updateCatalogItemWithMeta(itemId: String, meta: Meta) 
     clearEnrichmentFailure(itemId)
 
     findCatalogItemById(itemId)?.let { enriched ->
-        _lastEnrichedPreview.value = enriched
         addEnrichedPreview(itemId, enriched)
     }
 

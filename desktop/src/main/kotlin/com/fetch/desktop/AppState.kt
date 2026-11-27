@@ -2480,7 +2480,6 @@ class AppState(
     fun playEpisodeInPlayer(video: Video) {
         val session = playerSession ?: return
         val target = session.target ?: return
-        if (!session.controls.mayChangeMedia()) return
         session.panel = null
         scope.launch { startEpisode(target, video, viaUpNext = false) }
     }
@@ -2489,7 +2488,6 @@ class AppState(
     fun playNextNow() {
         val session = playerSession ?: return
         val target = session.target ?: return
-        if (!session.controls.mayChangeMedia()) return
         val next = session.nextEpisode ?: return
         session.upNextDismissed = true
         autoplayRun++
@@ -2645,7 +2643,6 @@ class AppState(
      * when something else is starting (or waiting on "Are you still watching?").
      */
     private suspend fun playbackEnded(target: PlaybackTarget, ending: MpvProgress.Ending): Boolean {
-        if (playerSession?.controls?.mayChangeMedia(userInitiated = false) == false) return false
         if (!ending.reachedEnd) return false
         val video = target.video
         val hasNext = video != null && WatchHistory.nextEpisode(target.episodes, video, progress.watched.toSet())?.takeIf { isAired(it) } != null
@@ -2749,7 +2746,6 @@ class AppState(
         extras.queuePanelOpen = false
         val session = playerSession
         val target = session?.target
-        if (session != null && !session.controls.mayChangeMedia()) return
         if (session != null && target != null && item.contentId == target.contentId) {
             target.episodes.firstOrNull { it.id == item.videoId }?.let { video ->
                 session.upNextDismissed = true

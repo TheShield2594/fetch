@@ -114,6 +114,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
+import com.fetch.tv.ui.util.isSelectKey
 
 private const val MAX_VISIBLE_HERO_GENRES = 6
 
@@ -1206,12 +1207,6 @@ private fun normalizeCountryLabel(raw: String): String {
                 code
             }
         }
-}
-
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
 }
 
 private fun isSelectOrMenuKey(keyCode: Int): Boolean {

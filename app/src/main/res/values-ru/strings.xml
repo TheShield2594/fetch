@@ -741,7 +741,7 @@
     <string name="addon_manage_from_phone_title">Управлять с телефона</string>
     <string name="addon_manage_from_phone_subtitle">Отсканируйте QR-код для управления аддонами, каталогами и папками главной с вашего телефона</string>
     <string name="addon_reorder_title">Изменить порядок каталогов</string>
-    <string name="addon_reorder_subtitle">Управляет порядком строк каталогов и рядов папок на главном экране (Классический + Современный + Сетка)</string>
+    <string name="addon_reorder_subtitle">Управляет порядком строк каталогов и рядов папок на главном экране</string>
     <string name="addon_qr_scan_instruction">Отсканируйте с помощью телефона для управления аддонами, каталогами и папками главной</string>
     <string name="addon_qr_close">Закрыть</string>
     <string name="addon_confirm_title">Подтвердите изменения аддонов и каталогов</string>
@@ -756,8 +756,6 @@
     <string name="addon_confirm_confirm">Применить изменения</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Порядок каталогов на главном экране</string>
-    <string name="catalog_order_subtitle">Это управляет порядком строк каталогов на Главном экране (Классический + Современный + Сетка).</string>
     <string name="catalog_order_empty">Пока нет каталогов для главного экрана.</string>
     <string name="catalog_order_disabled_on_home">Отключено на главном экране</string>
     <string name="catalog_order_enable">Включить</string>
@@ -1144,7 +1142,6 @@
     <string name="search_no_results_filter_subtitle">Попробуйте другой фильтр или «Все».</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Нет установленных аддонов каталогов</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">У этого источника нет ссылки на поток. Выберите другой источник.</string>

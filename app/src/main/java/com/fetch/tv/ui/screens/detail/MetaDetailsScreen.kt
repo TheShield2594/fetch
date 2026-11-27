@@ -1036,62 +1036,6 @@ fun MetaDetailsScreen(
                     selectedSharedTrailer = uiState.selectedSharedTrailer,
                     trailerSeekToken = trailerSeekToken,
                     trailerSeekDeltaMs = trailerSeekDeltaMs,
-                    onTrailerControlKey = { keyCode, action, repeatCount ->
-                        if (!uiState.showTrailerControls || !uiState.isTrailerPlaying) {
-                            false
-                        } else if (action != KeyEvent.ACTION_DOWN) {
-                            false
-                        } else {
-                            val seekStepMs = when {
-                                repeatCount >= 12 -> 12_000L
-                                repeatCount >= 6 -> 8_000L
-                                repeatCount >= 2 -> 5_000L
-                                else -> 3_000L
-                            }
-                            when (keyCode) {
-                                KeyEvent.KEYCODE_DPAD_CENTER,
-                                KeyEvent.KEYCODE_ENTER,
-                                KeyEvent.KEYCODE_NUMPAD_ENTER -> {
-                                    isTrailerPaused = !isTrailerPaused
-                                    trailerSeekOverlayVisible = true
-                                    true
-                                }
-                                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
-                                    isTrailerPaused = !isTrailerPaused
-                                    true
-                                }
-                                KeyEvent.KEYCODE_MEDIA_PAUSE -> {
-                                    isTrailerPaused = true
-                                    true
-                                }
-                                KeyEvent.KEYCODE_MEDIA_PLAY -> {
-                                    isTrailerPaused = false
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_UP -> {
-                                    trailerSeekOverlayVisible = true
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_DOWN -> {
-                                    trailerSeekOverlayVisible = false
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                    trailerSeekDeltaMs = -seekStepMs
-                                    trailerSeekToken += 1
-                                    trailerSeekOverlayVisible = true
-                                    true
-                                }
-                                KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                    trailerSeekDeltaMs = seekStepMs
-                                    trailerSeekToken += 1
-                                    trailerSeekOverlayVisible = true
-                                    true
-                                }
-                                else -> false
-                            }
-                        }
-                    },
                     onTrailerProgressChanged = onTrailerProgressChanged,
                     onTrailerEnded = {
                         restorePlayFocusAfterTrailerBackToken += 1
@@ -1328,7 +1272,6 @@ private fun MetaDetailsContent(
     selectedSharedTrailer: MetaTrailer?,
     trailerSeekToken: Int,
     trailerSeekDeltaMs: Long,
-    onTrailerControlKey: (keyCode: Int, action: Int, repeatCount: Int) -> Boolean,
     onTrailerProgressChanged: (Long, Long) -> Unit,
     onTrailerEnded: () -> Unit,
     onTrailerButtonClick: () -> Unit,
@@ -2283,7 +2226,6 @@ private fun MetaDetailsContent(
             showTrailerControls = showTrailerControls,
             trailerSeekToken = trailerSeekToken,
             trailerSeekDeltaMs = trailerSeekDeltaMs,
-            onTrailerControlKey = onTrailerControlKey,
             onTrailerProgressChanged = onTrailerProgressChanged,
             onTrailerEnded = onTrailerEnded,
             isScrolledPastHero = isScrolledPastHero,
@@ -3154,7 +3096,6 @@ private fun BackdropLayer(
     showTrailerControls: Boolean,
     trailerSeekToken: Int,
     trailerSeekDeltaMs: Long,
-    onTrailerControlKey: (keyCode: Int, action: Int, repeatCount: Int) -> Boolean,
     onTrailerProgressChanged: (Long, Long) -> Unit,
     onTrailerEnded: () -> Unit,
     isScrolledPastHero: Boolean,
@@ -3232,7 +3173,6 @@ private fun BackdropLayer(
             isPaused = isTrailerPaused || isBackgroundTrailerPaused,
             seekRequestToken = if (showTrailerControls) trailerSeekToken else 0,
             seekDeltaMs = if (showTrailerControls) trailerSeekDeltaMs else 0L,
-            onRemoteKey = onTrailerControlKey,
             onProgressChanged = onTrailerProgressChanged,
             onEnded = onTrailerEnded,
             onFirstFrameRendered = { isBackgroundTrailerRendered = true },

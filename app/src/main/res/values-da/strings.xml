@@ -904,7 +904,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Scan en QR-kode for at installere eller fjerne add-ons fra din telefon</string>
     <string name="addon_manage_collections_from_phone_subtitle">Scan en QR-kode for at administrere Hjem-mapper fra din telefon</string>
     <string name="addon_reorder_title">Omarranger hjem-kataloger</string>
-    <string name="addon_reorder_subtitle">Styrer rækkefølgen af katalog- og mapperækker på Hjem (Klassisk + Moderne + Gitter)</string>
+    <string name="addon_reorder_subtitle">Styrer rækkefølgen af katalog- og mapperækker på Hjem</string>
     <string name="addon_qr_scan_instruction">Scan med din telefon for at administrere addons, kataloger og Hjem-mapper</string>
     <string name="addon_qr_addons_only_scan_instruction">Scan med din telefon for at installere eller fjerne add-ons</string>
     <string name="addon_qr_collections_scan_instruction">Scan med din telefon for at administrere Hjem-mapper</string>
@@ -928,8 +928,6 @@
     <string name="addon_confirm_total_catalogs">Kataloger i alt: %1$d</string>
     <string name="addon_catalogs_types">Kataloger: %1$d – Typer: %2$s</string>
 
-    <string name="catalog_order_title">Omarranger hjem-kataloger</string>
-    <string name="catalog_order_subtitle">Dette styrer katalogrækkefølgen på Hjem (Klassisk + Moderne + Gitter).</string>
     <string name="catalog_order_follow_addons">Følg addon-rækkefølgen</string>
     <string name="catalog_order_follow_addons_desc">Kataloger følger addon-manifestets rækkefølge. Mapperækker kan stadig flyttes mellem addons.</string>
     <string name="catalog_order_empty">Ingen hjem-kataloger tilgængelige endnu.</string>
@@ -1337,7 +1335,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Ingen katalog-addons installeret</string>
 
     <!-- Player errors -->
 

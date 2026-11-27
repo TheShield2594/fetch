@@ -87,7 +87,6 @@ fun CatalogRowSection(
     seeAllLabel: String? = null,
     posterCardStyle: PosterCardStyle = PosterCardDefaults.Style,
     showPosterLabels: Boolean = true,
-    showImdbRatings: Boolean = true,
     showAddonName: Boolean = true,
     showCatalogTypeSuffix: Boolean = true,
     focusedPosterBackdropExpandEnabled: Boolean = false,
@@ -96,12 +95,10 @@ fun CatalogRowSection(
     focusedPosterBackdropTrailerMuted: Boolean = true,
     trailerPreviewUrls: Map<String, String> = emptyMap(),
     trailerPreviewAudioUrls: Map<String, String> = emptyMap(),
-    onRequestTrailerPreview: (MetaPreview) -> Unit = {},
     onItemFocus: (MetaPreview) -> Unit = {},
     isItemWatched: (MetaPreview) -> Boolean = { false },
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
     enableRowFocusRestorer: Boolean = true,
-    initialScrollIndex: Int = 0,
     /** Used only for initial focus restore (e.g. returning from detail screen). */
     focusedItemIndex: Int = -1,
     /** Persisted focus index from parent — used only by focusRestorer to
@@ -116,7 +113,7 @@ fun CatalogRowSection(
      *  Wide elements above (CW, collections) can point their D-pad down here. */
     entryFocusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
-    listState: LazyListState = rememberLazyListState(initialFirstVisibleItemIndex = initialScrollIndex)
+    listState: LazyListState = rememberLazyListState()
 ) {
     val catalogRowKey = remember(catalogRow) { catalogRow.stableKey() }
     val rowItemIdentities = remember(catalogRow.items) { catalogRow.stableItemKeys() }
@@ -218,7 +215,6 @@ fun CatalogRowSection(
     val latestIsItemWatched by rememberUpdatedState(isItemWatched)
     val latestOnItemLongPress by rememberUpdatedState(onItemLongPress)
     val latestOnItemFocused by rememberUpdatedState(onItemFocused)
-    val latestOnRequestTrailerPreview by rememberUpdatedState(onRequestTrailerPreview)
 
     LaunchedEffect(catalogRow.items) {
         val validKeys = catalogRow.items.mapIndexedTo(mutableSetOf()) { index, item ->
@@ -346,7 +342,7 @@ fun CatalogRowSection(
         val usesPlaceholderShimmer = catalogRow.isLoading &&
             catalogRow.items.firstOrNull()?.poster == PLACEHOLDER_IMAGE_URL
         val placeholderShimmerOffsetState = if (usesPlaceholderShimmer) {
-            rememberPlaceholderShimmerOffsetState(label = "classicPlaceholderShimmer")
+            rememberPlaceholderShimmerOffsetState(label = "catalogRowPlaceholderShimmer")
         } else {
             null
         }
@@ -425,7 +421,6 @@ fun CatalogRowSection(
                     item = item,
                     posterCardStyle = posterCardStyle,
                     showLabels = showPosterLabels,
-                    showImdbRatings = showImdbRatings,
                     placeholderShimmerOffsetState = placeholderShimmerOffsetState,
                     focusedPosterBackdropExpandEnabled = focusedPosterBackdropExpandEnabled,
                     focusedPosterBackdropExpandDelaySeconds = focusedPosterBackdropExpandDelaySeconds,
@@ -433,10 +428,8 @@ fun CatalogRowSection(
                     focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
                     trailerPreviewUrl = trailerPreviewUrls[item.id],
                     trailerPreviewAudioUrl = trailerPreviewAudioUrls[item.id],
-                    onRequestTrailerPreview = latestOnRequestTrailerPreview,
                     isWatched = latestIsItemWatched(item),
                     onFocus = onFocusStable,
-                    onBackdropExpandedChanged = null,
                     onClick = onItemClickStable,
                     onLongPress = onItemLongPressStable,
                     modifier = Modifier

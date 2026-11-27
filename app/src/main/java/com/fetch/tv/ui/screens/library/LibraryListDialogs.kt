@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextDirection
 import com.fetch.tv.R
 import com.fetch.tv.core.tracking.TrackingListManagementCapabilities
 import com.fetch.tv.ui.theme.FetchStatusTones
+import com.fetch.tv.ui.util.isSelectKey
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -212,12 +213,6 @@ internal fun ListEditorDialog(
     val keyboardController = LocalSoftwareKeyboardController.current
     var nameEditing by remember { mutableStateOf(false) }
     var descriptionEditing by remember { mutableStateOf(false) }
-
-    fun isSelectKey(keyCode: Int): Boolean {
-        return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-            keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-            keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
-    }
 
     LaunchedEffect(Unit) {
         nameFocusRequester.requestFocus()

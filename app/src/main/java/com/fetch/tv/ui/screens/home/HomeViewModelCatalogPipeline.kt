@@ -123,7 +123,6 @@ internal fun HomeViewModel.observeTmdbSettingsPipeline() {
                     prefetchedTmdbIds.clear()
                     prefetchedExternalMetaIds.clear()
                     _enrichedPreviews.value = emptyMap()
-                    _lastEnrichedPreview.value = null
                     clearEnrichmentFailures()
                 }
                 scheduleUpdateCatalogRows()
@@ -197,8 +196,6 @@ internal suspend fun HomeViewModel.loadAllCatalogsPipeline(
     trailerPreviewRequestVersion = 0L
     prefetchedExternalMetaIds.clear()
     externalMetaPrefetchInFlightIds.clear()
-    externalMetaPrefetchJob?.cancel()
-    pendingExternalMetaPrefetchItemId = null
     prefetchedTmdbIds.clear()
     tmdbEnrichFocusJob?.cancel()
     pendingTmdbEnrichItemId = null
@@ -656,8 +653,6 @@ internal fun HomeViewModel.reconcilePosterStatusObserversPipeline(rows: List<Cat
 
     if (desiredMovieKeys != lastMovieWatchedItemKeys) {
         lastMovieWatchedItemKeys = desiredMovieKeys
-        movieWatchedObserverJobs.values.forEach { it.cancel() }
-        movieWatchedObserverJobs.clear()
         movieWatchedBatchJob?.cancel()
 
         if (desiredMovieKeys.isNotEmpty()) {

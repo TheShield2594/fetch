@@ -40,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -119,7 +118,7 @@ fun YouTubeSeekBar(session: PlayerSession, duration: Double, content: @Composabl
         content()
         return
     }
-    val chapters = playerChapters(session, extras)
+    val chapters = extras.playerChapters
     var hoverX by remember { mutableStateOf<Float?>(null) }
     var width by remember { mutableStateOf(0) }
     Box(
@@ -245,28 +244,11 @@ private fun StoryboardFrame(frame: YouTubeStoryboard.Frame, storyboard: YouTubeS
 
 private val PreviewWidth = 240.dp
 
-/** The video's chapters: mpv's (yt-dlp reads them), else the ones on YouTube's watch page. */
-@Composable
-private fun playerChapters(session: PlayerSession, extras: YouTubePlayerExtras): List<YouTubeChapter> {
-    val fromMpv by produceState(emptyList<YouTubeChapter>(), extras) {
-        // mpv knows them once the file opens; ask until it says.
-        repeat(60) {
-            val chapters = YouTubeChapters.fromMpv(session.mpv.property("chapter-list"))
-            if (chapters.isNotEmpty()) {
-                value = chapters
-                return@produceState
-            }
-            delay(2_000)
-        }
-    }
-    return fromMpv.ifEmpty { extras.chapters }
-}
-
 /** The bottom row's YouTube buttons: Chapters (when the video has them) and Captions. */
 @Composable
 fun YouTubePlayerButtons(session: PlayerSession) {
     val extras = session.youTubeExtras() ?: return
-    val chapters = playerChapters(session, extras)
+    val chapters = extras.playerChapters
     fun toggle(panel: YouTubePlayerPanel) {
         session.panel = null
         extras.panel = if (extras.panel == panel) null else panel
@@ -283,6 +265,18 @@ fun YouTubePlayerButtons(session: PlayerSession) {
 fun BoxScope.YouTubePlayerLayer(state: AppState, session: PlayerSession, controlsVisible: Boolean) {
     val extras = session.youTubeExtras() ?: return
     val yt = state.youtube
+    // mpv's chapter list, once per video for the seek bar, the Chapters button and the side panel.
+    LaunchedEffect(extras) {
+        // mpv knows them once the file opens; ask until it says.
+        repeat(60) {
+            val chapters = YouTubeChapters.fromMpv(session.mpv.property("chapter-list"))
+            if (chapters.isNotEmpty()) {
+                extras.mpvChapters = chapters
+                return@LaunchedEffect
+            }
+            delay(2_000)
+        }
+    }
     // The player's own panels take the right side; this one makes way.
     LaunchedEffect(session.panel) {
         if (session.panel != null) extras.panel = null
@@ -490,7 +484,7 @@ private fun ActionPill(
 @Composable
 private fun YouTubeSidePanel(state: AppState, session: PlayerSession, extras: YouTubePlayerExtras, panel: YouTubePlayerPanel, modifier: Modifier) {
     val yt = state.youtube
-    val chapters = playerChapters(session, extras)
+    val chapters = extras.playerChapters
     LaunchedEffect(panel) { if (panel == YouTubePlayerPanel.SAVE && extras.playlists == null) yt.loadPlayingPlaylists() }
     val listState = rememberLazyListState()
     Column(

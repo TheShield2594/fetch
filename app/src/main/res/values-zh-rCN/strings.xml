@@ -1106,7 +1106,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">扫描 QR 码以从手机安装或移除扩展</string>
     <string name="addon_manage_collections_from_phone_subtitle">扫描 QR 码以从手机管理首页文件夹</string>
     <string name="addon_reorder_title">重新排序首页目录</string>
-    <string name="addon_reorder_subtitle">控制首页上的目录和文件夹行顺序 (经典 + 现代 + 网格)</string>
+    <string name="addon_reorder_subtitle">控制首页上的目录和文件夹行顺序</string>
     <string name="addon_qr_scan_instruction">用手机扫描以管理扩展、目录和首页文件夹</string>
     <string name="addon_qr_addons_only_scan_instruction">用手机扫描以安装或移除扩展</string>
     <string name="addon_qr_collections_scan_instruction">用手机扫描以管理首页文件夹</string>
@@ -1130,8 +1130,6 @@
     <string name="addon_confirm_total_catalogs">目录总数：%1$d</string>
     <string name="addon_catalogs_types">目录：%1$d - 类型：%2$s</string>
 
-    <string name="catalog_order_title">重新排序首页目录</string>
-    <string name="catalog_order_subtitle">这控制首页上的目录行顺序 (经典 + 现代 + 网格)。</string>
     <string name="catalog_order_follow_addons">遵循扩展顺序</string>
     <string name="catalog_order_follow_addons_desc">目录遵循扩展清单顺序。文件夹行仍可在扩展之间移动。</string>
     <string name="catalog_order_empty">暂无可用的首页目录。</string>
@@ -1596,7 +1594,6 @@
     <!-- 搜索错误 -->
 
     <!-- 首页错误 -->
-    <string name="home_error_no_catalog_addons">未安装目录扩展</string>
 
     <!-- 播放器错误 -->
 

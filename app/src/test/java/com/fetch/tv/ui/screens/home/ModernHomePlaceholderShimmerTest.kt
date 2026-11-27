@@ -43,8 +43,8 @@ class ModernHomePlaceholderShimmerTest {
         assertFalse(emptyRow(key = "empty", isLoading = true).showsPlaceholderShimmer())
     }
 
-    private fun emptyRow(key: String, isLoading: Boolean): HeroCarouselRow =
-        HeroCarouselRow(
+    private fun emptyRow(key: String, isLoading: Boolean): HomeRowModel =
+        HomeRowModel(
             key = key,
             title = key,
             globalRowIndex = 0,
@@ -52,8 +52,8 @@ class ModernHomePlaceholderShimmerTest {
             isLoading = isLoading
         )
 
-    private fun row(key: String, isLoading: Boolean, imageUrl: String?): HeroCarouselRow =
-        HeroCarouselRow(
+    private fun row(key: String, isLoading: Boolean, imageUrl: String?): HomeRowModel =
+        HomeRowModel(
             key = key,
             title = key,
             globalRowIndex = 0,

@@ -180,7 +180,7 @@ class LayoutPreferenceDataStore @Inject constructor(
         }
     }
 
-    val hasChosenLayout: Flow<Boolean> = profileFlow { prefs ->
+    val homeSetUp: Flow<Boolean> = profileFlow { prefs ->
         prefs[hasChosenKey] ?: false
     }
 
@@ -826,17 +826,6 @@ class LayoutPreferenceDataStore @Inject constructor(
             gson.fromJson<Map<String, String>>(json, type).orEmpty()
         } catch (_: Exception) {
             emptyMap()
-        }
-    }
-
-    suspend fun setCustomCatalogTitles(titles: Map<String, String>) {
-        store(profileManager.currentProfileId()).edit { prefs ->
-            val filtered = titles.filterValues { it.isNotBlank() }
-            if (filtered.isEmpty()) {
-                prefs.remove(customCatalogTitlesKey)
-            } else {
-                prefs[customCatalogTitlesKey] = gson.toJson(filtered)
-            }
         }
     }
 

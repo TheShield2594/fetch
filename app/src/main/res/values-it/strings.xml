@@ -1045,7 +1045,7 @@
 <string name="addon_manage_addons_only_from_phone_subtitle">Scansiona un codice QR per installare o rimuovere add-on dal tuo telefono</string>
 <string name="addon_manage_collections_from_phone_subtitle">Scansiona un codice QR per gestire le cartelle della Home dal tuo telefono</string>
 <string name="addon_reorder_title">Riordina cataloghi home</string>
-<string name="addon_reorder_subtitle">Controlla l\'ordine delle righe dei cataloghi e delle righe di cartelle nella Home (Classica + Moderna + Griglia)</string>
+<string name="addon_reorder_subtitle">Controlla l\'ordine delle righe dei cataloghi e delle righe di cartelle nella Home</string>
 <string name="addon_qr_scan_instruction">Scansiona con il tuo telefono per gestire addon, cataloghi e cartelle della Home</string>
 <string name="addon_qr_addons_only_scan_instruction">Scansiona con il tuo telefono per installare o rimuovere add-on</string>
 <string name="addon_qr_collections_scan_instruction">Scansiona con il telefono per gestire le cartelle della Home</string>
@@ -1069,8 +1069,6 @@
 <string name="addon_confirm_total_catalogs">Totale cataloghi: %1$d</string>
 <string name="addon_catalogs_types">Cataloghi: %1$d - Tipi: %2$s</string>
 
-<string name="catalog_order_title">Riordina cataloghi home</string>
-<string name="catalog_order_subtitle">Controlla l\'ordine delle righe dei cataloghi nella Home (Classica + Moderna + Griglia).</string>
 <string name="catalog_order_follow_addons">Segui l\'ordine degli addon</string>
 <string name="catalog_order_follow_addons_desc">I cataloghi seguono l\'ordine del manifest degli addon. Le righe di cartelle possono comunque essere spostate tra gli addon.</string>
 <string name="catalog_order_empty">Nessun catalogo home ancora disponibile.</string>
@@ -1530,7 +1528,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-<string name="home_error_no_catalog_addons">Nessun addon catalogo installato</string>
 
     <!-- Player errors -->
 
@@ -2364,7 +2361,7 @@
     <string name="mdblist_ratings_connected_account">Uso dell\'account collegato</string>
     <string name="mdblist_ratings_key_override_subtitle">Una chiave API sostituisce l\'account collegato per le valutazioni. Cancella la chiave e salva per tornare a usare l\'account collegato.</string>
     <string name="mdblist_show_on_hero_title">Usa le valutazioni nell’hero</string>
-    <string name="mdblist_show_on_hero_subtitle">Mostra le valutazioni MDBList nell’hero (Modern e Classic/Grid)</string>
+    <string name="mdblist_show_on_hero_subtitle">Mostra le valutazioni MDBList nell’hero</string>
     <string name="mdblist_rating_order_subtitle">Nell’hero Modern vengono mostrate le prime 3 valutazioni abilitate e disponibili. Usa le frecce per cambiarne l’ordine.</string>
     <string name="mdblist_library_lists">Liste della libreria</string>
     <string name="mdblist_library_lists_description">Scegli quali liste MDBList mostrare nella Libreria e in Gestisci liste. La watchlist viene sempre visualizzata.</string>

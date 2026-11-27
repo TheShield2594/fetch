@@ -48,6 +48,10 @@ class YouTubePlayerExtras(val video: YouTubeVideo, val load: Int) {
     var votes by mutableStateOf<YouTubeVoteCounts?>(null)
     /** YouTube's chapters from the watch page; mpv's own chapter list (from yt-dlp) comes first. */
     var chapters by mutableStateOf<List<YouTubeChapter>>(emptyList())
+    /** mpv's chapter list (yt-dlp reads it), once the file has opened; read by [YouTubePlayerLayer][com.fetch.desktop.ui.YouTubePlayerLayer]. */
+    var mpvChapters by mutableStateOf<List<YouTubeChapter>>(emptyList())
+    /** The video's chapters: mpv's, else the ones on YouTube's watch page. */
+    val playerChapters: List<YouTubeChapter> get() = mpvChapters.ifEmpty { chapters }
     var captionTracks by mutableStateOf<List<YouTubeCaptionTrack>>(emptyList())
     /** The YouTube caption track showing ([YouTubeCaptionTrack.id]); null while off or another subtitle shows. */
     var selectedCaption by mutableStateOf<String?>(null)

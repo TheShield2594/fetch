@@ -635,7 +635,7 @@
     <string name="addon_manage_from_phone_subtitle">Skeniraj QR kod da upravljaš addonima, katalozima i folderima na početnoj sa svog telefona</string>
     <string name="addon_manage_collections_from_phone_subtitle">Skeniraj QR kod da upravljaš folderima na početnoj sa svog telefona</string>
     <string name="addon_reorder_title">Promijeni redoslijed početnih kataloga</string>
-    <string name="addon_reorder_subtitle">Kontroliše redoslijed redova kataloga i redova foldera na početnoj (Klasično + Moderno + Mreža)</string>
+    <string name="addon_reorder_subtitle">Kontroliše redoslijed redova kataloga i redova foldera na početnoj</string>
     <string name="addon_qr_scan_instruction">Skeniraj sa svojim telefonom da upravljaš addonima, katalozima i folderima na početnoj</string>
     <string name="addon_qr_collections_scan_instruction">Skeniraj sa svojim telefonom da upravljaš folderima na početnoj</string>
     <string name="addon_qr_close">Zatvori</string>
@@ -651,8 +651,6 @@
     <string name="addon_confirm_confirm">Primijeni promjene</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Redoslijed Početnih Kataloga</string>
-    <string name="catalog_order_subtitle">Ovo kontroliše redoslijed redova kataloga na početnoj (Klasično + Moderno + Mreža).</string>
     <string name="catalog_order_empty">Još nema dostupnih početnih kataloga.</string>
     <string name="catalog_order_disabled_on_home">Onemogućeno na početnoj</string>
     <string name="catalog_order_enable">Omogući</string>
@@ -1005,7 +1003,6 @@
     <string name="search_no_results_filter_subtitle">Probajte drugi filter ili Sve.</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Nema instaliranih katalog addona</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Ovaj izvor nema link za stream. Izaberi drugi izvor.</string>

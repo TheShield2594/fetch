@@ -70,6 +70,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.TextStyle
 import kotlinx.coroutines.delay
 import com.fetch.tv.ui.theme.FetchContentColors
+import com.fetch.tv.ui.util.isSelectKey
+import com.fetch.tv.ui.util.firstNonBlank
 
 private val BadgeShape: Shape
     @Composable @ReadOnlyComposable get() = FetchTheme.shapes.badge
@@ -214,7 +216,6 @@ fun ContinueWatchingCard(
     cardStyle: ContinueWatchingCardStyle = ContinueWatchingCardStyle.CARD,
     isFocused: Boolean = false,
     cornerRadius: Dp = FetchTheme.radii.md,
-    posterTitleOverride: TextStyle? = null,
     /** True when this card's Best match is cached and recently confirmed, so it starts at once. */
     isReady: Boolean = false,
     /** Read after the card's own label, such as the year and rating the Home hero shows for it. */
@@ -339,10 +340,8 @@ fun ContinueWatchingCard(
         continueWatchingShouldBlur(item, blurUnwatchedEpisodes, effectiveEpisodeThumbnails, usePosterArtwork)
 
     val baseTitleStyle = MaterialTheme.typography.titleSmall
-    val titleStyle = remember(baseTitleStyle, isPosterStyle, posterTitleOverride) {
-        if (isPosterStyle && posterTitleOverride != null) {
-            posterTitleOverride
-        } else if (isPosterStyle) {
+    val titleStyle = remember(baseTitleStyle, isPosterStyle) {
+        if (isPosterStyle) {
             // Tight line height keeps the title row short so the poster can stay catalog sized.
             val scaled = posterTitleFontSizeSp(baseTitleStyle.fontSize.value).sp
             baseTitleStyle.copy(fontSize = scaled, lineHeight = scaled * POSTER_TITLE_LINE_HEIGHT)
@@ -627,7 +626,7 @@ fun ContinueWatchingCard(
             if (textBelowArtwork) {
                 // The title wraps to two lines beside the episode code like the mobile poster card, and the
                 // row height is fixed so a one line title does not make its card shorter than the rest.
-                val titleBlockHeight = if (posterTitleOverride != null) 46.dp else POSTER_TITLE_BLOCK_HEIGHT
+                val titleBlockHeight = POSTER_TITLE_BLOCK_HEIGHT
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -653,11 +652,7 @@ fun ContinueWatchingCard(
                         Text(
                             text = episodeStr,
                             modifier = Modifier.padding(start = FetchTheme.spacing.xs),
-                            style = if (posterTitleOverride != null) {
-                                MaterialTheme.typography.labelMedium
-                            } else {
-                                MaterialTheme.typography.labelSmall
-                            },
+                            style = MaterialTheme.typography.labelSmall,
                             color = FetchTheme.extendedColors.textSecondary,
                             maxLines = 1
                         )
@@ -996,12 +991,3 @@ private fun ContinueWatchingRemoveConfirmDialog(
     }
 }
 
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
-}
-
-private fun firstNonBlank(vararg candidates: String?): String? {
-    return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()
-}

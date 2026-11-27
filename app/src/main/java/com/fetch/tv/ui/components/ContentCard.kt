@@ -45,7 +45,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -87,10 +86,10 @@ import com.fetch.tv.ui.util.recompositionHighlighter
 import com.fetch.tv.domain.model.PLACEHOLDER_IMAGE_URL
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import kotlinx.coroutines.delay
+import com.fetch.tv.ui.util.isSelectKey
+import com.fetch.tv.ui.util.YEAR_REGEX
 
 private const val BACKDROP_ASPECT_RATIO = 16f / 9f
-private const val TRAILER_PREVIEW_REQUEST_FOCUS_DEBOUNCE_MS = 140L
-private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 private val YEAR_RANGE_REGEX = Regex("""^((19|20)\d{2})\s*[-–]\s*((19|20)\d{2})?$""")
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -109,12 +108,8 @@ fun ContentCard(
     focusedPosterBackdropTrailerMuted: Boolean = true,
     trailerPreviewUrl: String? = null,
     trailerPreviewAudioUrl: String? = null,
-    onRequestTrailerPreview: (MetaPreview) -> Unit = {},
     isWatched: Boolean = false,
     onFocus: (MetaPreview) -> Unit = {},
-    onBackdropExpandedChanged: ((Boolean) -> Unit)? = null,
-    expandedDownFocusRequester: FocusRequester? = null,
-    expandedUpFocusRequester: FocusRequester? = null,
     onLongPress: (() -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
@@ -144,13 +139,8 @@ fun ContentCard(
     var trailerFirstFrameRendered by remember(trailerPreviewUrl) { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(isBackdropExpanded) {
-        onBackdropExpandedChanged?.invoke(isBackdropExpanded)
-    }
     // The card always tracks live focus so the title marquee can scroll while the card is focused,
-    // even when the backdrop-expand / trailer features (which otherwise drive isFocused) are off.
-    val needsFocusState = true
-    val lastFocusedRef = remember { booleanArrayOf(false) }
+    // even when the backdrop-expand / trailer features are off.
 
     val isPlaceholderItem = item.poster == PLACEHOLDER_IMAGE_URL
 
@@ -178,12 +168,6 @@ fun ContentCard(
                 isBackdropExpanded = true
             }
         }
-    }
-
-    if (focusedPosterBackdropTrailerEnabled) {
-        // Trailer extraction is triggered by ModernHomeContent/ClassicHomeContent
-        // based on actual user focus, not by individual cards becoming visible.
-        // ContentCard only observes trailerPreviewUrl to start playback.
     }
 
     // Only pay the animation cost on the card that is actually focused/expanding.
@@ -328,20 +312,13 @@ fun ContentCard(
                 .fillMaxWidth()
                 .onFocusChanged { state ->
                     val focusedNow = state.isFocused
-                    if (needsFocusState) {
-                        if (focusedNow != isFocused) {
-                            isFocused = focusedNow
-                            if (focusedNow) {
-                                interactionNonce++
-                                onFocus(item)
-                            } else {
-                                isBackdropExpanded = false
-                            }
-                        }
-                    } else {
-                        if (focusedNow != lastFocusedRef[0]) {
-                            lastFocusedRef[0] = focusedNow
-                            if (focusedNow) onFocus(item)
+                    if (focusedNow != isFocused) {
+                        isFocused = focusedNow
+                        if (focusedNow) {
+                            interactionNonce++
+                            onFocus(item)
+                        } else {
+                            isBackdropExpanded = false
                         }
                     }
                 }
@@ -380,14 +357,6 @@ fun ContentCard(
                     false
                 }
                 .then(
-                    if (isBackdropExpanded && (expandedDownFocusRequester != null || expandedUpFocusRequester != null)) {
-                        Modifier.focusProperties {
-                            if (expandedDownFocusRequester != null) down = expandedDownFocusRequester
-                            if (expandedUpFocusRequester != null) up = expandedUpFocusRequester
-                        }
-                    } else Modifier
-                )
-                .then(
                     if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
                 ),
             shape = CardDefaults.shape(shape = cardShape),
@@ -416,7 +385,7 @@ fun ContentCard(
                 if (isPlaceholderItem) {
                     val effectivePlaceholderShimmerOffsetState =
                         placeholderShimmerOffsetState ?: rememberPlaceholderShimmerOffsetState(
-                            label = "classicPlaceholderShimmer"
+                            label = "contentCardPlaceholderShimmer"
                         )
                     Box(
                         modifier = Modifier
@@ -771,12 +740,6 @@ private fun shouldResetBackdropTimer(nativeEvent: AndroidKeyEvent): Boolean {
         AndroidKeyEvent.KEYCODE_BACK -> true
         else -> false
     }
-}
-
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
 }
 
 // Like Modifier.width, but reads the width while measuring rather than during composition.

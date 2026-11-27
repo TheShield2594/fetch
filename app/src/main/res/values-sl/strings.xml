@@ -813,7 +813,7 @@
 	<string name="addon_manage_addons_only_from_phone_subtitle">Skenirajte kodo QR za namestitev ali odstranitev dodatkov prek telefona</string>
     <string name="addon_manage_collections_from_phone_subtitle">Skenirajte kodo QR za upravljanje domačih map prek telefona</string>																																
 	<string name="addon_reorder_title">Prerazporedi domače kataloge</string>
-    <string name="addon_reorder_subtitle">Nadzira vrstni red vrstic katalogov in vrstic map na domačem zaslonu (Klasični + Moderni + Mrežni)</string>
+    <string name="addon_reorder_subtitle">Nadzira vrstni red vrstic katalogov in vrstic map na domačem zaslonu</string>
     <string name="addon_qr_scan_instruction">Skenirajte s telefonom za upravljanje dodatkov, katalogov in domačih map</string>
 	<string name="addon_qr_addons_only_scan_instruction">Skenirajte s telefonom za namestitev ali odstranitev dodatkov</string>
     <string name="addon_qr_collections_scan_instruction">Skenirajte s telefonom za upravljanje domačih map</string>																											   
@@ -834,8 +834,6 @@
     <string name="addon_pending_collections_updated">Domače mape so posodobljene</string>
     <string name="addon_pending_collections_replace">Vaše trenutne domače mape bodo zamenjane z naslednjim številom vrstic map: %1$d</string>														   
 	<!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Prerazporedi domače kataloge</string>
-    <string name="catalog_order_subtitle">To nadzira vrstni red katalogov na domačem zaslonu (Klasični + Moderni + Mrežni).</string>
     <string name="catalog_order_empty">Domači katalogi še niso na voljo.</string>
     <string name="catalog_order_follow_addons_desc">Katalogi sledijo vrstnemu redu v manifestu dodatkov. Vrstice map je še vedno mogoče premikati med dodatki.</string>
     <string name="catalog_order_disabled_on_home">Onemogočeno na domačem zaslonu</string>			   
@@ -1205,7 +1203,6 @@
     <string name="search_no_results_filter_title">Temu filtru nič ne ustreza</string>
     <string name="search_no_results_filter_subtitle">Poskusite drug filter ali Vse.</string>
 	<!-- Home errors -->					
-    <string name="home_error_no_catalog_addons">Ni nameščenih dodatkov s katalogi</string>																
     <!-- Player errors -->					  
 	<string name="player_error_no_stream_url">Ta vir nima povezave za pretakanje. Izberite drug vir.</string>																		 
 	<!-- Playback subtitle settings -->								   

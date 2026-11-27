@@ -1070,6 +1070,17 @@
     <string name="layout_trailer_crop_to_fill">Crop trailers to fill</string>
     <string name="layout_trailer_crop_to_fill_sub">Zoom background trailers on Home and details pages so they fill the frame. Turn off to see the whole picture with black bars.</string>
     <string name="layout_trailer_muted">Play Trailer Muted</string>
+    <string name="layout_expand_focused_card">Expand Focused Card</string>
+    <string name="layout_expand_focused_card_sub">Grow the focused poster to its backdrop after a short pause.</string>
+    <string name="layout_expand_delay">Expand After</string>
+    <string name="layout_expand_delay_value">%1$d s</string>
+    <string name="layout_trailer_target">Where the Preview Plays</string>
+    <string name="layout_trailer_target_hero">In the Hero</string>
+    <string name="layout_trailer_target_card">In the Expanded Card</string>
+    <string name="layout_cw_card_style">Card Style</string>
+    <string name="layout_cw_card_style_card">Card</string>
+    <string name="layout_cw_card_style_wide">Wide</string>
+    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_trailer_muted_sub_preview">Mute trailer audio during autoplay preview.</string>
     <string name="layout_section_card_style">Poster Card</string>
     <string name="layout_section_card_style_desc">Tune card width and corner radius.</string>
@@ -1161,7 +1172,7 @@
     <string name="mdblist_ratings_connected_account">Using connected account</string>
     <string name="mdblist_ratings_key_override_subtitle">An API key overrides your connected account for ratings. Clear it to use the connected account again.</string>
     <string name="mdblist_show_on_hero_title">Use Ratings on Hero</string>
-    <string name="mdblist_show_on_hero_subtitle">Show MDBList ratings on hero carousel (modern and classic/grid)</string>
+    <string name="mdblist_show_on_hero_subtitle">Show MDBList ratings in the Home hero</string>
     <string name="mdblist_rating_order_subtitle">First 3 enabled and available ratings are shown on the modern hero. Use arrows to reorder.</string>
     <string name="mdblist_dialog_title">MDBList API Key</string>
     <string name="mdblist_dialog_placeholder">Enter MDBList API key</string>
@@ -1511,7 +1522,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Scan a QR code to install or remove addons from your phone</string>
     <string name="addon_manage_collections_from_phone_subtitle">Scan a QR code to manage Home folders from your phone</string>
     <string name="addon_reorder_title">Reorder home catalogs</string>
-    <string name="addon_reorder_subtitle">Controls catalog and folder row order on Home (Classic + Modern + Grid)</string>
+    <string name="addon_reorder_subtitle">Controls catalog and folder row order on Home</string>
     <string name="addon_qr_scan_instruction">Scan with your phone to manage addons, catalogs, and Home folders</string>
     <string name="addon_qr_addons_only_scan_instruction">Scan with your phone to install or remove addons</string>
     <string name="addon_qr_collections_scan_instruction">Scan with your phone to manage Home folders</string>
@@ -1535,8 +1546,6 @@
     <string name="addon_confirm_total_catalogs">Total catalogs: %1$d</string>
     <string name="addon_catalogs_types">Catalogs: %1$d - Types: %2$s</string>
 
-    <string name="catalog_order_title">Reorder home catalogs</string>
-    <string name="catalog_order_subtitle">This controls catalog row order on Home (Classic + Modern + Grid).</string>
     <string name="catalog_order_follow_addons">Follow addons order</string>
     <string name="catalog_order_follow_addons_desc">Catalogs follow addon manifest order. Folder rows can still be moved between addons.</string>
     <string name="catalog_order_empty">No home catalogs available yet.</string>
@@ -2156,7 +2165,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">No catalog addons installed</string>
 
     <!-- Player errors -->
 
@@ -3294,7 +3302,7 @@
     <string name="youtube_show_live_subtitle">Include streams that are live now in your feeds, search results and Up Next</string>
     <string name="youtube_hide_watched_title">Hide watched videos</string>
     <string name="youtube_hide_watched_subtitle">Leave out videos you’ve watched to the end. History still lists them</string>
-    <string name="youtube_options_hint">Press down for captions, speed and chapters</string>
+    <string name="youtube_options_hint">Press down for captions, quality, speed, chapters and details</string>
     <string name="youtube_options_title">Playback</string>
     <string name="youtube_options_captions">Captions</string>
     <string name="youtube_options_speed">Speed</string>

@@ -67,8 +67,7 @@ data class LiveTvProgram(
     val channelKey: String,
     val title: String,
     val startMs: Long,
-    val endMs: Long,
-    val description: String? = null
+    val endMs: Long
 )
 
 /** A recording on a media server, played like a film. */
@@ -183,20 +182,19 @@ class LiveTvRepository @Inject constructor(
                 channelKey = channel.key,
                 title = program.episodeTitle?.takeIf { it.isNotBlank() }?.let { "${program.title}: $it" } ?: program.title,
                 startMs = program.startMs,
-                endMs = program.endMs,
-                description = program.overview
+                endMs = program.endMs
             )
         }
     }
 
     /** Recordings from every server with Live TV, newest first per server. */
-    suspend fun recordings(limit: Int = RECORDINGS_LIMIT): List<LiveTvRecording> = coroutineScope {
+    suspend fun recordings(): List<LiveTvRecording> = coroutineScope {
         serverRepository.enabledConnections()
             .filter { it.id in serversWithChannels.value }
             .map { connection ->
                 async {
                     runSuspendCatching {
-                        serverRepository.call(connection.id) { provider, session -> provider.liveTvRecordings(session, limit) }
+                        serverRepository.call(connection.id) { provider, session -> provider.liveTvRecordings(session, RECORDINGS_LIMIT) }
                     }.getOrDefault(emptyList()).map { title ->
                         LiveTvRecording(
                             videoId = title.preview.id,

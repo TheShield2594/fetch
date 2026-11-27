@@ -919,7 +919,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Naskenujte QR kód pro instalaci nebo odebrání doplňků z telefonu</string>
     <string name="addon_manage_collections_from_phone_subtitle">Naskenujte QR kód pro správu domovských složek z telefonu</string>
     <string name="addon_reorder_title">Změnit pořadí domovských katalogů</string>
-    <string name="addon_reorder_subtitle">Řídí pořadí řádků katalogů a řádků složek na Domově (Klasický + Moderní + Mřížka)</string>
+    <string name="addon_reorder_subtitle">Řídí pořadí řádků katalogů a řádků složek na Domově</string>
     <string name="addon_qr_scan_instruction">Naskenujte telefonem pro správu doplňků, katalogů a domovských složek</string>
     <string name="addon_qr_addons_only_scan_instruction">Naskenujte telefonem pro instalaci nebo odebrání doplňků</string>
     <string name="addon_qr_collections_scan_instruction">Naskenujte telefonem pro správu domovských složek</string>
@@ -943,8 +943,6 @@
     <string name="addon_confirm_total_catalogs">Celkem katalogů: %1$d</string>
     <string name="addon_catalogs_types">Katalogy: %1$d - Typy: %2$s</string>
 
-    <string name="catalog_order_title">Změnit pořadí domovských katalogů</string>
-    <string name="catalog_order_subtitle">Toto řídí pořadí řádků katalogů na Domově (Klasický + Moderní + Mřížka).</string>
     <string name="catalog_order_follow_addons">Následovat pořadí doplňků</string>
     <string name="catalog_order_follow_addons_desc">Katalogy následují pořadí manifestu doplňků. Řádky složek lze stále přesouvat mezi doplňky.</string>
     <string name="catalog_order_empty">Zatím žádné dostupné domovské katalogy.</string>
@@ -1354,7 +1352,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Nejsou nainstalovány žádné katalogové doplňky</string>
 
     <!-- Player errors -->
 

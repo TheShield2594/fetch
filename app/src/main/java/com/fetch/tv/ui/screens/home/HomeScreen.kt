@@ -110,7 +110,6 @@ fun HomeScreen(
     }
     val modernPresentation by viewModel.modernHomePresentation.collectAsStateWithLifecycle()
     val initialCwResolved by viewModel.initialCwResolved.collectAsStateWithLifecycle()
-    val scrollToTopTrigger by viewModel.scrollToTopTrigger.collectAsStateWithLifecycle()
     val effectiveAutoplayEnabled by viewModel.effectiveAutoplayEnabled.collectAsStateWithLifecycle(
         initialValue = false
     )
@@ -156,7 +155,7 @@ fun HomeScreen(
     val onContinueWatchingPlayManuallyStable = remember(onContinueWatchingPlayManually) { onContinueWatchingPlayManually }
     val onNavigateToFolderDetailStable = remember(onNavigateToFolderDetail) { onNavigateToFolderDetail }
     val onSeeAllRow = remember(onNavigateToCatalogSeeAll) {
-        { row: HeroCarouselRow ->
+        { row: HomeRowModel ->
             val catalogId = row.catalogId
             val addonId = row.addonId
             val apiType = row.apiType
@@ -346,10 +345,6 @@ fun HomeScreen(
                             hasShownInitialHomeContent = true
                         }
                     }
-                    // Keep loading visible during the single-frame gap before animation starts.
-                    if (!showHomeContentWithAnimation) {
-                        Unit
-                    }
                     AnimatedVisibility(
                         visible = showHomeContentWithAnimation,
                         enter = if (hasShownInitialHomeContent) {
@@ -457,7 +452,7 @@ private fun ModernHomeRoute(
     onContinueWatchingPlayManually: (ContinueWatchingItem) -> Unit,
     showContinueWatchingManualPlayOption: Boolean,
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
-    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
+    onSeeAllRow: (HomeRowModel) -> Unit = {},
     onCardFocused: () -> Unit = {},
     onOpenYouTube: () -> Unit = {},
     isCatalogItemWatched: (MetaPreview) -> Boolean,

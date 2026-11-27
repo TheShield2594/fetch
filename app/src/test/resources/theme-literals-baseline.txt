@@ -12,7 +12,7 @@ com/fetch/tv/ui/components/ContentCard.kt|DP|8
 com/fetch/tv/ui/components/ContentCard.kt|SPACING_AS_STROKE|1
 com/fetch/tv/ui/components/ContentCard.kt|WHITE_BLACK|6
 com/fetch/tv/ui/components/ContinueWatchingSection.kt|ALPHA|4
-com/fetch/tv/ui/components/ContinueWatchingSection.kt|DP|4
+com/fetch/tv/ui/components/ContinueWatchingSection.kt|DP|3
 com/fetch/tv/ui/components/EmptyScreenState.kt|DP|2
 com/fetch/tv/ui/components/EpisodeShuffleBadge.kt|ALPHA|1
 com/fetch/tv/ui/components/EpisodeShuffleBadge.kt|DP|3
@@ -27,9 +27,9 @@ com/fetch/tv/ui/components/FetchWordmark.kt|DP|1
 com/fetch/tv/ui/components/FloatingSidebarButton.kt|DP|1
 com/fetch/tv/ui/components/FocusMarqueeText.kt|DP|1
 com/fetch/tv/ui/components/FocusScrollingText.kt|DP|3
-com/fetch/tv/ui/components/GridContentCard.kt|ALPHA|3
-com/fetch/tv/ui/components/GridContentCard.kt|DP|2
-com/fetch/tv/ui/components/GridContentCard.kt|WHITE_BLACK|4
+com/fetch/tv/ui/components/GridContentCard.kt|ALPHA|2
+com/fetch/tv/ui/components/GridContentCard.kt|DP|1
+com/fetch/tv/ui/components/GridContentCard.kt|WHITE_BLACK|3
 com/fetch/tv/ui/components/LightweightCard.kt|DP|1
 com/fetch/tv/ui/components/LoadingIndicator.kt|DURATION|1
 com/fetch/tv/ui/components/MDBListRatingsRow.kt|DP|2
@@ -49,8 +49,6 @@ com/fetch/tv/ui/components/ProfileEditorTabs.kt|DP|1
 com/fetch/tv/ui/components/ProfileEditorTabs.kt|WHITE_BLACK|2
 com/fetch/tv/ui/components/RefreshFilterChip.kt|DP|1
 com/fetch/tv/ui/components/RefreshFilterChip.kt|SPACING_AS_STROKE|1
-com/fetch/tv/ui/components/Shimmer.kt|ALPHA|1
-com/fetch/tv/ui/components/Shimmer.kt|WHITE_BLACK|2
 com/fetch/tv/ui/components/Skeletons.kt|ALPHA|15
 com/fetch/tv/ui/components/Skeletons.kt|DP|70
 com/fetch/tv/ui/components/Skeletons.kt|SPACING_AS_STROKE|1

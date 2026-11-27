@@ -152,13 +152,13 @@ enum class SubtitleMode { AUTO, OFF, ON }
 
 /**
  * Whether auto-selection should show only forced subtitles when the audio is in a language the
- * viewer reads. Auto keeps the "Use forced subtitles" setting's meaning; Off always does (and goes
- * no further); On never does.
+ * viewer reads. Auto and Off both follow the "Use forced subtitles" setting (Off then goes no
+ * further, so with that setting off it shows nothing); On never does.
  */
 val SubtitleStyleSettings.forcedOnlyForMatchingAudio: Boolean
     get() = when (mode) {
         SubtitleMode.AUTO -> useForcedSubtitles
-        SubtitleMode.OFF -> true
+        SubtitleMode.OFF -> useForcedSubtitles
         SubtitleMode.ON -> false
     }
 

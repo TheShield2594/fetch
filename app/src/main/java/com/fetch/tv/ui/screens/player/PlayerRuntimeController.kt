@@ -508,7 +508,7 @@ class PlayerRuntimeController(
      * episode can't mark the new one (TheShield2594/fetch#708).
      */
     internal val watchProgressFlagsGeneration: Long
-        get() = playbackItem.generation
+        get() = playbackItem.let { it.generation * PASSES_PER_ITEM + it.passGeneration }
     /** Serializes watch-progress saves so a later save never lands before an earlier one. */
     internal val watchProgressSaveMutex = kotlinx.coroutines.sync.Mutex()
     // Queue restores run one at a time, in the order requested (see restoreQueueItem).
@@ -887,3 +887,6 @@ internal fun PlayerRuntimeController.logSwitchTrace(
         "sid=$switchTraceSessionId seq=$sequence stage=$stage engine=$currentInternalPlayerEngine streamToken=$streamToken $message"
     )
 }
+
+/** Folds an item's restart count into its flags generation; far more than one item will see. */
+private const val PASSES_PER_ITEM = 1_000_000L

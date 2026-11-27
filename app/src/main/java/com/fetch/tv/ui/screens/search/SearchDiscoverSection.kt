@@ -1,5 +1,8 @@
 package com.fetch.tv.ui.screens.search
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.heightIn
 import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalResources
@@ -452,6 +455,8 @@ internal fun DiscoverFilterChipLabel(title: String, value: String, expanded: Boo
 }
 
 /** The open filter's choices as a row of chips under the filter bar. */
+private const val DISCOVER_CHOICES_MAX_SCREEN_FRACTION = 0.33f
+
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 internal fun DiscoverChoiceRow(
@@ -470,9 +475,15 @@ internal fun DiscoverChoiceRow(
     var hadFocus by remember { mutableStateOf(false) }
     var leavingUp by remember { mutableStateOf(false) }
     val focusIndex = choices.indexOfFirst { it.selected }.coerceAtLeast(0)
+    // At most a third of the screen, scrolling to the focused choice, so a list longer than that
+    // stays reachable and the poster grid below keeps its room.
+    val maxChoicesHeight = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp *
+        DISCOVER_CHOICES_MAX_SCREEN_FRACTION).dp
     androidx.compose.foundation.layout.FlowRow(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(max = maxChoicesHeight)
+            .verticalScroll(rememberScrollState())
             .onPreviewKeyEvent { event ->
                 if (event.nativeKeyEvent.action == AndroidKeyEvent.ACTION_DOWN) {
                     leavingUp = event.nativeKeyEvent.keyCode == AndroidKeyEvent.KEYCODE_DPAD_UP

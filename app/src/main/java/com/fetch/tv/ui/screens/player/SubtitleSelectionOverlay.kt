@@ -538,7 +538,15 @@ private fun SubtitleSelectionOverlaySession(
 
             SubtitleModeSwitch(
                 mode = subtitleStyle.mode,
-                onModeSelected = { mode -> onEvent(PlayerEvent.OnSetSubtitleMode(mode)) }
+                onModeSelected = { mode ->
+                    // Off drops the full subtitle now, so the list stops marking it. Focus memory
+                    // is left alone. Auto and On pick asynchronously; the mark follows on reopen.
+                    if (mode == SubtitleMode.OFF) {
+                        selectedOptionId = null
+                        revealStyleRail = false
+                    }
+                    onEvent(PlayerEvent.OnSetSubtitleMode(mode))
+                }
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {

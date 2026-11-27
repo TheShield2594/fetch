@@ -1270,7 +1270,12 @@ fun PlayerScreen(
                         skipClearancePx
                     },
                     postPlayVisible = postPlayOverlayMode != null,
-                    postPlayClearancePx = postPlayClearancePx,
+                    // Reported at the card's resting position; add the lift it rides up with the controls.
+                    postPlayClearancePx = if (uiState.showControls) {
+                        postPlayClearancePx + skipButtonControlsLiftPx
+                    } else {
+                        postPlayClearancePx
+                    },
                     seekVisible = seekOverlayVisible,
                     seekClearancePx = seekClearancePx
                 )

@@ -1798,7 +1798,8 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
 
     val selectedAddon = state.selectedAddonSubtitle
     val selectedAddonMatchesTarget = selectedAddon != null &&
-        (!useForcedSubtitles || !addonSubtitleIsForced(selectedAddon)) &&
+        // Full subtitles only: a forced addon is picked by the forced-only branch above.
+        !addonSubtitleIsForced(selectedAddon) &&
         targets.any { target -> PlayerSubtitleUtils.matchesLanguageCode(selectedAddon.lang, target) }
     if (selectedAddonMatchesTarget) {
         val matchingSelectedAddon = selectedAddon ?: return
@@ -1837,7 +1838,7 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
         // Try each target in priority order so primary language is preferred over secondary.
         for (target in targets) {
             val match = state.addonSubtitles.firstOrNull { subtitle ->
-                (!useForcedSubtitles || !addonSubtitleIsForced(subtitle)) &&
+                !addonSubtitleIsForced(subtitle) &&
                     PlayerSubtitleUtils.matchesLanguageCode(subtitle.lang, target)
             }
             if (match != null) {
@@ -1863,6 +1864,9 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
 
 internal fun PlayerRuntimeController.applySubtitlePreferences(preferred: String, secondary: String?) {
     if (isUserExplicitSubtitleSelection) return
+    // On with no preferred language picks subtitles in the audio's language; "none" here must not
+    // switch those off again on the next settings emission.
+    if (preferred == "none" && _uiState.value.subtitleStyle.mode == SubtitleMode.ON) return
     if (isUsingMpvEngine()) {
         mpvView?.applySubtitleLanguagePreferences(preferred, secondary)
         if (preferred == "none") {
@@ -1922,6 +1926,8 @@ internal fun PlayerRuntimeController.applySubtitlePreferences(preferred: String,
 internal fun PlayerRuntimeController.showForcedNarrativeSubtitleWhileOff() {
     if (hasBurnedInServerSubtitle || !hasScannedTextTracksOnce) return
     val state = _uiState.value
+    // "Use forced subtitles" turned off means off really is off.
+    if (!state.subtitleStyle.useForcedSubtitles) return
     if (state.selectedAddonSubtitle != null) return
     val audio = selectedAudioTrackForSubtitleMatching(state) ?: return
     val target = selectedAudioLanguageTarget(audio) ?: return

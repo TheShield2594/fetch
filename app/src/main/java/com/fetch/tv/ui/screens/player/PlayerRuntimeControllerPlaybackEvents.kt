@@ -1434,6 +1434,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             pendingResumeProgress = null
             // Starting over is watching it again: a completion mark from this session must not
             // stop the new position from being saved.
+            // A new pass: a save still running for the last one no longer owns these flags.
+            playbackItem.passGeneration++
             hasMarkedCurrentEpisodeCompleted = false
             currentEpisodeCompletionIsFinal = false
             val origin = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L

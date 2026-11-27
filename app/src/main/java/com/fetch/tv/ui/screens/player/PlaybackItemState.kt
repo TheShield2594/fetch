@@ -31,6 +31,12 @@ internal class PlaybackItemState(
 ) {
     val job: Job = SupervisorJob(parent)
 
+    /**
+     * Bumped when the item is started over. A save that began before the restart still stores
+     * the finished pass, but no longer owns the completion flags of the new one.
+     */
+    var passGeneration: Long = 0L
+
     var hasMarkedCompleted: Boolean = false
     /** The completion mark came from the natural end, so later in-progress saves are stale. */
     var completionIsFinal: Boolean = false

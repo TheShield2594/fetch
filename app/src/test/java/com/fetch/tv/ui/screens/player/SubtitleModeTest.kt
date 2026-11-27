@@ -25,8 +25,9 @@ class SubtitleModeTest {
     }
 
     @Test
-    fun off_isAlwaysForcedOnly_andOnNever() {
-        assertTrue(SubtitleStyleSettings(mode = SubtitleMode.OFF, useForcedSubtitles = false).forcedOnlyForMatchingAudio)
+    fun off_followsTheForcedSubtitlesSetting_andOnNeverIsForcedOnly() {
+        assertTrue(SubtitleStyleSettings(mode = SubtitleMode.OFF, useForcedSubtitles = true).forcedOnlyForMatchingAudio)
+        assertFalse(SubtitleStyleSettings(mode = SubtitleMode.OFF, useForcedSubtitles = false).forcedOnlyForMatchingAudio)
         assertFalse(SubtitleStyleSettings(mode = SubtitleMode.ON, useForcedSubtitles = true).forcedOnlyForMatchingAudio)
     }
 }

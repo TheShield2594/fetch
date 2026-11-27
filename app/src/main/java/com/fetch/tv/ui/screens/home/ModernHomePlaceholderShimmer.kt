@@ -9,5 +9,5 @@ import com.fetch.tv.domain.model.isPlaceholder
 internal fun showsPlaceholderShimmer(isLoading: Boolean, firstItemImageUrl: String?): Boolean =
     isLoading && firstItemImageUrl.isPlaceholder()
 
-internal fun HeroCarouselRow.showsPlaceholderShimmer(): Boolean =
+internal fun HomeRowModel.showsPlaceholderShimmer(): Boolean =
     showsPlaceholderShimmer(isLoading, items.list.firstOrNull()?.imageUrl)

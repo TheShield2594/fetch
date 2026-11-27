@@ -16,6 +16,7 @@ import com.fetch.tv.domain.repository.WatchProgressRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
+import com.fetch.tv.ui.util.YEAR_REGEX
 
 /** One title a bulk action works on, from the Saved grid or an activity tab. */
 data class LibraryBulkTarget(
@@ -41,7 +42,7 @@ internal fun LibraryEntry.toBulkTarget(): LibraryBulkTarget = LibraryBulkTarget(
         itemId = id,
         itemType = type,
         title = name,
-        year = releaseInfo?.let { Regex("""\b(19|20)\d{2}\b""").find(it)?.value?.toIntOrNull() },
+        year = releaseInfo?.let { YEAR_REGEX.find(it)?.value?.toIntOrNull() },
         traktId = traktId,
         simklId = simklId,
         imdbId = imdbId,

@@ -74,6 +74,7 @@ import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.toAbsoluteAlignment
 import kotlinx.coroutines.launch
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
+import com.fetch.tv.ui.util.isSelectKey
 
 private data class EpisodeOverlayAction(
     val label: String,
@@ -603,12 +604,6 @@ internal fun adjacentEpisode(episodes: List<Video>, current: Video, step: Int): 
     val index = episodes.indexOfFirst { it.id == current.id }
     if (index < 0) return null
     return episodes.getOrNull(index + step)
-}
-
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
 }
 
 internal fun shouldShowEpisodeOverlayBackdrop(style: EpisodeOptionsOverlayStyle): Boolean {

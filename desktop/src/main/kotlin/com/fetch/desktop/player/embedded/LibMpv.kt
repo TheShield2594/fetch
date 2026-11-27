@@ -22,6 +22,7 @@ interface LibMpv : Library {
     fun mpv_get_property_string(ctx: Pointer, name: String): Pointer?
     fun mpv_free(data: Pointer)
     fun mpv_command(ctx: Pointer, args: com.sun.jna.StringArray): Int
+    // Not called yet: for adding an addon subtitle without blocking the window (#756).
     fun mpv_command_async(ctx: Pointer, replyUserdata: Long, args: com.sun.jna.StringArray): Int
     fun mpv_observe_property(ctx: Pointer, replyUserdata: Long, name: String, format: Int): Int
     fun mpv_wait_event(ctx: Pointer, timeout: Double): Pointer
@@ -41,7 +42,6 @@ interface LibMpv : Library {
     companion object {
         // mpv_format
         const val FORMAT_NONE = 0
-        const val FORMAT_STRING = 1
         const val FORMAT_FLAG = 3
         const val FORMAT_INT64 = 4
         const val FORMAT_DOUBLE = 5
@@ -60,7 +60,6 @@ interface LibMpv : Library {
         const val END_FILE_ERROR = 4
 
         // mpv_render_param_type
-        const val RENDER_PARAM_INVALID = 0
         const val RENDER_PARAM_API_TYPE = 1
         const val RENDER_PARAM_OPENGL_INIT_PARAMS = 2
         const val RENDER_PARAM_OPENGL_FBO = 3

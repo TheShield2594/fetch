@@ -29,8 +29,9 @@ import com.fetch.tv.ui.util.StableMap
 import com.fetch.tv.ui.util.StableSet
 import com.fetch.tv.ui.util.asStable
 import java.util.Locale
+import com.fetch.tv.ui.util.YEAR_REGEX
+import com.fetch.tv.ui.util.firstNonBlank
 
-internal val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 internal const val MODERN_HERO_TEXT_WIDTH_FRACTION = 0.42f
 internal const val MODERN_HERO_MEDIA_WIDTH_FRACTION = 0.72f
 internal const val MODERN_TRAILER_OVERSCAN_ZOOM = 1.35f
@@ -77,7 +78,6 @@ data class HeroPreview(
     val imdbText: String?,
     val ageRatingText: String? = null,
     val statusText: String? = null,
-    val countryText: String? = null,
     val languageText: String? = null,
     val genres: StableList<String>,
     val poster: String?,
@@ -154,7 +154,6 @@ sealed class ModernPayload {
     data class CollectionFolder(
         val focusKey: String,
         val collectionId: String,
-        val collectionTitle: String,
         val folderId: String,
         val posterShape: PosterShape,
         val focusGifEnabled: Boolean,
@@ -188,8 +187,9 @@ data class ModernCarouselItem(
     val metaPreview: MetaPreview? = null
 )
 
+/** One row of Home: Continue Watching, a catalog, a collection, YouTube or Spotlight. */
 @Immutable
-data class HeroCarouselRow(
+data class HomeRowModel(
     val key: String,
     val title: String,
     val globalRowIndex: Int,
@@ -205,7 +205,7 @@ data class HeroCarouselRow(
 )
 
 /** Home order key of a catalog row, or null for rows that are not catalogs. */
-internal fun HeroCarouselRow.orderKey(): String? {
+internal fun HomeRowModel.orderKey(): String? {
     val addonId = addonId?.takeIf { it != BECAUSE_YOU_WATCHED_ADDON_ID } ?: return null
     val catalogId = catalogId ?: return null
     val apiType = apiType ?: return null
@@ -215,27 +215,21 @@ internal fun HeroCarouselRow.orderKey(): String? {
 @Immutable
 data class CarouselRowLookups(
     val rowIndexByKey: StableMap<String, Int>,
-    val rowByKey: StableMap<String, HeroCarouselRow>,
+    val rowByKey: StableMap<String, HomeRowModel>,
     val rowKeyByGlobalRowIndex: StableMap<Int, String>,
-    val firstHeroPreviewByRow: StableMap<String, HeroPreview>,
-    val fallbackBackdropByRow: StableMap<String, String>,
     val activeRowKeys: StableSet<String>,
-    val activeItemKeysByRow: StableMap<String, Set<String>>,
     val itemIdentitiesByRow: StableMap<String, StableList<String>>,
     val activeCatalogItemIds: StableSet<String>
 )
 
 @Immutable
 data class ModernHomePresentationState(
-    val rows: StableList<HeroCarouselRow> = StableList(),
+    val rows: StableList<HomeRowModel> = StableList(),
     val lookups: CarouselRowLookups = CarouselRowLookups(
         rowIndexByKey = StableMap(),
         rowByKey = StableMap(),
         rowKeyByGlobalRowIndex = StableMap(),
-        firstHeroPreviewByRow = StableMap(),
-        fallbackBackdropByRow = StableMap(),
         activeRowKeys = StableSet(),
-        activeItemKeysByRow = StableMap(),
         itemIdentitiesByRow = StableMap(),
         activeCatalogItemIds = StableSet()
     ),
@@ -265,12 +259,12 @@ internal data class ModernCatalogRowBuildCacheEntry(
     val showCatalogTypeSuffix: Boolean,
     val showImdbRatings: Boolean,
     val localeTag: String,
-    val mappedRow: HeroCarouselRow
+    val mappedRow: HomeRowModel
 )
 
 internal data class ModernCollectionRowBuildCacheEntry(
     val source: Collection,
-    val mappedRow: HeroCarouselRow
+    val mappedRow: HomeRowModel
 )
 @Stable
 class ModernCarouselRowBuildCache {
@@ -280,12 +274,12 @@ class ModernCarouselRowBuildCache {
     var continueWatchingUpcomingLabel: String = ""
     var continueWatchingUseLandscapePosters: Boolean = false
     var continueWatchingShowImdbRatings: Boolean = true
-    var continueWatchingRow: HeroCarouselRow? = null
+    var continueWatchingRow: HomeRowModel? = null
     var upcomingItems: List<ContinueWatchingItem> = emptyList()
     var upcomingTitle: String = ""
     var upcomingUseLandscapePosters: Boolean = false
     var upcomingShowImdbRatings: Boolean = true
-    var upcomingRow: HeroCarouselRow? = null
+    var upcomingRow: HomeRowModel? = null
     internal val catalogRows = java.util.concurrent.ConcurrentHashMap<String, ModernCatalogRowBuildCacheEntry>()
     internal val collectionRows = java.util.concurrent.ConcurrentHashMap<String, ModernCollectionRowBuildCacheEntry>()
     // per-item cache: rowKey -> (itemId -> cached carousel item + source MetaPreview)
@@ -374,7 +368,6 @@ internal fun ModernCarouselItem.catalogCardImageCacheExtras(
 internal fun buildContinueWatchingItem(
     item: ContinueWatchingItem,
     useLandscapePosters: Boolean,
-    showImdbRatings: Boolean,
     detailImdbRatingsVisibility: com.fetch.tv.domain.model.DetailImdbRatingsVisibility =
         com.fetch.tv.domain.model.DetailImdbRatingsVisibility.SHOW_ALL,
     airsDateTemplate: String,
@@ -595,7 +588,6 @@ internal fun buildCatalogItem(
     strTypeMovie: String = "",
     strTypeSeries: String = "",
     showFullReleaseDate: Boolean = true,
-    showImdbRatings: Boolean = true,
     previousCachedItem: ModernCarouselItem? = null
 ): ModernCarouselItem {
     // Carry forward the frozen URLs from the previous cache entry so that
@@ -629,7 +621,6 @@ internal fun buildCatalogItem(
             ?.let { String.format(Locale.getDefault(), "%.1f", it) },
         ageRatingText = item.ageRating,
         statusText = item.status,
-        countryText = item.country,
         languageText = item.language?.uppercase(),
         genres = item.genres.take(3).asStable(),
         poster = item.poster,
@@ -717,7 +708,6 @@ internal fun buildCollectionFolderItem(
         payload = ModernPayload.CollectionFolder(
             focusKey = "collection_${collection.id}::${folder.id}",
             collectionId = collection.id,
-            collectionTitle = collection.title,
             folderId = folder.id,
             posterShape = folder.tileShape,
             focusGifEnabled = folder.focusGifEnabled,
@@ -833,7 +823,7 @@ internal fun neighbourHeroBackdrops(
  * low-RAM tier (TheShield2594/fetch#804).
  */
 internal fun verticalNeighbourHeroBackdrops(
-    rows: List<HeroCarouselRow>,
+    rows: List<HomeRowModel>,
     activeRowKey: String?,
     landingIndex: (String) -> Int,
     enrichedPreviews: Map<String, MetaPreview>,
@@ -850,9 +840,6 @@ internal fun verticalNeighbourHeroBackdrops(
     return if (singleNeighbour) backdrops.take(1) else backdrops
 }
 
-internal fun firstNonBlank(vararg candidates: String?): String? {
-    return candidates.firstOrNull { !it.isNullOrBlank() }?.trim()
-}
 
 internal fun extractYear(releaseInfo: String?): String? {
     if (releaseInfo.isNullOrBlank()) return null

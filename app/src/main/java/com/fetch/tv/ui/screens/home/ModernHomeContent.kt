@@ -105,6 +105,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import com.fetch.tv.ui.util.firstNonBlank
 
 // Height of the wide card as a fraction of its width, matching the 2.5:1 shape of the mobile card.
 
@@ -158,7 +159,7 @@ fun ModernHomeContent(
     onContentFilterSelected: (HomeContentFilter) -> Unit = {},
     onNavigateToFolderDetail: (String, String) -> Unit = { _, _ -> },
     /** Opens a catalog row's full grid, from the See all card at the end of the row. */
-    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
+    onSeeAllRow: (HomeRowModel) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onItemFocus: (MetaPreview) -> Unit = {},
     onPreloadAdjacentItem: (MetaPreview) -> Unit = {},
@@ -166,7 +167,6 @@ fun ModernHomeContent(
     onFocusedRowKeyChanged: (String?) -> Unit = {},
     scrollToTopTrigger: Int = 0,
     onRequestLazyCatalogLoad: (String) -> Unit = {},
-    onRowItemFocusedCallback: (String, Int, Boolean) -> Unit = { _, _, _ -> },
     blockLeftOnFirstExpandedItem: Boolean = false,
     cachedBestMatches: Map<String, com.fetch.tv.data.local.CachedBestMatch> = emptyMap(),
     queuedVideoIds: Set<String> = emptySet(),
@@ -176,7 +176,6 @@ fun ModernHomeContent(
     onUndoRemoveContinueWatching: () -> Unit = {}
 ) {
     val latestCachedBestMatches = rememberUpdatedState(cachedBestMatches)
-    val onRowItemFocusedPassedDown = rememberUpdatedState(onRowItemFocusedCallback)
     val defaultBringIntoViewSpec = LocalBringIntoViewSpec.current
     val sidebarExpanded = LocalSidebarExpanded.current
     val isSidebarExpanded = remember(sidebarExpanded) { derivedStateOf { sidebarExpanded } }
@@ -819,7 +818,6 @@ fun ModernHomeContent(
                                 ?.let { String.format(java.util.Locale.US, "%.1f", it) },
                             ageRatingText = enrichedItem.ageRating,
                             statusText = enrichedItem.status,
-                            countryText = enrichedItem.country,
                             languageText = enrichedItem.language?.uppercase(),
                             genres = enrichedItem.genres.take(3).asStable(),
                             poster = enrichedItem.poster,
@@ -1242,17 +1240,10 @@ fun ModernHomeContent(
                     onContinueWatchingClick(item)
                 }
             }
-            val onRowItemFocusedInternalLambda = remember(onRowItemFocusedPassedDown) {
-                { rowKey: String, index: Int, isCw: Boolean ->
-                    onRowItemFocusedPassedDown.value.invoke(rowKey, index, isCw)
-                }
-            }
             val stableTrailerContentAlphaLambda = remember { { trailerContentAlphaState.value } }
             val stableExpandedTrailerPreviewUrl = remember(heroTrailerUrlsState) { { heroTrailerUrlsState.value.first } }
             val stableExpandedTrailerPreviewAudioUrl = remember(heroTrailerUrlsState) { { heroTrailerUrlsState.value.second } }
             val stableEnrichedPreviews = remember(enrichedPreviews) { derivedStateOf { enrichedPreviews.value.asStable() } }
-            val stableTrailerPreviewUrls = remember(trailerPreviewUrls) { trailerPreviewUrls.asStable() }
-            val stableTrailerPreviewAudioUrls = remember(trailerPreviewAudioUrls) { trailerPreviewAudioUrls.asStable() }
 
             val stableOnRequestLazyCatalogLoad = remember(onRequestLazyCatalogLoad) {
                 { catalogKey: String -> onRequestLazyCatalogLoad(catalogKey) }
@@ -1298,7 +1289,6 @@ fun ModernHomeContent(
                 catalogBottomPadding = FetchTheme.spacing.none,
                 trailerContentAlpha = stableTrailerContentAlphaLambda,
                 verticalRowBringIntoViewSpec = verticalRowBringIntoViewSpec,
-                onRowItemFocusedInternal = onRowItemFocusedInternalLambda,
                 onNavigateToDetail = onNavigateToDetail,
                 onNavigateToFolderDetail = onNavigateToFolderDetail,
                 onSeeAllRow = onSeeAllRow,
@@ -1313,11 +1303,8 @@ fun ModernHomeContent(
                 onCatalogItemLongPress = onCatalogItemLongPress,
                 onCatalogItemPlay = onCatalogItemPlay,
                 enrichedPreviews = stableEnrichedPreviews,
-                trailerPreviewUrls = stableTrailerPreviewUrls,
-                trailerPreviewAudioUrls = stableTrailerPreviewAudioUrls,
                 useLandscapePosters = useLandscapePosters,
                 alwaysShowLandscapeClearlogo = alwaysShowLandscapeClearlogo,
-                showLabels = uiState.posterLabelsEnabled,
                 posterCardCornerRadius = posterCardCornerRadius,
                 focusedPosterBackdropTrailerMuted = uiState.focusedPosterBackdropTrailerMuted,
                 effectiveExpandEnabled = effectiveExpandEnabled,

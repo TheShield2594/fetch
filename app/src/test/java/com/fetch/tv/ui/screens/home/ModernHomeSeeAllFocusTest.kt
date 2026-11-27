@@ -59,8 +59,8 @@ class ModernHomeSeeAllFocusTest {
         addonId: String?,
         apiType: String?,
         isLoading: Boolean = false
-    ): HeroCarouselRow =
-        HeroCarouselRow(
+    ): HomeRowModel =
+        HomeRowModel(
             key = "row",
             title = "Row",
             globalRowIndex = 0,

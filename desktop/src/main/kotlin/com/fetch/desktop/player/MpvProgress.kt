@@ -17,7 +17,7 @@ import java.nio.channels.SocketChannel
 /**
  * Follows an mpv window's playback position through its JSON IPC socket
  * (`--input-ipc-server`). mpv pushes `time-pos` and `duration` changes once observed; the socket
- * closes when mpv quits, which ends [follow].
+ * closes when mpv quits, which ends [followToEnd].
  */
 object MpvProgress {
 
@@ -34,17 +34,10 @@ object MpvProgress {
 
     /**
      * Connects to [socket] once mpv creates it, then calls [onSample] at most every
-     * [intervalMs] and once more when playback ends. Returns the last sample, or null when mpv
-     * never reported one. Runs blocking reads, so call it on Dispatchers.IO.
+     * [intervalMs] and once more when playback ends. Returns the last sample (null when mpv
+     * never reported one) and whether the file played to its end (for Up Next). Runs blocking
+     * reads, so call it on Dispatchers.IO.
      */
-    suspend fun follow(
-        socket: File,
-        process: Process,
-        intervalMs: Long = 5_000,
-        onSample: (Sample) -> Unit
-    ): Sample? = followToEnd(socket, process, intervalMs, onSample = onSample).last
-
-    /** Like [follow], and also tells whether the file played to its end (for Up Next). */
     suspend fun followToEnd(
         socket: File,
         process: Process,

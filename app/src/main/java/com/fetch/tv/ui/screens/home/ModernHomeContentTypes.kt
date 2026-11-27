@@ -23,7 +23,7 @@ internal const val MODERN_CARD_CONTENT_TYPE_YOUTUBE = "modern_youtube_card"
  * progress cards; addon catalog rows of every media type lay out the same poster cards; anything
  * else (collections, YouTube, ...) gets its own type.
  */
-internal fun modernHomeRowContentType(row: HeroCarouselRow): String = when {
+internal fun modernHomeRowContentType(row: HomeRowModel): String = when {
     isContinueWatchingStyleRow(row.key) -> MODERN_ROW_CONTENT_TYPE_CONTINUE_WATCHING
     row.apiType != null -> MODERN_ROW_CONTENT_TYPE_CATALOG
     else -> MODERN_ROW_CONTENT_TYPE_OTHER

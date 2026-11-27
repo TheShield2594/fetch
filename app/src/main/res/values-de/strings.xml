@@ -860,7 +860,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Scanne einen QR-Code um Add-Ons über dein Smartphone zu installieren oder zu löschen</string>
     <string name="addon_manage_collections_from_phone_subtitle">Scanne einen QR-Code um Startseiten-Ordner über dein Smartphone zu verwalten</string>
     <string name="addon_reorder_title">Home-Kataloge neu anordnen</string>
-    <string name="addon_reorder_subtitle">Steuert die Reihenfolge der Katalog- und Ordnerzeilen auf der Startseite (klassisch + modern + Raster)</string>
+    <string name="addon_reorder_subtitle">Steuert die Reihenfolge der Katalog- und Ordnerzeilen auf der Startseite</string>
     <string name="addon_qr_scan_instruction">Mit Ihrem Smartphone scannen, um Add-ons, Kataloge und Startseiten-Ordner zu verwalten</string>
     <string name="addon_qr_addons_only_scan_instruction">Mit deinem Smartphone scannen, um Add-Ons zu installieren oder zu löschen</string>
     <string name="addon_qr_collections_scan_instruction">Mit deinem Smartphone scannen, um Startseiten-Ordner zu verwalten</string>
@@ -882,8 +882,6 @@
     <string name="addon_pending_collections_replace">%1$d Ordnerzeile(n) werden deine bisherigen Startseiten-Ordner ersetzen</string>
 
     <!-- Katalogbestellungsbildschirm -->
-    <string name="catalog_order_title">Kataloge auf der Startseite neu anordnen</string>
-    <string name="catalog_order_subtitle">Hiermit wird die Reihenfolge der Katalogzeilen auf der Startseite (klassisch + modern + Raster) gesteuert. </string>
     <string name="catalog_order_follow_addons">Add-On Reihenfolge berücksichtigen</string>
     <string name="catalog_order_follow_addons_desc">Kataloge folgen Add-On Reihenfolge. Ordnerzeilen können weiterhin zwischen Add-Ons bewegt werden.</string>
     <string name="catalog_order_empty">Es sind noch keine Home-Kataloge verfügbar.</string>
@@ -1297,7 +1295,6 @@
     <string name="search_no_results_filter_subtitle">Versuchen Sie einen anderen Filter oder „Alle“.</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Keine Katalog-Add-Ons installiert</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Diese Quelle hat keinen Stream-Link. Wählen Sie eine andere Quelle.</string>

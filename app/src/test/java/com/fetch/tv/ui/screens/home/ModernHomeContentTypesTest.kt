@@ -36,7 +36,6 @@ class ModernHomeContentTypesTest {
                     ModernPayload.CollectionFolder(
                         focusKey = "folder",
                         collectionId = "c",
-                        collectionTitle = "C",
                         folderId = "f",
                         posterShape = PosterShape.POSTER,
                         focusGifEnabled = false,
@@ -83,7 +82,7 @@ class ModernHomeContentTypesTest {
         thumbnail = null, lastWatched = 1, sortTimestamp = 1
     ))
 
-    private fun row(key: String, apiType: String?) = HeroCarouselRow(
+    private fun row(key: String, apiType: String?) = HomeRowModel(
         key = key,
         title = key,
         globalRowIndex = 0,

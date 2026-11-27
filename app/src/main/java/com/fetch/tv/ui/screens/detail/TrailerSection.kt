@@ -64,7 +64,6 @@ fun TrailerSection(
     lastFocusedTrailerId: String? = null,
     onLastFocusedTrailerIdChange: (String) -> Unit = {},
     onRestoreFocusHandled: () -> Unit = {},
-    onTrailerFocused: (MetaTrailer) -> Unit = {},
     onTrailerClick: (MetaTrailer) -> Unit,
     windowResetKey: String? = null
 ) {
@@ -222,7 +221,6 @@ fun TrailerSection(
                         downFocusRequester = downFocusRequester,
                         onFocused = {
                             onLastFocusedTrailerIdChange(item.preview.id)
-                            onTrailerFocused(item.trailer)
                             if (isRestoreTarget && restoreFocusToken > 0) {
                                 restorePending = false
                                 onRestoreFocusHandled()

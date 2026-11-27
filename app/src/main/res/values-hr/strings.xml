@@ -915,7 +915,7 @@
     <string name="mdblist_ratings_connected_account">Koristi se povezani račun</string>
     <string name="mdblist_ratings_key_override_subtitle">API ključ ima prednost pred povezanim računom za ocjene. Očisti ga kako bi se ponovno koristio povezani račun.</string>
     <string name="mdblist_show_on_hero_title">Koristi ocjene u istaknutom odjeljku</string>
-    <string name="mdblist_show_on_hero_subtitle">Prikaži MDBList ocjene u istaknutom karuselu (moderni i klasični/mrežni)</string>
+    <string name="mdblist_show_on_hero_subtitle">Prikaži MDBList ocjene u istaknutom karuselu</string>
     <string name="mdblist_rating_order_subtitle">Prve 3 omogućene i dostupne ocjene prikazuju se u modernom istaknutom odjeljku. Koristi strelice za promjenu redoslijeda.</string>
     <string name="mdblist_dialog_title">MDBList API ključ</string>
     <string name="mdblist_dialog_placeholder">Unesi MDBList API ključ</string>
@@ -1159,7 +1159,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Skeniraj QR kôd za instaliranje ili uklanjanje dodataka s mobitela</string>
     <string name="addon_manage_collections_from_phone_subtitle">Skeniraj QR kôd za upravljanje mapama na početnoj s mobitela</string>
     <string name="addon_reorder_title">Promijeni redoslijed kataloga na početnom zaslonu</string>
-    <string name="addon_reorder_subtitle">Određuje redoslijed redova kataloga i redova mapa na početnom zaslonu (Klasični + Moderni + Mrežni)</string>
+    <string name="addon_reorder_subtitle">Određuje redoslijed redova kataloga i redova mapa na početnom zaslonu</string>
     <string name="addon_qr_scan_instruction">Skeniraj mobitelom za upravljanje dodacima, katalozima i mapama na početnoj</string>
     <string name="addon_qr_addons_only_scan_instruction">Skeniraj mobitelom za instaliranje ili uklanjanje dodataka</string>
     <string name="addon_qr_collections_scan_instruction">Skeniraj mobitelom za upravljanje mapama na početnoj</string>
@@ -1183,8 +1183,6 @@
     <string name="addon_confirm_total_catalogs">Ukupno kataloga: %1$d</string>
     <string name="addon_catalogs_types">Katalozi: %1$d - Vrste: %2$s</string>
 
-    <string name="catalog_order_title">Promijeni redoslijed kataloga na početnom zaslonu</string>
-    <string name="catalog_order_subtitle">Ovo određuje redoslijed redova kataloga na početnom zaslonu (Klasični + Moderni + Mrežni).</string>
     <string name="catalog_order_follow_addons">Prati redoslijed dodataka</string>
     <string name="catalog_order_follow_addons_desc">Katalozi prate redoslijed iz manifesta dodataka. Redovi mapa i dalje se mogu premještati između dodataka.</string>
     <string name="catalog_order_empty">Još nema dostupnih kataloga za početni zaslon.</string>
@@ -1639,7 +1637,6 @@
     <string name="error_unknown">Nepoznata pogreška</string>
 
     <!-- Pogreške početnog zaslona -->
-    <string name="home_error_no_catalog_addons">Nema instaliranih dodataka s katalozima</string>
 
     <!-- Pogreške playera -->
 

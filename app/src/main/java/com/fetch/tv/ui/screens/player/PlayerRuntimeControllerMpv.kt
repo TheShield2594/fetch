@@ -702,13 +702,11 @@ internal fun PlayerRuntimeController.isCurrentPlaybackSeekable(): Boolean {
 }
 
 /** Seeking is blocked only for a live stream without a seekable window. */
-internal fun PlayerRuntimeController.isLiveSeekBlocked(): Boolean {
-    if (!_playbackTimeline.value.isLive) return false
-    return LivePlaybackUiPolicy.blocksSeeking(
-        isLive = true,
+internal fun PlayerRuntimeController.isLiveSeekBlocked(): Boolean =
+    LivePlaybackUiPolicy.blocksSeeking(
+        isLive = _playbackTimeline.value.isLive,
         playerSeekable = isCurrentPlaybackSeekable()
     )
-}
 
 internal fun PlayerRuntimeController.isPlaybackCurrentlyPlaying(): Boolean {
     return if (isUsingMpvEngine()) {

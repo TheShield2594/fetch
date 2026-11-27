@@ -909,7 +909,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">امسح رمز QR لإدارة الإضافات من هاتفك</string>
     <string name="addon_manage_collections_from_phone_subtitle">امسح رمز QR لإدارة مجلدات الرئيسية من هاتفك</string>
     <string name="addon_reorder_title">إعادة ترتيب القوائم الرئيسية</string>
-    <string name="addon_reorder_subtitle">يتحكم في ترتيب صفوف القوائم وصفوف المجلدات في الرئيسية (كلاسيكي + حديث + شبكي)</string>
+    <string name="addon_reorder_subtitle">يتحكم في ترتيب صفوف القوائم وصفوف المجلدات في الرئيسية</string>
     <string name="addon_qr_scan_instruction">امسح بهاتفك لإدارة الإضافات والقوائم ومجلدات الرئيسية</string>
     <string name="addon_qr_addons_only_scan_instruction">امسح بهاتفك لإدارة الإضافات</string>
     <string name="addon_qr_collections_scan_instruction">امسح بهاتفك لإدارة مجلدات الرئيسية</string>
@@ -934,8 +934,6 @@
     <string name="addon_catalogs_types">القوائم: %1$d - الأنواع: %2$s</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">إعادة ترتيب القوائم الرئيسية</string>
-    <string name="catalog_order_subtitle">يتحكم هذا في ترتيب صفوف الفهارس على الصفحة الرئيسية (الكلاسيكية + الحديثة + الشبكية).</string>
     <string name="catalog_order_follow_addons">اتباع ترتيب الإضافات</string>
     <string name="catalog_order_follow_addons_desc">القوائم تتبع ترتيب القوائم داخل رابط الإضافة. لا يزال بالإمكان نقل صفوف المجلدات بين الإضافات.</string>
     <string name="catalog_order_empty">لا توجد قوائم رئيسية متاحة بعد.</string>
@@ -1352,7 +1350,6 @@
     <string name="error_unknown">خطأ غير معروف</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">لا توجد إضافات قوائم مثبتة</string>
 
     <!-- Player errors -->
 

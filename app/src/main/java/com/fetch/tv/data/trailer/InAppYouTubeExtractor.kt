@@ -194,10 +194,7 @@ private data class ManifestBestVariant(
 )
 
 private data class ManifestCandidate(
-    val client: String,
-    val priority: Int,
     val manifestUrl: String,
-    val selectedVariantUrl: String,
     val height: Int,
     val bandwidth: Long
 )
@@ -207,7 +204,7 @@ private class ClientStreams {
     val progressive = mutableListOf<StreamCandidate>()
     val adaptiveVideo = mutableListOf<StreamCandidate>()
     val adaptiveAudio = mutableListOf<StreamCandidate>()
-    val manifestUrls = mutableListOf<Triple<String, Int, String>>()
+    val manifestUrls = mutableListOf<String>()
 
     /** The first client's caption tracks; every client lists the same ones. */
     var captionsJson: String? = null
@@ -415,7 +412,7 @@ class InAppYouTubeExtractor internal constructor(
     }
 
     /** Invalidate cached config so next extraction re-fetches watch page. */
-    fun invalidateConfig() {
+    private fun invalidateConfig() {
         cachedConfig.set(null)
         Log.d(TAG, "Watch config invalidated")
     }
@@ -543,8 +540,7 @@ class InAppYouTubeExtractor internal constructor(
                     apiKey = config.apiKey,
                     videoId = videoId,
                     client = client,
-                    visitorData = config.visitorData,
-                    cookieHeader = null
+                    visitorData = config.visitorData
                 )
 
                 answeredCount++
@@ -631,7 +627,7 @@ class InAppYouTubeExtractor internal constructor(
     private fun addClientStreams(client: YouTubeClient, streamingData: Map<*, *>, streams: ClientStreams) {
         val hlsManifestUrl = streamingData.stringValue("hlsManifestUrl")
         if (!hlsManifestUrl.isNullOrBlank()) {
-            streams.manifestUrls += Triple(client.key, client.priority, hlsManifestUrl)
+            streams.manifestUrls += hlsManifestUrl
         }
 
         for (format in streamingData.listMapValue("formats")) {
@@ -785,16 +781,13 @@ class InAppYouTubeExtractor internal constructor(
         return videoOnly?.takeIf { allowVideoOnly }
     }
 
-    private fun pickBestManifest(manifestUrls: List<Triple<String, Int, String>>): ManifestCandidate? {
+    private fun pickBestManifest(manifestUrls: List<String>): ManifestCandidate? {
         var bestManifest: ManifestCandidate? = null
-        for ((clientKey, priority, manifestUrl) in manifestUrls) {
+        for (manifestUrl in manifestUrls) {
             try {
                 val variant = parseHlsManifest(manifestUrl) ?: continue
                 val candidate = ManifestCandidate(
-                    client = clientKey,
-                    priority = priority,
                     manifestUrl = manifestUrl,
-                    selectedVariantUrl = variant.url,
                     height = variant.height,
                     bandwidth = variant.bandwidth
                 )
@@ -862,8 +855,7 @@ class InAppYouTubeExtractor internal constructor(
         apiKey: String,
         videoId: String,
         client: YouTubeClient,
-        visitorData: String?,
-        cookieHeader: String?
+        visitorData: String?
     ): Map<*, *> {
         val endpoint = "https://www.youtube.com/youtubei/v1/player?key=${Uri.encode(apiKey)}"
 
@@ -875,7 +867,6 @@ class InAppYouTubeExtractor internal constructor(
             put("x-youtube-client-version", client.version)
             put("user-agent", client.userAgent)
             if (!visitorData.isNullOrBlank()) put("x-goog-visitor-id", visitorData)
-            if (!cookieHeader.isNullOrBlank()) put("cookie", cookieHeader)
         }
 
         val payload = buildMap<String, Any> {
@@ -1210,8 +1201,6 @@ class InAppYouTubeExtractor internal constructor(
 
         when (method.uppercase()) {
             "POST" -> requestBuilder.post((body ?: "").toRequestBody())
-            "PUT" -> requestBuilder.put((body ?: "").toRequestBody())
-            "DELETE" -> requestBuilder.delete()
             else -> requestBuilder.get()
         }
 
@@ -1219,8 +1208,6 @@ class InAppYouTubeExtractor internal constructor(
             return RequestResponse(
                 ok = response.isSuccessful,
                 status = response.code,
-                statusText = response.message,
-                url = response.request.url.toString(),
                 body = response.body?.string().orEmpty()
             )
         }
@@ -1243,8 +1230,6 @@ class InAppYouTubeExtractor internal constructor(
 private data class RequestResponse(
     val ok: Boolean,
     val status: Int,
-    val statusText: String,
-    val url: String,
     val body: String
 )
 

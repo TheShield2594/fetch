@@ -568,7 +568,7 @@
     <string name="addon_manage_from_phone_title">Administrer fra telefon</string>
     <string name="addon_manage_from_phone_subtitle">Skann en QR-kode for å administrere tillegg, kataloger og Hjem-mapper fra telefonen din</string>
     <string name="addon_reorder_title">Omorganiser hjemmekatalogier</string>
-    <string name="addon_reorder_subtitle">Kontroller rekkefølgen på katalog- og mapperader på Hjem (Klassisk + moderne + rutenett)</string>
+    <string name="addon_reorder_subtitle">Kontroller rekkefølgen på katalog- og mapperader på Hjem</string>
     <string name="addon_qr_scan_instruction">Skann med telefonen din for å administrere tillegg, kataloger og Hjem-mapper</string>
     <string name="addon_qr_close">Lukk</string>
     <string name="addon_confirm_title">Bekreft tillegg &amp; katalogendringer</string>
@@ -583,8 +583,6 @@
     <string name="addon_confirm_confirm">Bruk endringer</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Omorganiser hjemmekatalogier</string>
-    <string name="catalog_order_subtitle">Dette kontrollerer katalogradrekkefølgen på hjemmet (Klassisk + moderne + rutenett).</string>
     <string name="catalog_order_empty">Ingen hjemmekatalogier tilgjengelig ennå.</string>
     <string name="catalog_order_disabled_on_home">Deaktivert på hjemmet</string>
     <string name="catalog_order_enable">Aktiver</string>

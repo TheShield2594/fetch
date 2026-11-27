@@ -907,7 +907,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Сканирай QR код, за да инсталираш или премахнеш добавки от телефона си</string>
     <string name="addon_manage_collections_from_phone_subtitle">Сканирай QR код, за да управляваш папките на началния екран от телефона си</string>
     <string name="addon_reorder_title">Промени реда на домашните каталози</string>
-    <string name="addon_reorder_subtitle">Контролира реда на каталозите и редовете с папки на началния екран (Classic + Modern + Grid)</string>
+    <string name="addon_reorder_subtitle">Контролира реда на каталозите и редовете с папки на началния екран</string>
     <string name="addon_qr_scan_instruction">Сканирай с телефона си, за да управляваш добавки, каталози и папки на началния екран</string>
     <string name="addon_qr_addons_only_scan_instruction">Сканирай с телефона си, за да инсталираш или премахнеш добавки</string>
     <string name="addon_qr_collections_scan_instruction">Сканирай с телефона си, за да управляваш папките на началния екран</string>
@@ -931,8 +931,6 @@
     <string name="addon_confirm_total_catalogs">Общо каталози: %1$d</string>
     <string name="addon_catalogs_types">Каталози: %1$d - Типове: %2$s</string>
 
-    <string name="catalog_order_title">Промени реда на домашните каталози</string>
-    <string name="catalog_order_subtitle">Това контролира реда на редовете с каталози на началния екран (Classic + Modern + Grid).</string>
     <string name="catalog_order_follow_addons">Следвай реда на добавките</string>
     <string name="catalog_order_follow_addons_desc">Каталозите следват реда от манифеста на добавката. Редовете с папки все още могат да се местят между добавките.</string>
     <string name="catalog_order_empty">Все още няма налични домашни каталози.</string>
@@ -1340,7 +1338,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Няма инсталирани каталожни добавки</string>
 
     <!-- Player errors -->
 

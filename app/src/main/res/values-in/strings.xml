@@ -867,7 +867,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Pindai kode QR untuk memasang atau menghapus add-on dari ponsel Anda</string>
     <string name="addon_manage_collections_from_phone_subtitle">Pindai kode QR untuk mengelola Folder Beranda dari ponsel Anda</string>
     <string name="addon_reorder_title">Susun ulang katalog beranda</string>
-    <string name="addon_reorder_subtitle">Mengontrol urutan baris katalog dan baris folder di Beranda (Klasik + Modern + Grid)</string>
+    <string name="addon_reorder_subtitle">Mengontrol urutan baris katalog dan baris folder di Beranda</string>
     <string name="addon_qr_scan_instruction">Pindai dengan ponsel Anda untuk mengelola addon, katalog, dan Folder Beranda</string>
     <string name="addon_qr_addons_only_scan_instruction">Pindai dengan ponsel Anda untuk memasang atau menghapus add-on</string>
     <string name="addon_qr_collections_scan_instruction">Pindai dengan ponsel Anda untuk mengelola Folder Beranda</string>
@@ -889,8 +889,6 @@
     <string name="addon_pending_collections_replace">%1$d baris folder akan menggantikan Folder Beranda Anda saat ini</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Susun Ulang Katalog Beranda</string>
-    <string name="catalog_order_subtitle">Ini mengontrol urutan baris katalog di Beranda (Klasik + Modern + Grid).</string>
     <string name="catalog_order_follow_addons">Ikuti urutan addon</string>
     <string name="catalog_order_follow_addons_desc">Katalog mengikuti urutan manifest addon. Baris folder tetap bisa dipindahkan antar addon.</string>
     <string name="catalog_order_empty">Belum ada katalog beranda tersedia.</string>
@@ -1310,7 +1308,6 @@
     <string name="search_no_results_filter_subtitle">Coba filter lain, atau Semua.</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Tidak ada addon katalog terpasang</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">Sumber ini tidak memiliki tautan stream. Pilih sumber lain.</string>

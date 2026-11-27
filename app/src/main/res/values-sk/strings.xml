@@ -873,7 +873,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Naskenujte QR kód pre inštaláciu alebo odstránenie doplnkov z telefónu</string>
     <string name="addon_manage_collections_from_phone_subtitle">Naskenujte QR kód a spravujte domovské priečinky z telefónu</string>
     <string name="addon_reorder_title">Zmeniť poradie katalógov</string>
-    <string name="addon_reorder_subtitle">Ovláda poradie riadkov katalógov a riadkov priečinkov na domovskej obrazovke (Klasické + Moderné + Mriežka)</string>
+    <string name="addon_reorder_subtitle">Ovláda poradie riadkov katalógov a riadkov priečinkov na domovskej obrazovke</string>
     <string name="addon_qr_scan_instruction">Naskenujte telefónom pre správu doplnkov, katalógov a domovských priečinkov</string>
     <string name="addon_qr_addons_only_scan_instruction">Naskenujte telefónom pre inštaláciu alebo odstránenie doplnkov</string>
     <string name="addon_qr_collections_scan_instruction">Naskenujte telefónom pre správu domovských priečinkov</string>
@@ -895,8 +895,6 @@
     <string name="addon_pending_collections_replace">Riadky priečinkov (%1$d) nahradia vaše aktuálne domovské priečinky</string>
 
     
-    <string name="catalog_order_title">Zmeniť poradie katalógov</string>
-    <string name="catalog_order_subtitle">Ovláda poradie katalógov na domovskej obrazovke (Klasické + Moderné + Mriežka).</string>
     <string name="catalog_order_follow_addons">Sledovať poradie doplnkov</string>
     <string name="catalog_order_follow_addons_desc">Katalógy sledujú poradie manifestu doplnkov. Riadky priečinkov je stále možné presúvať medzi doplnkami.</string>
     <string name="catalog_order_empty">Zatiaľ nie sú dostupné žiadne katalógy.</string>
@@ -1322,7 +1320,6 @@
     <string name="search_no_results_filter_subtitle">Skúste iný filter alebo Všetko.</string>
 
     
-    <string name="home_error_no_catalog_addons">Žiadne katalógové doplnky nie sú nainštalované</string>
 
     
     <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte iný zdroj.</string>
@@ -2397,7 +2394,7 @@
     <string name="layout_always_show_landscape_clearlogo">Vždy pozadie s logom pre plagáty na šírku</string>
     <string name="layout_always_show_landscape_clearlogo_sub">Ignorovať plagát na šírku z doplnku a namiesto neho použiť pozadie s prekrytím priesvitného loga.</string>
     <string name="mdblist_show_on_hero_title">Použiť hodnotenia v hlavnom sekčnom paneli</string>
-    <string name="mdblist_show_on_hero_subtitle">Zobrazovať hodnotenia MDBList v hlavnom karuseli (moderné aj klasické/mriežka)</string>
+    <string name="mdblist_show_on_hero_subtitle">Zobrazovať hodnotenia MDBList v hlavnom karuseli</string>
     <string name="mdblist_rating_order_subtitle">Prvé 3 povolené a dostupné hodnotenia sa zobrazia v modernom hlavnom paneli. Zmeňte poradie pomocou šípok.</string>
     <string name="mdblist_library_lists">Zoznamy v knižnici</string>
     <string name="mdblist_library_lists_description">Vyberte, ktoré zoznamy MDBList sa zobrazia v Knižnici a v Správe zoznamov. Zoznam sledovaných sa zobrazuje vždy.</string>

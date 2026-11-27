@@ -29,14 +29,13 @@ data class HomeScreenFocusState(
     val focusedItemKeyByRow: Map<String, String> = emptyMap(),
 
     /**
-     * Index of the catalog row that had focus when navigating away.
-     * @deprecated Use [focusedRowKey] instead.
+     * Index of the catalog row that had focus when navigating away. Home restores by key when it can
+     * and falls back to this index.
      */
     val focusedRowIndex: Int = 0,
 
     /**
-     * Index of the item within the focused catalog row.
-     * @deprecated Use [focusedItemKeyByRow] instead.
+     * Index of the item within the focused catalog row; the fallback for [focusedItemKeyByRow].
      */
     val focusedItemIndex: Int = 0,
 
@@ -47,11 +46,6 @@ data class HomeScreenFocusState(
     val catalogRowScrollStates: Map<String, Int> = emptyMap(),
     /** Key of the card each row's window started on: an index goes stale once a row gains items in front. */
     val catalogRowScrollAnchors: Map<String, String> = emptyMap(),
-
-    /**
-     * Optional stable key for the currently focused card in grid-style layouts.
-     */
-    val focusedItemKey: String? = null,
 
     /**
      * Whether focus state has been explicitly saved (vs still at defaults).

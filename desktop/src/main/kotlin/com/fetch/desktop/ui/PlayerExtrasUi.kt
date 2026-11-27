@@ -1,5 +1,6 @@
 package com.fetch.desktop.ui
 
+import java.util.concurrent.atomic.AtomicBoolean
 import com.fetch.desktop.i18n.tr
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -181,7 +182,7 @@ fun BoxScope.PlayerExtrasLayer(state: AppState, session: PlayerSession, controls
     AutoSyncEffect(state, session)
 
     // The Skip button (bottom left, as on TV), unless Up Next is up.
-    val upNext = session.upNextCountdown(mpv.position, mpv.duration, p.upNextPromptSeconds) != null
+    val upNext = session.upNextCountdown(mpv.position, mpv.duration) != null
     // The Mark button needs an IntroDB key and a title IntroDB knows by IMDb id, as on TV.
     val introDbKey = p.introDbApiKey?.takeIf { it.isNotBlank() }
     LaunchedEffect(session.target, introDbKey != null) {
@@ -319,11 +320,14 @@ private fun SkipSegmentButton(
 private fun SkipSilenceEffect(state: AppState, session: PlayerSession) {
     val mpv = session.mpv
     val enabled = state.settings.player.extras.skipSilence
+    // Whether this effect added the filter: removing one that isn't there is an mpv error.
+    val filterAdded = remember(session) { AtomicBoolean(false) }
     // Per file too: loading one with a volume boost replaces the filter list.
     LaunchedEffect(enabled, session.title, session.stream?.url) {
-        mpv.runCommand("af", "remove", "@${AudioExtras.SILENCE_FILTER_LABEL}")
+        if (filterAdded.getAndSet(false)) mpv.runCommand("af", "remove", "@${AudioExtras.SILENCE_FILTER_LABEL}")
         if (!enabled) return@LaunchedEffect
         mpv.runCommand("af", "add", AudioExtras.SILENCE_FILTER)
+        filterAdded.set(true)
         val skipper = SilenceSkipper()
         var base = mpv.speed
         try {

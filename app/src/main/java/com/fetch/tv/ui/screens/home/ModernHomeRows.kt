@@ -144,6 +144,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.collectLatest
 import com.fetch.tv.ui.screens.settings.MemoryBudget
 import kotlinx.coroutines.flow.debounce
+import com.fetch.tv.ui.util.isSelectKey
 
 private const val MODERN_HORIZONTAL_FOCUS_DEBOUNCE_MS = 140L
 private const val POSTER_PREFETCH_DISTANCE = 3
@@ -208,14 +209,9 @@ private fun ModernContinueWatchingRowItem(
 
     LaunchedEffect(focusEventId, isCardFocused) {
         if (focusEventId == 0 || !isCardFocused) return@LaunchedEffect
-        
         // Update global focus state immediately so "self-claiming" logic in other items
         // knows this item is now the one in charge.
         latestOnFocused()
-
-        val targetEventId = focusEventId
-        delay(MODERN_HORIZONTAL_FOCUS_DEBOUNCE_MS)
-        if (!isCardFocused || focusEventId != targetEventId) return@LaunchedEffect
     }
 
     val contentFilterFocused = LocalHomeContentFilterFocused.current
@@ -263,7 +259,6 @@ private fun ModernCatalogRowItem(
     isTargetItem: Boolean = false,
     useLandscapePosters: Boolean,
     alwaysShowLandscapeClearlogo: Boolean = false,
-    showLabels: Boolean,
     placeholderShimmerOffsetState: State<Float>?,
     posterCardCornerRadius: Dp,
     portraitCatalogCardWidth: Dp,
@@ -278,7 +273,6 @@ private fun ModernCatalogRowItem(
     expandedTrailerPreviewUrl: () -> String?,
     expandedTrailerPreviewAudioUrl: () -> String?,
     isCatalogItemWatched: (MetaPreview) -> Boolean,
-    isFocusTarget: Boolean = false,
     onFocused: () -> Unit,
     onItemFocus: (MetaPreview) -> Unit,
     onPreloadAdjacentItem: () -> Unit,
@@ -324,13 +318,6 @@ private fun ModernCatalogRowItem(
     val latestOnItemFocus by rememberUpdatedState(onItemFocus)
     val latestOnPreloadAdjacentItem by rememberUpdatedState(onPreloadAdjacentItem)
     val latestOnCatalogSelectionFocused by rememberUpdatedState(onCatalogSelectionFocused)
-
-    // Bump focusEventId to re-trigger selection reporting.
-    //LaunchedEffect(focusKey, isTargetItem) {
-    //    if (isTargetItem && isCardFocused) {
-    //        focusEventId++
-    //    }
-    //}
 
     LaunchedEffect(focusEventId, isCardFocused, focusKey) {
         if (focusEventId == 0 || !isCardFocused) {
@@ -427,7 +414,6 @@ private fun ModernCatalogRowItem(
         item = item,
         useLandscapeOverlayTreatment = useLandscapeOverlayTreatment,
         alwaysShowLandscapeClearlogo = alwaysShowLandscapeClearlogo,
-        showLabels = showLabels,
         placeholderShimmerOffsetState = placeholderShimmerOffsetState,
         cardCornerRadius = posterCardCornerRadius,
         cardWidth = cardMetrics.width,
@@ -482,7 +468,7 @@ private fun ModernCatalogRowItem(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun ModernRowSection(
-    row: HeroCarouselRow,
+    row: HomeRowModel,
     isActiveRow: () -> Boolean,
     rowFocusRequester: FocusRequester,
     isVerticalRowsScrollingState: State<Boolean>,
@@ -500,7 +486,6 @@ internal fun ModernRowSection(
     onRowItemFocused: (String, Int, Boolean) -> Unit,
     useLandscapePosters: Boolean,
     alwaysShowLandscapeClearlogo: Boolean = false,
-    showLabels: Boolean,
     posterCardCornerRadius: Dp,
     focusedPosterBackdropTrailerMuted: Boolean,
     effectiveExpandEnabled: Boolean,
@@ -530,7 +515,7 @@ internal fun ModernRowSection(
     onCatalogSelectionFocused: (FocusedCatalogSelection) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
-    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
+    onSeeAllRow: (HomeRowModel) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onLoadMoreCatalog: (String, String, String) -> Unit,
     onBackdropInteraction: () -> Unit,
@@ -553,9 +538,6 @@ internal fun ModernRowSection(
         derivedStateOf { focusedItemByRow[rowKey] ?: 0 }
     }
 
-    // Blocks vertical focus exit during placeholder→data transition.
-    val blockingFocusExit = remember { mutableStateOf(false) }
-
     // Item keys carry item identity, which the placeholder the ring sits on loses when real data
     // arrives: its key changes and Compose tears the focused node down. Lend that one card a
     // positional key for as long as the ring can be on it, so the node is reused instead.
@@ -576,16 +558,7 @@ internal fun ModernRowSection(
     SideEffect { firstCardPinHold.value = firstCardPin }
     val pinFirstCard = ResolvedValue(firstCardPin.pinned)
     val pinnedItemKey = ResolvedValue(firstCardPin.itemKey)
-    Column(
-        modifier = Modifier.then(
-            if (blockingFocusExit.value) {
-                Modifier.focusProperties {
-                    up = FocusRequester.Cancel
-                    down = FocusRequester.Cancel
-                }
-            } else Modifier
-        )
-    ) {
+    Column {
         val titleMediumStyle = MaterialTheme.typography.titleMedium
         val rowTitleStyle = remember(titleMediumStyle) {
             titleMediumStyle.copy(fontWeight = FontWeight.SemiBold)
@@ -644,29 +617,6 @@ internal fun ModernRowSection(
                 firstVisibleItemIndex = restoredIndex,
                 prefetchStrategy = LazyListPrefetchStrategy(nestedPrefetchItemCount = NESTED_PREFETCH_COUNT)
             )
-        }
-
-        // When placeholder items are replaced by real data and this row
-        // is the active row, re-request focus on the first real item.
-        val firstItemImageUrl = row.items.list.firstOrNull()?.imageUrl
-        val wasPlaceholderRef = remember { mutableStateOf(row.isLoading && firstItemImageUrl.isPlaceholder()) }
-        val needsFocusRestore = remember { mutableStateOf(false) }
-        
-        LaunchedEffect(row.isLoading, firstItemImageUrl, isActiveRow) {
-            val wasPlaceholder = wasPlaceholderRef.value
-            val isNowReal = !row.isLoading || !firstItemImageUrl.isPlaceholder()
-            if (wasPlaceholder && isNowReal && isActiveRow()) {
-                needsFocusRestore.value = true
-                blockingFocusExit.value = true
-            }
-            wasPlaceholderRef.value = row.isLoading && firstItemImageUrl.isPlaceholder()
-        }
-
-        // Restore focus after placeholder→data transition.
-        LaunchedEffect(needsFocusRestore.value, row.key) {
-            if (!needsFocusRestore.value) return@LaunchedEffect
-            needsFocusRestore.value = false
-            blockingFocusExit.value = false
         }
 
         val isRowScrollingState = remember(rowListState) {
@@ -1065,7 +1015,6 @@ internal fun ModernRowSection(
                                 isTargetItem = isTargetItem,
                                 useLandscapePosters = useLandscapePosters,
                                 alwaysShowLandscapeClearlogo = alwaysShowLandscapeClearlogo,
-                                showLabels = showLabels,
                                 placeholderShimmerOffsetState = placeholderShimmerOffsetState,
                                 posterCardCornerRadius = posterCardCornerRadius,
                                 focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
@@ -1149,7 +1098,7 @@ internal fun ModernRowSection(
  * Catalog rows end in a See all card that opens the full grid. Rows with no grid behind them
  * (Continue Watching, Ready tonight, Because you watched, collections) don't get one.
  */
-internal fun HeroCarouselRow.showsSeeAllCard(): Boolean =
+internal fun HomeRowModel.showsSeeAllCard(): Boolean =
     !isLoading &&
         items.list.isNotEmpty() &&
         addonId != MODERN_READY_TONIGHT_ROW_KEY &&
@@ -1160,7 +1109,7 @@ internal fun HeroCarouselRow.showsSeeAllCard(): Boolean =
 internal const val SEE_ALL_FOCUS_KEY = "__see_all__"
 
 /** The key saved for the focused index: the item's key, [SEE_ALL_FOCUS_KEY] for See all, or "". */
-internal fun HeroCarouselRow.savedFocusKeyAt(index: Int): String =
+internal fun HomeRowModel.savedFocusKeyAt(index: Int): String =
     items.list.getOrNull(index)?.key
         ?: if (index == items.list.size && showsSeeAllCard()) SEE_ALL_FOCUS_KEY else ""
 
@@ -1168,14 +1117,14 @@ internal fun HeroCarouselRow.savedFocusKeyAt(index: Int): String =
  * The index a saved focus key restores to: the item with that key, or See all when it was saved
  * there and the row still shows one. Null when the key matches nothing.
  */
-internal fun HeroCarouselRow.focusIndexForSavedKey(key: String): Int? {
+internal fun HomeRowModel.focusIndexForSavedKey(key: String): Int? {
     if (key.isBlank()) return null
     if (key == SEE_ALL_FOCUS_KEY) return if (showsSeeAllCard()) items.list.size else null
     return items.list.indexOfFirst { it.key == key }.takeIf { it >= 0 }
 }
 
 /** Highest focusable index in the row: the See all card, at items.size, when the row has one. */
-internal fun HeroCarouselRow.maxFocusIndex(): Int =
+internal fun HomeRowModel.maxFocusIndex(): Int =
     if (showsSeeAllCard()) items.list.size else (items.list.size - 1).coerceAtLeast(0)
 
 
@@ -1186,7 +1135,6 @@ private fun ModernCarouselCard(
     useLandscapeOverlayTreatment: Boolean,
     modifier: Modifier = Modifier,
     alwaysShowLandscapeClearlogo: Boolean = false,
-    showLabels: Boolean,
     placeholderShimmerOffsetState: State<Float>? = null,
     cardCornerRadius: Dp,
     cardWidth: Dp,
@@ -1294,11 +1242,7 @@ private fun ModernCarouselCard(
     } else {
         item.imageUrl ?: item.heroPreview.poster ?: item.heroPreview.backdrop
     }
-    val imageUrl = when {
-        payload == null -> baseImageUrl
-        !payload.focusGifEnabled -> baseImageUrl
-        else -> baseImageUrl
-    }
+    val imageUrl = baseImageUrl
     // GIF overlay: shown on top of the base image only when focused and loaded
     val focusGifUrl = when {
         !FetchTheme.fullMotion -> null
@@ -1383,13 +1327,12 @@ private fun ModernCarouselCard(
             !(useLandscapeAsExpanded && !trailerFirstFrameRendered) &&
             (effectiveIgnoreLandscapePoster || isBackdropExpanded || item.metaPreview?.landscapePoster.isNullOrBlank() || customPosterLoadFailed)
     // Title text drawn in place of a missing or failed logo; it needs the same bottom scrim.
-    // A portrait poster whose artwork is missing or failed gets it too, unless the label under
-    // the card already names it: it was a blank tile until focused (#819).
+    // A portrait poster whose artwork is missing or failed gets it too: Home's cards carry no
+    // label under them, so it was a blank tile until focused (#819).
     val portraitArtworkMissing =
         !useLandscapeOverlayTreatment &&
             !isBackdropExpanded &&
             !isCollectionFolder &&
-            !showLabels &&
             !item.imageUrl.isPlaceholder() &&
             (!hasImage || cardImageLoadFailed)
     val showsFallbackTitle = item.title.isNotBlank() && (portraitArtworkMissing || (
@@ -1649,9 +1592,9 @@ private fun ModernCarouselCard(
             }
         }
 
-        // A recommendation's reason is the point of its card, so it shows even with labels off.
+        // Home's cards carry no labels, but a recommendation's reason is the point of its card.
         val hasRecommendationReason = !item.metaPreview?.recommendationReason.isNullOrBlank()
-        if ((showLabels || hasRecommendationReason) && !isBackdropExpanded && item.title.isNotBlank()) {
+        if (hasRecommendationReason && !isBackdropExpanded && item.title.isNotBlank()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1700,12 +1643,6 @@ private fun shouldResetBackdropTimer(key: Key): Boolean {
         Key.DirectionRight -> true
         else -> false
     }
-}
-
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
 }
 
 /**

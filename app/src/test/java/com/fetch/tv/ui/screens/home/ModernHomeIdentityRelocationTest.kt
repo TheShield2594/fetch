@@ -38,7 +38,7 @@ class ModernHomeIdentityRelocationTest {
 
     @Test
     fun `presentation lookups retain ordered payload identities`() {
-        val row = HeroCarouselRow(
+        val row = HomeRowModel(
             key = "catalog",
             title = "Catalog",
             globalRowIndex = 0,

@@ -4,12 +4,13 @@ import com.fetch.tv.domain.model.Stream
 import java.io.File
 
 /**
- * Plays a stream in mpv, the same player the TV app uses as its fallback engine. An embedded
- * player (libmpv rendering into the window) comes later; until then this hands the stream to
- * mpv in its own window, or to the desktop's default handler when mpv isn't installed.
+ * Plays a stream in mpv in its own window, or with the desktop's default handler when mpv isn't
+ * installed. The built-in player (libmpv drawing into Fetch's window) is
+ * [com.fetch.desktop.player.embedded.EmbeddedMpv]; this one is for YouTube videos and trailers
+ * played in a separate window.
  *
  * With mpv, Fetch also opens mpv's JSON IPC socket ([ipcSocket]) and reads the position from it,
- * which is how Continue Watching knows where you stopped. [startSeconds] resumes from there.
+ * which is how Continue Watching knows where you stopped. `start` resumes from there.
  */
 object ExternalPlayer {
 
@@ -33,10 +34,9 @@ object ExternalPlayer {
         stream: Stream,
         title: String,
         mpvPath: String? = findMpv(),
-        startSeconds: Long? = null,
         ipcSocket: File? = null,
         options: List<String> = emptyList(),
-        /** mpv's --start as given ("754" or "42%"); wins over [startSeconds]. */
+        /** mpv's --start as given ("754" or "42%"). */
         start: String? = null
     ): List<String>? {
         val target = playableTarget(stream) ?: return null
@@ -45,8 +45,7 @@ object ExternalPlayer {
             add(mpvPath)
             add("--force-window=immediate")
             add("--force-media-title=$title")
-            val from = start ?: startSeconds?.takeIf { it > 0 }?.toString()
-            if (from != null) add("--start=$from")
+            if (start != null) add("--start=$start")
             if (ipcSocket != null) add("--input-ipc-server=${ipcSocket.absolutePath}")
             addAll(options)
             stream.behaviorHints?.proxyHeaders?.request.orEmpty().forEach { (name, value) ->
@@ -72,7 +71,7 @@ object ExternalPlayer {
     ): Result {
         val mpv = findMpv()
         val socket = mpv?.let { newIpcSocket() }
-        val command = command(stream, title, mpv, startSeconds = null, ipcSocket = socket, options = options, start = start)
+        val command = command(stream, title, mpv, ipcSocket = socket, options = options, start = start)
             ?: return Result.Failed("This source has no playable link. Fetch plays direct and debrid links only.")
         return start(command, socket, captureOutput)
     }

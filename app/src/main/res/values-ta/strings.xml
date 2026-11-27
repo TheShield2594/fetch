@@ -842,7 +842,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">உங்கள் தொலைபேசியில் இருந்து அட்ஆன்களை நிறுவ அல்லது அகற்ற க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
     <string name="addon_manage_collections_from_phone_subtitle">உங்கள் தொலைபேசியில் இருந்து முகப்பு கோப்புறைகளை நிர்வகிக்க க்யூஆர் குறியீட்டை ஸ்கேன் செய்யவும்</string>
     <string name="addon_reorder_title">முகப்பு கேட்டலாக்களை மறுவரிசைப்படுத்து</string>
-    <string name="addon_reorder_subtitle">முகப்பில் கேட்டலாக் மற்றும் கோப்புறை வரிசைகளின் ஒழுங்கை கட்டுப்படுத்துகிறது (கிளாசிக் + மாடர்ன் + கிரிட்)</string>
+    <string name="addon_reorder_subtitle">முகப்பில் கேட்டலாக் மற்றும் கோப்புறை வரிசைகளின் ஒழுங்கை கட்டுப்படுத்துகிறது</string>
     <string name="addon_qr_scan_instruction">அட்ஆன்கள், கேட்டலாக்கள் மற்றும் முகப்பு கோப்புறைகளை நிர்வகிக்க உங்கள் தொலைபேசியில் ஸ்கேன் செய்யவும்</string>
     <string name="addon_qr_addons_only_scan_instruction">அட்ஆன்களை நிறுவ அல்லது அகற்ற உங்கள் தொலைபேசியில் ஸ்கேன் செய்யவும்</string>
     <string name="addon_qr_collections_scan_instruction">முகப்பு கோப்புறைகளை நிர்வகிக்க உங்கள் தொலைபேசியில் ஸ்கேன் செய்யவும்</string>
@@ -864,8 +864,6 @@
     <string name="addon_pending_collections_replace">%1$d கோப்புறை வரிசை(கள்) உங்கள் தற்போதைய முகப்பு கோப்புறைகளை மாற்றும்</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">முகப்பு பட்டியல்களை மறுவரிசைப்படுத்து</string>
-    <string name="catalog_order_subtitle">இது முகப்பில் பட்டியல் வரிசையை கட்டுப்படுத்தும் (கிளாசிக் + மாடர்ன் + கிரிட்).</string>
     <string name="catalog_order_follow_addons">ஆடான்கள் வரிசையைப் பின்பற்று</string>
     <string name="catalog_order_follow_addons_desc">பட்டியல்கள் ஆடான் மேனிபெஸ்ட் வரிசையைப் பின்பற்றும். கோப்புறை வரிசைகளை இன்னும் ஆடான்களுக்கு இடையில் நகர்த்தலாம்.</string>
     <string name="catalog_order_empty">இன்னும் முகப்பு பட்டியல்கள் எதுவும் கிடைக்கவில்லை.</string>
@@ -1279,7 +1277,6 @@
     <string name="search_no_results_filter_subtitle">வேறு வடிகட்டியை அல்லது அனைத்தும் என்பதை முயலவும்.</string>
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">கேட்டலாக் ஆட்ஒன்கள் எதுவும் நிறுவப்படவில்லை</string>
 
     <!-- Player errors -->
     <string name="player_error_no_stream_url">இந்த மூலத்தில் ஸ்ட்ரீம் இணைப்பு இல்லை. வேறு மூலத்தைத் தேர்ந்தெடுக்கவும்.</string>

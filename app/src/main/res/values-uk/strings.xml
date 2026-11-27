@@ -899,7 +899,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Відскануйте QR-код для встановлення або видалення адонів з телефону</string>
     <string name="addon_manage_collections_from_phone_subtitle">Відскануйте QR-код для керування папками головної з телефону</string>
     <string name="addon_reorder_title">Змінити порядок каталогів</string>
-    <string name="addon_reorder_subtitle">Керує порядком рядків каталогів та рядів папок на головному екрані (Класичний + Сучасний + Сітка)</string>
+    <string name="addon_reorder_subtitle">Керує порядком рядків каталогів та рядів папок на головному екрані</string>
     <string name="addon_qr_scan_instruction">Відскануйте з телефону для керування адонами, каталогами та папками головної</string>
     <string name="addon_qr_addons_only_scan_instruction">Відскануйте телефоном для встановлення або видалення адонів</string>
     <string name="addon_qr_collections_scan_instruction">Відскануйте телефоном для керування папками головної</string>
@@ -923,8 +923,6 @@
     <string name="addon_confirm_total_catalogs">Всього каталогів: %1$d</string>
     <string name="addon_catalogs_types">Каталоги: %1$d - Типи: %2$s</string>
 
-    <string name="catalog_order_title">Порядок каталогів на головному екрані</string>
-    <string name="catalog_order_subtitle">Це керує порядком рядків каталогів на Головному екрані (Класичний + Сучасний + Сітка).</string>
     <string name="catalog_order_follow_addons">Слідувати порядку адонів</string>
     <string name="catalog_order_follow_addons_desc">Каталоги слідують порядку маніфесту адона. Ряди папок все ще можна переміщати між адонами.</string>
     <string name="catalog_order_empty">Поки що немає каталогів для головного екрана.</string>
@@ -1332,7 +1330,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Немає встановлених адонів каталогів</string>
 
     <!-- Player errors -->
 

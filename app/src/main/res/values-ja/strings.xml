@@ -902,7 +902,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">QRコードをスキャンしてスマートフォンからアドオンをインストール・削除</string>
     <string name="addon_manage_collections_from_phone_subtitle">QRコードをスキャンしてスマートフォンからホームフォルダーを管理</string>
     <string name="addon_reorder_title">ホームカタログを並び替え</string>
-    <string name="addon_reorder_subtitle">ホームのカタログ行とフォルダー行の順序を制御（クラシック + モダン + グリッド）</string>
+    <string name="addon_reorder_subtitle">ホームのカタログ行とフォルダー行の順序を制御</string>
     <string name="addon_qr_scan_instruction">スマートフォンでスキャンしてアドオン、カタログ、ホームフォルダーを管理</string>
     <string name="addon_qr_addons_only_scan_instruction">スマートフォンでスキャンしてアドオンをインストール・削除</string>
     <string name="addon_qr_collections_scan_instruction">スマートフォンでスキャンしてホームフォルダーを管理</string>
@@ -926,8 +926,6 @@
     <string name="addon_confirm_total_catalogs">カタログの合計: %1$d</string>
     <string name="addon_catalogs_types">カタログ: %1$d - タイプ: %2$s</string>
 
-    <string name="catalog_order_title">ホームカタログを並び替え</string>
-    <string name="catalog_order_subtitle">ホームのカタログ行の順序を制御します（クラシック + モダン + グリッド）</string>
     <string name="catalog_order_follow_addons">アドオン順に従う</string>
     <string name="catalog_order_follow_addons_desc">カタログはアドオンマニフェストの順序に従います。フォルダー行はアドオン間で移動できます。</string>
     <string name="catalog_order_empty">ホームカタログはまだありません</string>
@@ -1335,7 +1333,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">カタログアドオンがインストールされていません</string>
 
     <!-- Player errors -->
 

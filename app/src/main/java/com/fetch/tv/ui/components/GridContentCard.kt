@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,8 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -66,6 +63,7 @@ import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.fetch.tv.ui.util.isSelectKey
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -75,7 +73,6 @@ fun GridContentCard(
     modifier: Modifier = Modifier,
     posterCardStyle: PosterCardStyle = PosterCardDefaults.Style,
     showLabel: Boolean = true,
-    showLogo: Boolean = false,
     imageCrossfade: Boolean = true,
     isWatched: Boolean = false,
     focusRequester: FocusRequester? = null,
@@ -341,38 +338,6 @@ fun GridContentCard(
                             .fillMaxWidth(0.62f)
                             .padding(start = FetchTheme.spacing.sm, end = FetchTheme.spacing.sm, bottom = FetchTheme.spacing.md)
                     )
-                } else if (showLogo && !item.logo.isNullOrBlank()) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(cardHeight * 0.45f)
-                            .graphicsLayer {
-                                compositingStrategy = CompositingStrategy.Offscreen
-                            }
-                            .drawWithCache {
-                                val gradient = Brush.verticalGradient(
-                                    listOf(Color.Transparent, Color.Black.copy(alpha = 0.75f))
-                                )
-                                onDrawBehind { drawRect(gradient) }
-                            }
-                    )
-                    val logoRequest = remember(item.logo) {
-                        ImageRequest.Builder(context)
-                            .data(item.logo)
-                            .crossfade(true)
-                            .build()
-                    }
-                    AsyncImage(
-                        model = logoRequest,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .heightIn(max = cardHeight * 0.35f)
-                            .padding(horizontal = FetchTheme.spacing.lg, vertical = 14.dp)
-                    )
                 }
 
                 if (selected == true) {
@@ -412,7 +377,7 @@ fun GridContentCard(
             }
         }
 
-        if (showLabel && (!showLogo || item.logo.isNullOrBlank())) {
+        if (showLabel) {
             FocusMarqueeText(
                 text = item.name,
                 focused = isFocused,
@@ -437,8 +402,3 @@ fun GridContentCard(
     }
 }
 
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
-}

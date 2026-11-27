@@ -1106,7 +1106,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">掃描 QR 碼以從手機安裝或移除擴充套件</string>
     <string name="addon_manage_collections_from_phone_subtitle">掃描 QR 碼以從手機管理首頁資料夾</string>
     <string name="addon_reorder_title">重新排序首頁目錄</string>
-    <string name="addon_reorder_subtitle">控制首頁上的目錄和資料夾列順序 (經典 + 現代 + 網格)</string>
+    <string name="addon_reorder_subtitle">控制首頁上的目錄和資料夾列順序</string>
     <string name="addon_qr_scan_instruction">用手機掃描以管理擴充套件、目錄和首頁資料夾</string>
     <string name="addon_qr_addons_only_scan_instruction">用手機掃描以安裝或移除擴充套件</string>
     <string name="addon_qr_collections_scan_instruction">用手機掃描以管理首頁資料夾</string>
@@ -1130,8 +1130,6 @@
     <string name="addon_confirm_total_catalogs">目錄總數：%1$d</string>
     <string name="addon_catalogs_types">目錄：%1$d - 類型：%2$s</string>
 
-    <string name="catalog_order_title">重新排序首頁目錄</string>
-    <string name="catalog_order_subtitle">這控制首頁上的目錄列順序 (經典 + 現代 + 網格)。</string>
     <string name="catalog_order_follow_addons">遵循擴充套件順序</string>
     <string name="catalog_order_follow_addons_desc">目錄遵循擴充套件清單順序。資料夾列仍可在擴充套件之間移動。</string>
     <string name="catalog_order_empty">尚無可用的首頁目錄。</string>
@@ -1596,7 +1594,6 @@
     <!-- 搜尋錯誤 -->
 
     <!-- 首頁錯誤 -->
-    <string name="home_error_no_catalog_addons">未安裝目錄擴充套件</string>
 
     <!-- 播放器錯誤 -->
 

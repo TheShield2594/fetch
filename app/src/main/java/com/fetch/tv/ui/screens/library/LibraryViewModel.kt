@@ -46,8 +46,8 @@ import kotlinx.coroutines.launch
 import com.fetch.tv.R
 import java.util.Locale
 import javax.inject.Inject
+import com.fetch.tv.ui.util.YEAR_REGEX
 
-private val YEAR_REGEX = Regex("""\b(19|20)\d{2}\b""")
 private const val INFO_MESSAGE_MILLIS = 2200L
 private const val ERROR_MESSAGE_MIN_MILLIS = 8000L
 private const val MAX_FILTER_PASSES = 3

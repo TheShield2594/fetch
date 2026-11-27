@@ -112,6 +112,7 @@ import com.fetch.tv.ui.util.localizeEpisodeTitle
 import com.fetch.tv.ui.util.rememberLongPressKeyTracker
 import com.fetch.tv.ui.theme.FetchContentColors
 import com.fetch.tv.ui.util.dpadRepeatThrottle
+import com.fetch.tv.ui.util.isSelectKey
 
 private const val EPISODE_CARD_CONTENT_TYPE = "episode_card"
 private const val EPISODE_RESTORE_FALLBACK_MS = 250L
@@ -1342,12 +1343,6 @@ private fun formatEpisodeCardDate(isoDate: String): String {
     val formatter = java.time.format.DateTimeFormatter.ofPattern(bestPattern, locale)
     val localDate = parseEpisodeReleaseLocalDate(isoDate) ?: return ""
     return formatter.format(localDate)
-}
-
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
 }
 
 private fun episodePendingKey(video: Video): String {

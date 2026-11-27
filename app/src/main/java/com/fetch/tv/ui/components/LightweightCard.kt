@@ -52,6 +52,7 @@ import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
 import com.fetch.tv.ui.theme.FetchMotion
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.util.isSelectKey
 
 /**
  * Drop-in replacement for tv-material `Card` as the home rows configure it: one [shape] and
@@ -126,7 +127,7 @@ fun LightweightCard(
                 }
                 .onKeyEvent { keyEvent ->
                     val native = keyEvent.nativeKeyEvent
-                    if (native.keyCode !in SELECT_KEY_CODES) return@onKeyEvent false
+                    if (!isSelectKey(native.keyCode)) return@onKeyEvent false
                     when (native.action) {
                         AndroidKeyEvent.ACTION_DOWN -> if (native.repeatCount == 0) {
                             coroutineScope.launch { interactionSource.emit(pressInteraction) }
@@ -207,12 +208,6 @@ private const val FOCUSED_Z_INDEX = 0.5f
 private const val NON_FOCUSED_Z_INDEX = 0f
 /** How far a card presses in while OK is held, relative to its focused size (#819). */
 private const val PRESSED_SCALE = 0.97f
-
-private val SELECT_KEY_CODES = intArrayOf(
-    AndroidKeyEvent.KEYCODE_DPAD_CENTER,
-    AndroidKeyEvent.KEYCODE_ENTER,
-    AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
-)
 
 // The shape a Border gets when none is passed; it means "use the card's shape".
 private val DefaultBorderShape = Border(Border.None.border).shape

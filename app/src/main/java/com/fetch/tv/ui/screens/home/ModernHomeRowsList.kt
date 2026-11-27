@@ -83,7 +83,7 @@ private const val VERTICAL_PREFETCH_MAX_ITEMS_PER_ROW = 7
 @Composable
 internal fun ModernHomeRowsList(
     isVerticalRowsScrollingState: State<Boolean>,
-    carouselRows: StableList<HeroCarouselRow>,
+    carouselRows: StableList<HomeRowModel>,
     verticalRowListState: LazyListState,
     /** Rows report focus here, and read the active row, the pending request and the expanded card. */
     focusController: HomeFocusController,
@@ -95,11 +95,10 @@ internal fun ModernHomeRowsList(
     catalogBottomPadding: Dp,
     trailerContentAlpha: () -> Float,
     verticalRowBringIntoViewSpec: BringIntoViewSpec,
-    onRowItemFocusedInternal: (String, Int, Boolean) -> Unit,
     onNavigateToDetail: (String, String, String) -> Unit,
     onNavigateToFolderDetail: (String, String) -> Unit,
     modifier: Modifier = Modifier,
-    onSeeAllRow: (HeroCarouselRow) -> Unit = {},
+    onSeeAllRow: (HomeRowModel) -> Unit = {},
     onYouTubeVideoClick: (com.fetch.tv.data.youtube.YouTubeVideo) -> Unit = {},
     onLoadMoreCatalog: (String, String, String) -> Unit,
     onContinueWatchingClick: (ContinueWatchingItem) -> Unit,
@@ -112,11 +111,8 @@ internal fun ModernHomeRowsList(
     onItemFocus: (MetaPreview) -> Unit,
     onPreloadAdjacentItem: (MetaPreview) -> Unit,
     enrichedPreviews: State<StableMap<String, MetaPreview>>,
-    trailerPreviewUrls: StableMap<String, String>,
-    trailerPreviewAudioUrls: StableMap<String, String>,
     useLandscapePosters: Boolean,
     alwaysShowLandscapeClearlogo: Boolean = false,
-    showLabels: Boolean,
     posterCardCornerRadius: Dp,
     focusedPosterBackdropTrailerMuted: Boolean,
     effectiveExpandEnabled: Boolean,
@@ -414,7 +410,6 @@ internal fun ModernHomeRowsList(
                             .firstOrNull { it.key == rowKey }
                             ?.let { index >= it.items.list.size } == true
                         focusController.onRowItemFocused(rowKey, index, isContinueWatchingRow, isSeeAll)
-                        onRowItemFocusedInternal(rowKey, index, isContinueWatchingRow)
                     }
                 }
                 val isActiveRowLambda = remember(row.key) {
@@ -441,7 +436,6 @@ internal fun ModernHomeRowsList(
                     onRowItemFocused = stableOnRowItemFocused,
                     useLandscapePosters = useLandscapePosters,
                     alwaysShowLandscapeClearlogo = alwaysShowLandscapeClearlogo,
-                    showLabels = showLabels,
                     posterCardCornerRadius = posterCardCornerRadius,
                     focusedPosterBackdropTrailerMuted = focusedPosterBackdropTrailerMuted,
                     effectiveExpandEnabled = effectiveExpandEnabled,

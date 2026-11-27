@@ -958,7 +958,7 @@
     <string name="mdblist_ratings_connected_account">בשימוש: החשבון המחובר</string>
     <string name="mdblist_ratings_key_override_subtitle">מפתח API עוקף את החשבון המחובר לצורך דירוגים. יש לנקות אותו כדי לחזור לשימוש בחשבון המחובר.</string>
     <string name="mdblist_show_on_hero_title">הצגת דירוגים בבאנר הראשי</string>
-    <string name="mdblist_show_on_hero_subtitle">הצגת דירוגי MDBList בקרוסלת הבאנר הראשי (מודרני וקלאסי/רשת)</string>
+    <string name="mdblist_show_on_hero_subtitle">הצגת דירוגי MDBList בקרוסלת הבאנר הראשי</string>
     <string name="mdblist_rating_order_subtitle">שלושת הדירוגים הראשונים הפעילים והזמינים מוצגים בבאנר הראשי המודרני. ניתן להשתמש בחצים לשינוי הסדר.</string>
     <string name="mdblist_dialog_title">מפתח API של MDBList</string>
     <string name="mdblist_dialog_placeholder">מפתח API של MDBList</string>
@@ -1205,7 +1205,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">יש לסרוק קוד QR כדי להתקין או להסיר תוספים מהטלפון</string>
     <string name="addon_manage_collections_from_phone_subtitle">יש לסרוק קוד QR כדי לנהל את תיקיות הבית מהטלפון</string>
     <string name="addon_reorder_title">סידור מחדש של קטלוגי הבית</string>
-    <string name="addon_reorder_subtitle">קביעת סדר שורות הקטלוג ושורות התיקיות בבית (קלאסי + מודרני + רשת)</string>
+    <string name="addon_reorder_subtitle">קביעת סדר שורות הקטלוג ושורות התיקיות בבית</string>
     <string name="addon_qr_scan_instruction">יש לסרוק עם הטלפון לניהול תוספים, קטלוגים ותיקיות הבית</string>
     <string name="addon_qr_addons_only_scan_instruction">יש לסרוק עם הטלפון כדי להתקין או להסיר תוספים</string>
     <string name="addon_qr_collections_scan_instruction">יש לסרוק עם הטלפון כדי לנהל את תיקיות הבית</string>
@@ -1229,8 +1229,6 @@
     <string name="addon_confirm_total_catalogs">סה״כ קטלוגים: %1$d</string>
     <string name="addon_catalogs_types">קטלוגים: %1$d - סוגים: %2$s</string>
 
-    <string name="catalog_order_title">סידור מחדש של קטלוגי הבית</string>
-    <string name="catalog_order_subtitle">קובע את סדר שורות הקטלוג בבית (קלאסי + מודרני + רשת).</string>
     <string name="catalog_order_follow_addons">לפי סדר התוספים</string>
     <string name="catalog_order_follow_addons_desc">הקטלוגים מסודרים לפי סדר המניפסט של התוסף. עדיין אפשר להזיז שורות תיקיות בין תוספים.</string>
     <string name="catalog_order_empty">אין קטלוגי בית זמינים עדיין.</string>
@@ -1697,7 +1695,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">אין תוספי קטלוג מותקנים.</string>
 
     <!-- Player errors -->
 

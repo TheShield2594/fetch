@@ -45,6 +45,7 @@ import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.library.SelectedCheckmark
 import com.fetch.tv.ui.screens.library.selectableButtonColors
 import com.fetch.tv.ui.theme.FetchTheme
+import com.fetch.tv.ui.util.isSelectKey
 
 /**
  * The account's playlists, Watch later first, each checked when it holds [videoTitle]'s video.
@@ -152,7 +153,7 @@ private fun YouTubeNewPlaylistDialog(
                 .onFocusChanged { if (!it.isFocused) editing = false }
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
-                    if (native.action == KeyEvent.ACTION_DOWN && native.keyCode.isSelectKey()) {
+                    if (native.action == KeyEvent.ACTION_DOWN && isSelectKey(native.keyCode)) {
                         editing = true
                         keyboardController?.show()
                     }
@@ -208,9 +209,6 @@ private fun YouTubeNewPlaylistDialog(
         )
     }
 }
-
-private fun Int.isSelectKey(): Boolean =
-    this == KeyEvent.KEYCODE_DPAD_CENTER || this == KeyEvent.KEYCODE_ENTER || this == KeyEvent.KEYCODE_NUMPAD_ENTER
 
 private fun YouTubePlaylistPrivacy.labelRes(): Int = when (this) {
     YouTubePlaylistPrivacy.PRIVATE -> R.string.youtube_privacy_private

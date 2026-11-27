@@ -847,7 +847,6 @@ class YouTubeViewModel @Inject constructor(
         if (watched) markFeedsStaleAfterWatching()
     }
 
-    /** Plays [next] from the end card, keeping the finished video's progress on its card. */
     /** Rates the playing video. Shown at once, and undone if YouTube refuses. */
     fun rate(status: YouTubeLikeStatus) {
         val playback = _uiState.value.playback ?: return

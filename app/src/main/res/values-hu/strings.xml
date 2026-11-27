@@ -931,7 +931,7 @@
     <string name="mdblist_ratings_connected_account">Csatlakoztatott fiók használata</string>
     <string name="mdblist_ratings_key_override_subtitle">Az értékelések lekéréséhez a megadott API-kulcsot használja a csatlakoztatott fiók helyett. Töröld a kulcsot, ha ismét a fiókot szeretnéd használni.</string>
     <string name="mdblist_show_on_hero_title">MDBList-értékelések megjelenítése a kiemelt tartalmaknál</string>
-    <string name="mdblist_show_on_hero_subtitle">MDBList-értékelések megjelenítése a kiemelt tartalmak modern és klasszikus/rácsos nézetében</string>
+    <string name="mdblist_show_on_hero_subtitle">MDBList-értékelések megjelenítése a kiemelt tartalmakban</string>
     <string name="mdblist_rating_order_subtitle">Az első három engedélyezett és elérhető értékelés jelenik meg a modern kiemelt nézetben. A nyilakkal módosíthatod a sorrendet.</string>
     <string name="mdblist_dialog_title">MDBList API-kulcs</string>
     <string name="mdblist_dialog_placeholder">MDBList API-kulcs megadása</string>
@@ -1181,7 +1181,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Olvasd be a QR-kódot bővítmények telepítéséhez vagy eltávolításához a telefonodról</string>
     <string name="addon_manage_collections_from_phone_subtitle">Szkenneld be a QR-kódot a kezdőlapi mappák telefonról történő kezeléséhez</string>
     <string name="addon_reorder_title">Kezdőlap katalógusainak sorrendje</string>
-    <string name="addon_reorder_subtitle">A katalógusok és mappasorok sorrendje a kezdőlapon (Klasszikus + Modern + Rács)</string>
+    <string name="addon_reorder_subtitle">A katalógusok és mappasorok sorrendje a kezdőlapon</string>
     <string name="addon_qr_scan_instruction">Olvasd be a telefonoddal a bővítmények, katalógusok és kezdőlapi mappák kezeléséhez</string>
     <string name="addon_qr_addons_only_scan_instruction">Olvasd be a telefonoddal bővítmények telepítéséhez vagy eltávolításához</string>
     <string name="addon_qr_collections_scan_instruction">Szkenneld be telefonoddal a kezdőlapi mappák kezeléséhez</string>
@@ -1205,8 +1205,6 @@
     <string name="addon_confirm_total_catalogs">Összes katalógus: %1$d</string>
     <string name="addon_catalogs_types">Katalógusok: %1$d – Típusok: %2$s</string>
 
-    <string name="catalog_order_title">A kezdőlap katalógusainak sorrendje</string>
-    <string name="catalog_order_subtitle">A kezdőlap katalógusainak sorrendjét módosítja (Klasszikus + Modern + Rács).</string>
     <string name="catalog_order_follow_addons">Bővítmények sorrendjének követése</string>
     <string name="catalog_order_follow_addons_desc">A katalógusok a bővítmények leírófájljában megadott sorrendet követik. A mappasorok továbbra is mozgathatók a bővítmények közé.</string>
     <string name="catalog_order_empty">Még nincsenek elérhető katalógusok.</string>
@@ -1673,7 +1671,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Nincsenek telepített katalógusbővítmények</string>
 
     <!-- Player errors -->
 

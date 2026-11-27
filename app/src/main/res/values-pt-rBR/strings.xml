@@ -1077,7 +1077,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Leia o código QR para gerenciar addons pelo celular</string>
     <string name="addon_manage_collections_from_phone_subtitle">Escaneie um QR para gerenciar as pastas do Início pelo celular</string>
     <string name="addon_reorder_title">Reordenar Home</string>
-    <string name="addon_reorder_subtitle">Controla a ordem das linhas de catálogos e de pastas no Início (Clássico + Moderno + Grade)</string>
+    <string name="addon_reorder_subtitle">Controla a ordem das linhas de catálogos e de pastas no Início</string>
     <string name="addon_qr_scan_instruction">Escaneie com seu celular para gerenciar addons, catálogos e pastas do Início</string>
     <string name="addon_qr_addons_only_scan_instruction">Leia com o celular para gerenciar Addons</string>
     <string name="addon_qr_collections_scan_instruction">Escaneie com seu celular para gerenciar as pastas do Início</string>
@@ -1101,8 +1101,6 @@
     <string name="addon_confirm_total_catalogs">Total de catálogoss: %1$d</string>
     <string name="addon_catalogs_types">Catálogos: %1$d - Tipos: %2$s</string>
 
-    <string name="catalog_order_title">Reordenar Catálogos</string>
-    <string name="catalog_order_subtitle">Defina a ordem dos conteúdos na tela inicial.</string>
     <string name="catalog_order_follow_addons">Seguir ordem das Addons</string>
     <string name="catalog_order_follow_addons_desc">Catálogos seguirão a mesma ordem dos addons instalados. As linhas de pastas ainda podem ser movidas entre addons.</string>
     <string name="catalog_order_empty">Nenhum catálogo disponível no momento.</string>
@@ -1566,7 +1564,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Nenhum addon de catálogo instalado</string>
 
     <!-- Player errors -->
     

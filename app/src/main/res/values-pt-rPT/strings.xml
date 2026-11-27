@@ -889,7 +889,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Lê um código QR para instalar ou remover addons a partir do teu telemóvel</string>
     <string name="addon_manage_collections_from_phone_subtitle">Lê um código QR para gerir as pastas do Início a partir do teu telemóvel</string>
     <string name="addon_reorder_title">Reordenar catálogos iniciais</string>
-    <string name="addon_reorder_subtitle">Controla a ordem das linhas de catálogos e de pastas na página inicial (clássica, moderna e grelha)</string>
+    <string name="addon_reorder_subtitle">Controla a ordem das linhas de catálogos e de pastas na página inicial</string>
     <string name="addon_qr_scan_instruction">Lê o código QR com o teu telemóvel para gerir addons, catálogos e pastas do Início</string>
     <string name="addon_qr_addons_only_scan_instruction">Lê o código QR com o teu telemóvel para instalar ou remover addons</string>
     <string name="addon_qr_collections_scan_instruction">Lê o código QR com o teu telemóvel para gerir as pastas do Início</string>
@@ -912,8 +912,6 @@
     <string name="addon_confirm_total_addons">Total de addons: %1$d</string>
     <string name="addon_confirm_total_catalogs">Total de catálogos: %1$d</string>
     <string name="addon_catalogs_types">Catálogos: %1$d - Tipos: %2$s</string>
-    <string name="catalog_order_title">Reordenar catálogos da página inicial</string>
-    <string name="catalog_order_subtitle">Controla a ordem das linhas de catálogos na página inicial (clássica, moderna e grelha).</string>
     <string name="catalog_order_follow_addons">Seguir ordem dos addons</string>
     <string name="catalog_order_follow_addons_desc">Os catálogos seguem a ordem do manifesto do addon. As linhas de pastas ainda podem ser movidas entre addons.</string>
     <string name="catalog_order_empty">Nenhum catálogo inicial disponível ainda.</string>
@@ -1276,7 +1274,6 @@
     <!-- Account errors -->
     <!-- Search errors -->
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Nenhum addon de catálogo instalado</string>
     <!-- Player errors -->
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Suporte HDR com renderização em canvas. Pode bloquear a thread da interface (UI).</string>

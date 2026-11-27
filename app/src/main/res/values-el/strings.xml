@@ -847,7 +847,7 @@
   <string name="mdblist_ratings_connected_account">Χρήση συνδεδεμένου λογαριασμού</string>
   <string name="mdblist_ratings_key_override_subtitle">Ένα κλειδί API υπερισχύει του συνδεδεμένου λογαριασμού για τις βαθμολογίες. Καθαρίστε το για να χρησιμοποιηθεί ξανά ο συνδεδεμένος λογαριασμός.</string>
   <string name="mdblist_show_on_hero_title">Χρήση βαθμολογιών στην ηρωική ενότητα</string>
-  <string name="mdblist_show_on_hero_subtitle">Εμφάνιση βαθμολογιών MDBList στο καρουζέλ της ηρωικής ενότητας (μοντέρνα και κλασική προβολή/πλέγμα)</string>
+  <string name="mdblist_show_on_hero_subtitle">Εμφάνιση βαθμολογιών MDBList στο καρουζέλ της ηρωικής ενότητας</string>
   <string name="mdblist_rating_order_subtitle">Οι πρώτες 3 ενεργοποιημένες και διαθέσιμες βαθμολογίες εμφανίζονται στη μοντέρνα ηρωική ενότητα. Χρησιμοποιήστε τα βέλη για αναδιάταξη.</string>
   <string name="mdblist_dialog_title">Κλειδί API MDBList</string>
   <string name="mdblist_dialog_placeholder">Εισάγετε κλειδί API MDBList</string>
@@ -1119,7 +1119,7 @@
   <string name="addon_manage_addons_only_from_phone_subtitle">Σαρώστε QR code για εγκατάσταση ή αφαίρεση πρόσθετων από το κινητό σας</string>
   <string name="addon_manage_collections_from_phone_subtitle">Σαρώστε QR code για διαχείριση φακέλων αρχικής από το κινητό σας</string>
   <string name="addon_reorder_title">Αναδιάταξη καταλόγων αρχικής οθόνης</string>
-  <string name="addon_reorder_subtitle">Ελέγχει τη σειρά των γραμμών καταλόγων και των γραμμών φακέλων στην Αρχική (Classic + Modern + Grid)</string>
+  <string name="addon_reorder_subtitle">Ελέγχει τη σειρά των γραμμών καταλόγων και των γραμμών φακέλων στην Αρχική</string>
   <string name="addon_qr_scan_instruction">Σαρώστε με το κινητό σας για διαχείριση πρόσθετων, καταλόγων και φακέλων αρχικής</string>
   <string name="addon_qr_addons_only_scan_instruction">Σαρώστε με το κινητό σας για εγκατάσταση ή αφαίρεση πρόσθετων</string>
   <string name="addon_qr_collections_scan_instruction">Σαρώστε με το κινητό σας για διαχείριση φακέλων αρχικής</string>
@@ -1141,8 +1141,6 @@
   <string name="addon_pending_collections_updated">Οι φάκελοι αρχικής ενημερώθηκαν</string>
   <string name="addon_pending_collections_replace">%1$d γραμμές φακέλων θα αντικαταστήσουν τους τρέχοντες φακέλους αρχικής</string>
   <!-- CatalogOrderScreen -->
-  <string name="catalog_order_title">Αναδιάταξη καταλόγων αρχικής οθόνης</string>
-  <string name="catalog_order_subtitle">Ελέγχει τη σειρά των γραμμών καταλόγων στην Αρχική (Classic + Modern + Grid).</string>
   <string name="catalog_order_follow_addons">Ακολουθεί τη σειρά πρόσθετων</string>
   <string name="catalog_order_follow_addons_desc">Οι κατάλογοι ακολουθούν τη σειρά manifest των πρόσθετων. Οι γραμμές φακέλων μπορούν ακόμη να μετακινηθούν μεταξύ πρόσθετων.</string>
   <string name="catalog_order_empty">Δεν υπάρχουν ακόμα διαθέσιμοι κατάλογοι αρχικής οθόνης.</string>
@@ -1576,7 +1574,6 @@
     <string name="search_no_results_filter_title">Τίποτα δεν ταιριάζει με αυτό το φίλτρο</string>
     <string name="search_no_results_filter_subtitle">Δοκιμάστε άλλο φίλτρο ή Όλα.</string>
   <!-- Home errors -->
-  <string name="home_error_no_catalog_addons">Δεν υπάρχουν εγκατεστημένα πρόσθετα καταλόγου</string>
   <!-- Player errors -->
   <string name="player_error_no_stream_url">Αυτή η πηγή δεν έχει σύνδεσμο ροής. Επιλέξτε άλλη πηγή.</string>
   <!-- Playback subtitle settings -->

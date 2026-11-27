@@ -930,7 +930,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Skano një kod QR për të instaluar ose hequr shtesa nga telefoni</string>
     <string name="addon_manage_collections_from_phone_subtitle">Skano një kod QR për të menaxhuar dosjet e Faqes kryesore nga telefoni</string>
     <string name="addon_reorder_title">Riorganizo katalogët e faqes kryesore</string>
-    <string name="addon_reorder_subtitle">Kontrollon renditjen e katalogëve dhe të rreshtave të dosjeve në Faqen kryesore (Klasike + Moderne + Rrjetë)</string>
+    <string name="addon_reorder_subtitle">Kontrollon renditjen e katalogëve dhe të rreshtave të dosjeve në Faqen kryesore</string>
     <string name="addon_qr_scan_instruction">Skano me telefonin tënd për të menaxhuar shtesat, katalogët dhe dosjet e Faqes kryesore</string>
     <string name="addon_qr_addons_only_scan_instruction">Skano me telefonin tënd për të instaluar ose hequr shtesa</string>
     <string name="addon_qr_collections_scan_instruction">Skano me telefonin tënd për të menaxhuar dosjet e Faqes kryesore</string>
@@ -953,8 +953,6 @@
     <string name="addon_confirm_total_addons">Shtesa gjithsej: %1$d</string>
     <string name="addon_confirm_total_catalogs">Katalogë gjithsej: %1$d</string>
     <string name="addon_catalogs_types">Katalogë: %1$d - Lloje: %2$s</string>
-    <string name="catalog_order_title">Riorganizo katalogët e Faqes kryesore</string>
-    <string name="catalog_order_subtitle">Kjo kontrollon renditjen e rreshtave të katalogëve në Faqen kryesore (Klasike + Moderne + Rrjetë).</string>
     <string name="catalog_order_follow_addons">Ndiq renditjen e shtesave</string>
     <string name="catalog_order_follow_addons_desc">Katalogët ndjekin renditjen e manifestit të shtesës. Rreshtat e dosjeve mund të zhvendosen ende midis shtesave.</string>
     <string name="catalog_order_empty">Ende nuk ka katalogë të faqes kryesore.</string>
@@ -1339,7 +1337,6 @@
     <!-- Account errors -->
     <!-- Search errors -->
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Nuk ka shtesa katalogu të instaluara</string>
     <!-- Player errors -->
     <!-- Playback subtitle settings -->
     <string name="sub_mode_overlay_canvas_sub">Mbështetje HDR me renderim Canvas. Mund të bllokojë thread-in e ndërfaqes.</string>

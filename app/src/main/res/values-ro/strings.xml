@@ -401,7 +401,7 @@
     <string name="addon_manage_from_phone_title">Gestionează de pe telefon</string>
     <string name="addon_manage_from_phone_subtitle">Scanează un cod QR pentru a gestiona de pe telefon complementele, cataloagele și dosarele Acasă</string>
     <string name="addon_reorder_title">Rearanjează cataloagele Home</string>
-    <string name="addon_reorder_subtitle">Controlează ordinea rândurilor de catalog și a rândurilor de dosare pe Acasă (Clasic + Modern + Grilă)</string>
+    <string name="addon_reorder_subtitle">Controlează ordinea rândurilor de catalog și a rândurilor de dosare pe Acasă</string>
     <string name="addon_qr_scan_instruction">Scanează cu telefonul pentru a gestiona complementele, cataloagele și dosarele Acasă</string>
     <string name="addon_qr_close">Închide</string>
     <string name="addon_confirm_title">Confirmă modificările de complement și catalog</string>
@@ -416,8 +416,6 @@
     <string name="addon_confirm_confirm">Aplică modificările</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">Rearanjează cataloagele de pe Acasă</string>
-    <string name="catalog_order_subtitle">Controlează ordinea rândurilor de catalog pe Acasă (Clasic + Modern + Grilă).</string>
     <string name="catalog_order_empty">Încă nu există cataloage pe Acasă.</string>
     <string name="catalog_order_disabled_on_home">Dezactivat pe Acasă</string>
     <string name="catalog_order_enable">Activează</string>

@@ -77,6 +77,7 @@ import com.fetch.tv.R
 import com.fetch.tv.core.build.AppFeaturePolicy
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import com.fetch.tv.ui.util.YEAR_REGEX
 
 private const val TAG = "MetaDetailsViewModel"
 
@@ -2966,7 +2967,7 @@ class MetaDetailsViewModel @Inject constructor(
 
             val year = meta.releaseInfo?.let { info ->
                 if (info.isBlank()) null
-                else Regex("""\b(19|20)\d{2}\b""").find(info)?.value
+                else YEAR_REGEX.find(info)?.value
             }
 
             val tmdbId = try {
@@ -3173,7 +3174,7 @@ class MetaDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val meta = _uiState.value.meta
             val year = meta?.releaseInfo?.let { info ->
-                if (info.isBlank()) null else Regex("""\b(19|20)\d{2}\b""").find(info)?.value
+                if (info.isBlank()) null else YEAR_REGEX.find(info)?.value
             }
             val source = trailerService.getTrailerPlaybackSourceFromYouTubeUrl(
                 youtubeUrl = "https://www.youtube.com/watch?v=$ytId",

@@ -2,8 +2,6 @@ package com.fetch.tv.ui.components
 
 import com.fetch.tv.ui.theme.FetchMotion
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
@@ -37,7 +35,6 @@ import com.fetch.tv.core.player.LetterboxDetector
 import com.fetch.tv.core.player.LetterboxSampler
 import com.fetch.tv.core.player.LetterboxTracker
 import com.fetch.tv.core.player.LocalTrailerPlayerPool
-import com.fetch.tv.core.player.TrailerPlayerPool
 import com.fetch.tv.data.trailer.YoutubeChunkedDataSourceFactory
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
@@ -69,19 +66,15 @@ fun TrailerPlayer(
      */
     startPositionMs: Long = 0L,
     onProgressChanged: (positionMs: Long, durationMs: Long) -> Unit = { _, _ -> },
-    onRemoteKey: (keyCode: Int, action: Int, repeatCount: Int) -> Boolean = { _, _, _ -> false },
     cropToFill: Boolean = false,
     overscanZoom: Float = 1f,
     autoCropLetterbox: Boolean = false,
-    enter: EnterTransition = fadeIn(animationSpec = FetchMotion.enterTween()),
-    exit: ExitTransition = fadeOut(animationSpec = FetchMotion.exitTween()),
     /**
      * Fade the video in over [FetchMotion] `medium` once its first frame renders. Callers that
      * keep an opaque cover image above the player pass false, so the video is fully opaque
      * underneath before their cover fades away.
      */
-    firstFrameFadeIn: Boolean = true,
-    trailerPlayerPool: TrailerPlayerPool? = null
+    firstFrameFadeIn: Boolean = true
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -95,7 +88,6 @@ fun TrailerPlayer(
     val currentOnFirstFrameRendered by rememberUpdatedState(onFirstFrameRendered)
     val currentOnError by rememberUpdatedState(onError)
     val currentOnProgressChanged by rememberUpdatedState(onProgressChanged)
-    val currentOnRemoteKey by rememberUpdatedState(onRemoteKey)
     val zoomScale = if (cropToFill) overscanZoom.coerceAtLeast(1f) else 1f
     var hasRenderedFirstFrame by remember(trailerUrl) { mutableStateOf(false) }
     val playerAlphaState = animateFloatAsState(
@@ -115,8 +107,7 @@ fun TrailerPlayer(
         label = "trailerLetterboxZoom"
     )
 
-    // Resolve pool: explicit parameter > CompositionLocal
-    val resolvedPool = trailerPlayerPool ?: LocalTrailerPlayerPool.current
+    val resolvedPool = LocalTrailerPlayerPool.current
 
     // Use the shared pool instance instead of creating a new ExoPlayer per focus.
     // The pool keeps one ExoPlayer alive across poster focus changes, eliminating
@@ -206,15 +197,6 @@ fun TrailerPlayer(
                 player.stop()
                 player.clearMediaItems()
             }
-        }
-    }
-
-    LaunchedEffect(trailerPlayer, cropToFill) {
-        val player = trailerPlayer ?: return@LaunchedEffect
-        player.videoScalingMode = if (cropToFill) {
-            C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-        } else {
-            C.VIDEO_SCALING_MODE_SCALE_TO_FIT
         }
     }
 
@@ -356,8 +338,8 @@ fun TrailerPlayer(
     if (trailerPlayer != null) {
         AnimatedVisibility(
             visible = isPlaying,
-            enter = enter,
-            exit = exit
+            enter = fadeIn(animationSpec = FetchMotion.enterTween()),
+            exit = fadeOut(animationSpec = FetchMotion.exitTween())
         ) {
             AndroidView(
                 factory = { ctx ->
@@ -366,9 +348,6 @@ fun TrailerPlayer(
                         player = trailerPlayer
                         isFocusable = false
                         isFocusableInTouchMode = false
-                        setOnKeyListener { _, keyCode, event ->
-                            currentOnRemoteKey(keyCode, event.action, event.repeatCount)
-                        }
                         keepScreenOn = trailerPlayer.isPlaying
                         resizeMode = if (cropToFill) {
                             AspectRatioFrameLayout.RESIZE_MODE_ZOOM

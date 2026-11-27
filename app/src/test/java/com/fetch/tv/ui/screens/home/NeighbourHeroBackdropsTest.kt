@@ -117,7 +117,7 @@ class NeighbourHeroBackdropsTest {
         )
     }
 
-    private fun row(key: String, vararg ids: String) = HeroCarouselRow(
+    private fun row(key: String, vararg ids: String) = HomeRowModel(
         key = key,
         title = key,
         globalRowIndex = 0,

@@ -2,8 +2,6 @@ package com.fetch.desktop
 
 import com.fetch.desktop.data.AutoPlayMode
 import com.fetch.desktop.data.DesktopDefaults
-import com.fetch.desktop.skip.Segment
-import com.fetch.desktop.skip.SegmentType
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.domain.model.ContentType
 import com.fetch.tv.domain.model.MetaPreview
@@ -150,14 +148,5 @@ class ParityRoundTest {
         assertEquals(".tar.gz", kind("dpkg", home = "/home/me/fetch/lib/runtime"))
         val arch = release("v1.3.1").copy(assets = listOf(UpdateChecker.Asset("fetch-v1.3.1-linux-x86_64.pkg.tar.zst", "https://dl/arch")))
         assertEquals("https://dl/arch", UpdateChecker.pick(listOf(arch), "1.3.0", beta = false, kind = ".pkg.tar.zst")!!.packageUrl)
-    }
-
-    @Test
-    fun `the Up Next card shows near the end, or from the credits`() {
-        val credits = listOf(Segment(SegmentType.OUTRO, 2_500.0, 2_640.0))
-        assertNull(upNextCountdown(credits, position = 1_000.0, duration = 2_700.0, promptSeconds = 30))
-        assertEquals(200, upNextCountdown(credits, position = 2_500.0, duration = 2_700.0, promptSeconds = 30))
-        assertEquals(20, upNextCountdown(emptyList(), 2_680.0, 2_700.0, 30))
-        assertNull("unknown length", upNextCountdown(emptyList(), 10.0, 0.0, 30))
     }
 }

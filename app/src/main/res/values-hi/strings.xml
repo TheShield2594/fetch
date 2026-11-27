@@ -502,7 +502,7 @@
     <string name="addon_manage_from_phone_title">फोन से मैनेज करें</string>
     <string name="addon_manage_from_phone_subtitle">अपने फोन से ऐडऑन, कैटलॉग और होम फ़ोल्डर मैनेज करने के लिए QR कोड स्कैन करें</string>
     <string name="addon_reorder_title">होम कैटलॉग क्रम बदलें</string>
-    <string name="addon_reorder_subtitle">होम पर कैटलॉग रो और फ़ोल्डर रो का क्रम नियंत्रित करता है (Classic + Modern + Grid)</string>
+    <string name="addon_reorder_subtitle">होम पर कैटलॉग रो और फ़ोल्डर रो का क्रम नियंत्रित करता है</string>
     <string name="addon_qr_scan_instruction">ऐडऑन, कैटलॉग और होम फ़ोल्डर मैनेज करने के लिए अपने फोन से स्कैन करें</string>
     <string name="addon_qr_close">बंद करें</string>
     <string name="addon_confirm_title">ऐडऑन और कैटलॉग बदलाव की पुष्टि करें</string>
@@ -517,8 +517,6 @@
     <string name="addon_confirm_confirm">बदलाव लागू करें</string>
 
     <!-- CatalogOrderScreen -->
-    <string name="catalog_order_title">होम कैटलॉग क्रम बदलें</string>
-    <string name="catalog_order_subtitle">यह होम पर कैटलॉग रो का क्रम नियंत्रित करता है (Classic + Modern + Grid)।</string>
     <string name="catalog_order_empty">अभी कोई होम कैटलॉग उपलब्ध नहीं है।</string>
     <string name="catalog_order_disabled_on_home">होम पर अक्षम</string>
     <string name="catalog_order_enable">सक्षम करें</string>

@@ -40,6 +40,7 @@ import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.ui.screens.ambient.AmbientDialogEffect
+import com.fetch.tv.ui.util.isSelectKey
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -141,8 +142,3 @@ fun FetchDialog(
     }
 }
 
-private fun isSelectKey(keyCode: Int): Boolean {
-    return keyCode == AndroidKeyEvent.KEYCODE_DPAD_CENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_ENTER ||
-        keyCode == AndroidKeyEvent.KEYCODE_NUMPAD_ENTER
-}

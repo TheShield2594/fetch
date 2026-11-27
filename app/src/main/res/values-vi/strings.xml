@@ -936,7 +936,7 @@
     <string name="mdblist_ratings_connected_account">Đang sử dụng tài khoản đã kết nối</string>
     <string name="mdblist_ratings_key_override_subtitle">Mã khóa API sẽ thay thế tài khoản đã kết nối khi đánh giá. Xóa mã này để sử dụng lại tài khoản đã kết nối.</string>
     <string name="mdblist_show_on_hero_title">Sử dụng điểm đánh giá trên Khu vực nổi bật</string>
-    <string name="mdblist_show_on_hero_subtitle">Hiển thị điểm đánh giá MDBList trên vòng quay khu vực nổi bật (hiện đại và cổ điển/lưới)</string>
+    <string name="mdblist_show_on_hero_subtitle">Hiển thị điểm đánh giá MDBList trên vòng quay khu vực nổi bật</string>
     <string name="mdblist_rating_order_subtitle">Chọn 3 điểm đánh giá được bật và có sẵn đầu tiên sẽ hiển thị trên khu vực nổi bật hiện đại. Dùng mũi tên để sắp xếp lại.</string>
     <string name="mdblist_dialog_title">Mã khóa API của MDBList</string>
     <string name="mdblist_dialog_placeholder">Nhập mã khóa API của MDBList</string>
@@ -1186,7 +1186,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Quét mã QR để cài đặt hoặc gỡ bỏ tiện ích từ điện thoại</string>
     <string name="addon_manage_collections_from_phone_subtitle">Quét mã QR để quản lý Thư mục Trang chủ từ điện thoại</string>
     <string name="addon_reorder_title">Sắp xếp lại danh mục trang chủ</string>
-    <string name="addon_reorder_subtitle">Kiểm soát thứ tự hàng danh mục và hàng thư mục trên Trang chủ (Cổ điển + Hiện đại + Lưới)</string>
+    <string name="addon_reorder_subtitle">Kiểm soát thứ tự hàng danh mục và hàng thư mục trên Trang chủ</string>
     <string name="addon_qr_scan_instruction">Quét bằng điện thoại để quản lý tiện ích, danh mục và Thư mục Trang chủ</string>
     <string name="addon_qr_addons_only_scan_instruction">Quét bằng điện thoại để cài đặt hoặc gỡ bỏ tiện ích</string>
     <string name="addon_qr_collections_scan_instruction">Quét bằng điện thoại để quản lý Thư mục Trang chủ</string>
@@ -1210,8 +1210,6 @@
     <string name="addon_confirm_total_catalogs">Tổng danh mục: %1$d</string>
     <string name="addon_catalogs_types">Danh mục: %1$d - Loại: %2$s</string>
 
-    <string name="catalog_order_title">Sắp xếp lại danh mục Trang chủ</string>
-    <string name="catalog_order_subtitle">Kiểm soát thứ tự hàng danh mục trên Trang chủ (Cổ điển + Hiện đại + Lưới).</string>
     <string name="catalog_order_follow_addons">Theo thứ tự của các tiện ích</string>
     <string name="catalog_order_follow_addons_desc">Danh mục tuân theo thứ tự tệp kê khai của tiện ích. Hàng thư mục vẫn có thể di chuyển được giữa các tiện ích.</string>
     <string name="catalog_order_empty">Chưa có danh mục Trang chủ nào.</string>
@@ -1678,7 +1676,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Không có tiện ích danh mục đã cài đặt</string>
 
     <!-- Player errors -->
 

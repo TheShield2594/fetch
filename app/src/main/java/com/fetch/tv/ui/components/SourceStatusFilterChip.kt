@@ -174,7 +174,12 @@ fun SourceStatusFilterChip(
     ) {
         Text(
             text = sourceChipLabel(name, status),
-            modifier = Modifier.shimmer(isLoading),
+            // A faint sweep behind the label while the source is still answering.
+            modifier = if (isLoading) {
+                Modifier.placeholderCardShimmer(rememberPlaceholderShimmerOffsetState(label = "sourceChipShimmer"))
+            } else {
+                Modifier
+            },
             style = MaterialTheme.typography.labelLarge.copy(
                 textDirection = name.contentTextDirection()
             ),

@@ -957,7 +957,7 @@
     <string name="mdblist_ratings_connected_account">Utilisation du compte connecté</string>
     <string name="mdblist_ratings_key_override_subtitle">Une clé API prévaut sur votre compte connecté pour les notes. Effacez-la pour utiliser de nouveau le compte connecté.</string>
     <string name="mdblist_show_on_hero_title">Utiliser les notes dans le hero</string>
-    <string name="mdblist_show_on_hero_subtitle">Afficher les notes MDBList dans le carrousel hero (moderne et classique/grille)</string>
+    <string name="mdblist_show_on_hero_subtitle">Afficher les notes MDBList dans le carrousel hero</string>
     <string name="mdblist_rating_order_subtitle">Les 3 premières notes activées et disponibles sont affichées dans le hero moderne. Utilisez les flèches pour les réorganiser.</string>
     <string name="mdblist_dialog_title">Clé API MDBList</string>
     <string name="mdblist_dialog_placeholder">Saisir la clé API MDBList</string>
@@ -1207,7 +1207,7 @@
     <string name="addon_manage_addons_only_from_phone_subtitle">Scannez un code QR pour installer ou supprimer des addons depuis votre téléphone</string>
     <string name="addon_manage_collections_from_phone_subtitle">Scannez un code QR pour gérer les dossiers de l’accueil depuis votre téléphone</string>
     <string name="addon_reorder_title">Réorganiser les catalogues de l’accueil</string>
-    <string name="addon_reorder_subtitle">Contrôle l’ordre des rangées de catalogues et des rangées de dossiers de l’accueil (classique, moderne et grille)</string>
+    <string name="addon_reorder_subtitle">Contrôle l’ordre des rangées de catalogues et des rangées de dossiers de l’accueil</string>
     <string name="addon_qr_scan_instruction">Scannez avec votre téléphone pour gérer les addons, les catalogues et les dossiers de l’accueil</string>
     <string name="addon_qr_addons_only_scan_instruction">Scannez avec votre téléphone pour installer ou supprimer des addons</string>
     <string name="addon_qr_collections_scan_instruction">Scannez avec votre téléphone pour gérer les dossiers de l’accueil</string>
@@ -1231,8 +1231,6 @@
     <string name="addon_confirm_total_catalogs">Total des catalogues&#160;: %1$d</string>
     <string name="addon_catalogs_types">Catalogues&#160;: %1$d – Types&#160;: %2$s</string>
 
-    <string name="catalog_order_title">Réorganiser les catalogues de l’accueil</string>
-    <string name="catalog_order_subtitle">Contrôle l’ordre des rangées de catalogues de l’accueil (classique, moderne et grille).</string>
     <string name="catalog_order_follow_addons">Suivre l’ordre des addons</string>
     <string name="catalog_order_follow_addons_desc">Les catalogues suivent l’ordre du manifeste des addons. Les rangées de dossiers peuvent toujours être déplacées entre les addons.</string>
     <string name="catalog_order_empty">Aucun catalogue d’accueil disponible pour le moment.</string>
@@ -1699,7 +1697,6 @@
     <!-- Search errors -->
 
     <!-- Home errors -->
-    <string name="home_error_no_catalog_addons">Aucun addon de catalogue installé</string>
 
     <!-- Player errors -->
 

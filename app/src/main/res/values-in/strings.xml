@@ -656,6 +656,17 @@
     <string name="layout_autoplay_trailer">Putar Otomatis Trailer</string>
     <string name="layout_autoplay_trailer_sub">Putar pratinjau trailer untuk konten terfokus saat tersedia.</string>
     <string name="layout_trailer_muted">Putar Trailer Dibisukan</string>
+    <string name="layout_expand_focused_card">Perluas Kartu yang Difokuskan</string>
+    <string name="layout_expand_focused_card_sub">Perbesar poster yang difokuskan menjadi latar belakangnya setelah jeda singkat.</string>
+    <string name="layout_expand_delay">Perluas Setelah</string>
+    <string name="layout_expand_delay_value">%1$d dtk</string>
+    <string name="layout_trailer_target">Tempat Pratinjau Diputar</string>
+    <string name="layout_trailer_target_hero">Di Hero</string>
+    <string name="layout_trailer_target_card">Di Kartu yang Diperluas</string>
+    <string name="layout_cw_card_style">Gaya Kartu</string>
+    <string name="layout_cw_card_style_card">Kartu</string>
+    <string name="layout_cw_card_style_wide">Lebar</string>
+    <string name="layout_cw_card_style_poster">Poster</string>
     <string name="layout_trailer_muted_sub_preview">Bisukan audio trailer saat pratinjau putar otomatis.</string>
     <string name="layout_section_card_style">Kartu Poster</string>
     <string name="layout_section_card_style_desc">Sesuaikan lebar kartu dan radius sudut.</string>

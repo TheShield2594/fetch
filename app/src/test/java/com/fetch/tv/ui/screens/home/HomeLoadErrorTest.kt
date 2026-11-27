@@ -57,4 +57,26 @@ class HomeLoadErrorTest {
     fun `a failure without a message still reports the load failure`() {
         assertEquals(HomeErrorState(HomeErrorKind.LOAD_FAILED, null), after(failedCatalogs = 1))
     }
+
+    private val nothing = HomeDrawableContent(
+        hasCatalogItems = false,
+        hasCatalogRowsBesidePlaceholders = false,
+        hasCollections = false,
+        hasContinueWatching = false,
+        hasPendingContinueWatchingRemoval = false
+    )
+
+    @Test
+    fun `catalogs that loaded empty are not content, so Home reaches its empty state`() {
+        assertEquals(false, nothing.any)
+    }
+
+    @Test
+    fun `anything drawable keeps Home on its content`() {
+        assertEquals(true, nothing.copy(hasCatalogItems = true).any)
+        assertEquals(true, nothing.copy(hasCatalogRowsBesidePlaceholders = true).any)
+        assertEquals(true, nothing.copy(hasCollections = true).any)
+        assertEquals(true, nothing.copy(hasContinueWatching = true).any)
+        assertEquals(true, nothing.copy(hasPendingContinueWatchingRemoval = true).any)
+    }
 }

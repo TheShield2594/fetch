@@ -53,6 +53,29 @@ internal fun homeErrorAfterRowsUpdate(
     else -> current
 }
 
+/**
+ * What Home can draw, which picks between its content, its empty state and its load error (#798).
+ * A catalog row that loaded with no items is not on screen, so it counts for nothing: Home shows
+ * "No catalogs" when every load came back empty, and the error with Retry when they failed.
+ */
+internal data class HomeDrawableContent(
+    /** Some catalog row has items. */
+    val hasCatalogItems: Boolean,
+    /**
+     * Catalog rows loaded (with or without items) while others still load as placeholders. Home
+     * shows them as before; only a load where every catalog came back empty counts for nothing.
+     */
+    val hasCatalogRowsBesidePlaceholders: Boolean,
+    val hasCollections: Boolean,
+    val hasContinueWatching: Boolean,
+    /** A Continue Watching card held for Undo, so Home keeps the Undo banner (#816). */
+    val hasPendingContinueWatchingRemoval: Boolean
+) {
+    val any: Boolean
+        get() = hasCatalogItems || hasCatalogRowsBesidePlaceholders || hasCollections || hasContinueWatching ||
+            hasPendingContinueWatchingRemoval
+}
+
 /** Delays before each automatic retry of a failed Home row; none after the last. */
 internal val HOME_CATALOG_RETRY_BACKOFF_MS = longArrayOf(15_000L, 60_000L, 4L * 60_000L)
 

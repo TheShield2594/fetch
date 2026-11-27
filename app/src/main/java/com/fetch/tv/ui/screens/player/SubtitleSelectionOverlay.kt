@@ -322,7 +322,8 @@ private fun SubtitleSelectionOverlaySession(
     val optionItemRequesters = rememberFocusRequesterMap(subtitleOptions.map { it.id })
     val styleRequesters = rememberStyleFocusRequesters()
     val optionRailVisible = selectedLanguageKey != SubtitleOffLanguageKey
-    val styleRailVisible = optionRailVisible && (revealStyleRail || selectedOptionId != null)
+    val styleRailVisible = optionRailVisible &&
+        (revealStyleRail || subtitleOptions.any { it.id == selectedOptionId })
     val optionTargetId: String? = remember(subtitleOptions, optionFocusMemory, selectedLanguageKey, selectedOptionId) {
         selectedOptionId?.takeIf { id -> subtitleOptions.any { it.id == id } }
             ?: optionFocusMemory[selectedLanguageKey]?.takeIf { id -> subtitleOptions.any { it.id == id } }
@@ -590,10 +591,11 @@ private fun SubtitleSelectionOverlaySession(
                             onDisableSubtitles()
                         } else {
                             val nextOptions = buildSessionOptions(languageKey, selectedOptionId)
+                            // Browsing another language does not change what is playing, so the
+                            // active track's id is kept; it is simply not in this language's list.
                             val nextSelectedId = selectedOptionId?.takeIf { id ->
                                 nextOptions.any { it.id == id }
                             }
-                            selectedOptionId = nextSelectedId
                             val nextTargetId = nextSelectedId
                                 ?: optionFocusMemory[languageKey]?.takeIf { id ->
                                     nextOptions.any { it.id == id }

@@ -14,7 +14,6 @@ collection|CARD|10
 detail|BUTTON|3
 detail|CARD|6
 filterrows|BUTTON|2
-library|CARD|1
 player|BUTTON|7
 player|CARD|24
 profile|BUTTON|33

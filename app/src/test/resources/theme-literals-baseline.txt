@@ -176,8 +176,6 @@ com/fetch/tv/ui/screens/home/ModernHomeRows.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/library/LibraryActivityContent.kt|DP|1
 com/fetch/tv/ui/screens/library/LibraryListDialogs.kt|DP|4
 com/fetch/tv/ui/screens/library/LibraryScreen.kt|DP|2
-com/fetch/tv/ui/screens/library/LibraryScreen.kt|FOCUS_SCALE|1
-com/fetch/tv/ui/screens/library/LibraryScreen.kt|SPACING_AS_STROKE|1
 com/fetch/tv/ui/screens/library/LibraryServerContent.kt|DP|2
 com/fetch/tv/ui/screens/phone/PhoneAddonConfirmDialog.kt|DP|2
 com/fetch/tv/ui/screens/phone/PhoneHubScreen.kt|DP|1
@@ -247,8 +245,6 @@ com/fetch/tv/ui/screens/profile/ProfileSetupDialog.kt|DP|3
 com/fetch/tv/ui/screens/profile/ScreenTimeLimitDialog.kt|DP|1
 com/fetch/tv/ui/screens/profile/ViewingActivityDialog.kt|DP|2
 com/fetch/tv/ui/screens/profile/ViewingActivityDialog.kt|SPACING_AS_STROKE|1
-com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt|ALPHA|1
-com/fetch/tv/ui/screens/search/SearchDiscoverSection.kt|SPACING_AS_STROKE|2
 com/fetch/tv/ui/screens/search/SearchScreen.kt|ALPHA|1
 com/fetch/tv/ui/screens/search/SearchScreen.kt|DP|4
 com/fetch/tv/ui/screens/search/SearchScreen.kt|FOCUS_SCALE|2

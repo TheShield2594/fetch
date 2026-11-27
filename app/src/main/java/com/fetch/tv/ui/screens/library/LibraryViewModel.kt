@@ -271,7 +271,7 @@ class LibraryViewModel @Inject constructor(
         flow { emitAll(watchProgressRepository.watchedItems) },
         parentalControls.filterRevision
     ) { watched, _ ->
-        val items = parentalControls.filterAllowed(libraryHistoryItems(watched)) { it.certificationQuery() }
+        val items = parentalControls.filterAllowed(libraryHistoryItems(watched, ::cachedBackdrop)) { it.certificationQuery() }
         groupHistoryByMonth(items)
     }
         .flowOn(kotlinx.coroutines.Dispatchers.Default)
@@ -282,7 +282,7 @@ class LibraryViewModel @Inject constructor(
         flow { emitAll(watchProgressRepository.continueWatching) },
         parentalControls.filterRevision
     ) { progress, _ ->
-        parentalControls.filterAllowed(libraryInProgressItems(progress)) { it.certificationQuery() }
+        parentalControls.filterAllowed(libraryInProgressItems(progress, ::cachedBackdrop)) { it.certificationQuery() }
     }
         .flowOn(kotlinx.coroutines.Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -440,6 +440,10 @@ class LibraryViewModel @Inject constructor(
     fun getCachedBackdrop(id: String, type: String): String? {
         return metaRepository.getCachedMeta(type, id)?.backdropUrl
     }
+
+    /** Landscape art for an activity card from the cached meta (#848); null when not cached. */
+    private fun cachedBackdrop(id: String, type: String): String? =
+        runCatching { metaRepository.getCachedMeta(type, id)?.backdropUrl }.getOrNull()
 
     fun onSelectTypeTab(tab: LibraryTypeTab) {
         _uiState.update { current ->

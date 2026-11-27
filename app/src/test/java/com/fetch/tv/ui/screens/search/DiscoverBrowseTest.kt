@@ -202,6 +202,45 @@ class DiscoverBrowseTest {
         assertEquals(listOf("Apple", "banana", "zebra"), sorted.map { it.name })
     }
 
+    @Test
+    fun `a sorted batch goes below what is shown and never moves it`() {
+        val shown = listOf(item("a", rating = 9f), item("b", rating = 5f))
+        val batch = listOf(item("c", rating = 6f), item("d", rating = 9.5f), item("a", rating = 9f))
+
+        val next = appendDiscoverSortedBatch(shown, batch, DiscoverFilters(sort = DiscoverSort.RATING))
+
+        // "d" rates higher than everything, but it arrived later, so it leads the new batch only.
+        assertEquals(listOf("a", "b", "d", "c"), next.map { it.id })
+    }
+
+    @Test
+    fun `a sorted batch keeps only what the filters keep`() {
+        val batch = listOf(item("low", rating = 4f), item("high", rating = 8f))
+
+        val next = appendDiscoverSortedBatch(emptyList(), batch, DiscoverFilters(minRating = 7, sort = DiscoverSort.RATING))
+
+        assertEquals(listOf("high"), next.map { it.id })
+    }
+
+    @Test
+    fun `stored filters come back as they were saved`() {
+        val filters = DiscoverFilters(
+            yearRange = DiscoverYearRange(from = null, to = 1979),
+            minRating = 7,
+            sort = DiscoverSort.NEWEST
+        )
+
+        assertEquals(filters, filters.toStored().toDiscoverFilters())
+        assertEquals(DiscoverFilters(), DiscoverFilters().toStored().toDiscoverFilters())
+    }
+
+    @Test
+    fun `unreadable stored filters fall back to the defaults`() {
+        val stored = com.fetch.tv.data.local.StoredDiscoverFilters(sort = "SHUFFLE", minRating = 3, yearRange = "soon")
+
+        assertEquals(DiscoverFilters(), stored.toDiscoverFilters())
+    }
+
     private fun catalog(
         key: String,
         type: String,

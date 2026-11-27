@@ -56,6 +56,8 @@ data class SearchUiState(
      * offline grid or a narrow filter doesn't page through every catalog in a tight loop.
      */
     val discoverPagingPaused: Boolean = false,
+    /** Under a Rating, Newest or Title sort: how many loaded titles the sort covers (#843). */
+    val discoverSortedTitleCount: Int = 0,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,

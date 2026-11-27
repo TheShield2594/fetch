@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.search
 
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchTheme
@@ -47,7 +46,8 @@ fun DiscoverScreen(
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
-    var discoverFocusedItemIndex by rememberSaveable { mutableIntStateOf(0) }
+    // The focused title's key, not its index, so it survives re-sorts and new pages (#844).
+    var discoverFocusedItemKey by rememberSaveable { mutableStateOf<String?>(null) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
     var pendingDiscoverRestoreOnResume by rememberSaveable { mutableStateOf(false) }
     // Not saved: each time Discover is entered (from the rail too) it takes focus, unless it is
@@ -106,9 +106,9 @@ fun DiscoverScreen(
                 focusResults = false,
                 showBuiltInHeader = showBuiltInHeader,
                 firstItemFocusRequester = discoverFirstItemFocusRequester,
-                focusedItemIndex = discoverFocusedItemIndex,
+                focusedItemKey = discoverFocusedItemKey,
                 shouldRestoreFocusedItem = restoreDiscoverFocus,
-                blockFilterFocus = restoreDiscoverFocus || pendingDiscoverRestoreOnResume,
+                restorePending = restoreDiscoverFocus || pendingDiscoverRestoreOnResume,
                 requestInitialFocus = !initialFocusHandled,
                 onInitialFocusHandled = { initialFocusHandled = true },
                 onRestoreFocusedItemHandled = { restoreDiscoverFocus = false },
@@ -116,34 +116,32 @@ fun DiscoverScreen(
                     pendingDiscoverRestoreOnResume = true
                     onNavigateToDetail(itemId, itemType, addonBaseUrl)
                 },
-                onDiscoverItemFocused = { index ->
-                    discoverFocusedItemIndex = index
-                    uiState.discoverResults.getOrNull(index)?.let { item ->
-                        viewModel.prefetchMetaOnFocus(item.id, item.rawType)
-                    }
+                onDiscoverItemFocused = { item ->
+                    discoverFocusedItemKey = discoverItemKey(item)
+                    viewModel.prefetchMetaOnFocus(item.id, item.rawType)
                 },
                 onSelectType = {
-                    discoverFocusedItemIndex = 0
+                    discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverType(it))
                 },
                 onSelectGenre = {
-                    discoverFocusedItemIndex = 0
+                    discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverGenre(it))
                 },
                 onSelectYearRange = {
-                    discoverFocusedItemIndex = 0
+                    discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverYearRange(it))
                 },
                 onSelectMinRating = {
-                    discoverFocusedItemIndex = 0
+                    discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverMinRating(it))
                 },
                 onSelectSort = {
-                    discoverFocusedItemIndex = 0
+                    discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverSort(it))
                 },
                 onClearFilters = {
-                    discoverFocusedItemIndex = 0
+                    discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.ClearDiscoverFilters)
                 },
                 onLoadMore = { viewModel.onEvent(SearchEvent.LoadNextDiscoverResults) },

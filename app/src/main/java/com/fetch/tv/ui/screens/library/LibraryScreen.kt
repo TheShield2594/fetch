@@ -7,7 +7,6 @@ import com.fetch.tv.ui.components.FetchButtonStyle
 import com.fetch.tv.ui.components.FetchButton
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fetch.tv.ui.theme.cardCornerRadius
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,8 +32,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
@@ -47,13 +44,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusRestorer
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
@@ -65,9 +58,6 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -83,6 +73,8 @@ import kotlinx.coroutines.launch
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.domain.model.localizedTitle
 import com.fetch.tv.ui.components.PosterGridSkeleton
+import com.fetch.tv.ui.components.FetchFilterChip
+import com.fetch.tv.ui.components.FetchFilterOption
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.FetchDialog
 import com.fetch.tv.ui.theme.FetchStatusTones
@@ -204,10 +196,12 @@ fun LibraryScreen(
     LaunchedEffect(tab) { dispatchSelection(LibrarySelectionAction.Exit) }
     LaunchedEffect(selectionKeys) { dispatchSelection(LibrarySelectionAction.Retain(selectionKeys.toSet())) }
     // The posters take the size set in Layout, made smaller only as far as needed for two full
-    // rows to show under the tabs and filters on entry (audit C3).
+    // rows (three of the shorter landscape cards) to show under the tabs and filters on entry
+    // (audit C3, #848).
     var gridHeightPx by remember { mutableIntStateOf(0) }
     var headerHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
+    val landscapeCards = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
     val cardWidth = with(density) {
         libraryFittedCardWidth(
             preferred = uiState.posterCardWidthDp.dp,
@@ -215,7 +209,9 @@ fun LibraryScreen(
             header = headerHeightPx.toDp(),
             topPadding = FetchTheme.spacing.screen.vertical,
             gap = FetchTheme.spacing.lg,
-            labelAllowance = FetchTheme.spacing.sm + FetchTheme.spacing.xl
+            labelAllowance = FetchTheme.spacing.sm + FetchTheme.spacing.xl,
+            rows = if (landscapeCards) LIBRARY_LANDSCAPE_FITTED_ROWS else LIBRARY_POSTER_FITTED_ROWS,
+            cardHeightPerWidth = libraryCardHeightPerWidth(landscapeCards)
         )
     }
     val posterCardStyle = PosterCardDefaults.Style.copy(
@@ -937,13 +933,14 @@ private fun LibrarySelectorsRow(
                 value = selectedTypeLabel,
                 selectedValue = selectedTypeTab?.key,
                 expanded = expandedPicker == "type",
+                active = selectedTypeTab != null && selectedTypeTab.key != LibraryTypeTab.ALL_KEY,
                 options = typeTabs.map {
-                    val label = if (it.key == LibraryTypeTab.ALL_KEY) it.label else {
+                    if (it.key == LibraryTypeTab.ALL_KEY) {
+                        LibraryOption(it.label, it.key)
+                    } else {
                         val count = it.label.substringAfterLast("(", "").removeSuffix(")").trim().toIntOrNull()
-                        val localizedName = localizedTypeLabel(it.key)
-                        if (count != null) stringResource(R.string.library_filter_option_count, localizedName, count) else localizedName
+                        LibraryOption(localizedTypeLabel(it.key), it.key, count)
                     }
-                    LibraryOption(label, it.key)
                 },
                 onExpandedChange = { onExpandedChange("type", it) },
                 onSelect = { option ->
@@ -975,8 +972,9 @@ private fun LibrarySelectorsRow(
                     value = selectedGenreLabel,
                     selectedValue = selectedGenre ?: "__all__",
                     expanded = expandedPicker == "genre",
+                    active = selectedGenre != null,
                     options = listOf(genreAllOption) + genres.map {
-                        LibraryOption(stringResource(R.string.library_filter_option_count, localizedGenreLabel(it.label), it.count), it.key)
+                        LibraryOption(localizedGenreLabel(it.label), it.key, it.count)
                     },
                     onExpandedChange = { onExpandedChange("genre", it) },
                     onSelect = { option ->
@@ -992,8 +990,9 @@ private fun LibrarySelectorsRow(
                     value = selectedYearLabel,
                     selectedValue = selectedYear ?: "__all__",
                     expanded = expandedPicker == "year",
+                    active = selectedYear != null,
                     options = listOf(yearAllOption) + years.map {
-                        LibraryOption(stringResource(R.string.library_filter_option_count, it.label, it.count), it.key)
+                        LibraryOption(it.label, it.key, it.count)
                     },
                     onExpandedChange = { onExpandedChange("year", it) },
                     onSelect = { option ->
@@ -1007,6 +1006,7 @@ private fun LibrarySelectorsRow(
                                 title = stringResource(R.string.library_filter_watched),
                 value = watchedFilterLabel,
                 selectedValue = selectedWatchedFilter.key,
+                active = selectedWatchedFilter != LibraryWatchedFilter.ALL,
                 expanded = expandedPicker == "watched",
                 options = libraryWatchedFilterOptions(anythingReady, selectedWatchedFilter).map {
                     LibraryOption(stringResource(it.labelResId), it.key)
@@ -1023,10 +1023,9 @@ private fun LibrarySelectorsRow(
 }
 
 /**
- * A filter that opens its choices in the app's single-choice dialog, the TV picker Settings uses,
- * rather than a touch dropdown. Closing it puts focus back on the filter.
+ * A Library filter: the shared [FetchFilterChip] (#851), whose choices open in a panel under it,
+ * as on Discover and See all. Closing it puts focus back on the filter.
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LibraryDropdownPicker(
     modifier: Modifier = Modifier,
@@ -1034,98 +1033,37 @@ private fun LibraryDropdownPicker(
     title: String,
     value: String,
     selectedValue: String?,
+    active: Boolean = false,
     expanded: Boolean,
     options: List<LibraryOption>,
     onExpandedChange: (Boolean) -> Unit,
     onSelect: (LibraryOption) -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val anchorFocusRequester = remember { FocusRequester() }
-    var wasExpanded by remember { mutableStateOf(false) }
-    LaunchedEffect(expanded) {
-        if (expanded) {
-            wasExpanded = true
-        } else if (wasExpanded) {
-            wasExpanded = false
-            anchorFocusRequester.requestFocusAfterFrames()
-        }
-    }
-
-    Box(modifier = modifier) {
-        Card(
-            onClick = { onExpandedChange(!expanded) },
-            modifier = Modifier
-                .then(
-                    if (upFocusRequester != null) {
-                        Modifier.focusProperties { up = upFocusRequester }
-                    } else {
-                        Modifier
-                    }
-                )
-                .focusRequester(anchorFocusRequester)
-                .onFocusChanged { isFocused = it.isFocused },
-            shape = CardDefaults.shape(shape = RoundedCornerShape(FetchTheme.radii.md)),
-            colors = CardDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                focusedContainerColor = FetchTheme.colors.FocusBackground
-            ),
-            border = CardDefaults.border(
-                border = androidx.tv.material3.Border(
-                    border = BorderStroke(FetchTheme.spacing.hairline, FetchTheme.colors.Border),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                ),
-                focusedBorder = androidx.tv.material3.Border(
-                    border = FetchTheme.focusRing.border(),
-                    shape = RoundedCornerShape(FetchTheme.radii.md)
-                )
-            ),
-            scale = CardDefaults.scale(
-                focusedScale = 1.0f,
-                pressedScale = 1.0f
+    FetchFilterChip(
+        title = title,
+        value = value,
+        active = active,
+        expanded = expanded,
+        options = options.map { option ->
+            FetchFilterOption(
+                key = option.value,
+                label = option.label,
+                selected = option.value == selectedValue,
+                count = option.count
             )
-        ) {
-            // One line, "Sort  Recently added ⌄", so the whole filter bar is one short row.
-            Row(
-                modifier = Modifier.padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.sm),
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = FetchTheme.colors.TextTertiary,
-                    maxLines = 1
-                )
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = FetchTheme.colors.TextPrimary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Icon(
-                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) stringResource(R.string.cd_collapse, title) else stringResource(R.string.cd_expand, title),
-                    tint = if (isFocused) FetchTheme.colors.FocusRing else FetchTheme.colors.TextSecondary
-                )
-            }
-        }
-    }
-
-    if (expanded) {
-        com.fetch.tv.ui.screens.settings.SettingsSingleChoiceDialog(
-            title = title,
-            options = options.map { com.fetch.tv.ui.screens.settings.SettingsPickerOption(it.value, it.label) },
-            selectedValue = selectedValue.orEmpty(),
-            onOptionSelected = { chosen -> options.firstOrNull { it.value == chosen }?.let(onSelect) },
-            onDismiss = { onExpandedChange(false) }
-        )
-    }
+        },
+        onExpandedChange = onExpandedChange,
+        onSelect = { chosen -> options.firstOrNull { it.value == chosen.key }?.let(onSelect) },
+        modifier = modifier,
+        upFocusRequester = upFocusRequester
+    )
 }
 
 private data class LibraryOption(
     val label: String,
-    val value: String
+    val value: String,
+    /** How many titles the choice keeps, shown after it in the panel. */
+    val count: Int? = null
 )
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -1221,10 +1159,13 @@ private fun ConfirmDeleteDialog(
 }
 
 /**
- * The poster width that lets [rows] full rows of posters, with their titles, show below a
- * [header] in a [viewport] of that height: at most [preferred] (the size set in Layout), and no
- * smaller than 70% of it, so a very short window scrolls rather than shrinking posters to stamps.
- * Before the viewport and header are measured it is [preferred].
+ * The poster width that lets [rows] full rows of cards, with their titles, show below a [header]
+ * in a [viewport] of that height: at most [preferred] (the size set in Layout), and no smaller
+ * than 70% of it, so a very short window scrolls rather than shrinking posters to stamps. Before
+ * the viewport and header are measured it is [preferred].
+ *
+ * [cardHeightPerWidth] is how tall a card is for each unit of poster width: 1.5 for a 2:3 poster;
+ * a landscape card is drawn as wide as that poster is tall, at 16:9, so it is much shorter (#848).
  */
 internal fun libraryFittedCardWidth(
     preferred: Dp,
@@ -1233,13 +1174,27 @@ internal fun libraryFittedCardWidth(
     topPadding: Dp,
     gap: Dp,
     labelAllowance: Dp,
-    rows: Int = 2
+    rows: Int = LIBRARY_POSTER_FITTED_ROWS,
+    cardHeightPerWidth: Float = POSTER_HEIGHT_PER_WIDTH
 ): Dp {
     if (viewport <= Dp.Hairline || header <= Dp.Hairline) return preferred
     // The header is followed by a gap, and each row by its title and a gap.
     val perRow = (viewport - topPadding - header - gap * rows) / rows
-    val fitted = (perRow - labelAllowance) * (2f / 3f)
+    val fitted = (perRow - labelAllowance) / cardHeightPerWidth
     return minOf(preferred, maxOf(fitted, preferred * MIN_FITTED_POSTER_SCALE))
 }
+
+/** Card height per unit of the poster width set in Layout, for posters or landscape cards. */
+internal fun libraryCardHeightPerWidth(landscape: Boolean): Float =
+    if (landscape) {
+        // GridContentCard draws a landscape card as wide as the poster would be tall.
+        POSTER_HEIGHT_PER_WIDTH / com.fetch.tv.domain.model.PosterShape.LANDSCAPE.aspectRatio()
+    } else {
+        POSTER_HEIGHT_PER_WIDTH
+    }
+
+private const val POSTER_HEIGHT_PER_WIDTH = 1.5f
+internal const val LIBRARY_POSTER_FITTED_ROWS = 2
+internal const val LIBRARY_LANDSCAPE_FITTED_ROWS = 3
 
 private const val MIN_FITTED_POSTER_SCALE = 0.7f

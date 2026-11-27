@@ -2325,4 +2325,18 @@
     <string name="youtube_filter_duration_short">Kurang dari 4 menit</string>
     <string name="youtube_filter_duration_medium">4–20 menit</string>
     <string name="youtube_filter_duration_long">Lebih dari 20 menit</string>
+    <string name="subtitle_mode_auto">Otomatis</string>
+    <string name="subtitle_mode_off">Mati</string>
+    <string name="subtitle_mode_on">Nyala</string>
+    <string name="subtitle_mode_auto_hint">Hanya subtitle paksa jika audio dalam bahasa Anda; subtitle lengkap jika tidak.</string>
+    <string name="subtitle_mode_off_hint">Hanya subtitle paksa, untuk tulisan dan dialog dalam bahasa lain.</string>
+    <string name="subtitle_mode_on_hint">Subtitle lengkap setiap kali tersedia dalam bahasa Anda.</string>
+    <string name="player_show_time_remaining">Tampilkan sisa waktu</string>
+    <string name="player_show_total_time">Tampilkan durasi total</string>
+    <string name="player_scrub_step">Langkah %1$d dtk</string>
+    <string name="player_sleep_timer_custom">Kustom…</string>
+    <string name="playback_seek_feedback_linger">Tampilkan waktu lompat selama</string>
+    <string name="playback_seek_feedback_linger_sub">Berapa lama gelembung waktu tetap tampil setelah melompat.</string>
+    <string name="playback_pause_overlay_delay">Tampilkan layar jeda setelah</string>
+    <string name="playback_pause_overlay_delay_sub">Berapa lama pemutaran dijeda sebelum layar jeda muncul.</string>
 </resources>

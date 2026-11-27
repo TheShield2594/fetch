@@ -73,6 +73,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.data.local.SUBTITLE_LANGUAGE_FORCED
+import com.fetch.tv.data.local.SubtitleMode
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.ui.components.LoadingIndicator
@@ -533,6 +534,11 @@ private fun SubtitleSelectionOverlaySession(
                 style = MaterialTheme.typography.headlineMedium,
                 color = FetchTheme.colors.Player.TextPrimary,
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.md)
+            )
+
+            SubtitleModeSwitch(
+                mode = subtitleStyle.mode,
+                onModeSelected = { mode -> onEvent(PlayerEvent.OnSetSubtitleMode(mode)) }
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -1589,6 +1595,45 @@ private fun StepperButton(
         scale = IconButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription)
+    }
+}
+
+/**
+ * One press between Auto, Off and On (#771), above the language list, with a line saying what the
+ * chosen mode does. Picking a language or track below still overrides it for this title.
+ */
+@Composable
+private fun SubtitleModeSwitch(
+    mode: SubtitleMode,
+    onModeSelected: (SubtitleMode) -> Unit
+) {
+    val hint = when (mode) {
+        SubtitleMode.AUTO -> R.string.subtitle_mode_auto_hint
+        SubtitleMode.OFF -> R.string.subtitle_mode_off_hint
+        SubtitleMode.ON -> R.string.subtitle_mode_on_hint
+    }
+    Column(
+        modifier = Modifier.padding(bottom = FetchTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+            listOf(
+                SubtitleMode.AUTO to R.string.subtitle_mode_auto,
+                SubtitleMode.OFF to R.string.subtitle_mode_off,
+                SubtitleMode.ON to R.string.subtitle_mode_on
+            ).forEach { (option, label) ->
+                ToggleChip(
+                    label = stringResource(label),
+                    isEnabled = option == mode,
+                    onClick = { if (option != mode) onModeSelected(option) }
+                )
+            }
+        }
+        Text(
+            text = stringResource(hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = FetchTheme.colors.Player.TextSecondary
+        )
     }
 }
 

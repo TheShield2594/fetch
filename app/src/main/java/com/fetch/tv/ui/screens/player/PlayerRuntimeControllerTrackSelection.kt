@@ -15,17 +15,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal fun PlayerRuntimeController.filterEpisodeStreamsByAddon(addonName: String?) {
-    val allStreams = _uiState.value.episodeAllStreams
-    val filteredStreams = if (addonName == null) {
-        allStreams
-    } else {
-        allStreams.filter { it.addonName == addonName }
-    }
+    val tab = sourceTab(_uiState.value.episodeAllStreams, addonName)
 
     _uiState.update {
         it.copy(
             episodeSelectedAddonFilter = addonName,
-            episodeFilteredStreams = filteredStreams
+            episodeFilteredStreams = tab.streams,
+            episodeStreamExclusions = tab.exclusions
         )
     }
 }
@@ -36,8 +32,6 @@ internal fun PlayerRuntimeController.showControlsTemporarily() {
     scheduleHideControls()
 }
 
-/** How long the seek overlay and its feedback stay up once a seek commits. */
-internal const val SEEK_FEEDBACK_LINGER_MS = 1_500L
 
 /** Hides a preview seek's overlay if its commit never arrives (a lost key-up). */
 private const val SEEK_PREVIEW_FALLBACK_HIDE_MS = 5_000L
@@ -46,7 +40,7 @@ internal fun PlayerRuntimeController.showSeekOverlayTemporarily() {
     hideSeekOverlayJob?.cancel()
     _uiState.update { it.copy(showSeekOverlay = true) }
     hideSeekOverlayJob = scope.launch {
-        delay(SEEK_FEEDBACK_LINGER_MS)
+        delay(seekFeedbackLingerMs)
         _uiState.update { it.copy(showSeekOverlay = false) }
     }
 }
@@ -64,16 +58,21 @@ internal fun PlayerRuntimeController.showSeekOverlayUntilCommit() {
 /**
  * Records where a seek is heading. Successive seeks keep the first one's origin, so the delta
  * adds up across presses. A pending preview keeps the feedback up; a committed seek clears it
- * [SEEK_FEEDBACK_LINGER_MS] later, unless another seek comes first.
+ * [PlayerRuntimeController.seekFeedbackLingerMs] later, unless another seek comes first.
  */
-internal fun PlayerRuntimeController.updateSeekFeedback(originMs: Long, targetMs: Long, committed: Boolean) {
+internal fun PlayerRuntimeController.updateSeekFeedback(
+    originMs: Long,
+    targetMs: Long,
+    committed: Boolean,
+    stepMs: Long? = null
+) {
     seekFeedbackJob?.cancel()
     _seekPreview.update {
         val origin = it.seekFeedback?.originMs ?: originMs
-        it.copy(seekFeedback = SeekFeedback(originMs = origin, targetMs = targetMs))
+        it.copy(seekFeedback = SeekFeedback(originMs = origin, targetMs = targetMs, stepMs = stepMs.takeIf { !committed }))
     }
     seekFeedbackJob = scope.launch {
-        delay(if (committed) SEEK_FEEDBACK_LINGER_MS else SEEK_PREVIEW_FALLBACK_HIDE_MS)
+        delay(if (committed) seekFeedbackLingerMs else SEEK_PREVIEW_FALLBACK_HIDE_MS)
         _seekPreview.update { it.copy(seekFeedback = null) }
     }
 }
@@ -761,6 +760,21 @@ internal fun PlayerRuntimeController.persistSubtitleDelay() {
     scope.launch {
         trackPreferenceDataStore.saveSubtitleDelayMs(key, currentDelayMs.takeIf { it != 0 })
     }
+}
+
+/**
+ * Drops this title's remembered subtitle choice (keeping its audio), so a new Auto / Off / On
+ * mode decides the next episode instead of an old "Off" or track pick (#771).
+ */
+internal fun PlayerRuntimeController.forgetRememberedSubtitleSelection() {
+    val audio = currentTrackPreferenceForPersistence().audio
+    rememberedTrackPreference = PlayerRuntimeController.TrackPreference(audio = audio)
+    loadedTrackPreference = loadedTrackPreference?.copy(subtitle = null)
+    persistedTrackPreference = persistedTrackPreference?.copy(subtitle = null)
+    explicitSubtitleSelectionForEngineSwitch = null
+    effectiveSubtitleSelectionForEngineSwitch = null
+    pendingRestoredAddonSubtitle = null
+    persistTrackPreference()
 }
 
 internal fun PlayerRuntimeController.persistTrackPreference() {

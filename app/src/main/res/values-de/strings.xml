@@ -2297,4 +2297,18 @@
     <string name="youtube_filter_duration_short">Unter 4 Minuten</string>
     <string name="youtube_filter_duration_medium">4–20 Minuten</string>
     <string name="youtube_filter_duration_long">Über 20 Minuten</string>
+    <string name="subtitle_mode_auto">Auto</string>
+    <string name="subtitle_mode_off">Aus</string>
+    <string name="subtitle_mode_on">Ein</string>
+    <string name="subtitle_mode_auto_hint">Nur erzwungene Untertitel, wenn der Ton in deiner Sprache ist; sonst vollständige Untertitel.</string>
+    <string name="subtitle_mode_off_hint">Nur erzwungene Untertitel, für Schilder und Dialoge in einer anderen Sprache.</string>
+    <string name="subtitle_mode_on_hint">Vollständige Untertitel, wann immer es welche in deiner Sprache gibt.</string>
+    <string name="player_show_time_remaining">Restzeit anzeigen</string>
+    <string name="player_show_total_time">Gesamtdauer anzeigen</string>
+    <string name="player_scrub_step">%1$d-s-Schritte</string>
+    <string name="player_sleep_timer_custom">Benutzerdefiniert …</string>
+    <string name="playback_seek_feedback_linger">Suchzeit anzeigen für</string>
+    <string name="playback_seek_feedback_linger_sub">Wie lange die Zeitblase nach einem Sprung eingeblendet bleibt.</string>
+    <string name="playback_pause_overlay_delay">Pausenbildschirm zeigen nach</string>
+    <string name="playback_pause_overlay_delay_sub">Wie lange die Wiedergabe pausiert, bevor der Pausenbildschirm erscheint.</string>
 </resources>

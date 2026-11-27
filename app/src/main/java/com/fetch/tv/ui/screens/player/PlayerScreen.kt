@@ -88,6 +88,8 @@ import androidx.compose.material.icons.filled.Replay5
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.runtime.Stable
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.filled.Timelapse
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -128,6 +130,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -1520,9 +1527,14 @@ fun PlayerScreen(
             onDismissStillWatching = { viewModel.onEvent(PlayerEvent.OnDismissStillWatchingPrompt) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 26.dp, bottom = if (uiState.showControls) 174.dp else 30.dp)
+                .padding(end = 26.dp, bottom = SKIP_BUTTON_BOTTOM_PADDING)
                 .zIndex(2.1f)
+                // Before the graphicsLayer, as on the Skip pill: it reports the resting position.
                 .reportSubtitleClearance(subtitleClearanceGapPx) { postPlayClearancePx = it }
+                // Rides up with the controls on the Skip pill's animation instead of jumping (#776).
+                .graphicsLayer {
+                    translationY = -skipButtonLift.value * SKIP_BUTTON_CONTROLS_LIFT.toPx()
+                }
                 .onFocusChanged { nextEpisodeCardHasFocus = it.hasFocus },
         )
 
@@ -2012,6 +2024,7 @@ fun PlayerScreen(
         when (uiState.choiceDialog) {
             PlayerChoiceDialog.SLEEP_TIMER -> SleepTimerChoiceDialog(
                 isMovie = uiState.contentType == "movie",
+                running = uiState.sleepTimer,
                 viewModel = viewModel
             )
             PlayerChoiceDialog.ASPECT -> AspectChoiceDialog(
@@ -2309,6 +2322,10 @@ private val SUBTITLE_CONTROLS_LIFT = 130.dp
 private val SKIP_BUTTON_BOTTOM_PADDING = 30.dp
 /** Extra lift while controls are visible: 174.dp in total clears the scrubber, transport and panel rows. */
 private val SKIP_BUTTON_CONTROLS_LIFT = 144.dp
+
+/** The clear-logo in the controls' top bar: about two lines of the title text it replaces. */
+private val TOP_BAR_LOGO_HEIGHT = 56.dp
+private val TOP_BAR_LOGO_MAX_WIDTH = 360.dp
 
 /** Width of the docked player while the post-play recommendation shows. */
 private const val POST_PLAY_PLAYER_WIDTH_FRACTION = 0.32f
@@ -2688,13 +2705,35 @@ internal fun PlayerControlsOverlay(
                 uiState.title
             }
 
-            Text(
-                text = displayName,
-                style = MaterialTheme.typography.headlineMedium,
-                color = FetchTheme.colors.Player.TextPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            // The title's clear-logo when it has one, as on the pause and loading screens (#776);
+            // the name as text when there is none or it fails to load.
+            val topBarLogo = uiState.logo?.takeIf { it.isNotBlank() }
+            var topBarLogoFailed by remember(topBarLogo) { mutableStateOf(false) }
+            if (topBarLogo != null && !topBarLogoFailed) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(topBarLogo)
+                        .memoryCacheKey(topBarLogo)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = displayName,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.CenterStart,
+                    modifier = Modifier
+                        .height(TOP_BAR_LOGO_HEIGHT)
+                        .widthIn(max = TOP_BAR_LOGO_MAX_WIDTH)
+                        .padding(bottom = FetchTheme.spacing.xs),
+                    onError = { topBarLogoFailed = true }
+                )
+            } else {
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = FetchTheme.colors.Player.TextPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
 
             if (uiState.currentSeason != null && uiState.currentEpisode != null) {
                 val seasonEpisodeCode = stringResource(
@@ -2800,7 +2839,11 @@ internal fun PlayerControlsOverlay(
                                 onClick = onPlayPause
                             )
                         }
-                        PlayerTimeTextHost(viewModel = viewModel, side = PlayerTimeSide.TOTAL)
+                        PlayerTimeTextHost(
+                            viewModel = viewModel,
+                            side = PlayerTimeSide.TOTAL,
+                            showTimeRemaining = uiState.showTimeRemaining
+                        )
                     }
                 }
 
@@ -2875,6 +2918,31 @@ internal fun PlayerControlsOverlay(
                                 onFocused = onResetHideTimer,
                                 labelAbove = true
                             )
+                        }
+                        if (!isLivePlayback) {
+                            ControlButton(
+                                icon = Icons.Default.Timelapse,
+                                contentDescription = stringResource(
+                                    if (uiState.showTimeRemaining) R.string.player_show_total_time
+                                    else R.string.player_show_time_remaining
+                                ),
+                                onClick = { viewModel.onEvent(PlayerEvent.OnToggleTimeRemaining) },
+                                upFocusRequester = progressUpTarget,
+                                onDownKey = backToMore,
+                                onFocused = onResetHideTimer,
+                                labelAbove = true
+                            )
+                            if (uiState.resumedFromPosition) {
+                                ControlButton(
+                                    icon = Icons.Default.Replay,
+                                    contentDescription = stringResource(R.string.cw_action_start_from_beginning),
+                                    onClick = { viewModel.onEvent(PlayerEvent.OnStartFromBeginning) },
+                                    upFocusRequester = progressUpTarget,
+                                    onDownKey = backToMore,
+                                    onFocused = onResetHideTimer,
+                                    labelAbove = true
+                                )
+                            }
                         }
                         ControlButton(
                             icon = Icons.Default.Info,
@@ -3096,15 +3164,18 @@ internal fun PlayerControlsOverlay(
                         onFocused = onResetHideTimer,
                         labelAbove = true
                     )
-                    ControlButton(
-                        icon = Icons.Default.Speed,
-                        contentDescription = stringResource(R.string.cd_playback_speed),
-                        onClick = onShowSpeedDialog,
-                        upFocusRequester = progressUpTarget,
-                        onDownKey = onHideControls,
-                        onFocused = onResetHideTimer,
-                        labelAbove = true
-                    )
+                    // Tunneled playback can't change speed, so the button is not offered (#776).
+                    if (!uiState.tunnelingEnabled) {
+                        ControlButton(
+                            icon = Icons.Default.Speed,
+                            contentDescription = stringResource(R.string.cd_playback_speed),
+                            onClick = onShowSpeedDialog,
+                            upFocusRequester = progressUpTarget,
+                            onDownKey = onHideControls,
+                            onFocused = onResetHideTimer,
+                            labelAbove = true
+                        )
+                    }
                     ControlButton(
                         icon = Icons.Default.MoreHoriz,
                         contentDescription = if (uiState.showMoreDialog) stringResource(R.string.cd_close_more_actions) else stringResource(R.string.cd_more_actions),
@@ -3174,7 +3245,7 @@ private fun PlayerControlsProgressBarHost(
     val seekFeedback = viewModel.seekPreview.collectAsStateWithLifecycle().value.seekFeedback
 
     if (seekFeedback != null) {
-        SeekFeedbackBubble(feedback = seekFeedback, durationMs = playbackTimeline.duration)
+        SeekFeedbackBubble(feedback = seekFeedback, durationMs = playbackTimeline.duration, skipSegments = skipSegments)
     }
     ProgressBar(
         currentPosition = playbackTimeline.currentPosition,
@@ -3202,12 +3273,16 @@ internal enum class PlayerTimeSide { ELAPSED, TOTAL }
 
 /** One end of the scrubber: where playback is, or how long the title runs. */
 @Composable
-private fun PlayerTimeTextHost(viewModel: PlayerViewModel, side: PlayerTimeSide) {
+private fun PlayerTimeTextHost(viewModel: PlayerViewModel, side: PlayerTimeSide, showTimeRemaining: Boolean = false) {
     val playbackTimeline by viewModel.playbackTimeline.collectAsStateWithLifecycle()
     Text(
-        text = formatTime(
-            if (side == PlayerTimeSide.ELAPSED) playbackTimeline.currentPosition else playbackTimeline.duration
-        ),
+        text = when {
+            side == PlayerTimeSide.ELAPSED -> formatTime(playbackTimeline.currentPosition)
+            // Time left, as "-12:34", when the viewer asked for it (#776).
+            showTimeRemaining && playbackTimeline.duration > 0L ->
+                "-" + formatTime((playbackTimeline.duration - playbackTimeline.currentPosition).coerceAtLeast(0L))
+            else -> formatTime(playbackTimeline.duration)
+        },
         style = MaterialTheme.typography.titleMedium,
         color = if (side == PlayerTimeSide.ELAPSED) FetchTheme.colors.Player.TextPrimary else FetchTheme.colors.Player.TextSecondary,
         maxLines = 1
@@ -3665,7 +3740,7 @@ private fun SeekOverlay(
             if (seekFeedback != null) {
                 // Room for the bubble, which floats above the playhead.
                 Spacer(modifier = Modifier.height(SEEK_FEEDBACK_BUBBLE_ROOM))
-                SeekFeedbackBubble(feedback = seekFeedback, durationMs = duration)
+                SeekFeedbackBubble(feedback = seekFeedback, durationMs = duration, skipSegments = skipSegments)
             }
             ProgressBar(
                 currentPosition = currentPosition,
@@ -3721,7 +3796,15 @@ private val SEEK_FEEDBACK_BUBBLE_ROOM = 56.dp
  * at the target (#407). Takes no height: it is drawn above whatever follows it, the seek bar.
  */
 @Composable
-private fun SeekFeedbackBubble(feedback: SeekFeedback, durationMs: Long) {
+private fun SeekFeedbackBubble(
+    feedback: SeekFeedback,
+    durationMs: Long,
+    skipSegments: List<SkipInterval> = emptyList()
+) {
+    // The segment the target lands in ("Intro / Opening"), so a seek into a marked band says what it is (#776).
+    val segmentLabel = segmentLabelRes(skipSegments, feedback.targetMs)?.let { stringResource(it) }
+    // While a held seek ramps up, how far each repeat now moves ("30 s steps").
+    val stepLabel = feedback.stepMs?.let { stringResource(R.string.player_scrub_step, (it / 1_000L).toInt()) }
     val fraction = if (durationMs > 0L) {
         (feedback.targetMs.toFloat() / durationMs.toFloat()).coerceIn(0f, 1f)
     } else {
@@ -3744,11 +3827,19 @@ private fun SeekFeedbackBubble(feedback: SeekFeedback, durationMs: Long) {
                     maxLines = 1
                 )
                 Text(
-                    text = formatSeekDelta(feedback.deltaMs),
+                    text = listOfNotNull(formatSeekDelta(feedback.deltaMs), stepLabel).joinToString(" · "),
                     style = MaterialTheme.typography.bodySmall,
                     color = FetchTheme.colors.Player.TextSecondary,
                     maxLines = 1
                 )
+                if (segmentLabel != null) {
+                    Text(
+                        text = segmentLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = FetchTheme.colors.Secondary,
+                        maxLines = 1
+                    )
+                }
             }
         },
         modifier = Modifier
@@ -3766,6 +3857,19 @@ private fun SeekFeedbackBubble(feedback: SeekFeedback, durationMs: Long) {
 }
 
 internal const val SEEK_FEEDBACK_TAG = "player_seek_feedback"
+
+/** The name of the marked segment at [positionMs], or null outside every one. */
+private fun segmentLabelRes(segments: List<SkipInterval>, positionMs: Long): Int? {
+    val sec = positionMs / 1_000.0
+    val segment = segments.firstOrNull { sec >= it.startTime && sec < it.endTime } ?: return null
+    return when (segment.type.lowercase()) {
+        "intro", "op", "mixed-op" -> R.string.auto_skip_intro
+        "recap" -> R.string.auto_skip_recap
+        "outro", "ed", "mixed-ed" -> R.string.auto_skip_outro
+        "credits", "movie-credits" -> R.string.auto_skip_movie_credits
+        else -> null
+    }
+}
 
 @Composable
 private fun PlayerClockOverlay(
@@ -4278,6 +4382,14 @@ private fun ErrorOverlay(
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // A stream that failed before its first frame can still be tried again: a
+                    // timeout or a busy debrid link often plays on the second attempt (#776).
+                    PlayerOverlayButton(
+                        text = stringResource(R.string.action_retry),
+                        onClick = onRetry,
+                        primary = false,
+                        modifier = Modifier.onFocusChanged { recoveryFocused = it.isFocused }
+                    )
                     if (onSwitchMpvAction != null) {
                         PlayerOverlayButton(
                             text = stringResource(R.string.player_switch_to_mpv),
@@ -4482,9 +4594,28 @@ private fun ChoiceItem(
  * duration.
  */
 @Composable
-private fun SleepTimerChoiceDialog(isMovie: Boolean, viewModel: PlayerViewModel) {
+private fun SleepTimerChoiceDialog(isMovie: Boolean, running: SleepTimerLabel?, viewModel: PlayerViewModel) {
     val choices = SleepTimer.LIST_CHOICES
     val current = remember { viewModel.currentSleepTimerChoice() }
+    var pickingCustom by remember { mutableStateOf(false) }
+    // The title says what is left on a running timer ("Sleep timer · 23 min left"), #776.
+    val title = listOfNotNull(
+        stringResource(R.string.player_sleep_timer),
+        running?.let { sleepTimerButtonLabel(it, isMovie) }
+    ).distinct().joinToString(" · ")
+    if (pickingCustom) {
+        val minutes = SLEEP_TIMER_CUSTOM_MINUTES
+        val currentMinutes = (current as? SleepTimerChoice.Minutes)?.minutes
+        PlayerChoiceListDialog(
+            title = stringResource(R.string.player_sleep_timer_custom),
+            labels = minutes.map { pluralStringResource(R.plurals.player_sleep_timer_choice_minutes, it, it) },
+            selectedIndex = minutes.indexOf(currentMinutes),
+            initialFocusIndex = minutes.indexOf(currentMinutes).takeIf { it >= 0 } ?: minutes.indexOf(SLEEP_TIMER_CUSTOM_START_MINUTES),
+            onSelected = { index -> viewModel.onEvent(PlayerEvent.OnSelectSleepTimer(SleepTimerChoice.Minutes(minutes[index]))) },
+            onDismiss = { pickingCustom = false }
+        )
+        return
+    }
     val labels = choices.map { choice ->
         when (choice) {
             null -> stringResource(R.string.player_sleep_timer_off)
@@ -4497,15 +4628,28 @@ private fun SleepTimerChoiceDialog(isMovie: Boolean, viewModel: PlayerViewModel)
             )
         }
     }
+    // A duration not on the list was picked from Custom, so Custom is the selected row.
+    val customIndex = choices.size
+    val selectedIndex = when {
+        current is SleepTimerChoice.Minutes && current !in choices -> customIndex
+        else -> choices.indexOf(current).coerceAtLeast(0)
+    }
     PlayerChoiceListDialog(
-        title = stringResource(R.string.player_sleep_timer),
-        labels = labels,
-        selectedIndex = choices.indexOf(current).coerceAtLeast(0),
+        title = title,
+        labels = labels + stringResource(R.string.player_sleep_timer_custom),
+        selectedIndex = selectedIndex,
         initialFocusIndex = if (current == null) 1 else 0,
-        onSelected = { index -> viewModel.onEvent(PlayerEvent.OnSelectSleepTimer(choices[index])) },
+        onSelected = { index ->
+            if (index == customIndex) pickingCustom = true
+            else viewModel.onEvent(PlayerEvent.OnSelectSleepTimer(choices[index]))
+        },
         onDismiss = { viewModel.onEvent(PlayerEvent.OnDismissChoiceDialog) }
     )
 }
+
+/** Custom sleep timer lengths: every 5 minutes up to four hours. */
+private val SLEEP_TIMER_CUSTOM_MINUTES: List<Int> = (5..240 step 5).toList()
+private const val SLEEP_TIMER_CUSTOM_START_MINUTES = 30
 
 /** The aspect list: Fit first, then the other modes. Focus starts on the mode in use. */
 @Composable

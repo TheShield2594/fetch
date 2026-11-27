@@ -138,6 +138,14 @@ class PlaybackSettingsViewModel @Inject constructor(
         playerSettingsDataStore.setSeekForwardSeconds(seconds)
     }
 
+    suspend fun setSeekFeedbackLingerMs(ms: Int) {
+        playerSettingsDataStore.setSeekFeedbackLingerMs(ms)
+    }
+
+    suspend fun setPauseOverlayDelaySeconds(seconds: Int) {
+        playerSettingsDataStore.setPauseOverlayDelaySeconds(seconds)
+    }
+
     suspend fun setControlsAutoHideSeconds(seconds: Int) {
         playerSettingsDataStore.setControlsAutoHideSeconds(seconds)
     }

@@ -2214,4 +2214,18 @@
     <string name="youtube_filter_duration_short">Manj kot 4 minute</string>
     <string name="youtube_filter_duration_medium">4–20 minut</string>
     <string name="youtube_filter_duration_long">Več kot 20 minut</string>
+    <string name="subtitle_mode_auto">Samodejno</string>
+    <string name="subtitle_mode_off">Izklopljeno</string>
+    <string name="subtitle_mode_on">Vklopljeno</string>
+    <string name="subtitle_mode_auto_hint">Samo vsiljeni podnapisi, ko je zvok v vašem jeziku; sicer polni podnapisi.</string>
+    <string name="subtitle_mode_off_hint">Samo vsiljeni podnapisi, za napise in vrstice v drugem jeziku.</string>
+    <string name="subtitle_mode_on_hint">Polni podnapisi, kadar so na voljo v vašem jeziku.</string>
+    <string name="player_show_time_remaining">Prikaži preostali čas</string>
+    <string name="player_show_total_time">Prikaži skupni čas</string>
+    <string name="player_scrub_step">Koraki po %1$d s</string>
+    <string name="player_sleep_timer_custom">Po meri …</string>
+    <string name="playback_seek_feedback_linger">Čas iskanja ostane prikazan</string>
+    <string name="playback_seek_feedback_linger_sub">Kako dolgo ostane časovni oblaček na zaslonu po iskanju.</string>
+    <string name="playback_pause_overlay_delay">Zaslon premora se prikaže po</string>
+    <string name="playback_pause_overlay_delay_sub">Kako dolgo je predvajanje zaustavljeno, preden se prikaže zaslon premora.</string>
 </resources>

@@ -41,8 +41,28 @@ internal class ParallelRangeDataSource(
     private val consumeBootstrapCache: (DataSpec) -> BootstrapCacheEntry? = { null },
     private val updateBootstrapCache: (BootstrapCacheEntry?) -> Unit = {},
 
-    private val allowContinuationReopen: Boolean = true
+    private val allowContinuationReopen: Boolean = true,
+    /**
+     * Where this source's chunk session lives. Each [Factory] has its own, so two progressive
+     * loaders (the playing episode and the next one being prepared) never tear down each other's
+     * session (#770). Sources made without a factory share [ChunkSessionSlot.shared].
+     */
+    private val sessionSlot: ChunkSessionSlot = ChunkSessionSlot.shared
 ) : DataSource {
+
+    /** One loader's chunk session and the session pre-started for it. */
+    internal class ChunkSessionSlot {
+        internal val lock = Any()
+        internal var current: Any? = null
+        internal var pending: Any? = null
+
+        companion object {
+            val shared = ChunkSessionSlot()
+            private val all = java.util.Collections.newSetFromMap(java.util.WeakHashMap<ChunkSessionSlot, Boolean>())
+            fun register(slot: ChunkSessionSlot) = synchronized(all) { all.add(slot) }
+            fun snapshot(): List<ChunkSessionSlot> = synchronized(all) { all.toList() } + shared
+        }
+    }
 
     companion object {
         private const val TAG = "ParallelRangeDS"
@@ -255,10 +275,13 @@ internal class ParallelRangeDataSource(
             }
         }
 
-        private val sessionLock = Any()
-        private var currentChunkSession: ChunkSession? = null
+        private var ChunkSessionSlot.currentChunkSession: ChunkSession?
+            get() = current as ChunkSession?
+            set(value) { current = value }
 
-        private var pendingChunkSession: ChunkSession? = null
+        private var ChunkSessionSlot.pendingChunkSession: ChunkSession?
+            get() = pending as ChunkSession?
+            set(value) { pending = value }
 
         private fun releaseSessionBuffer(buffer: PooledBuffer, chunkSz: Long, poolCap: Int) {
             buffer.release { recycleBuffer(it, chunkSz, poolCap) }
@@ -320,7 +343,7 @@ internal class ParallelRangeDataSource(
             session.inFlight.clear()
         }
 
-        private fun obtainSession(
+        private fun ChunkSessionSlot.obtainSession(
             requestUri: Uri,
             requestHeaders: Map<String, String>,
             chunkSz: Long,
@@ -328,7 +351,7 @@ internal class ParallelRangeDataSource(
             poolCap: Int,
             prefetchWindow: Int
         ): ChunkSession {
-            synchronized(sessionLock) {
+            synchronized(lock) {
                 val existing = currentChunkSession
                 if (existing != null) {
                     val fresh = SystemClock.uptimeMillis() - existing.lastUsedAtMs <= RETAINED_SESSION_TTL_MS
@@ -398,8 +421,14 @@ internal class ParallelRangeDataSource(
             }
         }
 
+        /** Tears down every loader's retained session; playback has ended. */
         internal fun releaseRetainedSession() {
-            synchronized(sessionLock) {
+            ChunkSessionSlot.snapshot().forEach { it.releaseRetainedSession() }
+        }
+
+        /** Tears down this loader's retained session only. */
+        internal fun ChunkSessionSlot.releaseRetainedSession() {
+            synchronized(lock) {
                 currentChunkSession?.let { teardownSessionLocked(it, poolCap = 0) }
                 currentChunkSession = null
 
@@ -408,7 +437,7 @@ internal class ParallelRangeDataSource(
             }
         }
 
-        private fun obtainPendingSession(
+        private fun ChunkSessionSlot.obtainPendingSession(
             requestUri: Uri,
             requestHeaders: Map<String, String>,
             chunkSz: Long,
@@ -416,7 +445,7 @@ internal class ParallelRangeDataSource(
             poolCap: Int,
             prefetchWindow: Int
         ): ChunkSession? {
-            synchronized(sessionLock) {
+            synchronized(lock) {
                 val live = currentChunkSession
                 if (live != null && !live.abandoned.get() && live.requestUri == requestUri &&
                     live.chunkSize == chunkSz && live.requestHeaders == requestHeaders
@@ -649,7 +678,7 @@ internal class ParallelRangeDataSource(
         resetLocalReadState()
         bytesServedThisOpen = 0L
 
-        val attachedSession = obtainSession(dataSpec.uri, dataSpec.httpRequestHeaders, chunkSize, sessionChunkCap, maxPoolSize, effectivePrefetchDepth)
+        val attachedSession = sessionSlot.obtainSession(dataSpec.uri, dataSpec.httpRequestHeaders, chunkSize, sessionChunkCap, maxPoolSize, effectivePrefetchDepth)
         session = attachedSession
         val warmLength = attachedSession.totalLength
         if (warmLength > 0L && dataSpec.position in 0 until warmLength) {
@@ -1571,7 +1600,7 @@ internal class ParallelRangeDataSource(
         fallbackSource?.responseHeaders ?: emptyMap()
 
     internal fun prestartChunk0(uri: Uri) {
-        val pending = obtainPendingSession(
+        val pending = sessionSlot.obtainPendingSession(
             uri, emptyMap(), chunkSize, sessionChunkCap, maxPoolSize, effectivePrefetchDepth
         ) ?: return
         session = pending
@@ -1601,6 +1630,12 @@ internal class ParallelRangeDataSource(
         @Volatile
         private var startupBootstrapCache: BootstrapCacheEntry? = null
 
+        /** This factory's own chunk session, apart from any other player's (#770). */
+        private val sessionSlot = ChunkSessionSlot().also { ChunkSessionSlot.register(it) }
+
+        /** Ends this factory's session, leaving other loaders' sessions alone. */
+        fun releaseSession() = sessionSlot.releaseRetainedSession()
+
         fun prestartChunk0(uri: Uri) {
             (createDataSource() as ParallelRangeDataSource).prestartChunk0(uri)
         }
@@ -1614,6 +1649,7 @@ internal class ParallelRangeDataSource(
                 shouldAllowBackgroundPrefetch = shouldAllowBackgroundPrefetch,
                 onResolvedUri = onResolvedUri,
                 allowContinuationReopen = allowContinuationReopen,
+                sessionSlot = sessionSlot,
                 consumeBootstrapCache = { dataSpec ->
                     val cached = startupBootstrapCache ?: return@ParallelRangeDataSource null
                     val isFresh = SystemClock.uptimeMillis() - cached.createdAtUptimeMs <= 15_000L

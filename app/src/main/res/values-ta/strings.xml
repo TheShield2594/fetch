@@ -2299,4 +2299,18 @@
     <string name="youtube_filter_duration_short">4 நிமிடங்களுக்குக் குறைவு</string>
     <string name="youtube_filter_duration_medium">4–20 நிமிடங்கள்</string>
     <string name="youtube_filter_duration_long">20 நிமிடங்களுக்கு மேல்</string>
+    <string name="subtitle_mode_auto">தானியங்கு</string>
+    <string name="subtitle_mode_off">ஆஃப்</string>
+    <string name="subtitle_mode_on">ஆன்</string>
+    <string name="subtitle_mode_auto_hint">ஒலி உங்கள் மொழியில் இருந்தால் கட்டாய வசனங்கள் மட்டும்; இல்லையெனில் முழு வசனங்கள்.</string>
+    <string name="subtitle_mode_off_hint">கட்டாய வசனங்கள் மட்டும், அடையாளங்கள் மற்றும் வேறு மொழி வரிகளுக்கு.</string>
+    <string name="subtitle_mode_on_hint">உங்கள் மொழியில் வசனங்கள் இருக்கும்போதெல்லாம் முழு வசனங்கள்.</string>
+    <string name="player_show_time_remaining">மீதமுள்ள நேரத்தைக் காட்டு</string>
+    <string name="player_show_total_time">மொத்த நேரத்தைக் காட்டு</string>
+    <string name="player_scrub_step">%1$d வி படிகள்</string>
+    <string name="player_sleep_timer_custom">தனிப்பயன்…</string>
+    <string name="playback_seek_feedback_linger">தாவல் நேரத்தைக் காட்டும் நேரம்</string>
+    <string name="playback_seek_feedback_linger_sub">தாவிய பிறகு நேரக் குமிழ் திரையில் எவ்வளவு நேரம் இருக்கும்.</string>
+    <string name="playback_pause_overlay_delay">இடைநிறுத்தத் திரையைக் காட்டும் நேரம்</string>
+    <string name="playback_pause_overlay_delay_sub">இடைநிறுத்தத் திரை தோன்றுவதற்கு முன் இயக்கம் எவ்வளவு நேரம் இடைநிறுத்தப்பட்டிருக்கும்.</string>
 </resources>

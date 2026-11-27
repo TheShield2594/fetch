@@ -75,7 +75,13 @@ import com.fetch.tv.ui.screens.detail.adjacentEpisode
 import com.fetch.tv.ui.screens.detail.formatReleaseDate
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalConfiguration
+import com.fetch.tv.core.util.isEpisodeReleaseAired
+import com.fetch.tv.domain.model.WatchProgress
+import com.fetch.tv.ui.components.fetchCardProgress
+import com.fetch.tv.ui.util.formatRuntimeMinutes
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -218,6 +224,31 @@ private fun EpisodeStreamsView(
         }
     }
     val firstStreamKey = streamKeys.firstOrNull()
+    // Only the episode on screen has a playing stream; any other episode's list marks nothing.
+    val playingStreamIndex = remember(
+        uiState.episodeFilteredStreams,
+        uiState.episodeStreamsSeason,
+        uiState.episodeStreamsEpisode,
+        uiState.currentSeason,
+        uiState.currentEpisode,
+        uiState.currentStreamInfoHash,
+        uiState.currentStreamFileIdx,
+        uiState.currentStreamAddonName,
+        uiState.currentStreamUrl,
+        uiState.currentStreamName,
+    ) {
+        val isCurrentEpisode = uiState.episodeStreamsSeason != null &&
+            uiState.episodeStreamsSeason == uiState.currentSeason &&
+            uiState.episodeStreamsEpisode == uiState.currentEpisode
+        if (!isCurrentEpisode) -1 else findCurrentStreamIndex(
+            streams = uiState.episodeFilteredStreams,
+            currentStreamInfoHash = uiState.currentStreamInfoHash,
+            currentStreamFileIdx = uiState.currentStreamFileIdx,
+            currentStreamAddonName = uiState.currentStreamAddonName,
+            currentStreamUrl = uiState.currentStreamUrl,
+            currentStreamName = uiState.currentStreamName
+        )
+    }
     val streamFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     streamKeys.forEach { key ->
         streamFocusRequesters.focusRequesterFor(key)
@@ -473,12 +504,16 @@ private fun EpisodeStreamsView(
                 itemsIndexed(uiState.episodeFilteredStreams, key = { index, _ ->
                     streamKeys[index]
                 }) { index, stream ->
+                    val isPlayingStream = index == playingStreamIndex
                     StreamCard(
                         stream = stream,
                         focusRequester = streamFocusRequesters.getValue(streamKeys[index]),
+                        marked = isPlayingStream,
+                        markedLabel = if (isPlayingStream) stringResource(R.string.sources_playing) else null,
                         showFileSizeBadges = uiState.showFileSizeBadges,
                         showAddonLogo = uiState.showAddonLogo,
                         badgePlacement = uiState.streamBadgePlacement,
+                        exclusion = uiState.episodeStreamExclusions.takeIf { it.isNotEmpty() }?.get(stream.stableKey()),
                         onClick = { onStreamSelected(stream) },
                         onFocusChanged = { focused ->
                             if (focused) {
@@ -607,9 +642,12 @@ private fun EpisodesListView(
                         .fillMaxHeight()
                         .focusProperties { up = seasonTabFocusRequester }
                 ) {
-                    itemsIndexed(uiState.episodes) { index, episode ->
+                    itemsIndexed(uiState.episodes, key = { _, episode -> episode.id }) { index, episode ->
                         val isCurrent = episode.season == uiState.currentSeason &&
                             episode.episode == uiState.currentEpisode
+                        val episodeKey = episode.season?.let { s -> episode.episode?.let { e -> s to e } }
+                        // The episode playing now has evidently aired, whatever its listed date says.
+                        val isUnaired = !isCurrent && isEpisodeUnaired(episode)
                         val requestInitialFocus = when {
                             lastOpenedEpisodeIndex >= 0 -> index == lastOpenedEpisodeIndex
                             currentEpisodeIndex >= 0 -> isCurrent
@@ -619,6 +657,8 @@ private fun EpisodesListView(
                             episode = episode,
                             isCurrent = isCurrent,
                             isWatched = isEpisodeWatched(episode),
+                            watchProgress = episodeKey?.let { uiState.episodeWatchProgressMap[it] },
+                            isUnaired = isUnaired,
                             blurUnwatched = uiState.blurUnwatchedEpisodes,
                             focusRequester = episodesFocusRequester,
                             requestInitialFocus = requestInitialFocus,
@@ -628,7 +668,8 @@ private fun EpisodesListView(
                             onPreviousFromFirstSeason = {
                                 runCatching { seasonTabFocusRequester.requestFocus() }.isSuccess
                             },
-                            onClick = { onEpisodeSelected(episode) },
+                            // An unaired episode has nothing to play yet, so it does not start a stream search.
+                            onClick = { if (!isUnaired) onEpisodeSelected(episode) },
                             onLongClick = { detailsEpisode = episode }
                         )
                     }
@@ -638,19 +679,24 @@ private fun EpisodesListView(
     }
 
     detailsEpisode?.let { episode ->
+        val isCurrentlyPlaying = episode.season == uiState.currentSeason &&
+            episode.episode == uiState.currentEpisode
         EpisodeOptionsOverlay(
             episode = episode,
+            imdbRating = episode.rating,
             isWatched = isEpisodeWatched(episode),
             blurUnwatchedEpisodes = uiState.blurUnwatchedEpisodes,
             style = uiState.episodeOptionsOverlayStyle,
             isPending = false,
             showWatchedActions = false,
-            isCurrentlyPlaying = episode.season == uiState.currentSeason &&
-                episode.episode == uiState.currentEpisode,
+            isCurrentlyPlaying = isCurrentlyPlaying,
+            isPlayEnabled = isCurrentlyPlaying || !isEpisodeUnaired(episode),
             onDismiss = { detailsEpisode = null },
             onNavigateEpisode = { step ->
                 adjacentEpisode(uiState.episodes, episode, step)?.let { detailsEpisode = it }
             },
+            canNavigatePrevious = adjacentEpisode(uiState.episodes, episode, -1) != null,
+            canNavigateNext = adjacentEpisode(uiState.episodes, episode, 1) != null,
             onPlay = {
                 detailsEpisode = null
                 onEpisodeSelected(episode)
@@ -659,6 +705,10 @@ private fun EpisodesListView(
         )
     }
 }
+
+/** True when the episode has a release date that is still in the future. Undated episodes count as aired. */
+private fun isEpisodeUnaired(episode: Video): Boolean =
+    isEpisodeReleaseAired(episode.released) == false
 
 // The panel clips descriptions to two lines, so it starts revealing the rest a little sooner than the default.
 private const val EpisodeDescriptionScrollDelayMillis = 5000L
@@ -757,6 +807,8 @@ private fun EpisodeItem(
     episode: Video,
     isCurrent: Boolean,
     isWatched: Boolean = false,
+    watchProgress: WatchProgress? = null,
+    isUnaired: Boolean = false,
     blurUnwatched: Boolean = false,
     focusRequester: FocusRequester,
     requestInitialFocus: Boolean,
@@ -788,6 +840,27 @@ private fun EpisodeItem(
     val formattedDate = remember(episode.released) {
         episode.released?.let { formatReleaseDate(it) }?.takeIf { it.isNotBlank() }
     }
+    val dateLabel = when {
+        !isUnaired -> formattedDate
+        formattedDate != null -> stringResource(R.string.cw_airs_date, formattedDate)
+        else -> stringResource(R.string.next_episode_unaired)
+    }
+    val runtimeLabel = remember(episode.runtime) {
+        episode.runtime?.takeIf { it > 0 }?.let { formatRuntimeMinutes(it) }
+    }
+    val displayLocale = LocalConfiguration.current.locales[0]
+    val ratingLabel = remember(episode.rating, displayLocale) {
+        episode.rating?.takeIf { it > 0.0 }?.let { String.format(displayLocale, "%.1f", it) }
+    }
+    val metaLine = remember(dateLabel, runtimeLabel, ratingLabel) {
+        listOfNotNull(dateLabel, runtimeLabel, ratingLabel?.let { "★ $it" })
+            .takeIf { it.isNotEmpty() }
+            ?.joinToString(" · ")
+    }
+    // Partly watched only; a finished episode already shows the watched check.
+    val progressFraction = watchProgress
+        ?.takeIf { !isWatched && it.isInProgress() }
+        ?.progressPercentage
     val episodeCode = remember(episode.season, episode.episode, resources) {
         val s = episode.season
         val e = episode.episode
@@ -884,9 +957,20 @@ private fun EpisodeItem(
                         }
                         .build(),
                     contentDescription = episodeTitle,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(if (isUnaired) Modifier.alpha(UnairedThumbnailAlpha) else Modifier),
                     contentScale = ContentScale.Crop
                 )
+
+                if (progressFraction != null) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
+                            .fetchCardProgress(progressFraction, FetchTheme.colors.Accent)
+                    )
+                }
 
                 if (episodeCode != null) {
                     Box(
@@ -906,20 +990,28 @@ private fun EpisodeItem(
                 }
 
                 if (isCurrent) {
-                    Box(
+                    // A play glyph and the word, as the Sources panel marks the playing stream; the
+                    // old eye icon read as "watched".
+                    Row(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(6.dp)
-                            .size(22.dp)
                             .clip(RoundedCornerShape(FetchTheme.radii.md))
-                            .background(FetchTheme.colors.Player.Scrim),
-                        contentAlignment = Alignment.Center
+                            .background(FetchTheme.colors.Player.Scrim)
+                            .padding(horizontal = 6.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Visibility,
-                            contentDescription = stringResource(R.string.cd_current),
+                            imageVector = Icons.Default.PlayArrow,
+                            contentDescription = null,
                             tint = FetchTheme.colors.Primary,
                             modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = stringResource(R.string.sources_playing),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = FetchTheme.colors.Player.TextPrimary
                         )
                     }
                 } else if (isWatched) {
@@ -955,11 +1047,13 @@ private fun EpisodeItem(
                     overflow = TextOverflow.Ellipsis
                 )
 
-                if (formattedDate != null) {
+                if (metaLine != null) {
                     Text(
-                        text = formattedDate,
+                        text = metaLine,
                         style = MaterialTheme.typography.bodySmall,
-                        color = FetchTheme.extendedColors.textTertiary
+                        color = if (isUnaired) FetchTheme.extendedColors.textSecondary else FetchTheme.extendedColors.textTertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
 
@@ -979,3 +1073,5 @@ private fun EpisodeItem(
         }
     }
 }
+
+private const val UnairedThumbnailAlpha = 0.45f

@@ -2,6 +2,8 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.data.local.SubtitleMode
+import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
 import android.net.Uri
 import android.util.Log
 import androidx.media3.common.C
@@ -1624,6 +1626,8 @@ private fun audioMatchesSubtitleTargetForForced(audioTrack: TrackInfo, target: S
 
 internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailableTracks() {
     if (isUserExplicitSubtitleSelection) {
+        // A remembered "Off" means no regular subtitles, not no forced narrative ones (#771).
+        if (subtitleDisabledByPersistedPreference) showForcedNarrativeSubtitleWhileOff()
         Log.d(PlayerRuntimeController.TAG, "AUTO_SUB stop: user explicitly selected current subtitle")
         return
     }
@@ -1649,11 +1653,15 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
         if (!hasBetterAddonMatch) return
     }
     val selectedAudioTrack = selectedAudioTrackForSubtitleMatching(state)
-    val useForcedSubtitles = state.subtitleStyle.useForcedSubtitles
+    val mode = state.subtitleStyle.mode
+    val useForcedSubtitles = state.subtitleStyle.forcedOnlyForMatchingAudio
     val forcedTarget = when {
         !useForcedSubtitles -> null
         primaryTarget != null && selectedAudioTrack != null && audioMatchesSubtitleTargetForForced(selectedAudioTrack, primaryTarget) ->
             primaryTarget
+        // Off: forced subtitles for whatever language the audio is in, and never full ones.
+        mode == SubtitleMode.OFF && selectedAudioTrack != null ->
+            selectedAudioLanguageTarget(selectedAudioTrack)
         primaryTarget == null &&
             selectedAudioTrack != null &&
             selectedAudioMatchesResolvedPreferredAudio(selectedAudioTrack) ->
@@ -1663,7 +1671,11 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
     val forcedOnly = forcedTarget != null
     val targets = when {
         forcedTarget != null -> listOf(forcedTarget)
+        mode == SubtitleMode.OFF -> emptyList()
         primaryTarget != null -> preferredTargets
+        // On with no preferred language: subtitles in the audio's language.
+        mode == SubtitleMode.ON && selectedAudioTrack != null ->
+            listOfNotNull(selectedAudioLanguageTarget(selectedAudioTrack))
         else -> emptyList()
     }
     Log.d(
@@ -1678,9 +1690,12 @@ internal fun PlayerRuntimeController.tryAutoSelectPreferredSubtitleFromAvailable
     }
     if (targets.isEmpty()) {
         autoSubtitleSelected = true
-        Log.d(PlayerRuntimeController.TAG, "AUTO_SUB stop: preferred=none")
+        Log.d(PlayerRuntimeController.TAG, "AUTO_SUB stop: preferred=none mode=$mode")
         if (isUsingMpvEngine()) {
             mpvView?.disableSubtitles()
+        } else if (mode == SubtitleMode.OFF && (state.selectedSubtitleTrackIndex >= 0 || state.selectedAddonSubtitle != null)) {
+            disableSubtitles()
+            _uiState.update { it.copy(selectedSubtitleTrackIndex = -1, selectedAddonSubtitle = null) }
         }
         return
     }
@@ -1874,7 +1889,7 @@ internal fun PlayerRuntimeController.applySubtitlePreferences(preferred: String,
                     _uiState.value.selectedAddonSubtitle == null
             // Suppress ExoPlayer auto-select when forced mode is active —
             // our custom logic handles track selection.
-            val useForcedSubtitles = _uiState.value.subtitleStyle.useForcedSubtitles
+            val useForcedSubtitles = _uiState.value.subtitleStyle.forcedOnlyForMatchingAudio
             val shouldSuppressExoAutoSelect = useForcedSubtitles && !autoSubtitleSelected
             if (!userDisabledSubtitles && !shouldSuppressExoAutoSelect) {
                 builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
@@ -1886,7 +1901,7 @@ internal fun PlayerRuntimeController.applySubtitlePreferences(preferred: String,
 
         // Update forced flag handling: when forced subtitles are disabled,
         // tell ExoPlayer to ignore SELECTION_FLAG_FORCED.
-        val useForcedSubtitles = _uiState.value.subtitleStyle.useForcedSubtitles
+        val useForcedSubtitles = _uiState.value.subtitleStyle.forcedOnlyForMatchingAudio
         val currentFlags = player.trackSelectionParameters.ignoredTextSelectionFlags
         val newFlags = if (!useForcedSubtitles) {
             currentFlags or C.SELECTION_FLAG_FORCED
@@ -1896,5 +1911,38 @@ internal fun PlayerRuntimeController.applySubtitlePreferences(preferred: String,
         builder.setIgnoredTextSelectionFlags(newFlags)
 
         player.trackSelectionParameters = builder.build()
+    }
+}
+
+/**
+ * With subtitles remembered as off for this title, still shows a forced narrative track in the
+ * audio's language when the stream has one, without remembering it as the user's choice. Drops a
+ * forced track picked for a previous audio language that no longer matches.
+ */
+internal fun PlayerRuntimeController.showForcedNarrativeSubtitleWhileOff() {
+    if (hasBurnedInServerSubtitle || !hasScannedTextTracksOnce) return
+    val state = _uiState.value
+    if (state.selectedAddonSubtitle != null) return
+    val audio = selectedAudioTrackForSubtitleMatching(state) ?: return
+    val target = selectedAudioLanguageTarget(audio) ?: return
+    val index = findBestInternalSubtitleTrackIndex(
+        subtitleTracks = state.subtitleTracks,
+        targets = listOf(target),
+        forcedOnly = true,
+        normalOnly = false,
+        selectedAudioTrack = audio
+    ).takeIf { it >= 0 && state.subtitleTracks.getOrNull(it)?.isForced == true }
+    val current = state.selectedSubtitleTrackIndex
+    when {
+        index != null && index != current -> {
+            Log.d(PlayerRuntimeController.TAG, "AUTO_SUB off: forced narrative index=$index lang=${state.subtitleTracks[index].language}")
+            selectSubtitleTrack(index)
+            _uiState.update { it.copy(selectedSubtitleTrackIndex = index) }
+        }
+        index == null && current >= 0 && state.subtitleTracks.getOrNull(current)?.isForced == true -> {
+            Log.d(PlayerRuntimeController.TAG, "AUTO_SUB off: forced track no longer matches the audio")
+            disableSubtitles()
+            _uiState.update { it.copy(selectedSubtitleTrackIndex = -1) }
+        }
     }
 }

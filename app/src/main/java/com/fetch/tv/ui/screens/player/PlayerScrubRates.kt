@@ -80,7 +80,12 @@ object PlayerScrubRates {
  * What the seek overlay shows during a seek: where playback will land and how far that is
  * from where the seek started (#407).
  */
-data class SeekFeedback(val originMs: Long, val targetMs: Long) {
+data class SeekFeedback(
+    val originMs: Long,
+    val targetMs: Long,
+    /** While a held seek has ramped past the first step, how far each repeat moves; else null (#776). */
+    val stepMs: Long? = null
+) {
     val deltaMs: Long get() = targetMs - originMs
 }
 
@@ -116,4 +121,19 @@ internal fun formatSeekDelta(deltaMs: Long): String {
 internal fun numberKeySeekTargetMs(digit: Int, durationMs: Long, isLive: Boolean): Long? {
     if (isLive || durationMs <= 0L || digit !in 0..9) return null
     return durationMs / 10L * digit
+}
+
+/** Seeks stop this far short of the end, so a step near the end doesn't finish the title at once (#776). */
+internal const val SEEK_END_GUARD_MS = 5_000L
+
+/**
+ * A seek target kept in [0, duration - [SEEK_END_GUARD_MS]]. A position already inside the guard is
+ * the ceiling instead, so a forward step there stays put rather than moving backwards. An unknown
+ * duration (0 or [Long.MAX_VALUE]) only clamps at 0.
+ */
+internal fun seekTargetWithEndGuard(baseMs: Long, requestedMs: Long, durationMs: Long): Long {
+    val target = requestedMs.coerceAtLeast(0L)
+    if (durationMs <= 0L || durationMs == Long.MAX_VALUE) return target
+    val ceiling = maxOf(durationMs - SEEK_END_GUARD_MS, baseMs.coerceIn(0L, durationMs), 0L)
+    return target.coerceAtMost(ceiling)
 }

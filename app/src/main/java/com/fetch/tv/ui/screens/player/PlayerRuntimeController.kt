@@ -474,15 +474,41 @@ class PlayerRuntimeController(
 
     internal var lastSavedPosition: Long = 0L
     internal val saveThresholdMs = 5000L
-    internal var hasMarkedCurrentEpisodeCompleted: Boolean = false
-    /** The completion mark came from the natural end, so later in-progress saves are stale. */
-    internal var currentEpisodeCompletionIsFinal: Boolean = false
+    private var playbackItemGeneration: Long = 0L
+    private var _playbackItem: PlaybackItemState? = null
+
     /**
-     * Bumped whenever the completion flags above are reset for a new stream. A save captures it
-     * synchronously, and only touches the flags if it still matches after its suspensions, so a
-     * late save for the previous episode can't mark the new one (TheShield2594/fetch#708).
+     * The item playing now (#777). Looked up from the episode identity on every read, so the first
+     * read after [currentVideoId], [currentSeason] or [currentEpisode] change starts the new item:
+     * its flags start clear, and the old item's coroutines are cancelled.
      */
-    internal var watchProgressFlagsGeneration: Long = 0L
+    internal val playbackItem: PlaybackItemState
+        get() {
+            val key = PlaybackItemKey(currentVideoId, currentSeason, currentEpisode)
+            _playbackItem?.takeIf { it.key == key }?.let { return it }
+            _playbackItem?.cancel()
+            return PlaybackItemState(key, ++playbackItemGeneration, scope.coroutineContext[kotlinx.coroutines.Job])
+                .also { _playbackItem = it }
+        }
+
+    /** Work that belongs to the item on screen; cancelled when the item changes. */
+    internal val itemScope: CoroutineScope
+        get() = scope.childScopeFor(playbackItem)
+
+    internal var hasMarkedCurrentEpisodeCompleted: Boolean
+        get() = playbackItem.hasMarkedCompleted
+        set(value) { playbackItem.hasMarkedCompleted = value }
+    /** The completion mark came from the natural end, so later in-progress saves are stale. */
+    internal var currentEpisodeCompletionIsFinal: Boolean
+        get() = playbackItem.completionIsFinal
+        set(value) { playbackItem.completionIsFinal = value }
+    /**
+     * Which item the completion flags above belong to. A save captures it synchronously, and only
+     * touches the flags if it still matches after its suspensions, so a late save for the previous
+     * episode can't mark the new one (TheShield2594/fetch#708).
+     */
+    internal val watchProgressFlagsGeneration: Long
+        get() = playbackItem.generation
     /** Serializes watch-progress saves so a later save never lands before an earlier one. */
     internal val watchProgressSaveMutex = kotlinx.coroutines.sync.Mutex()
     // Queue restores run one at a time, in the order requested (see restoreQueueItem).
@@ -564,6 +590,7 @@ class PlayerRuntimeController(
     internal var lastSubtitlePreferredLanguage: String? = null
     internal var lastSubtitleSecondaryLanguage: String? = null
     internal var lastUseForcedSubtitles: Boolean? = null
+    internal var lastSubtitleMode: com.fetch.tv.data.local.SubtitleMode? = null
     internal var pendingAddonSubtitleLanguage: String? = null
     internal var pendingAddonSubtitleTrackId: String? = null
     internal var pendingAudioSelectionAfterSubtitleRefresh: PendingAudioSelection? = null
@@ -666,7 +693,9 @@ class PlayerRuntimeController(
     internal var delayMpvResumeSeekUntilVideoTrack: Boolean = false
     internal var mpvDelayStartAfterAfrSwitch: Boolean = false
     internal var pauseOverlayJob: Job? = null
-    internal val pauseOverlayDelayMs = 5000L
+    /** From the player settings (#776); the defaults until they load. */
+    internal var pauseOverlayDelayMs = PlayerSettings.DEFAULT_PAUSE_OVERLAY_DELAY_SECONDS * 1_000L
+    internal var seekFeedbackLingerMs = PlayerSettings.DEFAULT_SEEK_FEEDBACK_LINGER_MS.toLong()
     internal val seekProgressSyncDebounceMs = 700L
     internal val audioDelayUs = AtomicLong(0L)
     internal val subtitleDelayUs = AtomicLong(0L)
@@ -692,15 +721,24 @@ class PlayerRuntimeController(
     /** An AFR preflight probe is in flight for the current stream. Controller-only, like [pendingSeekPosition]. */
     @Volatile
     internal var afrProbeRunning: Boolean = false
-    internal var hasRetriedCurrentStreamAfter416: Boolean = false
+    // Retry budgets of the stream playing now: they survive its automatic retries (#777).
+    internal var hasRetriedCurrentStreamAfter416: Boolean
+        get() = playbackItem.attemptFor(currentStreamUrl).hasRetriedAfter416
+        set(value) { playbackItem.attemptFor(currentStreamUrl).hasRetriedAfter416 = value }
     internal var isReleasingPlayer: Boolean = false
     internal var cachedDecoderPriority: Int = 1
     internal var hasTriedAudioPcmFallback: Boolean = false
     internal var pendingAudioPcmFallbackRebuild: Boolean = false
     internal var parsingErrorProbeAttempted: Boolean = false
-    internal var hasRetriedCurrentStreamAfterUnexpectedNpe: Boolean = false
-    internal var hasRetriedCurrentStreamAfterMediaPeriodHolderCrash: Boolean = false
-    internal var timeoutRecoveryAttempts: Int = 0
+    internal var hasRetriedCurrentStreamAfterUnexpectedNpe: Boolean
+        get() = playbackItem.attemptFor(currentStreamUrl).hasRetriedAfterUnexpectedNpe
+        set(value) { playbackItem.attemptFor(currentStreamUrl).hasRetriedAfterUnexpectedNpe = value }
+    internal var hasRetriedCurrentStreamAfterMediaPeriodHolderCrash: Boolean
+        get() = playbackItem.attemptFor(currentStreamUrl).hasRetriedAfterMediaPeriodHolderCrash
+        set(value) { playbackItem.attemptFor(currentStreamUrl).hasRetriedAfterMediaPeriodHolderCrash = value }
+    internal var timeoutRecoveryAttempts: Int
+        get() = playbackItem.attemptFor(currentStreamUrl).timeoutRecoveryAttempts
+        set(value) { playbackItem.attemptFor(currentStreamUrl).timeoutRecoveryAttempts = value }
     internal var errorRetryCount: Int = 0
     internal var consecutiveAutoPlayCount: Int = 0
     internal var errorRetryJob: Job? = null

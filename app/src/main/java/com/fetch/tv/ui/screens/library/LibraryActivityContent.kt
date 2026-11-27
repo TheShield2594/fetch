@@ -25,6 +25,8 @@ import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
 import com.fetch.tv.ui.components.PosterCardStyle
 import com.fetch.tv.ui.components.PosterGridSkeleton
+import com.fetch.tv.ui.components.browseGridItemMotion
+import com.fetch.tv.ui.components.formatContinueWatchingProgressLabel
 import com.fetch.tv.ui.theme.FetchTheme
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -46,7 +48,15 @@ internal class LibraryActivityCardActions(
     // Selection mode (#653): null outside it, else whether the card is chosen.
     val selectedFor: (key: String) -> Boolean? = { null },
     // The new-episode badge's text and whether it's a new season (#653).
-    val newEpisodeBadgeFor: (LibraryActivityItem) -> Pair<String, Boolean>? = { null }
+    val newEpisodeBadgeFor: (LibraryActivityItem) -> Pair<String, Boolean>? = { null },
+    // Saved progress 0..1 for the bar along the card's bottom edge (#854).
+    val progressFor: (LibraryActivityItem) -> Float? = { null },
+    // The ready chip's text, when the title starts at once (#854).
+    val readyLabelFor: (LibraryActivityItem) -> String? = { null },
+    // Play/Pause on the card (#856); null when it isn't offered.
+    val onPlay: ((key: String, item: LibraryActivityItem) -> Unit)? = null,
+    // Drawn on every card, after the grid motion: the screen's content fade (#853).
+    val cardModifier: Modifier = Modifier
 )
 
 internal fun LazyGridScope.libraryInProgressContent(
@@ -74,7 +84,7 @@ internal fun LazyGridScope.libraryInProgressContent(
         }
         else -> items(items, key = ::inProgressFocusKey) { item ->
             val detail = activityDetail(item, showProgress = true)
-            ActivityCard(inProgressFocusKey(item), item, detail, posterCardStyle, actions)
+            ActivityCard(inProgressFocusKey(item), item, detail, posterCardStyle, actions, browseGridItemMotion().then(actions.cardModifier))
         }
     }
 }
@@ -108,7 +118,7 @@ internal fun LazyGridScope.libraryHistoryContent(
             }
             items(month.items, key = ::historyFocusKey, contentType = { "card" }) { item ->
                 val detail = activityDetail(item, showProgress = false)
-                ActivityCard(historyFocusKey(item), item, detail, posterCardStyle, actions)
+                ActivityCard(historyFocusKey(item), item, detail, posterCardStyle, actions, browseGridItemMotion().then(actions.cardModifier))
             }
         }
     }
@@ -120,7 +130,8 @@ private fun ActivityCard(
     item: LibraryActivityItem,
     detail: String?,
     posterCardStyle: PosterCardStyle,
-    actions: LibraryActivityCardActions
+    actions: LibraryActivityCardActions,
+    modifier: Modifier = Modifier
 ) {
     val preview = remember(item, detail) { item.toMetaPreview(detail) }
     val selected = actions.selectedFor(focusKey)
@@ -138,11 +149,18 @@ private fun ActivityCard(
         onLongPress = if (selected != null) null else ({ actions.onLongPress(focusKey, preview, item) }),
         selected = selected,
         newEpisodeBadge = badge?.first,
-        newEpisodeBadgeIsSeason = badge?.second == true
+        newEpisodeBadgeIsSeason = badge?.second == true,
+        progress = actions.progressFor(item),
+        readyLabel = actions.readyLabelFor(item),
+        onPlay = if (selected != null) null else actions.onPlay?.let { play -> { play(focusKey, item) } },
+        modifier = modifier
     )
 }
 
-/** The card's second line: the episode for a series, and on In progress how far in. */
+/**
+ * The card's second line: the episode for a series, and on In progress how much is left ("38m
+ * left"), as Continue Watching says it (#854); the percentage only when the length isn't known.
+ */
 @Composable
 private fun activityDetail(item: LibraryActivityItem, showProgress: Boolean): String? {
     val episode = if (item.isSeries && item.season != null && item.episode != null) {
@@ -150,7 +168,19 @@ private fun activityDetail(item: LibraryActivityItem, showProgress: Boolean): St
     } else {
         null
     }
-    val progress = item.progressPercent
+    val resumeLabel = stringResource(R.string.cw_resume)
+    val percentLabel = stringResource(R.string.library_in_progress_percent)
+    val hoursMinLeftLabel = stringResource(R.string.cw_hours_min_left)
+    val minLeftLabel = stringResource(R.string.cw_min_left)
+    val progress = item.resume?.takeIf { showProgress && (item.progressPercent ?: 0) > 0 }?.let { resume ->
+        formatContinueWatchingProgressLabel(
+            progress = resume,
+            resumeLabel = resumeLabel,
+            percentWatchedLabel = percentLabel,
+            hoursMinLeftLabel = hoursMinLeftLabel,
+            minLeftLabel = minLeftLabel
+        ).takeIf { it != resumeLabel }
+    } ?: item.progressPercent
         ?.takeIf { showProgress && it > 0 }
         ?.let { stringResource(R.string.library_in_progress_percent, it) }
     return listOfNotNull(episode, progress).joinToString(" · ").ifBlank { null }

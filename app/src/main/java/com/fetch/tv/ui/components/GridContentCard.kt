@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.compose.ui.graphics.graphicsLayer
 import com.fetch.tv.R
 import androidx.tv.material3.Border
 import androidx.tv.material3.Card
@@ -85,7 +86,13 @@ fun GridContentCard(
     selected: Boolean? = null,
     // A show's "New" / "New season" corner badge (#653), as on Continue Watching.
     newEpisodeBadge: String? = null,
-    newEpisodeBadgeIsSeason: Boolean = false
+    newEpisodeBadgeIsSeason: Boolean = false,
+    // Saved watch progress, 0..1, drawn along the bottom edge as on Continue Watching (#854).
+    progress: Float? = null,
+    // "4K DV" / "Ready": the title's Best match is saved and fresh, so it starts at once (#854).
+    readyLabel: String? = null,
+    // Play/Pause on the remote: starts the title without its detail page (#856, as Home's #812).
+    onPlay: (() -> Unit)? = null
 ) {
     val cardShape = remember(posterCardStyle.cornerRadius) { RoundedCornerShape(posterCardStyle.cornerRadius) }
     val density = LocalDensity.current
@@ -122,7 +129,8 @@ fun GridContentCard(
         true -> stringResource(R.string.library_selection_cd_selected)
         false -> stringResource(R.string.library_selection_cd_not_selected)
     }
-    val cardStateDescription = listOfNotNull(selectionState, newEpisodeBadge).joinToString(", ").ifBlank { null }
+    val cardStateDescription = listOfNotNull(selectionState, newEpisodeBadge, readyLabel).joinToString(", ").ifBlank { null }
+    val fullMotion = FetchTheme.fullMotion
 
     Column(
         modifier = modifier
@@ -179,6 +187,13 @@ fun GridContentCard(
                 }
                 .onPreviewKeyEvent { event ->
                     val native = event.nativeKeyEvent
+                    if (onPlay != null &&
+                        (native.keyCode == AndroidKeyEvent.KEYCODE_MEDIA_PLAY_PAUSE || native.keyCode == AndroidKeyEvent.KEYCODE_MEDIA_PLAY)
+                    ) {
+                        // Once per press: a held key must not start it again and again.
+                        if (native.action == AndroidKeyEvent.ACTION_DOWN && native.repeatCount == 0) onPlay()
+                        return@onPreviewKeyEvent true
+                    }
                     if (native.action == AndroidKeyEvent.ACTION_DOWN && onLongPress != null) {
                         if (native.keyCode == AndroidKeyEvent.KEYCODE_MENU) {
                             longPressTriggered = true
@@ -218,9 +233,14 @@ fun GridContentCard(
                     shape = cardShape
                 )
             ),
-            scale = CardDefaults.scale(
-                focusedScale = if (FetchTheme.fullMotion) posterCardStyle.focusedScale else FetchMotion.tokens.reducedMotionScale
-            )
+            scale = run {
+                val focusedScale = if (fullMotion) posterCardStyle.focusedScale else FetchMotion.tokens.reducedMotionScale
+                // A press dips the card a little under its focused size, as Home's cards do (#853).
+                CardDefaults.scale(
+                    focusedScale = focusedScale,
+                    pressedScale = if (fullMotion) focusedScale * CARD_PRESSED_SCALE else focusedScale
+                )
+            }
         ) {
             Box(
                 modifier = Modifier
@@ -348,12 +368,35 @@ fun GridContentCard(
                     )
                 }
                 if (selected != null) {
+                    // Fades in as selection mode starts, rather than every card's box popping in (#853).
+                    val markerAlpha = remember { androidx.compose.animation.core.Animatable(if (fullMotion) 0f else 1f) }
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        markerAlpha.animateTo(1f, FetchMotion.enterTween())
+                    }
                     SelectionCheckMarker(
                         selected = selected,
                         modifier = Modifier
                             .align(Alignment.TopStart)
+                            .graphicsLayer { alpha = markerAlpha.value }
                             .padding(start = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
                             .zIndex(2f)
+                    )
+                }
+                if (readyLabel != null && selected == null) {
+                    ReadyChip(
+                        label = readyLabel,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = FetchTheme.spacing.sm, top = FetchTheme.spacing.sm)
+                            .zIndex(2f)
+                    )
+                }
+                if (progress != null && progress > 0f) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs)
+                            .fetchCardProgress(progress, FetchTheme.colors.Accent)
                     )
                 }
                 if (newEpisodeBadge != null) {
@@ -402,3 +445,5 @@ fun GridContentCard(
     }
 }
 
+/** How far under its focused size a card dips while OK is held down (#853). */
+private const val CARD_PRESSED_SCALE = 0.97f

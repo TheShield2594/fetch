@@ -7,6 +7,14 @@
         <item quantity="one">%d selected</item>
         <item quantity="other">%d selected</item>
     </plurals>
+    <!-- How many of the titles shown are chosen (#856). %1$d chosen, %2$d shown. -->
+    <plurals name="library_selection_count_of">
+        <item quantity="one">%1$d of %2$d selected</item>
+        <item quantity="other">%1$d of %2$d selected</item>
+    </plurals>
+    <!-- Chooses every title the current filters show; Clear unchooses them (#856). -->
+    <string name="library_selection_select_all">Select all</string>
+    <string name="library_selection_clear">Clear</string>
     <string name="library_selection_hint">OK chooses a title · Menu jumps to these actions · Back finishes</string>
     <string name="library_selection_remove">Remove</string>
     <string name="library_selection_mark_watched">Mark watched</string>

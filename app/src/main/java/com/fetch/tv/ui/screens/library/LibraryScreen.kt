@@ -67,6 +67,10 @@ import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
+import com.fetch.tv.ui.components.browseGridItemMotion
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.pluralStringResource
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 import kotlinx.coroutines.launch
@@ -107,7 +111,14 @@ fun LibraryScreen(
     onNavigateToTrackingSettings: () -> Unit = onNavigateToSettings,
     // The website's stats page and calendar, which the TV reads from it.
     onNavigateToStats: () -> Unit = {},
-    onNavigateToCalendar: () -> Unit = {}
+    onNavigateToCalendar: () -> Unit = {},
+    /** OK on an In progress card: resumes it the way Continue Watching does (#856). */
+    onResume: (com.fetch.tv.ui.screens.home.ContinueWatchingItem) -> Unit = { item ->
+        val progress = (item as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
+        onNavigateToDetail(progress.contentId, progress.contentType, progress.addonBaseUrl)
+    },
+    /** Play/Pause on a saved title: starts its Best match without the detail page (#856, #812). */
+    onPlayTitle: (id: String, type: String, addonBaseUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
@@ -118,7 +129,8 @@ fun LibraryScreen(
     val servers by serversViewModel.servers.collectAsStateWithLifecycle()
     val serverShelves by serversViewModel.shelves.collectAsStateWithLifecycle()
     val hasServers = servers.enabledConnections.isNotEmpty()
-    val tabs = LibraryTab.entries.filter { it != LibraryTab.SERVERS || hasServers }
+    // Upcoming and Stats open their own pages, so they are buttons apart from the tabs (#855).
+    val tabs = LibraryTab.entries.filter { !it.opensPage && (it != LibraryTab.SERVERS || hasServers) }
     val tab = selectedTab.takeIf { it in tabs } ?: LibraryTab.WATCHLIST
     // The activity tabs are collected only while shown (the flows stop 5 s after the last
     // collector), so the Saved grid doesn't keep the full watch history decoded behind it.
@@ -170,6 +182,15 @@ fun LibraryScreen(
     var showBulkListPicker by remember { mutableStateOf(false) }
     var selectionBarHeightPx by remember { mutableIntStateOf(0) }
     val newEpisodeBadges by viewModel.newEpisodeBadges.collectAsStateWithLifecycle()
+    val progressByContentId by viewModel.progressByContentId.collectAsStateWithLifecycle()
+    val quickPlayAllowed by viewModel.quickPlayAllowed.collectAsStateWithLifecycle()
+    val readyFallbackLabel = stringResource(R.string.library_card_ready)
+    fun readyChip(labels: List<String>?): String? = labels?.let { libraryReadyChipText(it, readyFallbackLabel) }
+    fun resumeInProgress(item: LibraryActivityItem): Boolean {
+        val progress = item.resume ?: return false
+        onResume(com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress(progress))
+        return true
+    }
     val newEpisodeLabel = stringResource(R.string.cw_new_episode_short)
     val newSeasonLabel = stringResource(R.string.cw_new_season)
     fun badgeLabel(badge: LibraryNewEpisodeBadge?): Pair<String, Boolean>? = when (badge) {
@@ -232,11 +253,39 @@ fun LibraryScreen(
 
     // A new tab starts at its top. Not on the first composition: coming back from a title keeps
     // the grid where it was.
+    // The grid's content fades in on a tab change and as the first page replaces the skeleton,
+    // keeping the header still (#853). Not under reduced motion or on a low-RAM device.
+    val fadeContent = FetchTheme.fullMotion && !FetchTheme.lowRamDevice
+    val contentAlpha = remember { androidx.compose.animation.core.Animatable(1f) }
+    val contentFade = remember(contentAlpha) { Modifier.graphicsLayer { alpha = contentAlpha.value } }
+    suspend fun fadeContentIn() {
+        if (!fadeContent) return
+        contentAlpha.snapTo(0f)
+        contentAlpha.animateTo(1f, com.fetch.tv.ui.theme.FetchMotion.enterTween())
+    }
     var shownTab by remember { mutableStateOf(tab) }
     LaunchedEffect(tab) {
         if (tab != shownTab) {
             shownTab = tab
             runCatching { gridState.scrollToItem(0) }
+            fadeContentIn()
+        }
+    }
+    // The activity tabs show their skeleton until the first read, then fade the cards in.
+    val activityLoading = (tab == LibraryTab.IN_PROGRESS && inProgressItems == null) ||
+        (tab == LibraryTab.HISTORY && historyMonths == null)
+    var sawActivitySkeleton by remember { mutableStateOf(false) }
+    LaunchedEffect(activityLoading) {
+        if (activityLoading) sawActivitySkeleton = true else if (sawActivitySkeleton) {
+            sawActivitySkeleton = false
+            fadeContentIn()
+        }
+    }
+    var sawLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isLoading) {
+        if (uiState.isLoading) sawLoading = true else if (sawLoading) {
+            sawLoading = false
+            fadeContentIn()
         }
     }
 
@@ -430,11 +479,7 @@ fun LibraryScreen(
                         primaryFocusRequester = primaryFocusRequester,
                         onSelected = { picked ->
                             expandedPicker = null
-                            when (picked) {
-                                LibraryTab.UPCOMING -> onNavigateToCalendar()
-                                LibraryTab.STATS -> onNavigateToStats()
-                                else -> selectedTab = picked
-                            }
+                            selectedTab = picked
                         }
                     )
                     // History and In progress have no filter row, so their Select sits at the end of
@@ -458,13 +503,38 @@ fun LibraryScreen(
                             uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
                             else -> stringResource(R.string.library_source_local)
                         }
+                        // "47 titles · Trakt", following the filters (#854). The activity tabs are
+                        // named by their tab already, so they show the count alone.
+                        val shownCount = when {
+                            tab.listScope != null -> uiState.visibleItems.size
+                            tab == LibraryTab.IN_PROGRESS -> inProgressItems?.size
+                            tab == LibraryTab.HISTORY -> historyMonths?.sumOf { it.items.size }
+                            else -> null
+                        }
+                        val countText = shownCount?.let { pluralStringResource(R.plurals.library_title_count, it, it) }
+                        val summary = when {
+                            countText == null -> sourceName
+                            tab == LibraryTab.IN_PROGRESS || tab == LibraryTab.HISTORY -> countText
+                            else -> "$countText · $sourceName"
+                        }
                         Text(
-                            text = sourceName.uppercase(LocalConfiguration.current.locales[0]),
+                            text = summary.uppercase(LocalConfiguration.current.locales[0]),
                             style = FetchTheme.textStyles.eyebrow,
                             color = FetchTheme.colors.TextTertiary,
-                            maxLines = 1
+                            maxLines = 1,
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
                         )
                     }
+                    LibraryPageButtons(
+                        onUpcoming = {
+                            expandedPicker = null
+                            onNavigateToCalendar()
+                        },
+                        onStats = {
+                            expandedPicker = null
+                            onNavigateToStats()
+                        }
+                    )
                 }
                 if (tab.listScope != null) {
                     LibrarySelectorsRow(
@@ -619,6 +689,14 @@ fun LibraryScreen(
                 val badge = badgeLabel(newEpisodeBadges.badgeFor(item.id, item.imdbId).takeIf { isSeries })
                 GridContentCard(
                     item = previewForLongPress,
+                    modifier = browseGridItemMotion().then(contentFade),
+                    progress = progressByContentId[item.id] ?: item.imdbId?.let { progressByContentId[it] },
+                    readyLabel = readyChip(libraryEntryReadyLabels(item, uiState.readyBestMatchLabels)),
+                    onPlay = if (selection.active || !quickPlayAllowed) null else ({
+                        lastFocusedPosterKey = focusKey
+                        HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
+                        onPlayTitle(item.id, item.type, item.addonBaseUrl)
+                    }),
                     posterCardStyle = posterCardStyle,
                     isWatched = if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds,
                     focusRequester = posterFocusRequesters[focusKey],
@@ -659,6 +737,9 @@ fun LibraryScreen(
                         dispatchSelection(LibrarySelectionAction.Toggle(key))
                         return@LibraryActivityCardActions
                     }
+                    // In progress resumes at once, as Continue Watching does; the options menu
+                    // keeps Go to details (#856).
+                    if (tab == LibraryTab.IN_PROGRESS && resumeInProgress(item)) return@LibraryActivityCardActions
                     HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
                     onNavigateToDetail(item.id, item.type, item.addonBaseUrl)
                 },
@@ -670,7 +751,20 @@ fun LibraryScreen(
                     if (item.isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
                 selectedFor = { key -> if (selection.active) selection.isSelected(key) else null },
-                newEpisodeBadgeFor = { item -> badgeLabel(newEpisodeBadges.badgeFor(item.id).takeIf { item.isSeries }) }
+                newEpisodeBadgeFor = { item -> badgeLabel(newEpisodeBadges.badgeFor(item.id).takeIf { item.isSeries }) },
+                progressFor = { item ->
+                    // History cards show a bar only for a title started again since.
+                    if (tab == LibraryTab.IN_PROGRESS) item.progressPercent?.let { it / 100f } else progressByContentId[item.id]
+                },
+                readyLabelFor = { item -> readyChip(libraryActivityReadyLabels(item, uiState.readyBestMatchLabels)) },
+                onPlay = if (!quickPlayAllowed) null else ({ key, item ->
+                    lastFocusedPosterKey = key
+                    if (!(tab == LibraryTab.IN_PROGRESS && resumeInProgress(item))) {
+                        HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
+                        onPlayTitle(item.id, item.type, item.addonBaseUrl)
+                    }
+                }),
+                cardModifier = contentFade
             )
             if (tab == LibraryTab.HISTORY) {
                 libraryHistoryContent(historyMonths, posterCardStyle, actions, onNavigateToSearch)
@@ -768,6 +862,8 @@ fun LibraryScreen(
             onShowListPicker = { showBulkListPicker = it },
             onBarHeightChanged = { selectionBarHeightPx = it },
             onExit = { dispatchSelection(LibrarySelectionAction.Exit) },
+            onSelectAll = { dispatchSelection(LibrarySelectionAction.SelectAll(selectionKeys)) },
+            onClear = { dispatchSelection(LibrarySelectionAction.Clear) },
             exitFocusScope = selectionScope,
             onBulkAction = viewModel::onBulkAction
         )
@@ -799,13 +895,29 @@ fun LibraryScreen(
         controller = viewModel.posterOptions,
         onNavigateToDetail = { id, type, addonBaseUrl ->
             onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
+        },
+        extraActions = { target ->
+            // "Play" beside Go to details, the menu's way to the Play/Pause shortcut (#856).
+            if (quickPlayAllowed) {
+                val addonBaseUrl = posterOptionsState.addonBaseUrl
+                LibraryMenuButton(
+                    text = stringResource(R.string.hero_play),
+                    onClick = {
+                        viewModel.posterOptions.dismiss()
+                        val progress = inProgressItems?.firstOrNull { it.id == target.id }
+                        if (tab == LibraryTab.IN_PROGRESS && progress != null && resumeInProgress(progress)) return@LibraryMenuButton
+                        HeroBackdropState.update(viewModel.getCachedBackdrop(target.id, target.apiType))
+                        onPlayTitle(target.id, target.apiType, addonBaseUrl.takeIf { it.isNotBlank() })
+                    }
+                )
+            }
         }
     )
 }
 
 /**
- * The Library's sections in one row. Upcoming and Stats open their pages; the others switch the
- * grid below. The selected tab takes the screen's first focus.
+ * The Library's sections in one row; each switches the grid below. The selected tab takes the
+ * screen's first focus. Upcoming and Stats, which open other pages, are [LibraryPageButtons].
  */
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
@@ -833,15 +945,6 @@ private fun LibraryTabRow(
                     .semantics { selected = isSelected },
                 selected = isSelected
             ) {
-                val icon = when (tab) {
-                    LibraryTab.UPCOMING -> Icons.Default.CalendarMonth
-                    LibraryTab.STATS -> Icons.Default.BarChart
-                    else -> null
-                }
-                if (icon != null) {
-                    Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
-                }
                 Text(
                     text = when (tab) {
                         LibraryTab.WATCHLIST -> stringResource(R.string.library_tab_watchlist)
@@ -855,6 +958,60 @@ private fun LibraryTabRow(
                 )
             }
         }
+    }
+}
+
+/**
+ * Upcoming and Stats at the end of the header (#855): icon buttons apart from the tabs, since
+ * they leave the Library. Each shows its name while focused, and always names itself to TalkBack.
+ */
+@Composable
+private fun LibraryPageButtons(
+    onUpcoming: () -> Unit,
+    onStats: () -> Unit
+) {
+    val groupDescription = stringResource(R.string.library_pages_description)
+    Row(
+        modifier = Modifier.semantics { contentDescription = groupDescription },
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        LibraryPageButton(Icons.Default.CalendarMonth, stringResource(R.string.library_tab_upcoming), onUpcoming)
+        LibraryPageButton(Icons.Default.BarChart, stringResource(R.string.library_open_stats), onStats)
+    }
+}
+
+@Composable
+private fun LibraryPageButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit
+) {
+    var focused by remember { mutableStateOf(false) }
+    FetchButton(
+        onClick = onClick,
+        modifier = Modifier
+            .onFocusChanged { focused = it.isFocused }
+            .semantics { contentDescription = label }
+    ) {
+        Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        androidx.compose.animation.AnimatedVisibility(visible = focused) {
+            Row {
+                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                Text(label, maxLines = 1)
+            }
+        }
+    }
+}
+
+/** An extra entry in the Library's options menu, full width like the menu's own (#856). */
+@Composable
+private fun LibraryMenuButton(text: String, onClick: () -> Unit) {
+    FetchButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text)
     }
 }
 

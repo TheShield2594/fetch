@@ -44,6 +44,7 @@ fun DiscoverScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
+    val progressByContentId by viewModel.progressByContentId.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
     // The focused title's key, not its index, so it survives re-sorts and new pages (#844).
@@ -103,6 +104,7 @@ fun DiscoverScreen(
                 posterCardStyle = posterCardStyle,
                 watchedMovieIds = watchedMovieIds,
                 watchedSeriesIds = watchedSeriesIds,
+                progressByContentId = progressByContentId,
                 focusResults = false,
                 showBuiltInHeader = showBuiltInHeader,
                 firstItemFocusRequester = discoverFirstItemFocusRequester,

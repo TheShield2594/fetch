@@ -132,6 +132,34 @@ internal fun libraryWatchedFilterOptions(
     it != LibraryWatchedFilter.READY || anythingReady || selected == LibraryWatchedFilter.READY
 }
 
+/**
+ * Saved progress (0..1) by content id, from the Continue Watching list: each title's latest play,
+ * so a series shows how far into its current episode it is (#854). Titles not started are left out.
+ */
+internal fun libraryProgressByContentId(progress: List<com.fetch.tv.domain.model.WatchProgress>): Map<String, Float> =
+    progress.asSequence()
+        .filter { it.contentId.isNotBlank() }
+        .groupBy { it.contentId }
+        .mapValues { (_, entries) -> entries.maxBy { it.lastWatched }.progressPercentage }
+        .filterValues { it > 0f }
+
+/**
+ * The ready chip's quality labels for a saved title (#854): a movie whose Best match is ready.
+ * Null when it isn't ready; empty when it is but the stream's quality isn't known.
+ */
+internal fun libraryEntryReadyLabels(entry: LibraryEntry, readyLabels: Map<String, List<String>>): List<String>? =
+    if (entry.type.equals("movie", ignoreCase = true)) readyLabels[entry.bestMatchKey()] else null
+
+/** The same for an In progress or History card: the video its saved progress resumes. */
+internal fun libraryActivityReadyLabels(item: LibraryActivityItem, readyLabels: Map<String, List<String>>): List<String>? =
+    item.resume?.let { readyLabels[com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey(it.contentType, it.videoId)] }
+
+/** The chip's text: the picture and HDR labels ("4K DV"), else [fallback] ("Ready"). */
+internal fun libraryReadyChipText(labels: List<String>, fallback: String): String =
+    labels.take(READY_CHIP_MAX_LABELS).joinToString(" ").ifBlank { fallback }
+
+private const val READY_CHIP_MAX_LABELS = 2
+
 /** Whether [entry] starts at once: a movie whose Best match is in [readyKeys]. */
 internal fun libraryEntryReady(entry: LibraryEntry, readyKeys: Set<String>): Boolean =
     entry.type.equals("movie", ignoreCase = true) &&
@@ -186,6 +214,8 @@ data class LibraryUiState(
     val watchedSeriesIds: Set<String> = emptySet(),
     // Best match keys that are ready right now, for the Ready to play filter.
     val readyBestMatchKeys: Set<String> = emptySet(),
+    /** The ready picks' quality labels ("4K", "DV", ...), by the same keys, for the cards' chip (#854). */
+    val readyBestMatchLabels: Map<String, List<String>> = emptyMap(),
     val isTrackingAuthenticated: Boolean = false,
     val posterCardWidthDp: Int = 126,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
@@ -286,6 +316,26 @@ class LibraryViewModel @Inject constructor(
     }
         .flowOn(kotlinx.coroutines.Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /**
+     * Saved watch progress (0..1) by content id, for the bar along a card's bottom edge on every
+     * tab (#854): a series takes its latest episode's. Collected only while the grid shows.
+     */
+    val progressByContentId: StateFlow<Map<String, Float>> =
+        flow { emitAll(watchProgressRepository.continueWatching) }
+            .map(::libraryProgressByContentId)
+            .distinctUntilChanged()
+            .flowOn(kotlinx.coroutines.Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    /**
+     * Whether Play/Pause on a card may start it without its detail page (#856): not on a kids
+     * profile or one with parental limits, as on Home (#812).
+     */
+    val quickPlayAllowed: StateFlow<Boolean> = parentalControls.activeRestrictions
+        .map { !it.isKidsProfile && !it.isRestricted }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     /**
      * Shows with a new episode or season out, by content id, for the cards' corner badge: Home's
@@ -398,11 +448,14 @@ class LibraryViewModel @Inject constructor(
             // The clock is read here rather than taken from the tick: a pick saved after the last
             // tick would otherwise look like it was saved in the future, and not count as ready.
             combine(bestMatchCacheDataStore.entries, ticks) { entries, _ ->
-                readyBestMatchKeys(entries, System.currentTimeMillis())
+                val keys = readyBestMatchKeys(entries, System.currentTimeMillis())
+                entries.filterKeys { it in keys }.mapValues { it.value.labels }
             }
                 .distinctUntilChanged()
-                .collect { keys ->
-                    _uiState.update { current -> current.copy(readyBestMatchKeys = keys).withVisibleItems() }
+                .collect { labels ->
+                    _uiState.update { current ->
+                        current.copy(readyBestMatchKeys = labels.keys, readyBestMatchLabels = labels).withVisibleItems()
+                    }
                 }
         }
         viewModelScope.launch {

@@ -7,6 +7,16 @@
     <string name="library_tab_history">History</string>
     <string name="library_tab_upcoming">Upcoming</string>
     <string name="library_tabs_description">Library sections</string>
+    <!-- Upcoming and Stats open their own pages, so they sit apart from the tabs as icon buttons (#855). -->
+    <string name="library_pages_description">Other pages</string>
+
+    <!-- The summary line beside the tabs (#854). %1$d is how many titles the filters show. -->
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d title</item>
+        <item quantity="other">%1$d titles</item>
+    </plurals>
+    <!-- The corner chip on a card that starts at once; shown when the stream's quality isn't known (#854). -->
+    <string name="library_card_ready">Ready</string>
 
     <!-- Lists tab -->
     <string name="library_lists_empty_title">No lists yet</string>

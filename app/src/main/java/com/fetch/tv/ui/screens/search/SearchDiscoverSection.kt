@@ -1,6 +1,8 @@
 package com.fetch.tv.ui.screens.search
 
 import com.fetch.tv.ui.components.focusSafeHorizontalScroll
+import com.fetch.tv.ui.components.browseGridItemMotion
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.components.FetchMediaCard
 import com.fetch.tv.ui.components.focusRequesterFor
@@ -83,6 +85,8 @@ internal fun DiscoverSection(
     modifier: Modifier = Modifier,
     watchedMovieIds: Set<String> = emptySet(),
     watchedSeriesIds: Set<String> = emptySet(),
+    /** Saved progress by content id, drawn along the cards' bottom edge (#854). */
+    progressByContentId: Map<String, Float> = emptyMap(),
     focusResults: Boolean,
     showBuiltInHeader: Boolean = true,
     firstItemFocusRequester: FocusRequester,
@@ -237,10 +241,19 @@ internal fun DiscoverSection(
             )
         }
 
+        // The first page fades in over where the skeleton was (#853), but coming back from a
+        // title the grid is simply there.
+        var sawSkeleton by remember { mutableStateOf(false) }
+        val showingSkeleton = uiState.discoverResults.isEmpty() && (uiState.discoverLoading || uiState.discoverLoadingMore)
+        LaunchedEffect(showingSkeleton) { if (showingSkeleton) sawSkeleton = true }
         when {
             uiState.discoverResults.isNotEmpty() -> {
+                val fadeIn = sawSkeleton
+                LaunchedEffect(Unit) { sawSkeleton = false }
                 Box(modifier = Modifier.onFocusChanged { gridHasFocus = it.hasFocus }) {
                     DiscoverGrid(
+                        fadeInOnEnter = fadeIn,
+                        progressByContentId = progressByContentId,
                         items = uiState.discoverResults,
                         posterCardStyle = posterCardStyle,
                         watchedMovieIds = watchedMovieIds,
@@ -366,10 +379,17 @@ internal fun DiscoverGrid(
     onLoadMore: () -> Unit,
     onItemClick: (Int, MetaPreview) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
-    filterKey: String = ""
+    filterKey: String = "",
+    progressByContentId: Map<String, Float> = emptyMap(),
+    /** Fade the grid in as it first shows, in place of the loading skeleton (#853). */
+    fadeInOnEnter: Boolean = false
 ) {
     val restoreFocusRequester = remember { FocusRequester() }
     val gridState = rememberLazyGridState()
+    // A new type or filter crossfades the grid's content in, the chips staying still (#853).
+    val fadeContent = FetchTheme.fullMotion && !FetchTheme.lowRamDevice
+    val contentAlpha = remember { androidx.compose.animation.core.Animatable(if (fadeContent && fadeInOnEnter) 0f else 1f) }
+    LaunchedEffect(Unit) { contentAlpha.animateTo(1f, com.fetch.tv.ui.theme.FetchMotion.enterTween()) }
     var pendingFocusOnNewItemIndex by remember { mutableStateOf<Int?>(null) }
 
     // Scroll to top only when the filter combination actually changes (not on initial composition / back navigation).
@@ -378,6 +398,10 @@ internal fun DiscoverGrid(
         if (filterKey != previousFilterKey) {
             gridState.scrollToItem(0, 0)
             previousFilterKey = filterKey
+            if (fadeContent) {
+                contentAlpha.snapTo(0f)
+                contentAlpha.animateTo(1f, com.fetch.tv.ui.theme.FetchMotion.enterTween())
+            }
         }
     }
     var localRestoreFocusedItemIndex by remember { mutableIntStateOf(-1) }
@@ -486,6 +510,7 @@ internal fun DiscoverGrid(
             minSize = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
         ),
         modifier = Modifier.fillMaxSize()
+            .graphicsLayer { alpha = contentAlpha.value }
             .onFocusChanged { gridHasFocus = it.hasFocus }
             .focusRestorer { focusedItemRequester }
             .dpadVerticalFastScroll(
@@ -563,7 +588,8 @@ internal fun DiscoverGrid(
                 // Headroom so the focused card's scale isn't clipped by the grid's top edge. No
                 // width here: the card sizes itself (landscape cards are wider than posters), as
                 // in the Library and See all (#842).
-                modifier = Modifier.padding(top = FetchTheme.spacing.xs),
+                modifier = browseGridItemMotion().padding(top = FetchTheme.spacing.xs),
+                progress = progressByContentId[item.id],
                 focusRequester = focusReq,
                 onFocused = {
                     onItemFocused(index)

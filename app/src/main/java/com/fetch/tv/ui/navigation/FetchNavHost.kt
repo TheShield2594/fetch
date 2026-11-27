@@ -1237,7 +1237,51 @@ private fun PlaybackNavHost(
                     }
                 },
                 onNavigateToStats = { navController.navigate(Screen.Stats.route) { launchSingleTop = true } },
-                onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) { launchSingleTop = true } }
+                onNavigateToCalendar = { navController.navigate(Screen.Calendar.route) { launchSingleTop = true } },
+                // OK on In progress resumes as Continue Watching does; Back from playback comes
+                // back here rather than to Home (#856).
+                onResume = onResume@{ item ->
+                    if (!playbackAvailability.canStream(item)) {
+                        Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
+                        return@onResume
+                    }
+                    val progress = (item as? ContinueWatchingItem.InProgress)?.progress ?: return@onResume
+                    navController.navigate(
+                        Screen.Stream.createRoute(
+                            videoId = progress.videoId,
+                            contentType = progress.contentType,
+                            title = progress.name,
+                            poster = progress.poster,
+                            backdrop = progress.backdrop,
+                            logo = progress.logo,
+                            season = progress.season,
+                            episode = progress.episode,
+                            episodeName = progress.episodeTitle,
+                            genres = null,
+                            year = null,
+                            contentId = progress.contentId,
+                            contentName = progress.name,
+                            runtime = null,
+                            returnToDetailOnBack = progress.contentType.equals("series", ignoreCase = true),
+                            returnToHomeOnBack = false
+                        )
+                    )
+                },
+                // Play/Pause on a saved title: the detail page picks the film or the next episode
+                // and hands off to its Best match at once, then steps aside on Back (#856, #812).
+                onPlayTitle = { itemId, itemType, addonBaseUrl ->
+                    val heroBackdrop = HeroBackdropState.consumeAndClear()
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            itemId = itemId,
+                            itemType = itemType,
+                            addonBaseUrl = addonBaseUrl,
+                            heroBackdropUrl = heroBackdrop,
+                            playOnLoad = true,
+                            leaveOnPlaybackReturn = true
+                        )
+                    )
+                }
             )
         }
 

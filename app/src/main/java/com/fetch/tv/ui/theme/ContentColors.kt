@@ -58,6 +58,9 @@ object FetchContentColors {
     val newEpisodeBadge = Color(0xFF1D4ED8)
     val newSeasonBadge = Color(0xFFB45309)
 
+    /** The dot on a Library card whose Best match is saved and fresh (#854). */
+    val readyDot = Color(0xFF34D399)
+
     /** The badge on an episode that isn't available yet. */
     val episodeUnavailableBadge = Color(0xCC5D4037)
 

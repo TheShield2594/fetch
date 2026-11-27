@@ -2,7 +2,10 @@ package com.fetch.tv.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -82,5 +85,36 @@ fun SelectionCheckMarker(
                 modifier = Modifier.size(FetchTheme.spacing.lg)
             )
         }
+    }
+}
+
+/**
+ * "● 4K DV": a title that starts at once, because its Best match is saved and fresh (#854). The
+ * dot is Home's ready dot; [label] is the stream's quality when known, else "Ready".
+ */
+@Composable
+fun ReadyChip(
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(FetchTheme.shapes.badge)
+            .background(FetchTheme.colors.Scrim)
+            .padding(horizontal = FetchTheme.spacing.sm, vertical = FetchTheme.spacing.xs),
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(FetchTheme.spacing.sm)
+                .background(FetchContentColors.readyDot, CircleShape)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = FetchTheme.colors.TextPrimary,
+            maxLines = 1
+        )
     }
 }

@@ -27,6 +27,12 @@ sealed interface LibrarySelectionAction {
     /** OK on a card while selecting. */
     data class Toggle(val key: String) : LibrarySelectionAction
 
+    /** "Select all": every card the current filters show ([keys]) is chosen (#856). */
+    data class SelectAll(val keys: Collection<String>) : LibrarySelectionAction
+
+    /** "Clear": nothing is chosen, and selection mode stays on (#856). */
+    data object Clear : LibrarySelectionAction
+
     /** The grid changed: chosen cards that are gone are dropped. */
     data class Retain(val visibleKeys: Set<String>) : LibrarySelectionAction
 }
@@ -44,6 +50,8 @@ internal fun reduceLibrarySelection(
     } else {
         state.copy(selectedKeys = state.selectedKeys + action.key)
     }
+    is LibrarySelectionAction.SelectAll -> if (!state.active) state else state.copy(selectedKeys = action.keys.toSet())
+    LibrarySelectionAction.Clear -> if (!state.active) state else state.copy(selectedKeys = emptySet())
     is LibrarySelectionAction.Retain -> {
         val kept = state.selectedKeys.intersect(action.visibleKeys)
         if (kept.size == state.selectedKeys.size) state else state.copy(selectedKeys = kept)

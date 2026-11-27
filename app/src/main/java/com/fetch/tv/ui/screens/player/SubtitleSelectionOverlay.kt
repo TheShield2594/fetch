@@ -73,6 +73,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.fetch.tv.R
 import com.fetch.tv.data.local.SUBTITLE_LANGUAGE_FORCED
+import com.fetch.tv.data.local.SubtitleMode
 import com.fetch.tv.data.local.SubtitleStyleSettings
 import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.ui.components.LoadingIndicator
@@ -252,6 +253,20 @@ private fun SubtitleSelectionOverlaySession(
     var selectedOptionId by remember(visible) {
         mutableStateOf(sessionInitialSelectedOptionId)
     }
+    // The mark follows the player's actual selection while the panel is open, so a track Auto or On
+    // picks after a mode change (or Off clearing one) shows here. Focus memory is not touched.
+    var lastObservedSelection by remember(visible) { mutableStateOf(selectedInternalIndex to selectedAddonSubtitle) }
+    LaunchedEffect(visible, selectedInternalIndex, selectedAddonSubtitle) {
+        if (!visible) return@LaunchedEffect
+        val observed = selectedInternalIndex to selectedAddonSubtitle
+        if (observed == lastObservedSelection) return@LaunchedEffect
+        lastObservedSelection = observed
+        selectedOptionId = selectedSubtitleOptionId(
+            internalTracks = internalTracks,
+            selectedInternalIndex = selectedInternalIndex,
+            selectedAddonSubtitle = selectedAddonSubtitle
+        )
+    }
     val subtitleOptions = remember(
         selectedLanguageKey,
         selectedOptionId,
@@ -307,7 +322,8 @@ private fun SubtitleSelectionOverlaySession(
     val optionItemRequesters = rememberFocusRequesterMap(subtitleOptions.map { it.id })
     val styleRequesters = rememberStyleFocusRequesters()
     val optionRailVisible = selectedLanguageKey != SubtitleOffLanguageKey
-    val styleRailVisible = optionRailVisible && (revealStyleRail || selectedOptionId != null)
+    val styleRailVisible = optionRailVisible &&
+        (revealStyleRail || subtitleOptions.any { it.id == selectedOptionId })
     val optionTargetId: String? = remember(subtitleOptions, optionFocusMemory, selectedLanguageKey, selectedOptionId) {
         selectedOptionId?.takeIf { id -> subtitleOptions.any { it.id == id } }
             ?: optionFocusMemory[selectedLanguageKey]?.takeIf { id -> subtitleOptions.any { it.id == id } }
@@ -535,6 +551,19 @@ private fun SubtitleSelectionOverlaySession(
                 modifier = Modifier.padding(bottom = FetchTheme.spacing.md)
             )
 
+            SubtitleModeSwitch(
+                mode = subtitleStyle.mode,
+                onModeSelected = { mode ->
+                    // Off drops the full subtitle now, so the list stops marking it. Focus memory
+                    // is left alone. Auto and On pick asynchronously; the mark follows on reopen.
+                    if (mode == SubtitleMode.OFF) {
+                        selectedOptionId = null
+                        revealStyleRail = false
+                    }
+                    onEvent(PlayerEvent.OnSetSubtitleMode(mode))
+                }
+            )
+
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 SubtitleLanguageRail(
                     items = languageItems,
@@ -562,10 +591,11 @@ private fun SubtitleSelectionOverlaySession(
                             onDisableSubtitles()
                         } else {
                             val nextOptions = buildSessionOptions(languageKey, selectedOptionId)
+                            // Browsing another language does not change what is playing, so the
+                            // active track's id is kept; it is simply not in this language's list.
                             val nextSelectedId = selectedOptionId?.takeIf { id ->
                                 nextOptions.any { it.id == id }
                             }
-                            selectedOptionId = nextSelectedId
                             val nextTargetId = nextSelectedId
                                 ?: optionFocusMemory[languageKey]?.takeIf { id ->
                                     nextOptions.any { it.id == id }
@@ -1589,6 +1619,45 @@ private fun StepperButton(
         scale = IconButtonDefaults.scale(focusedScale = 1f, pressedScale = 1f)
     ) {
         Icon(imageVector = icon, contentDescription = contentDescription)
+    }
+}
+
+/**
+ * One press between Auto, Off and On (#771), above the language list, with a line saying what the
+ * chosen mode does. Picking a language or track below still overrides it for this title.
+ */
+@Composable
+private fun SubtitleModeSwitch(
+    mode: SubtitleMode,
+    onModeSelected: (SubtitleMode) -> Unit
+) {
+    val hint = when (mode) {
+        SubtitleMode.AUTO -> R.string.subtitle_mode_auto_hint
+        SubtitleMode.OFF -> R.string.subtitle_mode_off_hint
+        SubtitleMode.ON -> R.string.subtitle_mode_on_hint
+    }
+    Column(
+        modifier = Modifier.padding(bottom = FetchTheme.spacing.md),
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+            listOf(
+                SubtitleMode.AUTO to R.string.subtitle_mode_auto,
+                SubtitleMode.OFF to R.string.subtitle_mode_off,
+                SubtitleMode.ON to R.string.subtitle_mode_on
+            ).forEach { (option, label) ->
+                ToggleChip(
+                    label = stringResource(label),
+                    isEnabled = option == mode,
+                    onClick = { if (option != mode) onModeSelected(option) }
+                )
+            }
+        }
+        Text(
+            text = stringResource(hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = FetchTheme.colors.Player.TextSecondary
+        )
     }
 }
 

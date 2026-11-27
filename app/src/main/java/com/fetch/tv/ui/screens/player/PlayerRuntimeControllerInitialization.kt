@@ -2,6 +2,8 @@
 
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.data.local.suppressPlayerTextAutoSelect
+import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.RectF
@@ -857,12 +859,12 @@ internal fun PlayerRuntimeController.initializePlayer(
                     setParameters(buildUponParameters().setPreferredAudioRoleFlags(C.ROLE_FLAG_DESCRIBES_VIDEO))
                 }
                 // Forced mode: disable ExoPlayer auto text selection; our logic handles it.
-                if (playerSettings.subtitleStyle.useForcedSubtitles) {
+                if (playerSettings.subtitleStyle.suppressPlayerTextAutoSelect) {
                     setParameters(buildUponParameters().setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true))
                 }
                 // When forced subtitles are disabled, tell ExoPlayer to ignore
                 // SELECTION_FLAG_FORCED so it won't auto-select forced tracks.
-                if (!playerSettings.subtitleStyle.useForcedSubtitles) {
+                if (!playerSettings.subtitleStyle.forcedOnlyForMatchingAudio) {
                     val currentFlags = parameters.ignoredTextSelectionFlags
                     setParameters(
                         buildUponParameters().setIgnoredTextSelectionFlags(
@@ -2208,15 +2210,12 @@ internal fun PlayerRuntimeController.resetLoadingOverlayForNewStream() {
     hasRenderedFirstFrame = false
     endDetectionArmed = false
     mpvEofSeenClear = false
-    hasMarkedCurrentEpisodeCompleted = false
-    currentEpisodeCompletionIsFinal = false
-    watchProgressFlagsGeneration++
+    // The completion flags and retry budgets are not reset here (#777): they live on
+    // playbackItem, which starts clear for a new episode and gives a new stream fresh budgets, but
+    // keeps both across a re-init or automatic retry of the same one. Resetting them here let each
+    // retry refill the budget that allowed it, and let a re-init forget that the title was watched.
     shouldEnforceAutoplayOnFirstReady = true
     userPausedManually = false
-    timeoutRecoveryAttempts = 0
-    hasRetriedCurrentStreamAfterUnexpectedNpe = false
-    hasRetriedCurrentStreamAfterMediaPeriodHolderCrash = false
-    hasRetriedCurrentStreamAfter416 = false
     hasAttemptedDv7ToDv81ForCurrentPlayback = false
     isExperimentalDv7ToDv81ActiveForCurrentPlayback = false
     isVc1TrackSelectionBypassActiveForCurrentPlayback = false

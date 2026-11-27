@@ -1,5 +1,6 @@
 package com.fetch.tv.ui.screens.player
 
+import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
 import android.util.Log
 import com.fetch.tv.core.player.OpenSubtitlesHasher
 import androidx.media3.common.C
@@ -98,7 +99,9 @@ internal fun PlayerRuntimeController.fetchAddonSubtitles() {
         return
     }
 
-    scope.launch {
+    // The item's scope: a fetch still running when the episode changes is cancelled, so its
+    // results can't land on the next episode's subtitle list (#777).
+    itemScope.launch {
         _uiState.update {
             it.copy(
                 isLoadingAddonSubtitles = true,
@@ -140,6 +143,9 @@ internal fun PlayerRuntimeController.fetchAddonSubtitles() {
                 subtitleTracks = _uiState.value.subtitleTracks
             )
             tryAutoSelectPreferredSubtitleFromAvailableTracks()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // The episode changed: its own fetch owns the loading state now.
+            throw e
         } catch (e: Exception) {
             _uiState.update {
                 it.copy(
@@ -182,7 +188,7 @@ internal fun PlayerRuntimeController.filterToVisibleAddonSubtitles(
     val preferredTargets = when (PlayerSubtitleUtils.normalizeLanguageCode(style.preferredLanguage)) {
         "none" -> listOfNotNull(
             style.secondaryPreferredLanguage?.takeIf { it.isNotBlank() },
-            if (style.useForcedSubtitles) {
+            if (style.forcedOnlyForMatchingAudio) {
                 selectedAudioTrackForSubtitleMatching(_uiState.value)
                     ?.takeIf { selectedAudioMatchesResolvedPreferredAudio(it) }
                     ?.let { selectedAudioLanguageTarget(it) }
@@ -199,7 +205,7 @@ internal fun PlayerRuntimeController.filterToVisibleAddonSubtitles(
 
     if (preferredTargets.isEmpty()) {
         return if (
-            style.useForcedSubtitles &&
+            style.forcedOnlyForMatchingAudio &&
             PlayerSubtitleUtils.normalizeLanguageCode(style.preferredLanguage) == "none" &&
             selectedAudioTrackForSubtitleMatching(_uiState.value) == null
         ) {
@@ -354,6 +360,11 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
             stillWatchingEpisodeThresholdSetting = settings.stillWatchingEpisodeThreshold
             autoPlayCountdownSecondsSetting = settings.autoPlayCountdownSeconds
             controlsAutoHideMsSetting = settings.controlsAutoHideSeconds * 1_000L
+            seekFeedbackLingerMs = settings.seekFeedbackLingerMs.toLong()
+            pauseOverlayDelayMs = settings.pauseOverlayDelaySeconds * 1_000L
+            if (_uiState.value.showTimeRemaining != settings.showTimeRemaining) {
+                _uiState.update { it.copy(showTimeRemaining = settings.showTimeRemaining) }
+            }
             val seekSteps = SeekSteps.fromSeconds(settings.seekBackSeconds, settings.seekForwardSeconds)
             seekStepsSetting = seekSteps
             if (_uiState.value.seekSteps != seekSteps) _uiState.update { it.copy(seekSteps = seekSteps) }
@@ -396,8 +407,20 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
             val subtitlePreferenceChanged =
                 lastSubtitlePreferredLanguage != settings.subtitleStyle.preferredLanguage ||
                     lastSubtitleSecondaryLanguage != settings.subtitleStyle.secondaryPreferredLanguage ||
-                    lastUseForcedSubtitles != settings.subtitleStyle.useForcedSubtitles
+                    lastUseForcedSubtitles != settings.subtitleStyle.useForcedSubtitles ||
+                    lastSubtitleMode != settings.subtitleStyle.mode
             if (subtitlePreferenceChanged) {
+                if (lastSubtitleMode != settings.subtitleStyle.mode) {
+                    // A new Auto / Off / On choice replaces whatever was picked by hand for this
+                    // item. The first emission only records the mode.
+                    if (lastSubtitleMode != null) {
+                        isUserExplicitSubtitleSelection = false
+                        subtitleDisabledByPersistedPreference = false
+                        subtitleAddonRestoredByPersistedPreference = false
+                        autoSubtitleSelected = false
+                    }
+                    lastSubtitleMode = settings.subtitleStyle.mode
+                }
                 if (!subtitleDisabledByPersistedPreference && !subtitleAddonRestoredByPersistedPreference) autoSubtitleSelected = false
                 lastSubtitlePreferredLanguage = settings.subtitleStyle.preferredLanguage
                 lastSubtitleSecondaryLanguage = settings.subtitleStyle.secondaryPreferredLanguage
@@ -455,6 +478,7 @@ internal fun PlayerRuntimeController.loadSavedProgressFor(season: Int?, episode:
 
     scope.launch {
         pendingResumeProgress = null
+        _uiState.update { it.copy(resumedFromPosition = false) }
         val local = if (season != null && episode != null) {
             watchProgressRepository.getEpisodeProgress(
                 progressContentId,
@@ -471,6 +495,7 @@ internal fun PlayerRuntimeController.loadSavedProgressFor(season: Int?, episode:
 
             if (saved.isInProgress()) {
                 pendingResumeProgress = saved
+                _uiState.update { it.copy(resumedFromPosition = true) }
                 if (isUsingMpvEngine()) {
                     pendingSeekPosition = null
                     mpvView?.let { view ->
@@ -501,6 +526,7 @@ internal suspend fun PlayerRuntimeController.loadSavedProgressSuspend(season: In
     val progressContentId = contentId ?: return
 
     pendingResumeProgress = null
+    _uiState.update { it.copy(resumedFromPosition = false) }
     val local = if (season != null && episode != null) {
         watchProgressRepository.getEpisodeProgress(
             progressContentId,
@@ -516,6 +542,7 @@ internal suspend fun PlayerRuntimeController.loadSavedProgressSuspend(season: In
     progress?.let { saved ->
         if (saved.isInProgress()) {
             pendingResumeProgress = saved
+            _uiState.update { it.copy(resumedFromPosition = true) }
             Log.d(
                 PlayerRuntimeController.TAG,
                 "loadSavedProgressSuspend: set pendingResumeProgress " +
@@ -903,7 +930,9 @@ internal fun PlayerRuntimeController.scheduleDeferredPlayerReinitialize(
             showLoadingOverlay = it.loadingOverlayEnabled
         )
     }
-    scope.launch {
+    // In the item's scope, so a re-init queued for one episode can't rebuild the player after the
+    // next one started (#777).
+    itemScope.launch {
         yield()
         runCatching {
             releasePlayer(flushPlaybackState = true)

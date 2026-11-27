@@ -200,6 +200,31 @@ internal fun PlaybackPlayerInterfaceSection(
         onValueChange = { seconds -> onUpdate { setControlsAutoHideSeconds(seconds) } },
         enabled = internalPlayer
     )
+    SliderSettingsItem(
+        title = stringResource(R.string.playback_seek_feedback_linger),
+        subtitle = stringResource(R.string.playback_seek_feedback_linger_sub),
+        values = PlayerSettings.SEEK_FEEDBACK_LINGER_MS_VALUES,
+        selected = settings.seekFeedbackLingerMs,
+        valueText = stringResource(
+            R.string.playback_seconds_decimal_value,
+            String.format(
+                androidx.compose.ui.platform.LocalConfiguration.current.locales[0],
+                "%.1f",
+                settings.seekFeedbackLingerMs / 1_000f
+            )
+        ),
+        onValueChange = { ms -> onUpdate { setSeekFeedbackLingerMs(ms) } },
+        enabled = internalPlayer
+    )
+    SliderSettingsItem(
+        title = stringResource(R.string.playback_pause_overlay_delay),
+        subtitle = stringResource(R.string.playback_pause_overlay_delay_sub),
+        values = PlayerSettings.PAUSE_OVERLAY_DELAY_SECONDS_VALUES,
+        selected = settings.pauseOverlayDelaySeconds,
+        valueText = stringResource(R.string.playback_seek_step_value, settings.pauseOverlayDelaySeconds),
+        onValueChange = { seconds -> onUpdate { setPauseOverlayDelaySeconds(seconds) } },
+        enabled = internalPlayer && settings.pauseOverlayEnabled
+    )
     SettingsToggleRow(
         title = stringResource(R.string.playback_parental_guide),
         subtitle = stringResource(R.string.playback_parental_guide_sub),

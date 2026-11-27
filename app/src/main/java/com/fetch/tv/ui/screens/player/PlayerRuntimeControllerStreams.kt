@@ -90,11 +90,14 @@ internal fun PlayerRuntimeController.scheduleEpisodeBadgeApplication() {
         val badged = streamBadgePresentation.apply(listOf(group))
         val badgedStreams = badged.flatMap { it.streams }
         if (badgedStreams == streams) return@launch
+        val tabsByFilter = mutableMapOf<String?, RankedStreamList>()
         _uiState.update { current ->
             val selectedAddon = current.episodeSelectedAddonFilter
+            val tab = tabsByFilter.getOrPut(selectedAddon) { sourceTab(badgedStreams, selectedAddon) }
             current.copy(
                 episodeAllStreams = badgedStreams,
-                episodeFilteredStreams = if (selectedAddon == null) badgedStreams else badgedStreams.filter { it.addonName == selectedAddon }
+                episodeFilteredStreams = tab.streams,
+                episodeStreamExclusions = tab.exclusions
             )
         }
     }
@@ -566,7 +569,8 @@ private fun PlayerRuntimeController.persistBingeGroup(bingeGroup: String?, filen
  * only among streams already in memory: a search started here would compete with playback.
  */
 internal fun PlayerRuntimeController.handleStreamRedirect(requestedUrl: String, resolvedUrl: String) {
-    scope.launch {
+    // The item's own scope: a redirect resolved after the episode changed is dropped (#777).
+    itemScope.launch {
         if (requestedUrl != currentStreamUrl) return@launch
         val addonName = currentAddonName
         val target = findRedirectTargetStream(_uiState.value.sourceAllStreams, addonName, requestedUrl, resolvedUrl)
@@ -781,7 +785,9 @@ internal fun PlayerRuntimeController.switchToSourceStream(
     val playbackHeaders = currentHeaders
     persistSelectedStreamForReuse(stream = stream, url = playbackUrl, headers = playbackHeaders)
 
-    // Reset stream-state error flags for the new stream.
+    // Reset stream-state error flags for the new stream. A stream picked by hand gets its full
+    // retry budget even when it is the one that just failed.
+    playbackItem.resetAttempt()
     hasRetriedCurrentStreamAfter416 = false
     resetErrorRetryState()
     hasRetriedCurrentStreamAfterUnexpectedNpe = false
@@ -1025,6 +1031,7 @@ internal fun PlayerRuntimeController.loadStreamsForEpisode(video: Video, forceRe
                 episodeAllStreams = if (forceRefresh || targetChanged) emptyList() else it.episodeAllStreams,
                 episodeSelectedAddonFilter = if (forceRefresh || targetChanged) null else it.episodeSelectedAddonFilter,
                 episodeFilteredStreams = if (forceRefresh || targetChanged) emptyList() else it.episodeFilteredStreams,
+                episodeStreamExclusions = if (forceRefresh || targetChanged) emptyMap() else it.episodeStreamExclusions,
                 episodeAvailableAddons = if (forceRefresh || targetChanged) emptyList() else it.episodeAvailableAddons,
                 episodeSourceChips = if (forceRefresh || targetChanged) emptyList() else it.episodeSourceChips,
                 episodeStreamsForVideoId = video.id,
@@ -1063,16 +1070,15 @@ internal fun PlayerRuntimeController.loadStreamsForEpisode(video: Video, forceRe
                     val allStreams = addonStreams.flatMap { it.streams }
                     val availableAddons = addonStreams.map { it.addonName }
                     val currentFilter = _uiState.value.episodeSelectedAddonFilter
-                    val filteredStreams = if (currentFilter == null) {
-                        allStreams
-                    } else {
-                        allStreams.filter { it.addonName == currentFilter }
-                    }
+                    // Ranked the same way as the Sources panel, so "All" puts the best match first,
+                    // sinks ruled-out streams and says why they were passed over.
+                    val tab = sourceTab(allStreams, currentFilter)
                     _uiState.update {
                         it.copy(
                             isLoadingEpisodeStreams = false,
                             episodeAllStreams = allStreams,
-                            episodeFilteredStreams = filteredStreams,
+                            episodeFilteredStreams = tab.streams,
+                            episodeStreamExclusions = tab.exclusions,
                             episodeAvailableAddons = availableAddons,
                             episodeSourceChips = mergeSourceChipStatuses(
                                 existing = it.episodeSourceChips,
@@ -1114,7 +1120,7 @@ private fun List<Stream>.filterByAddon(addonName: String?): List<Stream> =
  * (best first above them under Best match), and every tab says why a stream was passed over;
  * addon tabs keep the addon's own order.
  */
-private fun PlayerRuntimeController.sourceTab(streams: List<Stream>, addonName: String?): RankedStreamList {
+internal fun PlayerRuntimeController.sourceTab(streams: List<Stream>, addonName: String?): RankedStreamList {
     val ranked = StreamRanker.rankedList(
         streams,
         streamRankingRulesSetting,

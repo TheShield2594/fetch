@@ -143,6 +143,34 @@ val AVAILABLE_TMDB_LANGUAGES = AVAILABLE_SUBTITLE_LANGUAGES + listOf(
 )
 
 /**
+ * When subtitles turn on by themselves (#771).
+ * - [AUTO]: forced-only when the audio is in the preferred subtitle language, full subtitles otherwise.
+ * - [OFF]: nothing but forced narrative subtitles (signs, lines in another language).
+ * - [ON]: always full subtitles in the preferred language.
+ */
+enum class SubtitleMode { AUTO, OFF, ON }
+
+/**
+ * Whether auto-selection should show only forced subtitles when the audio is in a language the
+ * viewer reads. Auto and Off both follow the "Use forced subtitles" setting (Off then goes no
+ * further, so with that setting off it shows nothing); On never does.
+ */
+/**
+ * Whether ExoPlayer must not pick a subtitle by itself, leaving the choice to the player's own
+ * auto-selection: when forced-only applies, and always in Off, which never wants a full track
+ * whatever the "Use forced subtitles" setting says.
+ */
+val SubtitleStyleSettings.suppressPlayerTextAutoSelect: Boolean
+    get() = forcedOnlyForMatchingAudio || mode == SubtitleMode.OFF
+
+val SubtitleStyleSettings.forcedOnlyForMatchingAudio: Boolean
+    get() = when (mode) {
+        SubtitleMode.AUTO -> useForcedSubtitles
+        SubtitleMode.OFF -> useForcedSubtitles
+        SubtitleMode.ON -> false
+    }
+
+/**
  * Data class representing subtitle style settings
  */
 data class SubtitleStyleSettings(
@@ -150,8 +178,10 @@ data class SubtitleStyleSettings(
     val isPreferredLanguageSystemDefault: Boolean = true,
     val secondaryPreferredLanguage: String? = null,
     val useForcedSubtitles: Boolean = true,
+    val mode: SubtitleMode = SubtitleMode.AUTO,
     val showOnlyPreferredLanguages: Boolean = false,
-    val stripSdh: Boolean = true,
+    // Matches what the store reads for an unset key, so the default is the same before and after load.
+    val stripSdh: Boolean = false,
     val size: Int = 120, // Percentage (50-200)
     val verticalOffset: Int = 5, // Percentage from bottom (-20 to 50)
     val bold: Boolean = false,
@@ -301,6 +331,12 @@ data class PlayerSettings(
     val seekForwardSeconds: Int = DEFAULT_SEEK_FORWARD_SECONDS,
     /** Seconds the player's controls stay up with no input while playing. */
     val controlsAutoHideSeconds: Int = DEFAULT_CONTROLS_AUTO_HIDE_SECONDS,
+    /** How long the seek bubble stays up after a seek lands, in ms (#776). */
+    val seekFeedbackLingerMs: Int = DEFAULT_SEEK_FEEDBACK_LINGER_MS,
+    /** Seconds paused before the pause screen comes up (#776). */
+    val pauseOverlayDelaySeconds: Int = DEFAULT_PAUSE_OVERLAY_DELAY_SECONDS,
+    /** The scrubber's right-hand label counts down the time left instead of the length (#776). */
+    val showTimeRemaining: Boolean = false,
     val skipIntroEnabled: Boolean = true,
     // Off until asked for: the lookup sends each title's IMDb id to a third party (api.tiffara.com).
     val parentalGuideEnabled: Boolean = false,
@@ -420,6 +456,10 @@ data class PlayerSettings(
 
         const val DEFAULT_CONTROLS_AUTO_HIDE_SECONDS = 4
         val CONTROLS_AUTO_HIDE_SECONDS_VALUES: List<Int> = listOf(2, 3, 4, 5, 6, 8, 10, 15, 20, 30)
+        const val DEFAULT_SEEK_FEEDBACK_LINGER_MS = 1_500
+        val SEEK_FEEDBACK_LINGER_MS_VALUES: List<Int> = listOf(500, 1_000, 1_500, 2_000, 3_000, 5_000)
+        const val DEFAULT_PAUSE_OVERLAY_DELAY_SECONDS = 5
+        val PAUSE_OVERLAY_DELAY_SECONDS_VALUES: List<Int> = listOf(2, 3, 5, 8, 10, 15, 30, 60)
 
         /** The stored value if it is one of [values], else the nearest one. */
         fun normalizeSeekSeconds(stored: Int?, values: List<Int>, default: Int): Int {
@@ -649,6 +689,9 @@ class PlayerSettingsDataStore @Inject constructor(
     private val seekBackSecondsKey = intPreferencesKey("seek_back_seconds")
     private val seekForwardSecondsKey = intPreferencesKey("seek_forward_seconds")
     private val controlsAutoHideSecondsKey = intPreferencesKey("controls_auto_hide_seconds")
+    private val seekFeedbackLingerMsKey = intPreferencesKey("seek_feedback_linger_ms")
+    private val pauseOverlayDelaySecondsKey = intPreferencesKey("pause_overlay_delay_seconds")
+    private val showTimeRemainingKey = booleanPreferencesKey("show_time_remaining")
     private val skipIntroEnabledKey = booleanPreferencesKey("skip_intro_enabled")
     private val parentalGuideEnabledKey = booleanPreferencesKey("parental_guide_enabled")
     private val autoSkipSegmentTypesKey = stringSetPreferencesKey("auto_skip_segment_types")
@@ -719,6 +762,7 @@ class PlayerSettingsDataStore @Inject constructor(
     private val subtitlePreferredLanguageKey = stringPreferencesKey("subtitle_preferred_language")
     private val subtitleSecondaryLanguageKey = stringPreferencesKey("subtitle_secondary_language")
     private val subtitleUseForcedSubtitlesKey = booleanPreferencesKey("subtitle_use_forced_subtitles")
+    private val subtitleModeKey = stringPreferencesKey("subtitle_mode")
     private val subtitleShowOnlyPreferredLanguagesKey = booleanPreferencesKey("subtitle_show_only_preferred_languages")
     private val subtitleStripSdhKey = booleanPreferencesKey("subtitle_strip_sdh")
     private val subtitleSizeKey = intPreferencesKey("subtitle_size")
@@ -1113,6 +1157,17 @@ class PlayerSettingsDataStore @Inject constructor(
                     PlayerSettings.CONTROLS_AUTO_HIDE_SECONDS_VALUES,
                     PlayerSettings.DEFAULT_CONTROLS_AUTO_HIDE_SECONDS
                 ),
+                seekFeedbackLingerMs = PlayerSettings.normalizeSeekSeconds(
+                    prefs[seekFeedbackLingerMsKey],
+                    PlayerSettings.SEEK_FEEDBACK_LINGER_MS_VALUES,
+                    PlayerSettings.DEFAULT_SEEK_FEEDBACK_LINGER_MS
+                ),
+                pauseOverlayDelaySeconds = PlayerSettings.normalizeSeekSeconds(
+                    prefs[pauseOverlayDelaySecondsKey],
+                    PlayerSettings.PAUSE_OVERLAY_DELAY_SECONDS_VALUES,
+                    PlayerSettings.DEFAULT_PAUSE_OVERLAY_DELAY_SECONDS
+                ),
+                showTimeRemaining = prefs[showTimeRemainingKey] ?: false,
                 skipIntroEnabled = prefs[skipIntroEnabledKey] ?: true,
                 parentalGuideEnabled = prefs[parentalGuideEnabledKey] ?: false,
                 autoSkipSegmentTypes = prefs[autoSkipSegmentTypesKey]
@@ -1235,9 +1290,13 @@ class PlayerSettingsDataStore @Inject constructor(
                         secondaryPreferredLanguage = prefs[subtitleSecondaryLanguageKey]
                             ?.let(::normalizeSelectableLanguageCode)
                             ?.takeUnless { it == SUBTITLE_LANGUAGE_FORCED },
-                        useForcedSubtitles = (prefs[subtitleUseForcedSubtitlesKey] ?: false) ||
+                        // On by default, as the settings class, desktop and the Auto mode assume (#771).
+                        useForcedSubtitles = (prefs[subtitleUseForcedSubtitlesKey] ?: true) ||
                             prefs[subtitlePreferredLanguageKey]?.let(::normalizeSelectableLanguageCode) == SUBTITLE_LANGUAGE_FORCED ||
                             prefs[subtitleSecondaryLanguageKey]?.let(::normalizeSelectableLanguageCode) == SUBTITLE_LANGUAGE_FORCED,
+                        mode = prefs[subtitleModeKey]
+                            ?.let { runCatching { SubtitleMode.valueOf(it) }.getOrNull() }
+                            ?: SubtitleMode.AUTO,
                         showOnlyPreferredLanguages = prefs[subtitleShowOnlyPreferredLanguagesKey] ?: false,
                         stripSdh = prefs[subtitleStripSdhKey] ?: false,
                         size = prefs[subtitleSizeKey] ?: 100,
@@ -1444,6 +1503,32 @@ class PlayerSettingsDataStore @Inject constructor(
                 PlayerSettings.SEEK_FORWARD_SECONDS_VALUES,
                 PlayerSettings.DEFAULT_SEEK_FORWARD_SECONDS
             )
+        }
+    }
+
+    suspend fun setSeekFeedbackLingerMs(ms: Int) {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            prefs[seekFeedbackLingerMsKey] = PlayerSettings.normalizeSeekSeconds(
+                ms,
+                PlayerSettings.SEEK_FEEDBACK_LINGER_MS_VALUES,
+                PlayerSettings.DEFAULT_SEEK_FEEDBACK_LINGER_MS
+            )
+        }
+    }
+
+    suspend fun setPauseOverlayDelaySeconds(seconds: Int) {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            prefs[pauseOverlayDelaySecondsKey] = PlayerSettings.normalizeSeekSeconds(
+                seconds,
+                PlayerSettings.PAUSE_OVERLAY_DELAY_SECONDS_VALUES,
+                PlayerSettings.DEFAULT_PAUSE_OVERLAY_DELAY_SECONDS
+            )
+        }
+    }
+
+    suspend fun setShowTimeRemaining(enabled: Boolean) {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            prefs[showTimeRemainingKey] = enabled
         }
     }
 
@@ -1833,6 +1918,12 @@ class PlayerSettingsDataStore @Inject constructor(
                 SubtitleStyleSettings.HDR_BRIGHTNESS_MIN,
                 SubtitleStyleSettings.HDR_BRIGHTNESS_MAX
             )
+        }
+    }
+
+    suspend fun setSubtitleMode(mode: SubtitleMode) {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            prefs[subtitleModeKey] = mode.name
         }
     }
 

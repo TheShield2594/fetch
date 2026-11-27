@@ -158,7 +158,7 @@ private fun PlayerRuntimeController.restartServerStream(
 ) {
     val url = currentStreamUrl
     val positionMs = _playbackTimeline.value.currentPosition
-    scope.launch {
+    itemScope.launch {
         val session = restart(url)
         if (session == null) {
             Toast.makeText(context, context.getString(failureMessage), Toast.LENGTH_SHORT).show()

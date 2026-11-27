@@ -797,7 +797,20 @@ export const TV_SETTING_GROUPS: TvSettingGroup[] = [
         defaultValue: "",
         unsetValue: "",
       },
-      { kind: "toggle", feature: PLAYER_FEATURE, key: "subtitle_use_forced_subtitles", label: "Use forced subtitles", help: "For foreign-language parts of a title.", defaultValue: false },
+      { kind: "toggle", feature: PLAYER_FEATURE, key: "subtitle_use_forced_subtitles", label: "Use forced subtitles", help: "For foreign-language parts of a title.", defaultValue: true },
+      {
+        kind: "select",
+        feature: PLAYER_FEATURE,
+        key: "subtitle_mode",
+        label: "Subtitles turn on",
+        help: "Auto shows only forced subtitles when the audio is in your language.",
+        options: [
+          { value: "AUTO", label: "Auto" },
+          { value: "OFF", label: "Off (forced only)" },
+          { value: "ON", label: "Always" },
+        ],
+        defaultValue: "AUTO",
+      },
       { kind: "toggle", feature: PLAYER_FEATURE, key: "subtitle_show_only_preferred_languages", label: "List only these languages", defaultValue: false, advanced: true },
       { kind: "toggle", feature: PLAYER_FEATURE, key: "subtitle_strip_sdh", label: "Strip SDH", help: "Drops sound descriptions like [door slams].", defaultValue: false, advanced: true },
       {

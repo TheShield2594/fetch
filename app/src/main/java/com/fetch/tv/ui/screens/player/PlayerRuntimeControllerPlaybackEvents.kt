@@ -1237,10 +1237,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             val current = currentPlaybackPositionMs() ?: 0L
             // mpv reports 0 until the duration is known; treat that as unknown, not as a 0 ms cap.
             val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
-            val requested = (current + event.deltaMs)
-                .coerceAtLeast(0L)
-                .coerceAtMost(maxDuration)
-            val target = requested
+            val target = seekTargetWithEndGuard(current, current + event.deltaMs, maxDuration)
             // A step from the buttons or the FF/Rewind keys lands where it says: snapping to a
             // keyframe could move a 10 s step by several seconds either way.
             seekPlaybackTo(target, SeekParameters.EXACT)
@@ -1259,12 +1256,13 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
             val playingPosition = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
             val basePosition = pendingPreviewSeekPosition ?: playingPosition
-            val target = (basePosition + event.deltaMs)
-                .coerceAtLeast(0L)
-                .coerceAtMost(maxDuration)
+            val target = seekTargetWithEndGuard(basePosition, basePosition + event.deltaMs, maxDuration)
             pendingPreviewSeekPosition = target
             updatePlaybackTimeline(currentPosition = target)
-            updateSeekFeedback(originMs = playingPosition, targetMs = target, committed = false)
+            // A held seek that has sped up past the configured step says how far each repeat goes.
+            val step = kotlin.math.abs(event.deltaMs)
+            val rampedStep = step.takeIf { it > seekStepsSetting.stepMs(forward = event.deltaMs > 0) }
+            updateSeekFeedback(originMs = playingPosition, targetMs = target, committed = false, stepMs = rampedStep)
             if (_uiState.value.showControls) {
                 showControlsTemporarily()
             } else {
@@ -1277,10 +1275,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             val requested = pendingPreviewSeekPosition
             if (requested != null) {
                 val target = requested
-                // FF/Rewind keys land where they say, as their steps always did; the D-pad and
-                // seek bar snap to a keyframe.
-                val parameters = if (event == PlayerEvent.OnCommitKeySeek) SeekParameters.EXACT else SeekParameters.CLOSEST_SYNC
-                seekPlaybackTo(target, parameters)
+                // Exact for the D-pad too, as for the buttons and FF/Rewind keys: a keyframe snap
+                // could land seconds away from the time the bubble showed (#776).
+                seekPlaybackTo(target, SeekParameters.EXACT)
                 updatePlaybackTimeline(currentPosition = target)
                 updateSeekFeedback(originMs = target, targetMs = target, committed = true)
                 pendingPreviewSeekPosition = null
@@ -1304,7 +1301,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             val origin = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
             // Same bounds as OnSeekBy; mpv reports 0 until the duration is known, so 0 is unknown.
             val maxDuration = currentPlaybackDurationMs().takeIf { it > 0 } ?: Long.MAX_VALUE
-            val target = event.position.coerceAtLeast(0L).coerceAtMost(maxDuration)
+            val target = seekTargetWithEndGuard(origin, event.position, maxDuration)
             seekPlaybackTo(target, SeekParameters.CLOSEST_SYNC)
             updatePlaybackTimeline(currentPosition = target)
             updateSeekFeedback(originMs = origin, targetMs = target, committed = true)
@@ -1325,6 +1322,17 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             } else {
                 rememberAudioSelection(event.index)
                 selectAudioTrack(event.index)
+                // Whether subtitles are needed depends on the audio language, so a subtitle the
+                // player picked by itself is picked again for the new audio (#771). A subtitle
+                // the user chose stays.
+                if (!isUserExplicitSubtitleSelection) {
+                    autoSubtitleSelected = false
+                    _uiState.update { it.copy(selectedAudioTrackIndex = event.index) }
+                    tryAutoSelectPreferredSubtitleFromAvailableTracks()
+                } else if (subtitleDisabledByPersistedPreference) {
+                    _uiState.update { it.copy(selectedAudioTrackIndex = event.index) }
+                    showForcedNarrativeSubtitleWhileOff()
+                }
             }
             _uiState.update {
                 it.copy(
@@ -1412,6 +1420,60 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     selectedSubtitleTrackIndex = -1
                 )
             }
+        }
+        PlayerEvent.OnToggleTimeRemaining -> {
+            val show = !_uiState.value.showTimeRemaining
+            _uiState.update { it.copy(showTimeRemaining = show) }
+            showControlsTemporarily()
+            scope.launch { playerSettingsDataStore.setShowTimeRemaining(show) }
+        }
+        PlayerEvent.OnStartFromBeginning -> {
+            if (isLiveSeekBlocked()) return
+            pendingPreviewSeekPosition = null
+            pendingSeekPosition = null
+            pendingResumeProgress = null
+            // Starting over is watching it again: a completion mark from this session must not
+            // stop the new position from being saved.
+            // A new pass: a save still running for the last one no longer owns these flags.
+            playbackItem.passGeneration++
+            hasMarkedCurrentEpisodeCompleted = false
+            currentEpisodeCompletionIsFinal = false
+            val origin = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
+            seekPlaybackTo(0L, SeekParameters.EXACT)
+            updatePlaybackTimeline(currentPosition = 0L)
+            updateSeekFeedback(originMs = origin, targetMs = 0L, committed = true)
+            scheduleProgressSyncAfterSeek()
+            _uiState.update { it.copy(resumedFromPosition = false, activeOverlay = it.activeOverlay.closing(PlayerOverlay.MORE)) }
+            showControlsTemporarily()
+        }
+        is PlayerEvent.OnSetSubtitleMode -> {
+            val mode = event.mode
+            logSwitchTrace(stage = "event-subtitle-mode", message = "mode=$mode")
+            pendingAddonSubtitleLanguage = null
+            pendingAddonSubtitleTrackId = null
+            resetSubtitleAutoSyncState()
+            cancelAutomaticSubtitleSync() // AutoSync hook
+            forgetRememberedSubtitleSelection()
+            isUserExplicitSubtitleSelection = false
+            subtitleDisabledByPersistedPreference = false
+            subtitleAddonRestoredByPersistedPreference = false
+            autoSubtitleSelected = false
+            lastSubtitleMode = mode
+            if (hasBurnedInServerSubtitle && mode == com.fetch.tv.data.local.SubtitleMode.OFF) clearServerSubtitle()
+            _uiState.update {
+                it.copy(
+                    subtitleStyle = it.subtitleStyle.copy(mode = mode),
+                    activeOverlay = PlayerOverlay.SUBTITLES,
+                    showControls = true
+                )
+            }
+            if (mode == com.fetch.tv.data.local.SubtitleMode.OFF) {
+                // Full subtitles go now; auto-select then brings back a forced track if there is one.
+                disableSubtitles()
+                _uiState.update { it.copy(selectedSubtitleTrackIndex = -1, selectedAddonSubtitle = null) }
+            }
+            tryAutoSelectPreferredSubtitleFromAvailableTracks()
+            scope.launch { playerSettingsDataStore.setSubtitleMode(mode) }
         }
         is PlayerEvent.OnSelectAddonSubtitle -> {
             logSwitchTrace(
@@ -1680,6 +1742,8 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             hasRenderedFirstFrame = false
             endDetectionArmed = false
             mpvEofSeenClear = false
+            // An explicit Retry gets the stream's full automatic-retry budget back (#777).
+            playbackItem.resetAttempt()
             hasRetriedCurrentStreamAfter416 = false
             resetErrorRetryState()
             clearPendingEngineSwitchTrackPreference()

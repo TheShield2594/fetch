@@ -90,6 +90,7 @@ internal fun PlayerRuntimeController.onShowSleepTimerDialog() {
 
 /** A row of the list: a duration, "end of this title", or Off (null). */
 internal fun PlayerRuntimeController.onSelectSleepTimer(choice: SleepTimerChoice?) {
+    val wasEndOfTitle = sleepTimer.stopsAtEndOfTitle
     val setting = sleepTimer.set(choice)
     _uiState.update { if (it.choiceDialog == PlayerChoiceDialog.SLEEP_TIMER) it.copy(choiceDialog = null) else it }
     if (setting == SleepTimerSetting.EndOfTitle) {
@@ -103,6 +104,11 @@ internal fun PlayerRuntimeController.onSelectSleepTimer(choice: SleepTimerChoice
                 it
             }
         }
+    }
+    if (wasEndOfTitle && setting != SleepTimerSetting.EndOfTitle) {
+        // Something follows this title again, so the Up next card that "end of this title" took
+        // down may come back (#776).
+        _uiState.update { it.copy(postPlayDismissedForCurrentEpisode = false) }
     }
     refreshSleepTimerLabel()
     scheduleHideControls()

@@ -163,6 +163,10 @@ data class PlayerUiState(
     val currentEpisodeTitle: String? = null,
     val blurUnwatchedEpisodes: Boolean = false,
     val episodeOptionsOverlayStyle: EpisodeOptionsOverlayStyle = EpisodeOptionsOverlayStyle.BLUR,
+    /** The right-hand time label counts down what is left instead of showing the length (#776). */
+    val showTimeRemaining: Boolean = false,
+    /** This item started from saved progress, so "Start from beginning" is offered (#776). */
+    val resumedFromPosition: Boolean = false,
     val episodeWatchProgressMap: Map<Pair<Int, Int>, WatchProgress> = emptyMap(),
     val watchedEpisodeKeys: Set<Pair<Int, Int>> = emptySet(),
     val showEpisodeStreams: Boolean = false,
@@ -171,6 +175,8 @@ data class PlayerUiState(
     val episodeAllStreams: List<Stream> = emptyList(),
     val episodeSelectedAddonFilter: String? = null, // null means "All"
     val episodeFilteredStreams: List<Stream> = emptyList(),
+    /** Why each episode stream was passed over, keyed by [Stream.stableKey]; mirrors [sourceStreamExclusions]. */
+    val episodeStreamExclusions: Map<String, com.fetch.tv.core.streams.ranking.ExclusionReason> = emptyMap(),
     val episodeAvailableAddons: List<String> = emptyList(),
     val episodeSourceChips: List<SourceChipItem> = emptyList(),
     val episodeStreamsForVideoId: String? = null,
@@ -352,6 +358,12 @@ sealed class PlayerEvent {
     data class OnSetCenterMixLevelDb(val db: Int) : PlayerEvent()
     data class OnSelectSubtitleTrack(val index: Int) : PlayerEvent()
     data object OnDisableSubtitles : PlayerEvent()
+    /** Right-hand time label: total length or time left (#776). */
+    data object OnToggleTimeRemaining : PlayerEvent()
+    /** Back to 0:00 on a title that resumed part-way (#776). */
+    data object OnStartFromBeginning : PlayerEvent()
+    /** The Auto / Off / On switch at the top of the subtitle panel (#771). */
+    data class OnSetSubtitleMode(val mode: com.fetch.tv.data.local.SubtitleMode) : PlayerEvent()
     data class OnSelectAddonSubtitle(val subtitle: Subtitle) : PlayerEvent()
     data class OnSetPlaybackSpeed(val speed: Float) : PlayerEvent()
     data object OnToggleControls : PlayerEvent()
@@ -465,7 +477,7 @@ enum class FrameRateSource {
     PROBE
 }
 
-val PLAYBACK_SPEEDS = listOf(0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f)
+val PLAYBACK_SPEEDS = listOf(0.25f, 0.5f, 0.75f, 1f, 1.25f, 1.5f, 1.75f, 2f, 2.5f, 3f)
 
 data class StreamInfoData(
     // Stream source

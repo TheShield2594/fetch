@@ -452,6 +452,7 @@ internal fun DiscoverFilterChipLabel(title: String, value: String, expanded: Boo
 }
 
 /** The open filter's choices as a row of chips under the filter bar. */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 internal fun DiscoverChoiceRow(
     choices: List<DiscoverChoice>,
@@ -459,20 +460,21 @@ internal fun DiscoverChoiceRow(
     onChoose: (DiscoverChoice) -> Unit,
     onFocusLeft: () -> Unit
 ) {
-    // The row closes when focus leaves it (Up to the filters, Down to the grid), but not before
-    // focus has first arrived.
+    // The choices close when focus leaves them (Up to the filters, Down to the grid), but not
+    // before focus has first arrived. They wrap onto as many lines as they need, like a menu
+    // opening downwards: as one sideways row, a long list (Genres) went off screen and Down,
+    // the natural press in a drop-down, left it and closed it straight away.
     var hadFocus by remember { mutableStateOf(false) }
     val focusIndex = choices.indexOfFirst { it.selected }.coerceAtLeast(0)
-    Row(
+    androidx.compose.foundation.layout.FlowRow(
         modifier = Modifier
             .fillMaxWidth()
-            .focusSafeHorizontalScroll()
             .onFocusChanged { state ->
                 if (hadFocus && !state.hasFocus) onFocusLeft()
                 hadFocus = state.hasFocus
             },
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)
     ) {
         choices.forEachIndexed { index, choice ->
             DiscoverChip(

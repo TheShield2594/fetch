@@ -231,4 +231,39 @@ class PlayerNextEpisodeRulesTest {
     fun `an unknown duration is not away from the end`() {
         assertFalse(awayFromEnd(positionMs = 0L, durationMs = 0L))
     }
+
+    private fun countdownMayStart(positionMs: Long, skipIntervals: List<SkipInterval> = emptyList()) =
+        PlayerNextEpisodeRules.autoPlayCountdownMayStart(
+            positionMs = positionMs,
+            durationMs = 45 * 60_000L,
+            skipIntervals = skipIntervals,
+            thresholdMode = NextEpisodeThresholdMode.MINUTES_BEFORE_END,
+            thresholdPercent = 97f,
+            thresholdMinutesBeforeEnd = 2f,
+            countdownSec = 8
+        )
+
+    @Test
+    fun `without credits autoplay counts down only in the last seconds, not at the card (#693)`() {
+        val cardAt = 43 * 60_000L
+        assertTrue(shouldShow(positionMs = cardAt, durationMs = 45 * 60_000L, mode = NextEpisodeThresholdMode.MINUTES_BEFORE_END))
+        assertFalse(countdownMayStart(cardAt))
+        assertFalse(countdownMayStart(45 * 60_000L - 9_000L))
+        assertTrue(countdownMayStart(45 * 60_000L - 8_000L))
+    }
+
+    @Test
+    fun `credits markers still start the countdown with the card`() {
+        assertTrue(countdownMayStart(43 * 60_000L, listOf(outro(startSec = 43 * 60.0, endSec = 44 * 60.0 + 58))))
+    }
+
+    @Test
+    fun `a source waiting for the end holds back natural completion`() {
+        val episode = NextEpisodeInfo(
+            videoId = "v", season = 1, episode = 2, title = "Next", thumbnail = null, overview = null,
+            released = null, hasAired = true, unairedMessage = null
+        )
+        assertTrue(PostPlayMode.AutoPlay(nextEpisode = episode, sourceName = "A", waitingForEnd = true).blocksNaturalCompletion())
+        assertFalse(PostPlayMode.AutoPlay(nextEpisode = episode).blocksNaturalCompletion())
+    }
 }

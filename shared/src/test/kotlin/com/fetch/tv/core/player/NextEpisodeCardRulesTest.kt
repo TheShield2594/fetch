@@ -71,4 +71,34 @@ class NextEpisodeCardRulesTest {
     fun `empty credits segments are ignored`() {
         assertFalse(show(2_300.0, listOf(Credits(2_300.0, 2_300.0))))
     }
+
+    private fun mayStart(position: Double, credits: List<Credits> = emptyList(), scene: PostCreditsScene? = null) =
+        NextEpisodeCardRules.countdownMayStart(position, duration, credits, scene, Threshold.MinutesBeforeEnd(2f), countdownSec = 8)
+
+    @Test
+    fun `without credits the countdown waits for the last seconds of the file (#693)`() {
+        // The card is up from 2:00 before the end, but the countdown only runs in the last 8 s.
+        assertTrue(NextEpisodeCardRules.shouldShow(2_280.0, duration, emptyList(), null, Threshold.MinutesBeforeEnd(2f)))
+        assertFalse(mayStart(2_280.0))
+        assertFalse(mayStart(2_391.0))
+        assertTrue(mayStart(2_392.0))
+        assertTrue(mayStart(duration))
+    }
+
+    @Test
+    fun `credits that time the card start the countdown at once`() {
+        assertTrue(mayStart(2_300.0, listOf(Credits(2_300.0, 2_398.0))))
+        assertTrue(mayStart(2_390.0, listOf(Credits(2_200.0, 2_300.0)), PostCreditsScene(2_300.0, 2_390.0, guessed = false)))
+    }
+
+    @Test
+    fun `credits well before the end are not the card's timing, so the countdown still waits`() {
+        assertFalse(mayStart(2_290.0, listOf(Credits(2_000.0, 2_100.0))))
+        assertTrue(mayStart(2_395.0, listOf(Credits(2_000.0, 2_100.0))))
+    }
+
+    @Test
+    fun `an unknown duration never holds the countdown`() {
+        assertTrue(NextEpisodeCardRules.countdownMayStart(100.0, 0.0, emptyList(), null, percent99, 8))
+    }
 }

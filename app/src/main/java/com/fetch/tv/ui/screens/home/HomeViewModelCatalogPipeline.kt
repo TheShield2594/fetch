@@ -432,7 +432,7 @@ internal fun HomeViewModel.loadCatalogPipeline(
                             catalogsLoadInProgress = false
                         }
                         // Remember the row and retry it, instead of losing it for the session.
-                        onHomeCatalogLoadFailed(errorKey, addon, catalog, generation)
+                        onHomeCatalogLoadFailed(errorKey, addon, catalog, generation, result.message)
                         // Same as the success path: drop the failed row's placeholder now.
                         scheduleUpdateCatalogRows()
                     }
@@ -610,12 +610,21 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
     val hasContent = computedHomeRows.isNotEmpty() || displayRows.isNotEmpty()
 
     _uiState.update { state ->
+        // With nothing to show once every load has settled, a failed catalog means the load
+        // failed: show the error with Retry, not "No catalogs" (#798).
+        val error = homeErrorAfterRowsUpdate(
+            hasContent = hasContent,
+            pendingLoads = pendingCatalogLoads,
+            failedCatalogs = failedHomeCatalogs.size,
+            firstFailureMessage = firstHomeCatalogErrorMessage,
+            current = HomeErrorState(kind = state.errorKind, message = state.error)
+        )
         state.copy(
             catalogRows = if (state.catalogRows == displayRows) state.catalogRows else displayRows,
             homeRows = if (state.homeRows == computedHomeRows) state.homeRows else computedHomeRows,
             isLoading = false,
-            error = if (hasContent) null else state.error,
-            errorKind = if (hasContent) null else state.errorKind
+            error = error.message,
+            errorKind = error.kind
         )
     }
 

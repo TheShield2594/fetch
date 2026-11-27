@@ -29,6 +29,30 @@ internal data class DeferredHomeRowRefresh(
     val fresh: CatalogRow
 )
 
+/** Home's error state: the kind that picks the screen, and the message it shows. */
+internal data class HomeErrorState(val kind: HomeErrorKind?, val message: String?)
+
+/**
+ * Home's error once the rows are rebuilt (#798).
+ * - Anything on screen clears the error.
+ * - Nothing on screen, no load still running and at least one catalog failed: the load failed,
+ *   so Home shows the error with Retry instead of "No catalogs / Add addon", which is meant for
+ *   loads that succeeded and returned nothing.
+ * - Otherwise the current error stands (a load is still running, or nothing failed).
+ */
+internal fun homeErrorAfterRowsUpdate(
+    hasContent: Boolean,
+    pendingLoads: Int,
+    failedCatalogs: Int,
+    firstFailureMessage: String?,
+    current: HomeErrorState
+): HomeErrorState = when {
+    hasContent -> HomeErrorState(kind = null, message = null)
+    pendingLoads <= 0 && failedCatalogs > 0 && current.kind == null ->
+        HomeErrorState(kind = HomeErrorKind.LOAD_FAILED, message = firstFailureMessage ?: current.message)
+    else -> current
+}
+
 /** Delays before each automatic retry of a failed Home row; none after the last. */
 internal val HOME_CATALOG_RETRY_BACKOFF_MS = longArrayOf(15_000L, 60_000L, 4L * 60_000L)
 
@@ -44,8 +68,12 @@ internal fun HomeViewModel.onHomeCatalogLoadFailed(
     key: String,
     addon: Addon,
     catalog: CatalogDescriptor,
-    generation: Long
+    generation: Long,
+    message: String? = null
 ) {
+    if (firstHomeCatalogErrorMessage == null && !message.isNullOrBlank()) {
+        firstHomeCatalogErrorMessage = message
+    }
     // A refresh that fails leaves the loaded row in place, so there is nothing to recover.
     retryingHomeCatalogKeys.remove(key)
     if (readCatalogRow(key) != null) return
@@ -96,6 +124,7 @@ internal fun HomeViewModel.retryFailedHomeCatalogsPipeline() {
 
 /** Forgets every failed row and its pending retry, for a full reload. */
 internal fun HomeViewModel.clearFailedHomeCatalogs() {
+    firstHomeCatalogErrorMessage = null
     failedCatalogRetryJobs.values.forEach { it.cancel() }
     failedCatalogRetryJobs.clear()
     failedHomeCatalogs.clear()

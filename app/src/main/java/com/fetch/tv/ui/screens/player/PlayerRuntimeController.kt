@@ -445,6 +445,11 @@ class PlayerRuntimeController(
     /** Cancels previous TEXT-track bounce jobs when subtitle delay is adjusted repeatedly. */
     internal var subtitleTimingRefreshJob: Job? = null
     internal var nextEpisodeAutoPlayJob: Job? = null
+    /**
+     * Completed when the user asks to start the next episode while autoplay waits for the end of
+     * a file with no credits markers (#693), so it starts at once instead of at the end.
+     */
+    internal var nextEpisodeStartNowSignal: kotlinx.coroutines.CompletableDeferred<Unit>? = null
     internal var streamResolveJob: Job? = null
     internal var stillWatchingPromptJob: Job? = null
     internal var sourceStreamsJob: Job? = null

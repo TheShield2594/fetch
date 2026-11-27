@@ -21,15 +21,37 @@ object NextEpisodeRules {
         percent: Float,
         minutesBeforeEnd: Float
     ): Boolean {
-        val credits = segments.filter { it.type == SegmentType.OUTRO && it.endSec > it.startSec }
-        val scene = credits.maxByOrNull { it.endSec }?.let { SkipButtonRules.followingPostCredits(it, segments, durationSec) }
+        val (credits, scene) = creditsAndScene(segments, durationSec)
         return NextEpisodeCardRules.shouldShow(
             positionSec = positionSec,
             durationSec = durationSec,
-            credits = credits.map { NextEpisodeCardRules.Credits(it.startSec, it.endSec) },
-            postCreditsScene = scene?.let { NextEpisodeCardRules.PostCreditsScene(it.startSec, it.endSec, guessed = it.provider == HEURISTIC) },
+            credits = credits,
+            postCreditsScene = scene,
             threshold = threshold(mode, percent, minutesBeforeEnd)
         )
+    }
+
+    /**
+     * Whether autoplay's [countdownSec]-second countdown may run once the threshold is reached: at
+     * once when the credits timed it, otherwise only in the file's last seconds (#693).
+     */
+    fun countdownMayStart(positionSec: Double, durationSec: Double, segments: List<Segment>, settings: AutoPlaySettings, countdownSec: Int): Boolean {
+        val (credits, scene) = creditsAndScene(segments, durationSec)
+        return NextEpisodeCardRules.countdownMayStart(
+            positionSec = positionSec,
+            durationSec = durationSec,
+            credits = credits,
+            postCreditsScene = scene,
+            threshold = threshold(settings.nextEpisodeThresholdMode, settings.nextEpisodeThresholdPercent, settings.nextEpisodeThresholdMinutesBeforeEnd),
+            countdownSec = countdownSec
+        )
+    }
+
+    private fun creditsAndScene(segments: List<Segment>, durationSec: Double): Pair<List<NextEpisodeCardRules.Credits>, NextEpisodeCardRules.PostCreditsScene?> {
+        val credits = segments.filter { it.type == SegmentType.OUTRO && it.endSec > it.startSec }
+        val scene = credits.maxByOrNull { it.endSec }?.let { SkipButtonRules.followingPostCredits(it, segments, durationSec) }
+        return credits.map { NextEpisodeCardRules.Credits(it.startSec, it.endSec) } to
+            scene?.let { NextEpisodeCardRules.PostCreditsScene(it.startSec, it.endSec, guessed = it.provider == HEURISTIC) }
     }
 
     /** Seconds before the end the threshold stands at. */

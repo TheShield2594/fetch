@@ -260,7 +260,7 @@ internal fun LibrarySelectionOverlay(
     }
 
     fun targets(): List<LibraryBulkTarget> = if (savedGrid) {
-        uiState.visibleItems.filter { selection.isSelected("${it.type}:${it.id}") }.map { it.toBulkTarget() }
+        uiState.visibleItems.filter { selection.isSelected(com.fetch.tv.ui.components.browseItemKey(it.type, it.id)) }.map { it.toBulkTarget() }
     } else {
         val items = if (tab == LibraryTab.HISTORY) historyMonths.orEmpty().flatMap { it.items } else inProgressItems.orEmpty()
         val keyOf: (LibraryActivityItem) -> String = if (tab == LibraryTab.HISTORY) ::historyFocusKey else ::inProgressFocusKey

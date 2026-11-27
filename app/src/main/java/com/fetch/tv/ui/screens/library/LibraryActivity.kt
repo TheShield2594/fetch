@@ -57,7 +57,7 @@ data class LibraryActivityItem(
     /** In progress: the saved progress OK resumes from, as Continue Watching does (#856). */
     val resume: WatchProgress? = null
 ) {
-    val key: String get() = "$type:$id"
+    val key: String get() = com.fetch.tv.ui.components.browseItemKey(type, id)
 
     val isSeries: Boolean
         get() = type.equals("series", ignoreCase = true) || type.equals("tv", ignoreCase = true)

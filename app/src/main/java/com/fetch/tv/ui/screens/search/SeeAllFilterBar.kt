@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import com.fetch.tv.R
@@ -132,12 +133,15 @@ internal fun SeeAllFilterBar(
     onSelectMinRating: (Int?) -> Unit,
     onSelectSort: (DiscoverSort) -> Unit,
     onToggleHideWatched: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Focuses the bar's first filter: the browse Back ladder's last step on See all (#850). */
+    focusRequester: androidx.compose.ui.focus.FocusRequester? = null
 ) {
     var openFilter by remember { mutableStateOf<DiscoverFilterKind?>(null) }
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
             .focusSafeHorizontalScroll(),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically

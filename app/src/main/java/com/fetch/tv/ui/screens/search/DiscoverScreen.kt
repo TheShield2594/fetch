@@ -57,18 +57,6 @@ fun DiscoverScreen(
         mutableStateOf(restoreDiscoverFocus || pendingDiscoverRestoreOnResume)
     }
 
-    val cardRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
-    val posterCardStyle = remember(uiState.posterCardWidthDp, cardRadius) {
-        val computedHeightDp = (uiState.posterCardWidthDp * 1.5f).roundToInt()
-        PosterCardStyle(
-            width = uiState.posterCardWidthDp.dp,
-            height = computedHeightDp.dp,
-            cornerRadius = cardRadius,
-            focusedScale = PosterCardDefaults.Style.focusedScale,
-            showRestingBorder = true
-        )
-    }
-
     LaunchedEffect(uiState.discoverLocation) {
         if (uiState.discoverLocation != DiscoverLocation.OFF) {
             viewModel.ensureDiscoverLoaded()
@@ -101,7 +89,6 @@ fun DiscoverScreen(
         } else {
             DiscoverSection(
                 uiState = uiState,
-                posterCardStyle = posterCardStyle,
                 watchedMovieIds = watchedMovieIds,
                 watchedSeriesIds = watchedSeriesIds,
                 progressByContentId = progressByContentId,
@@ -150,8 +137,7 @@ fun DiscoverScreen(
                 onRetry = { viewModel.onEvent(SearchEvent.RetryDiscover) },
                 onItemLongPress = { item, addonBaseUrl ->
                     viewModel.posterOptions.show(item, addonBaseUrl)
-                },
-                modifier = Modifier.padding(top = FetchTheme.spacing.lg)
+                }
             )
         }
 

@@ -226,6 +226,8 @@ data class LibraryUiState(
     // An error banner stays until it has been up long enough to read and the user presses a key.
     val transientMessageIsError: Boolean = false,
     val transientMessageDismissible: Boolean = false,
+    /** The last sync with the tracking service failed: an empty grid shows Retry (#850). */
+    val refreshFailed: Boolean = false,
     val listManagement: TrackingListManagementCapabilities? = null,
     val showManageDialog: Boolean = false,
     val manageSelectedListKey: String? = null,
@@ -635,10 +637,12 @@ class LibraryViewModel @Inject constructor(
         if (_uiState.value.isSyncing) return
         viewModelScope.launch {
             setTransientMessage(context.getString(R.string.library_syncing_library))
+            _uiState.update { it.copy(refreshFailed = false) }
             runCatching {
                 libraryRepository.refreshNow()
                 setTransientMessage(context.getString(R.string.library_synced))
             }.onFailure {
+                _uiState.update { it.copy(refreshFailed = true) }
                 setError(context.getString(R.string.library_error_refresh_failed))
             }
         }

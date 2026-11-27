@@ -31,8 +31,8 @@ import com.fetch.tv.ui.theme.FetchTheme
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 
-/** The height of the Library's empty and loading states, on every tab. */
-internal val LibraryEmptyStateHeight = 300.dp
+/** The height of the Library's empty and loading states, on every tab: the browse screens' one (#850). */
+internal val LibraryEmptyStateHeight = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight
 
 /** Focus keys of the activity tabs, kept apart from the Saved grid's "type:id" keys. */
 internal fun inProgressFocusKey(item: LibraryActivityItem) = "progress:${item.key}"

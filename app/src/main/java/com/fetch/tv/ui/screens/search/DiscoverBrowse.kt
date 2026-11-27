@@ -66,7 +66,7 @@ internal fun discoverYearRanges(currentYear: Int): List<DiscoverYearRange> {
 }
 
 /** Identity used to merge and de-duplicate titles across catalogs. */
-internal fun discoverItemKey(item: MetaPreview): String = "${item.apiType}:${item.id}"
+internal fun discoverItemKey(item: MetaPreview): String = com.fetch.tv.ui.components.browseItemKey(item.apiType, item.id)
 
 private val YEAR_PATTERN = Regex("""(?<!\d)(1[89]\d{2}|2\d{3})(?!\d)""")
 

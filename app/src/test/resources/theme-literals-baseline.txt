@@ -6,6 +6,7 @@ com/fetch/tv/ui/components/AvatarPickerGrid.kt|ALPHA|2
 com/fetch/tv/ui/components/AvatarPickerGrid.kt|DP|3
 com/fetch/tv/ui/components/AvatarPickerGrid.kt|FOCUS_SCALE|1
 com/fetch/tv/ui/components/AvatarPickerGrid.kt|WHITE_BLACK|2
+com/fetch/tv/ui/components/BrowseScaffold.kt|DP|1
 com/fetch/tv/ui/components/CatalogRowSection.kt|DP|1
 com/fetch/tv/ui/components/ContentCard.kt|ALPHA|4
 com/fetch/tv/ui/components/ContentCard.kt|DP|8
@@ -173,7 +174,6 @@ com/fetch/tv/ui/screens/home/ModernHomeModels.kt|DP|3
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|WHITE_BLACK|1
 com/fetch/tv/ui/screens/home/ModernHomeRows.kt|DP|1
 com/fetch/tv/ui/screens/home/ModernHomeRows.kt|WHITE_BLACK|1
-com/fetch/tv/ui/screens/library/LibraryActivityContent.kt|DP|1
 com/fetch/tv/ui/screens/library/LibraryListDialogs.kt|DP|4
 com/fetch/tv/ui/screens/library/LibraryScreen.kt|DP|2
 com/fetch/tv/ui/screens/library/LibraryServerContent.kt|DP|2

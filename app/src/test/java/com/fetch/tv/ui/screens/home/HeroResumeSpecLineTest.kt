@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.hero.heroResumeSpecLine
+
 import com.fetch.tv.data.local.CachedBestMatch
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

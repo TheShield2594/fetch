@@ -27,7 +27,9 @@ import kotlinx.coroutines.flow.flowOf
 // [scope] defaults to the Lists tab: the fixture's provider list is a personal list.
 internal class LibraryViewModelTestFixture(
     sorter: TrackingLibrarySorter? = null,
-    scope: LibraryListScope = LibraryListScope.LISTS
+    scope: LibraryListScope = LibraryListScope.LISTS,
+    /** The Layout setting for the hero band (#852); off so layout tests measure the grid alone. */
+    heroEnabled: Boolean = false
 ) {
     /** What the History and In progress tabs read. */
     val watched = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchedItem>())
@@ -66,6 +68,7 @@ internal class LibraryViewModelTestFixture(
             every { posterCardCornerRadiusDp } returns flowOf(12)
             every { customPosterUrlPattern } returns flowOf("")
             every { customPosterEnabledScreens } returns flowOf(com.fetch.tv.core.poster.CustomPosterScreen.ALL)
+            every { browseHeroEnabled } returns flowOf(heroEnabled)
         },
         libraryViewPreferences = mockk<LibraryViewPreferences>(relaxed = true) {
             every { sortOption } returns persistedSort

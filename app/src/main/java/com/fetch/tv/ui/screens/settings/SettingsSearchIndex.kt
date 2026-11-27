@@ -323,6 +323,7 @@ internal val settingsSearchIndex: Map<SettingsCategory, List<Int>> = mapOf(
         R.string.layout_hero_section,
         R.string.layout_fullscreen_hero_backdrop,
         R.string.layout_poster_labels,
+        R.string.layout_browse_hero,
         R.string.layout_addon_name,
         R.string.layout_catalog_type,
         R.string.layout_search_system_keyboard,

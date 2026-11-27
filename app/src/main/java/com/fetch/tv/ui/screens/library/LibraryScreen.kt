@@ -373,10 +373,52 @@ fun LibraryScreen(
         else -> "$countText · $sourceName"
     }
 
+    // The hero band (#852): the focused title on this tab, else its first, filled in from the
+    // cached meta once the focus prefetch lands. Off in Layout, on low-RAM devices and on Servers.
+    val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
+    val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
+    val heroAllowed = heroSetting && !FetchTheme.lowRamDevice && tab != LibraryTab.SERVERS && !uiState.isLoading
+    val movieLabel = com.fetch.tv.ui.util.localizedContentType("movie")
+    val seriesLabel = com.fetch.tv.ui.util.localizedContentType("series")
+    val heroItem = remember(heroAllowed, tab, lastFocusedPosterKey, uiState.visibleItems, inProgressItems, historyMonths) {
+        if (!heroAllowed) return@remember null
+        val key = lastFocusedPosterKey
+        when {
+            tab.listScope != null -> uiState.visibleItems
+                .let { items -> items.firstOrNull { com.fetch.tv.ui.components.browseItemKey(it.type, it.id) == key } ?: items.firstOrNull() }
+                ?.toMetaPreview()
+            tab == LibraryTab.IN_PROGRESS -> inProgressItems.orEmpty()
+                .let { items -> items.firstOrNull { inProgressFocusKey(it) == key } ?: items.firstOrNull() }
+                ?.toMetaPreview(detail = null)
+            tab == LibraryTab.HISTORY -> historyMonths.orEmpty().flatMap { it.items }
+                .let { items -> items.firstOrNull { historyFocusKey(it) == key } ?: items.firstOrNull() }
+                ?.toMetaPreview(detail = null)
+            else -> null
+        }
+    }
+    val heroCandidate = remember(heroItem, metaCacheVersion, movieLabel, seriesLabel) {
+        heroItem?.let { item ->
+            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+            com.fetch.tv.ui.components.hero.browseHeroPreview(
+                item = item,
+                cached = viewModel.cachedMeta(item.id, item.apiType),
+                typeLabel = if (isSeries) seriesLabel else movieLabel
+            )
+        }
+    }
+    val heroTarget = com.fetch.tv.ui.components.hero.rememberBrowseHeroTarget(heroCandidate)
+    val showHero = heroAllowed && heroItem != null && heroTarget != null
+
     com.fetch.tv.ui.components.BrowseScaffold(
         title = if (showBuiltInHeader) stringResource(R.string.library_title) else null,
         collapsed = collapsed,
         layoutKey = tab,
+        heroBackdrop = heroTarget?.backdrop,
+        hero = if (showHero) {
+            @Composable { com.fetch.tv.ui.components.hero.BrowseHeroTitle(heroTarget) }
+        } else {
+            null
+        },
         tabsDescription = stringResource(R.string.library_tabs_description),
         tabs = {
             tabs.forEach { option ->

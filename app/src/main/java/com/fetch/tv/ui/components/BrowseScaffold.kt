@@ -71,6 +71,13 @@ fun BrowseScaffold(
     summary: String? = null,
     /** The time at the end of the header, as on Home; off where the app's own top bar has one. */
     showClock: Boolean = title != null,
+    /**
+     * The hero band (#852): [heroBackdrop] full bleed behind the header and [hero] (the focused
+     * title's logo, meta line and synopsis) between the tabs and the filters. It folds with the
+     * filters, and is left out of the cards' fitting, so it never shrinks the posters.
+     */
+    heroBackdrop: String? = null,
+    hero: (@Composable () -> Unit)? = null,
     content: @Composable BoxScope.(gridViewport: Dp) -> Unit
 ) {
     val density = LocalDensity.current
@@ -78,13 +85,20 @@ fun BrowseScaffold(
     // The open header's height, for this layout: the tallest seen while it is open, so a fold or
     // its animation never shrinks the fitted cards' viewport.
     var openHeaderHeightPx by remember(layoutKey) { mutableIntStateOf(0) }
+    var heroHeightPx by remember(layoutKey, hero != null) { mutableIntStateOf(0) }
     val fullMotion = FetchTheme.fullMotion
+    val foldEnter = if (fullMotion) expandVertically(FetchMotion.enterTween()) + fadeIn(FetchMotion.enterTween()) else fadeIn(snapSpec())
+    val foldExit = if (fullMotion) shrinkVertically(FetchMotion.exitTween()) + fadeOut(FetchMotion.exitTween()) else fadeOut(snapSpec())
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(FetchTheme.colors.Background)
             .onSizeChanged { totalHeightPx = it.height }
     ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+        if (hero != null) {
+            BrowseHeroArt(visible = !collapsed, backdrop = heroBackdrop, modifier = Modifier.matchParentSize())
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -122,22 +136,31 @@ fun BrowseScaffold(
                 headerActions()
                 if (showClock) ClockText()
             }
-            if (filters != null || summary != null) {
-                AnimatedVisibility(
-                    visible = !collapsed,
-                    enter = if (fullMotion) expandVertically(FetchMotion.enterTween()) + fadeIn(FetchMotion.enterTween()) else fadeIn(snapSpec()),
-                    exit = if (fullMotion) shrinkVertically(FetchMotion.exitTween()) + fadeOut(FetchMotion.exitTween()) else fadeOut(snapSpec())
-                ) {
+            if (filters != null || summary != null || hero != null) {
+                AnimatedVisibility(visible = !collapsed, enter = foldEnter, exit = foldExit) {
                     Column(verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm)) {
+                        if (hero != null) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = FetchTheme.spacing.sm)
+                                    .onSizeChanged { if (!collapsed && it.height > heroHeightPx) heroHeightPx = it.height }
+                            ) {
+                                hero()
+                            }
+                        }
                         filters?.invoke()
                         if (summary != null) BrowseSummaryLine(summary)
                     }
                 }
             }
         }
+        }
         val viewport = with(density) {
             if (totalHeightPx <= 0 || openHeaderHeightPx <= 0) Dp.Hairline
-            else (totalHeightPx - openHeaderHeightPx).toDp() - FetchTheme.spacing.xs
+            // The band (and its padding) isn't counted: it folds away, and the cards keep the
+            // size they would have without it.
+            else (totalHeightPx - openHeaderHeightPx + heroHeightPx + heroPaddingPx(hero != null)).toDp() - FetchTheme.spacing.xs
         }
         Box(
             modifier = Modifier
@@ -151,6 +174,26 @@ fun BrowseScaffold(
 }
 
 private fun <T> snapSpec() = androidx.compose.animation.core.snap<T>()
+
+/** The band's art behind the header, fading out as the header folds (#852). */
+@Composable
+private fun BrowseHeroArt(visible: Boolean, backdrop: String?, modifier: Modifier) {
+    val fullMotion = FetchTheme.fullMotion
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn(if (fullMotion) FetchMotion.enterTween() else snapSpec()),
+        exit = fadeOut(if (fullMotion) FetchMotion.exitTween() else snapSpec())
+    ) {
+        com.fetch.tv.ui.components.hero.BrowseHeroBackdrop(backdrop = backdrop, modifier = Modifier.fillMaxSize())
+    }
+}
+
+/** The band's own vertical padding and the gap after it, in px, which the fitting also leaves out. */
+@Composable
+private fun heroPaddingPx(hasHero: Boolean): Int = if (!hasHero) 0 else with(LocalDensity.current) {
+    (FetchTheme.spacing.sm * 3).roundToPx()
+}
 
 /** "47 titles · Trakt" / "120 titles · 7 catalogs" under the filters. */
 @Composable

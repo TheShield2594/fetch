@@ -8,6 +8,9 @@
 
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.hero.HeroPreview
+import com.fetch.tv.ui.components.hero.HeroTitleBlock
+
 import com.fetch.tv.core.util.runSuspendCatching
 import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.components.PlayLaunchOrigin

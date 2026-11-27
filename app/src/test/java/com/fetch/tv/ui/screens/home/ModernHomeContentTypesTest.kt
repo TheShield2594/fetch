@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.hero.HeroPreview
+
 import com.fetch.tv.data.youtube.YouTubeVideo
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.ui.util.StableList

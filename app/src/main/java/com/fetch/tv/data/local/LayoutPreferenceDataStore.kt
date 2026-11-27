@@ -82,6 +82,7 @@ class LayoutPreferenceDataStore @Inject constructor(
     private val homeContentFilterKey = stringPreferencesKey("home_content_filter")
     private val posterLabelsEnabledKey = booleanPreferencesKey("poster_labels_enabled")
     private val catalogAddonNameEnabledKey = booleanPreferencesKey("catalog_addon_name_enabled")
+    private val browseHeroEnabledKey = booleanPreferencesKey("browse_hero_enabled")
     private val catalogTypeSuffixEnabledKey = booleanPreferencesKey("catalog_type_suffix_enabled")
     private val legacyClassicFocusGradientEnabledKey = booleanPreferencesKey("classic_focus_gradient_enabled")
     private val focusedPosterBackdropExpandEnabledKey = booleanPreferencesKey("focused_poster_backdrop_expand_enabled")
@@ -273,6 +274,11 @@ class LayoutPreferenceDataStore @Inject constructor(
 
     val posterLabelsEnabled: Flow<Boolean> = profileFlow { prefs ->
         prefs[posterLabelsEnabledKey] ?: true
+    }
+
+    /** The hero band over Discover and the Library that follows the focused card (#852). */
+    val browseHeroEnabled: Flow<Boolean> = profileFlow { prefs ->
+        prefs[browseHeroEnabledKey] ?: true
     }
 
     val catalogAddonNameEnabled: Flow<Boolean> = profileFlow { prefs ->
@@ -604,6 +610,12 @@ class LayoutPreferenceDataStore @Inject constructor(
     suspend fun setPosterLabelsEnabled(enabled: Boolean) {
         store(profileManager.currentProfileId()).edit { prefs ->
             prefs[posterLabelsEnabledKey] = enabled
+        }
+    }
+
+    suspend fun setBrowseHeroEnabled(enabled: Boolean) {
+        store(profileManager.currentProfileId()).edit { prefs ->
+            prefs[browseHeroEnabledKey] = enabled
         }
     }
 

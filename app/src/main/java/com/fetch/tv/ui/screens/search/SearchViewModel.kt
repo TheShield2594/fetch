@@ -368,7 +368,25 @@ class SearchViewModel @Inject constructor(
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
             // Marked only once done, so a prefetch cancelled by the next focus is retried.
             metaPrefetchedIds.add(id)
+            // Discover's hero band re-reads the cache now it has the title's full meta (#852).
+            _metaCacheVersion.update { it + 1 }
         }
+    }
+
+    private val _metaCacheVersion = MutableStateFlow(0)
+
+    /** Goes up each time a focus prefetch lands, so the hero band can fill in what it now has. */
+    val metaCacheVersion: StateFlow<Int> = _metaCacheVersion.asStateFlow()
+
+    /** The full meta of a title, when a prefetch or the detail page has cached it. */
+    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? =
+        metaRepository.getCachedMeta(type, id)
+
+    /** The Layout setting for the hero band over Discover's grid (#852); read only once Discover asks. */
+    val heroEnabled: StateFlow<Boolean> by lazy {
+        layoutPreferenceDataStore.browseHeroEnabled
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), false)
     }
 
     /**

@@ -15,6 +15,10 @@
         <item quantity="one">%1$d title</item>
         <item quantity="other">%1$d titles</item>
     </plurals>
+    <!-- Layout setting for the art and details over Discover and the Library that follow the focused card (#852). -->
+    <string name="layout_browse_hero">Hero on Discover and Library</string>
+    <string name="layout_browse_hero_sub">Show the focused title’s art, logo and details above the grid.</string>
+
     <!-- The corner chip on a card that starts at once; shown when the stream's quality isn't known (#854). -->
     <string name="library_card_ready">Ready</string>
 

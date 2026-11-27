@@ -87,6 +87,10 @@ internal fun DiscoverSection(
     watchedSeriesIds: Set<String> = emptySet(),
     /** Saved progress by content id, drawn along the cards' bottom edge (#854). */
     progressByContentId: Map<String, Float> = emptyMap(),
+    /** The hero band over the grid (#852): the Layout setting, and the cache it fills in from. */
+    heroEnabled: Boolean = false,
+    heroMetaVersion: Int = 0,
+    cachedMeta: (id: String, type: String) -> com.fetch.tv.domain.model.Meta? = { _, _ -> null },
     focusResults: Boolean,
     showBuiltInHeader: Boolean = true,
     firstItemFocusRequester: FocusRequester,
@@ -176,11 +180,30 @@ internal fun DiscoverSection(
     }
     val collapsed = com.fetch.tv.ui.components.rememberBrowseHeaderCollapsed(gridState)
 
+    // The hero band (#852): the focused title, else the first, filled in from the cached meta once
+    // the focus prefetch lands. Off in Layout and on low-RAM devices.
+    val heroAllowed = heroEnabled && !FetchTheme.lowRamDevice
+    val heroItem = remember(heroAllowed, results, focusedItemIndex) {
+        if (!heroAllowed) null else results.getOrNull(focusedItemIndex) ?: results.firstOrNull()
+    }
+    val heroTypeLabel = heroItem?.let { localizedContentType(localContext, it.apiType) }
+    val heroCandidate = remember(heroItem, heroMetaVersion, heroTypeLabel) {
+        heroItem?.let { com.fetch.tv.ui.components.hero.browseHeroPreview(it, cachedMeta(it.id, it.apiType), heroTypeLabel) }
+    }
+    val heroTarget = com.fetch.tv.ui.components.hero.rememberBrowseHeroTarget(heroCandidate)
+    val showHero = heroAllowed && heroItem != null && heroTarget != null
+
     com.fetch.tv.ui.components.BrowseScaffold(
         title = if (showBuiltInHeader) stringResource(R.string.discover_title) else null,
         collapsed = collapsed,
         modifier = modifier,
         layoutKey = uiState.selectedDiscoverType,
+        heroBackdrop = heroTarget?.backdrop,
+        hero = if (showHero) {
+            @Composable { com.fetch.tv.ui.components.hero.BrowseHeroTitle(heroTarget) }
+        } else {
+            null
+        },
         tabs = if (types.isNotEmpty()) {
             @Composable {
                 types.forEach { type ->

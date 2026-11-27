@@ -65,6 +65,10 @@ com/fetch/tv/ui/components/Synopsis.kt|ALPHA|5
 com/fetch/tv/ui/components/Synopsis.kt|DP|8
 com/fetch/tv/ui/components/Synopsis.kt|WHITE_BLACK|6
 com/fetch/tv/ui/components/WatchedMarker.kt|DP|3
+com/fetch/tv/ui/components/hero/HeroLayers.kt|ALPHA|14
+com/fetch/tv/ui/components/hero/HeroLayers.kt|DP|6
+com/fetch/tv/ui/components/hero/HeroLayers.kt|PERCENT_RADIUS|1
+com/fetch/tv/ui/components/hero/HeroLayers.kt|SPACING_AS_STROKE|2
 com/fetch/tv/ui/components/posteroptions/PosterOptionsDialog.kt|DP|4
 com/fetch/tv/ui/components/posteroptions/PosterOptionsDialog.kt|NON_TV_MATERIAL|1
 com/fetch/tv/ui/navigation/DetailChildHost.kt|DP|1
@@ -165,10 +169,6 @@ com/fetch/tv/ui/screens/detail/ShuffleButton.kt|DP|2
 com/fetch/tv/ui/screens/detail/TrailerSection.kt|DP|3
 com/fetch/tv/ui/screens/filterrows/FilterRowsScreen.kt|DP|1
 com/fetch/tv/ui/screens/home/ModernHomeContent.kt|DP|1
-com/fetch/tv/ui/screens/home/ModernHomeHero.kt|ALPHA|14
-com/fetch/tv/ui/screens/home/ModernHomeHero.kt|DP|6
-com/fetch/tv/ui/screens/home/ModernHomeHero.kt|PERCENT_RADIUS|1
-com/fetch/tv/ui/screens/home/ModernHomeHero.kt|SPACING_AS_STROKE|2
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|ALPHA|1
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|DP|3
 com/fetch/tv/ui/screens/home/ModernHomeModels.kt|WHITE_BLACK|1

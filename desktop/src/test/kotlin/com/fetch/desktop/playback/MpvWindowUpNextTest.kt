@@ -47,6 +47,17 @@ class MpvWindowUpNextTest {
     }
 
     @Test
+    fun `without credits a seek back out of the last seconds waits for them again`() {
+        val u = upNext()
+        u.onTimes(100.0, duration)
+        assertTrue(u.onTimes(2_395.0, duration).single().contains("Starting in 5 s"))
+        // Still past the 99 % threshold, but out of the countdown's last 5 s.
+        assertEquals(listOf(MpvProgress.showTextCommand("", 1)), u.onTimes(2_380.0, duration))
+        assertTrue(u.onTimes(2_381.0, duration).isEmpty())
+        assertTrue(u.onTimes(2_395.0, duration).single().contains("Starting in 5 s"))
+    }
+
+    @Test
     fun `credits near the end start the countdown when they start`() {
         val u = upNext(segments = listOf(Segment(SegmentType.OUTRO, 2_300.0, 2_398.0)))
         u.onTimes(100.0, duration)

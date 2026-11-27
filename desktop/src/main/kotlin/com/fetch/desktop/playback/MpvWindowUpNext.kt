@@ -67,8 +67,11 @@ class MpvWindowUpNext(
             countdownFrom = positionSec
             return show(COUNTDOWN_SEC)
         }
-        if (positionSec < from - 1.0 && !reached) {
-            // Seeked back before the threshold: wait for it again.
+        if (positionSec < from - 1.0 &&
+            (!reached || !NextEpisodeRules.countdownMayStart(positionSec, durationSec, segments, ap, COUNTDOWN_SEC))
+        ) {
+            // Seeked back before the threshold, or out of the last seconds the countdown runs in
+            // without credits markers: wait for it again.
             countdownFrom = null
             lastShown = null
             return listOf(MpvProgress.showTextCommand("", 1))

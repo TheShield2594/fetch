@@ -212,6 +212,13 @@ fun HomeScreen(
         (uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) ||
         hasCollectionContent ||
         pendingCwRemovalForLayer != null
+    // The load error with Retry replaces Home only when nothing can be drawn: a catalog that loaded
+    // empty is not on screen, while Continue Watching or a collection still is (#798).
+    val showLoadError = uiState.errorKind != null &&
+        !hasCatalogContent &&
+        !hasCollectionContent &&
+        !(uiState.continueWatchingEnabled && uiState.continueWatchingItems.isNotEmpty()) &&
+        pendingCwRemovalForLayer == null
     val showOffline = uiState.layoutPreferencesReady && shouldShowHomeOffline(
         reach = uiState.networkReach,
         hasAnyContent = hasAnyContent,
@@ -224,7 +231,7 @@ fun HomeScreen(
         uiState.isLoading && !hasAnyContent -> true
         uiState.errorKind == HomeErrorKind.NO_ADDONS && uiState.catalogRows.isEmpty() -> !homeStableGateReleased
         uiState.errorKind == HomeErrorKind.NO_CATALOG_ADDONS && uiState.catalogRows.isEmpty() && !hasCollectionContent -> !homeStableGateReleased
-        uiState.errorKind != null && uiState.catalogRows.isEmpty() -> false
+        showLoadError -> false
         !uiState.isLoading && !hasAnyContent -> !homeStableGateReleased
         else -> !homeStableGateReleased || !modernPresentationReady || !showHomeContentWithAnimation
     }
@@ -299,7 +306,7 @@ fun HomeScreen(
                 }
             }
 
-            uiState.errorKind != null && uiState.catalogRows.isEmpty() -> {
+            showLoadError -> {
                 ErrorState(
                     message = uiState.error ?: stringResource(R.string.error_generic),
                     onRetry = { viewModel.onEvent(HomeEvent.OnRetry) },

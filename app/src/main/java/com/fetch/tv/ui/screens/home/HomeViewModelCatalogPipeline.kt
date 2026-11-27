@@ -607,7 +607,10 @@ internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
 
     // Clear any stale error when content is now available (e.g., catalogs
     // loaded after the initial startup race set an error).
-    val hasContent = computedHomeRows.isNotEmpty() || displayRows.isNotEmpty()
+    // Only rows Home can draw count: a catalog that loaded empty is not on screen, so it must not
+    // hide the error and Retry when the others failed (#798). Placeholders, collections and
+    // approved rows are all in computedHomeRows.
+    val hasContent = computedHomeRows.isNotEmpty() || displayRows.any { it.items.isNotEmpty() }
 
     _uiState.update { state ->
         // With nothing to show once every load has settled, a failed catalog means the load

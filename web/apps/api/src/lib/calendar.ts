@@ -7,6 +7,7 @@ import { getTmdb } from "./tmdb-client.js";
 import { loadEpisodes } from "./detail.js";
 import { getCachedShowDetails } from "./upcoming-episodes.js";
 import { getTraktClient, isTraktConnected } from "./trakt-client.js";
+import { simklAirTimes } from "./simkl-calendar.js";
 
 /**
  * How many in-progress series, and how many watchlisted ones, the calendar
@@ -187,7 +188,12 @@ export const getCalendar = async (
   const movieIds = watchlistItems.filter((item) => item.type === "movie").map((item) => item.imdbId);
   const seriesIds = [...followed, ...premiereOnly];
 
-  const [seriesMeta, films, traktTimes] = await Promise.all([
+  // Simkl's times, for a profile on Simkl; a day either side, as for Trakt.
+  const simklFrom = new Date(window.start);
+  simklFrom.setUTCDate(simklFrom.getUTCDate() - 1);
+  const simklTo = new Date(window.start);
+  simklTo.setUTCDate(simklTo.getUTCDate() + window.days + 1);
+  const [seriesMeta, films, traktTimes, simklTimes] = await Promise.all([
     seriesIds.length === 0
       ? Promise.resolve([] as SeriesMeta[])
       : prisma.metadata.findMany({
@@ -208,6 +214,7 @@ export const getCalendar = async (
           select: { imdbId: true, name: true, poster: true, background: true, description: true, releaseDate: true },
         }),
     traktAirTimes(profileId, window, log),
+    simklAirTimes(profileId, simklFrom, simklTo, log),
   ]);
 
   const metaById = new Map(seriesMeta.map((m) => [m.imdbId, m]));
@@ -282,7 +289,8 @@ export const getCalendar = async (
       episode: ep.episode,
       episodeName: guard ? `Episode ${ep.episode}` : ep.name,
       airDate: ep.airDate,
-      airsAt: traktTimes.get(key) ?? null,
+      // Trakt's time where it has one, else Simkl's.
+      airsAt: traktTimes.get(key) ?? simklTimes.get(key) ?? null,
       watched,
       overview: guard ? null : ep.overview,
     };

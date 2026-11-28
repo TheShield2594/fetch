@@ -26,6 +26,9 @@ vi.mock("./trakt-client.js", () => ({
   getTraktClient: async () => ({ fetchMyShowsCalendar: (...a: unknown[]) => fetchMyShowsCalendar(...a) }),
 }));
 
+const simklAirTimes = vi.fn(async () => new Map<string, string>());
+vi.mock("./simkl-calendar.js", () => ({ simklAirTimes: (...a: unknown[]) => simklAirTimes(...(a as [])) }));
+
 const { getCalendar } = await import("./calendar.js");
 
 // A fresh profile per test: the Trakt times are cached per profile and window.

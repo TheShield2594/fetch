@@ -9,6 +9,7 @@ import com.fetch.tv.data.remote.api.TmdbDetailsResponse
 import com.fetch.tv.data.remote.api.TmdbNextEpisode
 import com.fetch.tv.data.remote.api.TraktApi
 import com.fetch.tv.data.repository.TraktAuthService
+import com.fetch.tv.data.simkl.SimklCalendarAirTimes
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.repository.LibraryRepository
@@ -58,7 +59,7 @@ class WatchHistoryCalendarSource internal constructor(
     private val watchlistMovies: suspend () -> List<LibraryEntry> = { emptyList() },
     /**
      * Air times by `series:season:episode` for the days from a start date, from the profile's Trakt
-     * calendar; empty without Trakt. TMDB gives only dates.
+     * calendar and, for a profile on Simkl, Simkl's; empty without either. TMDB gives only dates.
      */
     private val airTimes: suspend (start: LocalDate, days: Int) -> Map<String, String> = { _, _ -> emptyMap() }
 ) {
@@ -71,7 +72,8 @@ class WatchHistoryCalendarSource internal constructor(
         layoutPreferences: LayoutPreferenceDataStore,
         library: LibraryRepository,
         traktAuth: TraktAuthService,
-        traktApi: TraktApi
+        traktApi: TraktApi,
+        simklCalendar: SimklCalendarAirTimes
     ) : this(
         progress,
         tmdbService,
@@ -92,7 +94,8 @@ class WatchHistoryCalendarSource internal constructor(
                 traktAuth.executeAuthorizedRequest { auth -> traktApi.getMyShowsCalendar(auth, from.toString(), length) }
                     ?.takeIf { it.isSuccessful }?.body().orEmpty()
             }
-            traktAirTimes(items)
+            // Simkl's calendar for a profile on Simkl; Trakt's time wins where both have one.
+            simklCalendar.airTimes() + traktAirTimes(items)
         }
     )
 

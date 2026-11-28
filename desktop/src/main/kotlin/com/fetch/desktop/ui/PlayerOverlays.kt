@@ -56,7 +56,9 @@ import com.fetch.desktop.data.episodeTag
 import com.fetch.desktop.player.embedded.MpvTrack
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.core.streams.ranking.StreamLanguage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 /** "You're watching": title, episode and synopsis after a few seconds paused, as on TV. */
@@ -106,7 +108,8 @@ internal fun StreamInfoOverlay(session: PlayerSession, modifier: Modifier = Modi
     val mpv = session.mpv
     val lines by produceState(emptyList<Pair<String, String>>(), session) {
         while (true) {
-            value = streamInfo(session)
+            // About twenty libmpv reads a second: off the UI thread.
+            value = withContext(Dispatchers.IO) { streamInfo(session) }
             delay(1_000)
         }
     }

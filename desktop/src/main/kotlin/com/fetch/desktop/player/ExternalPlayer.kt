@@ -37,7 +37,9 @@ object ExternalPlayer {
         ipcSocket: File? = null,
         options: List<String> = emptyList(),
         /** mpv's --start as given ("754" or "42%"). */
-        start: String? = null
+        start: String? = null,
+        /** Where the link and headers go instead of the command line ([PrivateLaunch.create]); null puts them there. */
+        privateLaunch: PrivateLaunch? = null
     ): List<String>? {
         val target = playableTarget(stream) ?: return null
         if (mpvPath == null) return listOf("xdg-open", target)
@@ -48,6 +50,12 @@ object ExternalPlayer {
             if (start != null) add("--start=$start")
             if (ipcSocket != null) add("--input-ipc-server=${ipcSocket.absolutePath}")
             addAll(options)
+            if (privateLaunch != null) {
+                // Read from this user's own files: nothing secret in /proc/<pid>/cmdline.
+                privateLaunch.config?.let { add("--include=${it.absolutePath}") }
+                add("--playlist=${privateLaunch.playlist.absolutePath}")
+                return@buildList
+            }
             stream.behaviorHints?.proxyHeaders?.request.orEmpty().forEach { (name, value) ->
                 // One header per option: a comma inside a value would split a combined list.
                 add("--http-header-fields-append=$name: $value")
@@ -56,6 +64,69 @@ object ExternalPlayer {
             add(target)
         }
     }
+
+    /**
+     * The link and its headers for mpv's window, kept off its command line: any local user can
+     * read a process's arguments (`/proc/<pid>/cmdline`, `ps`), and a debrid link or an addon's
+     * header is a credential. The headers go in a config file mpv [--include]s, the link in a
+     * one-entry playlist, both created readable by this user only and deleted when mpv exits.
+     */
+    class PrivateLaunch internal constructor(val config: File?, val playlist: File) {
+        fun delete() {
+            config?.delete()
+            playlist.delete()
+        }
+
+        companion object {
+            /**
+             * The files for [stream], or null to keep the old command line: a link or header with
+             * a line break (it couldn't be written safely), or files that can't be made private.
+             */
+            fun create(stream: Stream, dir: File = privateDir()): PrivateLaunch? {
+                val target = playableTarget(stream) ?: return null
+                val headers = stream.behaviorHints?.proxyHeaders?.request.orEmpty()
+                if (!lineSafe(target) || headers.any { (k, v) -> !lineSafe(k) || !lineSafe(v) }) return null
+                if (!posix) return null
+                var config: File? = null
+                return try {
+                    config = headers.takeIf { it.isNotEmpty() }?.let { privateFile(dir, ".conf", configText(it)) }
+                    PrivateLaunch(config, privateFile(dir, ".m3u", playlistText(target)))
+                } catch (_: Exception) {
+                    config?.delete()
+                    null
+                }
+            }
+
+            /** mpv config lines for [headers]: one option per header, each value length-prefixed (`%n%`) so nothing in it is parsed. */
+            internal fun configText(headers: Map<String, String>): String = headers.entries.joinToString("") { (name, value) ->
+                val header = "$name: $value"
+                "http-header-fields-append=%${header.toByteArray(Charsets.UTF_8).size}%$header\n"
+            }
+
+            internal fun playlistText(target: String): String = "#EXTM3U\n$target\n"
+
+            internal fun lineSafe(text: String): Boolean = text.none { it == '\n' || it == '\r' || it == '\u0000' }
+
+            private val posix: Boolean by lazy { "posix" in java.nio.file.FileSystems.getDefault().supportedFileAttributeViews() }
+
+            private fun privateFile(dir: File, suffix: String, text: String): File {
+                val attrs = java.nio.file.attribute.PosixFilePermissions.asFileAttribute(java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"))
+                val path = java.nio.file.Files.createTempFile(dir.toPath(), "fetch-mpv-", suffix, attrs)
+                try {
+                    java.nio.file.Files.writeString(path, text)
+                } catch (e: Exception) {
+                    java.nio.file.Files.deleteIfExists(path)
+                    throw e
+                }
+                return path.toFile().apply { deleteOnExit() }
+            }
+        }
+    }
+
+    /** The user's runtime directory (private to them), or the temp directory. */
+    private fun privateDir(): File = System.getenv("XDG_RUNTIME_DIR")?.takeIf { it.isNotBlank() }?.let(::File)
+        ?.takeIf { it.isDirectory && it.canWrite() }
+        ?: File(System.getProperty("java.io.tmpdir"))
 
     /**
      * [options] are extra mpv options from the player settings ([MpvArgs]). With [captureOutput],
@@ -71,9 +142,19 @@ object ExternalPlayer {
     ): Result {
         val mpv = findMpv()
         val socket = mpv?.let { newIpcSocket() }
-        val command = command(stream, title, mpv, ipcSocket = socket, options = options, start = start)
-            ?: return Result.Failed("This source has no playable link. Fetch plays direct and debrid links only.")
-        return start(command, socket, captureOutput)
+        val privateLaunch = mpv?.let { PrivateLaunch.create(stream) }
+        val command = command(stream, title, mpv, ipcSocket = socket, options = options, start = start, privateLaunch = privateLaunch)
+        if (command == null) {
+            privateLaunch?.delete()
+            return Result.Failed("This source has no playable link. Fetch plays direct and debrid links only.")
+        }
+        val result = start(command, socket, captureOutput)
+        if (privateLaunch != null) {
+            // mpv reads them as it starts; they go when it exits (or now, if it didn't start).
+            val process = (result as? Result.Started)?.process
+            if (process == null) privateLaunch.delete() else process.onExit().thenRun { privateLaunch.delete() }
+        }
+        return result
     }
 
     /** Plays a plain link, such as a YouTube trailer (mpv resolves it through yt-dlp). */
@@ -146,12 +227,8 @@ object ExternalPlayer {
             .take(200)
 
     /** A fresh socket path in the user's runtime directory (or the temp directory). */
-    private fun newIpcSocket(): File {
-        val dir = System.getenv("XDG_RUNTIME_DIR")?.takeIf { it.isNotBlank() }?.let(::File)
-            ?.takeIf { it.isDirectory && it.canWrite() }
-            ?: File(System.getProperty("java.io.tmpdir"))
-        return File(dir, "fetch-mpv-${ProcessHandle.current().pid()}-${System.nanoTime()}.sock")
-    }
+    private fun newIpcSocket(): File =
+        File(privateDir(), "fetch-mpv-${ProcessHandle.current().pid()}-${System.nanoTime()}.sock")
 
     /** The link mpv opens for [stream], or null when Fetch can't play it. */
     fun playableUrl(stream: Stream): String? = playableTarget(stream)

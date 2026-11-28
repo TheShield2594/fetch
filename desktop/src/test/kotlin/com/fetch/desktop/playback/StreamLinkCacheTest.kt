@@ -61,4 +61,30 @@ class StreamLinkCacheTest {
         c.saveBingeGroup("tt1", stream.copy(behaviorHints = null))
         assertNull(cache().bingeGroup("tt1"))
     }
+
+    @Test
+    fun `replaying the cached link keeps its age, a fresh pick restarts it`() {
+        val c = cache()
+        c.saveLink("tt1", stream)
+        val saved = c.validLink("tt1", maxAgeHours = 1)!!.savedAtMs
+        now += 50 * 60_000L
+        // Reuse Last Link played it again: it still expires an hour after it was first saved.
+        c.saveLink("tt1", c.validLink("tt1", 1)!!.toStream(), reusedSavedAtMs = saved)
+        assertEquals(saved, cache().validLink("tt1", 1)!!.savedAtMs)
+        now += 11 * 60_000L
+        assertNull(cache().validLink("tt1", 1))
+        // The addon handed it out again: a fresh hour.
+        c.saveLink("tt1", stream)
+        assertEquals(now, cache().validLink("tt1", 1)!!.savedAtMs)
+    }
+
+    @Test
+    fun `a link that failed is forgotten, but not one that replaced it`() {
+        val c = cache()
+        c.saveLink("tt1", stream)
+        c.forgetLink("tt1", url = "https://debrid.example/other.mkv")
+        assertNotNull(cache().validLink("tt1", 1))
+        c.forgetLink("tt1", url = stream.url)
+        assertNull(cache().validLink("tt1", 1))
+    }
 }

@@ -3,6 +3,8 @@ package com.fetch.desktop.player.autosync
 import java.io.File
 import java.io.RandomAccessFile
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
 
 /** Subtitle timings read from the video file itself, over [spans] of it. */
 data class FileReference(val cues: List<Cue>, val spans: List<Span>, val source: String)
@@ -298,18 +300,29 @@ object FfprobeReference {
         }
     }
 
-    fun read(url: String, subtitleOrdinal: Int, durationSec: Double?, headers: Map<String, String>): FileReference? = runCatching {
+    /**
+     * Runs ffprobe over [url] for up to [timeoutSec]. Cancelling the caller stops ffprobe at once
+     * (and its connection to the stream with it) instead of waiting out the timeout.
+     */
+    suspend fun read(url: String, subtitleOrdinal: Int, durationSec: Double?, headers: Map<String, String>, timeoutSec: Long = 120): FileReference? {
         val windows = windows(durationSec)
-        val process = ProcessBuilder(command(url, subtitleOrdinal, windows, headers)).redirectError(ProcessBuilder.Redirect.DISCARD).start()
-        val output = StringBuilder()
-        val reader = Thread { output.append(process.inputStream.bufferedReader().readText()) }.apply { isDaemon = true; start() }
-        if (!process.waitFor(120, TimeUnit.SECONDS)) {
-            process.destroyForcibly()
+        val process = try {
+            ProcessBuilder(command(url, subtitleOrdinal, windows, headers)).redirectError(ProcessBuilder.Redirect.DISCARD).start()
+        } catch (_: java.io.IOException) {
             return null
         }
-        reader.join(2_000)
-        val cues = parse(output.toString())
-        if (cues.size < MatroskaCueIndex.MIN_CUES) return null
-        FileReference(cues, windows.ifEmpty { listOf(Span(0, cues.last().endMs)) }, "ffprobe")
-    }.getOrNull()
+        try {
+            val output = StringBuilder()
+            val reader = Thread { runCatching { output.append(process.inputStream.bufferedReader().readText()) } }.apply { isDaemon = true; start() }
+            val finished = runInterruptible(Dispatchers.IO) { process.waitFor(timeoutSec, TimeUnit.SECONDS) }
+            if (!finished) return null
+            runInterruptible(Dispatchers.IO) { reader.join(2_000) }
+            val cues = runCatching { parse(output.toString()) }.getOrDefault(emptyList())
+            if (cues.size < MatroskaCueIndex.MIN_CUES) return null
+            return FileReference(cues, windows.ifEmpty { listOf(Span(0, cues.last().endMs)) }, "ffprobe")
+        } finally {
+            // Timed out or cancelled: nothing keeps reading the stream.
+            if (process.isAlive) process.destroyForcibly()
+        }
+    }
 }

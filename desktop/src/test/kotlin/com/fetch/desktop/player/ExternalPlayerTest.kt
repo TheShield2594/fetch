@@ -77,4 +77,53 @@ class ExternalPlayerTest {
         assertNull(ExternalPlayer.command(torrent, title = "Movie", mpvPath = "mpv"))
         assertTrue(ExternalPlayer.canPlay(stream(url = "https://cdn.example/a.mkv")))
     }
+
+    @Test
+    fun `the link and headers stay off mpv's command line, in files only this user can read`() {
+        val dir = java.nio.file.Files.createTempDirectory("fetch-private").toFile()
+        val s = stream(url = "https://debrid.example/secret-token/a.mkv", headers = mapOf("Authorization" to "Bearer abc, def", "Referer" to "https://x"))
+        val launch = ExternalPlayer.PrivateLaunch.create(s, dir)
+        org.junit.Assume.assumeTrue("needs POSIX file permissions", launch != null)
+        launch!!
+        val command = ExternalPlayer.command(s, title = "Movie", mpvPath = "mpv", privateLaunch = launch)!!
+        assertFalse(command.any { "secret-token" in it || "Bearer" in it || "Referer" in it })
+        assertTrue("--include=${launch.config!!.absolutePath}" in command)
+        assertEquals("--playlist=${launch.playlist.absolutePath}", command.last())
+        assertEquals("#EXTM3U\nhttps://debrid.example/secret-token/a.mkv\n", launch.playlist.readText())
+        // Each header length-prefixed, so its commas and quotes stay part of the value.
+        assertEquals(
+            "http-header-fields-append=%30%Authorization: Bearer abc, def\nhttp-header-fields-append=%18%Referer: https://x\n",
+            launch.config!!.readText()
+        )
+        listOf(launch.config!!, launch.playlist).forEach { file ->
+            assertEquals("rw-------", java.nio.file.attribute.PosixFilePermissions.toString(java.nio.file.Files.getPosixFilePermissions(file.toPath())))
+        }
+        launch.delete()
+        assertFalse(launch.playlist.exists())
+        assertFalse(launch.config!!.exists())
+    }
+
+    @Test
+    fun `without headers there's no config, and a line break falls back to the command line`() {
+        val dir = java.nio.file.Files.createTempDirectory("fetch-private").toFile()
+        val plain = ExternalPlayer.PrivateLaunch.create(stream(url = "https://cdn.example/a.mkv"), dir)
+        org.junit.Assume.assumeTrue("needs POSIX file permissions", plain != null)
+        assertNull(plain!!.config)
+        plain.delete()
+        assertNull(ExternalPlayer.PrivateLaunch.create(stream(url = "https://cdn.example/a.mkv", headers = mapOf("X" to "a\nb")), dir))
+        assertNull(ExternalPlayer.PrivateLaunch.create(stream(infoHash = "abc"), dir))
+    }
+
+    @Test
+    fun `YouTube pages need yt-dlp, direct links don't`() {
+        assertTrue(YtDlp.needs("https://www.youtube.com/watch?v=abc"))
+        assertTrue(YtDlp.needs("https://youtu.be/abc"))
+        assertTrue(YtDlp.needs("https://m.youtube.com/watch?v=abc"))
+        assertFalse(YtDlp.needs("https://notyoutube.com/watch?v=abc"))
+        assertFalse(YtDlp.needs("https://cdn.example/a.mkv"))
+        assertFalse(YtDlp.needs(null))
+        assertEquals(YtDlp.MISSING_MESSAGE, YtDlp.missingFor("https://youtu.be/abc") { false })
+        assertNull(YtDlp.missingFor("https://youtu.be/abc") { true })
+        assertNull(YtDlp.find(path = ""))
+    }
 }

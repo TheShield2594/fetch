@@ -81,31 +81,46 @@ data class StreamCacheFile(
 class StreamLinkCache(private val file: JsonFile<StreamCacheFile>, private val now: () -> Long = System::currentTimeMillis) {
     constructor(dir: File) : this(JsonFile(File(dir, "stream-cache.json"), StreamCacheFile.serializer()) { StreamCacheFile() })
 
+    // Read on the UI thread, saved from the IO pool once playback starts: one caller at a time.
     private var data: StreamCacheFile? = null
     private fun current(): StreamCacheFile = data ?: file.load().also { data = it }
 
     /** The link saved for [videoId] if it's younger than [maxAgeHours]. */
+    @Synchronized
     fun validLink(videoId: String, maxAgeHours: Int): CachedLink? {
         val link = current().links[videoId] ?: return null
         val age = now() - link.savedAtMs
         return link.takeIf { age in 0..maxAgeHours * 3_600_000L }
     }
 
-    fun saveLink(videoId: String, stream: Stream) {
-        val link = CachedLink.of(stream, now()) ?: return
+    /**
+     * Remembers [stream] as the link that played for [videoId]; call it once the stream has really
+     * started. [reusedSavedAtMs] is the saved time of the cached link it was replayed from: that
+     * link keeps its age, so reusing it doesn't stretch its expiry (a debrid link still dies when
+     * it would have).
+     */
+    @Synchronized
+    fun saveLink(videoId: String, stream: Stream, reusedSavedAtMs: Long? = null) {
+        val fresh = CachedLink.of(stream, now()) ?: return
+        val link = if (reusedSavedAtMs != null) fresh.copy(savedAtMs = minOf(reusedSavedAtMs, fresh.savedAtMs)) else fresh
         val links = (mapOf(videoId to link) + (current().links - videoId)).entries
             .sortedByDescending { it.value.savedAtMs }.take(MAX_LINKS).associate { it.key to it.value }
         store(current().copy(links = links))
     }
 
-    fun forgetLink(videoId: String) {
-        if (videoId !in current().links) return
+    /** Forgets [videoId]'s link; with [url], only when that is still the link saved (it failed to open). */
+    @Synchronized
+    fun forgetLink(videoId: String, url: String? = null) {
+        val link = current().links[videoId] ?: return
+        if (url != null && link.url != url) return
         store(current().copy(links = current().links - videoId))
     }
 
+    @Synchronized
     fun bingeGroup(contentId: String): BingeHint? = current().bingeGroups[contentId]
 
     /** Replaces [contentId]'s binge group with [stream]'s, or forgets it when the stream has none (as on TV). */
+    @Synchronized
     fun saveBingeGroup(contentId: String, stream: Stream) {
         val hint = BingeHint.of(stream)
         val groups = current().bingeGroups

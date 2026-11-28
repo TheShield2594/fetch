@@ -123,6 +123,9 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
         if (keepAwake) com.fetch.desktop.player.IdleInhibitor.hold()
         onDispose { if (keepAwake) com.fetch.desktop.player.IdleInhibitor.release() }
     }
+    // Minimized: the sound plays on, the picture isn't read back from the GPU for nobody.
+    val minimized = window?.isMinimized == true
+    LaunchedEffect(mpv, minimized) { mpv.setHidden(minimized) }
     // Controls hide after three seconds without the pointer moving, unless paused.
     LaunchedEffect(lastActivity, mpv.paused) {
         delay(3_000)
@@ -214,7 +217,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
             )
         }
 
-        if (mpv.buffering || mpv.frame() == null) {
+        // Loading, or waiting for the first picture; never under an error, nor for sound alone.
+        if (mpv.error == null && (mpv.buffering || (mpv.hasVideo && mpv.frame() == null))) {
             CircularProgressIndicator(Modifier.align(Alignment.Center).size(56.dp), color = FetchPalette.Accent)
         }
         mpv.error?.let { error ->

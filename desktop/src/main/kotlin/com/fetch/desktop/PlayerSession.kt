@@ -46,7 +46,7 @@ class PlayerSession(val mpv: EmbeddedMpv) {
     var segments by mutableStateOf<List<Segment>>(emptyList())
     var autoSkip by mutableStateOf<Set<SegmentType>>(emptySet())
     /** How many files this session has loaded; Up Next loads the next one into the same player. */
-    var loads = 0
+    @Volatile var loads = 0
 
     /** What's playing, its stream and the other sources for it (for switching mid-playback). */
     var target: PlaybackTarget? by mutableStateOf(null)

@@ -147,7 +147,7 @@ fun BoxScope.PlayerExtrasLayer(state: AppState, session: PlayerSession, controls
     // HDR: PQ (HDR10, HDR10+, Dolby Vision) or HLG.
     LaunchedEffect(session) {
         while (true) {
-            val hdr = SubtitleStyle.isHdr(mpv.property("video-params/gamma"), mpv.property("video-params/primaries"))
+            val hdr = withContext(Dispatchers.IO) { SubtitleStyle.isHdr(mpv.property("video-params/gamma"), mpv.property("video-params/primaries")) }
             if (hdr != extras.hdr) extras.hdr = hdr
             delay(2_000)
         }
@@ -338,7 +338,8 @@ private fun SkipSilenceEffect(state: AppState, session: PlayerSession) {
                     continue
                 }
                 if (!skipper.hurrying) base = mpv.speed
-                val level = AudioExtras.rmsLevel(mpv.property("af-metadata/${AudioExtras.SILENCE_FILTER_LABEL}"))
+                // Read off the UI thread: this runs every 150 ms.
+                val level = withContext(Dispatchers.IO) { AudioExtras.rmsLevel(mpv.property("af-metadata/${AudioExtras.SILENCE_FILTER_LABEL}")) }
                 skipper.sample(level, System.nanoTime() / 1e9)?.let { factor -> mpv.changeSpeed(base * factor) }
             }
         } finally {
@@ -360,7 +361,8 @@ private fun AudioDelayPerOutputEffect(state: AppState, session: PlayerSession) {
         if (!remember) return@LaunchedEffect
         while (true) {
             val route = withContext(Dispatchers.IO) {
-                AudioExtras.routeKey(mpv.property("audio-device"), mpv.property("current-ao"), AudioExtras.defaultSink())
+                // The default sink only matters with mpv on "auto", and is asked at most every half minute.
+                AudioExtras.routeKeyAsking(mpv.property("audio-device"), mpv.property("current-ao")) { AudioExtras.cachedDefaultSink() }
             }
             if (route != null && route != extras.audioRoute) {
                 extras.audioRoute = route
@@ -391,16 +393,20 @@ private fun DebugStatsOverlay(mpv: EmbeddedMpv, modifier: Modifier) {
     var stats by remember { mutableStateOf(emptyList<DebugStat>()) }
     LaunchedEffect(mpv) {
         while (true) {
-            val snapshot = MpvSnapshot(
-                aheadSec = mpv.property("demuxer-cache-duration")?.toDoubleOrNull(),
-                videoBitrate = mpv.property("video-bitrate")?.toDoubleOrNull(),
-                audioBitrate = mpv.property("audio-bitrate")?.toDoubleOrNull(),
-                fileSizeBytes = mpv.property("file-size")?.toLongOrNull(),
-                durationSec = mpv.duration.takeIf { it > 0 },
-                readBytesPerSec = mpv.property("cache-speed")?.toDoubleOrNull(),
-                droppedFrames = (mpv.property("frame-drop-count")?.toIntOrNull() ?: 0) + (mpv.property("decoder-frame-drop-count")?.toIntOrNull() ?: 0)
-            )
-            stats = withContext(Dispatchers.IO) { sampler.sample(snapshot) }
+            val durationSec = mpv.duration.takeIf { it > 0 }
+            // Seven libmpv reads a second, off the UI thread.
+            stats = withContext(Dispatchers.IO) {
+                val snapshot = MpvSnapshot(
+                    aheadSec = mpv.property("demuxer-cache-duration")?.toDoubleOrNull(),
+                    videoBitrate = mpv.property("video-bitrate")?.toDoubleOrNull(),
+                    audioBitrate = mpv.property("audio-bitrate")?.toDoubleOrNull(),
+                    fileSizeBytes = mpv.property("file-size")?.toLongOrNull(),
+                    durationSec = durationSec,
+                    readBytesPerSec = mpv.property("cache-speed")?.toDoubleOrNull(),
+                    droppedFrames = (mpv.property("frame-drop-count")?.toIntOrNull() ?: 0) + (mpv.property("decoder-frame-drop-count")?.toIntOrNull() ?: 0)
+                )
+                sampler.sample(snapshot)
+            }
             delay(1_000)
         }
     }

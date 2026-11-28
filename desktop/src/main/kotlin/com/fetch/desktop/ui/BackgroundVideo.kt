@@ -79,6 +79,14 @@ fun BackgroundVideo(
     }
     val mpv = player ?: return
     LaunchedEffect(mpv, muted) { mpv.pauseMute(muted) }
+    // Behind a page and under its scrim, a picture this size is plenty; 4K frames would be read back for nothing.
+    LaunchedEffect(mpv) { mpv.capRenderSize(MAX_RENDER_WIDTH, MAX_RENDER_HEIGHT) }
+    // Minimized: nobody sees or hears it, so it waits (and draws nothing) until the window is back.
+    val minimized = LocalWindowState.current?.isMinimized == true
+    LaunchedEffect(mpv, minimized) {
+        mpv.pause(minimized)
+        mpv.setHidden(minimized)
+    }
     if (mpv.error != null) {
         LaunchedEffect(mpv.error) { onEnded() }
         return
@@ -103,6 +111,10 @@ fun BackgroundVideo(
     overlay()
     }
 }
+
+/** The largest frame a background video renders. */
+private const val MAX_RENDER_WIDTH = 1920
+private const val MAX_RENDER_HEIGHT = 1080
 
 private fun EmbeddedMpv.pauseMute(muted: Boolean) {
     if (this.muted != muted) toggleMute()

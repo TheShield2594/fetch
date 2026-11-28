@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.fetch.desktop.player.MpvProgress
+import com.fetch.desktop.player.YtDlp
 import com.sun.jna.Memory
 import com.sun.jna.Native
 import com.sun.jna.Pointer
@@ -111,6 +112,13 @@ class EmbeddedMpv private constructor(
         private set
     var error: String? by mutableStateOf(null)
         private set
+    /**
+     * Whether the file has a picture (a video track, or cover art). False for an audio-only
+     * stream, which the software renderer never draws a frame for, so the player doesn't wait
+     * for one.
+     */
+    var hasVideo by mutableStateOf(false)
+        private set
 
     private var renderCtx: Pointer? = null
     private val frameReady = Semaphore(0)
@@ -126,6 +134,12 @@ class EmbeddedMpv private constructor(
     @Volatile private var viewSize = 1280 to 720
     /** Render at the view's size even in software, so crop and stretch can fill it. */
     @Volatile private var fillView = false
+    /** The largest frame to render, whatever the view's size (a video behind a page); null for no cap. */
+    @Volatile private var maxRenderSize: Pair<Int, Int>? = null
+    /** The window is minimized: frames are rendered tiny (mpv still needs them drawn) and not shown. */
+    @Volatile private var hidden = false
+    /** Draw again even without a new frame (the size or fit changed while paused). */
+    @Volatile private var redraw = false
     @Volatile private var videoWidth = 0
     @Volatile private var videoHeight = 0
 
@@ -141,12 +155,23 @@ class EmbeddedMpv private constructor(
     private val optionDefaults = HashMap<String, String?>()
     private var lastLoadOptions: Set<String> = emptySet()
     @Volatile private var ending: CompletableDeferred<Boolean>? = null
+    /**
+     * The playlist entry the latest [load] made (mpv's `playlist_entry_id`): only that entry's
+     * END_FILE ends the current follow, so a file replaced before it started can't end the next
+     * one's. 0 when this libmpv doesn't report entry ids; [awaitingStart] then stands in.
+     */
+    private var loadEntryId = 0L
+    /** [load] and the event thread agree on [ending], [loadEntryId] and [awaitingStart] under this lock. */
+    private val loadLock = Any()
     /** Set by [load] until mpv starts the new file, so the old file's end isn't taken for it. */
     @Volatile private var awaitingStart = false
-    private var pendingSubtitles: List<String> = emptyList()
+    /** Written by [load] (UI thread), read and cleared on the event thread. */
+    @Volatile private var pendingSubtitles: List<String> = emptyList()
     /** Whether the file [load] started has loaded, so a late subtitle goes straight to mpv. */
     private var fileLoaded = false
     private val subtitleLock = Any()
+    /** The link [load] last opened, for a clearer message when it fails (yt-dlp missing). */
+    @Volatile private var loadedUrl: String? = null
 
     // The software renderer's mpv_render_param buffers, made once and refilled for each frame
     // (render thread only); being fields also keeps them alive while mpv reads them.
@@ -246,11 +271,10 @@ class EmbeddedMpv private constructor(
      * ("--alang=en,eng", "--sub-file=…"); [start] is mpv's --start ("754" or "42%").
      */
     fun load(url: String, title: String, start: String?, options: List<String>, headers: Map<String, String>) {
-        ending?.complete(false)
-        ending = CompletableDeferred()
-        awaitingStart = true
         error = null
         buffering = true
+        hasVideo = false
+        loadedUrl = url
         val subtitles = mutableListOf<String>()
         val setNow = HashSet<String>()
         fun setOption(name: String, value: String) {
@@ -289,10 +313,20 @@ class EmbeddedMpv private constructor(
         set("start", start ?: "none")
         command("change-list", "http-header-fields", "clr", "")
         headers.forEach { (name, value) -> command("change-list", "http-header-fields", "append", "$name: $value") }
-        command("loadfile", url, "replace")
+        // The old file's follow ends here; the new one's ends only with the entry made now.
+        synchronized(loadLock) {
+            ending?.complete(false)
+            ending = CompletableDeferred()
+            awaitingStart = true
+            command("loadfile", url, "replace")
+            // "replace" leaves the new file as the playlist's last (only) entry.
+            val count = getString("playlist-count")?.toIntOrNull() ?: 0
+            loadEntryId = if (count > 0) getString("playlist/${count - 1}/id")?.toLongOrNull() ?: 0L else 0L
+        }
     }
 
     fun togglePause() = set("pause", if (paused) "no" else "yes")
+    fun pause(value: Boolean) = set("pause", if (value) "yes" else "no")
     fun seekTo(seconds: Double) = command("seek", seconds.coerceAtLeast(0.0).toString(), "absolute")
     fun seekBy(seconds: Double) = command("seek", seconds.toString(), "relative")
     fun changeVolume(value: Double) = set("volume", value.coerceIn(0.0, 130.0).toString())
@@ -329,6 +363,25 @@ class EmbeddedMpv private constructor(
     fun setFit(properties: List<Pair<String, String>>, fill: Boolean) {
         properties.forEach { (k, v) -> set(k, v) }
         fillView = fill
+        redraw = true
+        frameReady.release()
+    }
+
+    /** Renders frames no bigger than [width]×[height] (keeping their shape), for a video behind a page. */
+    fun capRenderSize(width: Int, height: Int) {
+        maxRenderSize = (width to height).takeIf { width > 0 && height > 0 }
+        redraw = true
+        frameReady.release()
+    }
+
+    /**
+     * While [value] (the window is minimized), frames are rendered at a token size, which keeps
+     * mpv's video output moving at almost no cost, and the last full frame stays up.
+     */
+    fun setHidden(value: Boolean) {
+        if (hidden == value) return
+        hidden = value
+        redraw = true
         frameReady.release()
     }
 
@@ -346,6 +399,7 @@ class EmbeddedMpv private constructor(
     fun setViewSize(width: Int, height: Int) {
         if (width > 0 && height > 0 && viewSize != (width to height)) {
             viewSize = width to height
+            redraw = true
             frameReady.release()
         }
     }
@@ -409,7 +463,11 @@ class EmbeddedMpv private constructor(
                     running = false
                     ending?.complete(false)
                 }
-                LibMpv.EVENT_START_FILE -> awaitingStart = false
+                LibMpv.EVENT_START_FILE -> {
+                    // mpv_event_start_file: { int64_t playlist_entry_id }.
+                    val started = event.data?.getLong(0) ?: 0L
+                    synchronized(loadLock) { if (loadEntryId == 0L || started == 0L || started == loadEntryId) awaitingStart = false }
+                }
                 LibMpv.EVENT_FILE_LOADED -> {
                     // Sent under the lock, so a load() after this can't slip its loadfile in
                     // ahead of the previous file's subtitles.
@@ -422,13 +480,19 @@ class EmbeddedMpv private constructor(
                 }
                 LibMpv.EVENT_PLAYBACK_RESTART -> ui { buffering = false }
                 LibMpv.EVENT_END_FILE -> {
-                    if (awaitingStart) continue
                     val end = event.data?.let { MpvEventEndFile(it) }
-                    if (end?.reason == LibMpv.END_FILE_ERROR) {
-                        val message = mpv.mpv_error_string(end.error)
-                        ui { error = "Couldn't play this source ($message)" }
+                    synchronized(loadLock) {
+                        if (!isCurrentEnd(loadEntryId, end?.playlist_entry_id, awaitingStart)) return@synchronized
+                        if (end?.reason == LibMpv.END_FILE_ERROR) {
+                            val message = failureMessage(loadedUrl, mpv.mpv_error_string(end.error))
+                            // Nothing is loading any more: the message replaces the spinner.
+                            ui {
+                                error = message
+                                buffering = false
+                            }
+                        }
+                        ending?.complete(end?.reason == LibMpv.END_FILE_EOF)
                     }
-                    ending?.complete(end?.reason == LibMpv.END_FILE_EOF)
                 }
                 LibMpv.EVENT_PROPERTY_CHANGE -> event.data?.let { onProperty(MpvEventProperty(it)) }
             }
@@ -456,8 +520,13 @@ class EmbeddedMpv private constructor(
             "audio-delay" -> data?.getDouble(0)?.let { v -> ui { audioDelay = v } }
             "sub-delay" -> data?.getDouble(0)?.let { v -> ui { subtitleDelay = v } }
             "track-list" -> {
-                val list = parseTracks(getString("track-list"))
-                ui { tracks = list }
+                val raw = getString("track-list")
+                val list = parseTracks(raw)
+                val video = hasVideoTrack(raw)
+                ui {
+                    tracks = list
+                    hasVideo = video
+                }
             }
         }
     }
@@ -470,8 +539,11 @@ class EmbeddedMpv private constructor(
             val flags = mpv.mpv_render_context_update(render)
             // Software: only new frames. GPU: every update mpv signals, which also covers the first
             // frame of a paused file and redraws after a seek while paused.
-            if (gl == null && flags and LibMpv.RENDER_UPDATE_FRAME == 0L && videoWidth > 0) continue
-            val (w, h) = frameSize() ?: continue
+            val forced = redraw
+            redraw = false
+            if (gl == null && flags and LibMpv.RENDER_UPDATE_FRAME == 0L && videoWidth > 0 && !forced) continue
+            val hiddenNow = hidden
+            val (w, h) = (if (hiddenNow) HIDDEN_SIZE to HIDDEN_SIZE else frameSize()) ?: continue
             var replaced: Bitmap? = null
             val target = synchronized(frameLock) {
                 back?.takeIf { it.width == w && it.height == h } ?: newBitmap(w, h).also {
@@ -485,7 +557,7 @@ class EmbeddedMpv private constructor(
             val glRenderer = gl
             if (glRenderer != null) {
                 if (!glRenderer.render(mpv, render, w, h, Pointer(pixels.addr), target.rowBytes)) continue
-                publish(target)
+                if (!hiddenNow) publish(target)
                 continue
             }
             if (Native.SIZE_T_SIZE == 8) swStride.setLong(0, target.rowBytes.toLong()) else swStride.setInt(0, target.rowBytes)
@@ -501,7 +573,7 @@ class EmbeddedMpv private constructor(
                 )
             )
             val rendered = mpv.mpv_render_context_render(render, swParams)
-            if (rendered < 0) continue
+            if (rendered < 0 || hiddenNow) continue
             publish(target)
         }
     }
@@ -522,15 +594,8 @@ class EmbeddedMpv private constructor(
      * itself, and needs a render as soon as it reconfigures. In software, the picture's size
      * scaled to fit the view, never larger than the video.
      */
-    private fun frameSize(): Pair<Int, Int>? {
-        val (viewWidth, viewHeight) = viewSize
-        if (gl != null || fillView) return (viewWidth.coerceAtLeast(2) and 1.inv()) to (viewHeight.coerceAtLeast(2) and 1.inv())
-        val vw = videoWidth
-        val vh = videoHeight
-        if (vw <= 0 || vh <= 0) return null
-        val scale = minOf(1.0, viewWidth.toDouble() / vw, viewHeight.toDouble() / vh)
-        return ((vw * scale).toInt().coerceAtLeast(2) and 1.inv()) to ((vh * scale).toInt().coerceAtLeast(2) and 1.inv())
-    }
+    private fun frameSize(): Pair<Int, Int>? =
+        frameSize(viewSize, videoWidth, videoHeight, wholeView = gl != null || fillView, cap = maxRenderSize)
 
     private fun newBitmap(w: Int, h: Int) = Bitmap().apply {
         allocPixels(ImageInfo(w, h, ColorType.BGRA_8888, ColorAlphaType.OPAQUE))
@@ -678,6 +743,45 @@ class EmbeddedMpv private constructor(
             }
             return player
         }
+
+        /** The side of the frames rendered while the window is minimized. */
+        private const val HIDDEN_SIZE = 16
+
+        /**
+         * The size to render at: the whole [view] when [wholeView], else the video's size scaled
+         * to fit the view, never larger than the video; either way scaled down to fit [cap], and
+         * even. Null before the video's size is known.
+         */
+        internal fun frameSize(view: Pair<Int, Int>, videoWidth: Int, videoHeight: Int, wholeView: Boolean, cap: Pair<Int, Int>?): Pair<Int, Int>? {
+            val (viewWidth, viewHeight) = view
+            val (w, h) = if (wholeView) {
+                viewWidth.toDouble() to viewHeight.toDouble()
+            } else {
+                if (videoWidth <= 0 || videoHeight <= 0) return null
+                val scale = minOf(1.0, viewWidth.toDouble() / videoWidth, viewHeight.toDouble() / videoHeight)
+                videoWidth * scale to videoHeight * scale
+            }
+            val capScale = cap?.takeIf { w > 0 && h > 0 }?.let { (cw, ch) -> minOf(1.0, cw / w, ch / h) } ?: 1.0
+            return ((w * capScale).toInt().coerceAtLeast(2) and 1.inv()) to ((h * capScale).toInt().coerceAtLeast(2) and 1.inv())
+        }
+
+        /**
+         * Whether an END_FILE for [endedEntry] ends the file the latest load started ([currentEntry]).
+         * Without entry ids (an old libmpv: [currentEntry] 0), any end does once that file started.
+         */
+        internal fun isCurrentEnd(currentEntry: Long, endedEntry: Long?, awaitingStart: Boolean): Boolean =
+            if (currentEntry > 0 && endedEntry != null && endedEntry > 0) endedEntry == currentEntry else !awaitingStart
+
+        /** What the player shows when [url] won't open: why, or for YouTube without yt-dlp, what to install. */
+        internal fun failureMessage(url: String?, mpvError: String, ytDlpInstalled: () -> Boolean = YtDlp::installed): String =
+            YtDlp.missingFor(url, ytDlpInstalled) ?: "Couldn't play this source ($mpvError)"
+
+        private val trackJson = Json { ignoreUnknownKeys = true }
+
+        /** Whether mpv's `track-list` JSON has a video track (cover art counts: it's drawn). */
+        internal fun hasVideoTrack(raw: String?): Boolean = runCatching {
+            trackJson.parseToJsonElement(raw ?: return false).jsonArray.any { it.jsonObject["type"]?.jsonPrimitive?.contentOrNull == "video" }
+        }.getOrDefault(false)
 
         private fun stringPointer(value: String): Pointer = Memory(value.length + 1L).apply { setString(0, value) }
 

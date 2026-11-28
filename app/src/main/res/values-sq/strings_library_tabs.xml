@@ -22,4 +22,17 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Ende nuk ke parë asgjë</string>
     <string name="library_history_empty_subtitle">Çfarë përfundon, dhe çfarë shërbimi yt i gjurmimit shënon si të parë, shfaqet këtu sipas muajve.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Faqe të tjera</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titull</item>
+        <item quantity="other">%1$d tituj</item>
+    </plurals>
+    <string name="library_card_ready">Gati</string>
+    <string name="layout_browse_hero">Paraqitja në Zbulo dhe Bibliotekë</string>
+    <string name="layout_browse_hero_sub">Shfaq imazhin, logon dhe detajet e titullit të zgjedhur mbi rrjetë.</string>
+    <string name="card_state_saved">Ruajtur</string>
+    <string name="discover_include_unrated">Përfshi pa vlerësim</string>
+    <string name="discover_reset_filters">Rivendos</string>
 </resources>

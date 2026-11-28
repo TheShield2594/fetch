@@ -92,6 +92,7 @@ class SettingsChangedViewModel @Inject constructor(
         layoutRow(home, R.string.layout_hero_section, layout.heroSectionEnabled)
         layoutRow(home, R.string.layout_fullscreen_hero_backdrop, layout.modernHeroFullScreenBackdropEnabled)
         layoutRow(home, R.string.layout_poster_labels, layout.posterLabelsEnabled)
+        layoutRow(home, R.string.layout_browse_hero, layout.browseHeroEnabled)
         layoutRow(home, R.string.layout_addon_name, layout.catalogAddonNameEnabled)
         layoutRow(home, R.string.layout_catalog_type, layout.catalogTypeSuffixEnabled)
         layoutRow(home, R.string.layout_search_system_keyboard, layout.searchSystemKeyboard)

@@ -25,4 +25,17 @@
 
     <!-- Library watched filter -->
     <string name="library_watched_filter_ready">Klar til afspilning</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Andre sider</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titel</item>
+        <item quantity="other">%1$d titler</item>
+    </plurals>
+    <string name="library_card_ready">Klar</string>
+    <string name="layout_browse_hero">Fremhævning i Opdag og Bibliotek</string>
+    <string name="layout_browse_hero_sub">Vis den valgte titels billede, logo og detaljer over gitteret.</string>
+    <string name="card_state_saved">Gemt</string>
+    <string name="discover_include_unrated">Medtag uden bedømmelse</string>
+    <string name="discover_reset_filters">Nulstil</string>
 </resources>

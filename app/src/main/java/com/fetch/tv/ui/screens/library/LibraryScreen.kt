@@ -67,6 +67,12 @@ import com.fetch.tv.domain.model.LibrarySourceMode
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.GridContentCard
+import com.fetch.tv.ui.components.browseGridItemMotion
+import com.fetch.tv.ui.components.browseGridFastScroll
+import com.fetch.tv.ui.components.restoreBrowseFocus
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.pluralStringResource
 import com.fetch.tv.ui.screens.detail.requestFocusAfterFrames
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 import kotlinx.coroutines.launch
@@ -107,7 +113,14 @@ fun LibraryScreen(
     onNavigateToTrackingSettings: () -> Unit = onNavigateToSettings,
     // The website's stats page and calendar, which the TV reads from it.
     onNavigateToStats: () -> Unit = {},
-    onNavigateToCalendar: () -> Unit = {}
+    onNavigateToCalendar: () -> Unit = {},
+    /** OK on an In progress card: resumes it the way Continue Watching does (#856). */
+    onResume: (com.fetch.tv.ui.screens.home.ContinueWatchingItem) -> Unit = { item ->
+        val progress = (item as com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress).progress
+        onNavigateToDetail(progress.contentId, progress.contentType, progress.addonBaseUrl)
+    },
+    /** Play/Pause on a saved title: starts its Best match without the detail page (#856, #812). */
+    onPlayTitle: (id: String, type: String, addonBaseUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
@@ -118,7 +131,8 @@ fun LibraryScreen(
     val servers by serversViewModel.servers.collectAsStateWithLifecycle()
     val serverShelves by serversViewModel.shelves.collectAsStateWithLifecycle()
     val hasServers = servers.enabledConnections.isNotEmpty()
-    val tabs = LibraryTab.entries.filter { it != LibraryTab.SERVERS || hasServers }
+    // Upcoming and Stats open their own pages, so they are buttons apart from the tabs (#855).
+    val tabs = LibraryTab.entries.filter { !it.opensPage && (it != LibraryTab.SERVERS || hasServers) }
     val tab = selectedTab.takeIf { it in tabs } ?: LibraryTab.WATCHLIST
     // The activity tabs are collected only while shown (the flows stop 5 s after the last
     // collector), so the Saved grid doesn't keep the full watch history decoded behind it.
@@ -149,7 +163,7 @@ fun LibraryScreen(
     }
     var lastFocusedPosterKey by rememberSaveable { mutableStateOf<String?>(null) }
     val visibleItemKeys = remember(uiState.visibleItems) {
-        uiState.visibleItems.map { "${it.type}:${it.id}" }
+        uiState.visibleItems.map { com.fetch.tv.ui.components.browseItemKey(it.type, it.id) }
     }
     val visibleItemIndexByKey = remember(visibleItemKeys) {
         visibleItemKeys.withIndex().associate { (index, key) -> key to index }
@@ -170,6 +184,15 @@ fun LibraryScreen(
     var showBulkListPicker by remember { mutableStateOf(false) }
     var selectionBarHeightPx by remember { mutableIntStateOf(0) }
     val newEpisodeBadges by viewModel.newEpisodeBadges.collectAsStateWithLifecycle()
+    val progressByContentId by viewModel.progressByContentId.collectAsStateWithLifecycle()
+    val quickPlayAllowed by viewModel.quickPlayAllowed.collectAsStateWithLifecycle()
+    val readyFallbackLabel = stringResource(R.string.library_card_ready)
+    fun readyChip(labels: List<String>?): String? = labels?.let { libraryReadyChipText(it, readyFallbackLabel) }
+    fun resumeInProgress(item: LibraryActivityItem): Boolean {
+        val progress = item.resume ?: return false
+        onResume(com.fetch.tv.ui.screens.home.ContinueWatchingItem.InProgress(progress))
+        return true
+    }
     val newEpisodeLabel = stringResource(R.string.cw_new_episode_short)
     val newSeasonLabel = stringResource(R.string.cw_new_season)
     fun badgeLabel(badge: LibraryNewEpisodeBadge?): Pair<String, Boolean>? = when (badge) {
@@ -188,38 +211,17 @@ fun LibraryScreen(
         val target = lastFocusedPosterKey?.takeIf { it in selectionKeys } ?: selectionKeys.firstOrNull() ?: return
         selectionScope.launch {
             val index = if (tab.listScope != null) visibleItemIndexByKey[target] else null
-            // +1: the header is the grid's first item.
-            if (index != null) runSuspendCatching { gridState.scrollToItem(index + 1) }
+            // The header sits above the grid (#850), so a card's index is its grid index.
+            if (index != null) runSuspendCatching { gridState.scrollToItem(index) }
             (posterFocusRequesters[target] ?: activityFocusRequesters[target])?.requestFocusAfterFrames(frames = 1)
         }
     }
     LaunchedEffect(tab) { dispatchSelection(LibrarySelectionAction.Exit) }
     LaunchedEffect(selectionKeys) { dispatchSelection(LibrarySelectionAction.Retain(selectionKeys.toSet())) }
     // The posters take the size set in Layout, made smaller only as far as needed for two full
-    // rows (three of the shorter landscape cards) to show under the tabs and filters on entry
-    // (audit C3, #848).
-    var gridHeightPx by remember { mutableIntStateOf(0) }
-    var headerHeightPx by remember { mutableIntStateOf(0) }
+    // rows (three of the shorter landscape cards) to show under the header on entry (audit C3,
+    // #848); the browse scaffold measures the grid with its header open (#850).
     val density = LocalDensity.current
-    val landscapeCards = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
-    val cardWidth = with(density) {
-        libraryFittedCardWidth(
-            preferred = uiState.posterCardWidthDp.dp,
-            viewport = gridHeightPx.toDp(),
-            header = headerHeightPx.toDp(),
-            topPadding = FetchTheme.spacing.screen.vertical,
-            gap = FetchTheme.spacing.lg,
-            labelAllowance = FetchTheme.spacing.sm + FetchTheme.spacing.xl,
-            rows = if (landscapeCards) LIBRARY_LANDSCAPE_FITTED_ROWS else LIBRARY_POSTER_FITTED_ROWS,
-            cardHeightPerWidth = libraryCardHeightPerWidth(landscapeCards)
-        )
-    }
-    val posterCardStyle = PosterCardDefaults.Style.copy(
-        width = cardWidth,
-        height = cardWidth * 3 / 2,
-        cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
-        showRestingBorder = true
-    )
 
     // Watchlist and Lists share the grid; the view model shows the tab's lists in it.
     LaunchedEffect(tab) {
@@ -232,21 +234,53 @@ fun LibraryScreen(
 
     // A new tab starts at its top. Not on the first composition: coming back from a title keeps
     // the grid where it was.
+    // The grid's content fades in on a tab change and as the first page replaces the skeleton,
+    // keeping the header still (#853). Not under reduced motion or on a low-RAM device.
+    val fadeContent = FetchTheme.fullMotion && !FetchTheme.lowRamDevice
+    val contentAlpha = remember { androidx.compose.animation.core.Animatable(1f) }
+    val contentFade = remember(contentAlpha) { Modifier.graphicsLayer { alpha = contentAlpha.value } }
+    suspend fun fadeContentIn() {
+        if (!fadeContent) return
+        contentAlpha.snapTo(0f)
+        contentAlpha.animateTo(1f, com.fetch.tv.ui.theme.FetchMotion.enterTween())
+    }
     var shownTab by remember { mutableStateOf(tab) }
     LaunchedEffect(tab) {
         if (tab != shownTab) {
             shownTab = tab
             runCatching { gridState.scrollToItem(0) }
+            fadeContentIn()
+        }
+    }
+    // The activity tabs show their skeleton until the first read, then fade the cards in.
+    val activityLoading = (tab == LibraryTab.IN_PROGRESS && inProgressItems == null) ||
+        (tab == LibraryTab.HISTORY && historyMonths == null)
+    var sawActivitySkeleton by remember { mutableStateOf(false) }
+    LaunchedEffect(activityLoading) {
+        if (activityLoading) sawActivitySkeleton = true else if (sawActivitySkeleton) {
+            sawActivitySkeleton = false
+            fadeContentIn()
+        }
+    }
+    var sawLoading by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isLoading) {
+        if (uiState.isLoading) sawLoading = true else if (sawLoading) {
+            sawLoading = false
+            fadeContentIn()
         }
     }
 
-    LaunchedEffect(uiState.isLoading) {
-        if (uiState.isLoading) {
-            pendingPrimaryFocus = true
-        }
-    }
+    // A sync no longer takes the screen (#846): the header stays, so focus stays where it is and
+    // isn't sent back to the tab when the sync starts or ends.
+    val savedGridLoading = uiState.isLoading && tab.listScope != null
 
     LaunchedEffect(uiState.isLoading, uiState.sourceMode, uiState.listTabs.size) {
+        if (uiState.isLoading && pendingPrimaryFocus) {
+            // Opening the Library during its first sync: the tabs are up, so start on the
+            // selected one; a title to come back to is restored once the grid has it.
+            primaryFocusRequester.requestFocusAfterFrames(frames = 0)
+            if (lastFocusedPosterKey == null) pendingPrimaryFocus = false
+        }
         if (!uiState.isLoading && pendingPrimaryFocus && tab == LibraryTab.SERVERS && serverFocusTarget != null) {
             pendingPrimaryFocus = false
         }
@@ -259,13 +293,8 @@ fun LibraryScreen(
 
             // requestFocus() reports false while the target is not laid out yet, so each try
             // waits for the next frame rather than a fixed delay.
-            var focused = false
-            if (restoreIndex != null && restoreRequester != null) {
-                if (gridState.firstVisibleItemIndex == 0 && gridState.firstVisibleItemScrollOffset == 0) {
-                    runCatching { gridState.scrollToItem(restoreIndex) }
-                }
-                focused = restoreRequester.requestFocusAfterFrames(frames = 0)
-            }
+            val focused = restoreIndex != null && restoreRequester != null &&
+                gridState.restoreBrowseFocus(restoreIndex, restoreRequester)
 
             if (!focused) {
                 primaryFocusRequester.requestFocusAfterFrames(frames = 0)
@@ -274,22 +303,21 @@ fun LibraryScreen(
         }
     }
 
-    // Back from deep in the grid returns to the top and the selectors row first, as on Home and
-    // Search; a second Back (or Back from the top) leaves the screen.
+    // The browse Back ladder (#850): scrolled, back to the top and the first card; from the top
+    // rows, to the tab row; then the Library leaves.
     val backScope = rememberCoroutineScope()
-    val gridScrolledAway by remember {
-        androidx.compose.runtime.derivedStateOf { gridState.firstVisibleItemIndex > 0 }
-    }
-    androidx.activity.compose.BackHandler(
-        enabled = tab != LibraryTab.SERVERS && expandedPicker == null && gridScrolledAway
-    ) {
-        backScope.launch {
-            runCatching { gridState.scrollToItem(0) }
-            // Give the selectors row (Saved) or the tab row a frame to compose before focusing it.
-            val target = if (tab.listScope != null) selectorFocusRequester else primaryFocusRequester
-            target.requestFocusAfterFrames(frames = 0)
-        }
-    }
+    var gridHasFocus by remember { mutableStateOf(false) }
+    com.fetch.tv.ui.components.BrowseBackHandler(
+        gridState = gridState,
+        gridHasFocus = gridHasFocus,
+        enabled = expandedPicker == null,
+        onFocusFirstCard = {
+            val firstKey = if (tab.listScope != null) firstVisiblePosterKey else activityKeys.firstOrNull()
+            val requester = firstKey?.let { posterFocusRequesters[it] ?: activityFocusRequesters[it] }
+            requester?.requestFocusAfterFrames(frames = 1) == true
+        },
+        onFocusHeader = { primaryFocusRequester.requestFocusAfterFrames(frames = 0) }
+    )
 
     // Declared after the scroll-to-top handler, so while choosing titles Back ends selection first.
     androidx.activity.compose.BackHandler(enabled = selection.active) {
@@ -307,38 +335,203 @@ fun LibraryScreen(
         if (uiState.sortSelectionVersion <= 0L) return@LaunchedEffect
         val targetKey = firstVisiblePosterKey ?: return@LaunchedEffect
         runCatching { gridState.scrollToItem(0) }
-        // The poster's requester is registered when it composes, so look it up each frame, and
-        // stop once the user has focused a poster of their own.
-        val focusedBefore = lastFocusedPosterKey
-        repeat(6) {
-            if (lastFocusedPosterKey != focusedBefore) return@LaunchedEffect
-            val focused = posterFocusRequesters[targetKey]
-                ?.let { requester -> runCatching { requester.requestFocus() }.getOrDefault(false) }
-                ?: false
-            if (focused) return@LaunchedEffect
-            withFrameNanos { }
+        // A new sort starts on its first title, by the browse screens' one restore step (#850).
+        posterFocusRequesters[targetKey]?.let { requester ->
+            gridState.restoreBrowseFocus(0, requester)
         }
     }
 
-    if (uiState.isLoading) {
-        val loadingFocusRequester = remember { FocusRequester() }
-        LaunchedEffect(uiState.isLoading) {
-            loadingFocusRequester.requestFocus()
+    val collapsed = com.fetch.tv.ui.components.rememberBrowseHeaderCollapsed(gridState)
+    // Source names are stored in natural case; the activity tabs are named by their tab already,
+    // so they show the count alone (#854).
+    val sourceName = when {
+        tab == LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
+        uiState.sourceMode == LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
+        uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
+        uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
+        uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
+        else -> stringResource(R.string.library_source_local)
+    }
+    val shownCount = when {
+        savedGridLoading -> null
+        tab.listScope != null -> uiState.visibleItems.size
+        tab == LibraryTab.IN_PROGRESS -> inProgressItems?.size
+        tab == LibraryTab.HISTORY -> historyMonths?.sumOf { it.items.size }
+        else -> null
+    }
+    val countText = shownCount?.let { pluralStringResource(R.plurals.library_title_count, it, it) }
+    val summary = when {
+        countText == null -> if (tab == LibraryTab.IN_PROGRESS || tab == LibraryTab.HISTORY) null else sourceName
+        tab == LibraryTab.IN_PROGRESS || tab == LibraryTab.HISTORY -> countText
+        else -> "$countText · $sourceName"
+    }
+
+    // The hero band (#852): the focused title on this tab, else its first, filled in from the
+    // cached meta once the focus prefetch lands. Off in Layout, on low-RAM devices and on Servers.
+    val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
+    val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
+    val heroAllowed = heroSetting && !FetchTheme.lowRamDevice && tab != LibraryTab.SERVERS && !savedGridLoading
+    val movieLabel = com.fetch.tv.ui.util.localizedContentType("movie")
+    val seriesLabel = com.fetch.tv.ui.util.localizedContentType("series")
+    val heroItem = remember(heroAllowed, tab, lastFocusedPosterKey, uiState.visibleItems, inProgressItems, historyMonths) {
+        if (!heroAllowed) return@remember null
+        val key = lastFocusedPosterKey
+        when {
+            tab.listScope != null -> uiState.visibleItems
+                .let { items -> items.firstOrNull { com.fetch.tv.ui.components.browseItemKey(it.type, it.id) == key } ?: items.firstOrNull() }
+                ?.toMetaPreview()
+            tab == LibraryTab.IN_PROGRESS -> inProgressItems.orEmpty()
+                .let { items -> items.firstOrNull { inProgressFocusKey(it) == key } ?: items.firstOrNull() }
+                ?.toMetaPreview(detail = null)
+            tab == LibraryTab.HISTORY -> historyMonths.orEmpty().flatMap { it.items }
+                .let { items -> items.firstOrNull { historyFocusKey(it) == key } ?: items.firstOrNull() }
+                ?.toMetaPreview(detail = null)
+            else -> null
         }
+    }
+    val heroCandidate = remember(heroItem, metaCacheVersion, movieLabel, seriesLabel) {
+        heroItem?.let { item ->
+            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+            com.fetch.tv.ui.components.hero.browseHeroPreview(
+                item = item,
+                cached = viewModel.cachedMeta(item.id, item.apiType),
+                typeLabel = if (isSeries) seriesLabel else movieLabel
+            )
+        }
+    }
+    val heroTarget = com.fetch.tv.ui.components.hero.rememberBrowseHeroTarget(heroCandidate)
+    val showHero = heroAllowed && heroItem != null && heroTarget != null
+
+    com.fetch.tv.ui.components.BrowseScaffold(
+        title = if (showBuiltInHeader) stringResource(R.string.library_title) else null,
+        collapsed = collapsed,
+        layoutKey = tab,
+        heroBackdrop = heroTarget?.backdrop,
+        heroPoster = heroTarget?.poster,
+        hero = if (showHero) {
+            @Composable { com.fetch.tv.ui.components.hero.BrowseHeroTitle(heroTarget) }
+        } else {
+            null
+        },
+        tabsDescription = stringResource(R.string.library_tabs_description),
+        tabs = {
+            tabs.forEach { option ->
+                com.fetch.tv.ui.components.BrowseTab(
+                    label = libraryTabLabel(option),
+                    selected = option == tab,
+                    selectedFocusRequester = primaryFocusRequester,
+                    onClick = {
+                        expandedPicker = null
+                        selectedTab = option
+                    }
+                )
+            }
+        },
+        headerActions = {
+            // History and In progress have no filter row, so their Select sits in the header:
+            // Down from a tab still lands on the grid in one press.
+            if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
+                LibrarySelectButton(
+                    active = selection.active,
+                    enabled = true,
+                    onClick = { toggleSelectionMode() }
+                )
+            }
+            LibraryPageButtons(
+                onUpcoming = {
+                    expandedPicker = null
+                    onNavigateToCalendar()
+                },
+                onStats = {
+                    expandedPicker = null
+                    onNavigateToStats()
+                }
+            )
+        },
+        // Kept while a sync runs, so the Sync button that started it keeps the focus (#846).
+        filters = if (tab.listScope != null) {
+            @Composable {
+                LibrarySelectorsRow(
+                    actions = {
+                        LibrarySelectButton(
+                            active = selection.active,
+                            enabled = uiState.visibleItems.isNotEmpty(),
+                            onClick = { toggleSelectionMode() }
+                        )
+                        LibraryActionsRow(
+                            pending = uiState.pendingOperation,
+                            isSyncing = uiState.isSyncing,
+                            // Lists are managed from the Lists tab, not over the watchlist.
+                            showManageLists = tab == LibraryTab.LISTS && uiState.listManagement != null && uiState.isTrackingAuthenticated,
+                            showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL && uiState.isTrackingAuthenticated,
+                            onManageLists = viewModel::onOpenManageLists,
+                            onRefresh = viewModel::onRefresh
+                        )
+                    },
+                    sourceMode = uiState.sourceMode,
+                    listTabs = uiState.scopedListTabs,
+                    typeTabs = uiState.availableTypeTabs,
+                    sortOptions = uiState.availableSortOptions,
+                    genres = uiState.availableGenres,
+                    years = uiState.availableYears,
+                    selectedListKey = uiState.selectedListKey,
+                    selectedTypeTab = uiState.selectedTypeTab,
+                    selectedSortOption = uiState.selectedSortOption,
+                    selectedGenre = uiState.selectedGenre,
+                    selectedYear = uiState.selectedYear,
+                    selectedWatchedFilter = uiState.selectedWatchedFilter,
+                    anythingReady = uiState.readyBestMatchKeys.isNotEmpty(),
+                    primaryFocusRequester = selectorFocusRequester,
+                    upFocusRequester = primaryFocusRequester,
+                    expandedPicker = expandedPicker,
+                    onExpandedChange = { picker, shouldExpand ->
+                        expandedPicker = if (shouldExpand) picker else null
+                    },
+                    onSelectList = { key ->
+                        viewModel.onSelectListTab(key)
+                        expandedPicker = null
+                    },
+                    onSelectType = { type ->
+                        viewModel.onSelectTypeTab(type)
+                        expandedPicker = null
+                    },
+                    onSelectSort = { sort ->
+                        viewModel.onSelectSortOption(sort)
+                        expandedPicker = null
+                    },
+                    onSelectGenre = { key ->
+                        viewModel.onSelectGenre(key)
+                        expandedPicker = null
+                    },
+                    onSelectYear = { key ->
+                        viewModel.onSelectYear(key)
+                        expandedPicker = null
+                    },
+                    onSelectWatchedFilter = { filter ->
+                        viewModel.onSelectWatchedFilter(filter)
+                        expandedPicker = null
+                    }
+                )
+            }
+        } else {
+            null
+        },
+        summary = summary
+    ) { gridViewport ->
+    val posterCardStyle = com.fetch.tv.ui.components.rememberBrowseCardStyle(
+        preferredWidthDp = uiState.posterCardWidthDp,
+        cornerRadiusDp = uiState.posterCardCornerRadiusDp,
+        gridViewport = gridViewport
+    )
+
+    if (savedGridLoading) {
         val syncingText = stringResource(R.string.library_syncing_library)
 
+        // Only the Watchlist and Lists grids wait for the provider's first sync; the header, the
+        // other tabs and the filters stay usable, so nothing here needs to hold focus (#846, #850).
         Box(modifier = Modifier.fillMaxSize()) {
-            // Holds focus until the grid is ready. It's named, so TalkBack doesn't land on an
-            // unlabelled element.
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .focusRequester(loadingFocusRequester)
-                    .focusable()
-                    .semantics { contentDescription = syncingText }
-            )
             Column(
-                modifier = Modifier.padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.screen.vertical),
+                modifier = Modifier.padding(start = FetchTheme.spacing.screen.horizontal, top = com.fetch.tv.ui.components.BrowseDefaults.gridTopPadding),
                 verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
             ) {
                 Text(
@@ -350,9 +543,8 @@ fun LibraryScreen(
                 PosterGridSkeleton(cardWidth = posterCardStyle.width, cardHeight = posterCardStyle.height)
             }
         }
-        return
+        return@BrowseScaffold
     }
-
 
     val globalLandscape = com.fetch.tv.ui.components.LocalLandscapePosterMode.current
 
@@ -363,17 +555,16 @@ fun LibraryScreen(
         state = gridState,
         modifier = Modifier
             .fillMaxSize()
-            .onSizeChanged { gridHeightPx = it.height }
-            .background(FetchTheme.colors.Background)
+            .onFocusChanged { gridHasFocus = it.hasFocus }
             .focusRestorer {
                 val lastKey = lastFocusedPosterKey
                 when {
                     lastKey != null && lastKey in activityFocusRequesters -> activityFocusRequesters[lastKey]
                     lastKey != null && lastKey in posterFocusRequesters -> posterFocusRequesters[lastKey]
-                    // Nothing to come back to (opening the Library): the selected tab, so the
-                    // other tabs are a press away rather than behind the filters (audit C3).
+                    // Nothing to come back to: the grid's first card. The header sits outside the
+                    // grid now (#850), so falling back to the tab row would bounce focus out again.
                     else -> null
-                } ?: primaryFocusRequester
+                } ?: FocusRequester.Default
             }
             .onPreviewKeyEvent { event ->
                 val native = event.nativeKeyEvent
@@ -390,151 +581,31 @@ fun LibraryScreen(
                 }
                 false
             }
-            .dpadRepeatThrottle(moveFocusOnRepeat = false),
-        contentPadding = PaddingValues(
-            start = FetchTheme.spacing.screen.horizontal,
-            end = FetchTheme.spacing.screen.horizontal,
-            top = FetchTheme.spacing.screen.vertical,
-            // The last row scrolls clear of the selection bar.
-            bottom = FetchTheme.spacing.xxl + if (selection.active) with(density) { selectionBarHeightPx.toDp() } else Dp.Hairline
+            // Held Up / Down: the browse screens' one fast scroll, landing in the same column (#850).
+            .browseGridFastScroll(
+                gridState = gridState,
+                focusedKey = { lastFocusedPosterKey },
+                requesterFor = { key -> (key as? String)?.let { posterFocusRequesters[it] ?: activityFocusRequesters[it] } }
+            ),
+        // The last row scrolls clear of the selection bar.
+        contentPadding = com.fetch.tv.ui.components.BrowseDefaults.gridPadding(
+            extraBottom = if (selection.active) with(density) { selectionBarHeightPx.toDp() } else Dp.Hairline
         ),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+        horizontalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.columnGap),
+        verticalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.rowGap)
     ) {
-        // The top of the screen is one item: title, tabs and source on one row, then (for the
-        // Watchlist and Lists tabs) one row of filters and actions. Its height decides how big
-        // the posters below can be while two full rows still fit (audit C3).
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onSizeChanged { headerHeightPx = it.height },
-                verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    if (showBuiltInHeader) {
-                        Text(
-                            text = stringResource(R.string.library_title),
-                            style = FetchTheme.textStyles.sectionTitle,
-                            color = FetchTheme.colors.TextPrimary
-                        )
-                    }
-                    LibraryTabRow(
-                        modifier = Modifier.weight(1f),
-                        tabs = tabs,
-                        selectedTab = tab,
-                        primaryFocusRequester = primaryFocusRequester,
-                        onSelected = { picked ->
-                            expandedPicker = null
-                            when (picked) {
-                                LibraryTab.UPCOMING -> onNavigateToCalendar()
-                                LibraryTab.STATS -> onNavigateToStats()
-                                else -> selectedTab = picked
-                            }
-                        }
-                    )
-                    // History and In progress have no filter row, so their Select sits at the end of
-                    // the tab row: Down from a tab still lands on the grid in one press.
-                    if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
-                        LibrarySelectButton(
-                            active = selection.active,
-                            enabled = true,
-                            onClick = { toggleSelectionMode() }
-                        )
-                    }
-                    if (showBuiltInHeader) {
-                        // Source names are stored in natural case and capitalized here, once, for the locale.
-                        val sourceName = when {
-                            tab == LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
-                            tab == LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
-                            tab == LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
-                            uiState.sourceMode == LibrarySourceMode.TRAKT -> stringResource(R.string.trakt_name)
-                            uiState.sourceMode == LibrarySourceMode.SIMKL -> stringResource(R.string.simkl_name)
-                            uiState.sourceMode == LibrarySourceMode.MDBLIST -> stringResource(R.string.mdblist_name)
-                            uiState.sourceMode == LibrarySourceMode.FETCH_WEBSITE -> stringResource(R.string.website_name)
-                            else -> stringResource(R.string.library_source_local)
-                        }
-                        Text(
-                            text = sourceName.uppercase(LocalConfiguration.current.locales[0]),
-                            style = FetchTheme.textStyles.eyebrow,
-                            color = FetchTheme.colors.TextTertiary,
-                            maxLines = 1
-                        )
-                    }
-                }
-                if (tab.listScope != null) {
-                    LibrarySelectorsRow(
-                        actions = {
-                            LibrarySelectButton(
-                                active = selection.active,
-                                enabled = uiState.visibleItems.isNotEmpty(),
-                                onClick = { toggleSelectionMode() }
-                            )
-                            LibraryActionsRow(
-                                pending = uiState.pendingOperation,
-                                isSyncing = uiState.isSyncing,
-                                // Lists are managed from the Lists tab, not over the watchlist.
-                                showManageLists = tab == LibraryTab.LISTS && uiState.listManagement != null && uiState.isTrackingAuthenticated,
-                                showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL && uiState.isTrackingAuthenticated,
-                                onManageLists = viewModel::onOpenManageLists,
-                                onRefresh = viewModel::onRefresh
-                            )
-                        },
-                        sourceMode = uiState.sourceMode,
-                        listTabs = uiState.scopedListTabs,
-                        typeTabs = uiState.availableTypeTabs,
-                        sortOptions = uiState.availableSortOptions,
-                        genres = uiState.availableGenres,
-                        years = uiState.availableYears,
-                        selectedListKey = uiState.selectedListKey,
-                        selectedTypeTab = uiState.selectedTypeTab,
-                        selectedSortOption = uiState.selectedSortOption,
-                        selectedGenre = uiState.selectedGenre,
-                        selectedYear = uiState.selectedYear,
-                        selectedWatchedFilter = uiState.selectedWatchedFilter,
-                        anythingReady = uiState.readyBestMatchKeys.isNotEmpty(),
-                        primaryFocusRequester = selectorFocusRequester,
-                        upFocusRequester = primaryFocusRequester,
-                        expandedPicker = expandedPicker,
-                        onExpandedChange = { picker, shouldExpand ->
-                            expandedPicker = if (shouldExpand) picker else null
-                        },
-                        onSelectList = { key ->
-                            viewModel.onSelectListTab(key)
-                            expandedPicker = null
-                        },
-                        onSelectType = { type ->
-                            viewModel.onSelectTypeTab(type)
-                            expandedPicker = null
-                        },
-                        onSelectSort = { sort ->
-                            viewModel.onSelectSortOption(sort)
-                            expandedPicker = null
-                        },
-                        onSelectGenre = { key ->
-                            viewModel.onSelectGenre(key)
-                            expandedPicker = null
-                        },
-                        onSelectYear = { key ->
-                            viewModel.onSelectYear(key)
-                            expandedPicker = null
-                        },
-                        onSelectWatchedFilter = { filter ->
-                            viewModel.onSelectWatchedFilter(filter)
-                            expandedPicker = null
-                        }
-                    )
-                }
-            }
-        }
-
         if (tab.listScope != null) {
 
-            if (uiState.visibleItems.isEmpty() && uiState.filtersHideAllItems) {
+            if (uiState.visibleItems.isEmpty() && uiState.refreshFailed) {
+                // A failed load isn't an empty library: say so and offer Retry, as Discover does (#850).
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    com.fetch.tv.ui.components.ErrorState(
+                        message = stringResource(R.string.library_error_refresh_failed),
+                        onRetry = viewModel::onRefresh,
+                        modifier = Modifier.height(LibraryEmptyStateHeight)
+                    )
+                }
+            } else if (uiState.visibleItems.isEmpty() && uiState.filtersHideAllItems) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     EmptyScreenState(
                         title = stringResource(R.string.library_empty_filtered_title),
@@ -609,8 +680,8 @@ fun LibraryScreen(
                 }
             }
 
-            items(uiState.visibleItems, key = { "${it.type}:${it.id}" }) { item ->
-                val focusKey = "${item.type}:${item.id}"
+            items(uiState.visibleItems, key = { com.fetch.tv.ui.components.browseItemKey(it.type, it.id) }) { item ->
+                val focusKey = com.fetch.tv.ui.components.browseItemKey(item.type, item.id)
                 val isSeries = item.type.equals("series", ignoreCase = true) || item.type.equals("tv", ignoreCase = true)
                 val previewForLongPress = remember(item) {
                     item.toMetaPreview().copy(posterShape = PosterShape.POSTER)
@@ -619,6 +690,14 @@ fun LibraryScreen(
                 val badge = badgeLabel(newEpisodeBadges.badgeFor(item.id, item.imdbId).takeIf { isSeries })
                 GridContentCard(
                     item = previewForLongPress,
+                    modifier = browseGridItemMotion().then(contentFade),
+                    progress = progressByContentId[item.id] ?: item.imdbId?.let { progressByContentId[it] },
+                    readyLabel = readyChip(libraryEntryReadyLabels(item, uiState.readyBestMatchLabels)),
+                    onPlay = if (selection.active || !quickPlayAllowed) null else ({
+                        lastFocusedPosterKey = focusKey
+                        HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
+                        onPlayTitle(item.id, item.type, item.addonBaseUrl)
+                    }),
                     posterCardStyle = posterCardStyle,
                     isWatched = if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds,
                     focusRequester = posterFocusRequesters[focusKey],
@@ -659,6 +738,9 @@ fun LibraryScreen(
                         dispatchSelection(LibrarySelectionAction.Toggle(key))
                         return@LibraryActivityCardActions
                     }
+                    // In progress resumes at once, as Continue Watching does; the options menu
+                    // keeps Go to details (#856).
+                    if (tab == LibraryTab.IN_PROGRESS && resumeInProgress(item)) return@LibraryActivityCardActions
                     HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
                     onNavigateToDetail(item.id, item.type, item.addonBaseUrl)
                 },
@@ -670,7 +752,20 @@ fun LibraryScreen(
                     if (item.isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
                 selectedFor = { key -> if (selection.active) selection.isSelected(key) else null },
-                newEpisodeBadgeFor = { item -> badgeLabel(newEpisodeBadges.badgeFor(item.id).takeIf { item.isSeries }) }
+                newEpisodeBadgeFor = { item -> badgeLabel(newEpisodeBadges.badgeFor(item.id).takeIf { item.isSeries }) },
+                progressFor = { item ->
+                    // History cards show a bar only for a title started again since.
+                    if (tab == LibraryTab.IN_PROGRESS) item.progressPercent?.let { it / 100f } else progressByContentId[item.id]
+                },
+                readyLabelFor = { item -> readyChip(libraryActivityReadyLabels(item, uiState.readyBestMatchLabels)) },
+                onPlay = if (!quickPlayAllowed) null else ({ key, item ->
+                    lastFocusedPosterKey = key
+                    if (!(tab == LibraryTab.IN_PROGRESS && resumeInProgress(item))) {
+                        HeroBackdropState.update(viewModel.getCachedBackdrop(item.id, item.type))
+                        onPlayTitle(item.id, item.type, item.addonBaseUrl)
+                    }
+                }),
+                cardModifier = contentFade
             )
             if (tab == LibraryTab.HISTORY) {
                 libraryHistoryContent(historyMonths, posterCardStyle, actions, onNavigateToSearch)
@@ -697,13 +792,17 @@ fun LibraryScreen(
                     val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
-                onItemClick = { itemId, itemType, addonBaseUrl -> onNavigateToDetail(itemId, itemType, addonBaseUrl) },
+                onItemClick = { itemId, itemType, addonBaseUrl ->
+                    HeroBackdropState.update(viewModel.getCachedBackdrop(itemId, itemType))
+                    onNavigateToDetail(itemId, itemType, addonBaseUrl)
+                },
                 onSeeAll = { row -> onNavigateToCatalogSeeAll(row.catalogId, row.addonId, row.apiType) },
                 onItemLongPress = { item, addonBaseUrl -> viewModel.posterOptions.show(item, addonBaseUrl) }
             )
         }
 
         item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(FetchTheme.spacing.sm)) }
+    }
     }
 
     if (uiState.showManageDialog && uiState.listManagement != null) {
@@ -768,6 +867,8 @@ fun LibraryScreen(
             onShowListPicker = { showBulkListPicker = it },
             onBarHeightChanged = { selectionBarHeightPx = it },
             onExit = { dispatchSelection(LibrarySelectionAction.Exit) },
+            onSelectAll = { dispatchSelection(LibrarySelectionAction.SelectAll(selectionKeys)) },
+            onClear = { dispatchSelection(LibrarySelectionAction.Clear) },
             exitFocusScope = selectionScope,
             onBulkAction = viewModel::onBulkAction
         )
@@ -798,63 +899,92 @@ fun LibraryScreen(
         state = posterOptionsState,
         controller = viewModel.posterOptions,
         onNavigateToDetail = { id, type, addonBaseUrl ->
+            // Go to details from the options menu hands over the backdrop too (#847).
+            HeroBackdropState.update(viewModel.getCachedBackdrop(id, type))
             onNavigateToDetail(id, type, addonBaseUrl.takeIf { it.isNotBlank() })
-        }
-    )
-}
-
-/**
- * The Library's sections in one row. Upcoming and Stats open their pages; the others switch the
- * grid below. The selected tab takes the screen's first focus.
- */
-@OptIn(ExperimentalTvMaterial3Api::class)
-@Composable
-private fun LibraryTabRow(
-    modifier: Modifier = Modifier,
-    tabs: List<LibraryTab>,
-    selectedTab: LibraryTab,
-    primaryFocusRequester: FocusRequester,
-    onSelected: (LibraryTab) -> Unit
-) {
-    val rowDescription = stringResource(R.string.library_tabs_description)
-    Row(
-        modifier = modifier
-            .focusSafeHorizontalScroll()
-            .semantics { contentDescription = rowDescription },
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-    ) {
-        tabs.forEach { tab ->
-            val isSelected = tab == selectedTab
-            FetchButton(
-                onClick = { onSelected(tab) },
-                modifier = Modifier
-                    .then(if (isSelected) Modifier.focusRequester(primaryFocusRequester) else Modifier)
-                    .semantics { selected = isSelected },
-                selected = isSelected
-            ) {
-                val icon = when (tab) {
-                    LibraryTab.UPCOMING -> Icons.Default.CalendarMonth
-                    LibraryTab.STATS -> Icons.Default.BarChart
-                    else -> null
-                }
-                if (icon != null) {
-                    Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
-                }
-                Text(
-                    text = when (tab) {
-                        LibraryTab.WATCHLIST -> stringResource(R.string.library_tab_watchlist)
-                        LibraryTab.LISTS -> stringResource(R.string.library_tab_lists)
-                        LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
-                        LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
-                        LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
-                        LibraryTab.UPCOMING -> stringResource(R.string.library_tab_upcoming)
-                        LibraryTab.STATS -> stringResource(R.string.library_open_stats)
+        },
+        extraActions = { target ->
+            // "Play" beside Go to details, the menu's way to the Play/Pause shortcut (#856).
+            if (quickPlayAllowed) {
+                val addonBaseUrl = posterOptionsState.addonBaseUrl
+                LibraryMenuButton(
+                    text = stringResource(R.string.hero_play),
+                    onClick = {
+                        viewModel.posterOptions.dismiss()
+                        val progress = inProgressItems?.firstOrNull { it.id == target.id }
+                        if (tab == LibraryTab.IN_PROGRESS && progress != null && resumeInProgress(progress)) return@LibraryMenuButton
+                        HeroBackdropState.update(viewModel.getCachedBackdrop(target.id, target.apiType))
+                        onPlayTitle(target.id, target.apiType, addonBaseUrl.takeIf { it.isNotBlank() })
                     }
                 )
             }
         }
+    )
+}
+
+/** A Library section's name in the header's pill tabs (#850). */
+@Composable
+private fun libraryTabLabel(tab: LibraryTab): String = when (tab) {
+    LibraryTab.WATCHLIST -> stringResource(R.string.library_tab_watchlist)
+    LibraryTab.LISTS -> stringResource(R.string.library_tab_lists)
+    LibraryTab.IN_PROGRESS -> stringResource(R.string.library_tab_in_progress)
+    LibraryTab.HISTORY -> stringResource(R.string.library_tab_history)
+    LibraryTab.SERVERS -> stringResource(R.string.library_source_servers)
+    LibraryTab.UPCOMING -> stringResource(R.string.library_tab_upcoming)
+    LibraryTab.STATS -> stringResource(R.string.library_open_stats)
+}
+
+/**
+ * Upcoming and Stats at the end of the header (#855): icon buttons apart from the tabs, since
+ * they leave the Library. Each shows its name while focused, and always names itself to TalkBack.
+ */
+@Composable
+private fun LibraryPageButtons(
+    onUpcoming: () -> Unit,
+    onStats: () -> Unit
+) {
+    val groupDescription = stringResource(R.string.library_pages_description)
+    Row(
+        modifier = Modifier.semantics { contentDescription = groupDescription },
+        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+    ) {
+        LibraryPageButton(Icons.Default.CalendarMonth, stringResource(R.string.library_tab_upcoming), onUpcoming)
+        LibraryPageButton(Icons.Default.BarChart, stringResource(R.string.library_open_stats), onStats)
+    }
+}
+
+@Composable
+private fun LibraryPageButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit
+) {
+    var focused by remember { mutableStateOf(false) }
+    FetchButton(
+        onClick = onClick,
+        modifier = Modifier
+            .onFocusChanged { focused = it.isFocused }
+            .semantics { contentDescription = label }
+    ) {
+        Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+        androidx.compose.animation.AnimatedVisibility(visible = focused) {
+            Row {
+                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                Text(label, maxLines = 1)
+            }
+        }
+    }
+}
+
+/** An extra entry in the Library's options menu, full width like the menu's own (#856). */
+@Composable
+private fun LibraryMenuButton(text: String, onClick: () -> Unit) {
+    FetchButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text)
     }
 }
 
@@ -1157,44 +1287,3 @@ private fun ConfirmDeleteDialog(
         }
     }
 }
-
-/**
- * The poster width that lets [rows] full rows of cards, with their titles, show below a [header]
- * in a [viewport] of that height: at most [preferred] (the size set in Layout), and no smaller
- * than 70% of it, so a very short window scrolls rather than shrinking posters to stamps. Before
- * the viewport and header are measured it is [preferred].
- *
- * [cardHeightPerWidth] is how tall a card is for each unit of poster width: 1.5 for a 2:3 poster;
- * a landscape card is drawn as wide as that poster is tall, at 16:9, so it is much shorter (#848).
- */
-internal fun libraryFittedCardWidth(
-    preferred: Dp,
-    viewport: Dp,
-    header: Dp,
-    topPadding: Dp,
-    gap: Dp,
-    labelAllowance: Dp,
-    rows: Int = LIBRARY_POSTER_FITTED_ROWS,
-    cardHeightPerWidth: Float = POSTER_HEIGHT_PER_WIDTH
-): Dp {
-    if (viewport <= Dp.Hairline || header <= Dp.Hairline) return preferred
-    // The header is followed by a gap, and each row by its title and a gap.
-    val perRow = (viewport - topPadding - header - gap * rows) / rows
-    val fitted = (perRow - labelAllowance) / cardHeightPerWidth
-    return minOf(preferred, maxOf(fitted, preferred * MIN_FITTED_POSTER_SCALE))
-}
-
-/** Card height per unit of the poster width set in Layout, for posters or landscape cards. */
-internal fun libraryCardHeightPerWidth(landscape: Boolean): Float =
-    if (landscape) {
-        // GridContentCard draws a landscape card as wide as the poster would be tall.
-        POSTER_HEIGHT_PER_WIDTH / com.fetch.tv.domain.model.PosterShape.LANDSCAPE.aspectRatio()
-    } else {
-        POSTER_HEIGHT_PER_WIDTH
-    }
-
-private const val POSTER_HEIGHT_PER_WIDTH = 1.5f
-internal const val LIBRARY_POSTER_FITTED_ROWS = 2
-internal const val LIBRARY_LANDSCAPE_FITTED_ROWS = 3
-
-private const val MIN_FITTED_POSTER_SCALE = 0.7f

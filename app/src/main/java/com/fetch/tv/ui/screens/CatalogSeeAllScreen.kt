@@ -58,6 +58,9 @@ import com.fetch.tv.data.mediaserver.messageRes
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.ErrorState
 import com.fetch.tv.ui.components.GridContentCard
+import com.fetch.tv.ui.components.browseGridFastScroll
+import com.fetch.tv.ui.components.restoreBrowseFocus
+import androidx.compose.ui.focus.onFocusChanged
 import com.fetch.tv.ui.components.LoadingIndicator
 import com.fetch.tv.ui.components.PosterCardDefaults
 import com.fetch.tv.ui.components.PosterCardStyle
@@ -73,7 +76,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlin.math.roundToInt
 
 /** Stable focus key for a catalog poster (survives list reloads; not a grid index). */
-private fun catalogItemFocusKey(item: MetaPreview): String = "${item.apiType}:${item.id}"
+private fun catalogItemFocusKey(item: MetaPreview): String = com.fetch.tv.ui.components.browseItemKey(item.apiType, item.id)
 
 @Composable
 fun CatalogSeeAllScreen(
@@ -91,14 +94,8 @@ fun CatalogSeeAllScreen(
     val posterOptionsController = searchViewModel?.posterOptions ?: posterOptionsViewModel.controller
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val fullCatalogRows by viewModel.fullCatalogRows.collectAsStateWithLifecycle()
-    val computedHeightDp = (uiState.posterCardWidthDp * 1.5f).roundToInt()
-    val posterCardStyle = PosterCardStyle(
-        width = uiState.posterCardWidthDp.dp,
-        height = computedHeightDp.dp,
-        cornerRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp),
-        focusedScale = PosterCardDefaults.Style.focusedScale
-    )
-
+    // The last step of the browse Back ladder (#850); the ladder's own handler, declared below,
+    // takes Back first while the grid is scrolled or focused.
     BackHandler { onBackPress() }
 
     val isSearchMode = searchViewModel != null
@@ -265,65 +262,72 @@ fun CatalogSeeAllScreen(
         if (items.isEmpty()) return@LaunchedEffect
 
         val targetIndex = focusedItemIndex.coerceIn(0, items.lastIndex)
-        val isTargetVisible = gridState.layoutInfo.visibleItemsInfo.any { it.index == targetIndex }
-        if (!isTargetVisible) {
-            gridState.animateScrollToItem(targetIndex)
-        }
-        repeat(2) { withFrameNanos { } }
-        try {
-            restoreFocusRequester.requestFocus()
-            shouldRestoreFocus = false
-        } catch (_: IllegalStateException) {
-        }
+        // The browse screens' one restore step (#850).
+        if (gridState.restoreBrowseFocus(targetIndex, restoreFocusRequester)) shouldRestoreFocus = false
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = FetchTheme.spacing.xl)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = FetchTheme.spacing.screen.horizontal),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = catalogRow?.catalogName ?: stringResource(R.string.catalog_see_all_title_fallback),
-                style = MaterialTheme.typography.headlineLarge,
-                color = FetchTheme.colors.TextPrimary
-            )
-        }
-
-        if (uiState.catalogAddonNameEnabled) {
-            catalogRow?.addonName?.let { addonName ->
-                Text(
-                    modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal),
-                    text = stringResource(R.string.catalog_see_all_from, addonName),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = FetchTheme.colors.TextSecondary
-                )
+    val filterBarFocusRequester = remember { FocusRequester() }
+    var gridHasFocus by remember { mutableStateOf(false) }
+    // The browse Back ladder (#850): scrolled, back to the top and the first card; from the top
+    // rows, to the filters; then See all leaves.
+    com.fetch.tv.ui.components.BrowseBackHandler(
+        gridState = gridState,
+        gridHasFocus = gridHasFocus,
+        onFocusFirstCard = {
+            shouldRestoreFocus = false
+            focusedItemKey = catalogRow?.items?.firstOrNull()?.let(::catalogItemFocusKey)
+            gridState.restoreBrowseFocus(0, restoreFocusRequester)
+        },
+        onFocusHeader = {
+            if (sourceRow == null || runCatching { filterBarFocusRequester.requestFocus() }.getOrDefault(false) != true) {
+                onBackPress()
             }
         }
+    )
+    val collapsed = com.fetch.tv.ui.components.rememberBrowseHeaderCollapsed(gridState)
+    val shownCount = catalogRow?.items?.size?.takeIf { it > 0 }
+    val addonLine = if (uiState.catalogAddonNameEnabled) {
+        catalogRow?.addonName?.let { stringResource(R.string.catalog_see_all_from, it) }
+    } else {
+        null
+    }
+    // "120 titles · From Cinemeta", as on Discover and the Library (#850).
+    val summary = listOfNotNull(
+        shownCount?.let { androidx.compose.ui.res.pluralStringResource(R.plurals.library_title_count, it, it) },
+        addonLine
+    ).joinToString(" · ").ifBlank { null }
 
-        if (sourceRow != null) {
-            com.fetch.tv.ui.screens.search.SeeAllFilterBar(
-                genres = filterState.genres,
-                selectedGenre = filterState.genre,
-                filters = filterState.filters,
-                hideWatched = filterState.hideWatched,
-                onSelectGenre = { genre -> filtersViewModel.selectGenre(genre, sourceRow) },
-                onSelectYearRange = filtersViewModel::selectYearRange,
-                onSelectMinRating = filtersViewModel::selectMinRating,
-                onSelectSort = filtersViewModel::selectSort,
-                onToggleHideWatched = filtersViewModel::toggleHideWatched,
-                modifier = Modifier.padding(
-                    start = FetchTheme.spacing.screen.horizontal,
-                    end = FetchTheme.spacing.screen.horizontal,
-                    top = FetchTheme.spacing.md
+    com.fetch.tv.ui.components.BrowseScaffold(
+        title = catalogRow?.catalogName ?: stringResource(R.string.catalog_see_all_title_fallback),
+        collapsed = collapsed,
+        layoutKey = catalogKey,
+        filters = if (sourceRow != null) {
+            @Composable {
+                com.fetch.tv.ui.screens.search.SeeAllFilterBar(
+                    genres = filterState.genres,
+                    selectedGenre = filterState.genre,
+                    filters = filterState.filters,
+                    hideWatched = filterState.hideWatched,
+                    onSelectGenre = { genre -> filtersViewModel.selectGenre(genre, sourceRow) },
+                    onSelectYearRange = filtersViewModel::selectYearRange,
+                    onSelectMinRating = filtersViewModel::selectMinRating,
+                    onSelectSort = filtersViewModel::selectSort,
+                    onToggleHideWatched = filtersViewModel::toggleHideWatched,
+                    focusRequester = filterBarFocusRequester
                 )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(FetchTheme.spacing.xl))
+            }
+        } else {
+            null
+        },
+        summary = summary
+    ) { gridViewport ->
+        val posterCardStyle = com.fetch.tv.ui.components.rememberBrowseCardStyle(
+            preferredWidthDp = uiState.posterCardWidthDp,
+            cornerRadiusDp = uiState.posterCardCornerRadiusDp,
+            gridViewport = gridViewport
+        )
+        val stateModifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
+        val emptyHeight = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight
 
         val hasItems = catalogRow?.items?.isNotEmpty() == true
         val failure = serverFailure?.value
@@ -339,21 +343,26 @@ fun CatalogSeeAllScreen(
             val seeAllItemKeys = remember(catalogRow?.items) {
                 catalogRow?.stableItemKeys().orEmpty()
             }
+            val itemRequesters = remember(seeAllItemKeys) { seeAllItemKeys.associateWith { FocusRequester() } }
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalGrid(
                     state = gridState,
                     columns = GridCells.Adaptive(
                         minSize = if (com.fetch.tv.ui.components.LocalLandscapePosterMode.current) posterCardStyle.height else posterCardStyle.width
                     ),
-                    modifier = Modifier.dpadRepeatThrottle(),
-                    contentPadding = PaddingValues(
-                        start = FetchTheme.spacing.screen.horizontal,
-                        end = FetchTheme.spacing.screen.horizontal,
-                        top = FetchTheme.spacing.md,
-                        bottom = FetchTheme.spacing.xxl
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
-                    verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+                    modifier = Modifier
+                        .onFocusChanged { gridHasFocus = it.hasFocus }
+                        // Held Up / Down: the browse screens' one fast scroll (#850).
+                        .browseGridFastScroll(
+                            gridState = gridState,
+                            focusedKey = { seeAllItemKeys.getOrNull(focusedItemIndex) },
+                            requesterFor = { key ->
+                                if (key == seeAllItemKeys.getOrNull(focusedItemIndex)) restoreFocusRequester else itemRequesters[key]
+                            }
+                        ),
+                    contentPadding = com.fetch.tv.ui.components.BrowseDefaults.gridPadding(),
+                    horizontalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.columnGap),
+                    verticalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.rowGap)
                 ) {
                     itemsIndexed(
                         items = catalogRow.items,
@@ -366,7 +375,7 @@ fun CatalogSeeAllScreen(
                             posterCardStyle = posterCardStyle,
                             showLabel = uiState.posterLabelsEnabled,
                             isWatched = isWatched,
-                            focusRequester = if (index == focusedItemIndex) restoreFocusRequester else null,
+                            focusRequester = if (index == focusedItemIndex) restoreFocusRequester else seeAllItemKeys.getOrNull(index)?.let(itemRequesters::get),
                             onFocused = {
                                 // While restoring after Details/resume, ignore transient focus on the
                                 // first/leftmost cell so it cannot overwrite the saved poster key.
@@ -441,7 +450,8 @@ fun CatalogSeeAllScreen(
             ErrorState(
                 message = stringResource(R.string.catalog_see_all_genre_failed),
                 onRetry = { filtersViewModel.retryGenre(sourceRow) },
-                requestInitialFocus = false
+                requestInitialFocus = false,
+                modifier = stateModifier.height(emptyHeight)
             )
         } else if (catalogRow == null && failure != null && serverCatalog != null) {
             // A media server that failed to load isn't an empty catalog: say why and offer Retry.
@@ -449,13 +459,14 @@ fun CatalogSeeAllScreen(
             ErrorState(
                 message = stringResource(failure.messageRes()),
                 onRetry = serverCatalog::reload,
-                requestInitialFocus = true
+                requestInitialFocus = true,
+                modifier = stateModifier.height(emptyHeight)
             )
         } else if (isCatalogLoading) {
             PosterGridSkeleton(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = FetchTheme.spacing.screen.horizontal, top = FetchTheme.spacing.md),
+                    .padding(start = FetchTheme.spacing.screen.horizontal, top = com.fetch.tv.ui.components.BrowseDefaults.gridTopPadding),
                 cardWidth = posterCardStyle.width,
                 cardHeight = posterCardStyle.height
             )
@@ -467,6 +478,8 @@ fun CatalogSeeAllScreen(
                 title = stringResource(R.string.discover_empty_filtered_title),
                 subtitle = stringResource(R.string.discover_empty_filtered_subtitle),
                 icon = Icons.Default.GridView,
+                height = emptyHeight,
+                modifier = stateModifier,
                 action = com.fetch.tv.ui.components.StateAction(stringResource(R.string.discover_clear_filters)) {
                     filtersViewModel.clearFilters(sourceRow)
                 }
@@ -477,6 +490,8 @@ fun CatalogSeeAllScreen(
                 title = stringResource(R.string.discover_empty_hidden_title),
                 subtitle = stringResource(R.string.discover_empty_hidden_subtitle),
                 icon = Icons.Default.GridView,
+                height = emptyHeight,
+                modifier = stateModifier,
                 action = com.fetch.tv.ui.components.StateAction(stringResource(R.string.discover_load_more)) {
                     emptyGridAutoPages = 0
                     requestNextPage(catalogRow)
@@ -487,6 +502,8 @@ fun CatalogSeeAllScreen(
                 title = stringResource(R.string.catalog_see_all_empty_title),
                 subtitle = stringResource(R.string.catalog_see_all_empty_subtitle),
                 icon = Icons.Default.GridView,
+                height = emptyHeight,
+                modifier = stateModifier,
                 // A Home catalog that is missing altogether can be loaded again from here.
                 action = if (catalogRow == null && !isSearchMode && serverCatalog == null) {
                     com.fetch.tv.ui.components.StateAction(stringResource(R.string.action_retry)) {
@@ -499,6 +516,8 @@ fun CatalogSeeAllScreen(
             )
         }
 
+    }
+
         val posterOptionsState by posterOptionsController.state.collectAsStateWithLifecycle()
         com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(
             state = posterOptionsState,
@@ -509,7 +528,6 @@ fun CatalogSeeAllScreen(
             // A media server's catalog is the user's own library, which "Not interested" leaves alone.
             showNotInterested = serverCatalog == null
         )
-    }
 }
 
 /** Pages See all fetches on its own while every loaded title is hidden, before offering Load more. */

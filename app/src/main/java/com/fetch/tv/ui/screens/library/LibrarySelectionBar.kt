@@ -68,6 +68,8 @@ internal fun LibrarySelectButton(
 @Composable
 internal fun LibrarySelectionBar(
     count: Int,
+    /** How many titles the grid shows, for "3 of 47 selected" (#856). */
+    total: Int,
     showMarkWatched: Boolean,
     listActionLabel: String?,
     pending: Boolean,
@@ -77,6 +79,8 @@ internal fun LibrarySelectionBar(
     onMarkWatched: () -> Unit,
     onListAction: () -> Unit,
     onDone: () -> Unit,
+    onSelectAll: () -> Unit,
+    onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val barDescription = stringResource(R.string.library_selection_bar_description)
@@ -102,7 +106,7 @@ internal fun LibrarySelectionBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = pluralStringResource(R.plurals.library_selection_count, count, count),
+                text = pluralStringResource(R.plurals.library_selection_count_of, count, count, total),
                 style = MaterialTheme.typography.titleSmall,
                 color = FetchTheme.colors.TextPrimary,
                 modifier = Modifier
@@ -128,6 +132,11 @@ internal fun LibrarySelectionBar(
                 FetchButton(onClick = onListAction, enabled = actionsEnabled) {
                     Text(listActionLabel)
                 }
+            }
+            // Acts on what the filters show; once everything is chosen it offers to clear instead.
+            val allChosen = total > 0 && count >= total
+            FetchButton(onClick = if (allChosen) onClear else onSelectAll, enabled = !pending && total > 0) {
+                Text(stringResource(if (allChosen) R.string.library_selection_clear else R.string.library_selection_select_all))
             }
             FetchButton(onClick = onDone) {
                 Text(stringResource(R.string.library_selection_done))
@@ -224,6 +233,8 @@ internal fun LibrarySelectionOverlay(
     onShowListPicker: (Boolean) -> Unit,
     onBarHeightChanged: (Int) -> Unit,
     onExit: () -> Unit,
+    onSelectAll: () -> Unit,
+    onClear: () -> Unit,
     /** The screen's scope: leaving selection mode removes this overlay, cancelling its own. */
     exitFocusScope: CoroutineScope,
     onBulkAction: (List<LibraryBulkTarget>, LibraryBulkOperation, String?) -> Unit
@@ -249,7 +260,7 @@ internal fun LibrarySelectionOverlay(
     }
 
     fun targets(): List<LibraryBulkTarget> = if (savedGrid) {
-        uiState.visibleItems.filter { selection.isSelected("${it.type}:${it.id}") }.map { it.toBulkTarget() }
+        uiState.visibleItems.filter { selection.isSelected(com.fetch.tv.ui.components.browseItemKey(it.type, it.id)) }.map { it.toBulkTarget() }
     } else {
         val items = if (tab == LibraryTab.HISTORY) historyMonths.orEmpty().flatMap { it.items } else inProgressItems.orEmpty()
         val keyOf: (LibraryActivityItem) -> String = if (tab == LibraryTab.HISTORY) ::historyFocusKey else ::inProgressFocusKey
@@ -273,9 +284,18 @@ internal fun LibrarySelectionOverlay(
         }
     }
 
+    // The bar slides up as selection starts (#853); under reduced motion it is simply there.
+    val fullMotion = FetchTheme.fullMotion
+    val barVisible = remember { androidx.compose.animation.core.MutableTransitionState(!fullMotion).apply { targetState = true } }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        androidx.compose.animation.AnimatedVisibility(
+            visibleState = barVisible,
+            enter = androidx.compose.animation.slideInVertically(com.fetch.tv.ui.theme.FetchMotion.enterTween()) { it } +
+                androidx.compose.animation.fadeIn(com.fetch.tv.ui.theme.FetchMotion.enterTween())
+        ) {
         LibrarySelectionBar(
             count = selection.count,
+            total = selectionKeys.size,
             // History is already watched.
             showMarkWatched = tab != LibraryTab.HISTORY,
             listActionLabel = listActionLabel,
@@ -287,6 +307,8 @@ internal fun LibrarySelectionOverlay(
                 finish(removes = false) { chosen -> onBulkAction(chosen, LibraryBulkOperation.MarkWatched, null) }
             },
             onListAction = { onShowListPicker(true) },
+            onSelectAll = { onSelectAll() },
+            onClear = { onClear() },
             onDone = {
                 onExit()
                 exitFocusScope.launch {
@@ -296,6 +318,7 @@ internal fun LibrarySelectionOverlay(
             },
             modifier = Modifier.onSizeChanged { onBarHeightChanged(it.height) }
         )
+        }
     }
 
     if (showRemoveConfirm) {

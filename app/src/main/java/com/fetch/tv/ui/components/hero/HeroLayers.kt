@@ -1,4 +1,4 @@
-package com.fetch.tv.ui.screens.home
+package com.fetch.tv.ui.components.hero
 
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
@@ -94,45 +94,6 @@ private data class ModernHeroSecondaryMeta(
 )
 
 @Composable
-internal fun ModernHeroScene(
-    state: () -> ModernHeroSceneState,
-    isFullScreen: () -> Boolean,
-    bgColor: Color,
-    modifier: Modifier,
-    requestWidthPx: Int,
-    requestHeightPx: Int,
-    onTrailerEnded: () -> Unit,
-    onFirstFrameRendered: () -> Unit,
-    onBackdropDisplayed: (String) -> Unit = {}
-) {
-    ModernHeroMediaLayer(
-        heroBackdrop = { state().heroBackdrop },
-        shouldPlayHeroTrailer = { state().shouldPlayTrailer },
-        heroTrailerFirstFrameRendered = { state().trailerFirstFrameRendered },
-        heroTrailerUrl = { state().trailerUrl },
-        heroTrailerAudioUrl = { state().trailerAudioUrl },
-        heroTrailerPlaybackKey = { state().trailerPlaybackKey },
-        muted = { state().trailerMuted },
-        onTrailerEnded = onTrailerEnded,
-        onFirstFrameRendered = onFirstFrameRendered,
-        onBackdropDisplayed = onBackdropDisplayed,
-        modifier = modifier,
-        requestWidthPx = requestWidthPx,
-        requestHeightPx = requestHeightPx
-    )
-    val isTrailerPlayingFullScreen = {
-        val s = state()
-        s.fullScreenBackdrop && s.shouldPlayTrailer && s.trailerFirstFrameRendered
-    }
-    ModernHeroGradientLayer(
-        bgColor = bgColor,
-        isFullScreen = isFullScreen,
-        isTrailerPlayingFullScreen = isTrailerPlayingFullScreen,
-        modifier = modifier
-    )
-}
-
-@Composable
 internal fun ModernHeroMediaLayer(
     /** The backdrop to move to. HeroPresenter holds it during scroll, a held D-pad and enrichment. */
     heroBackdrop: () -> String?,
@@ -147,7 +108,13 @@ internal fun ModernHeroMediaLayer(
     modifier: Modifier,
     requestWidthPx: Int,
     requestHeightPx: Int,
-    onBackdropDisplayed: (String) -> Unit = {}
+    onBackdropDisplayed: (String) -> Unit = {},
+    /** What shows before the first backdrop loads: Home passes the last one shown anywhere. */
+    initialBackdrop: String? = null,
+    /** How far the trailer is zoomed to hide letterboxing; Home's own value. */
+    trailerOverscanZoom: Float = 1f,
+    /** Moves between backdrops at once, without the crossfade (reduced motion, low RAM). */
+    snapBackdrops: Boolean = !FetchTheme.fullMotion
 ) {
     val shouldPlay by remember { derivedStateOf { shouldPlayHeroTrailer() } }
     val trailerRendered by remember { derivedStateOf { heroTrailerFirstFrameRendered() } }
@@ -160,12 +127,15 @@ internal fun ModernHeroMediaLayer(
 
     // The backdrop the hero is moving to, resolved upstream by HeroPresenter (resolveHeroScene
     // holds it while the rows scroll, the D-pad is held or enrichment is pending).
-    val targetBackdrop by remember { derivedStateOf { heroBackdrop() } }
+    // Read through the latest provider: a caller passing a plain value (the browse band) hands in
+    // a new lambda each time, and a remembered first one would pin the first title's art.
+    val latestHeroBackdrop by rememberUpdatedState(heroBackdrop)
+    val targetBackdrop by remember { derivedStateOf { latestHeroBackdrop() } }
     // The backdrop on screen. It moves to the target (and the crossfade starts) only once the
     // target has loaded, so the old backdrop holds instead of fading onto the plain background
     // while the network catches up (TheShield2594/fetch#804). It starts on the last backdrop
     // shown anywhere, for a seamless return from Details.
-    var displayedBackdrop by remember { mutableStateOf(HeroBackdropState.lastDisplayedUrl ?: heroBackdrop()) }
+    var displayedBackdrop by remember { mutableStateOf(initialBackdrop ?: heroBackdrop()) }
     LaunchedEffect(targetBackdrop, requestWidthPx, requestHeightPx) {
         val target = targetBackdrop ?: return@LaunchedEffect
         if (target == displayedBackdrop) return@LaunchedEffect
@@ -186,20 +156,17 @@ internal fun ModernHeroMediaLayer(
     ) {
         displayedBackdrop?.let { heroBackdropRequest(localContext, it, requestWidthPx, requestHeightPx) }
     }
-    // Keep HeroBackdropState in sync for navigation transitions, and tell the presenter, whose
-    // holds keep the backdrop that is on screen.
+    // Tell the owner what is on screen: Home keeps HeroBackdropState in sync for navigation
+    // transitions, and its presenter's holds keep the backdrop that is on screen.
     LaunchedEffect(displayedBackdrop) {
-        displayedBackdrop?.let {
-            HeroBackdropState.update(it)
-            onBackdropDisplayed(it)
-        }
+        displayedBackdrop?.let(onBackdropDisplayed)
     }
 
     // A slow, eased blend so moving between titles feels like a cut in a film, not a flicker.
     // It only starts once focus settles (the URL is frozen upstream during fast moves), and is
     // skipped entirely when motion is reduced (also the low-RAM path).
     val backdropCrossfadeSpec: FiniteAnimationSpec<Float> =
-        if (FetchTheme.fullMotion) {
+        if (!snapBackdrops) {
             tween(FetchMotion.tokens.durations.backdropCrossfade, easing = FetchMotion.tokens.easings.out)
         } else {
             snap()
@@ -240,7 +207,7 @@ internal fun ModernHeroMediaLayer(
                     onFirstFrameRendered = onFirstFrameRendered,
                     muted = mutedVal,
                     cropToFill = com.fetch.tv.ui.components.LocalTrailerCropToFill.current,
-                    overscanZoom = MODERN_TRAILER_OVERSCAN_ZOOM,
+                    overscanZoom = trailerOverscanZoom,
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer {
@@ -357,7 +324,9 @@ internal fun HeroTitleBlock(
     /** Play/Pause on a catalog card starts it, so the hero names a cached pick (#812). */
     catalogQuickPlay: Boolean = false,
     /** "Hold OK for options" under a catalog title, for a profile's first few sessions (#812). */
-    showHoldHint: Boolean = false
+    showHoldHint: Boolean = false,
+    /** Lines of synopsis, where the default for [compact] doesn't suit (the browse band shows two). */
+    descriptionMaxLines: Int? = null
 ) {
     // The provider reads hero state that is rewritten on every focus move, often with an equal
     // value. Deriving it recomposes this block only when what it shows actually changes. The
@@ -405,7 +374,8 @@ internal fun HeroTitleBlock(
                 trailerPlaying = trailerPlaying,
                 compact = compact,
                 catalogQuickPlay = catalogQuickPlay,
-                showHoldHint = showHoldHint
+                showHoldHint = showHoldHint,
+                descriptionMaxLinesOverride = descriptionMaxLines
             )
         }
     }
@@ -422,14 +392,15 @@ private fun HeroTitleContent(
     trailerPlaying: () -> Boolean = { false },
     compact: Boolean = false,
     catalogQuickPlay: Boolean = false,
-    showHoldHint: Boolean = false
+    showHoldHint: Boolean = false,
+    descriptionMaxLinesOverride: Int? = null
 ) {
     val preview = previewProvider() ?: return
     val highlighterEnabled = LocalRecompositionHighlighterEnabled.current
     val eyebrowText = preview.eyebrowText?.trim()?.takeIf { it.isNotBlank() }
     // The hero keeps little text over the art: two lines of description at most, one when the
     // eyebrow takes a line, and none when Resume is there to be the main thing.
-    val descriptionMaxLines = if (eyebrowText != null || compact) 1 else 2
+    val descriptionMaxLines = descriptionMaxLinesOverride ?: if (eyebrowText != null || compact) 1 else 2
     val descriptionScale = if (portraitMode) 0.90f else 1f
     val titleScale = if (portraitMode) 0.92f else 1f
     val metaScale = 1f

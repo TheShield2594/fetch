@@ -39,11 +39,18 @@ import kotlin.math.roundToInt
 fun DiscoverScreen(
     viewModel: SearchViewModel = hiltViewModel(),
     showBuiltInHeader: Boolean = true,
-    onNavigateToDetail: (String, String, String) -> Unit
+    onNavigateToDetail: (String, String, String) -> Unit,
+    /** Play/Pause on a card: starts the title (id, type, addon) without its detail page (#857). */
+    onPlayTitle: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
+    val progressByContentId by viewModel.progressByContentId.collectAsStateWithLifecycle()
+    val libraryIds by viewModel.libraryIds.collectAsStateWithLifecycle()
+    val quickPlayAllowed by viewModel.quickPlayAllowed.collectAsStateWithLifecycle()
+    val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
+    val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val discoverFirstItemFocusRequester = remember { FocusRequester() }
     // The focused title's key, not its index, so it survives re-sorts and new pages (#844).
@@ -54,18 +61,6 @@ fun DiscoverScreen(
     // coming back from a title and restores the focused poster instead.
     var initialFocusHandled by remember {
         mutableStateOf(restoreDiscoverFocus || pendingDiscoverRestoreOnResume)
-    }
-
-    val cardRadius = cardCornerRadius(uiState.posterCardCornerRadiusDp)
-    val posterCardStyle = remember(uiState.posterCardWidthDp, cardRadius) {
-        val computedHeightDp = (uiState.posterCardWidthDp * 1.5f).roundToInt()
-        PosterCardStyle(
-            width = uiState.posterCardWidthDp.dp,
-            height = computedHeightDp.dp,
-            cornerRadius = cardRadius,
-            focusedScale = PosterCardDefaults.Style.focusedScale,
-            showRestingBorder = true
-        )
     }
 
     LaunchedEffect(uiState.discoverLocation) {
@@ -100,9 +95,12 @@ fun DiscoverScreen(
         } else {
             DiscoverSection(
                 uiState = uiState,
-                posterCardStyle = posterCardStyle,
                 watchedMovieIds = watchedMovieIds,
                 watchedSeriesIds = watchedSeriesIds,
+                progressByContentId = progressByContentId,
+                heroEnabled = heroSetting,
+                heroMetaVersion = metaCacheVersion,
+                cachedMeta = viewModel::cachedMeta,
                 focusResults = false,
                 showBuiltInHeader = showBuiltInHeader,
                 firstItemFocusRequester = discoverFirstItemFocusRequester,
@@ -140,6 +138,25 @@ fun DiscoverScreen(
                     discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.SelectDiscoverSort(it))
                 },
+                libraryIds = libraryIds,
+                onItemPlay = if (!quickPlayAllowed) null else ({ item ->
+                    discoverFocusedItemKey = discoverItemKey(item)
+                    pendingDiscoverRestoreOnResume = true
+                    HeroBackdropState.update(item.backdropUrl)
+                    onPlayTitle(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
+                }),
+                onToggleHideWatched = {
+                    discoverFocusedItemKey = null
+                    viewModel.onEvent(SearchEvent.ToggleDiscoverHideWatched)
+                },
+                onToggleIncludeUnrated = {
+                    discoverFocusedItemKey = null
+                    viewModel.onEvent(SearchEvent.ToggleDiscoverIncludeUnrated)
+                },
+                onResetFilters = {
+                    discoverFocusedItemKey = null
+                    viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
+                },
                 onClearFilters = {
                     discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.ClearDiscoverFilters)
@@ -148,8 +165,7 @@ fun DiscoverScreen(
                 onRetry = { viewModel.onEvent(SearchEvent.RetryDiscover) },
                 onItemLongPress = { item, addonBaseUrl ->
                     viewModel.posterOptions.show(item, addonBaseUrl)
-                },
-                modifier = Modifier.padding(top = FetchTheme.spacing.lg)
+                }
             )
         }
 
@@ -158,6 +174,9 @@ fun DiscoverScreen(
             state = posterOptionsState,
             controller = viewModel.posterOptions,
             showNotInterested = true,
+            // Saving is what Discover's menu is mostly for: first and focused, so Menu then OK
+            // adds a title to (or takes it off) the library, with the menu's confirmation (#857).
+            libraryActionFirst = true,
             onNavigateToDetail = { id, type, addonBaseUrl ->
                 pendingDiscoverRestoreOnResume = true
                 val clickedItem = uiState.discoverResults.firstOrNull { it.id == id }

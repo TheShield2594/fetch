@@ -132,6 +132,52 @@ internal fun libraryWatchedFilterOptions(
     it != LibraryWatchedFilter.READY || anythingReady || selected == LibraryWatchedFilter.READY
 }
 
+/**
+ * Saved progress (0..1) by content id, from the Continue Watching list: each title's latest play,
+ * so a series shows how far into its current episode it is (#854). Titles not started are left out.
+ */
+internal fun libraryProgressByContentId(progress: List<com.fetch.tv.domain.model.WatchProgress>): Map<String, Float> =
+    progress.asSequence()
+        .filter { it.contentId.isNotBlank() }
+        .groupBy { it.contentId }
+        .mapValues { (_, entries) -> entries.maxBy { it.lastWatched }.progressPercentage }
+        .filterValues { it > 0f }
+
+/**
+ * The ready chip's quality labels for a saved title (#854): a movie whose Best match is ready.
+ * Null when it isn't ready; empty when it is but the stream's quality isn't known.
+ */
+internal fun libraryEntryReadyLabels(entry: LibraryEntry, readyLabels: Map<String, List<String>>): List<String>? =
+    if (entry.type.equals("movie", ignoreCase = true)) readyLabels[entry.bestMatchKey()] else null
+
+/** The same for an In progress or History card: the video its saved progress resumes. */
+internal fun libraryActivityReadyLabels(item: LibraryActivityItem, readyLabels: Map<String, List<String>>): List<String>? =
+    item.resume?.let { readyLabels[com.fetch.tv.data.local.BestMatchCacheDataStore.contentKey(it.contentType, it.videoId)] }
+
+/** The chip's text: the picture and HDR labels ("4K DV"), else [fallback] ("Ready"). */
+internal fun libraryReadyChipText(labels: List<String>, fallback: String): String =
+    labels.take(READY_CHIP_MAX_LABELS).joinToString(" ").ifBlank { fallback }
+
+private const val READY_CHIP_MAX_LABELS = 2
+
+/**
+ * Whether the Library is still waiting for [source]'s first answer (#846): it is syncing with
+ * nothing to show yet, and has never answered. Once it has (a finished sync, or any titles),
+ * [source] joins [answered] and an empty library is shown as empty.
+ */
+internal fun libraryFirstLoadPending(
+    isSyncing: Boolean,
+    isEmpty: Boolean,
+    source: Pair<Int, LibrarySourceMode>,
+    answered: MutableSet<Pair<Int, LibrarySourceMode>>,
+    /** Sources seen syncing: an idle, empty source that hasn't synced yet hasn't answered. */
+    synced: MutableSet<Pair<Int, LibrarySourceMode>> = mutableSetOf()
+): Boolean {
+    if (isSyncing) synced += source
+    if (!isEmpty || (!isSyncing && source in synced)) answered += source
+    return isSyncing && isEmpty && source !in answered
+}
+
 /** Whether [entry] starts at once: a movie whose Best match is in [readyKeys]. */
 internal fun libraryEntryReady(entry: LibraryEntry, readyKeys: Set<String>): Boolean =
     entry.type.equals("movie", ignoreCase = true) &&
@@ -186,6 +232,8 @@ data class LibraryUiState(
     val watchedSeriesIds: Set<String> = emptySet(),
     // Best match keys that are ready right now, for the Ready to play filter.
     val readyBestMatchKeys: Set<String> = emptySet(),
+    /** The ready picks' quality labels ("4K", "DV", ...), by the same keys, for the cards' chip (#854). */
+    val readyBestMatchLabels: Map<String, List<String>> = emptyMap(),
     val isTrackingAuthenticated: Boolean = false,
     val posterCardWidthDp: Int = 126,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
@@ -196,6 +244,8 @@ data class LibraryUiState(
     // An error banner stays until it has been up long enough to read and the user presses a key.
     val transientMessageIsError: Boolean = false,
     val transientMessageDismissible: Boolean = false,
+    /** The last sync with the tracking service failed: an empty grid shows Retry (#850). */
+    val refreshFailed: Boolean = false,
     val listManagement: TrackingListManagementCapabilities? = null,
     val showManageDialog: Boolean = false,
     val manageSelectedListKey: String? = null,
@@ -288,6 +338,26 @@ class LibraryViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /**
+     * Saved watch progress (0..1) by content id, for the bar along a card's bottom edge on every
+     * tab (#854): a series takes its latest episode's. Collected only while the grid shows.
+     */
+    val progressByContentId: StateFlow<Map<String, Float>> =
+        flow { emitAll(watchProgressRepository.continueWatching) }
+            .map(::libraryProgressByContentId)
+            .distinctUntilChanged()
+            .flowOn(kotlinx.coroutines.Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    /**
+     * Whether Play/Pause on a card may start it without its detail page (#856): not on a kids
+     * profile or one with parental limits, as on Home (#812).
+     */
+    val quickPlayAllowed: StateFlow<Boolean> = parentalControls.activeRestrictions
+        .map { !it.isKidsProfile && !it.isRestricted }
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    /**
      * Shows with a new episode or season out, by content id, for the cards' corner badge: Home's
      * Next up snapshot, re-read whenever Home writes it. Collected only while the grid shows.
      */
@@ -358,6 +428,13 @@ class LibraryViewModel @Inject constructor(
         if (result.failed > 0) setError(message) else setTransientMessage(message)
     }
 
+    /**
+     * Profile and source pairs that have given their first answer (#846): after that an empty
+     * library is the empty state, and a sync shows only on the Sync button.
+     */
+    private val answeredSources = mutableSetOf<Pair<Int, LibrarySourceMode>>()
+    private val syncedSources = mutableSetOf<Pair<Int, LibrarySourceMode>>()
+
     private class ListManagementContext(val profileId: Int, val source: LibrarySourceMode)
     private var listManagementContext: ListManagementContext? = null
     private var messageClearJob: Job? = null
@@ -371,6 +448,8 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             profileManager.activeProfileId.collect { profileId ->
                 if (selectedSortOverride?.first != profileId) selectedSortOverride = null
+                // A failed refresh belongs to the profile it failed on.
+                _uiState.update { it.copy(refreshFailed = false) }
                 onCloseManageLists()
             }
         }
@@ -398,11 +477,14 @@ class LibraryViewModel @Inject constructor(
             // The clock is read here rather than taken from the tick: a pick saved after the last
             // tick would otherwise look like it was saved in the future, and not count as ready.
             combine(bestMatchCacheDataStore.entries, ticks) { entries, _ ->
-                readyBestMatchKeys(entries, System.currentTimeMillis())
+                val keys = readyBestMatchKeys(entries, System.currentTimeMillis())
+                entries.filterKeys { it in keys }.mapValues { it.value.labels }
             }
                 .distinctUntilChanged()
-                .collect { keys ->
-                    _uiState.update { current -> current.copy(readyBestMatchKeys = keys).withVisibleItems() }
+                .collect { labels ->
+                    _uiState.update { current ->
+                        current.copy(readyBestMatchKeys = labels.keys, readyBestMatchLabels = labels).withVisibleItems()
+                    }
                 }
         }
         viewModelScope.launch {
@@ -434,8 +516,24 @@ class LibraryViewModel @Inject constructor(
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
             // Marked only once done, so a prefetch cancelled by the next focus is retried.
             metaPrefetchedIds.add(id)
+            // The hero band re-reads the cache now it has the title's full meta (#852).
+            _metaCacheVersion.update { it + 1 }
         }
     }
+
+    private val _metaCacheVersion = MutableStateFlow(0)
+
+    /** Goes up each time a focus prefetch lands, so the hero band can fill in what it now has. */
+    val metaCacheVersion: StateFlow<Int> = _metaCacheVersion.asStateFlow()
+
+    /** The full meta of a title, when a prefetch or the detail page has cached it. */
+    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? =
+        metaRepository.getCachedMeta(type, id)
+
+    /** The Layout setting for the hero band over the grid (#852). */
+    val heroEnabled: StateFlow<Boolean> = layoutPreferenceDataStore.browseHeroEnabled
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     fun getCachedBackdrop(id: String, type: String): String? {
         return metaRepository.getCachedMeta(type, id)?.backdropUrl
@@ -582,10 +680,12 @@ class LibraryViewModel @Inject constructor(
         if (_uiState.value.isSyncing) return
         viewModelScope.launch {
             setTransientMessage(context.getString(R.string.library_syncing_library))
+            _uiState.update { it.copy(refreshFailed = false) }
             runCatching {
                 libraryRepository.refreshNow()
                 setTransientMessage(context.getString(R.string.library_synced))
             }.onFailure {
+                _uiState.update { it.copy(refreshFailed = true) }
                 setError(context.getString(R.string.library_error_refresh_failed))
             }
         }
@@ -839,7 +939,15 @@ class LibraryViewModel @Inject constructor(
                         manageSelectedListKey = nextManageSelected,
                         isTrackingAuthenticated = isTrackingAuthenticated,
                         isSyncing = isSyncing,
-                        isLoading = isSyncing && items.isEmpty()
+                        isLoading = libraryFirstLoadPending(
+                            isSyncing = isSyncing,
+                            isEmpty = items.isEmpty(),
+                            source = profileManager.activeProfileId.value to sourceMode,
+                            answered = answeredSources,
+                            synced = syncedSources
+                        ),
+                        // A failed refresh belongs to the source it failed on.
+                        refreshFailed = current.refreshFailed && current.sourceMode == sourceMode
                     )
                     updated.withVisibleItems()
                 }

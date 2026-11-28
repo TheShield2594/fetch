@@ -1,6 +1,10 @@
 package com.fetch.tv.ui.screens.search
 
 import com.fetch.tv.ui.components.focusSafeHorizontalScroll
+import com.fetch.tv.ui.components.browseGridItemMotion
+import com.fetch.tv.ui.components.browseGridFastScroll
+import com.fetch.tv.ui.components.restoreBrowseFocus
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.components.FetchMediaCard
 import com.fetch.tv.ui.components.focusRequesterFor
@@ -79,10 +83,15 @@ private const val DISCOVER_PREFETCH_DISTANCE = 12
 @Composable
 internal fun DiscoverSection(
     uiState: SearchUiState,
-    posterCardStyle: PosterCardStyle,
     modifier: Modifier = Modifier,
     watchedMovieIds: Set<String> = emptySet(),
     watchedSeriesIds: Set<String> = emptySet(),
+    /** Saved progress by content id, drawn along the cards' bottom edge (#854). */
+    progressByContentId: Map<String, Float> = emptyMap(),
+    /** The hero band over the grid (#852): the Layout setting, and the cache it fills in from. */
+    heroEnabled: Boolean = false,
+    heroMetaVersion: Int = 0,
+    cachedMeta: (id: String, type: String) -> com.fetch.tv.domain.model.Meta? = { _, _ -> null },
     focusResults: Boolean,
     showBuiltInHeader: Boolean = true,
     firstItemFocusRequester: FocusRequester,
@@ -103,6 +112,14 @@ internal fun DiscoverSection(
     onSelectMinRating: (Int?) -> Unit,
     onSelectSort: (DiscoverSort) -> Unit,
     onClearFilters: () -> Unit,
+    /** Hide watched, Include unrated and the Reset chip (#857). */
+    onToggleHideWatched: () -> Unit = {},
+    onToggleIncludeUnrated: () -> Unit = {},
+    onResetFilters: () -> Unit = {},
+    /** Ids of saved titles, for the cards' bookmark (#857). */
+    libraryIds: Set<String> = emptySet(),
+    /** Play/Pause on a card starts it (#857, as Home's #812); null where that isn't allowed. */
+    onItemPlay: ((MetaPreview) -> Unit)? = null,
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
@@ -117,10 +134,17 @@ internal fun DiscoverSection(
 
     var openFilter by remember { mutableStateOf<DiscoverFilterKind?>(null) }
     val typeFocusRequester = remember { FocusRequester() }
-    var gridHasFocus by remember { mutableStateOf(false) }
-
-    androidx.activity.compose.BackHandler(enabled = gridHasFocus && openFilter == null) {
-        runCatching { typeFocusRequester.requestFocus() }
+    val gridState = rememberLazyGridState()
+    // The grid leaves composition while new results load, and its own filter-change check starts
+    // afresh with it, so the section, which stays, sends a changed type, genre or filter set back
+    // to the top. Coming back from a title changes none of them, so the grid keeps its place.
+    val resultScope = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverGenre}|${uiState.discoverFilters}"
+    var shownResultScope by remember { mutableStateOf(resultScope) }
+    LaunchedEffect(resultScope) {
+        if (resultScope == shownResultScope) return@LaunchedEffect
+        shownResultScope = resultScope
+        // Waits for the next grid's first layout when the grid isn't there yet.
+        com.fetch.tv.core.util.runSuspendCatching { gridState.scrollToItem(0) }
     }
 
     // Focus comes back to a title by its key, not its position: a re-sort, a new page, a title
@@ -153,94 +177,160 @@ internal fun DiscoverSection(
         if (typeFocusRequester.requestFocusAfterFrames(frames = 1)) onInitialFocusHandled()
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = FetchTheme.spacing.screen.horizontal),
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
-    ) {
-        Text(
-            text = stringResource(R.string.discover_title),
-            style = MaterialTheme.typography.headlineMedium,
-            color = if (showBuiltInHeader) FetchTheme.colors.TextPrimary else Color.Transparent
-        )
+    // "120 titles · 7 catalogs"; a sort orders the titles loaded, not the whole catalog, so it
+    // says how many it covers (#843, #850).
+    val summary = if (uiState.discoverSourceCount > 0 && results.isNotEmpty()) {
+        val sourceLine = pluralStringResource(R.plurals.library_title_count, results.size, results.size) + " · " +
+            pluralStringResource(R.plurals.discover_source_count, uiState.discoverSourceCount, uiState.discoverSourceCount)
+        if (filters.sorted && uiState.discoverSortedTitleCount > 0) {
+            stringResource(
+                R.string.discover_summary_sorted,
+                sourceLine,
+                pluralStringResource(
+                    R.plurals.discover_sort_coverage,
+                    uiState.discoverSortedTitleCount,
+                    uiState.discoverSortedTitleCount
+                )
+            )
+        } else {
+            sourceLine
+        }
+    } else {
+        null
+    }
+    val collapsed = com.fetch.tv.ui.components.rememberBrowseHeaderCollapsed(gridState)
 
-        if (types.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusSafeHorizontalScroll(),
-                horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+    // The hero band (#852): the focused title, else the first, filled in from the cached meta once
+    // the focus prefetch lands. Off in Layout and on low-RAM devices.
+    val heroAllowed = heroEnabled && !FetchTheme.lowRamDevice
+    val heroItem = remember(heroAllowed, results, focusedItemIndex) {
+        if (!heroAllowed) null else results.getOrNull(focusedItemIndex) ?: results.firstOrNull()
+    }
+    val heroTypeLabel = heroItem?.let { localizedContentType(localContext, it.apiType) }
+    val heroCandidate = remember(heroItem, heroMetaVersion, heroTypeLabel) {
+        heroItem?.let { com.fetch.tv.ui.components.hero.browseHeroPreview(it, cachedMeta(it.id, it.apiType), heroTypeLabel) }
+    }
+    val heroTarget = com.fetch.tv.ui.components.hero.rememberBrowseHeroTarget(heroCandidate)
+    val showHero = heroAllowed && heroItem != null && heroTarget != null
+
+    com.fetch.tv.ui.components.BrowseScaffold(
+        title = if (showBuiltInHeader) stringResource(R.string.discover_title) else null,
+        collapsed = collapsed,
+        modifier = modifier,
+        layoutKey = uiState.selectedDiscoverType,
+        heroBackdrop = heroTarget?.backdrop,
+        heroPoster = heroTarget?.poster,
+        hero = if (showHero) {
+            @Composable { com.fetch.tv.ui.components.hero.BrowseHeroTitle(heroTarget) }
+        } else {
+            null
+        },
+        tabs = if (types.isNotEmpty()) {
+            @Composable {
                 types.forEach { type ->
-                    val isSelected = type == uiState.selectedDiscoverType
-                    FetchChip(
+                    com.fetch.tv.ui.components.BrowseTab(
                         label = localizedContentType(localContext, type),
-                        selected = isSelected,
+                        selected = type == uiState.selectedDiscoverType,
+                        selectedFocusRequester = typeFocusRequester,
                         focusEnabled = !blockFilterFocus,
                         onClick = {
                             openFilter = null
                             onSelectType(type)
-                        },
-                        modifier = if (isSelected) Modifier.focusRequester(typeFocusRequester) else Modifier
+                        }
                     )
                 }
-
-                Box(
+            }
+        } else {
+            null
+        },
+        filters = if (types.isNotEmpty()) {
+            @Composable {
+                Row(
                     modifier = Modifier
-                        .padding(horizontal = FetchTheme.spacing.xs)
-                        .width(FetchTheme.spacing.hairline)
-                        .height(FetchTheme.spacing.xl)
-                        .background(FetchTheme.colors.Border)
-                )
-
-                DiscoverFilterChips(
-                    genres = genres,
-                    selectedGenre = uiState.selectedDiscoverGenre,
-                    filters = filters,
-                    openFilter = openFilter,
-                    onOpenFilterChange = { openFilter = it },
-                    onSelectGenre = onSelectGenre,
-                    onSelectYearRange = onSelectYearRange,
-                    onSelectMinRating = onSelectMinRating,
-                    onSelectSort = onSelectSort,
-                    focusEnabled = !blockFilterFocus
-                )
-            }
-        }
-
-        if (uiState.discoverSourceCount > 0 && uiState.discoverResults.isNotEmpty()) {
-            val sourceLine = pluralStringResource(
-                R.plurals.discover_source_count,
-                uiState.discoverSourceCount,
-                uiState.discoverSourceCount
-            )
-            // A sort orders the titles loaded, not the whole catalog, so say how many it covers.
-            val summary = if (filters.sorted && uiState.discoverSortedTitleCount > 0) {
-                stringResource(
-                    R.string.discover_summary_sorted,
-                    sourceLine,
-                    pluralStringResource(
-                        R.plurals.discover_sort_coverage,
-                        uiState.discoverSortedTitleCount,
-                        uiState.discoverSortedTitleCount
+                        .fillMaxWidth()
+                        .focusSafeHorizontalScroll(),
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // One way back to Discover's defaults, there only when something is set; first, so it
+                    // stays in view however long the row gets (#857).
+                    if (filters.anySet || uiState.selectedDiscoverGenre != null) {
+                        com.fetch.tv.ui.components.FetchChip(
+                            label = stringResource(R.string.discover_reset_filters),
+                            selected = false,
+                            focusEnabled = !blockFilterFocus,
+                            onClick = {
+                                openFilter = null
+                                onResetFilters()
+                            }
+                        )
+                    }
+                    DiscoverFilterChips(
+                        genres = genres,
+                        selectedGenre = uiState.selectedDiscoverGenre,
+                        filters = filters,
+                        openFilter = openFilter,
+                        onOpenFilterChange = { openFilter = it },
+                        onSelectGenre = onSelectGenre,
+                        onSelectYearRange = onSelectYearRange,
+                        onSelectMinRating = onSelectMinRating,
+                        onSelectSort = onSelectSort,
+                        focusEnabled = !blockFilterFocus
                     )
-                )
-            } else {
-                sourceLine
+                    // Beside the rating once one is set: keep titles that have no rating (#857).
+                    if (filters.minRating != null) {
+                        com.fetch.tv.ui.components.FetchChip(
+                            label = stringResource(R.string.discover_include_unrated),
+                            selected = filters.includeUnrated,
+                            focusEnabled = !blockFilterFocus,
+                            onClick = {
+                                openFilter = null
+                                onToggleIncludeUnrated()
+                            }
+                        )
+                    }
+                    com.fetch.tv.ui.components.FetchChip(
+                        label = stringResource(R.string.catalog_see_all_hide_watched),
+                        selected = filters.hideWatched,
+                        focusEnabled = !blockFilterFocus,
+                        onClick = {
+                            openFilter = null
+                            onToggleHideWatched()
+                        }
+                    )
+                }
             }
-            Text(
-                text = summary,
-                style = MaterialTheme.typography.bodySmall,
-                color = FetchTheme.colors.TextSecondary
-            )
-        }
-
+        } else {
+            null
+        },
+        summary = summary
+    ) { gridViewport ->
+        val posterCardStyle = com.fetch.tv.ui.components.rememberBrowseCardStyle(
+            preferredWidthDp = uiState.posterCardWidthDp,
+            cornerRadiusDp = uiState.posterCardCornerRadiusDp,
+            gridViewport = gridViewport
+        )
+        // States other than the grid sit inside the screen's side margins, as the grid's cards do.
+        val stateModifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
+        // The first page fades in over where the skeleton was (#853), but coming back from a
+        // title the grid is simply there.
+        var sawSkeleton by remember { mutableStateOf(false) }
+        val showingSkeleton = uiState.discoverResults.isEmpty() && (uiState.discoverLoading || uiState.discoverLoadingMore)
+        LaunchedEffect(showingSkeleton) { if (showingSkeleton) sawSkeleton = true }
         when {
             uiState.discoverResults.isNotEmpty() -> {
-                Box(modifier = Modifier.onFocusChanged { gridHasFocus = it.hasFocus }) {
+                val fadeIn = sawSkeleton
+                LaunchedEffect(Unit) { sawSkeleton = false }
+                Box {
                     DiscoverGrid(
+                        gridState = gridState,
+                        // The browse Back ladder ends on the selected type tab (#850).
+                        onFocusHeader = { typeFocusRequester.requestFocusAfterFrames(frames = 0) },
+                        backEnabled = openFilter == null,
+                        fadeInOnEnter = fadeIn,
+                        progressByContentId = progressByContentId,
+                        libraryIds = libraryIds,
+                        onItemPlay = onItemPlay,
                         items = uiState.discoverResults,
                         posterCardStyle = posterCardStyle,
                         watchedMovieIds = watchedMovieIds,
@@ -272,7 +362,7 @@ internal fun DiscoverSection(
                 // The grid's own shape while it loads (a sorted batch takes a few pages), so the
                 // screen doesn't change shape when the titles arrive (#843, #848).
                 PosterGridSkeleton(
-                    modifier = Modifier.padding(top = FetchTheme.spacing.xs),
+                    modifier = stateModifier.padding(top = com.fetch.tv.ui.components.BrowseDefaults.gridTopPadding),
                     cardWidth = posterCardStyle.width,
                     cardHeight = posterCardStyle.height
                 )
@@ -282,13 +372,19 @@ internal fun DiscoverSection(
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_no_catalogs_title),
                     subtitle = stringResource(R.string.discover_empty_no_catalogs_subtitle),
-                    icon = Icons.Default.Search
+                    icon = Icons.Default.Search,
+                    height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
+                    modifier = stateModifier
                 )
             }
 
             uiState.discoverError != null -> {
                 // A failed load isn't "No content found": say what went wrong and offer Retry.
-                ErrorState(message = uiState.discoverError, onRetry = onRetry)
+                ErrorState(
+                    message = uiState.discoverError,
+                    onRetry = onRetry,
+                    modifier = stateModifier.height(com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight)
+                )
             }
 
             uiState.discoverInitialized && uiState.discoverHasMore && uiState.discoverSourceCount > 0 -> {
@@ -298,7 +394,9 @@ internal fun DiscoverSection(
                     title = stringResource(R.string.discover_empty_hidden_title),
                     subtitle = stringResource(R.string.discover_empty_hidden_subtitle),
                     icon = Icons.Default.Search,
-                    action = StateAction(stringResource(R.string.discover_load_more), onLoadMore)
+                    action = StateAction(stringResource(R.string.discover_load_more), onLoadMore),
+                    height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
+                    modifier = stateModifier
                 )
             }
 
@@ -307,7 +405,9 @@ internal fun DiscoverSection(
                     title = stringResource(R.string.discover_empty_filtered_title),
                     subtitle = stringResource(R.string.discover_empty_filtered_subtitle),
                     icon = Icons.Default.Search,
-                    action = StateAction(stringResource(R.string.discover_clear_filters), onClearFilters)
+                    action = StateAction(stringResource(R.string.discover_clear_filters), onClearFilters),
+                    height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
+                    modifier = stateModifier
                 )
             }
 
@@ -315,7 +415,9 @@ internal fun DiscoverSection(
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_no_content_title),
                     subtitle = stringResource(R.string.discover_empty_no_content_subtitle),
-                    icon = Icons.Default.Search
+                    icon = Icons.Default.Search,
+                    height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
+                    modifier = stateModifier
                 )
             }
         }
@@ -366,10 +468,24 @@ internal fun DiscoverGrid(
     onLoadMore: () -> Unit,
     onItemClick: (Int, MetaPreview) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
-    filterKey: String = ""
+    filterKey: String = "",
+    libraryIds: Set<String> = emptySet(),
+    onItemPlay: ((MetaPreview) -> Unit)? = null,
+    progressByContentId: Map<String, Float> = emptyMap(),
+    /** Fade the grid in as it first shows, in place of the loading skeleton (#853). */
+    fadeInOnEnter: Boolean = false,
+    /** The section's grid state, so its header folds as the grid scrolls (#850). */
+    gridState: androidx.compose.foundation.lazy.grid.LazyGridState = rememberLazyGridState(),
+    /** The last step of the Back ladder: focus the header's tab row (#850). */
+    onFocusHeader: suspend () -> Unit = {},
+    /** False while a filter panel owns Back. */
+    backEnabled: Boolean = true
 ) {
     val restoreFocusRequester = remember { FocusRequester() }
-    val gridState = rememberLazyGridState()
+    // A new type or filter crossfades the grid's content in, the chips staying still (#853).
+    val fadeContent = FetchTheme.fullMotion && !FetchTheme.lowRamDevice
+    val contentAlpha = remember { androidx.compose.animation.core.Animatable(if (fadeContent && fadeInOnEnter) 0f else 1f) }
+    LaunchedEffect(Unit) { contentAlpha.animateTo(1f, com.fetch.tv.ui.theme.FetchMotion.enterTween()) }
     var pendingFocusOnNewItemIndex by remember { mutableStateOf<Int?>(null) }
 
     // Scroll to top only when the filter combination actually changes (not on initial composition / back navigation).
@@ -378,6 +494,10 @@ internal fun DiscoverGrid(
         if (filterKey != previousFilterKey) {
             gridState.scrollToItem(0, 0)
             previousFilterKey = filterKey
+            if (fadeContent) {
+                contentAlpha.snapTo(0f)
+                contentAlpha.animateTo(1f, com.fetch.tv.ui.theme.FetchMotion.enterTween())
+            }
         }
     }
     var localRestoreFocusedItemIndex by remember { mutableIntStateOf(-1) }
@@ -404,11 +524,8 @@ internal fun DiscoverGrid(
         val target = effectiveFocusedItemIndex
         if (target in 0 until totalCells) {
             // A card far down the grid may not be composed yet (a long scroll, or a grid rebuilt
-            // after the app was stopped), and focus can only go to a composed card.
-            if (gridState.layoutInfo.visibleItemsInfo.none { it.index == target }) {
-                runCatching { gridState.scrollToItem(target) }
-            }
-            restoreFocusRequester.requestFocusAfterFrames(frames = 1)
+            // after the app was stopped): the browse screens' one restore step scrolls it in (#850).
+            gridState.restoreBrowseFocus(target, restoreFocusRequester)
         }
         if (localShouldRestoreFocusedItem) {
             localShouldRestoreFocusedItem = false
@@ -456,29 +573,24 @@ internal fun DiscoverGrid(
         }
     }
 
-    // Back deep in the grid returns to its first card; only Back from the top rows goes on to the
-    // filters (the section's own handler), so one press never throws away a long scroll.
+    // The browse Back ladder (#850): deep in the grid, back to its first card; from the top rows,
+    // to the type tabs; then Discover leaves.
     var gridHasFocus by remember { mutableStateOf(false) }
-    val scrolledPastTop by remember { derivedStateOf { gridState.firstVisibleItemIndex > 0 } }
-    val backScope = rememberCoroutineScope()
-    androidx.activity.compose.BackHandler(enabled = gridHasFocus && scrolledPastTop) {
-        backScope.launch {
-            gridState.scrollToItem(0)
+    com.fetch.tv.ui.components.BrowseBackHandler(
+        gridState = gridState,
+        gridHasFocus = gridHasFocus,
+        enabled = backEnabled,
+        onFocusFirstCard = {
             val firstCard = when {
                 effectiveShouldRestoreFocusedItem && effectiveFocusedItemIndex == 0 -> restoreFocusRequester
                 focusResults -> firstItemFocusRequester
                 else -> itemFocusRequesters.focusRequesterFor(0)
             }
             firstCard.requestFocusAfterFrames()
-        }
-    }
-
-    // Column the user was navigating in at the moment fast-scroll engaged.
-    // Captured on drag-start (see onFastScrollingChanged below) because the
-    // originally-focused card will have scrolled out of visibleItemsInfo by
-    // the time landing runs — looking it up at landing time is unreliable
-    // and was causing focus to jump to a different column after long drags.
-    var fastScrollStartColumn by remember { mutableStateOf<Int?>(null) }
+        },
+        onFocusHeader = onFocusHeader
+    )
+    val itemIndexByKey = remember(items) { items.withIndex().associate { (index, item) -> discoverItemKey(item) to index } }
 
     LazyVerticalGrid(
         state = gridState,
@@ -486,57 +598,18 @@ internal fun DiscoverGrid(
             minSize = if (globalLandscape) posterCardStyle.height else posterCardStyle.width
         ),
         modifier = Modifier.fillMaxSize()
+            .graphicsLayer { alpha = contentAlpha.value }
             .onFocusChanged { gridHasFocus = it.hasFocus }
             .focusRestorer { focusedItemRequester }
-            .dpadVerticalFastScroll(
-                scrollableState = gridState,
-                onFastScrollingChanged = { active ->
-                    // Only snapshot on drag-start. The modifier fires
-                    // active=false BEFORE it calls resolveVerticalLanding,
-                    // so clearing here would wipe the column right before
-                    // landing reads it. Next drag-start will overwrite.
-                    if (active) {
-                        fastScrollStartColumn = gridState.layoutInfo
-                            .visibleItemsInfo
-                            .firstOrNull { it.index == focusedItemIndex }
-                            ?.column
-                    }
-                },
-                resolveVerticalLanding = { sign ->
-                    // Keep the user on the column they were navigating in
-                    // so fast-scroll feels like a single vertical strip,
-                    // not a teleport to an arbitrary cell in the viewport.
-                    // Exclude the tail (Loading / Load more) cell up front
-                    // — it lives at index == items.size and when items.size
-                    // % columns == 0 it lands at column 0 of a brand-new
-                    // tail row, which would otherwise hijack every column-0
-                    // landing and bounce focus to the last content cell.
-                    val contentVisible = gridState.layoutInfo.visibleItemsInfo
-                        .filter { it.index < items.size }
-                    if (contentVisible.isEmpty()) {
-                        null
-                    } else {
-                        val col = fastScrollStartColumn
-                        val sameColumn = if (col != null) {
-                            contentVisible.filter { it.column == col }
-                        } else {
-                            emptyList()
-                        }
-                        val target = when {
-                            sameColumn.isNotEmpty() && sign > 0 -> sameColumn.last()
-                            sameColumn.isNotEmpty() && sign < 0 -> sameColumn.first()
-                            sign > 0 -> contentVisible.last()
-                            else -> contentVisible.first()
-                        }
-                        val requester = itemFocusRequesters[target.index]
-                        runCatching { requester?.requestFocus() }
-                        null // Discover uses imperative requestFocus for now
-                    }
-                }
+            // Held Up / Down: the browse screens' one fast scroll, landing in the same column (#850).
+            .browseGridFastScroll(
+                gridState = gridState,
+                focusedKey = { items.getOrNull(focusedItemIndex)?.let(::discoverItemKey) },
+                requesterFor = { key -> itemIndexByKey[key]?.let { itemFocusRequesters[it] } }
             ),
-        contentPadding = PaddingValues(bottom = FetchTheme.spacing.xxl),
-        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md),
-        verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
+        contentPadding = com.fetch.tv.ui.components.BrowseDefaults.gridPadding(),
+        horizontalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.columnGap),
+        verticalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.rowGap)
     ) {
         itemsIndexed(
             items = items,
@@ -560,10 +633,13 @@ internal fun DiscoverGrid(
                     val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
-                // Headroom so the focused card's scale isn't clipped by the grid's top edge. No
-                // width here: the card sizes itself (landscape cards are wider than posters), as
-                // in the Library and See all (#842).
-                modifier = Modifier.padding(top = FetchTheme.spacing.xs),
+                // No width here: the card sizes itself (landscape cards are wider than posters), as
+                // in the Library and See all (#842). The grid's top padding gives the focused
+                // card room to grow (#850).
+                modifier = browseGridItemMotion(),
+                progress = progressByContentId[item.id],
+                inLibrary = isLibraryItem(item, libraryIds),
+                onPlay = onItemPlay?.let { play -> { play(item) } },
                 focusRequester = focusReq,
                 onFocused = {
                     onItemFocused(index)
@@ -584,7 +660,6 @@ internal fun DiscoverGrid(
                 DiscoverActionCard(
                     actionType = actionType,
                     posterCardStyle = posterCardStyle,
-                    modifier = Modifier.padding(top = FetchTheme.spacing.xs),
                     focusRequester = focusReq,
                     onFocused = {
                         onItemFocused(actionIndex)

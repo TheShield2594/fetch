@@ -93,6 +93,12 @@ internal fun LayoutHomeContentSection(
         onToggle = { onEvent(LayoutSettingsEvent.SetPosterLabelsEnabled(!uiState.posterLabelsEnabled)) }
     )
     SettingsToggleRow(
+        title = stringResource(R.string.layout_browse_hero),
+        subtitle = stringResource(R.string.layout_browse_hero_sub),
+        checked = uiState.browseHeroEnabled,
+        onToggle = { onEvent(LayoutSettingsEvent.SetBrowseHeroEnabled(!uiState.browseHeroEnabled)) }
+    )
+    SettingsToggleRow(
         title = stringResource(R.string.layout_addon_name),
         subtitle = stringResource(R.string.layout_addon_name_sub),
         checked = uiState.catalogAddonNameEnabled,

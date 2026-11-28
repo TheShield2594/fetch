@@ -22,4 +22,17 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Nog niets bekeken</string>
     <string name="library_history_empty_subtitle">Wat je afkijkt, en wat je trackingservice als bekeken markeert, verschijnt hier per maand.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Andere pagina’s</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titel</item>
+        <item quantity="other">%1$d titels</item>
+    </plurals>
+    <string name="library_card_ready">Klaar</string>
+    <string name="layout_browse_hero">Uitgelicht in Ontdekken en Bibliotheek</string>
+    <string name="layout_browse_hero_sub">Toont de afbeelding, het logo en de details van de geselecteerde titel boven het raster.</string>
+    <string name="card_state_saved">Opgeslagen</string>
+    <string name="discover_include_unrated">Zonder beoordeling meenemen</string>
+    <string name="discover_reset_filters">Herstellen</string>
 </resources>

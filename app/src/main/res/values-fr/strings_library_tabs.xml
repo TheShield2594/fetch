@@ -22,4 +22,18 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Aucun visionnage pour le moment</string>
     <string name="library_history_empty_subtitle">Ce que vous terminez, et ce que votre service de suivi marque comme vu, apparaît ici par mois.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Autres pages</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titre</item>
+        <item quantity="many">%1$d de titres</item>
+        <item quantity="other">%1$d titres</item>
+    </plurals>
+    <string name="library_card_ready">Prêt</string>
+    <string name="layout_browse_hero">Bandeau dans Découvrir et Bibliothèque</string>
+    <string name="layout_browse_hero_sub">Affiche l’image, le logo et les détails du titre sélectionné au-dessus de la grille.</string>
+    <string name="card_state_saved">Enregistré</string>
+    <string name="discover_include_unrated">Inclure les titres non notés</string>
+    <string name="discover_reset_filters">Réinitialiser</string>
 </resources>

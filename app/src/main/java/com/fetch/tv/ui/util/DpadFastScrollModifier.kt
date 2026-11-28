@@ -2,6 +2,7 @@ package com.fetch.tv.ui.util
 
 import android.view.KeyEvent
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -101,6 +102,9 @@ fun Modifier.dpadVerticalFastScroll(
 ): Modifier = composed {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    // The scroll job and the safety timer end the drag from closures made when they started; read
+    // the landing through the latest resolver, whose focus requesters match the cards on screen now.
+    val latestResolveVerticalLanding by androidx.compose.runtime.rememberUpdatedState(resolveVerticalLanding)
 
     // Plain atomics instead of mutableState — nothing in the UI observes
     // these directly. The only observable piece of state is the
@@ -141,7 +145,7 @@ fun Modifier.dpadVerticalFastScroll(
             if (mode == FastScrollMode.Vertical) {
                 // Landing now happens via state updates in resolveVerticalLanding,
                 // which should trigger self-claiming focus in the items.
-                resolveVerticalLanding(if (direction == 0) 1 else direction)
+                latestResolveVerticalLanding(if (direction == 0) 1 else direction)
             }
         }
 

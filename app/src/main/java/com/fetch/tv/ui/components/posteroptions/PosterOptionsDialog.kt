@@ -64,7 +64,9 @@ fun PosterOptionsDialog(
     /** "Not interested" (#650); null where the menu isn't on a suggestion (library, lists). */
     onNotInterested: (() -> Unit)? = null,
     /** Further entries after the built-in ones, such as the parental one. */
-    extraActions: @Composable () -> Unit = {}
+    extraActions: @Composable () -> Unit = {},
+    /** Puts Add to / Remove from library first and focused, for screens that browse new titles (#857). */
+    libraryActionFirst: Boolean = false
 ) {
     val primaryFocusRequester = remember { FocusRequester() }
 
@@ -78,39 +80,51 @@ fun PosterOptionsDialog(
         subtitle = stringResource(R.string.home_poster_dialog_subtitle),
         scrollable = true
     ) {
-        Button(
-            onClick = onDetails,
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(primaryFocusRequester),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
-        ) {
-            Text(stringResource(R.string.cw_action_go_to_details))
+        val detailsButton: @Composable () -> Unit = {
+            Button(
+                onClick = onDetails,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(if (libraryActionFirst) Modifier else Modifier.focusRequester(primaryFocusRequester)),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(stringResource(R.string.cw_action_go_to_details))
+            }
         }
-
-        Button(
-            onClick = onToggleLibrary,
-            enabled = !isLibraryPending,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.colors(
-                containerColor = FetchTheme.colors.BackgroundCard,
-                contentColor = FetchTheme.colors.TextPrimary
-            )
-        ) {
-            Text(
-                if (showManageLists) {
-                    stringResource(R.string.library_manage_lists)
-                } else {
-                    if (isInLibrary) {
-                        stringResource(R.string.hero_remove_from_library)
+        val libraryButton: @Composable () -> Unit = {
+            Button(
+                onClick = onToggleLibrary,
+                enabled = !isLibraryPending,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(if (libraryActionFirst) Modifier.focusRequester(primaryFocusRequester) else Modifier),
+                colors = ButtonDefaults.colors(
+                    containerColor = FetchTheme.colors.BackgroundCard,
+                    contentColor = FetchTheme.colors.TextPrimary
+                )
+            ) {
+                Text(
+                    if (showManageLists) {
+                        stringResource(R.string.library_manage_lists)
                     } else {
-                        stringResource(R.string.hero_add_to_library)
+                        if (isInLibrary) {
+                            stringResource(R.string.hero_remove_from_library)
+                        } else {
+                            stringResource(R.string.hero_add_to_library)
+                        }
                     }
-                }
-            )
+                )
+            }
+        }
+        if (libraryActionFirst) {
+            libraryButton()
+            detailsButton()
+        } else {
+            detailsButton()
+            libraryButton()
         }
 
         if (isMovie || isSeries) {
@@ -244,7 +258,9 @@ fun PosterOptionsHost(
      */
     showNotInterested: Boolean = false,
     /** Screen-specific entries (e.g. Home's pin row), shown before the parental one. */
-    extraActions: @Composable (target: com.fetch.tv.domain.model.MetaPreview) -> Unit = {}
+    extraActions: @Composable (target: com.fetch.tv.domain.model.MetaPreview) -> Unit = {},
+    /** See [PosterOptionsDialog]: the library entry first and focused (#857). */
+    libraryActionFirst: Boolean = false
 ) {
     // A write that fails after the menu has closed would otherwise go unnoticed.
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -301,6 +317,7 @@ fun PosterOptionsHost(
                 controller.dismiss()
             },
             onNotInterested = if (showNotInterested) controller::markNotInterested else null,
+            libraryActionFirst = libraryActionFirst,
             extraActions = {
                 extraActions(target)
                 ParentalTitleMenuButton(

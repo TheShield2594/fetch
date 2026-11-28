@@ -22,4 +22,18 @@
     <!-- History tab -->
     <string name="library_history_empty_title">עדיין לא נצפה דבר</string>
     <string name="library_history_empty_subtitle">מה שסיימת, ומה ששירות המעקב שלך סימן כנצפה, מופיע כאן לפי חודשים.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">דפים נוספים</string>
+    <plurals name="library_title_count">
+        <item quantity="one">כותר אחד</item>
+        <item quantity="two">%1$d כותרים</item>
+        <item quantity="other">%1$d כותרים</item>
+    </plurals>
+    <string name="library_card_ready">מוכן</string>
+    <string name="layout_browse_hero">תצוגה מובלטת בגילוי ובספרייה</string>
+    <string name="layout_browse_hero_sub">הצגת התמונה, הלוגו והפרטים של הכותר הנבחר מעל הרשת.</string>
+    <string name="card_state_saved">נשמר</string>
+    <string name="discover_include_unrated">כולל ללא דירוג</string>
+    <string name="discover_reset_filters">איפוס</string>
 </resources>

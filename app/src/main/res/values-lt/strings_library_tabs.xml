@@ -24,4 +24,19 @@
     <string name="library_history_empty_subtitle">Čia pagal mėnesius rodoma tai, ką baigėte žiūrėti, ir tai, ką jūsų stebėjimo paslauga pažymėjo kaip žiūrėtą.</string>
 
     <string name="library_watched_filter_ready">Paruošti paleisti</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Kiti puslapiai</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d pavadinimas</item>
+        <item quantity="few">%1$d pavadinimai</item>
+        <item quantity="many">%1$d pavadinimo</item>
+        <item quantity="other">%1$d pavadinimų</item>
+    </plurals>
+    <string name="library_card_ready">Paruošta</string>
+    <string name="layout_browse_hero">Išskirtinis vaizdas skiltyse Atrasti ir Biblioteka</string>
+    <string name="layout_browse_hero_sub">Rodo pasirinkto pavadinimo vaizdą, logotipą ir informaciją virš tinklelio.</string>
+    <string name="card_state_saved">Išsaugota</string>
+    <string name="discover_include_unrated">Įtraukti neįvertintus</string>
+    <string name="discover_reset_filters">Atstatyti</string>
 </resources>

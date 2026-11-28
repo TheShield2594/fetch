@@ -30,10 +30,18 @@ data class DiscoverFilters(
     val yearRange: DiscoverYearRange? = null,
     /** Lowest IMDb rating kept, or null for any rating (unrated titles included). */
     val minRating: Int? = null,
-    val sort: DiscoverSort = DiscoverSort.CATALOG
+    val sort: DiscoverSort = DiscoverSort.CATALOG,
+    /** Leaves out titles already watched, as See all can (#857). */
+    val hideWatched: Boolean = false,
+    /** With a minimum rating, keeps titles that have no rating at all (#857). */
+    val includeUnrated: Boolean = false
 ) {
     val narrowsResults: Boolean
-        get() = yearRange != null || minRating != null
+        get() = yearRange != null || minRating != null || hideWatched
+
+    /** Anything set away from Discover's defaults, which the Reset chip clears (#857). */
+    val anySet: Boolean
+        get() = narrowsResults || sorted || includeUnrated
 
     /**
      * Whether the grid is re-ordered (Rating, Newest, Title). Sorted grids load and sort a fixed
@@ -66,7 +74,7 @@ internal fun discoverYearRanges(currentYear: Int): List<DiscoverYearRange> {
 }
 
 /** Identity used to merge and de-duplicate titles across catalogs. */
-internal fun discoverItemKey(item: MetaPreview): String = "${item.apiType}:${item.id}"
+internal fun discoverItemKey(item: MetaPreview): String = com.fetch.tv.ui.components.browseItemKey(item.apiType, item.id)
 
 private val YEAR_PATTERN = Regex("""(?<!\d)(1[89]\d{2}|2\d{3})(?!\d)""")
 
@@ -162,7 +170,9 @@ private val titleCollator: Collator = Collator.getInstance(Locale.ROOT).apply {
  */
 internal fun applyDiscoverFilters(
     items: List<MetaPreview>,
-    filters: DiscoverFilters
+    filters: DiscoverFilters,
+    /** Whether a title is watched, for Hide watched (#857). */
+    isWatched: (MetaPreview) -> Boolean = { false }
 ): List<MetaPreview> {
     val yearRange = filters.yearRange
     val minRating = filters.minRating
@@ -171,8 +181,10 @@ internal fun applyDiscoverFilters(
     } else {
         items.filter { item ->
             val yearOk = yearRange == null || item.discoverYear()?.let { it in yearRange } == true
-            val ratingOk = minRating == null || (item.imdbRating ?: -1f) >= minRating
-            yearOk && ratingOk
+            val rating = item.imdbRating
+            val ratingOk = minRating == null || (rating ?: -1f) >= minRating || (filters.includeUnrated && rating == null)
+            val watchedOk = !filters.hideWatched || !isWatched(item)
+            yearOk && ratingOk && watchedOk
         }
     }
     return when (filters.sort) {
@@ -194,11 +206,12 @@ internal fun applyDiscoverFilters(
 internal fun appendDiscoverSortedBatch(
     shown: List<MetaPreview>,
     batch: List<MetaPreview>,
-    filters: DiscoverFilters
+    filters: DiscoverFilters,
+    isWatched: (MetaPreview) -> Boolean = { false }
 ): List<MetaPreview> {
     if (batch.isEmpty()) return shown
     val seen = shown.mapTo(HashSet(shown.size * 2)) { discoverItemKey(it) }
-    val added = applyDiscoverFilters(batch, filters).filter { seen.add(discoverItemKey(it)) }
+    val added = applyDiscoverFilters(batch, filters, isWatched).filter { seen.add(discoverItemKey(it)) }
     return if (added.isEmpty()) shown else shown + added
 }
 
@@ -207,7 +220,9 @@ internal fun DiscoverFilters.toStored(): com.fetch.tv.data.local.StoredDiscoverF
     com.fetch.tv.data.local.StoredDiscoverFilters(
         sort = sort.takeIf { it != DiscoverSort.CATALOG }?.name,
         minRating = minRating,
-        yearRange = yearRange?.let { "${it.from ?: ""}..${it.to ?: ""}" }
+        yearRange = yearRange?.let { "${it.from ?: ""}..${it.to ?: ""}" },
+        hideWatched = hideWatched,
+        includeUnrated = includeUnrated
     )
 
 /** Stored filters back as [DiscoverFilters]; anything unreadable falls back to its default. */
@@ -219,6 +234,8 @@ internal fun com.fetch.tv.data.local.StoredDiscoverFilters.toDiscoverFilters(): 
     return DiscoverFilters(
         yearRange = range,
         minRating = minRating?.takeIf { it in DISCOVER_RATING_THRESHOLDS },
-        sort = DiscoverSort.entries.firstOrNull { it.name == sort } ?: DiscoverSort.CATALOG
+        sort = DiscoverSort.entries.firstOrNull { it.name == sort } ?: DiscoverSort.CATALOG,
+        hideWatched = hideWatched,
+        includeUnrated = includeUnrated
     )
 }

@@ -10,22 +10,24 @@ import java.time.YearMonth
 import java.time.ZoneId
 
 /**
- * The Library's tabs (audit C3), in the order the row shows them. Watchlist and Lists split the
- * connected provider's lists (or this TV's own) in two: its watchlist, and every other list,
- * the profile's lists on this TV shown beside the provider's. In progress and History are this
- * profile's watch activity; Servers is the connected media servers. Upcoming and Stats open their
- * own pages from the same row, so the Library is the one place for "my things".
+ * The Library's tabs (audit C3), in the order the row shows them. With Upcoming and Stats out of
+ * the row (#855) every tab switches the grid, and History stays two presses from Watchlist (C3).
+ * Watchlist and Lists split the connected provider's lists (or this TV's own) in two: its
+ * watchlist, and every other list, the profile's lists on this TV shown beside the provider's. In
+ * progress and History are this profile's watch activity; Servers is the connected media servers.
+ * Upcoming and Stats open their own pages, from icon buttons apart from the tabs, so the Library
+ * is still the one place for "my things".
  */
 enum class LibraryTab {
     WATCHLIST,
     IN_PROGRESS,
     HISTORY,
-    UPCOMING,
     LISTS,
     SERVERS,
+    UPCOMING,
     STATS;
 
-    /** Tabs that open another page instead of switching the grid. */
+    /** Sections that open another page instead of switching the grid; not in the tab row (#855). */
     val opensPage: Boolean get() = this == UPCOMING || this == STATS
 
     /** The lists the tab's grid offers, for the tabs that show the saved-titles grid. */
@@ -51,9 +53,11 @@ data class LibraryActivityItem(
     /** 0..100 for In progress; null on History. */
     val progressPercent: Int? = null,
     /** Landscape art for landscape cards (#848), so they don't crop the portrait poster. */
-    val backdrop: String? = null
+    val backdrop: String? = null,
+    /** In progress: the saved progress OK resumes from, as Continue Watching does (#856). */
+    val resume: WatchProgress? = null
 ) {
-    val key: String get() = "$type:$id"
+    val key: String get() = com.fetch.tv.ui.components.browseItemKey(type, id)
 
     val isSeries: Boolean
         get() = type.equals("series", ignoreCase = true) || type.equals("tv", ignoreCase = true)
@@ -152,6 +156,7 @@ internal fun libraryInProgressItems(
                 at = latest.lastWatched,
                 addonBaseUrl = latest.addonBaseUrl,
                 progressPercent = percent?.toInt()?.coerceIn(0, 100),
+                resume = latest,
                 backdrop = latest.backdrop
                     ?: entries.firstNotNullOfOrNull { it.backdrop }
                     ?: backdropFor(latest.contentId, latest.contentType)

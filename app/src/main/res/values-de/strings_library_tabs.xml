@@ -25,4 +25,17 @@
 
     <!-- Watched filter -->
     <string name="library_watched_filter_ready">Bereit zum Abspielen</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Weitere Seiten</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d Titel</item>
+        <item quantity="other">%1$d Titel</item>
+    </plurals>
+    <string name="library_card_ready">Bereit</string>
+    <string name="layout_browse_hero">Hero in Entdecken und Bibliothek</string>
+    <string name="layout_browse_hero_sub">Zeigt Bild, Logo und Details des ausgewählten Titels über dem Raster.</string>
+    <string name="card_state_saved">Gespeichert</string>
+    <string name="discover_include_unrated">Ohne Bewertung einbeziehen</string>
+    <string name="discover_reset_filters">Zurücksetzen</string>
 </resources>

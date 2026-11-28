@@ -7,6 +7,26 @@
     <string name="library_tab_history">History</string>
     <string name="library_tab_upcoming">Upcoming</string>
     <string name="library_tabs_description">Library sections</string>
+    <!-- Upcoming and Stats open their own pages, so they sit apart from the tabs as icon buttons (#855). -->
+    <string name="library_pages_description">Other pages</string>
+
+    <!-- The summary line beside the tabs (#854). %1$d is how many titles the filters show. -->
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d title</item>
+        <item quantity="other">%1$d titles</item>
+    </plurals>
+    <!-- Layout setting for the art and details over Discover and the Library that follow the focused card (#852). -->
+    <string name="layout_browse_hero">Hero on Discover and Library</string>
+    <string name="layout_browse_hero_sub">Show the focused title’s art, logo and details above the grid.</string>
+
+    <!-- TalkBack state of a card whose title is on the watchlist or a list (#857). -->
+    <string name="card_state_saved">Saved</string>
+    <!-- Discover filter chips (#857): keep unrated titles with a minimum rating, and clear every filter. -->
+    <string name="discover_include_unrated">Include unrated</string>
+    <string name="discover_reset_filters">Reset</string>
+
+    <!-- The corner chip on a card that starts at once; shown when the stream's quality isn't known (#854). -->
+    <string name="library_card_ready">Ready</string>
 
     <!-- Lists tab -->
     <string name="library_lists_empty_title">No lists yet</string>

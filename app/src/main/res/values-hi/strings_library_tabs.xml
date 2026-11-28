@@ -25,4 +25,17 @@
 
     <!-- Library watched filter -->
     <string name="library_watched_filter_ready">चलाने के लिए तैयार</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">अन्य पेज</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d टाइटल</item>
+        <item quantity="other">%1$d टाइटल</item>
+    </plurals>
+    <string name="library_card_ready">तैयार</string>
+    <string name="layout_browse_hero">डिस्कवर और लाइब्रेरी में हीरो</string>
+    <string name="layout_browse_hero_sub">ग्रिड के ऊपर चुने गए टाइटल की तस्वीर, लोगो और जानकारी दिखाएँ।</string>
+    <string name="card_state_saved">सहेजा गया</string>
+    <string name="discover_include_unrated">बिना रेटिंग वाले भी दिखाएँ</string>
+    <string name="discover_reset_filters">रीसेट</string>
 </resources>

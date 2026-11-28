@@ -22,4 +22,17 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Henüz izlenen bir şey yok</string>
     <string name="library_history_empty_subtitle">Bitirdikleriniz ve takip servisinizin izlendi olarak işaretledikleri burada aya göre görünür.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Diğer sayfalar</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d yapım</item>
+        <item quantity="other">%1$d yapım</item>
+    </plurals>
+    <string name="library_card_ready">Hazır</string>
+    <string name="layout_browse_hero">Keşfet ve Kütüphane’de öne çıkan alan</string>
+    <string name="layout_browse_hero_sub">Seçili yapımın görselini, logosunu ve ayrıntılarını ızgaranın üstünde gösterir.</string>
+    <string name="card_state_saved">Kaydedildi</string>
+    <string name="discover_include_unrated">Puansızları da dahil et</string>
+    <string name="discover_reset_filters">Sıfırla</string>
 </resources>

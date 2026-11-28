@@ -22,4 +22,17 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Még nincs megnézett tartalom</string>
     <string name="library_history_empty_subtitle">Itt jelenik meg havonta csoportosítva, amit befejeztél, és amit a követőszolgáltatásod megnézettként jelölt.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Egyéb oldalak</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d cím</item>
+        <item quantity="other">%1$d cím</item>
+    </plurals>
+    <string name="library_card_ready">Kész</string>
+    <string name="layout_browse_hero">Kiemelés a Felfedezésben és a Könyvtárban</string>
+    <string name="layout_browse_hero_sub">A kiválasztott cím képét, logóját és adatait mutatja a rács fölött.</string>
+    <string name="card_state_saved">Mentve</string>
+    <string name="discover_include_unrated">Értékelés nélküliekkel együtt</string>
+    <string name="discover_reset_filters">Visszaállítás</string>
 </resources>

@@ -48,6 +48,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -87,7 +91,7 @@ class SearchViewModel @Inject constructor(
     private var lastMerged = MergedSearchResults()
 
     /** Ids of the titles in the library, for the "In my library" filter. */
-    private val libraryIds: StateFlow<Set<String>> = libraryRepository.libraryItems
+    internal val libraryIds: StateFlow<Set<String>> = libraryRepository.libraryItems
         .map { entries -> libraryIdSet(entries.map { LibraryIds(it.id, it.type, it.imdbId, it.tmdbId) }) }
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
@@ -146,6 +150,14 @@ class SearchViewModel @Inject constructor(
     val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()
     val watchedSeriesIds: StateFlow<Set<String>> = watchedSeriesStateHolder.fullyWatchedSeriesIds
 
+    /** Saved watch progress (0..1) by content id, for the bar along a Discover card's edge (#854). */
+    val progressByContentId: StateFlow<Map<String, Float>> =
+        flow { emitAll(watchProgressRepository.continueWatching) }
+            .map { com.fetch.tv.ui.screens.library.libraryProgressByContentId(it) }
+            .distinctUntilChanged()
+            .flowOn(kotlinx.coroutines.Dispatchers.Default)
+            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     private val catalogsMap = linkedMapOf<String, CatalogRow>()
     private val catalogOrder = mutableListOf<String>()
 
@@ -194,6 +206,8 @@ class SearchViewModel @Inject constructor(
      */
     private var discoverSortedShown: List<MetaPreview> = emptyList()
     private var discoverSortedCount = 0
+    /** Where each placed sorted batch ends in the merged items, partial batches included (#857). */
+    private val discoverSortedBatchEnds = mutableListOf<Int>()
 
     /** Paging rounds in a row that added nothing the filters keep. */
     private var discoverUnproductiveRounds = 0
@@ -240,11 +254,25 @@ class SearchViewModel @Inject constructor(
         const val MAX_RECENT_SEARCHES = 8
     }
 
+    /** Whether a Discover title is watched, for Hide watched (#857). */
+    private val discoverIsWatched: (com.fetch.tv.domain.model.MetaPreview) -> Boolean = { item ->
+        val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+        val watchedIds = if (isSeries) watchedSeriesIds.value else _watchedMovieIds.value
+        // Watched entries can be stored under the IMDb id, as See all also checks.
+        item.id in watchedIds || item.imdbId?.let { it in watchedIds } == true
+    }
+
     init {
         posterOptions.bind(viewModelScope)
         viewModelScope.launch {
             watchProgressRepository.observeWatchedMovieIds()
-                .collect { ids -> _watchedMovieIds.value = ids }
+                .collect { ids ->
+                    _watchedMovieIds.value = ids
+                    refilterDiscoverForWatched()
+                }
+        }
+        viewModelScope.launch {
+            watchedSeriesIds.drop(1).collect { refilterDiscoverForWatched() }
         }
         viewModelScope.launch {
             layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest { location ->
@@ -357,7 +385,36 @@ class SearchViewModel @Inject constructor(
             watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
             // Marked only once done, so a prefetch cancelled by the next focus is retried.
             metaPrefetchedIds.add(id)
+            // Discover's hero band re-reads the cache now it has the title's full meta (#852).
+            _metaCacheVersion.update { it + 1 }
         }
+    }
+
+    private val _metaCacheVersion = MutableStateFlow(0)
+
+    /** Goes up each time a focus prefetch lands, so the hero band can fill in what it now has. */
+    val metaCacheVersion: StateFlow<Int> = _metaCacheVersion.asStateFlow()
+
+    /** The full meta of a title, when a prefetch or the detail page has cached it. */
+    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? =
+        metaRepository.getCachedMeta(type, id)
+
+    /**
+     * Whether Play/Pause on a Discover card may start it without its detail page (#857): not on a
+     * kids profile or one with parental limits, as on Home (#812).
+     */
+    val quickPlayAllowed: StateFlow<Boolean> by lazy {
+        parentalControls.activeRestrictions
+            .map { !it.isKidsProfile && !it.isRestricted }
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), false)
+    }
+
+    /** The Layout setting for the hero band over Discover's grid (#852); read only once Discover asks. */
+    val heroEnabled: StateFlow<Boolean> by lazy {
+        layoutPreferenceDataStore.browseHeroEnabled
+            .distinctUntilChanged()
+            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), false)
     }
 
     /**
@@ -404,7 +461,12 @@ class SearchViewModel @Inject constructor(
             is SearchEvent.SelectDiscoverYearRange -> updateDiscoverFilters { it.copy(yearRange = event.range) }
             is SearchEvent.SelectDiscoverMinRating -> updateDiscoverFilters { it.copy(minRating = event.minRating) }
             is SearchEvent.SelectDiscoverSort -> updateDiscoverFilters { it.copy(sort = event.sort) }
-            SearchEvent.ClearDiscoverFilters -> updateDiscoverFilters { it.copy(yearRange = null, minRating = null) }
+            SearchEvent.ClearDiscoverFilters -> updateDiscoverFilters {
+                it.copy(yearRange = null, minRating = null, hideWatched = false, includeUnrated = false)
+            }
+            SearchEvent.ToggleDiscoverHideWatched -> updateDiscoverFilters { it.copy(hideWatched = !it.hideWatched) }
+            SearchEvent.ToggleDiscoverIncludeUnrated -> updateDiscoverFilters { it.copy(includeUnrated = !it.includeUnrated) }
+            SearchEvent.ResetDiscoverFilters -> resetDiscoverFilters()
             SearchEvent.LoadNextDiscoverResults -> loadNextDiscoverResults()
             SearchEvent.RetryDiscover -> fetchDiscoverContent(reset = true)
             SearchEvent.Retry -> {
@@ -1210,10 +1272,16 @@ class SearchViewModel @Inject constructor(
             currentType = _uiState.value.selectedDiscoverType
         ) ?: "movie"
         // The sort and filters last used on this profile, the first time Discover loads (#851).
+        // The filters and genre last used for this type on this profile (#851, #857); the genre
+        // only when the catalogs still offer it.
+        val stored = com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.getFilters(selectedType) }.getOrNull()
         val storedFilters = if (_uiState.value.discoverInitialized) {
             _uiState.value.discoverFilters
         } else {
-            com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.getFilters().toDiscoverFilters() }.getOrDefault(DiscoverFilters())
+            stored?.toDiscoverFilters() ?: DiscoverFilters()
+        }
+        val keptGenre = (_uiState.value.selectedDiscoverGenre ?: stored?.genre)?.takeIf { genre ->
+            discoverGenres(discoverCatalogs, selectedType).any { it.equals(genre, ignoreCase = true) }
         }
 
         _uiState.update {
@@ -1221,7 +1289,7 @@ class SearchViewModel @Inject constructor(
                 installedAddons = addons,
                 discoverCatalogs = discoverCatalogs,
                 selectedDiscoverType = selectedType,
-                selectedDiscoverGenre = null,
+                selectedDiscoverGenre = keptGenre,
                 discoverFilters = storedFilters,
                 discoverInitialized = true,
                 discoverLoading = false,
@@ -1232,25 +1300,93 @@ class SearchViewModel @Inject constructor(
         fetchDiscoverContent(reset = true)
     }
 
+    /**
+     * Each type keeps its own genre and filters (#857): Series opens with what was last chosen for
+     * Series. A type never browsed since then starts from the current filters and genre, the genre
+     * only when its catalogs offer it.
+     */
     private fun selectDiscoverType(type: String) {
         val state = _uiState.value
         if (type == state.selectedDiscoverType) return
-        // Keep the genre when the new type's catalogs offer it too.
-        val genre = state.selectedDiscoverGenre?.takeIf { current ->
-            discoverGenres(state.discoverCatalogs, type).any { it.equals(current, ignoreCase = true) }
-        }
-        _uiState.update { it.copy(selectedDiscoverType = type, selectedDiscoverGenre = genre) }
-        viewModelScope.launch {
+        val offered = discoverGenres(state.discoverCatalogs, type)
+        fun offeredGenre(genre: String?) = genre?.takeIf { g -> offered.any { it.equals(g, ignoreCase = true) } }
+        _uiState.update { it.copy(selectedDiscoverType = type, selectedDiscoverGenre = offeredGenre(state.selectedDiscoverGenre)) }
+        discoverFiltersJob?.cancel()
+        discoverFiltersJob = viewModelScope.launch {
             discoverSelectionDataStore.setSelectedType(type)
+            val stored = com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.getFilters(type) }.getOrNull()
+            if (stored != null && _uiState.value.selectedDiscoverType == type) {
+                discoverUnproductiveRounds = 0
+                resetDiscoverSortedBatches()
+                _uiState.update { it.copy(discoverFilters = stored.toDiscoverFilters(), selectedDiscoverGenre = offeredGenre(stored.genre)) }
+            }
+            fetchDiscoverContent(reset = true)
         }
-        fetchDiscoverContent(reset = true)
     }
+    private var discoverFiltersJob: kotlinx.coroutines.Job? = null
 
     private fun selectDiscoverGenre(genre: String?) {
         val normalized = genre?.takeIf { it.isNotBlank() }
         if (normalized == _uiState.value.selectedDiscoverGenre) return
         _uiState.update { it.copy(selectedDiscoverGenre = normalized) }
+        saveDiscoverFilters(_uiState.value.discoverFilters)
         fetchDiscoverContent(reset = true)
+    }
+
+    /** Remembers [filters] and the genre for the type on screen, on this profile (#851, #857). */
+    private fun saveDiscoverFilters(filters: DiscoverFilters) {
+        val state = _uiState.value
+        val stored = filters.toStored().copy(genre = state.selectedDiscoverGenre)
+        val type = state.selectedDiscoverType
+        viewModelScope.launch {
+            com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.setFilters(stored, type) }
+        }
+    }
+
+    /** The Reset chip (#857): every filter and the genre back to their defaults. */
+    private fun resetDiscoverFilters() {
+        if (_uiState.value.selectedDiscoverGenre == null) {
+            updateDiscoverFilters { DiscoverFilters() }
+            return
+        }
+        discoverUnproductiveRounds = 0
+        resetDiscoverSortedBatches()
+        _uiState.update { it.copy(selectedDiscoverGenre = null, discoverFilters = DiscoverFilters(), discoverSortedTitleCount = 0) }
+        saveDiscoverFilters(DiscoverFilters())
+        fetchDiscoverContent(reset = true)
+    }
+
+    /**
+     * Watched titles changed: with Hide watched on, the grid drops them at once (and takes back a
+     * title marked unwatched). A sorted grid rebuilds the batches it has placed, in the same order,
+     * so nothing already shown moves except the titles that changed.
+     */
+    private fun refilterDiscoverForWatched() {
+        val filters = _uiState.value.discoverFilters
+        if (!filters.hideWatched || !_uiState.value.discoverInitialized) return
+        if (!filters.sorted) {
+            _uiState.update { it.copy(discoverResults = applyDiscoverFilters(discoverMergedItems, filters, discoverIsWatched)) }
+            return
+        }
+        // Replays the batches exactly as they were placed, partial ones included, so a title from a
+        // later batch can never move ahead of one already shown.
+        val merged = discoverMergedItems
+        val ends = discoverSortedBatchEnds.toList()
+        resetDiscoverSortedBatches()
+        var start = 0
+        for (recordedEnd in ends) {
+            val end = recordedEnd.coerceIn(start, merged.size)
+            discoverSortedShown = appendDiscoverSortedBatch(
+                shown = discoverSortedShown,
+                batch = merged.subList(start, end),
+                filters = filters,
+                isWatched = discoverIsWatched
+            )
+            discoverSortedBatchEnds += end
+            start = end
+        }
+        discoverSortedCount = start
+        _uiState.update { it.copy(discoverResults = discoverSortedShown) }
     }
 
     /**
@@ -1265,9 +1401,7 @@ class SearchViewModel @Inject constructor(
         if (next == current) return
         discoverUnproductiveRounds = 0
         resetDiscoverSortedBatches()
-        viewModelScope.launch {
-            com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.setFilters(next.toStored()) }
-        }
+        saveDiscoverFilters(next)
         val state = _uiState.value
         val canLoadMore = state.discoverInitialized && discoverCursors.any { it.hasMore }
         if (next.sorted) {
@@ -1290,7 +1424,7 @@ class SearchViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 discoverFilters = next,
-                discoverResults = applyDiscoverFilters(discoverMergedItems, next),
+                discoverResults = applyDiscoverFilters(discoverMergedItems, next, discoverIsWatched),
                 discoverSortedTitleCount = 0,
                 discoverPagingPaused = false
             )
@@ -1308,6 +1442,7 @@ class SearchViewModel @Inject constructor(
     private fun resetDiscoverSortedBatches() {
         discoverSortedShown = emptyList()
         discoverSortedCount = 0
+        discoverSortedBatchEnds.clear()
     }
 
     /**
@@ -1322,8 +1457,10 @@ class SearchViewModel @Inject constructor(
         discoverSortedShown = appendDiscoverSortedBatch(
             shown = discoverSortedShown,
             batch = merged.subList(start, end),
-            filters = filters
+            filters = filters,
+            isWatched = discoverIsWatched
         )
+        if (end > start) discoverSortedBatchEnds += end
         discoverSortedCount = end
     }
 
@@ -1530,7 +1667,7 @@ class SearchViewModel @Inject constructor(
         }
 
         val previousShown = discoverShownCount(_uiState.value.discoverResults)
-        val visible = applyDiscoverFilters(discoverMergedItems, _uiState.value.discoverFilters)
+        val visible = applyDiscoverFilters(discoverMergedItems, _uiState.value.discoverFilters, discoverIsWatched)
         // Counted as shown: "Not interested" titles and titles above the profile's limit are left
         // out on the way to the grid (#650, #789), so a round of hidden titles adds nothing.
         val shown = discoverShownCount(visible)

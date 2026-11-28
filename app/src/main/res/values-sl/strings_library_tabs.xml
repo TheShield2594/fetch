@@ -23,4 +23,19 @@
     <string name="library_history_empty_title">Še nič ogledanega</string>
     <string name="library_history_empty_subtitle">Kar si ogledate do konca in kar vaša storitev za sledenje označi kot ogledano, je tukaj prikazano po mesecih.</string>
     <string name="library_watched_filter_ready">Pripravljeno za predvajanje</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Druge strani</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d naslov</item>
+        <item quantity="two">%1$d naslova</item>
+        <item quantity="few">%1$d naslovi</item>
+        <item quantity="other">%1$d naslovov</item>
+    </plurals>
+    <string name="library_card_ready">Pripravljeno</string>
+    <string name="layout_browse_hero">Izpostavljeno v Odkrij in Knjižnici</string>
+    <string name="layout_browse_hero_sub">Nad mrežo prikaže sliko, logotip in podrobnosti izbranega naslova.</string>
+    <string name="card_state_saved">Shranjeno</string>
+    <string name="discover_include_unrated">Vključi neocenjene</string>
+    <string name="discover_reset_filters">Ponastavi</string>
 </resources>

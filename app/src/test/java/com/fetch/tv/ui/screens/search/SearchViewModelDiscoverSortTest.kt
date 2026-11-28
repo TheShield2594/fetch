@@ -135,6 +135,39 @@ class SearchViewModelDiscoverSortTest {
         assertFalse(second.discoverHasMore)
     }
 
+    @Test
+    fun `a watched change keeps partial sorted batches apart (#857)`() = runTest(mainDispatcher) {
+        // Small pages close each sorted batch early, at the round limit, so both batches are partial.
+        val watchedMovies = MutableStateFlow(emptySet<String>())
+        val viewModel = newViewModel(PagedCatalog(pageSize = 10, pages = 100), watchedMovies)
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+        viewModel.onEvent(SearchEvent.ToggleDiscoverHideWatched)
+        advanceUntilIdle()
+        viewModel.onEvent(SearchEvent.SelectDiscoverSort(DiscoverSort.RATING))
+        advanceUntilIdle()
+        val firstBatchSize = viewModel.uiState.value.discoverResults.size
+        assertTrue("the first batch should be partial, got $firstBatchSize", firstBatchSize in 1 until 300)
+        viewModel.onEvent(SearchEvent.LoadNextDiscoverResults)
+        advanceUntilIdle()
+        val before = viewModel.uiState.value
+        assertTrue("a second batch should follow", before.discoverResults.size > firstBatchSize)
+
+        // Watching a title from the first batch drops just that title; nothing from the second
+        // batch moves up into the first, as one merged re-sort would do.
+        val watched = before.discoverResults[firstBatchSize / 2].id
+        watchedMovies.value = setOf(watched)
+        advanceUntilIdle()
+        val after = viewModel.uiState.value
+        assertEquals(before.discoverResults.map { it.id } - watched, after.discoverResults.map { it.id })
+        assertEquals(before.discoverSortedTitleCount, after.discoverSortedTitleCount)
+
+        // Marking it unwatched puts it back where it was.
+        watchedMovies.value = emptySet()
+        advanceUntilIdle()
+        assertEquals(before.discoverResults.map { it.id }, viewModel.uiState.value.discoverResults.map { it.id })
+    }
+
     /** One browsable catalog: [pages] pages of [pageSize] titles, with ratings in no order. */
     private class PagedCatalog(private val pageSize: Int, private val pages: Int) : CatalogRepository {
         override fun getCatalog(
@@ -197,7 +230,10 @@ class SearchViewModelDiscoverSortTest {
         override suspend fun setAddonEnabled(url: String, enabled: Boolean) = error("unused")
     }
 
-    private fun newViewModel(repository: CatalogRepository): SearchViewModel {
+    private fun newViewModel(
+        repository: CatalogRepository,
+        watchedMovies: Flow<Set<String>> = flowOf(emptySet())
+    ): SearchViewModel {
         val addon = Addon(
             id = "addon",
             name = "Addon",
@@ -225,7 +261,7 @@ class SearchViewModelDiscoverSortTest {
         every { history.recentSearches } returns flowOf(emptyList())
 
         val watchProgress = mockk<WatchProgressRepository>()
-        every { watchProgress.observeWatchedMovieIds() } returns flowOf(emptySet())
+        every { watchProgress.observeWatchedMovieIds() } returns watchedMovies
 
         val watchedSeries = mockk<WatchedSeriesStateHolder>()
         every { watchedSeries.fullyWatchedSeriesIds } returns MutableStateFlow(emptySet())

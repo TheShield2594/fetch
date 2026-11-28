@@ -1,5 +1,7 @@
 package com.fetch.tv.ui.screens.home
 
+import com.fetch.tv.ui.components.hero.HeroPreview
+
 import android.content.Context
 import androidx.compose.runtime.Immutable
 import com.fetch.tv.LocaleCache

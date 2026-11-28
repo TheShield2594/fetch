@@ -22,4 +22,19 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Zatiaľ nič pozreté</string>
     <string name="library_history_empty_subtitle">To, čo dopozeráte, a to, čo vaša služba sledovania označí ako pozreté, sa tu zobrazí podľa mesiacov.</string>
+
+    <!-- Library and Discover, #852–#857 -->
+    <string name="library_pages_description">Ďalšie stránky</string>
+    <plurals name="library_title_count">
+        <item quantity="one">%1$d titul</item>
+        <item quantity="few">%1$d tituly</item>
+        <item quantity="many">%1$d titulu</item>
+        <item quantity="other">%1$d titulov</item>
+    </plurals>
+    <string name="library_card_ready">Pripravené</string>
+    <string name="layout_browse_hero">Úvodný pás v Objavovať a Knižnici</string>
+    <string name="layout_browse_hero_sub">Zobrazí obrázok, logo a podrobnosti vybraného titulu nad mriežkou.</string>
+    <string name="card_state_saved">Uložené</string>
+    <string name="discover_include_unrated">Vrátane nehodnotených</string>
+    <string name="discover_reset_filters">Obnoviť</string>
 </resources>

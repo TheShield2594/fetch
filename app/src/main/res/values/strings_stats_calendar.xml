@@ -115,8 +115,8 @@
     <!-- Shown when a watched mark from the calendar couldn't be saved. -->
     <string name="calendar_watched_failed">Couldn\'t save that watched mark. Try again.</string>
     <plurals name="calendar_day_count">
-        <item quantity="one">%d episode</item>
-        <item quantity="other">%d episodes</item>
+        <item quantity="one">%d title</item>
+        <item quantity="other">%d titles</item>
     </plurals>
     <!-- "S1:E4 — Episode name" -->
     <string name="calendar_episode_with_name" translatable="false">%1$s — %2$s</string>

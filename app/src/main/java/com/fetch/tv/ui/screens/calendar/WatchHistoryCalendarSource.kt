@@ -16,6 +16,7 @@ import com.fetch.tv.domain.repository.LibraryRepository
 import com.fetch.tv.data.website.WebsiteCalendarEntry
 import com.fetch.tv.domain.repository.WatchProgressRepository
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -162,11 +163,23 @@ class WatchHistoryCalendarSource internal constructor(
                 async {
                     val details = result.getOrNull() ?: return@async show.id to null
                     val last = details.lastEpisodeToAir
+                    // A day wider than the week: an air time can move an episode onto the viewer's
+                    // next day, and the week is checked again on local days below.
+                    val windowStart = today.minusDays(RECENT_WINDOW_DAYS.toLong())
                     val inWindow = last?.airDate?.let(::parseAirDate)
-                        ?.let { !it.isAfter(today) && !it.isBefore(today.minusDays(CalendarPastDays.toLong())) } == true
+                        ?.let { !it.isAfter(today) && !it.isBefore(windowStart) } == true
                     val season = last?.seasonNumber
                     if (!inWindow || season == null) return@async show.id to null
-                    show.id to permits.withPermit { seasonEpisodes(details.id, season, language) }
+                    val episodes = permits.withPermit { seasonEpisodes(details.id, season, language) }
+                        ?: return@async show.id to null
+                    // A season that began this week may follow another's last episodes in it.
+                    val began = episodes.mapNotNull { it.airDate?.let(::parseAirDate) }.minOrNull()
+                    val earlier = if (season > 1 && began != null && !began.isBefore(windowStart)) {
+                        permits.withPermit { seasonEpisodes(details.id, season - 1, language) }.orEmpty()
+                    } else {
+                        emptyList()
+                    }
+                    show.id to earlier + episodes
                 }
             }.awaitAll().toMap()
         }
@@ -189,7 +202,7 @@ class WatchHistoryCalendarSource internal constructor(
                     last = episode,
                     fallbackPoster = details.posterPath?.let { "$POSTER_BASE$it" },
                     today = today,
-                    pastDays = CalendarPastDays,
+                    pastDays = RECENT_WINDOW_DAYS,
                     watchedKeys = watchedKeys,
                     backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" },
                     status = details.status
@@ -225,7 +238,12 @@ class WatchHistoryCalendarSource internal constructor(
                 emptyMap()
             }
         }
-        CalendarLookup(entries.map { withAirTime(it, times) } + movieEntries, failedSeries = lookups.count { it.second.isFailure })
+        // The past week on local days, now that air times can say what those are.
+        val weekStart = today.minusDays(CalendarPastDays.toLong())
+        val zone = ZoneId.systemDefault()
+        val timed = entries.map { withAirTime(it, times) }
+            .filter { calendarDay(it, zone)?.isBefore(weekStart) != true }
+        CalendarLookup(timed + movieEntries, failedSeries = lookups.count { it.second.isFailure })
     }
 
     /** A watchlist film's TMDB details, for its release date; null when they can't be read. */
@@ -304,5 +322,8 @@ class WatchHistoryCalendarSource internal constructor(
         const val CACHE_TTL_MS = 60 * 60 * 1000L
         const val POSTER_BASE = "https://image.tmdb.org/t/p/w342"
         const val BACKDROP_BASE = "https://image.tmdb.org/t/p/w780"
+
+        /** The past week and a day: candidates for the week, before air times place them. */
+        const val RECENT_WINDOW_DAYS = CalendarPastDays + 1
     }
 }

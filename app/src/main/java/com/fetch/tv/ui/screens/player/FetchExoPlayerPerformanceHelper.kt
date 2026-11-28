@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.DefaultLoadControl
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.upstream.DefaultAllocator
@@ -17,11 +16,11 @@ import com.fetch.tv.ui.screens.settings.MemoryBudget
  *
  * When [enabled] is `true`, the helper applies:
  * - A target buffer sized to the RAM tier and capped by the heap budget
- * - Extended buffer durations (200–280 s) with a 12 s back-buffer
+ * - Buffer durations of 15–45 s with a 15 s back-buffer (unless custom buffers are set)
  * - 50 Mbps initial bandwidth estimate
  * - Scrubbing mode for faster seeks (disables audio/metadata, boosts codec rate)
  * - In-buffer seek detection to suppress transient buffering UI
- * - HTTP/2 with an 8-connection pool for networking
+ * - HTTP/1.1 on one shared connection pool that keeps up to 32 idle connections
  *
  * When [enabled] is `false`, stock ExoPlayer defaults are used everywhere.
  */

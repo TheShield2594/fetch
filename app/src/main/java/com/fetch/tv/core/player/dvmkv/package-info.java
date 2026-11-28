@@ -23,5 +23,11 @@
  * com.fetch.tv.core.player.dvmkv.MatroskaExtractor.DolbyVisionSampleTransformer} seam that the
  * app wires to the libdovi bridge to perform DV7 to DV8.1 conversion for MKV, whose RPU rides
  * in BlockAdditional and is otherwise discarded by the stock extractor.
+ *
+ * <p>Upstream base: the copy was taken from androidx/media after the 1.8.0 release (it carries
+ * post-1.8.0 helpers, vendored where 1.8.0 lacks them, such as {@code DtsUtil.isSampleDtsHd}),
+ * and it is compiled against Media3 1.8.0. The exact upstream commit was not recorded when it
+ * was forked. {@code DvMkvMedia3VersionTest} fails when the Media3 version changes, so an
+ * upgrade has to re-check this copy against the new upstream extractor and update the record.
  */
 package com.fetch.tv.core.player.dvmkv;

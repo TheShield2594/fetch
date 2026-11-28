@@ -117,11 +117,14 @@ class SimklSyncRepository @Inject constructor(
         }
     }
 
-    suspend fun removePlaybackSessions(sessionIds: Set<Long>) = withContext(Dispatchers.IO) {
+    /** With [profileId], nothing changes unless that profile is still the active one (#837). */
+    suspend fun removePlaybackSessions(sessionIds: Set<Long>, profileId: Int? = null) = withContext(Dispatchers.IO) {
         if (sessionIds.isEmpty()) return@withContext
         ensureLoaded()
         snapshotMutex.withLock {
-            val profileId = profileManager.activeProfileId.value
+            val activeProfileId = profileManager.activeProfileId.value
+            if (profileId != null && profileId != activeProfileId) return@withLock
+            val profileId = activeProfileId
             val base = persistedSnapshot(profileId)
             val playback = base.playback.filterNot { session -> session.id in sessionIds }
             if (playback.size == base.playback.size) return@withLock

@@ -213,16 +213,28 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
 
     override suspend fun refresh(intent: TrackingRefreshIntent) = repository.refresh(intent)
 
-    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) {
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) =
+        removeProgress(contentId, season, episode, repository.activeSlot())
+
+    /**
+     * Bound to TV slot [profileId] (#837). The snapshot is the active profile's, so a switch while
+     * it loads or refreshes ends the removal; the deletes go out as that slot's website profile,
+     * and the local update only applies while it is still active.
+     */
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int) {
+        val slot = profileId
+        if (repository.activeSlot() != slot) return
         repository.ensureLoaded()
+        if (repository.activeSlot() != slot) return
         var ids = repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
         if (ids.any(::isLocalPlaybackId)) {
             // A point saved from this TV but not read back yet has no website id: read it first.
             repository.refresh(TrackingRefreshIntent.AUTOMATIC)
+            if (repository.activeSlot() != slot) return
             ids = ids + repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
         }
         if (ids.isEmpty()) return
-        repository.asProfile(repository.activeSlot()) { profileId, token ->
+        repository.asProfile(slot) { profileId, token ->
             ids.filterNot(::isLocalPlaybackId).distinct().forEach { id ->
                 try {
                     client.deletePlayback(profileId, token, id)
@@ -232,6 +244,7 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
                 }
             }
         }
+        if (repository.activeSlot() != slot) return
         repository.mutate { snapshot -> snapshot.copy(playback = snapshot.playback.filterNot { it.id in ids }) }
     }
 

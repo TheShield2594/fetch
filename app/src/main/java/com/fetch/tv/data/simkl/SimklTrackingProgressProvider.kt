@@ -76,8 +76,23 @@ class SimklTrackingProgressProvider @Inject constructor(
 
     override suspend fun refresh(intent: TrackingRefreshIntent) = syncRepository.refresh(intent)
 
-    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) {
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) =
+        removeSessions(contentId, season, episode, scope = null)
+
+    /**
+     * Bound to [profileId] (#837): the Simkl account in scope when the removal starts. A profile
+     * switch while the sessions load ends the removal; each delete carries that scope, so the
+     * client refuses it once the account changed, and the local update is for that profile only.
+     */
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int) {
+        val scope = authStorage.currentScope()
+        if (scope.profileId != profileId) return
+        removeSessions(contentId, season, episode, scope)
+    }
+
+    private suspend fun removeSessions(contentId: String, season: Int?, episode: Int?, scope: SimklAuthScope?) {
         syncRepository.ensureLoaded()
+        if (scope != null && authStorage.currentScope() != scope) return
         val sessions = syncRepository.state.value.snapshot.playback.filter { session ->
             val media = session.media ?: return@filter false
             val sameContent = media.canonicalContentId().equals(contentId, ignoreCase = true) ||
@@ -96,7 +111,8 @@ class SimklTrackingProgressProvider @Inject constructor(
                     SimklApiRequest(
                         method = SimklHttpMethod.DELETE,
                         path = "/sync/playback/$sessionId"
-                    )
+                    ),
+                    expectedAuthScope = scope
                 )
                 removed += sessionId
             } catch (error: CancellationException) {
@@ -105,7 +121,7 @@ class SimklTrackingProgressProvider @Inject constructor(
                 Unit
             }
         }
-        syncRepository.removePlaybackSessions(removed)
+        syncRepository.removePlaybackSessions(removed, profileId = scope?.profileId)
     }
 
     override fun applyOptimisticProgress(progress: WatchProgress, quiet: Boolean) = Unit

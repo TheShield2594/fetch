@@ -45,6 +45,7 @@ export function LandscapeCard({
   openLabel,
   action,
   dismiss,
+  badge,
   size = "rail",
   eager = false,
   className = "",
@@ -60,6 +61,11 @@ export function LandscapeCard({
   openLabel: string;
   action?: LandscapeAction | undefined;
   dismiss?: { label: string; onClick: () => void } | undefined;
+  /**
+   * A short word pinned to the top-left of the art, such as "Premiere". It is
+   * drawn only: put the same words in `openLabel` where they matter.
+   */
+  badge?: string | null | undefined;
   size?: "rail" | "lead";
   eager?: boolean | undefined;
   /** Width and layout, which belong to the row the card sits in. */
@@ -148,6 +154,14 @@ export function LandscapeCard({
           </button>
         )}
       </div>
+      {badge && (
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute rounded-full bg-accent-500 font-semibold text-accent-on shadow-e1 ${lead ? "left-4 top-4 px-3 py-1 text-xs" : "left-2.5 top-2.5 px-2 py-0.5 text-[0.6875rem]"}`}
+        >
+          {badge}
+        </span>
+      )}
       {dismiss && (
         <button
           type="button"

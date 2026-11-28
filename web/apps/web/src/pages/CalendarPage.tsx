@@ -18,6 +18,7 @@ import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
 import { SECTION_TITLE, KICKER, MICRO_LABEL } from "../components/typography";
 import {
+  calendarEntryBadge,
   calendarEntryDay,
   calendarEntryKey as entryKey,
   calendarEntryLabel as entryLabel,
@@ -160,6 +161,16 @@ function entryCaption(entry: CalendarEntry): string {
   return [time, entry.watched ? "Watched" : null, entryLabel(entry)].filter(Boolean).join(" · ");
 }
 
+/**
+ * What a screen reader hears for an entry: its badge where the caption doesn't
+ * already say it (a premiere's does), then the caption.
+ */
+function entrySpokenLabel(entry: CalendarEntry): string {
+  const badge = calendarEntryBadge(entry);
+  const caption = entryCaption(entry);
+  return badge && !caption.toLowerCase().includes(badge.toLowerCase()) ? `${badge}, ${caption}` : caption;
+}
+
 function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void; eager: boolean }) {
   const { art, isBackdrop } = entryArt(entry);
   const label = entryCaption(entry);
@@ -169,8 +180,9 @@ function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect:
       artIsBackdrop={isBackdrop}
       title={entry.seriesName}
       eyebrow={label}
+      badge={calendarEntryBadge(entry)}
       onOpen={() => onSelect(entry)}
-      openLabel={`${entry.seriesName}, ${label}`}
+      openLabel={`${entry.seriesName}, ${entrySpokenLabel(entry)}`}
       eager={eager}
       className="w-full"
     />
@@ -180,6 +192,7 @@ function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect:
 /** A row in the day list: the same art, small, beside the words. */
 function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void }) {
   const { art, isBackdrop } = entryArt(entry);
+  const badge = calendarEntryBadge(entry);
   return (
     <button
       type="button"
@@ -199,7 +212,14 @@ function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry:
         />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{entry.seriesName}</p>
+        <p className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{entry.seriesName}</span>
+          {badge && (
+            <span className="flex-none rounded-full bg-accent-500 px-2 py-0.5 text-[0.6875rem] font-semibold text-accent-on">
+              {badge}
+            </span>
+          )}
+        </p>
         <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>{entryCaption(entry)}</p>
       </div>
     </button>

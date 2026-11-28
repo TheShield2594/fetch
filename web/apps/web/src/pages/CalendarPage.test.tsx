@@ -184,6 +184,19 @@ describe("CalendarPage agenda", () => {
     expect(await screen.findByText("Season 2 premiere")).toBeInTheDocument();
   });
 
+  it("badges a premiere and a finale on their cards", async () => {
+    getCalendar.mockResolvedValue({
+      calendar: [episode("Severance", 1, daysFromToday(2)), { ...episode("Andor", 12, daysFromToday(2)), finale: "series" }],
+    });
+    renderPage();
+
+    expect(await screen.findByText("Premiere")).toBeInTheDocument();
+    expect(screen.getByText("Series finale")).toBeInTheDocument();
+    // The finale's card says so aloud; the premiere's caption already does.
+    expect(screen.getByRole("button", { name: "Andor, Series finale, S2 E12 · Andor episode" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Severance, Season 2 premiere" })).toBeInTheDocument();
+  });
+
   it("keeps unaired episodes' synopses off the page", async () => {
     getCalendar.mockResolvedValue({ calendar: [episode("Severance", 3, daysFromToday(2))] });
     renderPage();

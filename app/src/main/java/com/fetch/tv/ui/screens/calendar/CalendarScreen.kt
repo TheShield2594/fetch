@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -52,6 +53,7 @@ import com.fetch.tv.ui.screens.stats.InsightsMessage
 import com.fetch.tv.ui.screens.stats.WebsiteReadState
 import com.fetch.tv.ui.screens.stats.WebsiteUnavailable
 import com.fetch.tv.ui.theme.FetchTheme
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import com.fetch.tv.ui.util.dpadRepeatThrottle
 
@@ -219,11 +221,23 @@ private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
     val shape = RoundedCornerShape(FetchTheme.radii.md)
     val code = episodeCode(entry.season, entry.episode)
     val name = entry.episodeName?.takeIf { it.isNotBlank() }
-    val episodeLine = when {
+    val detail = when {
         entry.isMovie -> stringResource(R.string.type_movie)
         code != null && name != null -> stringResource(R.string.calendar_episode_with_name, code, name)
         else -> code ?: name
     }
+    // The air time, where Trakt knows it, in this TV's time zone and 12/24-hour setting.
+    val context = LocalContext.current
+    val locale = LocalConfiguration.current.locales[0]
+    val airTime = remember(entry.airsAt, locale) {
+        calendarAirTime(entry, ZoneId.systemDefault())?.let { time ->
+            val skeleton = if (android.text.format.DateFormat.is24HourFormat(context)) "Hm" else "hm"
+            time.format(
+                DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton), locale)
+            )
+        }
+    }
+    val episodeLine = listOfNotNull(airTime, detail).joinToString(" · ").ifEmpty { null }
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),

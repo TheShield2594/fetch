@@ -2,6 +2,9 @@ package com.fetch.tv.ui.screens.calendar
 
 import com.fetch.tv.data.website.WebsiteCalendarEntry
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
@@ -26,6 +29,20 @@ internal fun parseAirDate(value: String): LocalDate? = try {
     null
 }
 
+/** When [entry] airs in [zone], from its `airsAt`; null when the source didn't say or sent nonsense. */
+internal fun calendarAirTime(entry: WebsiteCalendarEntry, zone: ZoneId): ZonedDateTime? =
+    entry.airsAt?.takeIf { it.isNotBlank() }?.let { value ->
+        try {
+            OffsetDateTime.parse(value.trim()).atZoneSameInstant(zone)
+        } catch (_: DateTimeParseException) {
+            null
+        }
+    }
+
+/** The local day [entry] airs: from its air time where known, else its `airDate`. */
+internal fun calendarDay(entry: WebsiteCalendarEntry, zone: ZoneId): LocalDate? =
+    calendarAirTime(entry, zone)?.toLocalDate() ?: parseAirDate(entry.airDate)
+
 internal fun dayKind(date: LocalDate, today: LocalDate): CalendarDayKind =
     when (ChronoUnit.DAYS.between(today, date)) {
         0L -> CalendarDayKind.TODAY
@@ -34,21 +51,32 @@ internal fun dayKind(date: LocalDate, today: LocalDate): CalendarDayKind =
     }
 
 /**
- * The entries grouped by air day, earliest first, each day in series-name order. An air date the
+ * The entries grouped by air day, earliest first; within a day, those with a known air time first
+ * in time order, then by series name. An entry's day is its local air day where its air time is
+ * known (so a 02:00 UTC premiere sits on the evening before in the Americas). An air date the
  * website sent in a shape this can't read is kept, under a day of its own at the end, rather than
  * dropped without a trace. An episode listed twice appears once.
  */
-internal fun groupCalendarByDay(entries: List<WebsiteCalendarEntry>, today: LocalDate): List<CalendarDay> {
+internal fun groupCalendarByDay(
+    entries: List<WebsiteCalendarEntry>,
+    today: LocalDate,
+    zone: ZoneId = ZoneId.systemDefault()
+): List<CalendarDay> {
     val unique = entries.distinctBy { "${it.seriesImdbId}:${it.season}:${it.episode}" }
-    val (dated, undated) = unique.partition { parseAirDate(it.airDate) != null }
+    val (dated, undated) = unique.partition { calendarDay(it, zone) != null }
+    // Within a day, what has a known air time comes first, in time order; the rest by name.
+    val order = compareBy<WebsiteCalendarEntry, java.time.Instant?>(nullsLast()) { calendarAirTime(it, zone)?.toInstant() }
+        .thenBy { it.seriesName.lowercase() }
+        .thenBy { it.season }
+        .thenBy { it.episode }
     val days = dated
-        .groupBy { parseAirDate(it.airDate)!! }
+        .groupBy { calendarDay(it, zone)!! }
         .toSortedMap()
         .map { (date, dayEntries) ->
             CalendarDay(
                 date = date,
                 kind = dayKind(date, today),
-                entries = dayEntries.sortedWith(compareBy({ it.seriesName.lowercase() }, { it.season }, { it.episode }))
+                entries = dayEntries.sortedWith(order)
             )
         }
     return if (undated.isEmpty()) days else days + CalendarDay(null, CalendarDayKind.LATER, undated)

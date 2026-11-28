@@ -59,6 +59,28 @@ class CalendarPresentationTest {
     }
 
     @Test
+    fun `an air time places the episode on the viewer's local day, first in time order`() {
+        val newYork = java.time.ZoneId.of("America/New_York")
+        val late = entry("Alpha", "2026-11-10").copy(airsAt = "2026-11-10T02:00:00Z")
+        val early = entry("Zulu", "2026-11-09").copy(airsAt = "2026-11-09T18:00:00Z")
+        val untimed = entry("Beta", "2026-11-09")
+
+        val days = groupCalendarByDay(listOf(untimed, late, early), today, newYork)
+
+        // 02:00 UTC on the 10th is 21:00 on the 9th in New York.
+        assertEquals(listOf(LocalDate.parse("2026-11-09")), days.map { it.date })
+        assertEquals(listOf("Zulu", "Alpha", "Beta"), days.single().entries.map { it.seriesName })
+        assertEquals(21, calendarAirTime(late, newYork)!!.hour)
+    }
+
+    @Test
+    fun `an unreadable air time falls back to the air date`() {
+        val odd = entry("Show", "2026-11-09").copy(airsAt = "tonight")
+        assertNull(calendarAirTime(odd, java.time.ZoneOffset.UTC))
+        assertEquals(LocalDate.parse("2026-11-09"), calendarDay(odd, java.time.ZoneOffset.UTC))
+    }
+
+    @Test
     fun `a row's wide picture is the still, else the backdrop, else none`() {
         val base = entry("Show", "2026-11-09")
         assertEquals("still", calendarWideArtwork(base.copy(still = "still", backdrop = "backdrop")))

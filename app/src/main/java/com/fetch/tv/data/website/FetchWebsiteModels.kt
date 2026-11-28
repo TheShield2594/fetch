@@ -254,6 +254,9 @@ data class WebsiteYearInReview(
  *
  * [still] is the episode's own 16:9 frame (null where spoiler protection hides it) and
  * [backdrop] the title's 16:9 backdrop, its fallback. An older website sends neither.
+ *
+ * [airsAt] is the instant it airs (ISO 8601), where the source knows it: Trakt, for a profile
+ * that has connected it. Where set, it places the entry on the viewer's local day.
  */
 @Serializable
 data class WebsiteCalendarEntry(
@@ -267,7 +270,8 @@ data class WebsiteCalendarEntry(
     val overview: String? = null,
     val kind: String? = null,
     val still: String? = null,
-    val backdrop: String? = null
+    val backdrop: String? = null,
+    val airsAt: String? = null
 ) {
     /** A film's release rather than an episode. */
     val isMovie: Boolean

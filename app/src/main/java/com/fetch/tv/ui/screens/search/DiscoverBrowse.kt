@@ -101,12 +101,18 @@ internal fun resolveDiscoverType(
         ?: types.firstOrNull { it == currentType }
         ?: types.firstOrNull()
 
-/** Every genre any catalog of [type] offers, de-duplicated ignoring case, first spelling kept. */
+/** A genre option that is only a year ("2024"), as catalogs that browse by year list them. */
+private val YEAR_ONLY_GENRE = Regex("""\s*(1[89]\d{2}|2\d{3})\s*""")
+
+/**
+ * Every genre any catalog of [type] offers, de-duplicated ignoring case, first spelling kept.
+ * Years some catalogs list as genres are left out: the Year filter covers release years.
+ */
 internal fun discoverGenres(catalogs: List<DiscoverCatalog>, type: String): List<String> =
     catalogs.asSequence()
         .filter { it.type == type }
         .flatMap { it.genres.asSequence() }
-        .filter { it.isNotBlank() }
+        .filter { it.isNotBlank() && !YEAR_ONLY_GENRE.matches(it) }
         .distinctBy { it.trim().lowercase(Locale.ROOT) }
         .toList()
 

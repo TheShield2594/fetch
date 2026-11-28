@@ -70,6 +70,16 @@ class DiscoverBrowseTest {
         assertEquals(listOf("Action", "Drama", "Horror"), discoverGenres(catalogs, "movie"))
     }
 
+    @Test
+    fun `years catalogs list as genres stay out of the genre list`() {
+        val catalogs = listOf(
+            catalog("top", "movie", genres = listOf("Action", "Horror")),
+            catalog("year", "movie", genres = listOf("2026", "2025", " 1999 ", "1980s", "Sci-Fi"))
+        )
+
+        assertEquals(listOf("Action", "Horror", "1980s", "Sci-Fi"), discoverGenres(catalogs, "movie"))
+    }
+
     // Merging
 
     @Test

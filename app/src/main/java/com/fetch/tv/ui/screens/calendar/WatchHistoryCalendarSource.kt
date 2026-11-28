@@ -87,7 +87,8 @@ class WatchHistoryCalendarSource internal constructor(
                 status = details.status,
                 fallbackPoster = details.posterPath?.let { "$POSTER_BASE$it" },
                 today = today,
-                days = days
+                days = days,
+                backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" }
             )
         }
         CalendarLookup(entries, failedSeries = lookups.count { it.second.isFailure })
@@ -122,5 +123,6 @@ class WatchHistoryCalendarSource internal constructor(
         const val HISTORY_TIMEOUT_MS = 15_000L
         const val CACHE_TTL_MS = 60 * 60 * 1000L
         const val POSTER_BASE = "https://image.tmdb.org/t/p/w342"
+        const val BACKDROP_BASE = "https://image.tmdb.org/t/p/w780"
     }
 }

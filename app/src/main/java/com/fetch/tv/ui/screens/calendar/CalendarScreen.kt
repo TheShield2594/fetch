@@ -3,13 +3,14 @@ package com.fetch.tv.ui.screens.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -240,21 +241,31 @@ private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // 16:9: the episode's still, else the show's backdrop. With only a poster, the poster
+            // sits whole in the middle of the frame, so every row keeps the same shape.
+            val wide = calendarWideArtwork(entry)
             Box(
                 modifier = Modifier
-                    .size(width = 56.dp, height = 84.dp)
+                    .height(84.dp)
+                    .aspectRatio(16f / 9f)
                     .clip(RoundedCornerShape(FetchTheme.radii.sm))
-                    .background(FetchTheme.colors.Surface)
+                    .background(FetchTheme.colors.Surface),
+                contentAlignment = Alignment.Center
             ) {
-                if (!entry.poster.isNullOrBlank()) {
-                    AsyncImage(
-                        model = entry.poster,
+                when {
+                    wide != null -> AsyncImage(
+                        model = wide,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-                } else {
-                    MonochromePosterPlaceholder()
+                    !entry.poster.isNullOrBlank() -> AsyncImage(
+                        model = entry.poster,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    else -> MonochromePosterPlaceholder()
                 }
             }
             // Text colours come from the surface, so they flip with it when the row is focused.

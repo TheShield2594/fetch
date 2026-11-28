@@ -251,6 +251,9 @@ data class WebsiteYearInReview(
  * Named for the episode it started as: for a [kind] of `"movie"` (a watchlist film's release),
  * [seriesImdbId] and [seriesName] are the film's own, and [season], [episode] and [episodeName]
  * are null. An older website sends no [kind]; its entries are always episodes.
+ *
+ * [still] is the episode's own 16:9 frame (null where spoiler protection hides it) and
+ * [backdrop] the title's 16:9 backdrop, its fallback. An older website sends neither.
  */
 @Serializable
 data class WebsiteCalendarEntry(
@@ -262,7 +265,9 @@ data class WebsiteCalendarEntry(
     val episodeName: String? = null,
     val airDate: String,
     val overview: String? = null,
-    val kind: String? = null
+    val kind: String? = null,
+    val still: String? = null,
+    val backdrop: String? = null
 ) {
     /** A film's release rather than an episode. */
     val isMovie: Boolean

@@ -57,4 +57,12 @@ class CalendarPresentationTest {
         assertEquals("S2:E5", episodeCode(2, 5))
         assertNull(episodeCode(null, null))
     }
+
+    @Test
+    fun `a row's wide picture is the still, else the backdrop, else none`() {
+        val base = entry("Show", "2026-11-09")
+        assertEquals("still", calendarWideArtwork(base.copy(still = "still", backdrop = "backdrop")))
+        assertEquals("backdrop", calendarWideArtwork(base.copy(still = " ", backdrop = "backdrop")))
+        assertNull(calendarWideArtwork(base))
+    }
 }

@@ -98,7 +98,7 @@ com/fetch/tv/ui/screens/ambient/AmbientClock.kt|DP|8
 com/fetch/tv/ui/screens/ambient/AmbientSlideshow.kt|ALPHA|2
 com/fetch/tv/ui/screens/ambient/AmbientSlideshow.kt|DP|9
 com/fetch/tv/ui/screens/ambient/AmbientSlideshow.kt|WHITE_BLACK|4
-com/fetch/tv/ui/screens/calendar/CalendarScreen.kt|DP|2
+com/fetch/tv/ui/screens/calendar/CalendarScreen.kt|DP|1
 com/fetch/tv/ui/screens/calendar/CalendarScreen.kt|FOCUS_SCALE|1
 com/fetch/tv/ui/screens/cast/CastDetailScreen.kt|ALPHA|8
 com/fetch/tv/ui/screens/cast/CastDetailScreen.kt|DP|22

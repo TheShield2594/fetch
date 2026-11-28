@@ -54,6 +54,13 @@ internal fun groupCalendarByDay(entries: List<WebsiteCalendarEntry>, today: Loca
     return if (undated.isEmpty()) days else days + CalendarDay(null, CalendarDayKind.LATER, undated)
 }
 
+/**
+ * The 16:9 picture for a calendar row: the episode's still, else the title's backdrop. Null when
+ * there is neither, and the row shows the poster instead.
+ */
+internal fun calendarWideArtwork(entry: WebsiteCalendarEntry): String? =
+    entry.still?.takeIf { it.isNotBlank() } ?: entry.backdrop?.takeIf { it.isNotBlank() }
+
 /** `S2:E5`, as the website labels an episode; null when either number is missing. */
 internal fun episodeCode(season: Int?, episode: Int?): String? =
     if (season == null || episode == null) null else "S$season:E$episode"
@@ -127,7 +134,9 @@ internal fun upcomingEntry(
     status: String?,
     fallbackPoster: String?,
     today: LocalDate,
-    days: Int
+    days: Int,
+    /** The series' backdrop. No episode still: one for an unaired episode may be a spoiler. */
+    backdrop: String? = null
 ): WebsiteCalendarEntry? {
     if (next == null || isFinishedSeriesStatus(status)) return null
     val airDate = next.airDate?.let(::parseAirDate) ?: return null
@@ -142,6 +151,7 @@ internal fun upcomingEntry(
         episode = episode,
         episodeName = next.name?.takeIf { it.isNotBlank() },
         airDate = airDate.toString(),
-        overview = next.overview?.takeIf { it.isNotBlank() }
+        overview = next.overview?.takeIf { it.isNotBlank() },
+        backdrop = backdrop
     )
 }

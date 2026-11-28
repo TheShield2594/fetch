@@ -67,5 +67,6 @@ class FetchWebsiteStatsModelsTest {
         assertNull(entry.season)
         assertNull(entry.episode)
         assertTrue(entry.isMovie)
+        assertEquals(false, entry.watched)
     }
 }

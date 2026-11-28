@@ -97,6 +97,12 @@
     <string name="calendar_today">Today</string>
     <string name="calendar_tomorrow">Tomorrow</string>
     <string name="calendar_unknown_date">Date not announced</string>
+    <!-- Heading over the past week's days, below the days ahead. -->
+    <string name="calendar_recently_aired">Recently aired</string>
+    <!-- On a calendar entry the profile has watched. -->
+    <string name="calendar_watched">Watched</string>
+    <!-- On a calendar entry that has aired but the profile hasn't watched. -->
+    <string name="calendar_not_watched">Not watched yet</string>
     <plurals name="calendar_day_count">
         <item quantity="one">%d episode</item>
         <item quantity="other">%d episodes</item>

@@ -40,6 +40,11 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import androidx.tv.material3.Icon
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.size
 import coil3.compose.AsyncImage
 import com.fetch.tv.R
 import com.fetch.tv.data.website.WebsiteCalendarEntry
@@ -140,7 +145,8 @@ fun CalendarScreen(
                 )
             }
             is WebsiteReadState.Loaded -> {
-                val days = state.value
+                // The days ahead first, as the screen opens on them; the past week below, newest first.
+                val (past, days) = state.value.partition { it.kind == CalendarDayKind.PAST }
                 if (days.isEmpty()) {
                     item(key = "empty") {
                         InsightsMessage(
@@ -154,16 +160,21 @@ fun CalendarScreen(
                             action = StateAction(stringResource(R.string.calendar_find_series), onNavigateToSearch)
                         )
                     }
-                } else {
-                    days.forEach { day ->
-                        val dayKey = day.date?.toString() ?: "undated"
-                        item(key = "day:$dayKey") { DayHeading(day) }
-                        items(day.entries, key = { "entry:$dayKey:${it.seriesImdbId}:${it.season}:${it.episode}" }) { entry ->
-                            CalendarEntryRow(
-                                entry,
-                                onClick = { onNavigateToDetail(entry.seriesImdbId, if (entry.isMovie) "movie" else "series") }
-                            )
-                        }
+                }
+                val shownDays = days + if (past.isEmpty()) emptyList() else listOf(null) + past.reversed()
+                shownDays.forEach { day ->
+                    if (day == null) {
+                        item(key = "recently_aired") { RecentlyAiredHeading() }
+                        return@forEach
+                    }
+                    val dayKey = day.date?.toString() ?: "undated"
+                    item(key = "day:$dayKey") { DayHeading(day) }
+                    items(day.entries, key = { "entry:$dayKey:${it.seriesImdbId}:${it.season}:${it.episode}" }) { entry ->
+                        CalendarEntryRow(
+                            entry,
+                            aired = day.kind == CalendarDayKind.PAST,
+                            onClick = { onNavigateToDetail(entry.seriesImdbId, if (entry.isMovie) "movie" else "series") }
+                        )
                     }
                 }
             }
@@ -217,7 +228,20 @@ private fun DayHeading(day: CalendarDay) {
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
+private fun RecentlyAiredHeading() {
+    Text(
+        text = stringResource(R.string.calendar_recently_aired),
+        style = FetchTheme.textStyles.sectionTitle,
+        color = FetchTheme.colors.TextPrimary,
+        modifier = Modifier
+            .padding(top = FetchTheme.spacing.xl)
+            .semantics { heading() }
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit, aired: Boolean = false) {
     val shape = RoundedCornerShape(FetchTheme.radii.md)
     val code = episodeCode(entry.season, entry.episode)
     val name = entry.episodeName?.takeIf { it.isNotBlank() }
@@ -297,6 +321,24 @@ private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                }
+                // Whether it's been watched: shown once it has aired, or whenever it has been.
+                if (entry.watched || aired) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+                    ) {
+                        Icon(
+                            imageVector = if (entry.watched) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                            contentDescription = null,
+                            modifier = Modifier.size(FetchTheme.sizes.icons.sm)
+                        )
+                        Text(
+                            text = stringResource(if (entry.watched) R.string.calendar_watched else R.string.calendar_not_watched),
+                            style = FetchTheme.textStyles.metadata,
+                            maxLines = 1
+                        )
+                    }
                 }
                 entry.overview?.takeIf { it.isNotBlank() }?.let {
                     Text(

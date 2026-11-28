@@ -12,8 +12,11 @@ import java.time.temporal.ChronoUnit
 internal val CalendarRanges = listOf(14, 30, 60, 90)
 internal const val DefaultCalendarRange = 30
 
+/** How many days back the website calendar also reads, for what aired recently and whether it was watched. */
+internal const val CalendarPastDays = 7
+
 /** How a day heading reads: relative for the next two days, the date after that. */
-enum class CalendarDayKind { TODAY, TOMORROW, LATER }
+enum class CalendarDayKind { PAST, TODAY, TOMORROW, LATER }
 
 /** One day of the agenda. [date] is null for entries whose air date couldn't be read. */
 data class CalendarDay(
@@ -44,10 +47,10 @@ internal fun calendarDay(entry: WebsiteCalendarEntry, zone: ZoneId): LocalDate? 
     calendarAirTime(entry, zone)?.toLocalDate() ?: parseAirDate(entry.airDate)
 
 internal fun dayKind(date: LocalDate, today: LocalDate): CalendarDayKind =
-    when (ChronoUnit.DAYS.between(today, date)) {
+    when (val offset = ChronoUnit.DAYS.between(today, date)) {
         0L -> CalendarDayKind.TODAY
         1L -> CalendarDayKind.TOMORROW
-        else -> CalendarDayKind.LATER
+        else -> if (offset < 0) CalendarDayKind.PAST else CalendarDayKind.LATER
     }
 
 /**

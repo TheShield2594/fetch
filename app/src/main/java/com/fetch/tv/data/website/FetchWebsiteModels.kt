@@ -257,6 +257,8 @@ data class WebsiteYearInReview(
  *
  * [airsAt] is the instant it airs (ISO 8601), where the source knows it: Trakt, for a profile
  * that has connected it. Where set, it places the entry on the viewer's local day.
+ *
+ * [watched] says whether the profile has already watched it, for the days that have passed.
  */
 @Serializable
 data class WebsiteCalendarEntry(
@@ -271,7 +273,8 @@ data class WebsiteCalendarEntry(
     val kind: String? = null,
     val still: String? = null,
     val backdrop: String? = null,
-    val airsAt: String? = null
+    val airsAt: String? = null,
+    val watched: Boolean = false
 ) {
     /** A film's release rather than an episode. */
     val isMovie: Boolean

@@ -4,6 +4,7 @@ import com.fetch.tv.data.website.WebsiteCalendarEntry
 import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CalendarPresentationTest {
@@ -71,6 +72,17 @@ class CalendarPresentationTest {
         assertEquals(listOf(LocalDate.parse("2026-11-09")), days.map { it.date })
         assertEquals(listOf("Zulu", "Alpha", "Beta"), days.single().entries.map { it.seriesName })
         assertEquals(21, calendarAirTime(late, newYork)!!.hour)
+    }
+
+    @Test
+    fun `days before today are past`() {
+        val days = groupCalendarByDay(
+            listOf(entry("Old", "2026-11-01").copy(watched = true), entry("New", "2026-11-04")),
+            today
+        )
+
+        assertEquals(listOf(CalendarDayKind.PAST, CalendarDayKind.TODAY), days.map { it.kind })
+        assertTrue(days.first().entries.single().watched)
     }
 
     @Test

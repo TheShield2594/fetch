@@ -80,7 +80,18 @@ class CalendarViewModel @Inject constructor(
     private suspend fun load(useWebsite: Boolean, days: Int): CalendarUiState {
         if (useWebsite) {
             val fromWebsite = website.readForActiveProfile { profileId, token ->
-                groupCalendarByDay(client.calendar(profileId, token, days), LocalDate.now())
+                val today = LocalDate.now()
+                val upcoming = client.calendar(profileId, token, days)
+                // The past week, for what aired recently and whether it was watched. Extra: if it
+                // can't be read, the days ahead still show.
+                val recent = try {
+                    client.calendar(profileId, token, CalendarPastDays, start = today.minusDays(CalendarPastDays.toLong()))
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    emptyList()
+                }
+                groupCalendarByDay(recent + upcoming, today)
             }
             // A profile only on this TV, or a TV the website just signed out, still has a history here.
             if (fromWebsite != WebsiteReadState.NoProfile && fromWebsite != WebsiteReadState.NotPaired) {

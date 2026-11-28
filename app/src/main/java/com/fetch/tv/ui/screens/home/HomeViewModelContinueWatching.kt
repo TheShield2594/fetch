@@ -529,7 +529,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 )
                 val (mainItems, upcomingOnly) = splitUpcomingItems(initialItems, continueWatchingSortMode)
 
-                cwLivePublished = true // before the write: the disk restore must not land after it
+                markCwLivePublished() // before the write: the disk restore must not land after it
                 _uiState.update { state ->
                     if (mainItems.isEmpty() && upcomingOnly.isEmpty() && state.continueWatchingItems.isNotEmpty()) {
                         state
@@ -613,7 +613,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                 )
                             )
                             val (partialMain, partialUpcoming) = splitUpcomingItems(partialItems, continueWatchingSortMode)
-                            cwLivePublished = true // before the write: the disk restore must not land after it
+                            markCwLivePublished() // before the write: the disk restore must not land after it
                             _uiState.update { state ->
                                 if (state.continueWatchingItems == partialMain && state.upcomingItems == partialUpcoming) {
                                     state
@@ -1071,7 +1071,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
             )
             val (normalMain, normalUpcoming) = splitUpcomingItems(normalItems, continueWatchingSortMode)
 
-            cwLivePublished = true // before the write: the disk restore must not land after it
+            markCwLivePublished() // before the write: the disk restore must not land after it
             _uiState.update { state ->
                 // Don't overwrite cached CW with empty data while sources are still loading.
                 // Once remote progress is confirmed loaded (Fetch Sync completed or Trakt
@@ -1621,7 +1621,7 @@ private suspend fun HomeViewModel.enrichVisibleContinueWatchingItems(
         }
     }
 
-    cwLivePublished = true // before the write: the disk restore must not land after it
+    markCwLivePublished() // before the write: the disk restore must not land after it
     _uiState.update { state ->
         val mergedEnrichedItems = mergeConcurrentContinueWatchingEnrichment(
             currentItems = state.continueWatchingItems + state.upcomingItems,

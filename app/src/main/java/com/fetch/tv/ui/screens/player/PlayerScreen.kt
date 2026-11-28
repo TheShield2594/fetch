@@ -1016,7 +1016,12 @@ fun PlayerScreen(
                                 return@onKeyEvent true
                             }
                             KeyEvent.KEYCODE_MEDIA_PAUSE,
-                            KeyEvent.KEYCODE_MEDIA_STOP -> return@onKeyEvent true
+                            KeyEvent.KEYCODE_MEDIA_STOP -> {
+                                // Already paused, so OnPause changes nothing here, except that it
+                                // cancels mpv's resume after a transient audio focus loss (#766).
+                                if (firstPress) viewModel.onEvent(PlayerEvent.OnPause)
+                                return@onKeyEvent true
+                            }
                             else -> {
                                 viewModel.onEvent(PlayerEvent.OnDismissPauseOverlay)
                                 // Other keys only dismiss, but FF/Rewind, skip and next/previous

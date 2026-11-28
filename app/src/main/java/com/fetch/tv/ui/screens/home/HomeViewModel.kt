@@ -240,9 +240,19 @@ class HomeViewModel @Inject constructor(
 
     /** True once the CW pipeline has completed its first emission (items or empty). */
     internal val _initialCwResolved = MutableStateFlow(false)
-    /** Set before the pipeline's first Continue Watching write; the disk restore then stays out. */
+    /**
+     * Set before the pipeline's first Continue Watching write; the disk restore then stays out.
+     * Written and read under [cwPublishLock], so a restore that already checked it has finished its
+     * write before the pipeline's write runs, and the pipeline's write always lands last.
+     */
     @Volatile
     internal var cwLivePublished: Boolean = false
+    internal val cwPublishLock = Any()
+
+    /** Marks the pipeline as published; call right before each of its Continue Watching writes. */
+    internal fun markCwLivePublished() {
+        synchronized(cwPublishLock) { cwLivePublished = true }
+    }
     val initialCwResolved: StateFlow<Boolean> = _initialCwResolved.asStateFlow()
     val effectiveAutoplayEnabled = playerSettingsDataStore.playerSettings
         .map(StreamAutoPlayPolicy::isEffectivelyEnabled)
@@ -610,7 +620,7 @@ class HomeViewModel @Inject constructor(
                     clearFocusState()
                                 // Reset so the new profile's pipeline signals first completion correctly.
                     _initialCwResolved.value = false
-                    cwLivePublished = false
+                    synchronized(cwPublishLock) { cwLivePublished = false }
                     loadContinueWatching()
                     // Clear watched badges so they don't leak between profiles.
                     watchedSeriesStateHolder.clearInMemory()
@@ -997,7 +1007,7 @@ class HomeViewModel @Inject constructor(
             if (items.isNotEmpty() && profileManager.currentProfileId() == profileId) {
                 val (mainItems, upcomingOnly) = splitUpcomingItems(items, sortMode)
                 var restored = false
-                _uiState.update { state ->
+                synchronized(cwPublishLock) { _uiState.update { state ->
                     // Only a placeholder until the pipeline's first result: on slow storage this
                     // can land after it, and must not put the older disk copy back over it.
                     if (_initialCwResolved.value ||
@@ -1011,7 +1021,7 @@ class HomeViewModel @Inject constructor(
                         restored = true
                         state.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly)
                     }
-                }
+                } }
                 if (restored) _initialCwResolved.value = true
             }
         }

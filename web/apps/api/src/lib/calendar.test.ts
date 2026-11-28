@@ -256,3 +256,15 @@ describe("getCalendar", () => {
     expect(entries.map((e) => e.seriesName)).toEqual(["Bluey", "Andor", "A Film"]);
   });
 });
+
+describe("calendarFinale", () => {
+  it("reads TMDB's episode type, a finale of an ended show being the series'", async () => {
+    const { calendarFinale } = await import("./calendar.js");
+    expect(calendarFinale("finale", "Returning Series")).toBe("season");
+    expect(calendarFinale("finale", "Ended")).toBe("series");
+    expect(calendarFinale("finale", "Canceled")).toBe("series");
+    expect(calendarFinale("mid_season", "Returning Series")).toBe("mid_season");
+    expect(calendarFinale("standard", "Ended")).toBeNull();
+    expect(calendarFinale(undefined, null)).toBeNull();
+  });
+});

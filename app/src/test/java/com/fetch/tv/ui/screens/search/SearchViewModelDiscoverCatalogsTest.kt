@@ -262,6 +262,36 @@ class SearchViewModelDiscoverCatalogsTest {
     }
 
     @Test
+    fun `a title watched during a failed refresh stays out of the grid put back (#845)`() = runTest(mainDispatcher) {
+        val catalogs = FakeCatalogs()
+        val watched = MutableStateFlow(emptySet<String>())
+        val viewModel = newViewModel(catalogs, MutableStateFlow(listOf(addon("rated"))), watchedMovies = watched)
+        var now = 0L
+        viewModel.discoverClockMs = { now }
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+        viewModel.onEvent(SearchEvent.ToggleDiscoverHideWatched)
+        advanceUntilIdle()
+        val before = viewModel.uiState.value.discoverResults.map { it.id }
+        val title = before[3]
+
+        catalogs.failing = true
+        val hold = kotlinx.coroutines.CompletableDeferred<Unit>()
+        catalogs.hold = hold
+        now = 31 * 60 * 1000L
+        viewModel.ensureDiscoverLoaded()
+        runCurrent()
+        watched.value = setOf(title)
+        runCurrent()
+        // The kept grid isn't emptied while the refresh runs.
+        assertTrue(viewModel.uiState.value.discoverResults.isNotEmpty())
+        hold.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(before - title, viewModel.uiState.value.discoverResults.map { it.id })
+    }
+
+    @Test
     fun `a failed rebuild after a catalog is removed does not page it again (#845)`() = runTest(mainDispatcher) {
         val catalogs = FakeCatalogs()
         val installed = MutableStateFlow(listOf(addon("rated", "unrated")))
@@ -397,7 +427,8 @@ class SearchViewModelDiscoverCatalogsTest {
     private fun newViewModel(
         repository: CatalogRepository,
         addons: Flow<List<Addon>>,
-        hideUnreleased: Flow<Boolean> = flowOf(false)
+        hideUnreleased: Flow<Boolean> = flowOf(false),
+        watchedMovies: Flow<Set<String>> = flowOf(emptySet())
     ): SearchViewModel {
         val layoutPreferences = mockk<LayoutPreferenceDataStore>()
         every { layoutPreferences.discoverLocation } returns flowOf(DiscoverLocation.IN_SIDEBAR)
@@ -414,7 +445,7 @@ class SearchViewModelDiscoverCatalogsTest {
         every { history.recentSearches } returns flowOf(emptyList())
 
         val watchProgress = mockk<WatchProgressRepository>()
-        every { watchProgress.observeWatchedMovieIds() } returns flowOf(emptySet())
+        every { watchProgress.observeWatchedMovieIds() } returns watchedMovies
 
         val watchedSeries = mockk<WatchedSeriesStateHolder>()
         every { watchedSeries.fullyWatchedSeriesIds } returns MutableStateFlow(emptySet())

@@ -1474,6 +1474,9 @@ class SearchViewModel @Inject constructor(
     private fun refilterDiscoverForWatched() {
         val filters = _uiState.value.discoverFilters
         if (!filters.hideWatched || !_uiState.value.discoverInitialized) return
+        // During a keep-grid refresh the merged titles are reset and the grid on screen is the old
+        // one; the new first page, or the restore if it fails, applies the watched titles (#845).
+        if (discoverRefreshSnapshot != null) return
         if (!filters.sorted) {
             _uiState.update { it.copy(discoverResults = applyDiscoverFilters(discoverMergedItems, filters, discoverIsWatched)) }
             return
@@ -1746,6 +1749,8 @@ class SearchViewModel @Inject constructor(
                 discoverUnratedSourceCount = snapshot.cursors.count { c -> c.sendsNoRatings }
             )
         }
+        // Titles watched while the refresh ran leave the restored grid too, batches kept in place.
+        refilterDiscoverForWatched()
     }
 
     /**

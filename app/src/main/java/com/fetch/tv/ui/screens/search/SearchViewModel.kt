@@ -206,6 +206,8 @@ class SearchViewModel @Inject constructor(
      */
     private var discoverSortedShown: List<MetaPreview> = emptyList()
     private var discoverSortedCount = 0
+    /** Where each placed sorted batch ends in the merged items, partial batches included (#857). */
+    private val discoverSortedBatchEnds = mutableListOf<Int>()
 
     /** Paging rounds in a row that added nothing the filters keep. */
     private var discoverUnproductiveRounds = 0
@@ -1366,13 +1368,24 @@ class SearchViewModel @Inject constructor(
             _uiState.update { it.copy(discoverResults = applyDiscoverFilters(discoverMergedItems, filters, discoverIsWatched)) }
             return
         }
-        val placed = discoverSortedCount
+        // Replays the batches exactly as they were placed, partial ones included, so a title from a
+        // later batch can never move ahead of one already shown.
+        val merged = discoverMergedItems
+        val ends = discoverSortedBatchEnds.toList()
         resetDiscoverSortedBatches()
-        while (discoverSortedCount < placed) {
-            val before = discoverSortedCount
-            placeDiscoverSortedBatch(filters)
-            if (discoverSortedCount == before) break
+        var start = 0
+        for (recordedEnd in ends) {
+            val end = recordedEnd.coerceIn(start, merged.size)
+            discoverSortedShown = appendDiscoverSortedBatch(
+                shown = discoverSortedShown,
+                batch = merged.subList(start, end),
+                filters = filters,
+                isWatched = discoverIsWatched
+            )
+            discoverSortedBatchEnds += end
+            start = end
         }
+        discoverSortedCount = start
         _uiState.update { it.copy(discoverResults = discoverSortedShown) }
     }
 
@@ -1429,6 +1442,7 @@ class SearchViewModel @Inject constructor(
     private fun resetDiscoverSortedBatches() {
         discoverSortedShown = emptyList()
         discoverSortedCount = 0
+        discoverSortedBatchEnds.clear()
     }
 
     /**
@@ -1446,6 +1460,7 @@ class SearchViewModel @Inject constructor(
             filters = filters,
             isWatched = discoverIsWatched
         )
+        if (end > start) discoverSortedBatchEnds += end
         discoverSortedCount = end
     }
 

@@ -106,6 +106,21 @@ class CalendarPresentationTest {
     }
 
     @Test
+    fun `an air time can keep the week's oldest day, and an untimed entry before the week stays out`() {
+        // Kiritimati is UTC+14: 12:30Z on the 20th is the 21st there, inside a week ending the 28th.
+        val kiritimati = java.time.ZoneId.of("Pacific/Kiritimati")
+        val lastDay = LocalDate.of(2026, 11, 28)
+        val timed = entry("Timed", "2026-11-20")
+        val untimed = entry("Untimed", "2026-11-20", id = "tt-untimed")
+        val times = mapOf("${timed.seriesImdbId}:1:1" to "2026-11-20T12:30:00Z")
+
+        val kept = placeOnLocalDays(listOf(timed, untimed), times, lastDay, pastDays = 7, zone = kiritimati)
+
+        assertEquals(listOf("Timed"), kept.map { it.seriesName })
+        assertEquals("2026-11-20T12:30:00Z", kept.single().airsAt)
+    }
+
+    @Test
     fun `days before today are past`() {
         val days = groupCalendarByDay(
             listOf(entry("Old", "2026-11-01").copy(watched = true), entry("New", "2026-11-04")),

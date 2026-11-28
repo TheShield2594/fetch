@@ -237,18 +237,16 @@ class WatchHistoryCalendarSource internal constructor(
             emptyMap()
         } else {
             try {
-                airTimes(today.minusDays(CalendarPastDays.toLong()), CalendarPastDays + days + 1)
+                // From a day before the week, as the candidates are: Trakt picks by UTC date, and
+                // an episode on the week's first local day can air the UTC day before it.
+                airTimes(today.minusDays(RECENT_WINDOW_DAYS.toLong()), RECENT_WINDOW_DAYS + days + 1)
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Exception) {
                 emptyMap()
             }
         }
-        // The past week on local days, now that air times can say what those are.
-        val weekStart = today.minusDays(CalendarPastDays.toLong())
-        val zone = ZoneId.systemDefault()
-        val timed = entries.map { withAirTime(it, times) }
-            .filter { calendarDay(it, zone)?.isBefore(weekStart) != true }
+        val timed = placeOnLocalDays(entries, times, today, CalendarPastDays, ZoneId.systemDefault())
         CalendarLookup(timed + movieEntries, failedSeries = lookups.count { it.second.isFailure })
     }
 

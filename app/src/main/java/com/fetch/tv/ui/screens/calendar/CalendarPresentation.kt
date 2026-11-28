@@ -216,6 +216,22 @@ internal fun withAirTime(entry: WebsiteCalendarEntry, airTimes: Map<String, Stri
     return time?.let { entry.copy(airsAt = it) } ?: entry
 }
 
+/**
+ * [entries] with their air times from [airTimes], keeping those whose local day (in [zone]) is no
+ * earlier than [pastDays] before [today]. The candidates come a day wider than the week, as an air
+ * time can move an episode onto the viewer's next day; this is where the week is checked again.
+ */
+internal fun placeOnLocalDays(
+    entries: List<WebsiteCalendarEntry>,
+    airTimes: Map<String, String>,
+    today: LocalDate,
+    pastDays: Int,
+    zone: ZoneId
+): List<WebsiteCalendarEntry> {
+    val weekStart = today.minusDays(pastDays.toLong())
+    return entries.map { withAirTime(it, airTimes) }.filter { calendarDay(it, zone)?.isBefore(weekStart) != true }
+}
+
 /** The ids of every film the profile has watched, from its history and finished playback. */
 internal fun watchedMovieIds(
     progress: List<com.fetch.tv.domain.model.WatchProgress>,

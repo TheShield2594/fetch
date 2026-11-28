@@ -350,4 +350,41 @@ class SubtitleCharsetDetectorTest {
         val decoded = SubtitleCharsetDetector.decode(rawBytes, languageHint = null)
         assertEquals(elText, decoded)
     }
+
+    @Test
+    fun normalizeToUtf8ReturnsCleanUtf8Unchanged() {
+        val bytes = "{\\an8}Привет, мир — 日本語".toByteArray(Charsets.UTF_8)
+        val normalized = SubtitleCharsetDetector.normalizeToUtf8(bytes)
+        assertTrue(normalized === bytes)
+    }
+
+    @Test
+    fun normalizeToUtf8CopiesOnlyTheRequestedRange() {
+        val bytes = "xxHello, world".toByteArray(Charsets.UTF_8)
+        val normalized = SubtitleCharsetDetector.normalizeToUtf8(bytes, offset = 2, length = 5)
+        assertEquals("Hello", String(normalized, Charsets.UTF_8))
+    }
+
+    @Test
+    fun normalizeToUtf8StillStripsBomAndDecodesLegacyBytes() {
+        val withBom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()) + "Hi".toByteArray()
+        assertEquals("Hi", String(SubtitleCharsetDetector.normalizeToUtf8(withBom), Charsets.UTF_8))
+
+        val latin1 = "Ça va très bien, merci beaucoup".toByteArray(Charset.forName("windows-1252"))
+        // Not valid UTF-8, so it takes the decode path and comes back re-encoded.
+        assertTrue(!SubtitleCharsetDetector.normalizeToUtf8(latin1).contentEquals(latin1))
+    }
+
+    @Test
+    fun normalizeToUtf8OnlyPassesWellFormedUtf8Through() {
+        val wellFormed = byteArrayOf(0x41, 0xE0.toByte(), 0xA0.toByte(), 0x80.toByte())
+        assertTrue(SubtitleCharsetDetector.normalizeToUtf8(wellFormed) === wellFormed)
+
+        // An overlong three-byte form is not UTF-8 and must not reach libass as it is.
+        val overlong = byteArrayOf(0x41, 0xE0.toByte(), 0x80.toByte(), 0x80.toByte())
+        assertTrue(SubtitleCharsetDetector.normalizeToUtf8(overlong) !== overlong)
+        // A UTF-16 surrogate encoded as UTF-8.
+        val surrogate = byteArrayOf(0xED.toByte(), 0xA0.toByte(), 0x80.toByte())
+        assertTrue(SubtitleCharsetDetector.normalizeToUtf8(surrogate) !== surrogate)
+    }
 }

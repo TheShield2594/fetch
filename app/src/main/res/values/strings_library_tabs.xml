@@ -42,4 +42,12 @@
     <!-- History tab -->
     <string name="library_history_empty_title">Nothing watched yet</string>
     <string name="library_history_empty_subtitle">What you finish, and what your tracking service marks as watched, shows up here by month.</string>
+    <!-- Discover shelves over the grid (#858) -->
+    <string name="discover_shelf_trending">Trending now</string>
+    <string name="discover_shelf_genres">Genres</string>
+    <string name="discover_shelf_because_library">Because it\'s in your library</string>
+    <string name="discover_shelf_new_this_year">New this year</string>
+    <string name="discover_shelf_all_movies">All movies</string>
+    <string name="discover_shelf_all_series">All series</string>
+    <string name="discover_shelf_all_titles">All titles</string>
 </resources>

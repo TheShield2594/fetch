@@ -48,6 +48,7 @@ fun DiscoverScreen(
     val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
     val progressByContentId by viewModel.progressByContentId.collectAsStateWithLifecycle()
     val libraryIds by viewModel.libraryIds.collectAsStateWithLifecycle()
+    val librarySeedGenres by viewModel.discoverLibrarySeedGenres.collectAsStateWithLifecycle()
     val quickPlayAllowed by viewModel.quickPlayAllowed.collectAsStateWithLifecycle()
     val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
     val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
@@ -118,6 +119,11 @@ fun DiscoverScreen(
                 },
                 onDiscoverItemFocused = { item ->
                     discoverFocusedItemKey = discoverItemKey(item)
+                    viewModel.prefetchMetaOnFocus(item.id, item.rawType)
+                },
+                librarySeedGenres = librarySeedGenres,
+                onShelfItemFocused = { key, item ->
+                    discoverFocusedItemKey = key
                     viewModel.prefetchMetaOnFocus(item.id, item.rawType)
                 },
                 onSelectType = {

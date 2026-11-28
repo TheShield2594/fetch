@@ -60,6 +60,11 @@ data class SearchUiState(
     val discoverSortedTitleCount: Int = 0,
     /** Catalogs being browsed whose titles came with no ratings, left out by a Rating filter (#864). */
     val discoverUnratedSourceCount: Int = 0,
+    /**
+     * The Trending shelf over the grid (#858): the first page of the selected type's popular or
+     * trending catalog, null while there is none for the type. Its title is the catalog's name.
+     */
+    val discoverTrending: com.fetch.tv.domain.model.CatalogRow? = null,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,

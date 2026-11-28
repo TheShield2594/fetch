@@ -97,6 +97,7 @@ internal fun SubtitleSelectionOverlay(
     subtitleDelayMs: Int,
     installedSubtitleAddonOrder: List<String>,
     isLoadingAddons: Boolean,
+    loadingAddonSubtitleUrl: String? = null,
     useLibass: Boolean = false,
     isUsingMpv: Boolean = false,
     onInternalTrackSelected: (Int) -> Unit,
@@ -133,6 +134,7 @@ internal fun SubtitleSelectionOverlay(
             subtitleDelayMs = subtitleDelayMs,
             installedSubtitleAddonOrder = installedSubtitleAddonOrder,
             isLoadingAddons = isLoadingAddons,
+            loadingAddonSubtitleUrl = loadingAddonSubtitleUrl,
             useLibass = useLibass,
             isUsingMpv = isUsingMpv,
             onInternalTrackSelected = onInternalTrackSelected,
@@ -161,6 +163,7 @@ private fun SubtitleSelectionOverlaySession(
     subtitleDelayMs: Int,
     installedSubtitleAddonOrder: List<String>,
     isLoadingAddons: Boolean,
+    loadingAddonSubtitleUrl: String? = null,
     useLibass: Boolean = false,
     isUsingMpv: Boolean = false,
     onInternalTrackSelected: (Int) -> Unit,
@@ -625,6 +628,7 @@ private fun SubtitleSelectionOverlaySession(
                         selectedLanguageKey = selectedLanguageKey,
                         options = subtitleOptions,
                         isLoadingAddons = sessionIsLoadingAddons,
+                        loadingAddonSubtitleUrl = loadingAddonSubtitleUrl,
                         listState = optionListState,
                         itemFocusRequesters = optionItemRequesters,
                         focusTargetId = pendingOptionFocusId,
@@ -779,6 +783,7 @@ private fun SubtitleOptionsRail(
     selectedLanguageKey: String,
     options: List<SubtitleOptionRailItem>,
     isLoadingAddons: Boolean,
+    loadingAddonSubtitleUrl: String?,
     listState: LazyListState,
     itemFocusRequesters: Map<String, FocusRequester>,
     focusTargetId: String?,
@@ -857,6 +862,8 @@ private fun SubtitleOptionsRail(
                     items(items = options, key = { option -> option.id }) { option ->
                         SubtitleOptionCard(
                             item = option,
+                            isLoading = loadingAddonSubtitleUrl != null &&
+                                option.addonSubtitle?.url == loadingAddonSubtitleUrl,
                             focusRequester = itemFocusRequesters[option.id],
                             onMoveLeft = onMoveLeft,
                             onMoveRight = onMoveRight,
@@ -1279,6 +1286,7 @@ private fun SubtitleLanguageCard(
 @Composable
 private fun SubtitleOptionCard(
     item: SubtitleOptionRailItem,
+    isLoading: Boolean,
     focusRequester: FocusRequester?,
     onMoveLeft: () -> Unit,
     onMoveRight: () -> Unit,
@@ -1376,7 +1384,9 @@ private fun SubtitleOptionCard(
                     )
                 }
             }
-            if (item.isSelected) {
+            if (isLoading) {
+                LoadingIndicator(modifier = Modifier.size(FetchTheme.spacing.lg))
+            } else if (item.isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,

@@ -16,7 +16,16 @@ import kotlin.math.abs
 private const val MPV_RESUME_SEEK_TOLERANCE_MS = 1500L
 
 internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
-    if (mpvView === view) return
+    val previous = mpvView
+    if (previous === view) return
+    // The outgoing view owns a native core. Nothing else can reach it once mpvView moves on, so
+    // releaseMpvPlayer() would no-op and the core would keep its cache, audio output and the
+    // relay (and through it this controller) alive (#728). Release it here, and remember where
+    // it was so a replacement view resumes there instead of at 0:00.
+    val handoverPositionMs = previous?.let { detachAndReleaseMpvView(it) } ?: 0L
+    // The surface detaches with null before a recreated view attaches, so the position is kept
+    // as a pending seek for whichever view comes next. A seek already queued is left alone.
+    if (handoverPositionMs > 0L && pendingSeekPosition == null) pendingSeekPosition = handoverPositionMs
     mpvView = view
 
     if (view == null) return
@@ -254,6 +263,30 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
             )
         }
     }
+}
+
+/**
+ * Unhooks the relay from [view], destroys its core and returns the position it was playing at,
+ * or 0 when there is nothing to resume (live, released, nothing loaded). Must run while
+ * [view] is still [PlayerRuntimeController.mpvView], so the relay comes off the right core.
+ */
+private fun PlayerRuntimeController.detachAndReleaseMpvView(view: FetchMpvSurfaceView): Long {
+    val resumePositionMs = if (
+        isReleasingPlayer ||
+        !isUsingMpvEngine() ||
+        currentStreamUrl.isBlank() ||
+        isLiveForWatchProgress()
+    ) {
+        0L
+    } else {
+        runCatching {
+            view.currentPositionMs().takeIf { it > 0L && view.isPositionFromRequestedMedia() }
+        }.getOrNull() ?: _playbackTimeline.value.currentPosition
+    }
+    unregisterMpvEventRelay()
+    runCatching { view.releasePlayer() }
+        .onFailure { Log.w(PlayerRuntimeController.TAG, "mpv release of detached view failed: ${it.message}") }
+    return resumePositionMs.coerceAtLeast(0L)
 }
 
 internal fun PlayerRuntimeController.releaseMpvPlayer() {

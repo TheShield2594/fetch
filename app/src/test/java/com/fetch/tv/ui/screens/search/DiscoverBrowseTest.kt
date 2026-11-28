@@ -264,6 +264,127 @@ class DiscoverBrowseTest {
         assertEquals(DiscoverFilters(), stored.toDiscoverFilters())
     }
 
+    // Shelves (#858)
+
+    @Test
+    fun `shelves show only while no genre or filter is set`() {
+        assertTrue(discoverShowsShelves(DiscoverFilters(), genre = null))
+        assertFalse(discoverShowsShelves(DiscoverFilters(), genre = "Drama"))
+        assertFalse(discoverShowsShelves(DiscoverFilters(minRating = 7), genre = null))
+        assertFalse(discoverShowsShelves(DiscoverFilters(sort = DiscoverSort.TITLE), genre = null))
+        assertFalse(discoverShowsShelves(DiscoverFilters(hideWatched = true), genre = null))
+    }
+
+    @Test
+    fun `the trending shelf reads the type's first popular or trending catalog`() {
+        val catalogs = listOf(
+            catalog("featured", "movie"),
+            catalog("top", "series"),
+            catalog("byGenre", "movie", genreRequired = true, defaultGenre = "Action").copy(catalogName = "Popular by genre"),
+            catalog("top", "movie").copy(catalogName = "Popular"),
+            catalog("trending_week", "movie")
+        )
+
+        assertEquals("top", discoverTrendingCatalog(catalogs, "movie")?.catalogId)
+        assertEquals("series", discoverTrendingCatalog(catalogs, "series")?.type)
+        assertNull(discoverTrendingCatalog(listOf(catalog("featured", "movie"), catalog("stopwatch", "movie")), "movie"))
+    }
+
+    @Test
+    fun `library seeds come from the most recently saved titles of the type, most shared first`() {
+        val entries = listOf(
+            libraryEntry("old", "movie", listOf("Western"), listedAt = 1),
+            libraryEntry("a", "movie", listOf("Drama", "Crime"), listedAt = 100),
+            libraryEntry("b", "movie", listOf("crime"), listedAt = 90),
+            libraryEntry("s", "series", listOf("Comedy"), listedAt = 200)
+        )
+
+        val seeds = discoverLibrarySeedGenres(entries, "movie")
+
+        assertEquals("Crime", seeds.first())
+        assertTrue("Drama" in seeds)
+        assertTrue(discoverLibrarySeedGenres(entries, "anime").isEmpty())
+    }
+
+    @Test
+    fun `because it's in your library keeps catalog order and leaves out saved and watched titles`() {
+        val items = listOf(
+            item("one", genres = listOf("Drama")),
+            item("two", genres = listOf("Drama", "Crime")),
+            item("saved", genres = listOf("Drama", "Crime")),
+            item("watched", genres = listOf("Crime")),
+            item("other", genres = listOf("Horror"))
+        )
+
+        val shelf = discoverBecauseInLibrary(
+            items = items,
+            seedGenres = listOf("crime", "Drama"),
+            isSaved = { it.id == "saved" },
+            isWatched = { it.id == "watched" }
+        )
+
+        assertEquals(listOf("one", "two"), shelf.map { it.id })
+        assertTrue(discoverBecauseInLibrary(items, emptyList(), { false }, { false }).isEmpty())
+    }
+
+    @Test
+    fun `new this year keeps the loaded titles released this year`() {
+        val items = listOf(item("now", releaseInfo = "2026"), item("then", releaseInfo = "2019"), item("range", releaseInfo = "2026–"))
+
+        assertEquals(listOf("now", "range"), discoverNewThisYear(items, currentYear = 2026).map { it.id })
+    }
+
+    @Test
+    fun `shelf focus keys round-trip and grid keys are not shelf keys`() {
+        assertEquals("library" to "movie:a|b", parseDiscoverShelfFocusKey(discoverShelfFocusKey("library", "movie:a|b")))
+        assertNull(parseDiscoverShelfFocusKey(discoverItemKey(item("a"))))
+        assertNull(parseDiscoverShelfFocusKey(null))
+    }
+
+    @Test
+    fun `shelf focus follows the title, not its place`() {
+        val a = item("a")
+        val b = item("b")
+        val c = item("c")
+        fun shelves(vararg items: MetaPreview) = listOf(
+            DiscoverShelf(
+                id = "library",
+                row = com.fetch.tv.domain.model.CatalogRow(
+                    addonId = "x", addonName = "", addonBaseUrl = "", catalogId = "x", catalogName = "",
+                    type = ContentType.MOVIE, items = items.toList()
+                )
+            )
+        )
+        val key = discoverShelfFocusKey("library", discoverItemKey(b))
+
+        assertEquals("library" to 1, resolveDiscoverShelfFocus(key, shelves(a, b, c)))
+        assertEquals("library" to 0, resolveDiscoverShelfFocus(key, shelves(b, c)))
+        assertNull(resolveDiscoverShelfFocus(key, shelves(a, c)))
+    }
+
+    @Test
+    fun `a title watched under its IMDb id counts as watched`() {
+        val preview = item("addon:42").copy(imdbId = "tt42")
+        assertTrue(isDiscoverItemWatched(preview, watchedMovieIds = setOf("tt42"), watchedSeriesIds = emptySet()))
+        assertFalse(isDiscoverItemWatched(preview, watchedMovieIds = emptySet(), watchedSeriesIds = setOf("tt42")))
+    }
+
+    private fun libraryEntry(id: String, type: String, genres: List<String>, listedAt: Long) =
+        com.fetch.tv.domain.model.LibraryEntry(
+            id = id,
+            type = type,
+            name = id,
+            poster = null,
+            background = null,
+            logo = null,
+            description = null,
+            releaseInfo = null,
+            imdbRating = null,
+            genres = genres,
+            addonBaseUrl = null,
+            listedAt = listedAt
+        )
+
     private fun catalog(
         key: String,
         type: String,
@@ -323,7 +444,8 @@ class DiscoverBrowseTest {
         name: String = id,
         releaseInfo: String? = "2020",
         released: String? = null,
-        rating: Float? = null
+        rating: Float? = null,
+        genres: List<String> = emptyList()
     ) = MetaPreview(
         id = id,
         type = type,
@@ -335,7 +457,7 @@ class DiscoverBrowseTest {
         description = null,
         releaseInfo = releaseInfo,
         imdbRating = rating,
-        genres = emptyList(),
+        genres = genres,
         released = released
     )
 }

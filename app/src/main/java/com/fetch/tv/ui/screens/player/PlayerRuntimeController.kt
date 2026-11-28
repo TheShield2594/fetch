@@ -434,6 +434,8 @@ class PlayerRuntimeController(
     internal var automaticSubtitleSyncJob: Job? = null // AutoSync hook
     /** mpv: the add-on subtitle download and sub-add in flight, which AutoSync lets land first. */
     internal var mpvAddonSubtitleSelectionJob: Job? = null // AutoSync hook
+    /** Moves on with every mpv addon-subtitle pick or cancel; a pick clears its spinner only while it still matches (#726). */
+    internal var mpvAddonSubtitlePickToken: Long = 0L
     /** ExoPlayer sidecar path: external addon cues without setMediaSource (preserves buffer). */
     internal var sidecarSubtitleJob: Job? = null
     internal var sidecarGenerationCounter: Long = 0L // AutoSync hook

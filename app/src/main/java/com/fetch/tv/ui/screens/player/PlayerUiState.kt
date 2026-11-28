@@ -153,6 +153,8 @@ data class PlayerUiState(
     // Addon subtitles
     val addonSubtitles: List<Subtitle> = emptyList(),
     val isLoadingAddonSubtitles: Boolean = false,
+    /** URL of the addon subtitle mpv is still downloading after a pick; its row shows a spinner. */
+    val loadingAddonSubtitleUrl: String? = null,
     val selectedAddonSubtitle: Subtitle? = null,
     val installedSubtitleAddonOrder: List<String> = emptyList(),
     // Episodes/streams side panel (for series)

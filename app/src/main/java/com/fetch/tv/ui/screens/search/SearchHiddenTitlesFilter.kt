@@ -18,6 +18,10 @@ internal fun SearchUiState.withoutNotInterested(visibility: TitleVisibility): Se
         visibility.filterSuggestionRow(row).keptAfterFiltering(original = row)
     }
     val discover = visibility.filterSuggestions(discoverResults)
-    if (rows == catalogRows && discover === discoverResults) return this
-    return copy(catalogRows = rows, discoverResults = discover)
+    val trending = discoverTrending?.let { row ->
+        val items = visibility.filterSuggestions(row.items)
+        if (items === row.items) row else row.copy(items = items)
+    }
+    if (rows == catalogRows && discover === discoverResults && trending === discoverTrending) return this
+    return copy(catalogRows = rows, discoverResults = discover, discoverTrending = trending)
 }

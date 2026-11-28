@@ -34,6 +34,8 @@ object SubtitleCharsetDetector {
     private val CHARSET_EUC_KR: Charset = safeCharset("EUC-KR")
 
     private const val MAX_SAMPLE_BYTES = 4096
+    private const val UTF8_LATIN1_SUPPLEMENT_LEAD = 0xC3
+    private val WHITESPACE_REGEX = Regex("\\s+")
 
     fun decode(
         bytes: ByteArray,
@@ -78,8 +80,33 @@ object SubtitleCharsetDetector {
         length: Int = bytes.size - offset,
         languageHint: String? = null
     ): ByteArray {
+        if (length <= 0) return ByteArray(0)
+        // Fast path for samples that are already clean UTF-8 (the usual case for embedded ASS
+        // dialogue): no BOM to strip, and no 0xC3 lead byte, which every U+00C0..U+00FF character
+        // the double-encoded Hebrew repair looks for starts with. Such bytes would decode and
+        // re-encode to themselves, so hand them back without the String round trip.
+        if (!startsWithBom(bytes, offset, length) &&
+            !containsByte(bytes, offset, length, UTF8_LATIN1_SUPPLEMENT_LEAD) &&
+            isStrictValidUtf8(bytes, offset, length)
+        ) {
+            return if (offset == 0 && length == bytes.size) bytes else bytes.copyOfRange(offset, offset + length)
+        }
         val decoded = decode(bytes, offset, length, languageHint)
         return decoded.toByteArray(StandardCharsets.UTF_8)
+    }
+
+    private fun startsWithBom(bytes: ByteArray, offset: Int, length: Int): Boolean {
+        val b0 = bytes[offset].toInt() and 0xFF
+        val b1 = if (length >= 2) bytes[offset + 1].toInt() and 0xFF else -1
+        val b2 = if (length >= 3) bytes[offset + 2].toInt() and 0xFF else -1
+        return (b0 == 0xEF && b1 == 0xBB && b2 == 0xBF) || (b0 == 0xFF && b1 == 0xFE) || (b0 == 0xFE && b1 == 0xFF)
+    }
+
+    private fun containsByte(bytes: ByteArray, offset: Int, length: Int, value: Int): Boolean {
+        for (i in offset until offset + length) {
+            if ((bytes[i].toInt() and 0xFF) == value) return true
+        }
+        return false
     }
 
     fun repairDoubleEncodedUtf8IfNeeded(text: String, languageHint: String? = null): String {
@@ -96,7 +123,7 @@ object SubtitleCharsetDetector {
             return text
         }
 
-        val words = text.split("\\s+".toRegex()).filter { it.length >= 2 && it.any { c -> c.isLetter() } }
+        val words = text.split(WHITESPACE_REGEX).filter { it.length >= 2 && it.any { c -> c.isLetter() } }
         if (words.isEmpty()) return text
 
         // In true double-encoded Hebrew text, dialogue words consist almost exclusively of Latin-1 characters in \u00E0..\u00FA
@@ -191,6 +218,33 @@ object SubtitleCharsetDetector {
             if (b == 0xCF || b == 0xC1 || b == 0xC5 || b == 0xC9 || b == 0xD5 || b == 0xDF) koi8Vowels++
         }
         return koi8Vowels > russianVowels && koi8Vowels >= 3
+    }
+
+    /**
+     * Well-formed UTF-8 (RFC 3629): no overlong forms, no UTF-16 surrogates, nothing above
+     * U+10FFFF. Bytes that pass can be handed on as they are; anything else is decoded, which
+     * replaces malformed sequences.
+     */
+    private fun isStrictValidUtf8(bytes: ByteArray, offset: Int, length: Int): Boolean {
+        var i = offset
+        val end = offset + length
+        fun cont(index: Int, low: Int = 0x80, high: Int = 0xBF): Boolean =
+            index < end && (bytes[index].toInt() and 0xFF) in low..high
+        while (i < end) {
+            val b1 = bytes[i].toInt() and 0xFF
+            when {
+                b1 <= 0x7F -> i += 1
+                b1 in 0xC2..0xDF -> { if (!cont(i + 1)) return false; i += 2 }
+                b1 == 0xE0 -> { if (!cont(i + 1, 0xA0) || !cont(i + 2)) return false; i += 3 }
+                b1 == 0xED -> { if (!cont(i + 1, high = 0x9F) || !cont(i + 2)) return false; i += 3 }
+                b1 in 0xE1..0xEF -> { if (!cont(i + 1) || !cont(i + 2)) return false; i += 3 }
+                b1 == 0xF0 -> { if (!cont(i + 1, 0x90) || !cont(i + 2) || !cont(i + 3)) return false; i += 4 }
+                b1 in 0xF1..0xF3 -> { if (!cont(i + 1) || !cont(i + 2) || !cont(i + 3)) return false; i += 4 }
+                b1 == 0xF4 -> { if (!cont(i + 1, high = 0x8F) || !cont(i + 2) || !cont(i + 3)) return false; i += 4 }
+                else -> return false
+            }
+        }
+        return true
     }
 
     private fun isFastValidUtf8(bytes: ByteArray, offset: Int, length: Int): Boolean {

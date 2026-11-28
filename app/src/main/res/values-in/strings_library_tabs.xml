@@ -37,4 +37,12 @@
     <string name="card_state_saved">Disimpan</string>
     <string name="discover_include_unrated">Sertakan yang belum dinilai</string>
     <string name="discover_reset_filters">Atur ulang</string>
+    <!-- Discover shelves over the grid (#858) -->
+    <string name="discover_shelf_trending">Sedang tren</string>
+    <string name="discover_shelf_genres">Genre</string>
+    <string name="discover_shelf_because_library">Karena ada di pustaka Anda</string>
+    <string name="discover_shelf_new_this_year">Baru tahun ini</string>
+    <string name="discover_shelf_all_movies">Semua film</string>
+    <string name="discover_shelf_all_series">Semua serial</string>
+    <string name="discover_shelf_all_titles">Semua judul</string>
 </resources>

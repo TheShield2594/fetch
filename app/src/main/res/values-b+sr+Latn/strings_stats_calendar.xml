@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistika</string>
-    <string name="library_open_calendar">Kalendar</string>
     <string name="insights_source_eyebrow">Sa Fetch veb-sajta</string>
     <string name="insights_loading">Učitavanje…</string>
     <string name="insights_not_paired_subtitle">Prijavite ovaj TV na Fetch veb-sajt u meniju Podešavanja › Nalog i ovde će se prikazati. Veb-sajt čuva vašu istoriju gledanja i na osnovu nje sve izračunava.</string>

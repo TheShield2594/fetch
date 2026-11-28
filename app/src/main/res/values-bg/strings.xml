@@ -1251,7 +1251,7 @@
     <string name="ratings_load_error">Не можахме да заредим рейтингите за епизода.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d епизода</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Зареди още</string>
     <string name="discover_loading">Зареждане…</string>
@@ -1296,8 +1296,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Discover е деактивиран</string>
-    <string name="discover_disabled_subtitle">Включи Discover в настройките на Оформление</string>
 
     <!-- Library -->
 
@@ -1377,7 +1375,6 @@
     <string name="cd_trakt_logo">Trakt лого</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Отвори discover</string>
     <string name="cd_voice_search">Гласово търсене</string>
     <string name="cd_expand">Разшири %1$s</string>
     <string name="cd_collapse">Свий %1$s</string>

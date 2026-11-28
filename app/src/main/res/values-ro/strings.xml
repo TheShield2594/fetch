@@ -594,7 +594,7 @@
     <string name="ratings_unavailable">Evaluările episodului nu sunt disponibile.</string>
     <string name="ratings_season_summary">Sezon %1$d - %2$d episoade</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Descoperă</string>
     <string name="discover_load_more">Încarcă mai mult</string>
     <string name="discover_loading">Încărcare…</string>

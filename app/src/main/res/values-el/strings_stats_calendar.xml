@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Στατιστικά</string>
-    <string name="library_open_calendar">Ημερολόγιο</string>
     <string name="insights_source_eyebrow">Από τον ιστότοπο του Fetch</string>
     <string name="insights_loading">Φόρτωση…</string>
     <string name="insights_not_paired_subtitle">Συνδέστε αυτή την TV στον ιστότοπο του Fetch από τις Ρυθμίσεις › Λογαριασμός για να εμφανίζεται εδώ. Ο ιστότοπος κρατά το ιστορικό παρακολούθησής σας και υπολογίζει τα πάντα από αυτό.</string>

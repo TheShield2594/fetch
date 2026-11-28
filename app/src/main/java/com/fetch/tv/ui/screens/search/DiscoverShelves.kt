@@ -266,7 +266,5 @@ private fun DiscoverGenreShelf(
 }
 
 /** Watched as the grid's Hide watched counts it: by id, or by the IMDb id it may be stored under. */
-internal fun isDiscoverItemWatched(item: MetaPreview, watchedMovieIds: Set<String>, watchedSeriesIds: Set<String>): Boolean {
-    val watched = if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) watchedSeriesIds else watchedMovieIds
-    return item.id in watched || item.imdbId?.let { it in watched } == true
-}
+internal fun isDiscoverItemWatched(item: MetaPreview, watchedMovieIds: Set<String>, watchedSeriesIds: Set<String>): Boolean =
+    com.fetch.tv.ui.util.isTitleWatched(item.id, item.apiType, watchedMovieIds, watchedSeriesIds, item.imdbId)

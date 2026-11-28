@@ -1607,7 +1607,7 @@
     <string name="ratings_load_error">לא ניתן לטעון דירוגי פרקים.</string>
     <string name="ratings_season_summary">עונה %1$d - %2$d פרקים</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">גילוי</string>
     <string name="discover_load_more">טעינת עוד פריטים</string>
     <string name="discover_loading">טוען…</string>
@@ -1653,8 +1653,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">גילוי מושבת</string>
-    <string name="discover_disabled_subtitle">הפעלת גילוי בהגדרות התצוגה</string>
 
     <!-- Library -->
 
@@ -1734,7 +1732,6 @@
     <string name="cd_trakt_logo">לוגו Trakt</string>
     <string name="cd_trakt_qr">קוד QR להפעלת Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">פתיחת גילוי</string>
     <string name="cd_clear_search">ניקוי חיפוש</string>
     <string name="cd_voice_search">חיפוש קולי</string>
     <string name="cd_expand">הרחבת %1$s</string>

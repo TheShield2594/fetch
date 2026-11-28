@@ -1444,7 +1444,7 @@
     <string name="ratings_load_error">Kan de beoordelingen van afleveringen niet laden.</string>
     <string name="ratings_season_summary">Seizoen %1$d - %2$d afleveringen</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Ontdekken</string>
     <string name="discover_load_more">Meer laden</string>
     <string name="discover_loading">Laden\u2026</string>
@@ -1490,8 +1490,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Ontdekken is uitgeschakeld</string>
-    <string name="discover_disabled_subtitle">Schakel Ontdekken in bij de indelingsinstellingen</string>
 
     <!-- Library -->
 
@@ -1571,7 +1569,6 @@
     <string name="cd_trakt_logo">Trakt-logo</string>
     <string name="cd_trakt_qr">QR-code voor Trakt-activering</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Ontdekken openen</string>
     <string name="cd_clear_search">Zoekopdracht wissen</string>
     <string name="cd_voice_search">Spraakzoeken</string>
     <string name="cd_expand">%1$s uitvouwen</string>

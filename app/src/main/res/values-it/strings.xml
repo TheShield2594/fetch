@@ -1440,7 +1440,7 @@
 <string name="ratings_load_error">Impossibile caricare le valutazioni degli episodi.</string>
 <string name="ratings_season_summary">Stagione %1$d - %2$d episodi</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
 <string name="discover_title">Scopri</string>
 <string name="discover_load_more">Carica altri</string>
 <string name="discover_loading">Caricamento\u2026</string>
@@ -1486,8 +1486,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-<string name="discover_disabled_title">Scopri è disattivato</string>
-<string name="discover_disabled_subtitle">Abilita Scopri nelle impostazioni</string>
 
     <!-- Library -->
 
@@ -1567,7 +1565,6 @@
 <string name="cd_trakt_logo">Logo Trakt</string>
 <string name="cd_trakt_qr">QR attivazione Trakt</string>
 <string name="cd_imdb">IMDb</string>
-<string name="cd_open_discover">Apri Scopri</string>
 <string name="cd_clear_search">Cancella ricerca</string>
 <string name="cd_voice_search">Ricerca vocale</string>
 <string name="cd_expand">Espandi %1$s</string>

@@ -799,7 +799,7 @@
     <string name="ratings_load_error">Kunne ikke laste episodevurderinger.</string>
     <string name="ratings_season_summary">Sesong %1$d - %2$d episoder</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Oppdagelse</string>
     <string name="discover_load_more">Last mer</string>
     <string name="discover_loading">Laster…</string>

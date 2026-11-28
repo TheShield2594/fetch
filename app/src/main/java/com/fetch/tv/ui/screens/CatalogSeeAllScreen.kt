@@ -141,9 +141,7 @@ fun CatalogSeeAllScreen(
     val watchedSeriesSet = if (isSearchMode) searchWatchedSeriesIds?.value.orEmpty() else genreWatchedSeriesIds
     val isWatched: (MetaPreview) -> Boolean = { item ->
         if (useWatchedSets) {
-            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-            val ids = if (isSeries) watchedSeriesSet else watchedMovieSet
-            item.id in ids || item.imdbId?.let { it in ids } == true
+            com.fetch.tv.ui.util.isTitleWatched(item.id, item.apiType, watchedMovieSet, watchedSeriesSet, item.imdbId)
         } else {
             uiState.movieWatchedStatus[
                 com.fetch.tv.ui.screens.home.homeItemStatusKey(item.id, item.apiType)

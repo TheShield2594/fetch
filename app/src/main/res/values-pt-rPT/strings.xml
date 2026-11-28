@@ -1205,7 +1205,7 @@
     <string name="ratings_unavailable">As classificações dos episódios estão indisponíveis.</string>
     <string name="ratings_load_error">Não foi possível carregar as classificações dos episódios.</string>
     <string name="ratings_season_summary">Temporada %1$d - %2$d episódios</string>
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Descobrir</string>
     <string name="discover_load_more">Carregar mais</string>
     <string name="discover_loading">A carregar…</string>
@@ -1240,8 +1240,6 @@
     <!-- Account Screen -->
     <!-- Sync screens -->
     <!-- Search -->
-    <string name="discover_disabled_title">A Descoberta está desativada</string>
-    <string name="discover_disabled_subtitle">Ativa a Descoberta nas definições de Esquema.</string>
     <!-- Library -->
     <!-- Error messages (shared) -->
     <string name="error_network_required">Liga-te ao Wi-Fi ou Ethernet para utilizar esta funcionalidade</string>
@@ -1309,7 +1307,6 @@
     <string name="cd_trakt_logo">Logótipo do Trakt</string>
     <string name="cd_trakt_qr">QR de ativação do Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Abrir descoberta</string>
     <string name="cd_voice_search">Pesquisa por voz</string>
     <string name="cd_expand">Expandir %1$s</string>
     <string name="cd_collapse">Recolher %1$s</string>

@@ -1246,7 +1246,7 @@
     <string name="ratings_load_error">エピソード評価を読み込めませんでした</string>
     <string name="ratings_season_summary">シーズン%1$d - %2$dエピソード</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">ディスカバー</string>
     <string name="discover_load_more">さらに読み込む</string>
     <string name="discover_loading">読み込み中…</string>
@@ -1291,8 +1291,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">ディスカバーは無効です</string>
-    <string name="discover_disabled_subtitle">レイアウト設定でディスカバーを有効にしてください</string>
 
     <!-- Library -->
 
@@ -1369,7 +1367,6 @@
     <string name="cd_trakt_logo">Traktロゴ</string>
     <string name="cd_trakt_qr">Trakt認証QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">ディスカバーを開く</string>
     <string name="cd_voice_search">音声検索</string>
     <string name="cd_expand">%1$sを展開</string>
     <string name="cd_collapse">%1$sを折りたたむ</string>

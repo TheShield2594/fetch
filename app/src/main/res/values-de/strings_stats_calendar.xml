@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="library_open_stats">Statistik</string>
-    <string name="library_open_calendar">Kalender</string>
 
     <string name="insights_source_eyebrow">Von der Fetch-Website</string>
     <string name="insights_loading">Wird geladen…</string>

@@ -202,7 +202,7 @@ class CoreScreenMatrixTest(private val variant: Variant) {
     }
 }
 
-/** Search with merged results: the type filters, the top result and the results grid. */
+/** Search with merged results, as the Search screen lays them out: the type filters, the top result and a row per type. */
 @Composable
 internal fun SampleSearch() {
     val items = remember { Samples.catalogRows.flatMap { it.items } }
@@ -210,16 +210,17 @@ internal fun SampleSearch() {
         modifier = Modifier
             .fillMaxSize()
             .background(FetchTheme.colors.Background)
-            .padding(horizontal = FetchTheme.spacing.screen.horizontal, vertical = FetchTheme.spacing.screen.vertical),
+            .padding(vertical = FetchTheme.spacing.screen.vertical),
         verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg)
     ) {
         SearchTypeFilterRow(
             selected = SearchTypeFilter.ALL,
             available = SearchTypeFilter.entries,
             onSelect = {},
-            upFocusRequester = null
+            upFocusRequester = null,
+            modifier = Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xl)) {
+        Box(Modifier.padding(horizontal = FetchTheme.spacing.screen.horizontal)) {
             SearchTopResultCard(
                 result = MergedSearchResult(items.first(), listOf("Cinemeta", "TMDB")),
                 focusRequester = remember { FocusRequester() },
@@ -228,22 +229,13 @@ internal fun SampleSearch() {
                 onClick = {},
                 onLongClick = {}
             )
-            Box(Modifier.weight(1f)) {
-                DiscoverGrid(
-                    items = items.drop(1),
-                    posterCardStyle = PosterCardDefaults.Style,
-                    focusResults = false,
-                    firstItemFocusRequester = remember { FocusRequester() },
-                    focusedItemIndex = 0,
-                    shouldRestoreFocusedItem = false,
-                    onRestoreFocusedItemHandled = {},
-                    onItemFocused = {},
-                    canLoadMore = false,
-                    isLoadingMore = false,
-                    onLoadMore = {},
-                    onItemClick = { _, _ -> }
-                )
-            }
+        }
+        Samples.catalogRows.take(1).forEach { row ->
+            com.fetch.tv.ui.components.CatalogRowSection(
+                catalogRow = row,
+                onItemClick = { _, _, _ -> },
+                posterCardStyle = PosterCardDefaults.Style
+            )
         }
     }
 }
@@ -261,8 +253,6 @@ internal fun SampleDiscoverGrid() {
         DiscoverGrid(
             items = items,
             posterCardStyle = PosterCardDefaults.Style,
-            focusResults = false,
-            firstItemFocusRequester = remember { FocusRequester() },
             focusedItemIndex = 0,
             shouldRestoreFocusedItem = false,
             onRestoreFocusedItemHandled = {},
@@ -271,7 +261,7 @@ internal fun SampleDiscoverGrid() {
             isLoadingMore = false,
             autoLoadPaused = true,
             onLoadMore = {},
-            onItemClick = { _, _ -> }
+            onItemClick = {}
         )
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Stats</string>
-    <string name="library_open_calendar">Calendrier</string>
 
     <string name="insights_source_eyebrow">Depuis le site Fetch</string>
     <string name="insights_loading">Chargement…</string>

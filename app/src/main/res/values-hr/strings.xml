@@ -1560,7 +1560,7 @@
     <string name="ratings_load_error">Nije moguće učitati ocjene epizoda.</string>
     <string name="ratings_season_summary">Sezona %1$d - epizoda: %2$d</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Otkrij</string>
     <string name="discover_load_more">Učitaj više</string>
     <string name="discover_loading">Učitavanje…</string>
@@ -1600,8 +1600,6 @@
     <string name="profile_pin_current_required">Ovaj profil već ima PIN. Za promjenu unesi trenutni PIN.</string>
 
     <!-- Pretraživanje -->
-    <string name="discover_disabled_title">Otkrij je onemogućen</string>
-    <string name="discover_disabled_subtitle">Omogući Otkrij u postavkama izgleda</string>
 
     <!-- Zajedničke poruke o pogreškama -->
     <string name="error_network_required">Poveži se na Wi-Fi ili Ethernet za korištenje ove značajke</string>
@@ -1676,7 +1674,6 @@
     <string name="cd_trakt_logo">Trakt logo</string>
     <string name="cd_trakt_qr">QR za aktivaciju Trakta</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Otvori Otkrij</string>
     <string name="cd_clear_search">Očisti pretraživanje</string>
     <string name="cd_voice_search">Glasovno pretraživanje</string>
     <string name="cd_expand">Proširi %1$s</string>

@@ -1113,7 +1113,7 @@
     <string name="ratings_unavailable">Ocene epizod niso na voljo.</string>
 	<string name="ratings_load_error">Ocen epizod ni bilo mogoče naložiti.</string>																  
     <string name="ratings_season_summary">Sezona %1$d - %2$d epizod</string>
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Odkrij</string>
     <string name="discover_load_more">Naloži več</string>
     <string name="discover_loading">Nalaganje…</string>
@@ -1150,8 +1150,6 @@
 	<!-- Sync screens -->																												
 	<!-- Search -->																													   
     <string name="search_no_results_subtitle">Poskusite iskati z drugimi ključnimi besedami</string>
-    <string name="discover_disabled_title">Odkrivanje je onemogočeno</string>
-    <string name="discover_disabled_subtitle">V nastavitvah omogočite odkrivanje</string>															 
 	<!-- Library -->					 
 	<string name="library_list_create_dialog_title">Ustvari seznam</string>
     <string name="library_list_edit_dialog_title">Uredi seznam</string>
@@ -1245,7 +1243,6 @@
     <string name="cd_trakt_logo">Logotip Trakt</string>
     <string name="cd_trakt_qr">QR za aktivacijo Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Odpri odkrivanje</string>
     <string name="cd_voice_search">Glasovno iskanje</string>
     <string name="cd_expand">Razširi %1$s</string>
     <string name="cd_collapse">Strni %1$s</string>									

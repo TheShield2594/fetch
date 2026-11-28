@@ -1,14 +1,11 @@
 package com.fetch.tv.ui.screens.library
 
 import com.fetch.tv.ui.components.CatalogRowsSkeleton
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dns
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
@@ -23,13 +20,13 @@ import com.fetch.tv.ui.components.CatalogRowSection
 import com.fetch.tv.ui.components.EmptyScreenState
 import com.fetch.tv.ui.components.StateAction
 import com.fetch.tv.ui.components.PosterCardStyle
+import com.fetch.tv.ui.theme.FetchTheme
 
 internal fun LazyGridScope.libraryServerContent(
     shelves: List<LibraryServerShelf>?,
     onNavigateToSettings: () -> Unit,
     onRetry: () -> Unit,
     posterCardStyle: PosterCardStyle,
-    rowInset: Dp,
     focusTarget: Pair<String, Int>?,
     focusedIndexes: Map<String, Int>,
     onItemFocused: (String, Int) -> Unit,
@@ -68,7 +65,8 @@ internal fun LazyGridScope.libraryServerContent(
                         showCatalogTypeSuffix = false,
                         isItemWatched = isWatched,
                         onItemLongPress = onItemLongPress,
-                        modifier = Modifier.bleed(rowInset),
+                        // Rows run past the grid's side margins, as Home's do.
+                        modifier = Modifier.bleed(FetchTheme.spacing.xxxl),
                         focusedItemIndex = focusTarget?.takeIf { it.first == shelf.key }?.second ?: -1,
                         restorerFocusedIndex = focusedIndexes[shelf.key] ?: -1,
                         onItemFocused = { index -> onItemFocused(shelf.key, index) }

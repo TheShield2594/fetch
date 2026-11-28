@@ -25,7 +25,7 @@ class DiscoverBrowseTest {
 
         val sources = selectDiscoverSources(catalogs, type = "movie", genre = null)
 
-        assertEquals(listOf("popular", "featured"), sources.map { it.key })
+        assertEquals(listOf("popular", "featured"), sources.map { it.catalogId })
     }
 
     @Test
@@ -38,7 +38,7 @@ class DiscoverBrowseTest {
 
         val sources = selectDiscoverSources(catalogs, type = "movie", genre = null)
 
-        assertEquals(listOf("popular", "lists"), sources.map { it.key })
+        assertEquals(listOf("popular", "lists"), sources.map { it.catalogId })
         assertEquals("None", discoverGenreArg(sources[1], genre = null))
     }
 
@@ -51,7 +51,7 @@ class DiscoverBrowseTest {
 
         val sources = selectDiscoverSources(catalogs, type = "movie", genre = null)
 
-        assertEquals(listOf("byGenre"), sources.map { it.key })
+        assertEquals(listOf("byGenre"), sources.map { it.catalogId })
         assertEquals("Action", discoverGenreArg(sources.single(), genre = null))
     }
 
@@ -66,7 +66,7 @@ class DiscoverBrowseTest {
 
         val sources = selectDiscoverSources(catalogs, type = "movie", genre = "Drama")
 
-        assertEquals(listOf("a", "c"), sources.map { it.key })
+        assertEquals(listOf("a", "c"), sources.map { it.catalogId })
         assertEquals("drama", discoverGenreArg(sources[1], genre = "Drama"))
         assertNull(discoverGenreArg(catalogs[1], genre = null))
     }
@@ -392,7 +392,6 @@ class DiscoverBrowseTest {
         genreRequired: Boolean = false,
         defaultGenre: String? = null
     ) = DiscoverCatalog(
-        key = key,
         addonId = "addon",
         addonName = "Addon",
         addonBaseUrl = "https://example.com",

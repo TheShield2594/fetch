@@ -1062,7 +1062,7 @@
     <string name="ratings_load_error">Не удалось загрузить рейтинги эпизода.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d эпизодов</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Навигатор</string>
     <string name="discover_load_more">Загрузить еще</string>
     <string name="discover_loading">Загрузка…</string>
@@ -1105,8 +1105,6 @@
 
     <!-- Search -->
     <string name="search_no_results_subtitle">Попробуйте поискать с другими ключевыми словами</string>
-    <string name="discover_disabled_title">Навигатор отключен</string>
-    <string name="discover_disabled_subtitle">Включите Навигатор в настройках поиска</string>
 
     <!-- Library -->
     <string name="library_list_create_dialog_title">Создать список</string>
@@ -1190,7 +1188,6 @@
     <string name="cd_trakt_logo">Логотип Trakt</string>
     <string name="cd_trakt_qr">QR-код активации Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Открыть Навигатор</string>
     <string name="cd_clear_search">Очистить поиск</string>
     <string name="cd_voice_search">Голосовой поиск</string>
     <string name="cd_expand">Развернуть %1$s</string>

@@ -1268,7 +1268,7 @@
     <string name="ratings_unavailable">Vlerësimet e episodeve nuk janë të disponueshme.</string>
     <string name="ratings_load_error">Nuk mund të ngarkohen vlerësimet e episodeve.</string>
     <string name="ratings_season_summary">Sezoni %1$d - %2$d episode</string>
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Zbulo</string>
     <string name="discover_load_more">Ngarko më shumë</string>
     <string name="discover_loading">Duke ngarkuar…</string>
@@ -1303,8 +1303,6 @@
     <!-- Account Screen -->
     <!-- Sync screens -->
     <!-- Search -->
-    <string name="discover_disabled_title">Zbulo është çaktivizuar</string>
-    <string name="discover_disabled_subtitle">Aktivizo Zbulo te cilësimet e Paraqitjes</string>
     <!-- Library -->
     <!-- Error messages (shared) -->
     <string name="error_network_required">Lidhu me Wi-Fi ose Ethernet për ta përdorur këtë veçori</string>
@@ -1372,7 +1370,6 @@
     <string name="cd_trakt_logo">Logoja e Trakt</string>
     <string name="cd_trakt_qr">QR-ja e aktivizimit Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Hap Zbulo</string>
     <string name="cd_clear_search">Pastro kërkimin</string>
     <string name="cd_voice_search">Kërkimi me zë</string>
     <string name="cd_expand">Zgjero %1$s</string>

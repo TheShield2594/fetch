@@ -1243,7 +1243,7 @@
     <string name="ratings_load_error">Не вдалося завантажити рейтинги епізоду.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d епізодів</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Навігатор</string>
     <string name="discover_load_more">Завантажити ще</string>
     <string name="discover_loading">Завантаження…</string>
@@ -1288,8 +1288,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Навігатор вимкнено</string>
-    <string name="discover_disabled_subtitle">Увімкніть Навігатор у налаштуваннях пошуку</string>
 
     <!-- Library -->
 
@@ -1369,7 +1367,6 @@
     <string name="cd_trakt_logo">Логотип Trakt</string>
     <string name="cd_trakt_qr">QR-код активації Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Відкрити Навігатор</string>
     <string name="cd_voice_search">Голосовий пошук</string>
     <string name="cd_expand">Розгорнути %1$s</string>
     <string name="cd_collapse">Згорнути %1$s</string>

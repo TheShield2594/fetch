@@ -723,7 +723,7 @@
     <string name="ratings_load_error">एपिसोड रेटिंग लोड नहीं हो सकीं।</string>
     <string name="ratings_season_summary">सीज़न %1$d - %2$d एपिसोड</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">डिस्कवर</string>
     <string name="discover_load_more">और लोड करें</string>
     <string name="discover_loading">लोड हो रहा है…</string>

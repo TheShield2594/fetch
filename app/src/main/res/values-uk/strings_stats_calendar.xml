@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Статистика</string>
-    <string name="library_open_calendar">Календар</string>
     <string name="insights_source_eyebrow">З сайту Fetch</string>
     <string name="insights_loading">Завантаження…</string>
     <string name="insights_not_paired_subtitle">Щоб бачити це тут, підключіть цей телевізор до сайту Fetch у розділі Налаштування › Акаунт. Сайт зберігає вашу історію переглядів і розраховує все за нею.</string>

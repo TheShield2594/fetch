@@ -1,8 +1,6 @@
 package com.fetch.tv.data.repository
 
-import android.util.Log
 import com.fetch.tv.R
-import com.fetch.tv.core.network.NetworkResult
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tracking.TrackingListManager
 import com.fetch.tv.core.tracking.TrackingLibraryProviderRegistry
@@ -40,15 +38,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.fetch.tv.core.util.runSuspendCatching
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)

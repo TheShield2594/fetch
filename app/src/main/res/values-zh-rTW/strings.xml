@@ -1504,7 +1504,7 @@
     <string name="ratings_load_error">無法載入集數評分。</string>
     <string name="ratings_season_summary">第 %1$d 季 - %2$d 集</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">探索</string>
     <string name="discover_load_more">載入更多</string>
     <string name="discover_loading">載入中…</string>
@@ -1550,8 +1550,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">探索已停用</string>
-    <string name="discover_disabled_subtitle">請在佈局設定中啟用探索</string>
 
     <!-- Library -->
 
@@ -1633,7 +1631,6 @@
     <string name="cd_trakt_logo">Trakt 標誌</string>
     <string name="cd_trakt_qr">Trakt 啟用 QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">開啟探索</string>
     <string name="cd_clear_search">清除搜尋</string>
     <string name="cd_voice_search">語音搜尋</string>
     <string name="cd_expand">展開 %1$s</string>

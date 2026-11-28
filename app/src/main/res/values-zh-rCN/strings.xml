@@ -1504,7 +1504,7 @@
     <string name="ratings_load_error">无法加载剧集评分。</string>
     <string name="ratings_season_summary">第 %1$d 季 - %2$d 集</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">发现</string>
     <string name="discover_load_more">加载更多</string>
     <string name="discover_loading">加载中…</string>
@@ -1550,8 +1550,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">发现已禁用</string>
-    <string name="discover_disabled_subtitle">请在布局设置中启用发现</string>
 
     <!-- Library -->
 
@@ -1633,7 +1631,6 @@
     <string name="cd_trakt_logo">Trakt 标志</string>
     <string name="cd_trakt_qr">Trakt 启用 QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">打开发现</string>
     <string name="cd_clear_search">清除搜索</string>
     <string name="cd_voice_search">语音搜索</string>
     <string name="cd_expand">展开 %1$s</string>

@@ -2,7 +2,6 @@
 <resources>
     <!-- Library header -->
     <string name="library_open_stats">आँकड़े</string>
-    <string name="library_open_calendar">कैलेंडर</string>
 
     <!-- Shared by Stats and Calendar -->
     <string name="insights_source_eyebrow">Fetch वेबसाइट से</string>

@@ -2,7 +2,6 @@
 <resources>
     <!-- Library header -->
     <string name="library_open_stats">İstatistik</string>
-    <string name="library_open_calendar">Takvim</string>
 
     <!-- Shared by Stats and Calendar -->
     <string name="insights_source_eyebrow">Fetch web sitesinden</string>

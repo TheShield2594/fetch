@@ -10,6 +10,6 @@ data class LibraryProviderOrder(
     val ranks: Map<String, Int>
 ) {
     fun comparator(): Comparator<LibraryEntry> = compareBy<LibraryEntry> {
-        ranks["${it.type}:${it.id}"] ?: Int.MAX_VALUE
+        ranks[com.fetch.tv.ui.components.browseItemKey(it.type, it.id)] ?: Int.MAX_VALUE
     }.thenBy { it.id }
 }

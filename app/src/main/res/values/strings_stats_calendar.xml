@@ -2,7 +2,6 @@
 <resources>
     <!-- Library header: the two pages the website also has -->
     <string name="library_open_stats">Stats</string>
-    <string name="library_open_calendar">Calendar</string>
 
     <!-- Shared by Stats and Calendar: both are read from the Fetch website -->
     <string name="insights_source_eyebrow">From the Fetch website</string>

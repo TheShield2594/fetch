@@ -31,9 +31,7 @@ data class LibraryEntry(
     val mediaCategory: String? = null,
     val rawPosterUrl: String? = null,
     val landscapePoster: String? = null,
-    val trackingProviderId: String? = null,
-    val trackingProviderItemId: String? = null,
-    val trackingSourceUrl: String? = null
+    val trackingProviderId: String? = null
 ) {
     fun toMetaPreview(): MetaPreview {
         return MetaPreview(

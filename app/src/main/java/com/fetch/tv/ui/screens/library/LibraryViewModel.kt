@@ -503,47 +503,23 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    private val metaPrefetchedIds: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
-    private var metaPrefetchJob: Job? = null
+    private val metaPrefetcher = com.fetch.tv.ui.components.FocusMetaPrefetcher(viewModelScope, metaRepository, watchProgressRepository)
 
-    /**
-     * Prefetch meta from addons in background when an item receives focus.
-     * Warms the MetaRepository cache so the detail screen loads instantly.
-     * Debounced to avoid flooding the network during rapid scrolling.
-     */
-    fun prefetchMetaOnFocus(id: String, type: String) {
-        if (id.isBlank() || id in metaPrefetchedIds) return
-        metaPrefetchJob?.cancel()
-        metaPrefetchJob = viewModelScope.launch {
-            delay(150)
-            if (id in metaPrefetchedIds) return@launch
-            metaRepository.getMetaFromAllAddons(type = type, id = id)
-                .first { it !is com.fetch.tv.core.network.NetworkResult.Loading }
-            watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
-            // Marked only once done, so a prefetch cancelled by the next focus is retried.
-            metaPrefetchedIds.add(id)
-            // The hero band re-reads the cache now it has the title's full meta (#852).
-            _metaCacheVersion.update { it + 1 }
-        }
-    }
-
-    private val _metaCacheVersion = MutableStateFlow(0)
+    /** Warms the meta cache for a focused card, so its detail page opens at once (debounced). */
+    fun prefetchMetaOnFocus(id: String, type: String) = metaPrefetcher.prefetch(id, type)
 
     /** Goes up each time a focus prefetch lands, so the hero band can fill in what it now has. */
-    val metaCacheVersion: StateFlow<Int> = _metaCacheVersion.asStateFlow()
+    val metaCacheVersion: StateFlow<Int> get() = metaPrefetcher.version
 
     /** The full meta of a title, when a prefetch or the detail page has cached it. */
-    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? =
-        metaRepository.getCachedMeta(type, id)
+    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? = metaPrefetcher.cachedMeta(id, type)
 
     /** The Layout setting for the hero band over the grid (#852). */
     val heroEnabled: StateFlow<Boolean> = layoutPreferenceDataStore.browseHeroEnabled
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
-    fun getCachedBackdrop(id: String, type: String): String? {
-        return metaRepository.getCachedMeta(type, id)?.backdropUrl
-    }
+    fun getCachedBackdrop(id: String, type: String): String? = metaPrefetcher.cachedBackdrop(id, type)
 
     /** Landscape art for an activity card from the cached meta (#848); null when not cached. */
     private fun cachedBackdrop(id: String, type: String): String? =
@@ -1443,4 +1419,4 @@ private fun LibraryEntry.addedTo(listKey: String?): Long =
 
 /** Whether the title is watched, read from the movie or series set by the shared series check (#849). */
 internal fun LibraryEntry.isWatchedIn(watchedMovieIds: Set<String>, watchedSeriesIds: Set<String>): Boolean =
-    if (com.fetch.tv.ui.util.isSeriesContentType(type)) id in watchedSeriesIds else id in watchedMovieIds
+    com.fetch.tv.ui.util.isTitleWatched(id, type, watchedMovieIds, watchedSeriesIds)

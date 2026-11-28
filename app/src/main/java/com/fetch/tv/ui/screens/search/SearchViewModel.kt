@@ -1,6 +1,5 @@
 package com.fetch.tv.ui.screens.search
 
-import com.fetch.tv.domain.model.catalogRowLegacyKey
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +12,6 @@ import com.fetch.tv.data.mediaserver.ServerCatalog
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogRow
-import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.catalogRowStableKey
 import com.fetch.tv.domain.model.mergeCatalogPage
 import com.fetch.tv.domain.model.nextCatalogSkip
@@ -303,10 +301,7 @@ class SearchViewModel @Inject constructor(
 
     /** Whether a Discover title is watched, for Hide watched (#857). */
     private val discoverIsWatched: (com.fetch.tv.domain.model.MetaPreview) -> Boolean = { item ->
-        val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-        val watchedIds = if (isSeries) watchedSeriesIds.value else _watchedMovieIds.value
-        // Watched entries can be stored under the IMDb id, as See all also checks.
-        item.id in watchedIds || item.imdbId?.let { it in watchedIds } == true
+        com.fetch.tv.ui.util.isTitleWatched(item.id, item.apiType, _watchedMovieIds.value, watchedSeriesIds.value, item.imdbId)
     }
 
     init {
@@ -321,39 +316,6 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             watchedSeriesIds.drop(1).collect { refilterDiscoverForWatched() }
         }
-        viewModelScope.launch {
-            layoutPreferenceDataStore.discoverLocation.distinctUntilChanged().collectLatest { location ->
-                _uiState.update { it.copy(discoverLocation = location) }
-                if (location == DiscoverLocation.OFF) {
-                    discoverJob?.cancel()
-                    discoverJob = null
-                    discoverCursors = emptyList()
-                    discoverMergedItems = emptyList()
-                    resetDiscoverSortedBatches()
-                    discoverUnproductiveRounds = 0
-                    discoverCatalogsLoaded = false
-                    discoverLoadedAtMs = null
-                    discoverRefreshSnapshot = null
-                    _uiState.update {
-                        it.copy(
-                            discoverInitialized = false,
-                            discoverLoading = false,
-                            discoverLoadingMore = false,
-                            discoverCatalogs = emptyList(),
-                            selectedDiscoverType = "movie",
-                            selectedDiscoverGenre = null,
-                            discoverFilters = DiscoverFilters(),
-                            discoverSourceCount = 0,
-                            discoverResults = emptyList(),
-                            discoverHasMore = true,
-                            discoverError = null,
-                            discoverPagingPaused = false,
-                            discoverUnratedSourceCount = 0
-                        )
-                    }
-                }
-            }
-        }
         // Addons or media-server catalogs installed, removed, enabled or reordered reach Discover
         // without a restart (#845): a changed list of browsable catalogs is rebuilt and reloaded,
         // keeping the type, genre and filters where they still apply.
@@ -364,7 +326,7 @@ class SearchViewModel @Inject constructor(
                 .catch { /* Keep what is on screen; Retry reads the addons again. */ }
                 .collectLatest { (addons, catalogs) ->
                     val state = _uiState.value
-                    if (!discoverCatalogsLoaded || state.discoverLocation == DiscoverLocation.OFF) return@collectLatest
+                    if (!discoverCatalogsLoaded) return@collectLatest
                     if (catalogs == state.discoverCatalogs) return@collectLatest
                     applyDiscoverCatalogs(addons, catalogs)
                 }
@@ -375,17 +337,15 @@ class SearchViewModel @Inject constructor(
                 layoutPreferenceDataStore.posterCardWidthDp,
                 layoutPreferenceDataStore.posterLabelsEnabled,
                 layoutPreferenceDataStore.catalogAddonNameEnabled,
-                layoutPreferenceDataStore.posterCardHeightDp,
                 layoutPreferenceDataStore.posterCardCornerRadiusDp
-            ) { widthDp, labelsEnabled, addonNameEnabled, heightDp, cornerRadiusDp ->
-                LayoutPrefs(widthDp, labelsEnabled, addonNameEnabled, heightDp, cornerRadiusDp)
+            ) { widthDp, labelsEnabled, addonNameEnabled, cornerRadiusDp ->
+                LayoutPrefs(widthDp, labelsEnabled, addonNameEnabled, cornerRadiusDp)
             }.collectLatest { prefs ->
                 _uiState.update {
                     it.copy(
                         posterCardWidthDp = prefs.widthDp,
                         posterLabelsEnabled = prefs.labelsEnabled,
                         catalogAddonNameEnabled = prefs.addonNameEnabled,
-                        posterCardHeightDp = prefs.heightDp,
                         posterCardCornerRadiusDp = prefs.cornerRadiusDp
                     )
                 }
@@ -411,7 +371,7 @@ class SearchViewModel @Inject constructor(
                 scheduleCatalogRowsUpdate()
                 // Discover drops unreleased titles as pages arrive, so a change reloads it, with
                 // the grid kept on screen until the new first page is in (#845).
-                if (changed && discoverCatalogsLoaded && _uiState.value.discoverLocation != DiscoverLocation.OFF) {
+                if (changed && discoverCatalogsLoaded) {
                     fetchDiscoverContent(reset = true, keepGrid = true)
                 }
             }
@@ -427,7 +387,6 @@ class SearchViewModel @Inject constructor(
         val widthDp: Int,
         val labelsEnabled: Boolean,
         val addonNameEnabled: Boolean,
-        val heightDp: Int,
         val cornerRadiusDp: Int
     )
 
@@ -438,7 +397,6 @@ class SearchViewModel @Inject constructor(
      */
     fun ensureDiscoverLoaded(allowRefresh: Boolean = true) {
         val state = _uiState.value
-        if (state.discoverLocation == DiscoverLocation.OFF) return
         if (state.discoverLoading) return
         if (!state.discoverInitialized) {
             viewModelScope.launch { loadDiscoverCatalogs() }
@@ -454,38 +412,16 @@ class SearchViewModel @Inject constructor(
         return discoverClockMs() - loadedAt >= DISCOVER_STALE_AFTER_MS
     }
 
-    private val metaPrefetchedIds: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
-    private var metaPrefetchJob: Job? = null
+    private val metaPrefetcher = com.fetch.tv.ui.components.FocusMetaPrefetcher(viewModelScope, metaRepository, watchProgressRepository)
 
-    /**
-     * Prefetch meta from addons in background when an item receives focus.
-     * Warms the MetaRepository cache so the detail screen loads instantly.
-     * Debounced to avoid flooding the network during rapid scrolling.
-     */
-    fun prefetchMetaOnFocus(id: String, type: String) {
-        if (id.isBlank() || id in metaPrefetchedIds) return
-        metaPrefetchJob?.cancel()
-        metaPrefetchJob = viewModelScope.launch {
-            delay(150)
-            if (id in metaPrefetchedIds) return@launch
-            metaRepository.getMetaFromAllAddons(type = type, id = id)
-                .first { it !is com.fetch.tv.core.network.NetworkResult.Loading }
-            watchProgressRepository.getAllEpisodeProgress(id.substringBefore(":")).first()
-            // Marked only once done, so a prefetch cancelled by the next focus is retried.
-            metaPrefetchedIds.add(id)
-            // Discover's hero band re-reads the cache now it has the title's full meta (#852).
-            _metaCacheVersion.update { it + 1 }
-        }
-    }
-
-    private val _metaCacheVersion = MutableStateFlow(0)
+    /** Warms the meta cache for a focused card, so its detail page opens at once (debounced). */
+    fun prefetchMetaOnFocus(id: String, type: String) = metaPrefetcher.prefetch(id, type)
 
     /** Goes up each time a focus prefetch lands, so the hero band can fill in what it now has. */
-    val metaCacheVersion: StateFlow<Int> = _metaCacheVersion.asStateFlow()
+    val metaCacheVersion: StateFlow<Int> get() = metaPrefetcher.version
 
     /** The full meta of a title, when a prefetch or the detail page has cached it. */
-    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? =
-        metaRepository.getCachedMeta(type, id)
+    fun cachedMeta(id: String, type: String): com.fetch.tv.domain.model.Meta? = metaPrefetcher.cachedMeta(id, type)
 
     /**
      * Whether Play/Pause on a Discover card may start it without its detail page (#857): not on a
@@ -508,9 +444,7 @@ class SearchViewModel @Inject constructor(
     /**
      * Returns the cached backdrop URL from a previously prefetched meta, or null.
      */
-    fun getCachedBackdrop(id: String, type: String): String? {
-        return metaRepository.getCachedMeta(type, id)?.backdropUrl
-    }
+    fun getCachedBackdrop(id: String, type: String): String? = metaPrefetcher.cachedBackdrop(id, type)
 
     private var remoteSearchJob: Job? = null
 
@@ -1320,7 +1254,6 @@ class SearchViewModel @Inject constructor(
         ) { installed, server -> installed + server }
 
     private suspend fun loadDiscoverCatalogs() {
-        if (_uiState.value.discoverLocation == DiscoverLocation.OFF) return
         _uiState.update { it.copy(discoverLoading = true, discoverError = null) }
         val addons = try {
             discoverAddons().first()
@@ -1357,7 +1290,6 @@ class SearchViewModel @Inject constructor(
                         .orEmpty()
                     val genreRequired = catalog.requiresExtra("genre")
                     DiscoverCatalog(
-                        key = catalogRowLegacyKey(addon.id, catalog.apiType, catalog.id),
                         addonId = addon.id,
                         addonName = addon.displayName,
                         addonBaseUrl = addon.baseUrl,
@@ -1634,7 +1566,6 @@ class SearchViewModel @Inject constructor(
         discoverJob?.cancel()
         discoverJob = viewModelScope.launch {
             val state = _uiState.value
-            if (state.query.trim().isNotEmpty()) return@launch
             // A refetch with the grid kept (#845): the grid as it was, put back if the new first
             // round fails everywhere, so a failed refresh never empties a working screen.
             var kept: DiscoverSnapshot? = null
@@ -1862,7 +1793,6 @@ class SearchViewModel @Inject constructor(
         val results = coroutineScope {
             activeIndices.map { index -> async { fetchDiscoverPage(cursors[index], genre) } }.awaitAll()
         }
-        if (_uiState.value.discoverLocation == DiscoverLocation.OFF) return false
 
         val mergedBefore = discoverMergedItems
         val seenBefore = mergedBefore.mapTo(HashSet()) { discoverItemKey(it) }

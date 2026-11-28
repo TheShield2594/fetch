@@ -1265,7 +1265,7 @@
     <string name="ratings_load_error">Nepodařilo se načíst hodnocení epizod.</string>
     <string name="ratings_season_summary">Sezóna %1$d - %2$d epizod</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Objevovat</string>
     <string name="discover_load_more">Načíst další</string>
     <string name="discover_loading">Načítání…</string>
@@ -1310,8 +1310,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Objevování je zakázáno</string>
-    <string name="discover_disabled_subtitle">Povolte Objevování ve vyhledávání v nastavení</string>
 
     <!-- Library -->
 
@@ -1391,7 +1389,6 @@
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">QR kód aktivace Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Otevřít objevování</string>
     <string name="cd_voice_search">Hlasové vyhledávání</string>
     <string name="cd_expand">Rozbalit %1$s</string>
     <string name="cd_collapse">Sbalit %1$s</string>

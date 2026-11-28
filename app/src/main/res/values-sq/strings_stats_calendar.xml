@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistikat</string>
-    <string name="library_open_calendar">Kalendari</string>
 
     <string name="insights_source_eyebrow">Nga uebfaqja e Fetch</string>
     <string name="insights_loading">Po ngarkohet…</string>

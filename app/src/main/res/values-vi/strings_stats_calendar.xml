@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Thống kê</string>
-    <string name="library_open_calendar">Lịch</string>
     <string name="insights_source_eyebrow">Từ trang web Fetch</string>
     <string name="insights_loading">Đang tải…</string>
     <string name="insights_not_paired_subtitle">Đăng nhập TV này vào trang web Fetch trong Cài đặt › Tài khoản để xem tại đây. Trang web lưu lịch sử xem của bạn và tính toán dựa trên đó.</string>

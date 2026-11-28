@@ -1608,7 +1608,7 @@
     <string name="ratings_load_error">No se pudieron cargar las calificaciones del episodio.</string>
     <string name="ratings_season_summary">Temporada %1$d - %2$d episodios</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Descubrir</string>
     <string name="discover_load_more">Cargar más</string>
     <string name="discover_loading">Cargando…</string>
@@ -1654,8 +1654,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Discover está desactivado</string>
-    <string name="discover_disabled_subtitle">Activa Discover en la configuración de búsqueda</string>
 
     <!-- Library -->
 
@@ -1735,7 +1733,6 @@
     <string name="cd_trakt_logo">Logo de Trakt</string>
     <string name="cd_trakt_qr">QR de activación de Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Abrir Discover</string>
     <string name="cd_clear_search">Borrar búsqueda</string>
     <string name="cd_voice_search">Búsqueda por voz</string>
     <string name="cd_expand">Expandir %1$s</string>

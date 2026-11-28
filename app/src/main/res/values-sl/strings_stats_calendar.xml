@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistika</string>
-    <string name="library_open_calendar">Koledar</string>
     <string name="insights_source_eyebrow">S spletnega mesta Fetch</string>
     <string name="insights_loading">Nalaganje…</string>
     <string name="insights_not_paired_subtitle">Ta televizor prijavite v spletno mesto Fetch v razdelku Nastavitve › Račun, da bo to prikazano tukaj. Spletno mesto hrani vašo zgodovino ogledov in iz nje vse izračuna.</string>

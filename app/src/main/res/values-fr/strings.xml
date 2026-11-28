@@ -1609,7 +1609,7 @@
     <string name="ratings_load_error">Impossible de charger les notes des épisodes.</string>
     <string name="ratings_season_summary">Saison %1$d – %2$d épisodes</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Découvrir</string>
     <string name="discover_load_more">Charger plus</string>
     <string name="discover_loading">Chargement…</string>
@@ -1655,8 +1655,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">La fonction Découvrir est désactivée</string>
-    <string name="discover_disabled_subtitle">Activez Découvrir dans les paramètres de disposition</string>
 
     <!-- Library -->
 
@@ -1736,7 +1734,6 @@
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Code QR d’activation Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Ouvrir Découvrir</string>
     <string name="cd_clear_search">Effacer la recherche</string>
     <string name="cd_voice_search">Recherche vocale</string>
     <string name="cd_expand">Développer %1$s</string>

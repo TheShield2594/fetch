@@ -1185,7 +1185,7 @@
     <string name="ratings_load_error">எபிசோட் மதிப்பீடுகளை ஏற்ற முடியவில்லை.</string>
     <string name="ratings_season_summary">சீசன் %1$d - %2$d எபிசோட்கள்</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">கண்டறிதல்</string>
     <string name="discover_load_more">மேலும் ஏற்று</string>
     <string name="discover_loading">ஏற்றப்படுகிறது…</string>
@@ -1229,8 +1229,6 @@
 
     <!-- Search -->
     <string name="search_no_results_subtitle">வேறு முக்கிய சொற்களுடன் தேட முயற்சிக்கவும்</string>
-    <string name="discover_disabled_title">கண்டறிதல் முடக்கப்பட்டுள்ளது</string>
-    <string name="discover_disabled_subtitle">வடிவமைப்பு அமைப்புகளில் கண்டறிதலை இயக்கு</string>
 
     <!-- Library -->
     <string name="library_list_create_dialog_title">பட்டியல் உருவாக்கு</string>
@@ -1336,7 +1334,6 @@
     <string name="cd_trakt_logo">ட்ராக்ட் லோகோ</string>
     <string name="cd_trakt_qr">ட்ராக்ட் செயல்படுத்தும் க்யூஆர்</string>
     <string name="cd_imdb">ஐஎம்டிபி</string>
-    <string name="cd_open_discover">டிஸ்கவரை திற</string>
     <string name="cd_voice_search">குரல் தேடல்</string>
     <string name="cd_expand">விரிவு செய் %1$s</string>
     <string name="cd_collapse">சுருக்கு %1$s</string>

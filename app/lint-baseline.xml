@@ -13405,27 +13405,7 @@
             column="13"/>
     </issue>
 
-    <issue
-        id="MissingTranslation"
-        message="&quot;discover_disabled_title&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;discover_disabled_title&quot;>Discover is disabled&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="2079"
-            column="13"/>
-    </issue>
 
-    <issue
-        id="MissingTranslation"
-        message="&quot;discover_disabled_subtitle&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;discover_disabled_subtitle&quot;>Enable Discover in Layout settings&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="2080"
-            column="13"/>
-    </issue>
 
     <issue
         id="MissingTranslation"
@@ -14032,16 +14012,6 @@
             column="13"/>
     </issue>
 
-    <issue
-        id="MissingTranslation"
-        message="&quot;cd_open_discover&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;cd_open_discover&quot;>Open discover&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="2167"
-            column="13"/>
-    </issue>
 
     <issue
         id="MissingTranslation"
@@ -27155,16 +27125,6 @@
             column="13"/>
     </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.library_open_calendar` appears to be unused"
-        errorLine1="    &lt;string name=&quot;library_open_calendar&quot;>Calendar&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings_stats_calendar.xml"
-            line="5"
-            column="13"/>
-    </issue>
 
     <issue
         id="UsableSpace"

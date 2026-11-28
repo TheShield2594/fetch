@@ -50,16 +50,27 @@ internal const val DISCOVER_SHELF_NEW = "new"
 
 private const val SHELF_FOCUS_PREFIX = "shelf|"
 
-/** The focus key of a shelf card, kept with the grid's focused key so Back from a title returns to it. */
-internal fun discoverShelfFocusKey(shelfId: String, index: Int): String = "$SHELF_FOCUS_PREFIX$shelfId|$index"
+/**
+ * The focus key of a shelf card, kept with the grid's focused key so Back from a title returns to
+ * it. It names the title ([discoverItemKey]), not its place, so a title leaving the shelf (hidden,
+ * or above the profile limit) never hands focus to its neighbour.
+ */
+internal fun discoverShelfFocusKey(shelfId: String, itemKey: String): String = "$SHELF_FOCUS_PREFIX$shelfId|$itemKey"
 
-/** The shelf and card index in a [discoverShelfFocusKey], or null for a grid card's key. */
-internal fun parseDiscoverShelfFocusKey(key: String?): Pair<String, Int>? {
+/** The shelf and title key in a [discoverShelfFocusKey], or null for a grid card's key. */
+internal fun parseDiscoverShelfFocusKey(key: String?): Pair<String, String>? {
     if (key == null || !key.startsWith(SHELF_FOCUS_PREFIX)) return null
-    val parts = key.removePrefix(SHELF_FOCUS_PREFIX).split('|')
-    if (parts.size != 2) return null
-    val index = parts[1].toIntOrNull() ?: return null
-    return parts[0] to index
+    val parts = key.removePrefix(SHELF_FOCUS_PREFIX).split('|', limit = 2)
+    if (parts.size != 2 || parts[0].isEmpty() || parts[1].isEmpty()) return null
+    return parts[0] to parts[1]
+}
+
+/** Where a shelf focus key points now: its shelf and the title's current index, or null when gone. */
+internal fun resolveDiscoverShelfFocus(key: String?, shelves: List<DiscoverShelf>): Pair<String, Int>? {
+    val (shelfId, itemKey) = parseDiscoverShelfFocusKey(key) ?: return null
+    val shelf = shelves.firstOrNull { it.id == shelfId } ?: return null
+    val index = shelf.row.items.indexOfFirst { discoverItemKey(it) == itemKey }
+    return if (index >= 0) shelfId to index else null
 }
 
 /** The shelves for what Discover shows now; empty when [enabled] is false or none has titles. */
@@ -98,9 +109,7 @@ internal fun rememberDiscoverShelves(
             items = items,
             hasMore = false
         )
-        val isWatched: (MetaPreview) -> Boolean = { item ->
-            if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) item.id in watchedSeriesIds else item.id in watchedMovieIds
-        }
+        val isWatched: (MetaPreview) -> Boolean = { item -> isDiscoverItemWatched(item, watchedMovieIds, watchedSeriesIds) }
         buildList {
             trending
                 ?.takeIf { it.items.isNotEmpty() && it.apiType.equals(type, ignoreCase = true) }
@@ -191,7 +200,7 @@ internal fun LazyGridScope.discoverShelfItems(
                     focusedItemIndex = restoreIndex,
                     onItemFocused = { index ->
                         shelf.row.items.getOrNull(index)?.let { item ->
-                            onItemFocused(discoverShelfFocusKey(shelf.id, index), item)
+                            onItemFocused(discoverShelfFocusKey(shelf.id, discoverItemKey(item)), item)
                         }
                     }
                 )
@@ -254,4 +263,10 @@ private fun DiscoverGenreShelf(
             }
         }
     }
+}
+
+/** Watched as the grid's Hide watched counts it: by id, or by the IMDb id it may be stored under. */
+internal fun isDiscoverItemWatched(item: MetaPreview, watchedMovieIds: Set<String>, watchedSeriesIds: Set<String>): Boolean {
+    val watched = if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) watchedSeriesIds else watchedMovieIds
+    return item.id in watched || item.imdbId?.let { it in watched } == true
 }

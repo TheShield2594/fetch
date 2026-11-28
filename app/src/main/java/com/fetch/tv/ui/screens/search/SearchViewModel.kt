@@ -1726,6 +1726,17 @@ class SearchViewModel @Inject constructor(
         ) return
         discoverTrendingKey = key
         discoverTrendingJob?.cancel()
+        // A shelf kept for this catalog follows Hide unreleased at once, so a refresh that fails
+        // never leaves unreleased titles up.
+        if (hideUnreleasedContent && discoverTrendingShownKey == key) {
+            val today = LocalDate.now()
+            _uiState.update { state ->
+                val row = state.discoverTrending ?: return@update state
+                val released = row.items.filterNot { it.isUnreleased(today) }
+                if (released.size == row.items.size) state
+                else state.copy(discoverTrending = row.copy(items = released).takeIf { released.isNotEmpty() })
+            }
+        }
         // The shelf of another type or catalog must not stay up while this one loads.
         if (discoverTrendingShownKey != key && state.discoverTrending != null) {
             _uiState.update { it.copy(discoverTrending = null) }

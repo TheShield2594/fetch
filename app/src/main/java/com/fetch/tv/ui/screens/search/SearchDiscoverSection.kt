@@ -178,11 +178,7 @@ internal fun DiscoverSection(
         watchedMovieIds = watchedMovieIds,
         watchedSeriesIds = watchedSeriesIds
     )
-    val shelfFocusTarget = remember(focusedItemKey, shelves) {
-        parseDiscoverShelfFocusKey(focusedItemKey)?.takeIf { (shelfId, index) ->
-            shelves.any { it.id == shelfId && index in it.row.items.indices }
-        }
-    }
+    val shelfFocusTarget = remember(focusedItemKey, shelves) { resolveDiscoverShelfFocus(focusedItemKey, shelves) }
     val restoreTargetMissing = shouldRestoreFocusedItem && restoreSettled && focusedItemIndex < 0 &&
         shelfFocusTarget == null
     // The chips are held back only while the grid really has the title to give focus to; an
@@ -244,8 +240,7 @@ internal fun DiscoverSection(
             else -> R.string.discover_shelf_all_titles
         }
     )
-    fun isWatchedItem(item: MetaPreview): Boolean =
-        if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) item.id in watchedSeriesIds else item.id in watchedMovieIds
+    fun isWatchedItem(item: MetaPreview): Boolean = isDiscoverItemWatched(item, watchedMovieIds, watchedSeriesIds)
     // A genre tile or a shelf's See all (#858): focus moves to the grid's first card once the
     // filtered grid is in.
     var pendingGridFocus by remember { mutableStateOf(false) }
@@ -267,8 +262,17 @@ internal fun DiscoverSection(
     // The hero band (#852): the focused title, else the first, filled in from the cached meta once
     // the focus prefetch lands. Off in Layout and on low-RAM devices.
     val heroAllowed = heroEnabled && !FetchTheme.lowRamDevice
-    val heroItem = remember(heroAllowed, results, focusedItemIndex) {
-        if (!heroAllowed) null else results.getOrNull(focusedItemIndex) ?: results.firstOrNull()
+    val heroItem = remember(heroAllowed, results, focusedItemIndex, shelfFocusTarget, shelves) {
+        if (!heroAllowed) {
+            null
+        } else {
+            results.getOrNull(focusedItemIndex)
+                // A focused shelf card (#858) leads the hero as a grid card does.
+                ?: shelfFocusTarget?.let { (shelfId, index) ->
+                    shelves.firstOrNull { it.id == shelfId }?.row?.items?.getOrNull(index)
+                }
+                ?: results.firstOrNull()
+        }
     }
     val heroTypeLabel = heroItem?.let { localizedContentType(localContext, it.apiType) }
     val heroCandidate = remember(heroItem, heroMetaVersion, heroTypeLabel) {

@@ -87,7 +87,7 @@ object SubtitleCharsetDetector {
         // re-encode to themselves, so hand them back without the String round trip.
         if (!startsWithBom(bytes, offset, length) &&
             !containsByte(bytes, offset, length, UTF8_LATIN1_SUPPLEMENT_LEAD) &&
-            isFastValidUtf8(bytes, offset, length)
+            isStrictValidUtf8(bytes, offset, length)
         ) {
             return if (offset == 0 && length == bytes.size) bytes else bytes.copyOfRange(offset, offset + length)
         }
@@ -218,6 +218,33 @@ object SubtitleCharsetDetector {
             if (b == 0xCF || b == 0xC1 || b == 0xC5 || b == 0xC9 || b == 0xD5 || b == 0xDF) koi8Vowels++
         }
         return koi8Vowels > russianVowels && koi8Vowels >= 3
+    }
+
+    /**
+     * Well-formed UTF-8 (RFC 3629): no overlong forms, no UTF-16 surrogates, nothing above
+     * U+10FFFF. Bytes that pass can be handed on as they are; anything else is decoded, which
+     * replaces malformed sequences.
+     */
+    private fun isStrictValidUtf8(bytes: ByteArray, offset: Int, length: Int): Boolean {
+        var i = offset
+        val end = offset + length
+        fun cont(index: Int, low: Int = 0x80, high: Int = 0xBF): Boolean =
+            index < end && (bytes[index].toInt() and 0xFF) in low..high
+        while (i < end) {
+            val b1 = bytes[i].toInt() and 0xFF
+            when {
+                b1 <= 0x7F -> i += 1
+                b1 in 0xC2..0xDF -> { if (!cont(i + 1)) return false; i += 2 }
+                b1 == 0xE0 -> { if (!cont(i + 1, 0xA0) || !cont(i + 2)) return false; i += 3 }
+                b1 == 0xED -> { if (!cont(i + 1, high = 0x9F) || !cont(i + 2)) return false; i += 3 }
+                b1 in 0xE1..0xEF -> { if (!cont(i + 1) || !cont(i + 2)) return false; i += 3 }
+                b1 == 0xF0 -> { if (!cont(i + 1, 0x90) || !cont(i + 2) || !cont(i + 3)) return false; i += 4 }
+                b1 in 0xF1..0xF3 -> { if (!cont(i + 1) || !cont(i + 2) || !cont(i + 3)) return false; i += 4 }
+                b1 == 0xF4 -> { if (!cont(i + 1, high = 0x8F) || !cont(i + 2) || !cont(i + 3)) return false; i += 4 }
+                else -> return false
+            }
+        }
+        return true
     }
 
     private fun isFastValidUtf8(bytes: ByteArray, offset: Int, length: Int): Boolean {

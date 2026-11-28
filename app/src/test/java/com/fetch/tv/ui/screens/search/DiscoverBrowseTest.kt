@@ -336,9 +336,37 @@ class DiscoverBrowseTest {
 
     @Test
     fun `shelf focus keys round-trip and grid keys are not shelf keys`() {
-        assertEquals("library" to 3, parseDiscoverShelfFocusKey(discoverShelfFocusKey("library", 3)))
+        assertEquals("library" to "movie:a|b", parseDiscoverShelfFocusKey(discoverShelfFocusKey("library", "movie:a|b")))
         assertNull(parseDiscoverShelfFocusKey(discoverItemKey(item("a"))))
         assertNull(parseDiscoverShelfFocusKey(null))
+    }
+
+    @Test
+    fun `shelf focus follows the title, not its place`() {
+        val a = item("a")
+        val b = item("b")
+        val c = item("c")
+        fun shelves(vararg items: MetaPreview) = listOf(
+            DiscoverShelf(
+                id = "library",
+                row = com.fetch.tv.domain.model.CatalogRow(
+                    addonId = "x", addonName = "", addonBaseUrl = "", catalogId = "x", catalogName = "",
+                    type = ContentType.MOVIE, items = items.toList()
+                )
+            )
+        )
+        val key = discoverShelfFocusKey("library", discoverItemKey(b))
+
+        assertEquals("library" to 1, resolveDiscoverShelfFocus(key, shelves(a, b, c)))
+        assertEquals("library" to 0, resolveDiscoverShelfFocus(key, shelves(b, c)))
+        assertNull(resolveDiscoverShelfFocus(key, shelves(a, c)))
+    }
+
+    @Test
+    fun `a title watched under its IMDb id counts as watched`() {
+        val preview = item("addon:42").copy(imdbId = "tt42")
+        assertTrue(isDiscoverItemWatched(preview, watchedMovieIds = setOf("tt42"), watchedSeriesIds = emptySet()))
+        assertFalse(isDiscoverItemWatched(preview, watchedMovieIds = emptySet(), watchedSeriesIds = setOf("tt42")))
     }
 
     private fun libraryEntry(id: String, type: String, genres: List<String>, listedAt: Long) =

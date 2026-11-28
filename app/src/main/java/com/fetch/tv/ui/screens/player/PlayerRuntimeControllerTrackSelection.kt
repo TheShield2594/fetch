@@ -492,6 +492,10 @@ internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
         message = "usingMpv=${isUsingMpvEngine()} addonId=${subtitle.id} addonLang=${subtitle.lang} addonName=${subtitle.addonName}"
     )
     if (isUsingMpvEngine()) {
+        // A newer pick replaces the one still downloading, so the slower download can never win
+        // over what the panel shows as selected, even when the newer pick is the track already
+        // active and returns just below.
+        cancelMpvAddonSubtitleSelection()
         val currentlySelected = _uiState.value.selectedAddonSubtitle
         if (
             currentlySelected?.id == subtitle.id &&
@@ -505,9 +509,7 @@ internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
         val normalizedLang = PlayerSubtitleUtils.normalizeLanguageCode(subtitle.lang)
         val trackTitle = buildAddonSubtitleTrackId(subtitle)
         AutoSyncSyncedSubtitle.clear() // AutoSync hook
-        // A newer pick replaces the one still downloading, so the slower download can never win
-        // over what the panel shows as selected.
-        cancelMpvAddonSubtitleSelection()
+        val pickToken = mpvAddonSubtitlePickToken
         _uiState.update { it.copy(loadingAddonSubtitleUrl = subtitle.url) }
         mpvAddonSubtitleSelectionJob = scope.launch {
             try {
@@ -544,9 +546,10 @@ internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
                 updateMpvAvailableTracks()
                 keepMpvPlayingIfNeeded(wasPlaying)
             } finally {
-                // A newer pick has already put its own URL here; only clear our own spinner.
-                _uiState.update {
-                    if (it.loadingAddonSubtitleUrl == subtitle.url) it.copy(loadingAddonSubtitleUrl = null) else it
+                // Only while this pick still owns the spinner: a newer pick, even of the same
+                // subtitle, has moved the token on and shows its own.
+                if (mpvAddonSubtitlePickToken == pickToken) {
+                    _uiState.update { it.copy(loadingAddonSubtitleUrl = null) }
                 }
             }
         }
@@ -863,6 +866,7 @@ internal fun PlayerRuntimeController.captureCurrentAudioSelectionForSubtitleRefr
  * later choice (another addon subtitle, an internal track or Off), and drops its spinner.
  */
 internal fun PlayerRuntimeController.cancelMpvAddonSubtitleSelection() {
+    mpvAddonSubtitlePickToken++
     mpvAddonSubtitleSelectionJob?.cancel()
     mpvAddonSubtitleSelectionJob = null
     if (_uiState.value.loadingAddonSubtitleUrl != null) {

@@ -374,4 +374,17 @@ class SubtitleCharsetDetectorTest {
         // Not valid UTF-8, so it takes the decode path and comes back re-encoded.
         assertTrue(!SubtitleCharsetDetector.normalizeToUtf8(latin1).contentEquals(latin1))
     }
+
+    @Test
+    fun normalizeToUtf8OnlyPassesWellFormedUtf8Through() {
+        val wellFormed = byteArrayOf(0x41, 0xE0.toByte(), 0xA0.toByte(), 0x80.toByte())
+        assertTrue(SubtitleCharsetDetector.normalizeToUtf8(wellFormed) === wellFormed)
+
+        // An overlong three-byte form is not UTF-8 and must not reach libass as it is.
+        val overlong = byteArrayOf(0x41, 0xE0.toByte(), 0x80.toByte(), 0x80.toByte())
+        assertTrue(SubtitleCharsetDetector.normalizeToUtf8(overlong) !== overlong)
+        // A UTF-16 surrogate encoded as UTF-8.
+        val surrogate = byteArrayOf(0xED.toByte(), 0xA0.toByte(), 0x80.toByte())
+        assertTrue(SubtitleCharsetDetector.normalizeToUtf8(surrogate) !== surrogate)
+    }
 }

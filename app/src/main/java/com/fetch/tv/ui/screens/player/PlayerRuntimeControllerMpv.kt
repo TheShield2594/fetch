@@ -23,6 +23,9 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
     // relay (and through it this controller) alive (#728). Release it here, and remember where
     // it was so a replacement view resumes there instead of at 0:00.
     val handoverPositionMs = previous?.let { detachAndReleaseMpvView(it) } ?: 0L
+    // The surface detaches with null before a recreated view attaches, so the position is kept
+    // as a pending seek for whichever view comes next. A seek already queued is left alone.
+    if (handoverPositionMs > 0L && pendingSeekPosition == null) pendingSeekPosition = handoverPositionMs
     mpvView = view
 
     if (view == null) return
@@ -53,7 +56,6 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
         // initializePlayer sets userPausedManually for startPaused; honour it, or a retry while
         // paused or in the background starts audible playback (#706).
         view.setPaused(userPausedManually)
-        if (handoverPositionMs > 0L && pendingSeekPosition == null) pendingSeekPosition = handoverPositionMs
         applyPendingMpvSeekIfNeeded(view)
         hasRenderedFirstFrame = false
         endDetectionArmed = false

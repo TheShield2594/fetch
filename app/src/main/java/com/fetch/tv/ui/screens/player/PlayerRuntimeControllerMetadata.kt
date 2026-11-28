@@ -378,9 +378,33 @@ internal fun PlayerRuntimeController.evaluatePostPlayOverlayVisibility(positionM
         }
         return
     }
-    if (state.postPlayMode != null || state.postPlayDismissedForCurrentEpisode) return
-
     val effectiveDuration = effectiveDurationEarly
+
+    // A seek back out of the card's window (to rewatch a scene) takes the card down and stops its
+    // countdown; it comes back when playback reaches the window again (#694). A start the user
+    // asked for (Next, the card's Play) is left to run.
+    val shownMode = state.postPlayMode
+    if (shownMode is PostPlayMode.AutoPlay && !state.playbackEnded &&
+        !(nextEpisodeAutoPlayUserInitiated && nextEpisodeAutoPlayJob?.isActive == true) &&
+        !PlayerNextEpisodeRules.shouldShowNextEpisodeCard(
+            positionMs = positionMs,
+            durationMs = effectiveDuration,
+            skipIntervals = skipIntervals,
+            thresholdMode = nextEpisodeThresholdModeSetting,
+            thresholdPercent = nextEpisodeThresholdPercentSetting,
+            thresholdMinutesBeforeEnd = nextEpisodeThresholdMinutesBeforeEndSetting
+        )
+    ) {
+        nextEpisodeAutoPlayJob?.cancel()
+        nextEpisodeAutoPlayJob = null
+        nextEpisodeStartNowSignal = null
+        _uiState.update { current ->
+            if (current.postPlayMode is PostPlayMode.AutoPlay) current.copy(postPlayMode = null) else current
+        }
+        return
+    }
+
+    if (state.postPlayMode != null || state.postPlayDismissedForCurrentEpisode) return
 
     // Preload: start fetching sources for next episode before the button appears.
     // Nothing follows a title the sleep timer stops at, so its next episode isn't fetched either.

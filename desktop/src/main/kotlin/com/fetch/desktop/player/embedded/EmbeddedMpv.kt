@@ -144,6 +144,9 @@ class EmbeddedMpv private constructor(
     /** Set by [load] until mpv starts the new file, so the old file's end isn't taken for it. */
     @Volatile private var awaitingStart = false
     private var pendingSubtitles: List<String> = emptyList()
+    /** Whether the file [load] started has loaded, so a late subtitle goes straight to mpv. */
+    private var fileLoaded = false
+    private val subtitleLock = Any()
 
     // The software renderer's mpv_render_param buffers, made once and refilled for each frame
     // (render thread only); being fields also keeps them alive while mpv reads them.
@@ -278,7 +281,10 @@ class EmbeddedMpv private constructor(
         }
         (lastLoadOptions - setNow).forEach { name -> set(name, optionDefaults[name] ?: "") }
         lastLoadOptions = setNow
-        pendingSubtitles = subtitles
+        synchronized(subtitleLock) {
+            fileLoaded = false
+            pendingSubtitles = subtitles
+        }
         set("force-media-title", title)
         set("start", start ?: "none")
         command("change-list", "http-header-fields", "clr", "")
@@ -298,6 +304,21 @@ class EmbeddedMpv private constructor(
     fun changeSpeed(value: Double) = set("speed", value.coerceIn(0.25, 4.0).toString())
     fun changeAudioDelay(seconds: Double) = set("audio-delay", "%.3f".format(java.util.Locale.ROOT, seconds))
     fun changeSubtitleDelay(seconds: Double) = set("sub-delay", "%.3f".format(java.util.Locale.ROOT, seconds))
+
+    /**
+     * Subtitle files that arrived after [load] (addon results, #754): added as [load]'s own
+     * `--sub-file`s are, without switching the track; held until the file has loaded.
+     */
+    fun attachSubtitles(urls: List<String>) {
+        if (urls.isEmpty()) return
+        synchronized(subtitleLock) {
+            if (fileLoaded) {
+                urls.forEach { command("sub-add", it, "auto") }
+            } else {
+                pendingSubtitles = pendingSubtitles + urls
+            }
+        }
+    }
 
     /** Adds a subtitle file (an addon's) and shows it. */
     fun addSubtitle(url: String, title: String?, lang: String?) {
@@ -390,8 +411,14 @@ class EmbeddedMpv private constructor(
                 }
                 LibMpv.EVENT_START_FILE -> awaitingStart = false
                 LibMpv.EVENT_FILE_LOADED -> {
-                    pendingSubtitles.forEach { command("sub-add", it, "auto") }
-                    pendingSubtitles = emptyList()
+                    // Sent under the lock, so a load() after this can't slip its loadfile in
+                    // ahead of the previous file's subtitles.
+                    synchronized(subtitleLock) {
+                        fileLoaded = true
+                        val subtitles = pendingSubtitles
+                        pendingSubtitles = emptyList()
+                        subtitles.forEach { command("sub-add", it, "auto") }
+                    }
                 }
                 LibMpv.EVENT_PLAYBACK_RESTART -> ui { buffering = false }
                 LibMpv.EVENT_END_FILE -> {

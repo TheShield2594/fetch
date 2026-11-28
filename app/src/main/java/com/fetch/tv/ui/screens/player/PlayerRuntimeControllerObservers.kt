@@ -52,8 +52,11 @@ internal suspend fun PlayerRuntimeController.fetchAddonSubtitlesNow(
 
     // Compute hash lazily for providers that support OpenSubtitles-style matching.
     if (currentVideoHash == null && currentStreamUrl.isNotBlank()) {
-        val result = OpenSubtitlesHasher.compute(currentStreamUrl, currentHeaders)
-        if (result != null) {
+        val hashedUrl = currentStreamUrl
+        val result = OpenSubtitlesHasher.compute(hashedUrl, currentHeaders)
+        // The hash belongs to the stream it was read from: after a switch it would be stored, and
+        // matched against, under the next stream (#703).
+        if (result != null && currentStreamUrl == hashedUrl && currentVideoHash == null) {
             currentVideoHash = result.hash
             if (currentVideoSize == null) currentVideoSize = result.fileSize
             val key = streamCacheKey
@@ -100,8 +103,14 @@ internal fun PlayerRuntimeController.fetchAddonSubtitles() {
     }
 
     // The item's scope: a fetch still running when the episode changes is cancelled, so its
-    // results can't land on the next episode's subtitle list (#777).
-    itemScope.launch {
+    // results can't land on the next episode's subtitle list (#777). A newer fetch (a re-init or a
+    // source switch) replaces this one, and a result that lands after the video or stream changed
+    // under it is dropped (#703).
+    val fetchVideoId = currentVideoId
+    val fetchStreamUrl = currentStreamUrl
+    fun isStale(): Boolean = currentVideoId != fetchVideoId || currentStreamUrl != fetchStreamUrl
+    addonSubtitleFetchJob?.cancel()
+    addonSubtitleFetchJob = itemScope.launch {
         _uiState.update {
             it.copy(
                 isLoadingAddonSubtitles = true,
@@ -116,9 +125,17 @@ internal fun PlayerRuntimeController.fetchAddonSubtitles() {
         try {
             val subtitles = fetchAddonSubtitlesNow(
                 onSubtitlesEmitted = { currentList ->
-                    _uiState.update { it.copy(addonSubtitles = currentList) }
+                    if (!isStale()) _uiState.update { it.copy(addonSubtitles = currentList) }
                 }
             )
+            if (isStale()) {
+                Log.d(PlayerRuntimeController.TAG, "fetchAddonSubtitles: dropped a result for a previous stream")
+                // No newer fetch took over the loading state: don't leave it spinning.
+                if (addonSubtitleFetchJob === coroutineContext[kotlinx.coroutines.Job]) {
+                    _uiState.update { it.copy(isLoadingAddonSubtitles = false) }
+                }
+                return@launch
+            }
             val visibleSubtitles = filterToVisibleAddonSubtitles(subtitles)
             Log.d(PlayerRuntimeController.TAG, "fetchAddonSubtitles done: ${subtitles.size} subs, visible=${visibleSubtitles.size}, persistedPref=${persistedTrackPreference?.subtitle?.javaClass?.simpleName}")
             _uiState.update {

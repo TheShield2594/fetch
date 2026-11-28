@@ -269,8 +269,9 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     )
                     val playingNow = view.isPlayingNow()
                     val eofNow = view.isEofReached()
+                    val pausedForCacheNow = view.isPausedForCacheNow()
                     val cacheBuffering = isMpvBuffering(
-                        pausedForCache = view.isPausedForCacheNow(),
+                        pausedForCache = pausedForCacheNow,
                         coreIdle = view.isCoreIdleNow(),
                         paused = !playingNow,
                         eofReached = eofNow
@@ -322,6 +323,13 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                     // The playerDuration check stays: lastKnownDuration can still hold the previous
                     // stream's value until it resets.
                     val effectiveDuration = maxOf(playerDuration, lastKnownDuration)
+                    maybeRunMpvMidPlaybackStallWatchdog(
+                        view = view,
+                        positionMs = pos,
+                        durationMs = effectiveDuration,
+                        eofReached = eofNow,
+                        pausedForCache = pausedForCacheNow
+                    )
                     // Only while playing: the tick also runs while paused (#732), and a paused seek
                     // to the last moments must not end the title. mpv's own end of file still does.
                     val nearEnd = endDetectionArmed && playingNow && playerDuration > 0L &&

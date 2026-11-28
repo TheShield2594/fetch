@@ -784,14 +784,7 @@ class AppState(
                 }
                 return answer.await()
             }
-            override suspend fun openBuiltInPlayer(): PlayerSession? = playerSession ?: try {
-                PlayerSession(EmbeddedMpv.createOffThread(preferGpu = settings.player.builtInGpu)).also { playerSession = it }
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                message = "The built-in player couldn't start (${e.message}). Using mpv's window."
-                null
-            }
+            override suspend fun openBuiltInPlayer(): PlayerSession? = obtainPlayerSession()
             override val currentPlayer get() = playerSession
             override fun closePlayer() = this@AppState.closePlayer()
             override fun openBrowse(target: com.fetch.tv.data.youtube.YouTubeBrowseTarget) = navigate(Screen.YouTubeBrowse(target))
@@ -2010,37 +2003,54 @@ class AppState(
             return
         }
         startedPlaying(stream, target)
-        scope.launch {
+        // One launch at a time: a newer one (a second click, the next source, a source switch)
+        // replaces one still getting ready, rather than both opening a player (#754).
+        launchJob?.cancel()
+        launchJob = scope.launch {
             val player = settings.player
             val serverStream = servers.serverStream(stream)
             // Fetch's own position first; otherwise where the server says you stopped.
             val resume = start ?: WatchHistory.resumeStart(progress, target.videoId)
                 ?: serverStream?.resumePositionMs?.takeIf { it > 60_000 }?.let { (it / 1000).toString() }
-            val subtitles = if (player.subtitleMode == SubtitleMode.OFF) {
+            // The server's own subtitle files, then the addons' in your language. The addons and
+            // the skip segments are asked at once, and the built-in player doesn't wait for them:
+            // it opens now and takes them as they arrive (#754).
+            val serverSubtitles = if (player.subtitleMode == SubtitleMode.OFF) {
                 emptyList()
             } else {
-                // The server's own subtitle files, then the addons' in your language.
-                serverStream?.subtitles.orEmpty().map { it.url } +
-                    if (player.forwardAddonSubtitles && !ServerItemRef.isServerId(target.contentId)) {
-                        addonSubtitles(target, player.subtitleLanguage ?: Locale.getDefault().language)
-                    } else {
-                        emptyList()
-                    }
+                serverStream?.subtitles.orEmpty().map { it.url }
             }
+            val addonSubtitlesLater = if (player.subtitleMode != SubtitleMode.OFF && player.forwardAddonSubtitles &&
+                !ServerItemRef.isServerId(target.contentId)
+            ) {
+                async { lookupOrEmpty { addonSubtitles(target, player.subtitleLanguage ?: Locale.getDefault().language) } }
+            } else {
+                null
+            }
+            // The built-in player also offers a Skip button for segments that aren't automatic.
+            val segmentsLater = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) async { lookupOrEmpty { segmentsFor(target) } } else null
             // Media server quality: a capped bitrate plays the server's transcode instead of the file.
             val played = serverStream?.let { servers.transcodeUrl(it, player.serverMaxBitrateKbps) }
                 ?.let { stream.copy(url = it) } ?: stream
-            val options = MpvArgs.build(player, subtitles)
-            // The built-in player also offers a Skip button for segments that aren't automatic.
-            val segments = if (player.builtInPlayer || player.autoSkip.isNotEmpty()) segmentsFor(target) else emptyList()
             // The window is closing: nothing new starts (an Up Next still looking up its source).
             if (closing) return@launch
             val useBuiltIn = builtIn ?: (player.builtInPlayer || playerSession != null)
             if (useBuiltIn && LibMpv.available &&
-                playEmbedded(stream, played, label, target, resume, options, serverStream, segments, alternatives)
+                playEmbedded(
+                    stream, played, label, target, resume, MpvArgs.build(player, serverSubtitles), serverStream,
+                    segmentsLater, addonSubtitlesLater, alternatives
+                )
             ) {
                 return@launch
             }
+            // mpv's window takes its subtitles on the command line, so it waits for them, and says so.
+            if (addonSubtitlesLater?.isCompleted == false || segmentsLater?.isCompleted == false) {
+                message = "Getting subtitles and skip times ready…"
+            }
+            val subtitles = serverSubtitles + addonSubtitlesLater?.await().orEmpty()
+            val options = MpvArgs.build(player, subtitles)
+            val segments = segmentsLater?.await().orEmpty()
+            if (closing) return@launch
             val skipper = SkipPlanner(segments, player.autoSkip).takeUnless { it.isEmpty }
             closePlayer()
             when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
@@ -2051,6 +2061,18 @@ class AppState(
                 is ExternalPlayer.Result.Failed -> message = result.message
             }
         }
+    }
+
+    /** The launch getting a stream ready to play; replaced by the next one (#754). */
+    private var launchJob: Job? = null
+
+    /** A lookup that runs beside the launch: a failure is nothing found, not a failed launch. */
+    private suspend fun <T> lookupOrEmpty(lookup: suspend () -> List<T>): List<T> = try {
+        lookup()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        emptyList()
     }
 
     /** Up to three addon subtitles in [language], best first as the addons sent them. */
@@ -2141,7 +2163,7 @@ class AppState(
             onCancelled = { scope.launch { upNextCancelledFor = target.videoId } }
         )
         follow(
-            target, serverStream, skipper,
+            target, serverStream, { skipper },
             afterEnd = { _, continued ->
                 // The countdown ran out and closed the window: the next episode, as at the end of the file.
                 if (upNext.movedOn && !continued && upNextCancelledFor != target.videoId) target.video?.let { continueToNext(target, it, countdown = false) }
@@ -2170,7 +2192,8 @@ class AppState(
     private fun follow(
         target: PlaybackTarget,
         serverStream: ServerStream?,
-        skipper: SkipPlanner?,
+        /** Read at each position, so segments that arrive after the start are skipped too (#754). */
+        skipper: () -> SkipPlanner?,
         afterEnd: suspend (ending: MpvProgress.Ending, continued: Boolean) -> Unit = { _, _ -> },
         run: suspend (onPosition: (Double) -> MpvProgress.Seek?, onSample: (MpvProgress.Sample) -> Unit) -> MpvProgress.Ending
     ) {
@@ -2180,7 +2203,7 @@ class AppState(
             var lastPosition: Double? = null
             val ending = withContext(Dispatchers.IO) {
                 run(
-                    { position -> skipper?.at(position)?.let { MpvProgress.Seek(it.targetSec, "Skipped ${it.displayLabel}") } }
+                    { position -> skipper()?.at(position)?.let { MpvProgress.Seek(it.targetSec, "Skipped ${it.displayLabel}") } }
                 ) { sample ->
                     scope.launch {
                         // Screen time counts what actually played, not seeks.
@@ -2284,6 +2307,34 @@ class AppState(
         }
     }
 
+    /** The built-in player being started, shared by every launch that needs it meanwhile (#754). */
+    private var sessionStarting: kotlinx.coroutines.Deferred<PlayerSession?>? = null
+
+    /**
+     * The open built-in player, or a new one. Starting libmpv suspends for a while, and two
+     * launches in that time (a second click on Play, a context-menu Play, the next source) must
+     * share one player: two would leave one playing unseen, never closed (#754). The start runs
+     * in the app's scope, so a launch that is replaced meanwhile doesn't throw the player away.
+     * Null when the built-in player couldn't start (the message says so).
+     */
+    private suspend fun obtainPlayerSession(): PlayerSession? {
+        playerSession?.let { return it }
+        val starting = sessionStarting ?: scope.async {
+            try {
+                PlayerSession(EmbeddedMpv.createOffThread(preferGpu = settings.player.builtInGpu))
+                    .also { playerSession = it }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                message = "The built-in player couldn't start (${e.message}). Using mpv's window."
+                null
+            } finally {
+                sessionStarting = null
+            }
+        }.also { sessionStarting = it }
+        return starting.await()
+    }
+
     private suspend fun playEmbedded(
         original: Stream,
         stream: Stream,
@@ -2292,24 +2343,19 @@ class AppState(
         resume: String?,
         options: List<String>,
         serverStream: ServerStream?,
-        segments: List<Segment>,
+        segmentsLater: kotlinx.coroutines.Deferred<List<Segment>>?,
+        addonSubtitlesLater: kotlinx.coroutines.Deferred<List<String>>?,
         alternatives: List<RankedStream>
     ): Boolean {
         val url = ExternalPlayer.playableUrl(stream) ?: run {
             message = "This source has no playable link. Fetch plays direct and debrid links only."
             return true
         }
-        val session = playerSession ?: try {
-            PlayerSession(EmbeddedMpv.createOffThread(preferGpu = settings.player.builtInGpu))
-        } catch (e: kotlinx.coroutines.CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            message = "The built-in player couldn't start (${e.message}). Using mpv's window."
-            return false
-        }
-        playerSession = session
+        val session = obtainPlayerSession() ?: return false
         val sameTitle = session.target?.videoId == target.videoId
         session.title = label
+        // Known when the lookup already finished (it often has); otherwise set as it arrives below.
+        val segments = segmentsLater?.takeIf { it.isCompleted }?.await().orEmpty()
         session.segments = segments
         session.autoSkip = settings.player.autoSkip
         session.skipButton = settings.player.skipButton
@@ -2330,10 +2376,13 @@ class AppState(
         session.mpv.load(url, label, resume, options, stream.behaviorHints?.proxyHeaders?.request.orEmpty())
         if (session.loads == 1 && settings.player.videoFit != VideoFit.FIT) setFit(settings.player.videoFit)
         val watch = PositionWatch(session, target, load)
+        val skipper = java.util.concurrent.atomic.AtomicReference(
+            SkipPlanner(segments, settings.player.autoSkip).takeUnless { it.isEmpty }
+        )
         follow(
             target,
             serverStream,
-            SkipPlanner(segments, settings.player.autoSkip).takeUnless { it.isEmpty },
+            skipper::get,
             afterEnd = end@{ ending, continued ->
                 // A source that wouldn't open: the next one in the ranking, when that's on.
                 if (!ending.reachedEnd && ending.last == null && session.mpv.error != null && playerSession === session &&
@@ -2344,6 +2393,22 @@ class AppState(
             }
         ) { onPosition, onSample ->
             session.mpv.follow(onPosition = { position -> watch.on(position); onPosition(position) }, onSample = onSample)
+        }
+        // Playing already: what was still being looked up joins this file as it arrives (#754).
+        // Each is taken as it arrives, in whichever order.
+        fun stillThisFile() = playerSession === session && session.loads == load
+        coroutineScope {
+            if (segmentsLater != null && !segmentsLater.isCompleted) launch {
+                val late = segmentsLater.await()
+                if (stillThisFile() && late.isNotEmpty()) {
+                    session.segments = late
+                    skipper.set(SkipPlanner(late, settings.player.autoSkip).takeUnless { it.isEmpty })
+                }
+            }
+            if (addonSubtitlesLater != null) launch {
+                val late = addonSubtitlesLater.await()
+                if (stillThisFile() && late.isNotEmpty()) session.mpv.attachSubtitles(late)
+            }
         }
         return true
     }

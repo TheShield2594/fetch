@@ -34,6 +34,8 @@ object SubtitleCharsetDetector {
     private val CHARSET_EUC_KR: Charset = safeCharset("EUC-KR")
 
     private const val MAX_SAMPLE_BYTES = 4096
+    private const val UTF8_LATIN1_SUPPLEMENT_LEAD = 0xC3
+    private val WHITESPACE_REGEX = Regex("\\s+")
 
     fun decode(
         bytes: ByteArray,
@@ -78,8 +80,33 @@ object SubtitleCharsetDetector {
         length: Int = bytes.size - offset,
         languageHint: String? = null
     ): ByteArray {
+        if (length <= 0) return ByteArray(0)
+        // Fast path for samples that are already clean UTF-8 (the usual case for embedded ASS
+        // dialogue): no BOM to strip, and no 0xC3 lead byte, which every U+00C0..U+00FF character
+        // the double-encoded Hebrew repair looks for starts with. Such bytes would decode and
+        // re-encode to themselves, so hand them back without the String round trip.
+        if (!startsWithBom(bytes, offset, length) &&
+            !containsByte(bytes, offset, length, UTF8_LATIN1_SUPPLEMENT_LEAD) &&
+            isFastValidUtf8(bytes, offset, length)
+        ) {
+            return if (offset == 0 && length == bytes.size) bytes else bytes.copyOfRange(offset, offset + length)
+        }
         val decoded = decode(bytes, offset, length, languageHint)
         return decoded.toByteArray(StandardCharsets.UTF_8)
+    }
+
+    private fun startsWithBom(bytes: ByteArray, offset: Int, length: Int): Boolean {
+        val b0 = bytes[offset].toInt() and 0xFF
+        val b1 = if (length >= 2) bytes[offset + 1].toInt() and 0xFF else -1
+        val b2 = if (length >= 3) bytes[offset + 2].toInt() and 0xFF else -1
+        return (b0 == 0xEF && b1 == 0xBB && b2 == 0xBF) || (b0 == 0xFF && b1 == 0xFE) || (b0 == 0xFE && b1 == 0xFF)
+    }
+
+    private fun containsByte(bytes: ByteArray, offset: Int, length: Int, value: Int): Boolean {
+        for (i in offset until offset + length) {
+            if ((bytes[i].toInt() and 0xFF) == value) return true
+        }
+        return false
     }
 
     fun repairDoubleEncodedUtf8IfNeeded(text: String, languageHint: String? = null): String {
@@ -96,7 +123,7 @@ object SubtitleCharsetDetector {
             return text
         }
 
-        val words = text.split("\\s+".toRegex()).filter { it.length >= 2 && it.any { c -> c.isLetter() } }
+        val words = text.split(WHITESPACE_REGEX).filter { it.length >= 2 && it.any { c -> c.isLetter() } }
         if (words.isEmpty()) return text
 
         // In true double-encoded Hebrew text, dialogue words consist almost exclusively of Latin-1 characters in \u00E0..\u00FA

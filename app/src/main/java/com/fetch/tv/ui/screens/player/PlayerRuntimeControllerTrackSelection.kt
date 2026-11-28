@@ -6,13 +6,18 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.ui.screens.player.autosync.AutoSyncSyncedSubtitle
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 internal fun PlayerRuntimeController.filterEpisodeStreamsByAddon(addonName: String?) {
     val tab = sourceTab(_uiState.value.episodeAllStreams, addonName)
@@ -215,6 +220,7 @@ internal fun PlayerRuntimeController.selectSubtitleTrack(trackIndex: Int) {
     )
     if (isUsingMpvEngine()) {
         Log.d(PlayerRuntimeController.TAG, "Selecting INTERNAL subtitle trackIndex=$trackIndex (mpv)")
+        cancelMpvAddonSubtitleSelection()
         val shouldKeepPlaying = !userPausedManually && !_uiState.value.playbackEnded
         val track = _uiState.value.subtitleTracks.getOrNull(trackIndex)
         val trackId = track?.trackId?.toIntOrNull()
@@ -309,6 +315,7 @@ internal fun PlayerRuntimeController.disableSubtitles() {
         message = "usingMpv=${isUsingMpvEngine()} selectedSubtitleIndex=${_uiState.value.selectedSubtitleTrackIndex}"
     )
     if (isUsingMpvEngine()) {
+        cancelMpvAddonSubtitleSelection()
         if (mpvView?.disableSubtitles() == true) {
             pendingAddonSubtitleLanguage = null
             pendingAddonSubtitleTrackId = null
@@ -498,38 +505,50 @@ internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
         val normalizedLang = PlayerSubtitleUtils.normalizeLanguageCode(subtitle.lang)
         val trackTitle = buildAddonSubtitleTrackId(subtitle)
         AutoSyncSyncedSubtitle.clear() // AutoSync hook
+        // A newer pick replaces the one still downloading, so the slower download can never win
+        // over what the panel shows as selected.
+        cancelMpvAddonSubtitleSelection()
+        _uiState.update { it.copy(loadingAddonSubtitleUrl = subtitle.url) }
         mpvAddonSubtitleSelectionJob = scope.launch {
-            val localPath = try {
-                val decodedBody = downloadSubtitleBody(subtitle.url, subtitle.lang, subtitle.headers)
-                val sanitized = SubtitleMojibakeSanitizer.sanitize(decodedBody).toString()
-                val cacheDir = java.io.File(context.cacheDir, "subtitles").also { it.mkdirs() }
-                val ext = if (subtitle.url.contains(".vtt", ignoreCase = true)) "vtt" else "srt"
-                val file = java.io.File(cacheDir, "mpv_${subtitle.id.hashCode()}.$ext")
-                file.writeText(sanitized, Charsets.UTF_8)
-                file.absolutePath
-            } catch (e: Exception) {
-                Log.w(PlayerRuntimeController.TAG, "Failed to cache normalized subtitle for MPV, falling back to URL", e)
-                subtitle.url
-            }
+            try {
+                val localPath = try {
+                    val decodedBody = downloadSubtitleBody(subtitle.url, subtitle.lang, subtitle.headers)
+                    val sanitized = SubtitleMojibakeSanitizer.sanitize(decodedBody).toString()
+                    withContext(Dispatchers.IO) {
+                        writeMpvAddonSubtitleCacheFile(subtitle, sanitized).absolutePath
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(PlayerRuntimeController.TAG, "Failed to cache normalized subtitle for MPV, falling back to URL", e)
+                    subtitle.url
+                }
+                ensureActive()
 
-            val added = mpvView?.addAndSelectExternalSubtitle(
-                url = localPath,
-                title = trackTitle,
-                language = normalizedLang
-            ) == true
-            if (!added) return@launch
+                val added = mpvView?.addAndSelectExternalSubtitle(
+                    url = localPath,
+                    title = trackTitle,
+                    language = normalizedLang
+                ) == true
+                if (!added) return@launch
 
-            pendingAddonSubtitleLanguage = null
-            pendingAddonSubtitleTrackId = null
-            pendingAudioSelectionAfterSubtitleRefresh = null
-            _uiState.update {
-                it.copy(
-                    selectedAddonSubtitle = subtitle,
-                    selectedSubtitleTrackIndex = -1
-                )
+                pendingAddonSubtitleLanguage = null
+                pendingAddonSubtitleTrackId = null
+                pendingAudioSelectionAfterSubtitleRefresh = null
+                _uiState.update {
+                    it.copy(
+                        selectedAddonSubtitle = subtitle,
+                        selectedSubtitleTrackIndex = -1
+                    )
+                }
+                updateMpvAvailableTracks()
+                keepMpvPlayingIfNeeded(wasPlaying)
+            } finally {
+                // A newer pick has already put its own URL here; only clear our own spinner.
+                _uiState.update {
+                    if (it.loadingAddonSubtitleUrl == subtitle.url) it.copy(loadingAddonSubtitleUrl = null) else it
+                }
             }
-            updateMpvAvailableTracks()
-            keepMpvPlayingIfNeeded(wasPlaying)
         }
         return
     }
@@ -837,4 +856,52 @@ internal fun PlayerRuntimeController.captureCurrentAudioSelectionForSubtitleRefr
         }
     }
     return null
+}
+
+/**
+ * Stops an addon subtitle download that mpv has not attached yet, so it cannot land on top of a
+ * later choice (another addon subtitle, an internal track or Off), and drops its spinner.
+ */
+internal fun PlayerRuntimeController.cancelMpvAddonSubtitleSelection() {
+    mpvAddonSubtitleSelectionJob?.cancel()
+    mpvAddonSubtitleSelectionJob = null
+    if (_uiState.value.loadingAddonSubtitleUrl != null) {
+        _uiState.update { it.copy(loadingAddonSubtitleUrl = null) }
+    }
+}
+
+/** Prefix of the files [writeMpvAddonSubtitleCacheFile] writes; [deleteMpvAddonSubtitleCacheFiles] removes them. */
+internal const val MPV_ADDON_SUBTITLE_CACHE_PREFIX = "mpv_addon_"
+
+/**
+ * Writes the normalized subtitle for mpv under a name unique to the subtitle (id and URL) and
+ * with the extension of its real format, so mpv picks the right demuxer for ASS and VTT.
+ */
+internal fun PlayerRuntimeController.writeMpvAddonSubtitleCacheFile(
+    subtitle: Subtitle,
+    body: String,
+): java.io.File {
+    val cacheDir = java.io.File(context.cacheDir, "subtitles").also { it.mkdirs() }
+    val extension = when (PlayerSubtitleUtils.sniffSubtitleMimeType(body, subtitle.url)) {
+        MimeTypes.TEXT_SSA -> "ass"
+        MimeTypes.TEXT_VTT -> "vtt"
+        MimeTypes.APPLICATION_TTML -> "ttml"
+        else -> "srt"
+    }
+    val key = Integer.toHexString("${subtitle.id}\u0000${subtitle.url}".hashCode())
+    val file = java.io.File(cacheDir, "$MPV_ADDON_SUBTITLE_CACHE_PREFIX$key.$extension")
+    file.writeText(body, Charsets.UTF_8)
+    return file
+}
+
+/** Removes every file mpv was handed for addon subtitles (plain and AutoSync copies). */
+internal fun PlayerRuntimeController.deleteMpvAddonSubtitleCacheFiles() {
+    val cacheDir = java.io.File(context.cacheDir, "subtitles")
+    // Off the caller's (main) thread; mpv has read text subtitles into memory by now.
+    Thread({
+        runCatching {
+            cacheDir.listFiles { file -> file.isFile && file.name.startsWith("mpv_") }
+                ?.forEach { it.delete() }
+        }
+    }, "mpv-subtitle-cache-cleanup").start()
 }

@@ -36,6 +36,7 @@ internal class FetchAssMatroskaExtractor(
 
     private var currentAttachmentName: String? = null
     private var currentAttachmentMime: String? = null
+    private var loadedFontBytes = 0L
     internal val subtitleSample: ParsableByteArray =
         subtitleSampleField.get(this) as ParsableByteArray
 
@@ -103,12 +104,19 @@ internal class FetchAssMatroskaExtractor(
     }
 
     private fun handleAttachmentData(contentSize: Int, input: ExtractorInput) {
-        val attachmentName = requireNotNull(currentAttachmentName)
-        val attachmentMime = requireNotNull(currentAttachmentMime)
-
-        if (attachmentMime in fontMimeTypes) {
+        // FileName and FileMimeType are only guaranteed to precede FileData by convention; a
+        // file that omits them or orders them after the data is skipped instead of failing the
+        // whole load on the loader thread.
+        val attachmentName = currentAttachmentName
+        val accept = attachmentName != null &&
+            contentSize > 0 &&
+            isFontAttachment(attachmentName, currentAttachmentMime) &&
+            contentSize <= MAX_FONT_BYTES &&
+            loadedFontBytes + contentSize <= MAX_TOTAL_FONT_BYTES
+        if (accept && attachmentName != null) {
             val data = ByteArray(contentSize)
             input.readFully(data, 0, contentSize)
+            loadedFontBytes += contentSize
             assHandler.addFont(attachmentName, data)
         } else {
             input.skipFully(contentSize)
@@ -129,18 +137,40 @@ internal class FetchAssMatroskaExtractor(
         const val ID_FILE_MIME_TYPE = 0x4660
         const val ID_FILE_DATA = 0x465C
 
-        val fontMimeTypes = listOf(
+        /** One font larger than this is not a real subtitle font; skip it. */
+        const val MAX_FONT_BYTES = 24L * 1024 * 1024
+
+        /** Upper bound on font data held for libass across all attachments of one file. */
+        const val MAX_TOTAL_FONT_BYTES = 64L * 1024 * 1024
+
+        val fontMimeTypes = setOf(
             "font/ttf",
             "font/otf",
             "font/sfnt",
             "font/woff",
             "font/woff2",
+            "font/collection",
             "application/font-sfnt",
             "application/font-woff",
             "application/x-truetype-font",
             "application/vnd.ms-opentype",
-            "application/x-font-ttf"
+            "application/x-font-ttf",
+            "application/x-font-otf",
+            "application/x-font-opentype"
         )
+
+        val fontExtensions = setOf("ttf", "otf", "ttc", "otc", "woff", "woff2")
+
+        /**
+         * A known font MIME type, or a font file extension whatever the MIME says (many muxers
+         * write `application/octet-stream` or nothing at all).
+         */
+        fun isFontAttachment(name: String, mime: String?): Boolean {
+            val normalizedMime = mime?.trim()?.lowercase()?.substringBefore(';')
+            if (normalizedMime != null && normalizedMime in fontMimeTypes) return true
+            val extension = name.substringAfterLast('.', "").lowercase()
+            return extension in fontExtensions
+        }
 
         val extractorOutput = MatroskaExtractor::class.java
             .getDeclaredField("extractorOutput")

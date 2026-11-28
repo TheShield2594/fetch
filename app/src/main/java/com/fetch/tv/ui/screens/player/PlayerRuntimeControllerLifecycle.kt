@@ -45,6 +45,10 @@ internal fun PlayerRuntimeController.releasePlayer(
         _uiState.update { it.copy(isLoadingAddonSubtitles = false) }
     }
     addonSubtitleFetchJob = null
+    // Same for an mpv addon-subtitle pick still downloading (#726); the files handed to mpv
+    // are only needed while this core is alive.
+    cancelMpvAddonSubtitleSelection()
+    deleteMpvAddonSubtitleCacheFiles()
     mpvTrackRefreshJob?.cancel()
     mpvTrackRefreshJob = null
     mpvTrackRefreshInProgress = false

@@ -444,7 +444,11 @@ class PlayerRuntimeController(
     internal var exoSubtitleViewRef: WeakReference<androidx.media3.ui.SubtitleView>? = null
     /** Cancels previous TEXT-track bounce jobs when subtitle delay is adjusted repeatedly. */
     internal var subtitleTimingRefreshJob: Job? = null
+    /** The addon subtitle fetch in flight; replaced by the next fetch and cancelled on release (#703). */
+    internal var addonSubtitleFetchJob: Job? = null
     internal var nextEpisodeAutoPlayJob: Job? = null
+    /** Whether [nextEpisodeAutoPlayJob] was started by the user (Next, the card's Play) rather than the card (#694). */
+    internal var nextEpisodeAutoPlayUserInitiated: Boolean = false
     /**
      * Completed when the user asks to start the next episode while autoplay waits for the end of
      * a file with no credits markers (#693), so it starts at once instead of at the end.
@@ -698,6 +702,10 @@ class PlayerRuntimeController(
     internal var mpvStartupStallTicks: Int = 0
     internal var mpvStartupAbsoluteTicks: Int = 0
     internal var mpvLastDemuxerCacheSec: Double = 0.0
+    /** Mid-playback stall clock (#697): see [MpvMidPlaybackStallPolicy]. */
+    internal var mpvMidEarlyEofTicks: Int = 0
+    internal var mpvMidCacheStallTicks: Int = 0
+    internal var mpvMidLastDemuxerCacheSec: Double = 0.0
     internal var mpvActivePlaylistEntryId: Long? = null
     internal var mpvLastFileError: String? = null
     internal var mpvErrorRecoveryArmed: Boolean = false

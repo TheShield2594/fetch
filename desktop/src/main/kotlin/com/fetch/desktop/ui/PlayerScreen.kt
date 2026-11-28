@@ -28,6 +28,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -115,6 +116,12 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
     }
 
     LaunchedEffect(Unit) { focus.requestFocus() }
+    // The display stays on while a file plays, and may blank again once it's paused or closed (#755).
+    val keepAwake = !mpv.paused && mpv.duration > 0 && mpv.error == null
+    DisposableEffect(keepAwake) {
+        if (keepAwake) com.fetch.desktop.player.IdleInhibitor.hold()
+        onDispose { if (keepAwake) com.fetch.desktop.player.IdleInhibitor.release() }
+    }
     // Controls hide after three seconds without the pointer moving, unless paused.
     LaunchedEffect(lastActivity, mpv.paused) {
         delay(3_000)

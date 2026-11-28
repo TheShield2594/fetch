@@ -421,6 +421,74 @@ internal fun PlayerRuntimeController.resetMpvStartupWatchdog() {
     mpvStartupStallTicks = 0
     mpvStartupAbsoluteTicks = 0
     mpvLastDemuxerCacheSec = 0.0
+    mpvMidEarlyEofTicks = 0
+    mpvMidCacheStallTicks = 0
+    mpvMidLastDemuxerCacheSec = 0.0
+}
+
+/**
+ * After the first frame: an end of file well short of the end, or a cache pause that never
+ * recovers, is a dropped connection mpv does not report as an error (#697). Hand it to the usual
+ * mpv error path, whose auto-retry reopens the stream at this position and then moves on.
+ */
+internal fun PlayerRuntimeController.maybeRunMpvMidPlaybackStallWatchdog(
+    view: FetchMpvSurfaceView,
+    positionMs: Long,
+    durationMs: Long,
+    eofReached: Boolean,
+    pausedForCache: Boolean,
+) {
+    val enabled = hasRenderedFirstFrame &&
+        _uiState.value.error == null &&
+        !isReleasingPlayer &&
+        !mpvErrorRecoveryArmed &&
+        currentStreamUrl.isNotBlank() &&
+        !isInBackground &&
+        !_playbackTimeline.value.isLive &&
+        !view.isLiveStreamNow()
+    var cacheProgressing = false
+    if (enabled && pausedForCache) {
+        // As in the startup watchdog: a failed read is no growth and leaves the baseline alone.
+        val cacheSec = runCatching { view.demuxerCacheDurationSecOrNull() }.getOrNull()
+        if (cacheSec != null) {
+            cacheProgressing = MpvStartupWatchdogPolicy.cacheIsProgressing(mpvMidLastDemuxerCacheSec, cacheSec)
+            mpvMidLastDemuxerCacheSec =
+                MpvStartupWatchdogPolicy.nextCacheBaselineSec(mpvMidLastDemuxerCacheSec, cacheSec)
+        }
+    }
+    val step = MpvMidPlaybackStallPolicy.step(
+        MpvMidPlaybackStallPolicy.Input(
+            enabled = enabled,
+            userPaused = userPausedManually,
+            pausedForCache = pausedForCache,
+            eofReached = eofReached,
+            cacheProgressing = cacheProgressing,
+            positionMs = positionMs,
+            durationMs = durationMs,
+            earlyEofTicks = mpvMidEarlyEofTicks,
+            cacheStallTicks = mpvMidCacheStallTicks,
+        )
+    )
+    mpvMidEarlyEofTicks = step.earlyEofTicks
+    mpvMidCacheStallTicks = step.cacheStallTicks
+    when (step.action) {
+        MpvMidPlaybackStallPolicy.Action.Continue -> Unit
+        MpvMidPlaybackStallPolicy.Action.EarlyEof,
+        MpvMidPlaybackStallPolicy.Action.CacheStall -> {
+            mpvMidLastDemuxerCacheSec = 0.0
+            playbackAnalyticsDiagnostics.recordRawEventLine(
+                "MPV_MID_STALL: kind=${step.action} pos=$positionMs dur=$durationMs"
+            )
+            handleMpvPlaybackError(
+                source = if (step.action == MpvMidPlaybackStallPolicy.Action.EarlyEof) {
+                    "mid_early_eof"
+                } else {
+                    "mid_stall"
+                },
+                mpvErrorCode = MPV_ERROR_LOADING_FAILED
+            )
+        }
+    }
 }
 
 internal fun PlayerRuntimeController.scheduleMpvStableProgressReset() {

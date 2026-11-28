@@ -38,6 +38,13 @@ internal fun PlayerRuntimeController.releasePlayer(
         e.printStackTrace()
     }
     progressJob?.cancel()
+    // A subtitle fetch for the stream being released must not land on the next one (#703); the
+    // next initialization starts its own.
+    if (addonSubtitleFetchJob?.isActive == true) {
+        addonSubtitleFetchJob?.cancel()
+        _uiState.update { it.copy(isLoadingAddonSubtitles = false) }
+    }
+    addonSubtitleFetchJob = null
     mpvTrackRefreshJob?.cancel()
     mpvTrackRefreshJob = null
     mpvTrackRefreshInProgress = false

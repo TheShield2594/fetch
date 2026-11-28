@@ -1480,6 +1480,16 @@ private suspend fun PlayerRuntimeController.waitForAutoPlayCountdownStart(
 
 private const val AUTO_PLAY_END_WAIT_POLL_MS = 250L
 
+/**
+ * The autoplay countdown stands still while the user has paused this episode, or while the app is
+ * in the background (#694). Once the file has ended there is nothing left to pause.
+ */
+private fun PlayerRuntimeController.autoPlayCountdownHeld(): Boolean {
+    if (isInBackground) return true
+    if (_uiState.value.playbackEnded) return false
+    return !hasActivePlayIntent()
+}
+
 internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = false) {
     val nextVideo = nextEpisodeVideo ?: return
     val type = contentType ?: return
@@ -1514,6 +1524,7 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
     }
 
     nextEpisodeAutoPlayJob?.cancel()
+    nextEpisodeAutoPlayUserInitiated = userInitiated
     nextEpisodeAutoPlayJob = scope.launch {
         try {
             val playerSettings = playerSettingsDataStore.playerSettings.first()
@@ -1721,7 +1732,14 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                 // The countdown is a chance to cancel an automatic start; a start the user asked
                 // for (Next, the card's Play, the remote's Next key) begins at once.
                 val countdownTotal = if (startedByUser) 0 else autoCountdown
-                for (remaining in countdownTotal downTo 1) {
+                var remaining = countdownTotal
+                while (remaining >= 1) {
+                    // Paused, or behind another app: hold the count where it is (#694). A rewind
+                    // out of the card's window cancels this job from evaluatePostPlayOverlayVisibility.
+                    if (autoPlayCountdownHeld()) {
+                        delay(AUTO_PLAY_END_WAIT_POLL_MS)
+                        continue
+                    }
                     _uiState.update { current ->
                         val episodeForMode = current.nextEpisode ?: nextInfo
                         current.copy(
@@ -1735,6 +1753,8 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                         )
                     }
                     delay(POST_PLAY_COUNTDOWN_TICK_MS.toLong())
+                    // A pause during the tick holds this second too, rather than consuming it.
+                    if (!autoPlayCountdownHeld()) remaining--
                 }
                 _uiState.update {
                     it.copy(

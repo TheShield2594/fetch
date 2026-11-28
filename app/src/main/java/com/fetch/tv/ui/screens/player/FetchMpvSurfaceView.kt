@@ -755,6 +755,9 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         mpv.setOptionString("demuxer-max-bytes", demuxerCacheLimits.forwardBytes.toString())
         mpv.setOptionString("demuxer-max-back-bytes", demuxerCacheLimits.backBytes.toString())
         mpv.setOptionString("keep-open", "yes")
+        // Without it a dead connection waits on mpv's default before the stall watchdog's
+        // recovery can reopen the stream (#697).
+        mpv.setOptionString("network-timeout", "30")
         mpv.setOptionString("softvol", "yes")
         mpv.setOptionString("volume-max", MPV_MAX_VOLUME_PERCENT.toInt().toString())
     }

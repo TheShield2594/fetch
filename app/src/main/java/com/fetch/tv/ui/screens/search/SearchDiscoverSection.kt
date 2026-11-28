@@ -135,6 +135,17 @@ internal fun DiscoverSection(
     var openFilter by remember { mutableStateOf<DiscoverFilterKind?>(null) }
     val typeFocusRequester = remember { FocusRequester() }
     val gridState = rememberLazyGridState()
+    // The grid leaves composition while new results load, and its own filter-change check starts
+    // afresh with it, so the section, which stays, sends a changed type, genre or filter set back
+    // to the top. Coming back from a title changes none of them, so the grid keeps its place.
+    val resultScope = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverGenre}|${uiState.discoverFilters}"
+    var shownResultScope by remember { mutableStateOf(resultScope) }
+    LaunchedEffect(resultScope) {
+        if (resultScope == shownResultScope) return@LaunchedEffect
+        shownResultScope = resultScope
+        // Waits for the next grid's first layout when the grid isn't there yet.
+        com.fetch.tv.core.util.runSuspendCatching { gridState.scrollToItem(0) }
+    }
 
     // Focus comes back to a title by its key, not its position: a re-sort, a new page, a title
     // marked "Not interested" or a parental change moves titles between visits (#844).

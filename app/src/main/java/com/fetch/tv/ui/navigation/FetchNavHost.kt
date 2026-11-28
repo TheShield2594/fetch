@@ -1270,7 +1270,8 @@ private fun PlaybackNavHost(
                         Toast.makeText(context, R.string.playback_unavailable_message, Toast.LENGTH_SHORT).show()
                         return@onResume
                     }
-                    val progress = (item as? ContinueWatchingItem.InProgress)?.progress ?: return@onResume
+                    val inProgress = item as? ContinueWatchingItem.InProgress ?: return@onResume
+                    val progress = inProgress.progress
                     navController.navigate(
                         Screen.Stream.createRoute(
                             videoId = progress.videoId,
@@ -1288,7 +1289,8 @@ private fun PlaybackNavHost(
                             contentName = progress.name,
                             runtime = null,
                             returnToDetailOnBack = progress.contentType.equals("series", ignoreCase = true),
-                            returnToHomeOnBack = false
+                            returnToHomeOnBack = false,
+                            contentLanguage = inProgress.contentLanguage
                         )
                     )
                 },

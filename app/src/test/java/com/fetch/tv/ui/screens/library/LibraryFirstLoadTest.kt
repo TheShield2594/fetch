@@ -14,11 +14,23 @@ class LibraryFirstLoadTest {
     @Test
     fun `an empty library syncing for the first time is loading, and later syncs are not`() {
         val answered = mutableSetOf<Pair<Int, LibrarySourceMode>>()
+        val synced = mutableSetOf<Pair<Int, LibrarySourceMode>>()
         val trakt = 1 to LibrarySourceMode.TRAKT
-        assertTrue(libraryFirstLoadPending(isSyncing = true, isEmpty = true, source = trakt, answered = answered))
+        assertTrue(libraryFirstLoadPending(isSyncing = true, isEmpty = true, source = trakt, answered = answered, synced = synced))
         // The first sync ends with nothing on the watchlist: that is the empty state from now on.
-        assertFalse(libraryFirstLoadPending(isSyncing = false, isEmpty = true, source = trakt, answered = answered))
-        assertFalse(libraryFirstLoadPending(isSyncing = true, isEmpty = true, source = trakt, answered = answered))
+        assertFalse(libraryFirstLoadPending(isSyncing = false, isEmpty = true, source = trakt, answered = answered, synced = synced))
+        assertFalse(libraryFirstLoadPending(isSyncing = true, isEmpty = true, source = trakt, answered = answered, synced = synced))
+    }
+
+    @Test
+    fun `idle and empty before the first sync is not an answer`() {
+        val answered = mutableSetOf<Pair<Int, LibrarySourceMode>>()
+        val synced = mutableSetOf<Pair<Int, LibrarySourceMode>>()
+        val trakt = 1 to LibrarySourceMode.TRAKT
+        // The repository's first emission: not syncing yet, nothing loaded.
+        assertFalse(libraryFirstLoadPending(isSyncing = false, isEmpty = true, source = trakt, answered = answered, synced = synced))
+        // The first sync then starts: still the loading state, not the empty one.
+        assertTrue(libraryFirstLoadPending(isSyncing = true, isEmpty = true, source = trakt, answered = answered, synced = synced))
     }
 
     @Test

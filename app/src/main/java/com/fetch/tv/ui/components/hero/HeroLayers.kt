@@ -127,7 +127,10 @@ internal fun ModernHeroMediaLayer(
 
     // The backdrop the hero is moving to, resolved upstream by HeroPresenter (resolveHeroScene
     // holds it while the rows scroll, the D-pad is held or enrichment is pending).
-    val targetBackdrop by remember { derivedStateOf { heroBackdrop() } }
+    // Read through the latest provider: a caller passing a plain value (the browse band) hands in
+    // a new lambda each time, and a remembered first one would pin the first title's art.
+    val latestHeroBackdrop by rememberUpdatedState(heroBackdrop)
+    val targetBackdrop by remember { derivedStateOf { latestHeroBackdrop() } }
     // The backdrop on screen. It moves to the target (and the crossfade starts) only once the
     // target has loaded, so the old backdrop holds instead of fading onto the plain background
     // while the network catches up (TheShield2594/fetch#804). It starts on the last backdrop

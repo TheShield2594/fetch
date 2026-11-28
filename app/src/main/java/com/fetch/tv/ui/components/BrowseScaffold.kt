@@ -89,7 +89,8 @@ fun BrowseScaffold(
     // its animation never shrinks the fitted cards' viewport.
     var openHeaderHeightPx by remember(layoutKey) { mutableIntStateOf(0) }
     var heroHeightPx by remember(layoutKey, hero != null) { mutableIntStateOf(0) }
-    val fullMotion = FetchTheme.fullMotion
+    // No fold animation on a low-RAM device either, as for the grid's motion (#853).
+    val fullMotion = FetchTheme.fullMotion && !FetchTheme.lowRamDevice
     val foldEnter = if (fullMotion) expandVertically(FetchMotion.enterTween()) + fadeIn(FetchMotion.enterTween()) else fadeIn(snapSpec())
     val foldExit = if (fullMotion) shrinkVertically(FetchMotion.exitTween()) + fadeOut(FetchMotion.exitTween()) else fadeOut(snapSpec())
     Column(
@@ -105,12 +106,13 @@ fun BrowseScaffold(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                // Measured with its top padding, which the grid doesn't get either.
+                .onSizeChanged { if (!collapsed && it.height > openHeaderHeightPx) openHeaderHeightPx = it.height }
                 .padding(
                     start = FetchTheme.spacing.screen.horizontal,
                     end = FetchTheme.spacing.screen.horizontal,
                     top = FetchTheme.spacing.screen.vertical
-                )
-                .onSizeChanged { if (!collapsed && it.height > openHeaderHeightPx) openHeaderHeightPx = it.height },
+                ),
             verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.md)
         ) {
             Row(
@@ -181,7 +183,7 @@ private fun <T> snapSpec() = androidx.compose.animation.core.snap<T>()
 /** The band's art behind the header, fading out as the header folds (#852). */
 @Composable
 private fun BrowseHeroArt(visible: Boolean, backdrop: String?, poster: String?, modifier: Modifier) {
-    val fullMotion = FetchTheme.fullMotion
+    val fullMotion = FetchTheme.fullMotion && !FetchTheme.lowRamDevice
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,

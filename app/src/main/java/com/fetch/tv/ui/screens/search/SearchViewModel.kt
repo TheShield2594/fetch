@@ -255,7 +255,9 @@ class SearchViewModel @Inject constructor(
     /** Whether a Discover title is watched, for Hide watched (#857). */
     private val discoverIsWatched: (com.fetch.tv.domain.model.MetaPreview) -> Boolean = { item ->
         val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-        if (isSeries) item.id in watchedSeriesIds.value else item.id in _watchedMovieIds.value
+        val watchedIds = if (isSeries) watchedSeriesIds.value else _watchedMovieIds.value
+        // Watched entries can be stored under the IMDb id, as See all also checks.
+        item.id in watchedIds || item.imdbId?.let { it in watchedIds } == true
     }
 
     init {
@@ -1352,11 +1354,26 @@ class SearchViewModel @Inject constructor(
         fetchDiscoverContent(reset = true)
     }
 
-    /** Watched titles changed: with Hide watched on, the grid in catalog order drops them at once. */
+    /**
+     * Watched titles changed: with Hide watched on, the grid drops them at once (and takes back a
+     * title marked unwatched). A sorted grid rebuilds the batches it has placed, in the same order,
+     * so nothing already shown moves except the titles that changed.
+     */
     private fun refilterDiscoverForWatched() {
         val filters = _uiState.value.discoverFilters
-        if (!filters.hideWatched || filters.sorted || !_uiState.value.discoverInitialized) return
-        _uiState.update { it.copy(discoverResults = applyDiscoverFilters(discoverMergedItems, filters, discoverIsWatched)) }
+        if (!filters.hideWatched || !_uiState.value.discoverInitialized) return
+        if (!filters.sorted) {
+            _uiState.update { it.copy(discoverResults = applyDiscoverFilters(discoverMergedItems, filters, discoverIsWatched)) }
+            return
+        }
+        val placed = discoverSortedCount
+        resetDiscoverSortedBatches()
+        while (discoverSortedCount < placed) {
+            val before = discoverSortedCount
+            placeDiscoverSortedBatch(filters)
+            if (discoverSortedCount == before) break
+        }
+        _uiState.update { it.copy(discoverResults = discoverSortedShown) }
     }
 
     /**

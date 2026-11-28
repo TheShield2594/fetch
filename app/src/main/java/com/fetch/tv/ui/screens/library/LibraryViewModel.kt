@@ -169,9 +169,12 @@ internal fun libraryFirstLoadPending(
     isSyncing: Boolean,
     isEmpty: Boolean,
     source: Pair<Int, LibrarySourceMode>,
-    answered: MutableSet<Pair<Int, LibrarySourceMode>>
+    answered: MutableSet<Pair<Int, LibrarySourceMode>>,
+    /** Sources seen syncing: an idle, empty source that hasn't synced yet hasn't answered. */
+    synced: MutableSet<Pair<Int, LibrarySourceMode>> = mutableSetOf()
 ): Boolean {
-    if (!isSyncing || !isEmpty) answered += source
+    if (isSyncing) synced += source
+    if (!isEmpty || (!isSyncing && source in synced)) answered += source
     return isSyncing && isEmpty && source !in answered
 }
 
@@ -430,6 +433,7 @@ class LibraryViewModel @Inject constructor(
      * library is the empty state, and a sync shows only on the Sync button.
      */
     private val answeredSources = mutableSetOf<Pair<Int, LibrarySourceMode>>()
+    private val syncedSources = mutableSetOf<Pair<Int, LibrarySourceMode>>()
 
     private class ListManagementContext(val profileId: Int, val source: LibrarySourceMode)
     private var listManagementContext: ListManagementContext? = null
@@ -444,6 +448,8 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             profileManager.activeProfileId.collect { profileId ->
                 if (selectedSortOverride?.first != profileId) selectedSortOverride = null
+                // A failed refresh belongs to the profile it failed on.
+                _uiState.update { it.copy(refreshFailed = false) }
                 onCloseManageLists()
             }
         }
@@ -937,8 +943,11 @@ class LibraryViewModel @Inject constructor(
                             isSyncing = isSyncing,
                             isEmpty = items.isEmpty(),
                             source = profileManager.activeProfileId.value to sourceMode,
-                            answered = answeredSources
-                        )
+                            answered = answeredSources,
+                            synced = syncedSources
+                        ),
+                        // A failed refresh belongs to the source it failed on.
+                        refreshFailed = current.refreshFailed && current.sourceMode == sourceMode
                     )
                     updated.withVisibleItems()
                 }

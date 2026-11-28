@@ -289,8 +289,9 @@ export const getCalendar = async (
       episode: ep.episode,
       episodeName: guard ? `Episode ${ep.episode}` : ep.name,
       airDate: ep.airDate,
-      // Trakt's time where it has one, else Simkl's.
-      airsAt: traktTimes.get(key) ?? simklTimes.get(key) ?? null,
+      // Trakt's time where it has one, else Simkl's: by episode, or for anime
+      // (which Simkl numbers its own way) by show and air date.
+      airsAt: traktTimes.get(key) ?? simklTimes.get(key) ?? simklTimes.get(`date:${series.imdbId}:${ep.airDate}`) ?? null,
       watched,
       overview: guard ? null : ep.overview,
     };

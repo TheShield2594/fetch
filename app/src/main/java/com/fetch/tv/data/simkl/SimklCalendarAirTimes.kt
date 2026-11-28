@@ -23,6 +23,10 @@ import okhttp3.Request
  * The calendar is one global file (yesterday and the next 33 days, every show Simkl tracks, about
  * 2.4 MB), regenerated every six hours; it's read at most that often. Times are keyed like the
  * calendar's entries: `<imdb id>:season:episode` and `tmdb:<id>:season:episode`.
+ *
+ * Anime comes from a second file (`anime.json`, about 0.25 MB). Its episodes are numbered Simkl's
+ * own way, mostly with no season, so they can't be matched by season and episode: their times
+ * are keyed by show and air date instead ([simklAnimeAirTimes]).
  */
 @Singleton
 class SimklCalendarAirTimes internal constructor(
@@ -54,9 +58,17 @@ class SimklCalendarAirTimes internal constructor(
         }
     }
 
+    /** Both files' times; null when neither can be read. Anime failing alone leaves TV's times. */
     private fun download(): Map<String, String>? {
+        val tv = read(TV_PATH)?.let(::simklCalendarAirTimes)
+        val anime = read(ANIME_PATH)?.let(::simklAnimeAirTimes)
+        if (tv == null && anime == null) return null
+        return tv.orEmpty() + anime.orEmpty()
+    }
+
+    private fun read(path: String): SimklCalendarFile? {
         // The CDN ignores query strings for caching, but Simkl asks every request to name the app.
-        val url = buildSimklApiUrl(configuration.copy(baseUrl = CALENDAR_BASE_URL), CALENDAR_PATH)
+        val url = buildSimklApiUrl(configuration.copy(baseUrl = CALENDAR_BASE_URL), path)
         val request = Request.Builder().url(url).apply {
             simklRequestHeaders(configuration).forEach { (name, value) -> header(name, value) }
         }.build()
@@ -64,14 +76,15 @@ class SimklCalendarAirTimes internal constructor(
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return null
                 val body = response.body?.string() ?: return null
-                simklCalendarAirTimes(json.decodeFromString(SimklCalendarFile.serializer(), body))
+                json.decodeFromString(SimklCalendarFile.serializer(), body)
             }
         }.getOrNull()
     }
 
     private companion object {
         const val CALENDAR_BASE_URL = "https://data.simkl.in"
-        const val CALENDAR_PATH = "/calendar/v2/tv.json"
+        const val TV_PATH = "/calendar/v2/tv.json"
+        const val ANIME_PATH = "/calendar/v2/anime.json"
         const val CACHE_TTL_MS = 6 * 60 * 60 * 1000L
         val json = Json { ignoreUnknownKeys = true }
     }
@@ -124,4 +137,40 @@ internal fun simklCalendarAirTimes(file: SimklCalendarFile): Map<String, String>
         ids.imdb?.takeIf { it.isNotBlank() }?.let { put("$it:$season:$number", date) }
         ids.tmdb?.takeIf { it.isNotBlank() }?.let { put("tmdb:$it:$season:$number", date) }
     }
+}
+
+/** Where anime airs first: the date TMDB gives an episode is its date in one of these. */
+private val AnimeAirZones: List<ZoneId> = listOf(ZoneId.of("Asia/Tokyo"), ZoneId.of("Asia/Shanghai"))
+
+/**
+ * Anime air times by show and air date: `date:<imdb id>:<yyyy-mm-dd>` and
+ * `date:tmdb:<id>:<yyyy-mm-dd>`, the date in Japan and in China (where they differ, both). A show
+ * with two episodes on one such date is left out for that date: which time is which can't be told.
+ * Midnight US Eastern is left out as for TV.
+ */
+internal fun simklAnimeAirTimes(file: SimklCalendarFile): Map<String, String> {
+    val times = HashMap<String, String>()
+    val ambiguous = HashSet<String>()
+    file.calendar.forEach { item ->
+        val date = item.date?.takeIf { it.isNotBlank() } ?: return@forEach
+        if (item.episode == null) return@forEach
+        val instant = try {
+            OffsetDateTime.parse(date)
+        } catch (_: DateTimeParseException) {
+            return@forEach
+        }
+        val eastern = instant.atZoneSameInstant(SimklPlaceholderZone)
+        if (eastern.hour == 0 && eastern.minute == 0) return@forEach
+        val ids = file.metadata[item.simklId?.toString()]?.ids ?: return@forEach
+        val shows = listOfNotNull(ids.imdb?.takeIf { it.isNotBlank() }, ids.tmdb?.takeIf { it.isNotBlank() }?.let { "tmdb:$it" })
+        val days = AnimeAirZones.map { instant.atZoneSameInstant(it).toLocalDate() }.toSet()
+        shows.forEach { show ->
+            days.forEach { day ->
+                val key = "date:$show:$day"
+                val earlier = times.put(key, date)
+                if (earlier != null && earlier != date) ambiguous += key
+            }
+        }
+    }
+    return times - ambiguous
 }

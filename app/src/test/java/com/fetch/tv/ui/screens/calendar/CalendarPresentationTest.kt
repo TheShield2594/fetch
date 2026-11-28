@@ -100,6 +100,9 @@ class CalendarPresentationTest {
         assertEquals("2026-11-10T02:00:00.000Z", withAirTime(episode.copy(seriesImdbId = "tmdb:42"), times).airsAt)
         assertNull(withAirTime(episode.copy(episode = 3), times).airsAt)
         assertNull(withAirTime(episode.copy(season = null, episode = null, kind = "movie"), times).airsAt)
+        // An anime episode Simkl numbers its own way is matched by show and air date.
+        val byDate = mapOf("date:tt9:2026-11-09" to "2026-11-08T15:00:00Z")
+        assertEquals("2026-11-08T15:00:00Z", withAirTime(episode.copy(seriesImdbId = "tt9", episode = 40), byDate).airsAt)
     }
 
     @Test

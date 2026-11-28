@@ -197,7 +197,10 @@ internal fun traktAirTimes(items: List<com.fetch.tv.data.remote.dto.trakt.TraktC
 /** [entry] with its air time from [airTimes] where Trakt knows it. */
 internal fun withAirTime(entry: WebsiteCalendarEntry, airTimes: Map<String, String>): WebsiteCalendarEntry {
     if (entry.isMovie || entry.airsAt != null) return entry
-    return airTimes["${entry.seriesImdbId}:${entry.season}:${entry.episode}"]?.let { entry.copy(airsAt = it) } ?: entry
+    // By episode, else (Simkl's anime, numbered its own way) by show and air date.
+    val time = airTimes["${entry.seriesImdbId}:${entry.season}:${entry.episode}"]
+        ?: airTimes["date:${entry.seriesImdbId}:${entry.airDate.trim()}"]
+    return time?.let { entry.copy(airsAt = it) } ?: entry
 }
 
 /** The ids of every film the profile has watched, from its history and finished playback. */

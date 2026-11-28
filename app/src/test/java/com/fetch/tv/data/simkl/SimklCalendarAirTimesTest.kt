@@ -45,4 +45,24 @@ class SimklCalendarAirTimesTest {
         assertFalse(times.keys.any { it.startsWith("tt4") || it.startsWith("tt5") })
         assertEquals(2, times.size)
     }
+
+    @Test
+    fun `anime times are keyed by show and air date in Japan and China, ambiguous days left out`() {
+        val anime = """
+            {"calendar":[
+              {"simkl_id":7,"date":"2026-11-26T15:00:00Z","episode":{"episode":17}},
+              {"simkl_id":8,"date":"2026-11-27T10:00:00Z","episode":{"episode":3}},
+              {"simkl_id":8,"date":"2026-11-27T12:00:00Z","episode":{"episode":4}}
+            ],
+            "metadata":{"7":{"ids":{"tmdb":"70","imdb":"tt7"}},"8":{"ids":{"imdb":"tt8"}}}}
+        """.trimIndent()
+
+        val times = simklAnimeAirTimes(json.decodeFromString(SimklCalendarFile.serializer(), anime))
+
+        // 15:00Z is midnight on the 27th in Tokyo and 23:00 on the 26th in Shanghai.
+        assertEquals("2026-11-26T15:00:00Z", times["date:tt7:2026-11-27"])
+        assertEquals("2026-11-26T15:00:00Z", times["date:tmdb:70:2026-11-26"])
+        // Two episodes of one show on one day: which time is which can't be told.
+        assertNull(times["date:tt8:2026-11-27"])
+    }
 }

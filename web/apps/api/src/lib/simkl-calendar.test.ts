@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("./connections.js", () => ({ getConnection: async () => null }));
 vi.mock("./simkl.js", () => ({ isSimklConfigured: () => false }));
 
-const { monthsCovering, simklTimesFromFile } = await import("./simkl-calendar.js");
+const { monthsCovering, simklAnimeTimesFromFile, simklTimesFromFile } = await import("./simkl-calendar.js");
 
 describe("simklTimesFromFile", () => {
   // The shape of data.simkl.in/calendar/v2/{year}/{month}/tv.json, trimmed.
@@ -52,5 +52,24 @@ describe("monthsCovering", () => {
 
   it("starts no earlier than Simkl's first file, July 2024", () => {
     expect(monthsCovering(day("2024-05-20"), day("2024-07-02"))).toEqual([{ year: 2024, month: 7 }]);
+  });
+});
+
+describe("simklAnimeTimesFromFile", () => {
+  it("keys anime by show and air date in Japan and China, ambiguous days left out", () => {
+    const times = simklAnimeTimesFromFile({
+      calendar: [
+        { simkl_id: 7, date: "2026-11-26T15:00:00Z", episode: { episode: 17 } },
+        { simkl_id: 8, date: "2026-11-27T10:00:00Z", episode: { episode: 3 } },
+        { simkl_id: 8, date: "2026-11-27T12:00:00Z", episode: { episode: 4 } },
+      ],
+      metadata: { "7": { ids: { imdb: "tt7" } }, "8": { ids: { imdb: "tt8" } } },
+    });
+
+    // 15:00Z is midnight on the 27th in Tokyo and 23:00 on the 26th in Shanghai.
+    expect(times.get("date:tt7:2026-11-27")).toBe("2026-11-26T15:00:00Z");
+    expect(times.get("date:tt7:2026-11-26")).toBe("2026-11-26T15:00:00Z");
+    // Two episodes of one show on one day: which time is which can't be told.
+    expect(times.has("date:tt8:2026-11-27")).toBe(false);
   });
 });

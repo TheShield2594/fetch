@@ -105,7 +105,14 @@ internal fun FetchChipSurface(
             ),
             focusedSelectedBorder = FetchFocusSpec.border(shape, FetchTheme.colors.Highlight)
         ),
-        shape = FilterChipDefaults.shape(shape = shape)
+        shape = FilterChipDefaults.shape(shape = shape),
+        // Chips sit in rows only a small gap apart and can be wide ("Rating  Any rating ⌄"); the
+        // default 1.1x focus growth pushes a focused chip over its neighbours. The focus fill and
+        // border already mark focus, so grow only slightly.
+        scale = FilterChipDefaults.scale(
+            focusedScale = FetchTheme.focus.subtleScale,
+            focusedSelectedScale = FetchTheme.focus.subtleScale
+        )
     ) {
         content(textColor)
     }

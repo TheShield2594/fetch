@@ -313,6 +313,27 @@ class SearchViewModelDiscoverCatalogsTest {
     }
 
     @Test
+    fun `a failed rebuild after one of two configurations of an addon is removed does not page it (#845)`() = runTest(mainDispatcher) {
+        val catalogs = FakeCatalogs()
+        // Two configurations of one addon: same id, same catalog, different URLs.
+        val installed = MutableStateFlow(listOf(addonAt("https://one.test", "rated"), addonAt("https://two.test", "rated")))
+        val viewModel = newViewModel(catalogs, installed)
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+        val removedRequests = catalogs.requestsTo("https://two.test")
+        assertTrue(removedRequests > 0)
+
+        catalogs.failing = true
+        installed.value = listOf(addonAt("https://one.test", "rated"))
+        advanceUntilIdle()
+        catalogs.failing = false
+        viewModel.onEvent(SearchEvent.LoadNextDiscoverResults)
+        advanceUntilIdle()
+
+        assertEquals(removedRequests, catalogs.requestsTo("https://two.test"))
+    }
+
+    @Test
     fun `turning on Hide unreleased reloads Discover (#845)`() = runTest(mainDispatcher) {
         val catalogs = FakeCatalogs()
         val hideUnreleased = MutableStateFlow(false)
@@ -344,7 +365,10 @@ class SearchViewModelDiscoverCatalogsTest {
         /** While set, pages wait for it, so a test can act while a load is in flight. */
         var hold: kotlinx.coroutines.CompletableDeferred<Unit>? = null
 
+        private val countsByAddon = mutableMapOf<String, Int>()
+
         fun requests(catalogId: String): Int = counts[catalogId] ?: 0
+        fun requestsTo(addonBaseUrl: String): Int = countsByAddon[addonBaseUrl] ?: 0
 
         override fun getCatalog(
             addonBaseUrl: String,
@@ -362,6 +386,7 @@ class SearchViewModelDiscoverCatalogsTest {
         ): Flow<NetworkResult<CatalogRow>> = flow {
             emit(NetworkResult.Loading)
             counts[catalogId] = requests(catalogId) + 1
+            countsByAddon[addonBaseUrl] = requestsTo(addonBaseUrl) + 1
             hold?.await()
             if (failing) {
                 emit(NetworkResult.Error("offline"))
@@ -371,7 +396,8 @@ class SearchViewModelDiscoverCatalogsTest {
             val total = pageSize * 50
             val items = (skip until minOf(skip + pageSize, total)).map { index ->
                 MetaPreview(
-                    id = "$catalogId$index",
+                    // Each configuration of an addon sends its own titles.
+                    id = if (addonBaseUrl == "https://example.test") "$catalogId$index" else "$catalogId$index@$addonBaseUrl",
                     type = ContentType.MOVIE,
                     name = "Title $index",
                     poster = null,
@@ -412,13 +438,15 @@ class SearchViewModelDiscoverCatalogsTest {
         override suspend fun setAddonEnabled(url: String, enabled: Boolean) = error("unused")
     }
 
-    private fun addon(vararg catalogIds: String) = Addon(
+    private fun addon(vararg catalogIds: String) = addonAt("https://example.test", *catalogIds)
+
+    private fun addonAt(baseUrl: String, vararg catalogIds: String) = Addon(
         id = "addon",
         name = "Addon",
         version = "1",
         description = null,
         logo = null,
-        baseUrl = "https://example.test",
+        baseUrl = baseUrl,
         catalogs = catalogIds.map { CatalogDescriptor(type = ContentType.MOVIE, id = it, name = it) },
         types = listOf(ContentType.MOVIE),
         resources = emptyList()

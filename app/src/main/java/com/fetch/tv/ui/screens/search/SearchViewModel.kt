@@ -1688,6 +1688,12 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Which catalog a cursor pages. The row key leaves out the addon's URL, and two configurations
+     * of one addon share its id, so the URL is part of it.
+     */
+    private fun DiscoverCatalog.sourceIdentity() = listOf(addonBaseUrl, addonId, type, catalogId)
+
     /** Discover's paging state and grid, so a failed refetch can put them back (#845). */
     private class DiscoverSnapshot(
         val cursors: List<DiscoverSourceCursor>,
@@ -1830,7 +1836,8 @@ class SearchViewModel @Inject constructor(
         // the same catalogs: after an addon change the old cursors could page a removed catalog,
         // so a failed rebuild shows the error with Retry instead.
         if (keptGrid != null && allFailed &&
-            keptGrid.cursors.mapTo(HashSet()) { it.catalog.key } == cursors.mapTo(HashSet()) { it.catalog.key }
+            keptGrid.cursors.mapTo(HashSet()) { it.catalog.sourceIdentity() } ==
+            cursors.mapTo(HashSet()) { it.catalog.sourceIdentity() }
         ) {
             restoreDiscoverSnapshot(keptGrid)
             return false

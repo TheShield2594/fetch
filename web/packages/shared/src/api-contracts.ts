@@ -443,6 +443,9 @@ const absentAsUndefined = <T>(value: unknown, read: () => T): T | undefined =>
  */
 export type CalendarEntryKind = "episode" | "premiere" | "movie";
 
+/** Which finale a calendar episode is; see `CalendarEntry.finale`. */
+export type CalendarFinale = "season" | "series" | "mid_season";
+
 /**
  * One dated thing on `GET /calendar`.
  *
@@ -483,7 +486,7 @@ export type CalendarEntry = {
    * series' (a season finale of a show that has ended), or a mid-season one.
    * Null for any other episode and for films.
    */
-  finale?: "season" | "series" | "mid_season" | null;
+  finale?: CalendarFinale | null;
 };
 
 export type CalendarResponse = { calendar: CalendarEntry[] };
@@ -538,13 +541,13 @@ const asCalendarKind = (value: unknown, what: string): CalendarEntryKind => {
     : fail(`${what} must be one of ${CALENDAR_KINDS.join(", ")}`);
 };
 
-const CALENDAR_FINALES = ["season", "series", "mid_season"] as const;
+const CALENDAR_FINALES: readonly CalendarFinale[] = ["season", "series", "mid_season"];
 
 /** Absent means an API from before finales were marked: no finale. */
-const asCalendarFinale = (value: unknown, what: string): CalendarEntry["finale"] => {
+const asCalendarFinale = (value: unknown, what: string): CalendarFinale | null => {
   if (value === undefined || value === null) return null;
-  return (CALENDAR_FINALES as readonly unknown[]).includes(value)
-    ? (value as (typeof CALENDAR_FINALES)[number])
+  return CALENDAR_FINALES.includes(value as CalendarFinale)
+    ? (value as CalendarFinale)
     : fail(`${what} must be one of ${CALENDAR_FINALES.join(", ")}`);
 };
 

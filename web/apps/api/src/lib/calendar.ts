@@ -1,4 +1,4 @@
-import type { CalendarEntry } from "@fetch/shared";
+import type { CalendarEntry, CalendarFinale } from "@fetch/shared";
 import type { FastifyBaseLogger } from "fastify";
 import { LRUCache } from "lru-cache";
 import { ListKind, MetadataType, WatchEventType } from "@prisma/client";
@@ -31,7 +31,7 @@ const NO_FURTHER_EPISODES = new Set(["Ended", "Canceled"]);
 export const calendarFinale = (
   episodeType: string | null | undefined,
   status: string | null
-): CalendarEntry["finale"] => {
+): CalendarFinale | null => {
   if (episodeType === "mid_season") return "mid_season";
   if (episodeType !== "finale") return null;
   return status && NO_FURTHER_EPISODES.has(status) ? "series" : "season";

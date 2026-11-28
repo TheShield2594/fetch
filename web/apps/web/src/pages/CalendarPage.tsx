@@ -146,6 +146,18 @@ function watchedNote(entries: CalendarEntry[]): string {
   return watched === entries.length ? ", all watched" : `, ${watched} watched`;
 }
 
+/**
+ * ", Andor season finale, Severance premiere" for a day with badged entries,
+ * so the month grid's day says aloud what its posters' flags show.
+ */
+function badgeNote(entries: CalendarEntry[]): string {
+  const notes = entries.flatMap((e) => {
+    const badge = calendarEntryBadge(e);
+    return badge ? [`${e.seriesName} ${badge.toLowerCase()}`] : [];
+  });
+  return notes.length ? `, ${notes.join(", ")}` : "";
+}
+
 /** The art an entry leads with: its own still, else the title's backdrop, else the poster. */
 function entryArt(entry: CalendarEntry): { art: string | null; isBackdrop: boolean } {
   const wide = entry.still ?? entry.backdrop;
@@ -675,7 +687,7 @@ export function CalendarPage() {
                               <button
                                 type="button"
                                 onClick={() => setOpenDay(day)}
-                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}${watchedNote(dayEntries)}`}
+                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}${watchedNote(dayEntries)}${badgeNote(dayEntries)}`}
                                 className="flex h-full w-full flex-col items-start p-1.5 text-left transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
                               >
                                 {number}
@@ -696,6 +708,15 @@ export function CalendarPage() {
                                       {/* Seen already: the poster steps back and
                                           carries a tick, so a past month reads
                                           as what you caught and what you missed. */}
+                                      {/* A premiere or finale: an accent strip
+                                          along the poster's foot. A word won't
+                                          fit at 40px; the day's name says it. */}
+                                      {calendarEntryBadge(entry) && (
+                                        <span
+                                          className="absolute inset-x-0 bottom-0 h-1 bg-accent-500"
+                                          data-badge={calendarEntryBadge(entry) ?? undefined}
+                                        />
+                                      )}
                                       {entry.watched && (
                                         <span className="absolute inset-0 flex items-center justify-center">
                                           <Check className="h-4 w-4 text-white drop-shadow" strokeWidth={3} />

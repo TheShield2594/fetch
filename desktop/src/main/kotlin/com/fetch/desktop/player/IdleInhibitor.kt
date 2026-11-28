@@ -24,12 +24,20 @@ object IdleInhibitor {
     // Written only on the worker thread.
     @Volatile private var held: Held? = null
 
+    /** Guards starting a systemd-inhibit process, publishing it in [held], and the shutdown hook. */
+    private val processLock = Any()
+    private var shuttingDown = false
+
     init {
         // A systemd-inhibit child would outlive the app and keep the screen on.
+        // Under processLock, so a process being started or published can't slip past it, and
+        // none starts after it.
         Runtime.getRuntime().addShutdownHook(Thread {
-            (held as? SystemdInhibit)?.let { runCatching { it.release() } }
-            // One still being started (not yet in held) is stopped too.
-            SystemdInhibit.starting?.let { runCatching { it.destroy() } }
+            synchronized(processLock) {
+                shuttingDown = true
+                (held as? SystemdInhibit)?.let { runCatching { it.release() } }
+                SystemdInhibit.starting?.let { runCatching { it.destroy() } }
+            }
         })
     }
 
@@ -44,8 +52,16 @@ object IdleInhibitor {
         if (!isLinux) return
         worker.execute {
             if (held == null) {
-                held = runCatching { ScreenSaverBus.inhibit(reason) }.getOrNull() ?: SystemdInhibit.start(reason)
-                SystemdInhibit.starting = null
+                val inhibitor = runCatching { ScreenSaverBus.inhibit(reason) }.getOrNull() ?: SystemdInhibit.start(reason)
+                synchronized(processLock) {
+                    if (shuttingDown) {
+                        // The hook already ran (and stopped any process it saw): don't hold one now.
+                        if (inhibitor is SystemdInhibit) runCatching { inhibitor.release() }
+                    } else {
+                        held = inhibitor
+                    }
+                    SystemdInhibit.starting = null
+                }
             }
         }
     }
@@ -157,11 +173,15 @@ object IdleInhibitor {
             @Volatile var starting: Process? = null
 
             fun start(reason: String): Held? = runCatching {
-                val process = ProcessBuilder(
-                    "systemd-inhibit", "--what=idle", "--who=Fetch", "--why=$reason", "--mode=block",
-                    "sleep", "infinity"
-                ).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD).start()
-                starting = process
+                // Started and recorded in one step, so the shutdown hook either sees it or runs first.
+                val process = synchronized(processLock) {
+                    if (shuttingDown) return null
+                    ProcessBuilder(
+                        "systemd-inhibit", "--what=idle", "--who=Fetch", "--why=$reason", "--mode=block",
+                        "sleep", "infinity"
+                    ).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD).start()
+                        .also { starting = it }
+                }
                 // One that can't inhibit (no logind) exits at once.
                 if (process.waitFor(300, TimeUnit.MILLISECONDS)) null else SystemdInhibit(process)
             }.getOrNull()

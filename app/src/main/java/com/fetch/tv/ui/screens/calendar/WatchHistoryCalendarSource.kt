@@ -2,6 +2,7 @@ package com.fetch.tv.ui.screens.calendar
 
 import com.fetch.tv.BuildConfig
 import com.fetch.tv.core.tmdb.TmdbService
+import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.TmdbSettingsDataStore
 import com.fetch.tv.data.remote.api.TmdbApi
 import com.fetch.tv.data.remote.api.TmdbDetailsResponse
@@ -44,15 +45,26 @@ class WatchHistoryCalendarSource internal constructor(
     private val tmdbApi: TmdbApi,
     private val tmdbSettings: TmdbSettingsDataStore,
     private val apiKey: String,
-    private val nowMs: () -> Long
+    private val nowMs: () -> Long,
+    /** The profile's spoiler setting: blur unwatched episodes. Every calendar episode is unwatched. */
+    private val hideEpisodeStills: suspend () -> Boolean = { true }
 ) {
     @Inject
     constructor(
         progress: WatchProgressRepository,
         tmdbService: TmdbService,
         tmdbApi: TmdbApi,
-        tmdbSettings: TmdbSettingsDataStore
-    ) : this(progress, tmdbService, tmdbApi, tmdbSettings, BuildConfig.TMDB_API_KEY, System::currentTimeMillis)
+        tmdbSettings: TmdbSettingsDataStore,
+        layoutPreferences: LayoutPreferenceDataStore
+    ) : this(
+        progress,
+        tmdbService,
+        tmdbApi,
+        tmdbSettings,
+        BuildConfig.TMDB_API_KEY,
+        System::currentTimeMillis,
+        { layoutPreferences.blurUnwatchedEpisodes.first() }
+    )
 
     private data class CachedDetails(val details: TmdbDetailsResponse?, val fetchedAtMs: Long)
 
@@ -79,6 +91,9 @@ class WatchHistoryCalendarSource internal constructor(
         if (lookups.none { it.second.isSuccess }) {
             throw CalendarLookupException(lookups.firstNotNullOfOrNull { it.second.exceptionOrNull()?.message } ?: "TMDB didn't answer")
         }
+        // With the spoiler setting on, an unaired episode's still is left out and its row shows
+        // the series backdrop instead.
+        val showStills = !hideEpisodeStills()
         val entries = lookups.mapNotNull { (show, result) ->
             val details = result.getOrNull() ?: return@mapNotNull null
             upcomingEntry(
@@ -88,7 +103,10 @@ class WatchHistoryCalendarSource internal constructor(
                 fallbackPoster = details.posterPath?.let { "$POSTER_BASE$it" },
                 today = today,
                 days = days,
-                backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" }
+                backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" },
+                still = details.nextEpisodeToAir?.stillPath
+                    ?.takeIf { showStills && it.isNotBlank() }
+                    ?.let { "$BACKDROP_BASE$it" }
             )
         }
         CalendarLookup(entries, failedSeries = lookups.count { it.second.isFailure })

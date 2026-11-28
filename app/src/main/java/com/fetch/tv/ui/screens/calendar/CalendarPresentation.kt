@@ -135,8 +135,10 @@ internal fun upcomingEntry(
     fallbackPoster: String?,
     today: LocalDate,
     days: Int,
-    /** The series' backdrop. No episode still: one for an unaired episode may be a spoiler. */
-    backdrop: String? = null
+    /** The series' backdrop, the row's picture when there's no [still]. */
+    backdrop: String? = null,
+    /** The episode's still; the caller leaves it null under the spoiler setting. */
+    still: String? = null
 ): WebsiteCalendarEntry? {
     if (next == null || isFinishedSeriesStatus(status)) return null
     val airDate = next.airDate?.let(::parseAirDate) ?: return null
@@ -152,6 +154,7 @@ internal fun upcomingEntry(
         episodeName = next.name?.takeIf { it.isNotBlank() },
         airDate = airDate.toString(),
         overview = next.overview?.takeIf { it.isNotBlank() },
-        backdrop = backdrop
+        backdrop = backdrop,
+        still = still
     )
 }

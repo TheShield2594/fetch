@@ -370,7 +370,8 @@ data class TmdbNextEpisode(
     @Json(name = "episode_number") val episodeNumber: Int? = null,
     @Json(name = "name") val name: String? = null,
     @Json(name = "overview") val overview: String? = null,
-    @Json(name = "air_date") val airDate: String? = null
+    @Json(name = "air_date") val airDate: String? = null,
+    @Json(name = "still_path") val stillPath: String? = null
 )
 
 @JsonClass(generateAdapter = true)

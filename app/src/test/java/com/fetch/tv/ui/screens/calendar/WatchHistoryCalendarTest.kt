@@ -65,6 +65,17 @@ class WatchHistoryCalendarTest {
     }
 
     @Test
+    fun `an entry carries the still and backdrop it is given`() {
+        val entry = upcomingEntry(
+            show, next("2026-11-10"), null, null, today, days = 30,
+            backdrop = "backdrop", still = "still"
+        )
+
+        assertEquals("still", entry!!.still)
+        assertEquals("backdrop", entry.backdrop)
+    }
+
+    @Test
     fun `episodes outside the range, undated, or of ended shows are left out`() {
         assertNull(upcomingEntry(show, next("2026-12-20"), null, null, today, days = 14))
         assertNull(upcomingEntry(show, next("2026-11-01"), null, null, today, days = 30))

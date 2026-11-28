@@ -75,6 +75,34 @@ class CalendarPresentationTest {
     }
 
     @Test
+    fun `a long Trakt calendar window is split into requests Trakt allows`() {
+        val start = LocalDate.of(2026, 11, 1)
+        assertEquals(
+            listOf(start to 33, start.plusDays(33) to 33, start.plusDays(66) to 32),
+            traktCalendarChunks(start, 98)
+        )
+        assertEquals(listOf(start to 22), traktCalendarChunks(start, 22))
+    }
+
+    @Test
+    fun `Trakt air times fill in episodes by IMDb or TMDB id, not films or entries that have one`() {
+        val dto = com.fetch.tv.data.remote.dto.trakt.TraktCalendarShowDto(
+            firstAired = "2026-11-10T02:00:00.000Z",
+            episode = com.fetch.tv.data.remote.dto.trakt.TraktEpisodeDto(season = 1, number = 2),
+            show = com.fetch.tv.data.remote.dto.trakt.TraktShowDto(
+                ids = com.fetch.tv.data.remote.dto.trakt.TraktIdsDto(imdb = "tt1", tmdb = 42)
+            )
+        )
+        val times = traktAirTimes(listOf(dto))
+        val episode = WebsiteCalendarEntry(seriesImdbId = "tt1", seriesName = "Show", season = 1, episode = 2, airDate = "2026-11-09")
+
+        assertEquals("2026-11-10T02:00:00.000Z", withAirTime(episode, times).airsAt)
+        assertEquals("2026-11-10T02:00:00.000Z", withAirTime(episode.copy(seriesImdbId = "tmdb:42"), times).airsAt)
+        assertNull(withAirTime(episode.copy(episode = 3), times).airsAt)
+        assertNull(withAirTime(episode.copy(season = null, episode = null, kind = "movie"), times).airsAt)
+    }
+
+    @Test
     fun `days before today are past`() {
         val days = groupCalendarByDay(
             listOf(entry("Old", "2026-11-01").copy(watched = true), entry("New", "2026-11-04")),

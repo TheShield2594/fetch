@@ -170,6 +170,36 @@ internal fun watchedEpisodeKeys(
     }
 }
 
+/** Trakt allows a calendar request this many days long at most. */
+internal const val TraktCalendarMaxDays = 33
+
+/** The (start, days) requests that cover [days] days from [start], none longer than Trakt allows. */
+internal fun traktCalendarChunks(start: LocalDate, days: Int): List<Pair<LocalDate, Int>> =
+    (0 until days step TraktCalendarMaxDays).map { offset ->
+        start.plusDays(offset.toLong()) to minOf(TraktCalendarMaxDays, days - offset)
+    }
+
+/**
+ * Air times by `series:season:episode`, from the profile's Trakt calendar: keyed by the show's
+ * IMDb id and by `tmdb:<id>`, as a series can be followed by either.
+ */
+internal fun traktAirTimes(items: List<com.fetch.tv.data.remote.dto.trakt.TraktCalendarShowDto>): Map<String, String> = buildMap {
+    items.forEach { item ->
+        val airsAt = item.firstAired?.takeIf { it.isNotBlank() } ?: return@forEach
+        val season = item.episode?.season ?: return@forEach
+        val episode = item.episode.number ?: return@forEach
+        val ids = item.show?.ids ?: return@forEach
+        ids.imdb?.takeIf { it.isNotBlank() }?.let { put("$it:$season:$episode", airsAt) }
+        ids.tmdb?.let { put("tmdb:$it:$season:$episode", airsAt) }
+    }
+}
+
+/** [entry] with its air time from [airTimes] where Trakt knows it. */
+internal fun withAirTime(entry: WebsiteCalendarEntry, airTimes: Map<String, String>): WebsiteCalendarEntry {
+    if (entry.isMovie || entry.airsAt != null) return entry
+    return airTimes["${entry.seriesImdbId}:${entry.season}:${entry.episode}"]?.let { entry.copy(airsAt = it) } ?: entry
+}
+
 /** The ids of every film the profile has watched, from its history and finished playback. */
 internal fun watchedMovieIds(
     progress: List<com.fetch.tv.domain.model.WatchProgress>,

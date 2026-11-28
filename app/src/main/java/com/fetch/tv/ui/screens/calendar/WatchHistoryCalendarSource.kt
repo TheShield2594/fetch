@@ -7,6 +7,8 @@ import com.fetch.tv.data.local.TmdbSettingsDataStore
 import com.fetch.tv.data.remote.api.TmdbApi
 import com.fetch.tv.data.remote.api.TmdbDetailsResponse
 import com.fetch.tv.data.remote.api.TmdbNextEpisode
+import com.fetch.tv.data.remote.api.TraktApi
+import com.fetch.tv.data.repository.TraktAuthService
 import com.fetch.tv.domain.model.LibraryEntry
 import com.fetch.tv.domain.model.LibraryListTab
 import com.fetch.tv.domain.repository.LibraryRepository
@@ -53,7 +55,12 @@ class WatchHistoryCalendarSource internal constructor(
     /** The profile's spoiler setting: blur unwatched episodes. Every calendar episode is unwatched. */
     private val hideEpisodeStills: suspend () -> Boolean = { true },
     /** The films on the profile's watchlist, whatever service it's kept on. */
-    private val watchlistMovies: suspend () -> List<LibraryEntry> = { emptyList() }
+    private val watchlistMovies: suspend () -> List<LibraryEntry> = { emptyList() },
+    /**
+     * Air times by `series:season:episode` for the days from a start date, from the profile's Trakt
+     * calendar; empty without Trakt. TMDB gives only dates.
+     */
+    private val airTimes: suspend (start: LocalDate, days: Int) -> Map<String, String> = { _, _ -> emptyMap() }
 ) {
     @Inject
     constructor(
@@ -62,7 +69,9 @@ class WatchHistoryCalendarSource internal constructor(
         tmdbApi: TmdbApi,
         tmdbSettings: TmdbSettingsDataStore,
         layoutPreferences: LayoutPreferenceDataStore,
-        library: LibraryRepository
+        library: LibraryRepository,
+        traktAuth: TraktAuthService,
+        traktApi: TraktApi
     ) : this(
         progress,
         tmdbService,
@@ -76,6 +85,14 @@ class WatchHistoryCalendarSource internal constructor(
                 .filter { it.type == LibraryListTab.Type.WATCHLIST }
                 .mapTo(HashSet()) { it.key }
             library.libraryItems.first().filter { it.type == "movie" && it.listKeys.any(watchlistKeys::contains) }
+        },
+        { start, days ->
+            // Without a Trakt sign-in there's no token and no request: each one comes back null.
+            val items = traktCalendarChunks(start, days).flatMap { (from, length) ->
+                traktAuth.executeAuthorizedRequest { auth -> traktApi.getMyShowsCalendar(auth, from.toString(), length) }
+                    ?.takeIf { it.isSuccessful }?.body().orEmpty()
+            }
+            traktAirTimes(items)
         }
     )
 
@@ -191,7 +208,20 @@ class WatchHistoryCalendarSource internal constructor(
             )
             recent + listOfNotNull(upcoming)
         }
-        CalendarLookup(entries + movieEntries, failedSeries = lookups.count { it.second.isFailure })
+        // Exact air times where Trakt has them, so an episode shows its time and sits on its local
+        // day. Extra: without them, the dates stand.
+        val times = if (entries.isEmpty()) {
+            emptyMap()
+        } else {
+            try {
+                airTimes(today.minusDays(CalendarPastDays.toLong()), CalendarPastDays + days + 1)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                emptyMap()
+            }
+        }
+        CalendarLookup(entries.map { withAirTime(it, times) } + movieEntries, failedSeries = lookups.count { it.second.isFailure })
     }
 
     /** A watchlist film's TMDB details, for its release date; null when they can't be read. */

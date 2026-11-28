@@ -1,5 +1,6 @@
 package com.fetch.tv.data.remote.api
 
+import com.fetch.tv.data.remote.dto.trakt.TraktCalendarShowDto
 import com.fetch.tv.data.remote.dto.trakt.TraktDeviceCodeRequestDto
 import com.fetch.tv.data.remote.dto.trakt.TraktDeviceCodeResponseDto
 import com.fetch.tv.data.remote.dto.trakt.TraktDeviceTokenRequestDto
@@ -69,6 +70,14 @@ interface TraktApi {
     suspend fun revokeToken(
         @Body body: TraktRevokeRequestDto
     ): Response<Unit>
+
+    /** Episodes of the shows the profile follows, airing in the [days] days from [startDate] (at most 33). */
+    @GET("calendars/my/shows/{start_date}/{days}")
+    suspend fun getMyShowsCalendar(
+        @Header("Authorization") authorization: String,
+        @Path("start_date") startDate: String,
+        @Path("days") days: Int
+    ): Response<List<TraktCalendarShowDto>>
 
     @GET("users/settings")
     suspend fun getUserSettings(

@@ -75,3 +75,11 @@ data class TraktEpisodeDto(
     @Json(name = "number") val number: Int? = null,
     @Json(name = "ids") val ids: TraktIdsDto? = null
 )
+
+/** One episode on the profile's Trakt calendar: the instant it airs, the episode and its show. */
+@JsonClass(generateAdapter = true)
+data class TraktCalendarShowDto(
+    @Json(name = "first_aired") val firstAired: String? = null,
+    @Json(name = "episode") val episode: TraktEpisodeDto? = null,
+    @Json(name = "show") val show: TraktShowDto? = null
+)

@@ -25,3 +25,13 @@ fun localizedContentType(contentType: String?): String {
     val context = LocalContext.current
     return localizedContentType(context, contentType)
 }
+
+/**
+ * Whether a title of [contentType] is a series: its watched tick, the Watched / Unwatched filter
+ * and the bulk actions all read this one check, so a title can't show a tick and still be listed
+ * under Unwatched (#849). Anime counts as a series, as the bulk actions always treated it.
+ */
+fun isSeriesContentType(contentType: String?): Boolean = when (contentType?.trim()?.lowercase()) {
+    "series", "tv", "anime" -> true
+    else -> false
+}

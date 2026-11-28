@@ -1,7 +1,6 @@
 package com.fetch.tv.ui.screens.search
 
 import com.fetch.tv.domain.model.MetaPreview
-import java.text.Collator
 import java.util.Locale
 
 /**
@@ -163,10 +162,6 @@ internal fun appendDiscoverRound(
     return if (added.isEmpty()) existing else existing + added
 }
 
-private val titleCollator: Collator = Collator.getInstance(Locale.ROOT).apply {
-    strength = Collator.SECONDARY
-}
-
 /**
  * Applies the year and rating filters, then the sort. Titles without a year or rating drop out
  * only when that filter is set; sorts keep them, after the titles that have one. Sorts are stable,
@@ -199,7 +194,8 @@ internal fun applyDiscoverFilters(
         DiscoverSort.NEWEST -> filtered.sortedWith(
             compareBy<MetaPreview> { it.discoverYear() == null }.thenByDescending { it.discoverYear() ?: 0 }
         )
-        DiscoverSort.TITLE -> filtered.sortedWith { a, b -> titleCollator.compare(a.name, b.name) }
+        // Library's title order, articles dropped (#849).
+        DiscoverSort.TITLE -> filtered.sortedWith(com.fetch.tv.ui.util.titleSortComparator<MetaPreview> { it.name })
     }
 }
 

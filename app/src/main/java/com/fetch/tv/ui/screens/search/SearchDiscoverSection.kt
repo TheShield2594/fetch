@@ -32,7 +32,10 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.FilterListOff
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -40,6 +43,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -393,7 +401,8 @@ internal fun DiscoverSection(
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_no_catalogs_title),
                     subtitle = stringResource(R.string.discover_empty_no_catalogs_subtitle),
-                    icon = Icons.Default.Search,
+                    // Each empty state says what it is about by its icon, not one Search for all (#849).
+                    icon = Icons.Default.Extension,
                     height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
                     modifier = stateModifier
                 )
@@ -405,7 +414,7 @@ internal fun DiscoverSection(
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_hidden_title),
                     subtitle = stringResource(R.string.discover_empty_hidden_subtitle),
-                    icon = Icons.Default.Search,
+                    icon = Icons.Default.VisibilityOff,
                     action = StateAction(stringResource(R.string.discover_load_more), onLoadMore),
                     height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
                     modifier = stateModifier
@@ -418,7 +427,7 @@ internal fun DiscoverSection(
                     subtitle = unratedNote?.let {
                         stringResource(R.string.discover_empty_filtered_subtitle_with_note, stringResource(R.string.discover_empty_filtered_subtitle), it)
                     } ?: stringResource(R.string.discover_empty_filtered_subtitle),
-                    icon = Icons.Default.Search,
+                    icon = Icons.Default.FilterListOff,
                     action = StateAction(stringResource(R.string.discover_clear_filters), onClearFilters),
                     height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
                     modifier = stateModifier
@@ -429,7 +438,7 @@ internal fun DiscoverSection(
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_no_content_title),
                     subtitle = stringResource(R.string.discover_empty_no_content_subtitle),
-                    icon = Icons.Default.Search,
+                    icon = Icons.Default.Explore,
                     height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
                     modifier = stateModifier
                 )
@@ -553,6 +562,9 @@ internal fun DiscoverGrid(
     // Pre-create the requester for the focused item so focusRestorer can use it
     // even before the grid items are composed (first return from navigation).
     val itemFocusRequesters = remember { mutableMapOf<Int, FocusRequester>() }
+    // Indexes past the end belong to no cell any more: dropped when the list shrinks, so the map
+    // never holds more than the grid shows (#849).
+    SideEffect { itemFocusRequesters.keys.removeAll { it >= totalCells } }
     val focusedItemRequester = remember(focusedItemIndex) {
         itemFocusRequesters.focusRequesterFor(focusedItemIndex)
     }
@@ -578,13 +590,17 @@ internal fun DiscoverGrid(
     }
 
     // Scroll paging: ask for the next page from every catalog once focus or scrolling nears the end.
+    // The last visible index is read in a snapshotFlow, not in composition, so scrolling a row
+    // doesn't recompose the whole grid (#849).
     val shouldAutoLoad = canLoadMore && !isLoadingMore && !autoLoadPaused && items.isNotEmpty()
-    LaunchedEffect(gridState.firstVisibleItemIndex, items.size, shouldAutoLoad) {
+    val currentOnLoadMore by rememberUpdatedState(onLoadMore)
+    LaunchedEffect(gridState, items.size, shouldAutoLoad) {
         if (!shouldAutoLoad) return@LaunchedEffect
-        val lastVisible = gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@LaunchedEffect
-        if (lastVisible >= items.size - DISCOVER_PREFETCH_DISTANCE) {
-            onLoadMore()
-        }
+        val threshold = items.size - DISCOVER_PREFETCH_DISTANCE
+        snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .filterNotNull()
+            .first { lastVisible -> lastVisible >= threshold }
+        currentOnLoadMore()
     }
 
     // The browse Back ladder (#850): deep in the grid, back to its first card; from the top rows,
@@ -643,9 +659,10 @@ internal fun DiscoverGrid(
                 onClick = { onItemClick(index, item) },
                 onLongPress = { onItemLongPress(item) },
                 posterCardStyle = posterCardStyle,
-                isWatched = run {
-                    val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
-                    if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
+                isWatched = if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) {
+                    item.id in watchedSeriesIds
+                } else {
+                    item.id in watchedMovieIds
                 },
                 // No width here: the card sizes itself (landscape cards are wider than posters), as
                 // in the Library and See all (#842). The grid's top padding gives the focused

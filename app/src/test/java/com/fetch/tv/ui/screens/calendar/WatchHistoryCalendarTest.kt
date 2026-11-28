@@ -76,6 +76,21 @@ class WatchHistoryCalendarTest {
     }
 
     @Test
+    fun `episodes are marked premiere or finale as the website marks them`() {
+        assertEquals("season", calendarFinale("finale", "Returning Series"))
+        assertEquals("series", calendarFinale("finale", "Ended"))
+        assertEquals("mid_season", calendarFinale("mid_season", null))
+        assertNull(calendarFinale("standard", "Ended"))
+        assertEquals("premiere", episodeKind(1))
+        assertEquals("episode", episodeKind(4))
+
+        val finale = upcomingEntry(
+            show, next("2026-11-10").copy(episodeType = "finale"), "Returning Series", null, today, days = 30
+        )
+        assertEquals("season", finale!!.finale)
+    }
+
+    @Test
     fun `a watchlist film released in the window becomes a movie entry, watched from the history`() {
         val film = com.fetch.tv.domain.model.LibraryEntry(
             id = "tt7", type = "movie", name = "Film", poster = null, background = null, logo = null,

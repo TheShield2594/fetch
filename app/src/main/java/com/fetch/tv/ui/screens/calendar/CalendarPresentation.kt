@@ -170,6 +170,19 @@ internal fun watchedEpisodeKeys(
     }
 }
 
+/**
+ * Which finale an episode is, from TMDB's episode type, as the website's calendar says it: a
+ * finale of a show that has ended is the series', otherwise the season's.
+ */
+internal fun calendarFinale(episodeType: String?, status: String?): String? = when (episodeType?.trim()) {
+    "mid_season" -> "mid_season"
+    "finale" -> if (isFinishedSeriesStatus(status)) "series" else "season"
+    else -> null
+}
+
+/** An episode 1 opens a season, as the website's calendar marks it. */
+internal fun episodeKind(episode: Int): String = if (episode == 1) "premiere" else "episode"
+
 /** Trakt allows a calendar request this many days long at most. */
 internal const val TraktCalendarMaxDays = 33
 
@@ -254,7 +267,9 @@ internal fun recentEntry(
     watchedKeys: Set<String>,
     backdrop: String? = null,
     /** The episode's still; the caller leaves it null when spoilers are hidden and it's unwatched. */
-    still: String? = null
+    still: String? = null,
+    /** The show's TMDB status, for whether a finale is the series'. */
+    status: String? = null
 ): WebsiteCalendarEntry? {
     val airDate = last?.airDate?.let(::parseAirDate) ?: return null
     if (airDate.isAfter(today) || airDate.isBefore(today.minusDays(pastDays.toLong()))) return null
@@ -271,7 +286,9 @@ internal fun recentEntry(
         overview = last.overview?.takeIf { it.isNotBlank() },
         backdrop = backdrop,
         still = still,
-        watched = "${series.id}:$season:$episode" in watchedKeys
+        watched = "${series.id}:$season:$episode" in watchedKeys,
+        kind = episodeKind(episode),
+        finale = calendarFinale(last.episodeType, status)
     )
 }
 
@@ -306,6 +323,8 @@ internal fun upcomingEntry(
         airDate = airDate.toString(),
         overview = next.overview?.takeIf { it.isNotBlank() },
         backdrop = backdrop,
-        still = still
+        still = still,
+        kind = episodeKind(episode),
+        finale = calendarFinale(next.episodeType, status)
     )
 }

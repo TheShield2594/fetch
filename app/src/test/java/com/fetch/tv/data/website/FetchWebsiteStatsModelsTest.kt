@@ -69,4 +69,19 @@ class FetchWebsiteStatsModelsTest {
         assertTrue(entry.isMovie)
         assertEquals(false, entry.watched)
     }
+
+    @Test
+    fun `a finale decodes, and an entry without one has none`() {
+        val body = """
+            {"calendar":[
+              {"kind":"episode","seriesImdbId":"tt1","seriesName":"Show","season":2,"episode":10,"airDate":"2026-11-30","finale":"season"},
+              {"seriesImdbId":"tt2","seriesName":"Other","season":1,"episode":3,"airDate":"2026-11-30"}
+            ]}
+        """.trimIndent()
+
+        val (finale, plain) = json.decodeFromString(WebsiteCalendarBody.serializer(), body).calendar
+
+        assertEquals("season", finale.finale)
+        assertNull(plain.finale)
+    }
 }

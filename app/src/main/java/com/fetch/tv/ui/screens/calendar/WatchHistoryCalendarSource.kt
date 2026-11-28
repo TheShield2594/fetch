@@ -191,7 +191,8 @@ class WatchHistoryCalendarSource internal constructor(
                     today = today,
                     pastDays = CalendarPastDays,
                     watchedKeys = watchedKeys,
-                    backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" }
+                    backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" },
+                    status = details.status
                 )?.let { entry ->
                     val still = episode.stillPath?.takeIf { it.isNotBlank() }?.takeIf { showStills || entry.watched }
                     entry.copy(still = still?.let { "$BACKDROP_BASE$it" })
@@ -262,7 +263,8 @@ class WatchHistoryCalendarSource internal constructor(
                     name = episode.name,
                     overview = episode.overview,
                     airDate = episode.airDate,
-                    stillPath = episode.stillPath
+                    stillPath = episode.stillPath,
+                    episodeType = episode.episodeType
                 )
             }.also { seasonCache[cacheKey] = CachedSeason(it, nowMs()) }
         } catch (error: CancellationException) {

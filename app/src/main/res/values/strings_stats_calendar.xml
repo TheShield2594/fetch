@@ -103,6 +103,11 @@
     <string name="calendar_watched">Watched</string>
     <!-- On a calendar entry that has aired but the profile hasn't watched. -->
     <string name="calendar_not_watched">Not watched yet</string>
+    <!-- Badges beside a calendar entry's title. -->
+    <string name="calendar_badge_premiere">Premiere</string>
+    <string name="calendar_badge_season_finale">Season finale</string>
+    <string name="calendar_badge_series_finale">Series finale</string>
+    <string name="calendar_badge_mid_season_finale">Mid-season finale</string>
     <!-- Button beside a calendar entry that has aired. -->
     <string name="calendar_mark_watched">Mark watched</string>
     <!-- The same button once the entry is watched. -->

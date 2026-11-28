@@ -259,6 +259,8 @@ data class WebsiteYearInReview(
  * that has connected it. Where set, it places the entry on the viewer's local day.
  *
  * [watched] says whether the profile has already watched it, for the days that have passed.
+ *
+ * [finale] is `"season"`, `"series"` or `"mid_season"` for an episode that ends one; null otherwise.
  */
 @Serializable
 data class WebsiteCalendarEntry(
@@ -274,7 +276,8 @@ data class WebsiteCalendarEntry(
     val still: String? = null,
     val backdrop: String? = null,
     val airsAt: String? = null,
-    val watched: Boolean = false
+    val watched: Boolean = false,
+    val finale: String? = null
 ) {
     /** A film's release rather than an episode. */
     val isMovie: Boolean

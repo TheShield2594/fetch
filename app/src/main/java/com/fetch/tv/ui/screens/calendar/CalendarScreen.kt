@@ -40,6 +40,8 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.fetch.tv.ui.components.FetchBadgeTone
+import com.fetch.tv.ui.components.FetchBadge
 import com.fetch.tv.ui.components.FetchButton
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Spacer
@@ -259,6 +261,16 @@ private fun DayHeading(day: CalendarDay) {
     }
 }
 
+/** The badge an entry wears: a series, season or mid-season finale, else a premiere; null for others. */
+private fun calendarBadge(entry: WebsiteCalendarEntry): Pair<Int, FetchBadgeTone>? = when {
+    entry.isMovie -> null
+    entry.finale == "series" -> R.string.calendar_badge_series_finale to FetchBadgeTone.Accent
+    entry.finale == "season" -> R.string.calendar_badge_season_finale to FetchBadgeTone.Accent
+    entry.finale == "mid_season" -> R.string.calendar_badge_mid_season_finale to FetchBadgeTone.Neutral
+    entry.kind == "premiere" -> R.string.calendar_badge_premiere to FetchBadgeTone.Accent
+    else -> null
+}
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun RecentlyAiredHeading() {
@@ -372,12 +384,20 @@ private fun CalendarEntryRow(
             }
             // Text colours come from the surface, so they flip with it when the row is focused.
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)) {
-                Text(
-                    text = entry.seriesName,
-                    style = FetchTheme.textStyles.cardTitle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                // The title, then what this episode is when it opens or ends something.
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = entry.seriesName,
+                        style = FetchTheme.textStyles.cardTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    calendarBadge(entry)?.let { (label, tone) -> FetchBadge(text = stringResource(label), tone = tone) }
+                }
                 episodeLine?.let {
                     Text(
                         text = it,

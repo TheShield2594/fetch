@@ -1159,14 +1159,11 @@
     <string name="player_queue_move_down">Mover para baixo</string>
     <string name="player_queue_removed">Removido da fila: %1$s</string>
     <string name="player_queue_undo">Desfazer</string>
-    <string name="player_seek_back_10">Voltar 10 segundos</string>
-    <string name="player_seek_forward_30">Avançar 30 segundos</string>
     <string name="player_live_watched">AO VIVO • %1$s</string>
     <string name="player_via"> %1$s</string>
     <!-- Código de temporada/episódio mostrado na interface do player (ex.: T01E02). %1$d = temporada, %2$d = episódio. -->
     <string name="season_episode_format">T%1$d:E%2$d</string>
     <string name="player_subtitle_delay">Atraso da legenda</string>
-    <string name="player_error_title">Erro de reprodução</string>
     <string name="player_error_choose_source">Escolha outra fonte</string>
     <string name="player_switch_to_mpv">Trocar para o player mpv</string>
     <string name="player_speed_title">Velocidade de reprodução</string>

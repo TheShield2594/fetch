@@ -1191,13 +1191,10 @@
     <string name="player_queue_move_down">নিচে সরান</string>
     <string name="player_queue_removed">কিউ থেকে %1$s সরানো হয়েছে</string>
     <string name="player_queue_undo">আনডু</string>
-    <string name="player_seek_back_10">১০ সেকেন্ড পিছনে</string>
-    <string name="player_seek_forward_30">৩০ সেকেন্ড সামনে</string>
     <string name="player_live_watched">লাইভ  %1$s</string>
     <string name="player_via">%1$s দিয়ে</string>
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">সাবটাইটেল ডিলে</string>
-    <string name="player_error_title">প্লেব্যাক এরর</string>
     <string name="player_error_choose_source">অন্য একটি সোর্স বেছে নিন</string>
     <string name="player_switch_to_mpv">MPV প্লেয়ারে সুইচ করুন</string>
     <string name="player_speed_title">প্লেব্যাক স্পিড</string>

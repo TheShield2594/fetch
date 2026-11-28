@@ -958,13 +958,10 @@
     <string name="player_queue_move_down">Turunkan</string>
     <string name="player_queue_removed">%1$s dihapus dari antrean</string>
     <string name="player_queue_undo">Urungkan</string>
-    <string name="player_seek_back_10">Mundur 10 detik</string>
-    <string name="player_seek_forward_30">Maju 30 detik</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">M%1$d E%2$d</string>
     <string name="player_subtitle_delay">Penundaan Subtitle</string>
-    <string name="player_error_title">Error pemutaran</string>
     <string name="player_error_choose_source">Pilih sumber lain</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
 

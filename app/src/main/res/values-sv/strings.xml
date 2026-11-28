@@ -553,11 +553,8 @@
     <string name="player_queue_move_down">Flytta ned</string>
     <string name="player_queue_removed">Tog bort %1$s från kön</string>
     <string name="player_queue_undo">Ångra</string>
-    <string name="player_seek_back_10">10 sekunder bakåt</string>
-    <string name="player_seek_forward_30">30 sekunder framåt</string>
     <string name="player_via">via %1$s</string>
     <string name="player_subtitle_delay">Undertextfördröjning</string>
-    <string name="player_error_title">Uppspelningsfel</string>
     <string name="player_error_choose_source">Välj en annan källa</string>
     <string name="player_speed_title">Uppspelningshastighet</string>
 

@@ -436,11 +436,8 @@
     <string name="player_queue_move_down">Mută în jos</string>
     <string name="player_queue_removed">Eliminat din coadă: %1$s</string>
     <string name="player_queue_undo">Anulează</string>
-    <string name="player_seek_back_10">Înapoi 10 secunde</string>
-    <string name="player_seek_forward_30">Înainte 30 de secunde</string>
     <string name="player_via">prin %1$s</string>
     <string name="player_subtitle_delay">Întârziere subtitrări</string>
-    <string name="player_error_title">Eroare de redare</string>
     <string name="player_error_choose_source">Alege altă sursă</string>
     <string name="player_speed_title">Viteză redare</string>
 

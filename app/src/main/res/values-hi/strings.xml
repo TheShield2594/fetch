@@ -548,11 +548,8 @@
     <string name="player_queue_move_down">नीचे ले जाएँ</string>
     <string name="player_queue_removed">%1$s को कतार से हटाया गया</string>
     <string name="player_queue_undo">पहले जैसा करें</string>
-    <string name="player_seek_back_10">10 सेकंड पीछे</string>
-    <string name="player_seek_forward_30">30 सेकंड आगे</string>
     <string name="player_via">%1$s के माध्यम से</string>
     <string name="player_subtitle_delay">सबटाइटल देरी</string>
-    <string name="player_error_title">प्लेबैक त्रुटि</string>
     <string name="player_error_choose_source">कोई दूसरा सोर्स चुनें</string>
     <string name="player_speed_title">प्लेबैक गति</string>
 

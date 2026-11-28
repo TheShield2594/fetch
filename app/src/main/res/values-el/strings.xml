@@ -1197,14 +1197,11 @@
     <string name="player_queue_move_down">Μετακίνηση κάτω</string>
     <string name="player_queue_removed">Αφαιρέθηκε από την ουρά: %1$s</string>
     <string name="player_queue_undo">Αναίρεση</string>
-    <string name="player_seek_back_10">Πίσω 10 δευτερόλεπτα</string>
-    <string name="player_seek_forward_30">Μπροστά 30 δευτερόλεπτα</string>
   <string name="player_live_watched">ΖΩΝΤΑΝΑ  %1$s</string>
   <string name="player_via">μέσω %1$s</string>
   <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
   <string name="season_episode_format">S%1$d E%2$d</string>
   <string name="player_subtitle_delay">Καθυστέρηση υπότιτλων</string>
-  <string name="player_error_title">Σφάλμα αναπαραγωγής</string>
   <string name="player_error_choose_source">Επιλέξτε άλλη πηγή</string>
   <string name="player_switch_to_mpv">Εναλλαγή σε MPV</string>
   <string name="player_speed_title">Ταχύτητα αναπαραγωγής</string>

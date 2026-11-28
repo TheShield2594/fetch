@@ -1001,13 +1001,10 @@
     <string name="player_queue_move_down">Posunout dolů</string>
     <string name="player_queue_removed">%1$s odebráno z fronty</string>
     <string name="player_queue_undo">Zpět</string>
-    <string name="player_seek_back_10">Zpět o 10 sekund</string>
-    <string name="player_seek_forward_30">Vpřed o 30 sekund</string>
     <string name="player_via">přes %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Zpoždění titulků</string>
-    <string name="player_error_title">Chyba přehrávání</string>
     <string name="player_error_choose_source">Vyberte jiný zdroj</string>
     <string name="player_speed_title">Rychlost přehrávání</string>
     <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte jiný zdroj.</string>

@@ -7,7 +7,7 @@
         errorLine1="            hdrTypes?.contains(Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS) == true"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/DolbyVisionBaseLayerPolicy.kt"
+            file="src/main/java/com/fetch/tv/core/player/DolbyVisionBaseLayerPolicy.kt"
             line="197"
             column="32"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="    private const val DvheStProfile = CodecProfileLevel.DolbyVisionProfileDvheSt"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/DolbyVisionBaseLayerPolicy.kt"
+            file="src/main/java/com/fetch/tv/core/player/DolbyVisionBaseLayerPolicy.kt"
             line="266"
             column="39"/>
     </issue>
@@ -27034,39 +27034,6 @@
         <location
             file="src/main/res/values/strings.xml"
             line="1507"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.player_seek_back_10` appears to be unused"
-        errorLine1="    &lt;string name=&quot;player_seek_back_10&quot;>Back 10 seconds&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1623"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.player_seek_forward_30` appears to be unused"
-        errorLine1="    &lt;string name=&quot;player_seek_forward_30&quot;>Forward 30 seconds&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1624"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.player_error_title` appears to be unused"
-        errorLine1="    &lt;string name=&quot;player_error_title&quot;>Playback error&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1640"
             column="13"/>
     </issue>
 

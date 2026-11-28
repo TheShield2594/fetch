@@ -800,12 +800,9 @@
     <string name="player_queue_move_down">Переместить вниз</string>
     <string name="player_queue_removed">Удалено из очереди: %1$s</string>
     <string name="player_queue_undo">Отменить</string>
-    <string name="player_seek_back_10">Назад на 10 секунд</string>
-    <string name="player_seek_forward_30">Вперёд на 30 секунд</string>
     <string name="player_live_watched">ЭФИР  %1$s</string>
     <string name="player_via">через %1$s</string>
     <string name="player_subtitle_delay">Задержка субтитров</string>
-    <string name="player_error_title">Ошибка воспроизведения</string>
     <string name="player_error_choose_source">Выберите другой источник</string>
     <string name="player_speed_title">Скорость воспроизведения</string>
 

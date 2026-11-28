@@ -1188,14 +1188,11 @@
     <string name="player_queue_move_down">下移</string>
     <string name="player_queue_removed">已從佇列中移除 %1$s</string>
     <string name="player_queue_undo">復原</string>
-    <string name="player_seek_back_10">倒轉 10 秒</string>
-    <string name="player_seek_forward_30">快轉 30 秒</string>
     <string name="player_live_watched">直播  %1$s</string>
     <string name="player_via">透過 %1$s</string>
     <!-- 播放器 UI 中顯示的季/集代碼 -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">字幕延遲</string>
-    <string name="player_error_title">播放錯誤</string>
     <string name="player_error_choose_source">選擇其他來源</string>
     <string name="player_switch_to_mpv">切換到 MPV 播放器</string>
     <string name="player_speed_title">播放速度</string>

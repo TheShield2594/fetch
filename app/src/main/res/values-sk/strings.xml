@@ -953,13 +953,10 @@
     <string name="player_queue_move_down">Posunúť nadol</string>
     <string name="player_queue_removed">Odstránené z frontu: %1$s</string>
     <string name="player_queue_undo">Späť</string>
-    <string name="player_seek_back_10">Späť o 10 sekúnd</string>
-    <string name="player_seek_forward_30">Vpred o 30 sekúnd</string>
     <string name="player_via">cez %1$s</string>
     
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Oneskorenie titulkov</string>
-    <string name="player_error_title">Chyba prehrávania</string>
     <string name="player_error_choose_source">Vyberte iný zdroj</string>
     <string name="player_speed_title">Rýchlosť prehrávania</string>
 

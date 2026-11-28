@@ -1140,14 +1140,11 @@
     <string name="player_queue_move_down">Pomeri dole</string>
     <string name="player_queue_removed">Uklonjeno iz reda: %1$s</string>
     <string name="player_queue_undo">Opozovi</string>
-    <string name="player_seek_back_10">Nazad 10 sekundi</string>
-    <string name="player_seek_forward_30">Napred 30 sekundi</string>
     <string name="player_live_watched">UŽIVO %1$s</string>
     <string name="player_via">preko %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Kašnjenje titlova</string>
-    <string name="player_error_title">Greška pri reprodukciji</string>
     <string name="player_error_choose_source">Izaberite drugi izvor</string>
     <string name="player_switch_to_mpv">Prebaci na MPV plejer</string>
     <string name="player_speed_title">Brzina reprodukcije</string>

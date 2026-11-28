@@ -980,13 +980,10 @@
     <string name="player_queue_move_down">Перемістити вниз</string>
     <string name="player_queue_removed">%1$s видалено з черги</string>
     <string name="player_queue_undo">Скасувати</string>
-    <string name="player_seek_back_10">Назад на 10 секунд</string>
-    <string name="player_seek_forward_30">Уперед на 30 секунд</string>
     <string name="player_via">через %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">С%1$d Е%2$d</string>
     <string name="player_subtitle_delay">Затримка субтитрів</string>
-    <string name="player_error_title">Помилка відтворення</string>
     <string name="player_error_choose_source">Виберіть інше джерело</string>
     <string name="player_speed_title">Швидкість відтворення</string>
     <string name="player_error_no_stream_url">Це джерело не має посилання на потік. Виберіть інше джерело.</string>

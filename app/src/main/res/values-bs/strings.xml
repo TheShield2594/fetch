@@ -694,11 +694,8 @@
     <string name="player_queue_move_down">Pomjeri dolje</string>
     <string name="player_queue_removed">Uklonjeno iz reda: %1$s</string>
     <string name="player_queue_undo">Poništi</string>
-    <string name="player_seek_back_10">Nazad 10 sekundi</string>
-    <string name="player_seek_forward_30">Naprijed 30 sekundi</string>
     <string name="player_via">preko %1$s</string>
     <string name="player_subtitle_delay">Odgoda Titlova</string>
-    <string name="player_error_title">Greška reprodukcije</string>
     <string name="player_error_choose_source">Izaberi drugi izvor</string>
     <string name="player_speed_title">Brzina Reprodukcije</string>
 

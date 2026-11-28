@@ -965,13 +965,10 @@
     <string name="player_queue_move_down">Mover para baixo</string>
     <string name="player_queue_removed">Removido da fila: %1$s</string>
     <string name="player_queue_undo">Anular</string>
-    <string name="player_seek_back_10">Recuar 10 segundos</string>
-    <string name="player_seek_forward_30">Avançar 30 segundos</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">T%1$d E%2$d</string>
     <string name="player_subtitle_delay">Atraso das Legendas</string>
-    <string name="player_error_title">Erro de reprodução</string>
     <string name="player_error_choose_source">Escolhe outra fonte</string>
     <string name="player_speed_title">Velocidade de Reprodução</string>
     <string name="player_error_no_stream_url">Esta fonte não tem link de stream. Escolhe outra fonte.</string>

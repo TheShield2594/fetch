@@ -940,13 +940,10 @@
     <string name="player_queue_move_down">Nach unten</string>
     <string name="player_queue_removed">%1$s aus der Warteschlange entfernt</string>
     <string name="player_queue_undo">Rückgängig</string>
-    <string name="player_seek_back_10">10 Sekunden zurück</string>
-    <string name="player_seek_forward_30">30 Sekunden vor</string>
     <string name="player_via">über %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Untertitelverzögerung</string>
-    <string name="player_error_title">Wiedergabefehler</string>
     <string name="player_error_choose_source">Andere Quelle wählen</string>
     <string name="player_speed_title">Wiedergabegeschwindigkeit</string>
 

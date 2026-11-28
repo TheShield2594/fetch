@@ -1243,14 +1243,11 @@
     <string name="player_queue_move_down">Pomakni dolje</string>
     <string name="player_queue_removed">Uklonjeno iz reda: %1$s</string>
     <string name="player_queue_undo">Poništi</string>
-    <string name="player_seek_back_10">Natrag 10 sekundi</string>
-    <string name="player_seek_forward_30">Naprijed 30 sekundi</string>
     <string name="player_live_watched">UŽIVO  %1$s</string>
     <string name="player_via">putem %1$s</string>
     <!-- Kôd sezone/epizode u sučelju playera (npr. S01E02). %1$d = sezona, %2$d = epizoda. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Kašnjenje titlova</string>
-    <string name="player_error_title">Pogreška reprodukcije</string>
     <string name="player_error_choose_source">Odaberi drugi izvor</string>
     <string name="player_switch_to_mpv">Prebaci na MPV player</string>
     <string name="player_speed_title">Brzina reprodukcije</string>

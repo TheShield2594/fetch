@@ -930,7 +930,8 @@ class WatchProgressRepositoryImpl @Inject constructor(
 
     /**
      * Marks [marks] on the media servers in the background; with [await], waits for the servers
-     * that own the items and returns whether they all took it (catalog mirrors stay best-effort).
+     * that own the items and for the catalog mirrors, and returns whether they all took it. A
+     * failed mirror leaves this TV's record alone; only the answer reports it.
      */
     private suspend fun syncServerWatched(
         marks: List<ServerWatchMark>,
@@ -939,13 +940,14 @@ class WatchProgressRepositoryImpl @Inject constructor(
         await: Boolean = false
     ): Boolean {
         var failed = false
-        val job = serverWatched.apply(marks, played) { failedMarks ->
+        val applied = serverWatched.apply(marks, played) { failedMarks ->
             failed = true
             restoreServerWatched(failedMarks, played, profileId)
         }
-        serverWatched.mirror(marks, played)
+        val mirrored = serverWatched.mirror(marks, played) { failed = true }
         if (!await) return true
-        job?.join()
+        applied?.join()
+        mirrored?.join()
         return !failed
     }
 
@@ -990,7 +992,10 @@ class WatchProgressRepositoryImpl @Inject constructor(
             dateUnknown = dateUnknown
         )
 
-    /** Sends [items] to every connected tracker; returns whether all of them took them. */
+    /**
+     * Sends [items] to every connected tracker; returns whether all of them took every item. A
+     * tracker that answers without finding some of them counts as not taking it.
+     */
     private suspend fun broadcastHistoryAdd(
         profileId: Int,
         items: Collection<TrackingHistoryItem>
@@ -1007,7 +1012,16 @@ class WatchProgressRepositoryImpl @Inject constructor(
                             .onFailure { error ->
                                 Log.w(TAG, "Failed ${writer.providerId.storageId} history add", error)
                             }
-                            .isSuccess
+                            .getOrNull()
+                            ?.also { result ->
+                                if (!result.isComplete) {
+                                    Log.w(
+                                        TAG,
+                                        "${writer.providerId.storageId} history add missed ${result.notFoundCount} items"
+                                    )
+                                }
+                            }
+                            ?.isComplete == true
                     }
                 }
                 .map { operation -> operation.await() }
@@ -1015,7 +1029,10 @@ class WatchProgressRepositoryImpl @Inject constructor(
         }
     }
 
-    /** Takes [items] off every connected tracker's history; returns whether all of them did. */
+    /**
+     * Takes [items] off every connected tracker's history; returns whether all of them removed
+     * every item. A tracker that answers without finding some of them counts as not removing it.
+     */
     private suspend fun broadcastHistoryRemoval(
         profileId: Int,
         items: Collection<TrackingMediaReference>
@@ -1032,7 +1049,16 @@ class WatchProgressRepositoryImpl @Inject constructor(
                             .onFailure { error ->
                                 Log.w(TAG, "Failed ${writer.providerId.storageId} history removal", error)
                             }
-                            .isSuccess
+                            .getOrNull()
+                            ?.also { result ->
+                                if (!result.isComplete) {
+                                    Log.w(
+                                        TAG,
+                                        "${writer.providerId.storageId} history removal missed ${result.notFoundCount} items"
+                                    )
+                                }
+                            }
+                            ?.isComplete == true
                     }
                 }
                 .map { operation -> operation.await() }

@@ -13,14 +13,18 @@ import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressPreferences
 import com.fetch.tv.data.local.WatchProgressSource
 import com.fetch.tv.data.local.WatchedItemsPreferences
+import com.fetch.tv.data.mediaserver.ServerWatched
 import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.repository.MetaRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -85,7 +89,52 @@ class WatchProgressRepositoryConfirmedWritesTest {
         coVerify(exactly = 0) { harness.watchedPreferences.unmarkAsWatched(any(), any(), any(), profileId = any()) }
     }
 
-    private fun harness(writerFails: Boolean): Harness {
+    @Test
+    fun `a completion a tracker answers without finding is reported and taken back`() = runTest {
+        val harness = harness(writerFails = false, writerFindsItems = false)
+
+        val saved = harness.repository.markAsCompletedConfirmed(episode())
+
+        assertFalse(saved)
+        coVerify(exactly = 1) { harness.watchedPreferences.unmarkAsWatched("tt1", 2, 5, profileId = 1) }
+    }
+
+    @Test
+    fun `a removal a tracker answers without finding is reported and marked watched again`() = runTest {
+        val harness = harness(writerFails = false, writerFindsItems = false)
+
+        val removed = harness.repository.removeFromHistoryConfirmed("tt1", "tt1:2:5", 2, 5)
+
+        assertFalse(removed)
+        coVerify(exactly = 1) { harness.watchedPreferences.markAsWatched(any(), profileId = 1) }
+    }
+
+    @Test
+    fun `a completion a media server mirror fails is reported and taken back`() = runTest {
+        val harness = harness(writerFails = false, mirrorFails = true)
+
+        val saved = harness.repository.markAsCompletedConfirmed(episode())
+
+        assertFalse(saved)
+        coVerify(exactly = 1) { harness.watchedPreferences.unmarkAsWatched("tt1", 2, 5, profileId = 1) }
+    }
+
+    @Test
+    fun `a removal a media server mirror fails is reported and marked watched again`() = runTest {
+        val harness = harness(writerFails = false, mirrorFails = true)
+
+        val removed = harness.repository.removeFromHistoryConfirmed("tt1", "tt1:2:5", 2, 5)
+
+        assertFalse(removed)
+        coVerify(exactly = 1) { harness.watchedPreferences.markAsWatched(any(), profileId = 1) }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun harness(
+        writerFails: Boolean,
+        writerFindsItems: Boolean = true,
+        mirrorFails: Boolean = false
+    ): Harness {
         val providerId = TrackingProviderId.entries.first()
         val provider = mockk<TrackingProgressProvider>(relaxed = true)
         every { provider.providerId } returns providerId
@@ -97,8 +146,14 @@ class WatchProgressRepositoryConfirmedWritesTest {
             coEvery { writer.addToHistory(any(), any()) } throws IllegalStateException("rejected")
             coEvery { writer.removeFromHistory(any(), any()) } throws IllegalStateException("rejected")
         } else {
-            coEvery { writer.addToHistory(any(), any()) } returns TrackingMutationResult(1)
-            coEvery { writer.removeFromHistory(any(), any()) } returns TrackingMutationResult(1)
+            val result = TrackingMutationResult(1, notFoundCount = if (writerFindsItems) 0 else 1)
+            coEvery { writer.addToHistory(any(), any()) } returns result
+            coEvery { writer.removeFromHistory(any(), any()) } returns result
+        }
+        val serverWatched = mockk<ServerWatched>(relaxed = true)
+        every { serverWatched.apply(any(), any(), any()) } returns null
+        every { serverWatched.mirror(any(), any(), any()) } answers {
+            if (mirrorFails) GlobalScope.launch { thirdArg<suspend () -> Unit>().invoke() } else null
         }
 
         val profileManager = mockk<ProfileManager>()
@@ -119,7 +174,7 @@ class WatchProgressRepositoryConfirmedWritesTest {
             profileManager = profileManager,
             trackingProgressProviders = TrackingProgressProviderRegistry(setOf(provider)),
             trackingHistoryWriters = TrackingHistoryWriterRegistry(setOf(writer)),
-            serverWatched = mockk(relaxed = true)
+            serverWatched = serverWatched
         )
         return Harness(repository, writer, progressPreferences, watchedPreferences)
     }

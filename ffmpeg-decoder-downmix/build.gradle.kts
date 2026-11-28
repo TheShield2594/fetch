@@ -61,5 +61,5 @@ dependencies {
     implementation(libs.media3.common)
     compileOnly(libs.media3.exoplayer)
     implementation("androidx.annotation:annotation:1.9.1")
-    compileOnly("org.checkerframework:checker-qual:3.48.4")
+    compileOnly("org.checkerframework:checker-qual:4.4.0")
 }

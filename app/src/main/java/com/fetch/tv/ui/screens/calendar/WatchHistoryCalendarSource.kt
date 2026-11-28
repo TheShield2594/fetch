@@ -172,14 +172,20 @@ class WatchHistoryCalendarSource internal constructor(
                     if (!inWindow || season == null) return@async show.id to null
                     val episodes = permits.withPermit { seasonEpisodes(details.id, season, language) }
                         ?: return@async show.id to null
-                    // A season that began this week may follow another's last episodes in it.
-                    val began = episodes.mapNotNull { it.airDate?.let(::parseAirDate) }.minOrNull()
-                    val earlier = if (season > 1 && began != null && !began.isBefore(windowStart)) {
-                        permits.withPermit { seasonEpisodes(details.id, season - 1, language) }.orEmpty()
-                    } else {
-                        emptyList()
+                    // A season that began this week may follow another's last episodes in it, and
+                    // that one may have begun this week too: step back while a season did.
+                    var all = episodes
+                    var current = season
+                    var began = episodes.firstAirDate()
+                    var extra = 0
+                    while (current > 1 && extra < MAX_EARLIER_SEASONS && began != null && !began.isBefore(windowStart)) {
+                        current--
+                        extra++
+                        val earlier = permits.withPermit { seasonEpisodes(details.id, current, language) } ?: break
+                        all = earlier + all
+                        began = earlier.firstAirDate()
                     }
-                    show.id to earlier + episodes
+                    show.id to all
                 }
             }.awaitAll().toMap()
         }
@@ -323,7 +329,13 @@ class WatchHistoryCalendarSource internal constructor(
         const val POSTER_BASE = "https://image.tmdb.org/t/p/w342"
         const val BACKDROP_BASE = "https://image.tmdb.org/t/p/w780"
 
+        /** How many seasons before the latest one a week can reach into (premieres a few days apart). */
+        const val MAX_EARLIER_SEASONS = 3
+
         /** The past week and a day: candidates for the week, before air times place them. */
         const val RECENT_WINDOW_DAYS = CalendarPastDays + 1
     }
 }
+
+/** The earliest air date among [this] season's episodes; null when none has one. */
+private fun List<TmdbNextEpisode>.firstAirDate(): LocalDate? = mapNotNull { it.airDate?.let(::parseAirDate) }.minOrNull()

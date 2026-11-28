@@ -66,13 +66,21 @@ class CalendarViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CalendarUiState())
     val uiState: StateFlow<CalendarUiState> = _uiState.asStateFlow()
 
-    // Watched marks outlive a reload: a calendar read before a mark was saved mustn't put the old
-    // value back. They belong to one profile and are dropped when another becomes active.
+    // Watched marks outlive a reload that began before they were saved: that read mustn't put the
+    // old value back. A read that begins after shows what it reads. Marks belong to one profile:
+    // each switch starts a new generation, and a save from an earlier one changes nothing.
     private var markProfile: Any? = null
-    /** Entries whose mark is being saved. */
-    private val savingMarks = mutableSetOf<String>()
-    /** The watched value each marked entry should show, by [calendarEntryKey]. */
-    private val marks = mutableMapOf<String, Boolean>()
+    private var markGeneration = 0
+    /** Counts calendar reads, so a mark knows which ones began before its save finished. */
+    private var readCount = 0
+
+    /** [watched] is what the entry should show; [settledAtRead] is null while the save runs. */
+    private class Mark(val watched: Boolean, var settledAtRead: Int? = null)
+
+    /** Marks by [calendarEntryKey]. */
+    private val marks = mutableMapOf<String, Mark>()
+
+    private fun savingKeys(): Set<String> = marks.filterValues { it.settledAtRead == null }.keys.toSet()
 
     init {
         // The sync method, and not only the website sign-in: a TV can stay signed in to the website
@@ -90,12 +98,13 @@ class CalendarViewModel @Inject constructor(
                 .collectLatest { (profile, useWebsite, days) ->
                     if (profile != markProfile) {
                         markProfile = profile
-                        savingMarks.clear()
+                        markGeneration++
                         marks.clear()
                     }
+                    val read = ++readCount
                     val initialSource = if (useWebsite) CalendarSource.WEBSITE else CalendarSource.WATCH_HISTORY
-                    _uiState.value = CalendarUiState(days, initialSource, pendingWatched = savingMarks.toSet())
-                    val loaded = withMarks(load(useWebsite, days))
+                    _uiState.value = CalendarUiState(days, initialSource, pendingWatched = savingKeys())
+                    val loaded = withMarks(load(useWebsite, days), read)
                     _uiState.update { if (it.rangeDays == days) loaded.copy(rangeDays = days) else it }
                 }
         }
@@ -153,11 +162,11 @@ class CalendarViewModel @Inject constructor(
      */
     fun toggleWatched(entry: WebsiteCalendarEntry) {
         val key = calendarEntryKey(entry)
-        if (key in savingMarks) return
-        val profile = markProfile
+        if (key in savingKeys()) return
+        val generation = markGeneration
         val watched = !entry.watched
-        marks[key] = watched
-        savingMarks += key
+        val mark = Mark(watched)
+        marks[key] = mark
         setWatched(key, watched)
         viewModelScope.launch {
             val saved = try {
@@ -168,11 +177,15 @@ class CalendarViewModel @Inject constructor(
             } catch (_: Exception) {
                 false
             }
-            // Another profile is on screen now: this result isn't its to show.
-            if (markProfile != profile) return@launch
-            savingMarks -= key
-            if (!saved) marks[key] = !watched
-            setWatched(key, marks.getValue(key))
+            // The profile has changed since (even if back again): this result isn't its to show.
+            if (markGeneration != generation || marks[key] !== mark) return@launch
+            if (saved) {
+                // Reads begun until now may predate the save; later ones read it.
+                mark.settledAtRead = readCount
+            } else {
+                marks.remove(key)
+            }
+            setWatched(key, if (saved) watched else !watched)
             _uiState.update { it.copy(watchedError = !saved) }
         }
     }
@@ -230,7 +243,7 @@ class CalendarViewModel @Inject constructor(
      */
     private fun setWatched(key: String, watched: Boolean) {
         _uiState.update { state ->
-            val pending = savingMarks.toSet()
+            val pending = savingKeys()
             val loaded = state.state as? WebsiteReadState.Loaded ?: return@update state.copy(pendingWatched = pending)
             val days = loaded.value.map { day ->
                 day.copy(entries = day.entries.map { if (calendarEntryKey(it) == key) it.copy(watched = watched) else it })
@@ -239,15 +252,20 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    /** [state] with this profile's marks applied over what was read, and the saves still running. */
-    private fun withMarks(state: CalendarUiState): CalendarUiState {
+    /**
+     * [state], from the calendar read numbered [read], with the marks that read may predate applied
+     * over it: those still saving and those saved after it began. A mark saved before it began is
+     * what it read, and is dropped.
+     */
+    private fun withMarks(state: CalendarUiState, read: Int): CalendarUiState {
+        marks.entries.removeAll { (_, mark) -> mark.settledAtRead?.let { it < read } == true }
         val loaded = state.state as? WebsiteReadState.Loaded
         val days = loaded?.value?.takeIf { marks.isNotEmpty() }?.map { day ->
-            day.copy(entries = day.entries.map { entry -> marks[calendarEntryKey(entry)]?.let { entry.copy(watched = it) } ?: entry })
+            day.copy(entries = day.entries.map { entry -> marks[calendarEntryKey(entry)]?.let { entry.copy(watched = it.watched) } ?: entry })
         }
         return state.copy(
             state = days?.let { WebsiteReadState.Loaded(it) } ?: state.state,
-            pendingWatched = savingMarks.toSet()
+            pendingWatched = savingKeys()
         )
     }
 }

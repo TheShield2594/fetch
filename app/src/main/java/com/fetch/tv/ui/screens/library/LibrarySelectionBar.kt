@@ -2,6 +2,9 @@ package com.fetch.tv.ui.screens.library
 
 import com.fetch.tv.ui.components.focusSafeHorizontalScroll
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,14 +53,16 @@ internal fun LibrarySelectButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FetchButton(
+    // An icon until focused, so the header's tabs fit; "Done" stays spelled out while choosing.
+    LibraryCompactButton(
+        icon = if (active) Icons.Default.Done else Icons.Default.Checklist,
+        label = stringResource(if (active) R.string.library_selection_done else R.string.library_selection_start),
         onClick = onClick,
+        modifier = modifier,
         enabled = enabled || active,
         selected = active,
-        modifier = modifier
-    ) {
-        Text(stringResource(if (active) R.string.library_selection_done else R.string.library_selection_start))
-    }
+        showLabel = active
+    )
 }
 
 /**

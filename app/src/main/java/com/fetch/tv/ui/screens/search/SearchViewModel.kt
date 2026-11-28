@@ -234,6 +234,9 @@ class SearchViewModel @Inject constructor(
     /** Set once a catalog list has been built, so a later addon change rebuilds it (#845). */
     private var discoverCatalogsLoaded = false
 
+    /** The grid a keep-grid refresh in flight would put back if it fails (#845). */
+    private var discoverRefreshSnapshot: DiscoverSnapshot? = null
+
     /** When the current Discover results were first loaded, for the refetch on entry (#845). */
     private var discoverLoadedAtMs: Long? = null
 
@@ -316,6 +319,7 @@ class SearchViewModel @Inject constructor(
                     discoverUnproductiveRounds = 0
                     discoverCatalogsLoaded = false
                     discoverLoadedAtMs = null
+                    discoverRefreshSnapshot = null
                     _uiState.update {
                         it.copy(
                             discoverInitialized = false,
@@ -1627,7 +1631,10 @@ class SearchViewModel @Inject constructor(
                     genre = state.selectedDiscoverGenre
                 )
                 val keep = keepGrid && sources.isNotEmpty() && state.discoverResults.isNotEmpty()
-                if (keep) kept = discoverSnapshot()
+                // A refresh replacing one still in flight keeps the first one's snapshot: by now
+                // the merged titles and cursors are already reset, and only the grid is left.
+                kept = if (keep) discoverRefreshSnapshot ?: discoverSnapshot() else null
+                discoverRefreshSnapshot = kept
                 discoverCursors = sources.map { DiscoverSourceCursor(catalog = it) }
                 discoverMergedItems = emptyList()
                 resetDiscoverSortedBatches()
@@ -1697,24 +1704,46 @@ class SearchViewModel @Inject constructor(
         state = _uiState.value
     )
 
+    /**
+     * Puts back the paging state and grid a failed refetch replaced. Filters or Hide unreleased
+     * changed while it ran are applied to the restored titles, so the grid matches what is set.
+     */
     private fun restoreDiscoverSnapshot(snapshot: DiscoverSnapshot) {
+        val filters = _uiState.value.discoverFilters
+        val merged = if (hideUnreleasedContent) {
+            val today = LocalDate.now()
+            snapshot.merged.filterNot { it.isUnreleased(today) }
+        } else {
+            snapshot.merged
+        }
         discoverCursors = snapshot.cursors
-        discoverMergedItems = snapshot.merged
-        discoverSortedShown = snapshot.sortedShown
-        discoverSortedCount = snapshot.sortedCount
-        discoverSortedBatchEnds.clear()
-        discoverSortedBatchEnds += snapshot.sortedBatchEnds
+        discoverMergedItems = merged
         val old = snapshot.state
+        val unchanged = filters == old.discoverFilters && merged.size == snapshot.merged.size
+        resetDiscoverSortedBatches()
+        val results = when {
+            unchanged -> {
+                discoverSortedShown = snapshot.sortedShown
+                discoverSortedCount = snapshot.sortedCount
+                discoverSortedBatchEnds += snapshot.sortedBatchEnds
+                old.discoverResults
+            }
+            filters.sorted -> {
+                placeDiscoverSortedBatch(filters)
+                discoverSortedShown
+            }
+            else -> applyDiscoverFilters(merged, filters, discoverIsWatched)
+        }
         _uiState.update {
             it.copy(
                 discoverLoading = false,
                 discoverLoadingMore = false,
-                discoverResults = old.discoverResults,
-                discoverSortedTitleCount = old.discoverSortedTitleCount,
-                discoverHasMore = old.discoverHasMore,
+                discoverResults = results,
+                discoverSortedTitleCount = if (filters.sorted) discoverSortedCount else 0,
+                discoverHasMore = discoverHasMoreTitles(filters),
                 discoverError = null,
-                discoverPagingPaused = old.discoverPagingPaused,
-                discoverUnratedSourceCount = old.discoverUnratedSourceCount
+                discoverPagingPaused = if (unchanged) old.discoverPagingPaused else false,
+                discoverUnratedSourceCount = snapshot.cursors.count { c -> c.sendsNoRatings }
             )
         }
     }
@@ -1791,8 +1820,13 @@ class SearchViewModel @Inject constructor(
             }
         }
         val allFailed = successes == 0
-        if (keptGrid != null && allFailed) {
-            // A refetch that failed everywhere keeps the grid it was refreshing (#845).
+        if (keptGrid != null) discoverRefreshSnapshot = null
+        // A refetch that failed everywhere keeps the grid it was refreshing (#845), but only for
+        // the same catalogs: after an addon change the old cursors could page a removed catalog,
+        // so a failed rebuild shows the error with Retry instead.
+        if (keptGrid != null && allFailed &&
+            keptGrid.cursors.mapTo(HashSet()) { it.catalog.key } == cursors.mapTo(HashSet()) { it.catalog.key }
+        ) {
             restoreDiscoverSnapshot(keptGrid)
             return false
         }

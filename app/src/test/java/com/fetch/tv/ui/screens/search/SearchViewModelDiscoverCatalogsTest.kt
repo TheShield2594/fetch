@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -208,6 +209,80 @@ class SearchViewModelDiscoverCatalogsTest {
     }
 
     @Test
+    fun `a refresh replacing a refresh in flight still puts the grid back (#845)`() = runTest(mainDispatcher) {
+        val catalogs = FakeCatalogs()
+        val hideUnreleased = MutableStateFlow(false)
+        val viewModel = newViewModel(catalogs, MutableStateFlow(listOf(addon("rated"))), hideUnreleased)
+        var now = 0L
+        viewModel.discoverClockMs = { now }
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+        val before = viewModel.uiState.value.discoverResults.map { it.id }
+
+        catalogs.failing = true
+        val hold = kotlinx.coroutines.CompletableDeferred<Unit>()
+        catalogs.hold = hold
+        now = 31 * 60 * 1000L
+        viewModel.ensureDiscoverLoaded()
+        runCurrent()
+        // A second keep-grid refresh starts while the first waits on its page.
+        hideUnreleased.value = true
+        runCurrent()
+        hold.complete(Unit)
+        advanceUntilIdle()
+
+        val results = viewModel.uiState.value.discoverResults
+        val released = before.filterNot { id -> id.removePrefix("rated").toInt() % 10 == 5 }
+        assertEquals(released, results.map { it.id })
+        assertNull(viewModel.uiState.value.discoverError)
+    }
+
+    @Test
+    fun `a filter set during a failed refresh applies to the grid put back (#845)`() = runTest(mainDispatcher) {
+        val catalogs = FakeCatalogs()
+        val viewModel = newViewModel(catalogs, MutableStateFlow(listOf(addon("rated"))))
+        var now = 0L
+        viewModel.discoverClockMs = { now }
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+
+        catalogs.failing = true
+        val hold = kotlinx.coroutines.CompletableDeferred<Unit>()
+        catalogs.hold = hold
+        now = 31 * 60 * 1000L
+        viewModel.ensureDiscoverLoaded()
+        runCurrent()
+        viewModel.onEvent(SearchEvent.SelectDiscoverMinRating(7))
+        hold.complete(Unit)
+        advanceUntilIdle()
+
+        val results = viewModel.uiState.value.discoverResults
+        assertTrue(results.isNotEmpty())
+        assertTrue(results.all { (it.imdbRating ?: 0f) >= 7f })
+    }
+
+    @Test
+    fun `a failed rebuild after a catalog is removed does not page it again (#845)`() = runTest(mainDispatcher) {
+        val catalogs = FakeCatalogs()
+        val installed = MutableStateFlow(listOf(addon("rated", "unrated")))
+        val viewModel = newViewModel(catalogs, installed)
+        viewModel.ensureDiscoverLoaded()
+        advanceUntilIdle()
+        val unratedRequests = catalogs.requests("unrated")
+
+        catalogs.failing = true
+        installed.value = listOf(addon("rated"))
+        advanceUntilIdle()
+        catalogs.failing = false
+        viewModel.onEvent(SearchEvent.LoadNextDiscoverResults)
+        viewModel.onEvent(SearchEvent.RetryDiscover)
+        advanceUntilIdle()
+
+        assertEquals(unratedRequests, catalogs.requests("unrated"))
+        assertTrue(viewModel.uiState.value.discoverResults.none { it.id.startsWith("unrated") })
+    }
+
+    @Test
     fun `turning on Hide unreleased reloads Discover (#845)`() = runTest(mainDispatcher) {
         val catalogs = FakeCatalogs()
         val hideUnreleased = MutableStateFlow(false)
@@ -236,6 +311,8 @@ class SearchViewModelDiscoverCatalogsTest {
     private class FakeCatalogs : CatalogRepository {
         private val counts = mutableMapOf<String, Int>()
         var failing = false
+        /** While set, pages wait for it, so a test can act while a load is in flight. */
+        var hold: kotlinx.coroutines.CompletableDeferred<Unit>? = null
 
         fun requests(catalogId: String): Int = counts[catalogId] ?: 0
 
@@ -255,6 +332,7 @@ class SearchViewModelDiscoverCatalogsTest {
         ): Flow<NetworkResult<CatalogRow>> = flow {
             emit(NetworkResult.Loading)
             counts[catalogId] = requests(catalogId) + 1
+            hold?.await()
             if (failing) {
                 emit(NetworkResult.Error("offline"))
                 return@flow

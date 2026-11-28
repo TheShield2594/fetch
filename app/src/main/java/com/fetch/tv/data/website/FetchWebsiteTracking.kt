@@ -287,8 +287,12 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
     private fun removalKey(slot: Int, contentId: String, season: Int?, episode: Int?) =
         "$slot|${contentId.lowercase()}|${season ?: -1}|${episode ?: -1}"
 
-    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) {
-        val slot = repository.activeSlot()
+    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) =
+        applyOptimisticRemoval(contentId, season, episode, repository.activeSlot())
+
+    /** Only on [profileId]'s snapshot: the ids are kept, and removed, for that slot alone. */
+    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?, profileId: Int) {
+        val slot = profileId
         val ids = repository.currentSnapshot()?.takeIf { it.slot == slot }
             ?.playbackIdsFor(contentId, season, episode).orEmpty()
         if (ids.isEmpty()) return

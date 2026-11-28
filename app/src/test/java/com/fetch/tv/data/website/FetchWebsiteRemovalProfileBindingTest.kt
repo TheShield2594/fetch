@@ -68,4 +68,24 @@ class FetchWebsiteRemovalProfileBindingTest {
         coVerify(exactly = 1) { client.deletePlayback("wp", null, "p1") }
         org.junit.Assert.assertTrue(snapshot.playback.isEmpty())
     }
+
+    @Test
+    fun `the optimistic removal never touches another slot's snapshot`() {
+        val provider = provider()
+        var snapshot = FetchWebsiteTrackingSnapshot(
+            slot = 2,
+            websiteProfileId = "other",
+            playback = listOf(WebsitePlayback(id = "p2", type = "movie", imdbId = "tt1", pausedAt = "2026-01-01T00:00:00Z"))
+        )
+        // The profile switched to slot 2 after the repository's check for slot 1.
+        every { repository.activeSlot() } returns 2
+        every { repository.currentSnapshot() } answers { snapshot }
+        every { repository.mutateFor(any(), any()) } answers {
+            if (firstArg<Int>() == snapshot.slot) snapshot = secondArg<(FetchWebsiteTrackingSnapshot) -> FetchWebsiteTrackingSnapshot>()(snapshot)
+        }
+
+        provider.applyOptimisticRemoval("tt1", null, null, profileId = 1)
+
+        org.junit.Assert.assertEquals(listOf("p2"), snapshot.playback.map { it.id })
+    }
 }

@@ -44,6 +44,10 @@ interface TrackingProgressProvider {
         removeProgress(contentId, season, episode)
     fun applyOptimisticProgress(progress: WatchProgress, quiet: Boolean)
     fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?)
+
+    /** [applyOptimisticRemoval] for [profileId] only; a provider keeping per-profile state checks it. */
+    fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?, profileId: Int) =
+        applyOptimisticRemoval(contentId, season, episode)
     fun clearOptimistic()
     fun retainsLocalProgress(contentId: String): Boolean = false
     fun retainsLocalWatchedEpisode(item: WatchedItem): Boolean = false

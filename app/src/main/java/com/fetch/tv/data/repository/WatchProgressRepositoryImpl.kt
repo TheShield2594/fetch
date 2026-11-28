@@ -717,7 +717,7 @@ class WatchProgressRepositoryImpl @Inject constructor(
             connectedProgressProviders().map { provider ->
                 async {
                     if (profileManager.activeProfileId.value != profileId) return@async
-                    provider.applyOptimisticRemoval(contentId, season, episode)
+                    provider.applyOptimisticRemoval(contentId, season, episode, profileId)
                     runSuspendCatching { provider.removeProgress(contentId, season, episode, profileId) }
                         .onFailure { error ->
                             Log.w(TAG, "Failed ${provider.providerId.storageId} progress removal", error)

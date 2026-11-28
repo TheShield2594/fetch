@@ -38,37 +38,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.network.NoDelaySocketFactory
 import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.VodCacheSizeMode
-import okhttp3.ConnectionPool
-import okhttp3.Dispatcher
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.SocketTimeoutException
 import java.net.URLDecoder
-import java.security.SecureRandom
-import java.security.cert.X509Certificate
 import java.util.Base64
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
-import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 
 internal class PlayerMediaSourceFactory(private val context: Context) {
     private var customExtractorsFactory: ExtractorsFactory? = null
     private var customSubtitleParserFactory: SubtitleParser.Factory? = null
     private val loadErrorHandlingPolicy = PlayerLoadErrorHandlingPolicy()
 
-    @Volatile private var currentVodCacheUrl: String? = null
-    @Volatile private var currentVodCacheResolvedUrl: String? = null
     @Volatile private var currentVodCacheActive: Boolean = false
 
     // Called on a loader thread with the url a progressive stream opened at after a redirect.
@@ -240,8 +228,7 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
                 sessionConnections,
                 sessionChunkBytes,
                 prefetchDepthChunks = computePrefetchDepthChunks(sessionConnections),
-                shouldAllowBackgroundPrefetch = { parallelStartupPrefetchUnlocked.get() },
-                onResolvedUri = { resolved -> currentVodCacheResolvedUrl = resolved?.toString() }
+                shouldAllowBackgroundPrefetch = { parallelStartupPrefetchUnlocked.get() }
             )
         } else if (isLoopbackUrl(url)) {
             PlayerPlaybackNetworking.createHttpDataSourceFactory(sanitizedHeaders, useLongReadTimeout = true, originUrl = url)
@@ -258,8 +245,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         // A playback started inside the delay window would have its own data swept out from under it.
         pendingEvictionJob?.cancel()
         pendingEvictionJob = null
-        currentVodCacheUrl = url
-        currentVodCacheResolvedUrl = null
         vodCacheEvictor?.resetTrimAnchor()
         // Size the cache only when used; 0 means off or not enough free space (skip, stream direct).
         val vodCacheMaxBytes = if (useVodCache && !isVodCacheDisabled) resolveVodCacheMaxBytes() else 0L
@@ -437,41 +422,6 @@ internal class PlayerMediaSourceFactory(private val context: Context) {
         internal const val DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Linux; Android 13; Android TV) AppleWebKit/537.36 " +
                 "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-
-        private const val MIME_PROBE_CACHE_SIZE = 64
-
-        data class StreamProbeInfo(
-            val contentLength: Long,
-            val acceptsRanges: Boolean
-        )
-
-        private val probeInfoCache = object : LinkedHashMap<String, StreamProbeInfo>(MIME_PROBE_CACHE_SIZE, 0.75f, true) {
-            override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, StreamProbeInfo>?): Boolean {
-                return size > MIME_PROBE_CACHE_SIZE
-            }
-        }
-
-        @JvmStatic
-        fun getProbeInfo(url: String, headers: Map<String, String>): StreamProbeInfo? {
-            val sanitizedHeaders = sanitizeHeaders(headers)
-            val cacheKey = buildMimeProbeCacheKey(url, sanitizedHeaders)
-            return synchronized(probeInfoCache) {
-                probeInfoCache[cacheKey]
-            }
-        }
-
-        private fun buildMimeProbeCacheKey(url: String, headers: Map<String, String>): String {
-            if (headers.isEmpty()) return url
-            return buildString {
-                append(url)
-                headers.toSortedMap(String.CASE_INSENSITIVE_ORDER).forEach { (key, value) ->
-                    append('|')
-                    append(key)
-                    append('=')
-                    append(value)
-                }
-            }
-        }
 
         data class NormalizedPlaybackRequest(
             val url: String,

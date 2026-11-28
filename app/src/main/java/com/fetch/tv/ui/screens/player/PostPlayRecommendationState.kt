@@ -82,7 +82,6 @@ internal fun PlayerUiState.blocksPostPlayRecommendation(seekPreview: SeekPreview
         showSourcesPanel ||
         showAudioOverlay ||
         showSubtitleOverlay ||
-        showSubtitleStylePanel ||
         showSubtitleDelayOverlay ||
         showSubtitleTimingDialog ||
         showSpeedDialog ||

@@ -82,18 +82,7 @@ internal fun PlayerRuntimeController.updateSeekFeedback(
     }
 }
 
-internal fun PlayerRuntimeController.clearSeekFeedback() {
-    seekFeedbackJob?.cancel()
-    seekFeedbackJob = null
-    if (_seekPreview.value.seekFeedback != null) _seekPreview.update { it.copy(seekFeedback = null) }
-}
-
 internal fun PlayerRuntimeController.selectAudioTrack(trackIndex: Int) {
-    logSwitchTrace(
-        stage = "select-audio-track",
-        message = "trackIndex=$trackIndex usingMpv=${isUsingMpvEngine()} " +
-            "track=${_uiState.value.audioTracks.getOrNull(trackIndex)?.let { "${it.language}/${it.name}/${it.trackId}" } ?: "none"}"
-    )
     if (isUsingMpvEngine()) {
         val wasPlaying = isPlaybackCurrentlyPlaying()
         val track = _uiState.value.audioTracks.getOrNull(trackIndex)
@@ -133,10 +122,6 @@ internal fun PlayerRuntimeController.selectAudioTrack(trackIndex: Int) {
 
 internal fun PlayerRuntimeController.rememberAudioSelection(trackIndex: Int) {
     val selectedTrack = _uiState.value.audioTracks.getOrNull(trackIndex) ?: return
-    logSwitchTrace(
-        stage = "user-remember-audio",
-        message = "trackIndex=$trackIndex lang=${selectedTrack.language} name=${selectedTrack.name} id=${selectedTrack.trackId}"
-    )
     val basePreference = currentTrackPreferenceForPersistence()
     clearPendingEngineSwitchTrackPreference()
     persistedTrackPreference = null
@@ -213,11 +198,6 @@ internal fun PlayerRuntimeController.applyAddonSubtitleOverrideByLanguage(
 }
 
 internal fun PlayerRuntimeController.selectSubtitleTrack(trackIndex: Int) {
-    logSwitchTrace(
-        stage = "select-subtitle-track",
-        message = "trackIndex=$trackIndex usingMpv=${isUsingMpvEngine()} " +
-            "track=${_uiState.value.subtitleTracks.getOrNull(trackIndex)?.let { "${it.language}/${it.name}/${it.trackId}/forced=${it.isForced}" } ?: "none"}"
-    )
     if (isUsingMpvEngine()) {
         Log.d(PlayerRuntimeController.TAG, "Selecting INTERNAL subtitle trackIndex=$trackIndex (mpv)")
         cancelMpvAddonSubtitleSelection()
@@ -270,11 +250,6 @@ internal fun PlayerRuntimeController.selectSubtitleTrack(trackIndex: Int) {
 
 internal fun PlayerRuntimeController.rememberInternalSubtitleSelection(trackIndex: Int) {
     val selectedTrack = _uiState.value.subtitleTracks.getOrNull(trackIndex) ?: return
-    logSwitchTrace(
-        stage = "user-remember-subtitle-internal",
-        message = "trackIndex=$trackIndex lang=${selectedTrack.language} name=${selectedTrack.name} " +
-            "id=${selectedTrack.trackId} forced=${selectedTrack.isForced}"
-    )
     val rememberedSelection = PlayerRuntimeController.RememberedSubtitleSelection.Internal(
         track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
             state = _uiState.value,
@@ -310,10 +285,6 @@ internal fun PlayerRuntimeController.rememberInternalSubtitleSelection(trackInde
 
 internal fun PlayerRuntimeController.disableSubtitles() {
     resetSubtitleAutoSyncState()
-    logSwitchTrace(
-        stage = "disable-subtitles",
-        message = "usingMpv=${isUsingMpvEngine()} selectedSubtitleIndex=${_uiState.value.selectedSubtitleTrackIndex}"
-    )
     if (isUsingMpvEngine()) {
         cancelMpvAddonSubtitleSelection()
         if (mpvView?.disableSubtitles() == true) {
@@ -408,10 +379,6 @@ internal fun PlayerRuntimeController.refreshActiveSubtitleTrackAfterTimingChange
 }
 
 internal fun PlayerRuntimeController.rememberSubtitleDisabled() {
-    logSwitchTrace(
-        stage = "user-remember-subtitle-disabled",
-        message = "selectedSubtitleIndex=${_uiState.value.selectedSubtitleTrackIndex} addonSelected=${_uiState.value.selectedAddonSubtitle != null}"
-    )
     val basePreference = currentTrackPreferenceForPersistence()
     isUserExplicitSubtitleSelection = true
     clearPendingEngineSwitchTrackPreference()
@@ -487,10 +454,6 @@ internal fun PlayerRuntimeController.toSubtitleConfiguration(subtitle: Subtitle)
 }
 
 internal fun PlayerRuntimeController.selectAddonSubtitle(subtitle: Subtitle) {
-    logSwitchTrace(
-        stage = "select-addon-subtitle",
-        message = "usingMpv=${isUsingMpvEngine()} addonId=${subtitle.id} addonLang=${subtitle.lang} addonName=${subtitle.addonName}"
-    )
     if (isUsingMpvEngine()) {
         // A newer pick replaces the one still downloading, so the slower download can never win
         // over what the panel shows as selected, even when the newer pick is the track already
@@ -703,10 +666,6 @@ internal fun PlayerRuntimeController.attachAddonSubtitleViaMediaReload(subtitle:
 
 
 internal fun PlayerRuntimeController.rememberAddonSubtitleSelection(subtitle: Subtitle) {
-    logSwitchTrace(
-        stage = "user-remember-subtitle-addon",
-        message = "addonId=${subtitle.id} addonLang=${subtitle.lang} addonName=${subtitle.addonName}"
-    )
     val rememberedSelection = PlayerRuntimeController.RememberedSubtitleSelection.Addon(
         id = subtitle.id,
         url = subtitle.url,

@@ -608,12 +608,6 @@ class FrameRateUtilsAfrTest {
         assertFalse(FrameRateUtils.restoreOriginalDisplayMode(activity))
     }
 
-    @Test
-    fun `cleanupDisplayListener is a safe no-op for API compatibility`() {
-        FrameRateUtils.cleanupDisplayListener()
-        FrameRateUtils.cleanupDisplayListener()
-    }
-
     // ─────────────────────────────────────────────────────────────────────────
     // Cache capacity (LRU)
     // ─────────────────────────────────────────────────────────────────────────

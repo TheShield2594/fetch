@@ -36,8 +36,6 @@ internal data class PlayerNavigationArgs(
     val infoHash: String?,
     val fileIdx: Int?,
     val contentLanguage: String?,
-    val rememberedAudioLanguage: String?,
-    val rememberedAudioName: String?,
     val launchStartedAtMs: Long?,
     val profileId: Int?,
     val audioDelayMs: Int? = null
@@ -84,8 +82,6 @@ internal data class PlayerNavigationArgs(
                 infoHash = savedStateHandle.get<String>("infoHash")?.takeIf { it.isNotEmpty() },
                 fileIdx = savedStateHandle.get<String>("fileIdx")?.toIntOrNull(),
                 contentLanguage = decodedOrNull("contentLanguage"),
-                rememberedAudioLanguage = decodedOrNull("rememberedAudioLanguage"),
-                rememberedAudioName = decodedOrNull("rememberedAudioName"),
                 launchStartedAtMs = savedStateHandle.get<String>("launchStartedAtMs")?.toLongOrNull(),
                 profileId = savedStateHandle.get<String>("profileId")?.toIntOrNull(),
                 audioDelayMs = savedStateHandle.get<String>("audioDelayMs")?.toIntOrNull()

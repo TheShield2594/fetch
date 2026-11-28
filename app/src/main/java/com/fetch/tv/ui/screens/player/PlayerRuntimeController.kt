@@ -5,7 +5,6 @@ package com.fetch.tv.ui.screens.player
 import android.app.Activity
 import android.content.Context
 import android.media.AudioDeviceCallback
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.media3.common.C
 import androidx.media3.exoplayer.ExoPlayer
@@ -33,7 +32,6 @@ import com.fetch.tv.data.mediaserver.ServerStreams
 import com.fetch.tv.data.repository.ParentalGuideRepository
 import com.fetch.tv.data.repository.SkipIntroRepository
 import com.fetch.tv.data.repository.SkipInterval
-import com.fetch.tv.data.repository.EpisodeMappingEntry
 import com.fetch.tv.data.repository.TraktEpisodeMappingService
 import com.fetch.tv.domain.model.Subtitle
 import com.fetch.tv.domain.model.Video
@@ -103,8 +101,6 @@ class PlayerRuntimeController(
     companion object {
         private val CONVERTIBLE_DV_PROFILES = setOf("5", "7")
         internal const val TAG = "PlayerViewModel"
-        internal const val SWITCH_TRACE_TAG = "SwitchTrace"
-        internal const val SWITCH_TRACE_ENABLED = false
         internal const val FIRST_FRAME_TIMEOUT_MS = 12_000L
         // Stall watchdog: re-seeks past the buffered edge if bufferedPosition stops
         // advancing during STATE_BUFFERING. Fires before OkHttp's readTimeout.
@@ -175,8 +171,6 @@ class PlayerRuntimeController(
     internal val initialEpisode: Int? = navigationArgs.initialEpisode
     internal val initialEpisodeTitle: String? = navigationArgs.initialEpisodeTitle
     internal val launchStartedAtElapsedMs: Long? = navigationArgs.launchStartedAtMs
-    internal val rememberedAudioLanguage: String? = navigationArgs.rememberedAudioLanguage
-    internal val rememberedAudioName: String? = navigationArgs.rememberedAudioName
     internal val mediaSourceFactory = PlayerMediaSourceFactory(context.applicationContext).apply {
         onStreamRedirected = { requestedUrl, resolvedUrl -> handleStreamRedirect(requestedUrl, resolvedUrl) }
     }
@@ -416,7 +410,6 @@ class PlayerRuntimeController(
     internal var playbackSpeedAwareAudioSink: PlaybackSpeedAwareAudioSink? = null
 
     internal var progressJob: Job? = null
-    internal var vodTelemetryJob: Job? = null
     internal var firstFrameWatchdogJob: Job? = null
     internal var stallWatchdogJob: Job? = null
     internal var seekSourceLogJob: Job? = null
@@ -459,7 +452,6 @@ class PlayerRuntimeController(
     internal var streamResolveJob: Job? = null
     internal var stillWatchingPromptJob: Job? = null
     internal var sourceStreamsJob: Job? = null
-    internal var sourceBadgeJob: Job? = null
     internal var sourceFilterFullList: List<com.fetch.tv.domain.model.Stream> = emptyList()
     internal var sourceBadgedAddonNames: Set<String> = emptySet()
     internal var sourceStreamsScope: kotlinx.coroutines.CoroutineScope? = null
@@ -478,8 +470,6 @@ class PlayerRuntimeController(
     internal var loadingDiagnosticsStartedAtMs: Long = 0L
     internal var currentLoadingPhase: String = "idle"
     internal var currentLoadingPhaseStartedAtMs: Long = 0L
-    internal var currentLoadingMessageForReport: String? = null
-    internal var currentLoadingProgressForReport: Float? = null
     internal var lastLoadingDiagnosticSignature: String = ""
     internal var startupPhaseSequence: Int = 0
 
@@ -592,7 +582,6 @@ class PlayerRuntimeController(
     internal var playerSettingsInitialized: Boolean = false
     internal var skipIntroFetchedKey: String? = null
     internal val autoSkippedIntervalKeys: MutableSet<String> = mutableSetOf()
-    internal var lastActiveSkipType: String? = null
     // Key of the segment just skipped: until playback leaves it, a late position tick inside it
     // must not bring the button back for a moment.
     internal var skippedIntervalKey: String? = null
@@ -613,8 +602,6 @@ class PlayerRuntimeController(
     internal var pendingEngineSwitchTrackPreference: PendingEngineSwitchTrackPreference? = null
     internal var explicitSubtitleSelectionForEngineSwitch: ExplicitSubtitleSelectionForEngineSwitch? = null
     internal var effectiveSubtitleSelectionForEngineSwitch: ExplicitSubtitleSelectionForEngineSwitch? = null
-    internal var switchTraceSessionId: Long = 0L
-    internal var switchTraceSequence: Long = 0L
     internal var subtitleDisabledByPersistedPreference: Boolean = false
     internal var subtitleAddonRestoredByPersistedPreference: Boolean = false
     internal var pendingRestoredAddonSubtitle: com.fetch.tv.domain.model.Subtitle? = null
@@ -640,7 +627,6 @@ class PlayerRuntimeController(
     internal var streamRankingRulesSetting: com.fetch.tv.core.streams.ranking.StreamRankingRules =
         com.fetch.tv.core.streams.ranking.StreamRankingRules()
     internal var streamAutoPlayNextEpisodeEnabledSetting: Boolean = false
-    internal var streamAutoPlayPreferBingeGroupForNextEpisodeSetting: Boolean = false
     internal var streamAutoPlayTimeoutSecondsSetting: Int = 10
     internal var preloadNextEpisodeSourcesSetting: Boolean = false
     internal var nextEpisodeThresholdModeSetting: NextEpisodeThresholdMode = NextEpisodeThresholdMode.PERCENTAGE
@@ -670,7 +656,6 @@ class PlayerRuntimeController(
     internal var audioRouteChangeJob: Job? = null
 
     internal var lastBufferLogTimeMs: Long = 0L
-    internal var pendingSeekFlush: Boolean = false
     internal var suppressBufferingUiForSeek: Boolean = false
     internal var isScrubbingModeActive: Boolean = false
     internal var seekBufferingUiJob: Job? = null
@@ -714,7 +699,6 @@ class PlayerRuntimeController(
     internal var mpvStableProgressResetJob: Job? = null
     @Volatile internal var mpvLastErrorLogLine: String? = null
     internal val mpvErrorHandlingInProgress = AtomicBoolean(false)
-    internal var delayMpvResumeSeekUntilVideoTrack: Boolean = false
     internal var mpvDelayStartAfterAfrSwitch: Boolean = false
     internal var pauseOverlayJob: Job? = null
     /** From the player settings (#776); the defaults until they load. */
@@ -783,20 +767,11 @@ class PlayerRuntimeController(
     internal var isSafeAudioModeActiveForCurrentPlayback: Boolean = false
     internal var isAudioDisabledForCurrentPlayback: Boolean = false
     internal var hasAttemptedDv7ToDv81ForCurrentPlayback: Boolean = false
-    internal var dv7ToDv81BridgeVersionForCurrentPlayback: String? = null
     internal var dv7ToDv81LastProbeReasonForCurrentPlayback: String? = null
 
     internal var playerInitializationStartedAtMs: Long = 0L
-    internal var pendingSeekTelemetryRequestedAtMs: Long = 0L
-    internal var pendingSeekTelemetryTargetMs: Long = -1L
-    internal var pendingSeekTelemetryReadyAtMs: Long = 0L
-    internal var pendingSeekTelemetryReadyLatencyMs: Long = -1L
-    internal var pendingSeekTelemetryAwaitingFirstFrame: Boolean = false
-    internal var pendingSeekTelemetryReadyAssumed: Boolean = false
 
     internal var currentScrobbleItem: TrackingMediaReference? = null
-    internal var currentTraktEpisodeMapping: EpisodeMappingEntry? = null
-    internal var currentTraktEpisodeMappingKey: String? = null
     internal var hasSentScrobbleStartForCurrentItem: Boolean = false
     internal var hasRequestedScrobbleStartForCurrentItem: Boolean = false
     internal var scrobbleStartRequestGeneration: Long = 0L
@@ -823,7 +798,6 @@ class PlayerRuntimeController(
     internal var currentVideoTrackBestSupport: Int = C.FORMAT_UNSUPPORTED_TYPE
     internal var lastLoggedVideoTrackSignature: String? = null
 
-    internal var episodeStreamsJob: Job? = null
     internal var episodeStreamsCacheRequestKey: String? = null
     internal val streamCacheKey: String?
         get() {
@@ -873,7 +847,6 @@ class PlayerRuntimeController(
         // Same teardown as an explicit exit (process-wide references, player and
         // session release). Every step is safe to repeat when the screen already called it.
         stopAndRelease()
-        vodTelemetryJob?.cancel()
         mediaSourceFactory.shutdown()
         sourceStreamsScope?.cancel()
         sourceStreamsScope = null
@@ -881,35 +854,6 @@ class PlayerRuntimeController(
         episodeStreamsScope = null
     }
 
-}
-
-internal fun PlayerRuntimeController.beginSwitchTraceSession(
-    reason: String,
-    targetEngine: InternalPlayerEngine?
-) {
-    switchTraceSessionId = System.currentTimeMillis()
-    switchTraceSequence = 0L
-    logSwitchTrace(
-        stage = "session-begin",
-        message = "reason=$reason sourceEngine=$currentInternalPlayerEngine targetEngine=$targetEngine"
-    )
-}
-
-internal fun PlayerRuntimeController.logSwitchTrace(
-    stage: String,
-    message: String
-) {
-    if (!PlayerRuntimeController.SWITCH_TRACE_ENABLED) return
-    if (switchTraceSessionId == 0L) {
-        switchTraceSessionId = System.currentTimeMillis()
-        switchTraceSequence = 0L
-    }
-    val sequence = ++switchTraceSequence
-    val streamToken = currentStreamUrl.hashCode().toUInt().toString(16)
-    Log.w(
-        PlayerRuntimeController.SWITCH_TRACE_TAG,
-        "sid=$switchTraceSessionId seq=$sequence stage=$stage engine=$currentInternalPlayerEngine streamToken=$streamToken $message"
-    )
 }
 
 /** Folds an item's restart count into its flags generation; far more than one item will see. */

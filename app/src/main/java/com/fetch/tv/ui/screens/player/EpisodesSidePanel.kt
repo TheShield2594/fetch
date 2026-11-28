@@ -65,7 +65,6 @@ import androidx.tv.material3.Card
 import androidx.tv.material3.CardDefaults
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.Video
-import com.fetch.tv.ui.theme.FetchPrimitives
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.components.FocusScrollingText
 import com.fetch.tv.ui.components.LoadingIndicator
@@ -103,7 +102,6 @@ import com.fetch.tv.ui.util.dpadRepeatThrottle
 internal fun EpisodesSidePanel(
     uiState: PlayerUiState,
     episodesFocusRequester: FocusRequester,
-    streamsFocusRequester: FocusRequester,
     onClose: () -> Unit,
     onBackToEpisodes: () -> Unit,
     onReloadEpisodeStreams: () -> Unit,
@@ -409,8 +407,7 @@ private fun EpisodeStreamsView(
                 externalOrderedNames = orderedAddonNames,
                 onUpKey = {
                     try { backButtonFocusRequester.requestFocus() } catch (_: Exception) {}
-                },
-                debugTag = "EpisodeSidePanel"
+                }
             )
         }
     }

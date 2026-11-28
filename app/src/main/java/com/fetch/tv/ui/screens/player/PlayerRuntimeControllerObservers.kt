@@ -3,15 +3,12 @@ package com.fetch.tv.ui.screens.player
 import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
 import android.util.Log
 import com.fetch.tv.core.player.OpenSubtitlesHasher
-import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.domain.model.Subtitle
-import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.model.enabledAddons
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -368,8 +365,6 @@ internal fun PlayerRuntimeController.observeSubtitleSettings() {
                     streamAutoPlayPreferBingeGroupForNextEpisode = settings.streamAutoPlayPreferBingeGroupForNextEpisode
                 )
             }
-            streamAutoPlayPreferBingeGroupForNextEpisodeSetting =
-                settings.streamAutoPlayPreferBingeGroupForNextEpisode
             nextEpisodeThresholdModeSetting = settings.nextEpisodeThresholdMode
             nextEpisodeThresholdPercentSetting = settings.nextEpisodeThresholdPercent
             nextEpisodeThresholdMinutesBeforeEndSetting = settings.nextEpisodeThresholdMinutesBeforeEnd
@@ -764,9 +759,6 @@ internal fun PlayerRuntimeController.cancelStallWatchdog() {
     stallWatchdogJob?.cancel()
     stallWatchdogJob = null
 }
-
-/** Tiny skip past the buffered edge to force Media3 to cancel the in-flight Range request. */
-private val STALL_WATCHDOG_SKIP_PAST_BUFFERED_MS = PlayerStallWatchdogPolicy.SKIP_PAST_BUFFERED_MS
 
 /** Re-seeks past the buffered edge when bufferedPosition stops advancing during buffering. */
 internal fun PlayerRuntimeController.maybeScheduleStallWatchdog() {

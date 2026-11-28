@@ -7,8 +7,6 @@ import com.fetch.tv.data.local.forcedOnlyForMatchingAudio
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.RectF
-import android.media.MediaFormat
-import android.media.audiofx.LoudnessEnhancer
 import android.os.Build
 import android.os.Handler
 import android.os.SystemClock
@@ -39,8 +37,6 @@ import androidx.media3.exoplayer.audio.AudioCapabilities
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer
-import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter
-import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
 import androidx.media3.exoplayer.video.VideoRendererEventListener
@@ -49,7 +45,6 @@ import androidx.media3.exoplayer.source.LoadEventInfo
 import androidx.media3.exoplayer.source.MediaLoadData
 import androidx.media3.exoplayer.text.TextOutput
 import androidx.media3.exoplayer.RendererCapabilities
-import androidx.media3.exoplayer.RendererConfiguration
 import androidx.media3.exoplayer.trackselection.AdaptiveTrackSelection
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection
@@ -78,7 +73,6 @@ import com.fetch.tv.core.util.findCause
 import com.fetch.tv.ui.screens.settings.MemoryBudget
 import com.fetch.tv.data.local.AudioLanguageOption
 import com.fetch.tv.data.local.Dv7HandlingMode
-import com.fetch.tv.data.local.FrameRateMatchingMode
 import com.fetch.tv.data.local.SUBTITLE_LANGUAGE_FORCED
 import com.fetch.tv.data.local.InternalPlayerEngine
 import com.fetch.tv.data.local.PlayerSettings
@@ -93,12 +87,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.SocketTimeoutException
-import kotlin.math.min
 import androidx.media3.common.Tracks
 
 
 private const val MPV_AFR_SETTLE_DELAY_MS = 2_000L
-private const val AUDIO_DELAY_REFRESH_DEBOUNCE_MS = 120L
 private const val PLAYER_RELEASE_TIMEOUT_MS = 3000L
 /**
  * Pause between releasing a previous ExoPlayer and building its replacement (stream switch,
@@ -112,12 +104,6 @@ private const val ADAPTIVE_QUALITY_INCREASE_MIN_DURATION_MS = 2_000
 private const val ADAPTIVE_INITIAL_BITRATE_ESTIMATE_BPS = 25_000_000L
 /** About what DefaultLoadControl targets for one video and one audio track on its own. */
 private const val STOCK_LOAD_CONTROL_MAX_TARGET_MB = 144
-
-internal data class StartupSubtitlePreparation(
-    val fetchedSubtitles: List<Subtitle>,
-    val attachedSubtitles: List<Subtitle>,
-    val fetchCompleted: Boolean
-)
 
 private suspend fun PlayerRuntimeController.resolveCurrentStreamMimeType(
     url: String,
@@ -413,7 +399,6 @@ internal fun PlayerRuntimeController.initializePlayer(
                 )
             }
             hasAttemptedDv7ToDv81ForCurrentPlayback = false
-            dv7ToDv81BridgeVersionForCurrentPlayback = dv7ToDv81Probe.bridgeVersion
             dv7ToDv81LastProbeReasonForCurrentPlayback = dv7ToDv81Probe.reason
             Log.i(
                 PlayerRuntimeController.TAG,
@@ -680,7 +665,7 @@ internal fun PlayerRuntimeController.initializePlayer(
             isAudioDisabledForCurrentPlayback = audioDisabledForStream
             isVc1TrackSelectionBypassActiveForCurrentPlayback = vc1TrackSelectionBypassActive
 
-            val startupSubtitlePreparation = prepareStreamStartSubtitles(playerSettings)
+            prepareStreamStartSubtitles(playerSettings)
             val awaitedAfr = withTimeoutOrNull(AFR_PREFLIGHT_TOTAL_TIMEOUT_MS) {
                 afrJob.await()
             }
@@ -1125,8 +1110,8 @@ internal fun PlayerRuntimeController.initializePlayer(
                 val preferred = playerSettings.subtitleStyle.preferredLanguage
                 val secondary = playerSettings.subtitleStyle.secondaryPreferredLanguage
                 applySubtitlePreferences(preferred, secondary)
-                applyStartupSubtitlePreparation(startupSubtitlePreparation)
-                val startupSubtitleConfigurations = buildStartupSubtitleConfigurations(startupSubtitlePreparation)
+                // The new player starts with no addon subtitle attached.
+                attachedAddonSubtitleKeys = emptySet()
                 // Saved progress first; otherwise a queued seek from a source switch, retry or
                 // recovery, so the source opens there rather than at 0 (#707).
                 val initialResumePosition = resolvePendingInitialResumePosition().takeIf { it > 0L }
@@ -1144,8 +1129,6 @@ internal fun PlayerRuntimeController.initializePlayer(
                     context = context,
                     url = url,
                     headers = headers,
-                    subtitleConfigurations = startupSubtitleConfigurations,
-                    subtitleRoutes = subtitleRoutes(startupSubtitlePreparation.attachedSubtitles),
                     filename = currentFilename,
                     responseHeaders = currentStreamResponseHeaders,
                     mimeTypeOverride = currentStreamMimeType,
@@ -1389,9 +1372,7 @@ internal fun PlayerRuntimeController.initializePlayer(
                     }
                 })
             }
-            if (!startupSubtitlePreparation.fetchCompleted) {
-                fetchAddonSubtitles()
-            }
+            fetchAddonSubtitles()
         } catch (e: CancellationException) {
             // A cancelled initialization (a newer one replaced it, the screen closed, or a child
             // such as the AFR preflight was cancelled) is not a playback failure: it must not
@@ -1539,18 +1520,8 @@ private fun PlayerRuntimeController.exoPlayerListener(
                     cancelStallWatchdog()
                 }
 
-                if (playbackState == Player.STATE_BUFFERING && pendingSeekTelemetryAwaitingFirstFrame && pendingSeekTelemetryReadyAssumed) {
-                    pendingSeekTelemetryReadyAtMs = 0L
-                    pendingSeekTelemetryReadyLatencyMs = -1L
-                    pendingSeekTelemetryReadyAssumed = false
-                }
 
                 if (playbackState == Player.STATE_READY) {
-                    if (pendingSeekTelemetryRequestedAtMs > 0L && pendingSeekTelemetryReadyAtMs <= 0L) {
-                        val latencyMs = (System.currentTimeMillis() - pendingSeekTelemetryRequestedAtMs).coerceAtLeast(0L)
-                        pendingSeekTelemetryReadyAtMs = System.currentTimeMillis()
-                        pendingSeekTelemetryReadyLatencyMs = latencyMs
-                    }
                     // Don't auto-play on the initial STATE_READY — wait
                     // for onRenderedFirstFrame() to ensure A/V sync.
                     // Exception: tunneled playback never fires
@@ -1626,9 +1597,6 @@ private fun PlayerRuntimeController.exoPlayerListener(
                             seekBufferingUiJob = scope.launch {
                                 delay(seekBufferingUiDelayMs)
                                 seekBufferingUiDeferred = false
-                                if (pendingSeekFlush) {
-                                    _uiState.update { it.copy(isBuffering = true) }
-                                }
                             }
                         }
                         pendingSeekPosition = null
@@ -1842,7 +1810,6 @@ private fun PlayerRuntimeController.exoPlayerListener(
                         hasAttemptedDv7ToDv81ForCurrentPlayback = true
                         val probe = DoviBridge.probeRealtimeConversionSupport(currentStreamUrl)
                         dv7ToDv81LastProbeReasonForCurrentPlayback = probe.reason
-                        dv7ToDv81BridgeVersionForCurrentPlayback = probe.bridgeVersion
                     }
                     dv7ToHevcForcedStreamUrls.add(currentStreamUrl)
                     retryCurrentStreamWithDolbyVisionFallback(currentPosition)
@@ -1885,7 +1852,6 @@ private fun PlayerRuntimeController.exoPlayerListener(
                         hasAttemptedDv7ToDv81ForCurrentPlayback = true
                         val probe = DoviBridge.probeRealtimeConversionSupport(currentStreamUrl)
                         dv7ToDv81LastProbeReasonForCurrentPlayback = probe.reason
-                        dv7ToDv81BridgeVersionForCurrentPlayback = probe.bridgeVersion
                     }
                     Log.i(
                         PlayerRuntimeController.TAG,
@@ -2147,14 +2113,6 @@ internal fun resolveDeviceAudioLanguages(): List<String> {
     return List(localeList.size()) { localeList[it].isO3Language }
 }
 
-internal suspend fun PlayerRuntimeController.prepareStartupSubtitles(): StartupSubtitlePreparation {
-    return StartupSubtitlePreparation(
-        fetchedSubtitles = emptyList(),
-        attachedSubtitles = emptyList(),
-        fetchCompleted = false
-    )
-}
-
 internal fun PlayerRuntimeController.resetAddonSubtitleStateForNewStream() {
     autoSubtitleSelected = subtitleDisabledByPersistedPreference || subtitleAddonRestoredByPersistedPreference
     isUserExplicitSubtitleSelection = false
@@ -2176,9 +2134,9 @@ internal fun PlayerRuntimeController.resetAddonSubtitleStateForNewStream() {
     }
 }
 
-internal suspend fun PlayerRuntimeController.prepareStreamStartSubtitles(
+internal fun PlayerRuntimeController.prepareStreamStartSubtitles(
     playerSettings: PlayerSettings
-): StartupSubtitlePreparation {
+) {
     requestedUseLibassByUser = playerSettings.useLibass
     if (libassPipelineDecisionStreamUrl != currentStreamUrl) {
         libassPipelineDecisionStreamUrl = currentStreamUrl
@@ -2187,17 +2145,6 @@ internal suspend fun PlayerRuntimeController.prepareStreamStartSubtitles(
         hasDetectedAssSsaTrackForCurrentStream = false
     }
     resetAddonSubtitleStateForNewStream()
-    return prepareStartupSubtitles()
-}
-
-internal fun PlayerRuntimeController.applyStartupSubtitlePreparation(startupSubtitlePreparation: StartupSubtitlePreparation) {
-    attachedAddonSubtitleKeys = startupSubtitlePreparation.attachedSubtitles.distinctBy { addonSubtitleKey(it) }.map(::addonSubtitleKey).toSet()
-    if (!startupSubtitlePreparation.fetchCompleted) return
-    _uiState.update { it.copy(addonSubtitles = startupSubtitlePreparation.fetchedSubtitles, isLoadingAddonSubtitles = false) }
-}
-
-internal fun PlayerRuntimeController.buildStartupSubtitleConfigurations(startupSubtitlePreparation: StartupSubtitlePreparation): List<androidx.media3.common.MediaItem.SubtitleConfiguration> {
-    return startupSubtitlePreparation.attachedSubtitles.distinctBy { "${it.id}|${it.url}" }.map(::toSubtitleConfiguration)
 }
 
 internal fun PlayerRuntimeController.resetLoadingOverlayForNewStream() {
@@ -2223,15 +2170,8 @@ internal fun PlayerRuntimeController.resetLoadingOverlayForNewStream() {
     isVc1TrackSelectionBypassActiveForCurrentPlayback = false
     isSafeAudioModeActiveForCurrentPlayback = false
     isAudioDisabledForCurrentPlayback = false
-    dv7ToDv81BridgeVersionForCurrentPlayback = null
     dv7ToDv81LastProbeReasonForCurrentPlayback = null
     playerInitializationStartedAtMs = 0L
-    pendingSeekTelemetryRequestedAtMs = 0L
-    pendingSeekTelemetryTargetMs = -1L
-    pendingSeekTelemetryReadyAtMs = 0L
-    pendingSeekTelemetryReadyLatencyMs = -1L
-    pendingSeekTelemetryAwaitingFirstFrame = false
-    pendingSeekTelemetryReadyAssumed = false
     lastKnownDuration = 0L
     currentStreamHasVideoTrack = false
     currentVideoTrackIsLikelyVc1 = false
@@ -2776,14 +2716,6 @@ private fun PlayerRuntimeController.recordFirstFrameDiagnostics(
     val sourceProfile = DolbyVisionConversionStats.getLastSourceProfile()
         ?: parseDvProfileFromCodecString(currentVideoTrackCodecs)
     val conversionMode = DolbyVisionConversionStats.getLastSelectedConversionMode()
-    if (pendingSeekTelemetryAwaitingFirstFrame && pendingSeekTelemetryRequestedAtMs > 0L) {
-        pendingSeekTelemetryRequestedAtMs = 0L
-        pendingSeekTelemetryTargetMs = -1L
-        pendingSeekTelemetryReadyAtMs = 0L
-        pendingSeekTelemetryReadyLatencyMs = -1L
-        pendingSeekTelemetryAwaitingFirstFrame = false
-    }
-
     val clickToFirstFrameMs = launchStartedAtElapsedMs
         ?.let { (SystemClock.elapsedRealtime() - it).coerceAtLeast(0L) }
         ?: -1L

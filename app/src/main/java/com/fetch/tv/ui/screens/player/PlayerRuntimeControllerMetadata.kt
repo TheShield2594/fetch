@@ -507,7 +507,6 @@ internal fun PlayerRuntimeController.updateActiveSkipInterval(positionMs: Long) 
     if (active != null) {
         val targetsPostCredits = active.followingPostCreditsScene(skipIntervals, currentPlaybackDurationMs()) != null
         if (currentActive != active || targetsPostCredits != _uiState.value.activeSkipTargetsPostCredits) {
-            lastActiveSkipType = active.type
             _uiState.update { it.copy(
                 activeSkipInterval = active,
                 activeSkipTargetsPostCredits = targetsPostCredits,

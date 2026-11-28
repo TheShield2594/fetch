@@ -14,10 +14,8 @@ import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
 import com.fetch.tv.data.local.PlayerSettings
@@ -27,7 +25,6 @@ import android.os.SystemClock
 import androidx.annotation.VisibleForTesting
 
 import java.nio.ByteBuffer
-import java.util.LinkedHashMap
 
 @UnstableApi
 internal class ParallelRangeDataSource(
@@ -37,7 +34,6 @@ internal class ParallelRangeDataSource(
 
     private val prefetchDepthChunks: Int = parallelConnections + 1,
     private val shouldAllowBackgroundPrefetch: () -> Boolean = { true },
-    private val onResolvedUri: (Uri?) -> Unit = {},
     private val consumeBootstrapCache: (DataSpec) -> BootstrapCacheEntry? = { null },
     private val updateBootstrapCache: (BootstrapCacheEntry?) -> Unit = {},
 
@@ -75,7 +71,6 @@ internal class ParallelRangeDataSource(
 
         private const val HEDGE_MIN_OPEN_MS = 1_500L
         private const val HEDGE_WINDOW_MS = 2_000L
-        private const val HEDGE_STALL_RATE_BPS = 256L * 1024L
         private const val HEDGE_MAX_RESTARTS = 3
 
         private const val HEDGE_STALL_RATE_CDN = 256L * 1024L
@@ -100,33 +95,18 @@ internal class ParallelRangeDataSource(
                     isDaemon = true
                 }
             }
+            // The queue is unbounded, so the pool never grows past its core size and never
+            // rejects work while it runs (it is never shut down).
             ThreadPoolExecutor(
-                32, 64, 60L, TimeUnit.SECONDS,
+                32, 32, 60L, TimeUnit.SECONDS,
                 java.util.concurrent.LinkedBlockingQueue<Runnable>(),
-                threadFactory,
-                ThreadPoolExecutor.DiscardPolicy()
+                threadFactory
             ).apply {
                 allowCoreThreadTimeOut(true)
             }
         }
 
         private val globalBufferPool = ConcurrentHashMap<Long, ConcurrentLinkedDeque<PooledBuffer>>()
-
-        private fun freeDirectBuffer(buffer: ByteBuffer) {
-            if (!buffer.isDirect) return
-            try {
-                val cleanerMethod = buffer.javaClass.getMethod("cleaner")
-                cleanerMethod.isAccessible = true
-                val cleaner = cleanerMethod.invoke(buffer)
-                if (cleaner != null) {
-                    val cleanMethod = cleaner.javaClass.getMethod("clean")
-                    cleanMethod.isAccessible = true
-                    cleanMethod.invoke(cleaner)
-                }
-            } catch (e: Throwable) {
-                Log.w(TAG, "Failed to explicitly free direct buffer: ${e.message}")
-            }
-        }
 
         private const val RETAINED_SESSION_TTL_MS = 45_000L
 
@@ -298,11 +278,10 @@ internal class ParallelRangeDataSource(
             freeBuffer(buffer)
         }
 
+        /** Heap buffers need no freeing; only the test allocator hook tracks its own. */
         private fun freeBuffer(buffer: PooledBuffer) {
             if (buffer.fromAllocator) {
                 freeChunk(buffer.byteBuffer)
-            } else if (buffer.byteBuffer.isDirect) {
-                freeDirectBuffer(buffer.byteBuffer)
             }
         }
 
@@ -683,7 +662,6 @@ internal class ParallelRangeDataSource(
         val warmLength = attachedSession.totalLength
         if (warmLength > 0L && dataSpec.position in 0 until warmLength) {
             resolvedUri = attachedSession.resolvedUri
-            onResolvedUri(resolvedUri)
             totalFileLength = warmLength
             val remaining = (totalFileLength - position).coerceAtLeast(0L)
             bytesRemaining = if (dataSpec.length != C.LENGTH_UNSET.toLong()) {
@@ -704,7 +682,6 @@ internal class ParallelRangeDataSource(
 
         consumeBootstrapCache(dataSpec)?.let { cached ->
             resolvedUri = cached.resolvedUri
-            onResolvedUri(resolvedUri)
             totalFileLength = cached.totalFileLength
             bytesRemaining = cached.openLength
             bootstrapChunk = DownloadedChunk(PooledBuffer(ByteBuffer.wrap(cached.bootstrapData), fromAllocator = false), cached.bootstrapSize)
@@ -741,7 +718,6 @@ internal class ParallelRangeDataSource(
             probeSource.open(dataSpec.buildUpon().setLength(boundedProbeLength).build())
             diagProbeOpenMs = SystemClock.uptimeMillis() - diagOpenStartMs
             resolvedUri = probeSource.uri
-            onResolvedUri(resolvedUri)
             val probeTotal = parseContentRangeTotal(probeSource.responseHeaders)
             if (probeTotal != C.LENGTH_UNSET.toLong()) {
                 knownFileTotal = probeTotal
@@ -1430,7 +1406,7 @@ internal class ParallelRangeDataSource(
 
             if (obsAnnounced.compareAndSet(false, true)) {
                 Log.w(TAG, "OBS_ACTIVE build=hedge-3a minOpenMs=$HEDGE_MIN_OPEN_MS " +
-                    "windowMs=$HEDGE_WINDOW_MS stallRateBps=$HEDGE_STALL_RATE_BPS " +
+                    "windowMs=$HEDGE_WINDOW_MS " +
                     "maxRestarts=$HEDGE_MAX_RESTARTS")
             }
 
@@ -1624,8 +1600,7 @@ internal class ParallelRangeDataSource(
         private val chunkSize: Long = PlayerSettings.DEFAULT_PARALLEL_CHUNK_SIZE_KB.toLong() * 1024,
         private val prefetchDepthChunks: Int = parallelConnections + 1,
         private val shouldAllowBackgroundPrefetch: () -> Boolean = { true },
-        private val onResolvedUri: (Uri?) -> Unit = {},
-        private val allowContinuationReopen: Boolean = true
+            private val allowContinuationReopen: Boolean = true
     ) : DataSource.Factory {
         @Volatile
         private var startupBootstrapCache: BootstrapCacheEntry? = null
@@ -1647,7 +1622,6 @@ internal class ParallelRangeDataSource(
                 chunkSize = chunkSize,
                 prefetchDepthChunks = prefetchDepthChunks,
                 shouldAllowBackgroundPrefetch = shouldAllowBackgroundPrefetch,
-                onResolvedUri = onResolvedUri,
                 allowContinuationReopen = allowContinuationReopen,
                 sessionSlot = sessionSlot,
                 consumeBootstrapCache = { dataSpec ->

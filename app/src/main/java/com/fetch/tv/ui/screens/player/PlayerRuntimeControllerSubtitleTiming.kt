@@ -9,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.fetch.tv.core.network.IPv4FirstDns
 import com.fetch.tv.core.player.SubtitleCharsetDetector
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -60,7 +59,7 @@ internal fun PlayerRuntimeController.showSubtitleTimingDialog() {
             subtitleAutoSyncStatus = null
         )
     }
-    maybeLoadSubtitleAutoSyncCues(force = false)
+    maybeLoadSubtitleAutoSyncCues()
 }
 
 internal fun PlayerRuntimeController.dismissSubtitleTimingDialog() {
@@ -108,10 +107,6 @@ internal fun PlayerRuntimeController.applySubtitleAutoSyncCue(cueStartTimeMs: Lo
     scheduleHideSubtitleDelayOverlay()
 }
 
-internal fun PlayerRuntimeController.reloadSubtitleAutoSyncCues() {
-    maybeLoadSubtitleAutoSyncCues(force = true)
-}
-
 internal fun PlayerRuntimeController.resetSubtitleAutoSyncState(clearLoadedTrack: Boolean = true) {
     subtitleAutoSyncLoadJob?.cancel()
     subtitleAutoSyncLoadJob = null
@@ -127,7 +122,7 @@ internal fun PlayerRuntimeController.resetSubtitleAutoSyncState(clearLoadedTrack
     }
 }
 
-private fun PlayerRuntimeController.maybeLoadSubtitleAutoSyncCues(force: Boolean) {
+private fun PlayerRuntimeController.maybeLoadSubtitleAutoSyncCues() {
     val selectedSubtitle = _uiState.value.selectedAddonSubtitle
     if (selectedSubtitle == null) {
         _uiState.update {
@@ -144,8 +139,7 @@ private fun PlayerRuntimeController.maybeLoadSubtitleAutoSyncCues(force: Boolean
 
     val selectedTrackKey = selectedSubtitle.autoSyncTrackKey()
     val state = _uiState.value
-    if (!force &&
-        state.subtitleAutoSyncLoadedTrackKey == selectedTrackKey &&
+    if (state.subtitleAutoSyncLoadedTrackKey == selectedTrackKey &&
         state.subtitleAutoSyncCues.isNotEmpty()
     ) {
         return
@@ -158,8 +152,6 @@ private fun PlayerRuntimeController.maybeLoadSubtitleAutoSyncCues(force: Boolean
                 subtitleAutoSyncLoading = true,
                 subtitleAutoSyncError = null,
                 subtitleAutoSyncStatus = null,
-                subtitleAutoSyncCues = if (force) emptyList() else it.subtitleAutoSyncCues,
-                subtitleAutoSyncCapturedVideoMs = if (force) null else it.subtitleAutoSyncCapturedVideoMs,
                 subtitleAutoSyncLoadedTrackKey = selectedTrackKey
             )
         }

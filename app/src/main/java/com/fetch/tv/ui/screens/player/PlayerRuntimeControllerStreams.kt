@@ -11,11 +11,9 @@ import com.fetch.tv.core.streams.ranking.RankedStreamList
 import com.fetch.tv.core.streams.ranking.StreamRanker
 import com.fetch.tv.data.local.PlayerSettings
 import com.fetch.tv.data.local.StreamAutoPlayMode
-import com.fetch.tv.data.local.toTrackPreference
 import com.fetch.tv.domain.model.AddonStreams
 import com.fetch.tv.domain.model.Stream
 import com.fetch.tv.domain.model.Video
-import com.fetch.tv.domain.model.enabledAddons
 import com.fetch.tv.ui.components.SourceChipItem
 import com.fetch.tv.ui.components.SourceChipStatus
 import com.fetch.tv.ui.components.timeOutPendingSourceChips
@@ -42,7 +40,7 @@ internal fun PlayerRuntimeController.scheduleSourceBadgeApplication() {
     val newAddons = state.sourceAvailableAddons.filter { it !in sourceBadgedAddonNames }
     if (newAddons.isEmpty()) return
 
-    sourceBadgeJob = scope.launch(kotlinx.coroutines.Dispatchers.Default) {
+    scope.launch(kotlinx.coroutines.Dispatchers.Default) {
         val allNewStreams = newAddons.flatMap { addonName ->
             _uiState.value.sourceAllStreams.filter { it.addonName == addonName }
         }
@@ -796,7 +794,6 @@ internal fun PlayerRuntimeController.switchToSourceStream(
     subtitleAddonRestoredByPersistedPreference = false
     pendingRestoredAddonSubtitle = null
     lastSavedPosition = 0L
-    _exoPlayer?.stop()
     resetLoadingOverlayForNewStream()
 
     pendingSeekPosition = when {
@@ -827,45 +824,8 @@ internal fun PlayerRuntimeController.switchToSourceStream(
     showStreamSourceIndicator(stream)
     resetPostPlayOverlayState(clearEpisode = false)
 
-    _exoPlayer?.let { player ->
-        scope.launch {
-            try {
-                val playerSettings = playerSettingsDataStore.playerSettings.first()
-                runAfrPreflightIfEnabled(
-                    url = playbackUrl,
-                    headers = playbackHeaders,
-                    frameRateMatchingMode = playerSettings.frameRateMatchingMode,
-                    resolutionMatchingEnabled = playerSettings.resolutionMatchingEnabled,
-                    mimeType = currentStreamMimeType
-                )
-                val newSource = mediaSourceFactory.createMediaSource(
-                    context = context,
-                    url = playbackUrl,
-                    headers = playbackHeaders,
-                    filename = currentFilename,
-                    responseHeaders = currentStreamResponseHeaders,
-                    mimeTypeOverride = currentStreamMimeType,
-                    audioDelayUsProvider = audioDelayUs::get,
-                    cacheKey = currentStreamCacheKey
-                )
-                // Open the new source at the carried-over position, not at 0 and then seek (#707).
-                val startPosition = pendingSeekStartPosition()
-                if (startPosition != null) {
-                    player.setMediaSource(newSource, startPosition)
-                    pendingSeekPosition = null
-                    updatePlaybackTimeline(currentPosition = startPosition)
-                } else {
-                    player.setMediaSource(newSource)
-                }
-                player.playWhenReady = true
-                player.prepare()
-            } catch (e: Exception) {
-                _uiState.update { it.copy(error = e.message ?: context.getString(com.fetch.tv.R.string.player_error_play_stream_failed)) }
-            }
-        }
-    } ?: run {
-        initializePlayer(playbackUrl, playbackHeaders)
-    }
+    // releasePlayer above dropped the old player, so the new stream always gets a fresh one.
+    initializePlayer(playbackUrl, playbackHeaders)
 
     if (resumePositionMs != null && (resumePositionMs > 0L || userPicked)) {
         // The failed stream's position, or the live one for a picked source; not the saved
@@ -889,7 +849,6 @@ private fun PlayerRuntimeController.resumePositionAfterResolve(captured: Long?, 
 internal fun PlayerRuntimeController.dismissEpisodesPanel() {
     episodeStreamsScope?.cancel()
     episodeStreamsScope = null
-    episodeStreamsJob = null
     _uiState.update {
         it.copy(
             activeOverlay = it.activeOverlay.closing(PlayerOverlay.EPISODES),
@@ -1018,10 +977,9 @@ internal fun PlayerRuntimeController.loadStreamsForEpisode(video: Video, forceRe
     val targetChanged = requestKey != episodeStreamsCacheRequestKey
     episodeStreamsScope?.cancel()
     episodeStreamsScope = null
-    episodeStreamsJob = null
     val newScope = kotlinx.coroutines.CoroutineScope(scope.coroutineContext + kotlinx.coroutines.SupervisorJob())
     episodeStreamsScope = newScope
-    episodeStreamsJob = newScope.launch {
+    newScope.launch {
         episodeStreamsCacheRequestKey = requestKey
         _uiState.update {
             it.copy(
@@ -1269,8 +1227,6 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
     mpvView?.markMediaRequested(playbackUrl)
     endDetectionArmed = false
     mpvEofSeenClear = false
-    currentTraktEpisodeMapping = null
-    currentTraktEpisodeMappingKey = null
     lastSavedPosition = 0L
 
     pendingSeekPosition = null
@@ -1319,14 +1275,13 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
     playbackStartedForParentalGuide = false
     skipIntervals = emptyList()
     skipIntroFetchedKey = null
-    lastActiveSkipType = null
     autoSkippedIntervalKeys.clear()
 
     fetchParentalGuide(contentId, contentType, currentSeason, currentEpisode)
     fetchSkipIntervals(contentId, currentSeason, currentEpisode)
 
     queuePlaybackRawEventLine(
-        "LINK_SELECTED: source=in_player_source host=${playbackUrl.safeStreamTraceHost()} " +
+        "LINK_SELECTED: source=in_player_source host=${playbackUrl.safeLogHost()} " +
             "streamName=${stream.name} addon=${stream.addonName} " +
             "contentId=${contentId ?: "n/a"} videoId=${currentVideoId ?: "n/a"} " +
             "S${currentSeason ?: "-"}E${currentEpisode ?: "-"}"
@@ -1336,12 +1291,6 @@ internal fun PlayerRuntimeController.switchToEpisodeStream(
         headers = playbackHeaders,
         loadSavedProgress = true
     )
-}
-
-private fun String.safeStreamTraceHost(): String {
-    return runCatching {
-        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
-    }.getOrDefault("unknown")
 }
 
 private fun PlayerRuntimeController.rememberCurrentEpisodeForRestore(stream: Stream) {

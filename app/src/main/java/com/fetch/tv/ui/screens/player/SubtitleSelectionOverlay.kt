@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.FetchMotion
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -82,7 +81,6 @@ import com.fetch.tv.ui.screens.player.autosync.AutoSyncedChip
 
 private const val SubtitleOffLanguageKey = "__off__"
 private const val SubtitleUnknownLanguageKey = "__unknown__"
-private const val SubtitleFocusTag = "SubtitleFocus"
 
 @Composable
 internal fun SubtitleSelectionOverlay(
@@ -385,10 +383,6 @@ private fun SubtitleSelectionOverlaySession(
         val resolvedId = targetId ?: subtitleOptions.firstOrNull()?.id
             ?: return
         if (pendingOptionFocusId == resolvedId && pendingOptionFocusLanguageKey == languageKey) {
-            Log.d(
-                SubtitleFocusTag,
-                "option_restore_skip reason=duplicate_pending source=$reason language=$languageKey id=$resolvedId"
-            )
             return
         }
         if (
@@ -396,18 +390,10 @@ private fun SubtitleSelectionOverlaySession(
             languageKey == selectedLanguageKey &&
             activeOptionFocusId == resolvedId
         ) {
-            Log.d(
-                SubtitleFocusTag,
-                "option_restore_skip reason=already_focused source=$reason language=$languageKey id=$resolvedId"
-            )
             return
         }
         pendingOptionFocusId = resolvedId
         pendingOptionFocusLanguageKey = languageKey
-        Log.d(
-            SubtitleFocusTag,
-            "option_restore_schedule source=$reason language=$languageKey id=$resolvedId"
-        )
         optionFocusToken += 1
     }
 
@@ -426,17 +412,9 @@ private fun SubtitleSelectionOverlaySession(
             activeRail == OverlayFocusRail.STYLE &&
             activeStyleFocusKey == resolvedKey
         ) {
-            Log.d(
-                SubtitleFocusTag,
-                "style_focus_skip reason=already_focused source=$reason key=$resolvedKey"
-            )
             return
         }
         pendingStyleFocusKey = resolvedKey
-        Log.d(
-            SubtitleFocusTag,
-            "style_focus_schedule source=$reason key=$resolvedKey"
-        )
         styleFocusToken += 1
     }
 
@@ -478,20 +456,12 @@ private fun SubtitleSelectionOverlaySession(
         LaunchedEffect(visible) {
             if (!visible) return@LaunchedEffect
             if (sessionInitialLanguageKey != SubtitleOffLanguageKey && sessionInitialSelectedOptionId != null) {
-                Log.d(
-                    SubtitleFocusTag,
-                    "overlay_open focus=option selectedLanguage=$sessionInitialLanguageKey selectedOption=$sessionInitialSelectedOptionId showStyle=true"
-                )
                 requestOptionFocus(
                     targetId = sessionInitialSelectedOptionId,
                     languageKey = sessionInitialLanguageKey,
                     reason = "overlay_open"
                 )
             } else {
-                Log.d(
-                    SubtitleFocusTag,
-                    "overlay_open focus=language selectedLanguage=$sessionInitialLanguageKey showOption=${sessionInitialLanguageKey != SubtitleOffLanguageKey} showStyle=${sessionInitialSelectedOptionId != null}"
-                )
                 requestLanguageFocus(sessionInitialLanguageKey)
             }
         }
@@ -525,24 +495,12 @@ private fun SubtitleSelectionOverlaySession(
             val targetIndex = styleListIndexForFocusKey(targetKey, hasHdrBrightnessItem = isEditingHdrStyle)
             repeat(8) { attempt ->
                 styleListState.scrollItemIntoView(targetIndex)
-                Log.d(
-                    SubtitleFocusTag,
-                    "style_focus_request attempt=$attempt key=$targetKey activeRail=$activeRail activeStyleKey=$activeStyleFocusKey"
-                )
                 requester.requestFocusAfterFrames(frames = if (attempt == 0) 2 else 1)
                 if (activeRail == OverlayFocusRail.STYLE && activeStyleFocusKey == targetKey) {
-                    Log.d(
-                        SubtitleFocusTag,
-                        "style_focus_complete attempt=$attempt key=$targetKey"
-                    )
                     pendingStyleFocusKey = null
                     return@LaunchedEffect
                 }
             }
-            Log.d(
-                SubtitleFocusTag,
-                "style_focus_timeout key=$targetKey activeStyleKey=$activeStyleFocusKey"
-            )
             pendingStyleFocusKey = null
         }
 
@@ -580,10 +538,6 @@ private fun SubtitleSelectionOverlaySession(
                     },
                     onMoveRight = if (optionRailVisible && subtitleOptions.isNotEmpty()) ::moveFocusToOptionRail else null,
                     onLanguageSelected = { languageKey ->
-                        Log.d(
-                            SubtitleFocusTag,
-                            "language_select key=$languageKey previous=$selectedLanguageKey"
-                        )
                         selectedLanguageKey = languageKey
                         lastFocusedLanguageKey = languageKey
                         optionEntryLanguageKey = languageKey
@@ -743,16 +697,8 @@ private fun SubtitleLanguageRail(
                 onFocusRequestConsumed()
                 return@LaunchedEffect
             }
-        Log.d(
-            SubtitleFocusTag,
-            "language_restore_request key=$targetKey index=$targetIndex selected=$selectedLanguageKey firstVisible=${listState.firstVisibleItemIndex}"
-        )
         listState.scrollItemIntoView(targetIndex)
         itemFocusRequesters[targetKey]?.requestFocusAfterFrames()
-        Log.d(
-            SubtitleFocusTag,
-            "language_restore_complete key=$targetKey index=$targetIndex firstVisible=${listState.firstVisibleItemIndex}"
-        )
         onFocusRequestConsumed()
     }
 
@@ -805,10 +751,6 @@ private fun SubtitleOptionsRail(
                 return@LaunchedEffect
             }
         if (requestLanguageKey != selectedLanguageKey) {
-            Log.d(
-                SubtitleFocusTag,
-                "option_restore_drop reason=language_mismatch requestLanguage=$requestLanguageKey selectedLanguage=$selectedLanguageKey target=$focusTargetId"
-            )
             onFocusRequestConsumed()
             return@LaunchedEffect
         }
@@ -824,16 +766,8 @@ private fun SubtitleOptionsRail(
                 onFocusRequestConsumed()
                 return@LaunchedEffect
             }
-        Log.d(
-            SubtitleFocusTag,
-            "option_restore_request language=$selectedLanguageKey id=$targetId index=$targetIndex firstVisible=${listState.firstVisibleItemIndex}"
-        )
         listState.scrollItemIntoView(targetIndex)
         itemFocusRequesters[targetId]?.requestFocusAfterFrames()
-        Log.d(
-            SubtitleFocusTag,
-            "option_restore_complete language=$selectedLanguageKey id=$targetId index=$targetIndex firstVisible=${listState.firstVisibleItemIndex}"
-        )
         onFocusRequestConsumed()
     }
 
@@ -1121,6 +1055,7 @@ private fun SubtitleStyleRail(
                             focusRequesters = focusRequesters,
                             focusKeyPrefix = StyleFocusKey.OutlineColorPrefix,
                             onFocused = onStyleFocused,
+                            // The chips only take clicks while the outline is on.
                             onColorSelected = { color ->
                                 if (!subtitleStyle.outlineEnabled) {
                                     dispatchLookEvent(PlayerEvent.OnSetSubtitleOutlineEnabled(true))
@@ -1248,10 +1183,6 @@ private fun SubtitleLanguageCard(
             }
             .onFocusChanged {
                 if (it.isFocused) {
-                    Log.d(
-                        SubtitleFocusTag,
-                        "language_focused key=${item.key} label=${item.label}"
-                    )
                     onFocused()
                 }
             },
@@ -1341,10 +1272,6 @@ private fun SubtitleOptionCard(
             }
             .onFocusChanged {
                 if (it.isFocused) {
-                    Log.d(
-                        SubtitleFocusTag,
-                        "option_focused id=${item.id} title=${item.title} selected=${item.isSelected}"
-                    )
                     onFocused()
                 }
             },
@@ -1417,7 +1344,7 @@ private fun CountBadge(
         Text(
             text = count.toString(),
             style = MaterialTheme.typography.labelSmall,
-            color = if (selected) FetchTheme.colors.OnSecondary else FetchTheme.colors.OnSecondary
+            color = FetchTheme.colors.OnSecondary
         )
     }
 }
@@ -2201,7 +2128,6 @@ private fun normalizeOverlayLanguageKeyForTrack(track: TrackInfo): String {
 
 private fun subtitleLanguageLabel(key: String, unknownLabel: String): String {
     return when (key) {
-        SubtitleOffLanguageKey -> Subtitle.languageCodeToName("none")
         SubtitleUnknownLanguageKey -> unknownLabel
         else -> Subtitle.languageCodeToName(key)
     }
@@ -2209,14 +2135,5 @@ private fun subtitleLanguageLabel(key: String, unknownLabel: String): String {
 
 private fun subtitleLanguageSortLabel(key: String): String = when (key) {
     SubtitleUnknownLanguageKey -> "\uFFFF"
-    SubtitleOffLanguageKey -> Subtitle.languageCodeToName("none").lowercase()
     else -> Subtitle.languageCodeToName(key).lowercase()
-}
-
-private fun formatSubtitleDelay(delayMs: Int): String {
-    return when {
-        delayMs > 0 -> "+${delayMs}ms"
-        delayMs < 0 -> "${delayMs}ms"
-        else -> "0ms"
-    }
 }

@@ -134,7 +134,9 @@ internal fun selectDiscoverSources(
     if (!genre.isNullOrBlank()) {
         return ofType.filter { catalog -> catalog.genres.any { it.equals(genre, ignoreCase = true) } }
     }
-    val browsable = ofType.filter { !it.genreRequired }
+    // A required catalog whose default is "None" is its unfiltered view: it belongs under
+    // All genres, now that "None" isn't offered as a genre of its own.
+    val browsable = ofType.filter { !it.genreRequired || it.defaultGenre?.let(::isNoGenreOption) == true }
     return browsable.ifEmpty { ofType.filter { it.defaultGenre != null } }
 }
 

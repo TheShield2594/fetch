@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import com.fetch.tv.ui.theme.FetchTheme
 
 /**
@@ -60,14 +61,18 @@ private fun Modifier.fadeScrolledEdges(state: ScrollState, fade: Dp, opaque: Col
         drawContent()
         val width = fade.toPx().coerceAtMost(size.width / 2)
         if (width <= 0f) return@drawWithContent
-        if (state.canScrollBackward) {
+        // Scroll direction follows the reading direction: in RTL, "forward" is to the left.
+        val rtl = layoutDirection == LayoutDirection.Rtl
+        val fadeLeft = if (rtl) state.canScrollForward else state.canScrollBackward
+        val fadeRight = if (rtl) state.canScrollBackward else state.canScrollForward
+        if (fadeLeft) {
             drawRect(
                 brush = Brush.horizontalGradient(0f to Color.Transparent, 1f to opaque, startX = 0f, endX = width),
                 size = Size(width, size.height),
                 blendMode = BlendMode.DstIn
             )
         }
-        if (state.canScrollForward) {
+        if (fadeRight) {
             drawRect(
                 brush = Brush.horizontalGradient(
                     0f to opaque,

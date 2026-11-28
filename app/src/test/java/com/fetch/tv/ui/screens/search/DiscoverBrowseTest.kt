@@ -29,6 +29,20 @@ class DiscoverBrowseTest {
     }
 
     @Test
+    fun `a required catalog whose default is None is asked under All genres`() {
+        val catalogs = listOf(
+            catalog("popular", "movie"),
+            catalog("lists", "movie", genres = listOf("None", "Action"), genreRequired = true, defaultGenre = "None"),
+            catalog("byGenre", "movie", genres = listOf("Action"), genreRequired = true, defaultGenre = "Action")
+        )
+
+        val sources = selectDiscoverSources(catalogs, type = "movie", genre = null)
+
+        assertEquals(listOf("popular", "lists"), sources.map { it.key })
+        assertEquals("None", discoverGenreArg(sources[1], genre = null))
+    }
+
+    @Test
     fun `genre-required catalogs join on their default genre when nothing else can be browsed`() {
         val catalogs = listOf(
             catalog("byGenre", "movie", genres = listOf("Action"), genreRequired = true, defaultGenre = "Action"),

@@ -361,7 +361,9 @@ data class TmdbDetailsResponse(
     @Json(name = "status") val status: String? = null,
     @Json(name = "belongs_to_collection") val belongsToCollection: TmdbCollectionSummary? = null,
     /** A series' next episode, when TMDB knows one is scheduled. */
-    @Json(name = "next_episode_to_air") val nextEpisodeToAir: TmdbNextEpisode? = null
+    @Json(name = "next_episode_to_air") val nextEpisodeToAir: TmdbNextEpisode? = null,
+    /** A series' most recently aired episode. */
+    @Json(name = "last_episode_to_air") val lastEpisodeToAir: TmdbNextEpisode? = null
 )
 
 @JsonClass(generateAdapter = true)

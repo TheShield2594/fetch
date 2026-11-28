@@ -94,9 +94,25 @@ class WatchHistoryCalendarSource internal constructor(
         // With the spoiler setting on, an unaired episode's still is left out and its row shows
         // the series backdrop instead.
         val showStills = !hideEpisodeStills()
-        val entries = lookups.mapNotNull { (show, result) ->
-            val details = result.getOrNull() ?: return@mapNotNull null
-            upcomingEntry(
+        val watchedKeys = watchedEpisodeKeys(inProgress, watched)
+        val entries = lookups.flatMap { (show, result) ->
+            val details = result.getOrNull() ?: return@flatMap emptyList()
+            // The latest aired episode, for the past week, marked from the watch history; its
+            // still shows when spoilers aren't hidden, or once it's been watched.
+            val recent = recentEntry(
+                series = show,
+                last = details.lastEpisodeToAir,
+                fallbackPoster = details.posterPath?.let { "$POSTER_BASE$it" },
+                today = today,
+                pastDays = CalendarPastDays,
+                watchedKeys = watchedKeys,
+                backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" }
+            )?.let { entry ->
+                val still = details.lastEpisodeToAir?.stillPath?.takeIf { it.isNotBlank() }
+                    ?.takeIf { showStills || entry.watched }
+                entry.copy(still = still?.let { "$BACKDROP_BASE$it" })
+            }
+            val upcoming = upcomingEntry(
                 series = show,
                 next = details.nextEpisodeToAir,
                 status = details.status,
@@ -108,6 +124,7 @@ class WatchHistoryCalendarSource internal constructor(
                     ?.takeIf { showStills && it.isNotBlank() }
                     ?.let { "$BACKDROP_BASE$it" }
             )
+            listOfNotNull(recent, upcoming)
         }
         CalendarLookup(entries, failedSeries = lookups.count { it.second.isFailure })
     }

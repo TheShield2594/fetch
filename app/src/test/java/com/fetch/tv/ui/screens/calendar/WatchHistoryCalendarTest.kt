@@ -76,6 +76,21 @@ class WatchHistoryCalendarTest {
     }
 
     @Test
+    fun `the latest aired episode of the past week is listed, marked watched from the history`() {
+        val keys = watchedEpisodeKeys(progress = emptyList(), watched = listOf(watched("tt1:1:2", at = 1)))
+        val one = show.copy(id = "tt1")
+        val last = TmdbNextEpisode(seasonNumber = 1, episodeNumber = 2, name = "Two", airDate = "2026-11-01")
+
+        val entry = recentEntry(one, last, null, today, pastDays = 7, watchedKeys = keys)
+
+        assertNotNull(entry)
+        assertEquals(true, entry!!.watched)
+        assertEquals(false, recentEntry(one, last.copy(episodeNumber = 3), null, today, 7, keys)!!.watched)
+        assertNull(recentEntry(one, last.copy(airDate = "2026-10-20"), null, today, 7, keys))
+        assertNull(recentEntry(one, last.copy(airDate = "2026-11-05"), null, today, 7, keys))
+    }
+
+    @Test
     fun `episodes outside the range, undated, or of ended shows are left out`() {
         assertNull(upcomingEntry(show, next("2026-12-20"), null, null, today, days = 14))
         assertNull(upcomingEntry(show, next("2026-11-01"), null, null, today, days = 30))

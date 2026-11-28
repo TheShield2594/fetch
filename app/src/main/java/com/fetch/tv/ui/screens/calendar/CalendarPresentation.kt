@@ -155,6 +155,55 @@ internal fun startedSeries(
         .take(limit)
 }
 
+/** `series:season:episode` for every episode the profile has watched, by [seriesBaseId]. */
+internal fun watchedEpisodeKeys(
+    progress: List<com.fetch.tv.domain.model.WatchProgress>,
+    watched: List<com.fetch.tv.domain.model.WatchedItem>
+): Set<String> = buildSet {
+    watched.forEach { item ->
+        if (item.season != null && item.episode != null) add("${seriesBaseId(item.contentId)}:${item.season}:${item.episode}")
+    }
+    progress.forEach { item ->
+        if (item.season != null && item.episode != null && item.isCompleted()) {
+            add("${seriesBaseId(item.contentId)}:${item.season}:${item.episode}")
+        }
+    }
+}
+
+/**
+ * [series]' most recently aired episode as a calendar entry when it aired in the [pastDays] days
+ * before [today] (or today), marked watched from [watchedKeys]; null otherwise.
+ */
+internal fun recentEntry(
+    series: StartedSeries,
+    last: com.fetch.tv.data.remote.api.TmdbNextEpisode?,
+    fallbackPoster: String?,
+    today: LocalDate,
+    pastDays: Int,
+    watchedKeys: Set<String>,
+    backdrop: String? = null,
+    /** The episode's still; the caller leaves it null when spoilers are hidden and it's unwatched. */
+    still: String? = null
+): WebsiteCalendarEntry? {
+    val airDate = last?.airDate?.let(::parseAirDate) ?: return null
+    if (airDate.isAfter(today) || airDate.isBefore(today.minusDays(pastDays.toLong()))) return null
+    val season = last.seasonNumber ?: return null
+    val episode = last.episodeNumber ?: return null
+    return WebsiteCalendarEntry(
+        seriesImdbId = series.id,
+        seriesName = series.name,
+        poster = series.poster ?: fallbackPoster,
+        season = season,
+        episode = episode,
+        episodeName = last.name?.takeIf { it.isNotBlank() },
+        airDate = airDate.toString(),
+        overview = last.overview?.takeIf { it.isNotBlank() },
+        backdrop = backdrop,
+        still = still,
+        watched = "${series.id}:$season:$episode" in watchedKeys
+    )
+}
+
 /**
  * [series]' next episode as a calendar entry when it airs between [today] and [days] days
  * after it; null when there's none, it has aired, it's further out, or the show has ended.

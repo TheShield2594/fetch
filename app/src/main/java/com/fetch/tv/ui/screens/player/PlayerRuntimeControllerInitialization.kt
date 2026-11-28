@@ -1106,6 +1106,8 @@ internal fun PlayerRuntimeController.initializePlayer(
                 setHandleAudioBecomingNoisy(true)
 
                 try {
+                    // A switch from mpv: its session, audio focus and receivers go first.
+                    stopMpvPlatformIntegration()
                     currentMediaSession?.release()
                     if (canAdvertiseSession()) {
                         currentMediaSession = MediaSession.Builder(context, mediaSessionPlayer(this)).build()

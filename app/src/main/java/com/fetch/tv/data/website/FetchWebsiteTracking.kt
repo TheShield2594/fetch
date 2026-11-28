@@ -213,16 +213,33 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
 
     override suspend fun refresh(intent: TrackingRefreshIntent) = repository.refresh(intent)
 
-    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) {
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) =
+        removeProgress(contentId, season, episode, repository.activeSlot())
+
+    /**
+     * Bound to TV slot [profileId] (#837). The snapshot is the active profile's, so a switch while
+     * it loads or refreshes ends the removal; the deletes go out as that slot's website profile,
+     * and the local update only applies while it is still active.
+     */
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int) {
+        val slot = profileId
+        if (repository.activeSlot() != slot) return
         repository.ensureLoaded()
-        var ids = repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
+        if (repository.activeSlot() != slot) return
+        // The optimistic removal runs first and has already taken these out of the snapshot; it
+        // keeps them here so the website delete still goes out.
+        var ids = optimisticallyRemoved.remove(removalKey(slot, contentId, season, episode)).orEmpty() +
+            repository.currentSnapshot()?.takeIf { it.slot == slot }
+                ?.playbackIdsFor(contentId, season, episode).orEmpty()
         if (ids.any(::isLocalPlaybackId)) {
             // A point saved from this TV but not read back yet has no website id: read it first.
             repository.refresh(TrackingRefreshIntent.AUTOMATIC)
-            ids = ids + repository.currentSnapshot()?.playbackIdsFor(contentId, season, episode).orEmpty()
+            if (repository.activeSlot() != slot) return
+            ids = ids + repository.currentSnapshot()?.takeIf { it.slot == slot }
+                ?.playbackIdsFor(contentId, season, episode).orEmpty()
         }
         if (ids.isEmpty()) return
-        repository.asProfile(repository.activeSlot()) { profileId, token ->
+        repository.asProfile(slot) { profileId, token ->
             ids.filterNot(::isLocalPlaybackId).distinct().forEach { id ->
                 try {
                     client.deletePlayback(profileId, token, id)
@@ -232,7 +249,7 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
                 }
             }
         }
-        repository.mutate { snapshot -> snapshot.copy(playback = snapshot.playback.filterNot { it.id in ids }) }
+        repository.mutateFor(slot) { snapshot -> snapshot.copy(playback = snapshot.playback.filterNot { it.id in ids }) }
     }
 
     /**
@@ -260,11 +277,27 @@ class FetchWebsiteTrackingProgressProvider @Inject constructor(
         }
     }
 
-    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) {
-        repository.mutate { snapshot ->
-            val ids = snapshot.playbackIdsFor(contentId, season, episode).toSet()
-            snapshot.copy(playback = snapshot.playback.filterNot { it.id in ids })
-        }
+    /**
+     * Playback ids the optimistic removal took out of the snapshot, by slot and title, until the
+     * removal itself reads them. Without this, the removal found nothing left to delete on the
+     * website once the optimistic update had run.
+     */
+    private val optimisticallyRemoved = java.util.concurrent.ConcurrentHashMap<String, List<String>>()
+
+    private fun removalKey(slot: Int, contentId: String, season: Int?, episode: Int?) =
+        "$slot|${contentId.lowercase()}|${season ?: -1}|${episode ?: -1}"
+
+    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) =
+        applyOptimisticRemoval(contentId, season, episode, repository.activeSlot())
+
+    /** Only on [profileId]'s snapshot: the ids are kept, and removed, for that slot alone. */
+    override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?, profileId: Int) {
+        val slot = profileId
+        val ids = repository.currentSnapshot()?.takeIf { it.slot == slot }
+            ?.playbackIdsFor(contentId, season, episode).orEmpty()
+        if (ids.isEmpty()) return
+        optimisticallyRemoved.merge(removalKey(slot, contentId, season, episode), ids) { old, new -> (old + new).distinct() }
+        repository.mutateFor(slot) { snapshot -> snapshot.copy(playback = snapshot.playback.filterNot { it.id in ids }) }
     }
 
     override fun clearOptimistic() = Unit

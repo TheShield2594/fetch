@@ -75,6 +75,13 @@ class MdbListTrackingProgressProvider @Inject constructor(
     override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) =
         scrobbles.clear(sync.currentScope(), contentId, season, episode)
 
+    /** Bound to [profileId] (#837): nothing is cleared when the scope now belongs to another profile. */
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int) {
+        val scope = sync.currentScope()
+        if (scope.profileId != profileId) return
+        scrobbles.clear(scope, contentId, season, episode)
+    }
+
     override fun applyOptimisticProgress(progress: WatchProgress, quiet: Boolean) = Unit
     override fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?) = Unit
     override fun clearOptimistic() = Unit

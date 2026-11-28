@@ -529,6 +529,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                 )
                 val (mainItems, upcomingOnly) = splitUpcomingItems(initialItems, continueWatchingSortMode)
 
+                markCwLivePublished() // before the write: the disk restore must not land after it
                 _uiState.update { state ->
                     if (mainItems.isEmpty() && upcomingOnly.isEmpty() && state.continueWatchingItems.isNotEmpty()) {
                         state
@@ -612,6 +613,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
                                 )
                             )
                             val (partialMain, partialUpcoming) = splitUpcomingItems(partialItems, continueWatchingSortMode)
+                            markCwLivePublished() // before the write: the disk restore must not land after it
                             _uiState.update { state ->
                                 if (state.continueWatchingItems == partialMain && state.upcomingItems == partialUpcoming) {
                                     state
@@ -1069,6 +1071,7 @@ internal fun HomeViewModel.loadContinueWatchingPipeline() {
             )
             val (normalMain, normalUpcoming) = splitUpcomingItems(normalItems, continueWatchingSortMode)
 
+            markCwLivePublished() // before the write: the disk restore must not land after it
             _uiState.update { state ->
                 // Don't overwrite cached CW with empty data while sources are still loading.
                 // Once remote progress is confirmed loaded (Fetch Sync completed or Trakt
@@ -1618,6 +1621,7 @@ private suspend fun HomeViewModel.enrichVisibleContinueWatchingItems(
         }
     }
 
+    markCwLivePublished() // before the write: the disk restore must not land after it
     _uiState.update { state ->
         val mergedEnrichedItems = mergeConcurrentContinueWatchingEnrichment(
             currentItems = state.continueWatchingItems + state.upcomingItems,
@@ -2135,7 +2139,8 @@ private suspend fun HomeViewModel.findNextUpEpisodeFromMetaSeed(
     val nextSeason = nextVideo.season ?: return null
     val nextEpisode = nextVideo.episode ?: return null
     val rawReleased = nextVideo.released?.trim()?.takeIf { it.isNotBlank() }
-    val computedHasAired = hasEpisodeAired(rawReleased, fallback = true)
+    // Undated is unaired, as the resolver treats it; only "show unaired" lets one through.
+    val computedHasAired = hasEpisodeAired(rawReleased, fallback = false)
     val resolution = NextUpResolution(
         season = nextSeason,
         episode = nextEpisode,
@@ -2237,35 +2242,26 @@ internal fun resolveNextUpVideoFromMeta(
 
     val todayLocal = LocalDate.now(ZoneId.systemDefault())
     val watchedEpisodeSeason = episodes[watchedIndex].season
-    val nextVideo = episodes.drop(watchedIndex + 1).firstOrNull { video ->
-        if (video.season in progress.excludedNextUpSeasons) return@firstOrNull false
-        if ((video.season to video.episode) in watchedSinceSeed) return@firstOrNull false
+    // The first candidate that isn't skipped decides: an episode that can't be offered yet ends
+    // the search instead of letting a later one stand in for it. A missing date counts as
+    // unaired (see isNextUpEpisodeUnaired), for a season premiere as much as mid-season.
+    var nextVideo: CwVideoSummary? = null
+    for (video in episodes.drop(watchedIndex + 1)) {
+        if (video.season in progress.excludedNextUpSeasons) continue
+        if ((video.season to video.episode) in watchedSinceSeed) continue
         val releaseDate = parseEpisodeReleaseDate(video.released)
         val isSeasonRollover = video.season != watchedEpisodeSeason
-        if (isSeasonRollover) {
-            if (releaseDate == null) {
-                return@firstOrNull false
-            }
-            if (!releaseDate.isAfter(todayLocal)) {
-                return@firstOrNull true
-            }
+        val offer = when {
+            releaseDate == null -> showUnairedNextUp && video.available != false
+            !releaseDate.isAfter(todayLocal) -> true
+            !showUnairedNextUp -> false
             // Match mobile: show unaired next-season episodes within 7-day window
-            if (showUnairedNextUp) {
-                val daysUntil = java.time.temporal.ChronoUnit.DAYS.between(todayLocal, releaseDate)
-                if (daysUntil <= CW_NEXT_UP_NEW_SEASON_UNAIRED_WINDOW_DAYS) {
-                    return@firstOrNull true
-                }
-            }
-            return@firstOrNull false
+            isSeasonRollover -> java.time.temporal.ChronoUnit.DAYS.between(todayLocal, releaseDate) <=
+                CW_NEXT_UP_NEW_SEASON_UNAIRED_WINDOW_DAYS
+            else -> true
         }
-
-        if (!isNextUpEpisodeUnaired(releaseDate, todayLocal)) {
-            return@firstOrNull true
-        }
-        if (releaseDate == null && video.available == false) {
-            return@firstOrNull false
-        }
-        showUnairedNextUp
+        if (offer) nextVideo = video
+        break
     }
 
     if (nextVideo == null) {
@@ -2794,13 +2790,13 @@ private fun HomeViewModel.publishBadgeUpdate(
             } ?: return@filter false
             if (airedEpisodes.isEmpty()) return@filter false
             val watched = allWatchedEpisodes[contentId] ?: return@filter false
+            // Set comparison with specials excluded on both sides: a watched special must
+            // not stand in for an unwatched regular episode.
             val allWatched = isFullyWatchedAgainstAiredList(airedEpisodes, watched)
-            val fullyWatchedByCount = !allWatched &&
-                watched.size >= airedEpisodes.size
-            if (!allWatched && !fullyWatchedByCount && watched.isNotEmpty()) {
+            if (!allWatched && watched.isNotEmpty()) {
                 validatedNotFullyWatched.add(contentId)
             }
-            allWatched || fullyWatchedByCount
+            allWatched
         }
         .toSet()
     // Expand IDs: for each fully-watched IMDB ID, also include the
@@ -3098,7 +3094,9 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
     isNextUp: Boolean = false,
     /** Cards as they were shown when the user removed one; an undo hold hides it from [uiState]. */
     knownItems: List<ContinueWatchingItem> = emptyList(),
-    scope: CoroutineScope = viewModelScope
+    scope: CoroutineScope = viewModelScope,
+    /** The profile the writes go to; read now, never when the writes run. */
+    profileId: Int = profileManager.currentProfileId()
 ) {
     if (isNextUp) {
         val dismissedId = contentId.trim()
@@ -3131,7 +3129,7 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
             )
         }
         scope.launch {
-            traktSettingsDataStore.addNextUpDismissal(dismissal)
+            traktSettingsDataStore.addNextUpDismissal(dismissal, profileId)
         }
         return
     }
@@ -3163,11 +3161,12 @@ internal fun HomeViewModel.removeContinueWatchingPipeline(
     scope.launch {
         // Before the removal, so the pipeline run it triggers already sees the dismissal.
         // Playing the show again clears it (WatchProgressRepositoryImpl.saveProgress).
-        dismissal?.let { traktSettingsDataStore.addNextUpDismissal(it) }
+        dismissal?.let { traktSettingsDataStore.addNextUpDismissal(it, profileId) }
         watchProgressRepository.removeProgress(
             contentId = contentId,
             season = null,
-            episode = null
+            episode = null,
+            profileId = profileId
         )
     }
 }

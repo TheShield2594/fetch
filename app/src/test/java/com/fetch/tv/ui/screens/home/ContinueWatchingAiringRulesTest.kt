@@ -182,6 +182,24 @@ class ContinueWatchingAiringRulesTest {
         )
     }
 
+    @Test
+    fun `nine of ten episodes plus a watched special is not fully watched`() {
+        val aired = (1..10).map { 1 to it }.toSet()
+        val watched = (1..9).map { 1 to it }.toSet() + (0 to 1)
+        assertFalse(isFullyWatchedAgainstAiredList(aired, watched))
+    }
+
+    @Test
+    fun `specials are ignored on the aired side`() {
+        val aired = setOf(0 to 1, 1 to 1, 1 to 2)
+        assertTrue(isFullyWatchedAgainstAiredList(aired, setOf(1 to 1, 1 to 2)))
+    }
+
+    @Test
+    fun `an aired list of only specials is never fully watched`() {
+        assertFalse(isFullyWatchedAgainstAiredList(setOf(0 to 1), setOf(0 to 1)))
+    }
+
     private fun episode(season: Int, ep: Int, released: String) = CwVideoSummary(
         id = "tt-test:$season:$ep",
         title = "E$ep",

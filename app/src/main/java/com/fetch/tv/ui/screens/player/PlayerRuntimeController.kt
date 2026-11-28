@@ -678,6 +678,15 @@ class PlayerRuntimeController(
     internal var mpvView: FetchMpvSurfaceView? = null
     internal var mpvInitializationInProgress: Boolean = false
     internal var mpvMediaLoadPrepared: Boolean = false
+    /** mpv's MediaSession player, audio focus and route handling, and the job feeding them (#766). */
+    internal var mpvSessionPlayer: MpvSessionPlayer? = null
+    internal var mpvAudioFocus: MpvAudioFocusAndRouting? = null
+    internal var mpvPlatformJob: Job? = null
+    /** mpv's file was stopped in the background to free the decoder; reloaded paused on start. */
+    internal var mpvStoppedForLifecycle: Boolean = false
+    internal var mpvLifecycleResumePositionMs: Long = 0L
+    /** Between ON_STOP and ON_START. An mpv start-up that finishes in this window unloads again. */
+    internal var lifecycleStopped: Boolean = false
     internal var mpvTrackRefreshJob: Job? = null
     internal var mpvTrackRefreshInProgress: Boolean = false
     internal val mpvTrackRefreshGate = MpvTrackRefreshGate()

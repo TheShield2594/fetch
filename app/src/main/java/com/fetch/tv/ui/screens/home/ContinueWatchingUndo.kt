@@ -102,8 +102,8 @@ internal fun HomeViewModel.commitPendingContinueWatchingRemoval(scope: Coroutine
     val pending = _pendingCwRemoval.value ?: return
     cwRemovalCommitJob?.cancel()
     cwRemovalCommitJob = null
-    // The repository writes to whichever profile is active, so a removal held across a profile
-    // switch is dropped rather than applied to the new profile's progress.
+    // A removal held across a profile switch is dropped rather than applied. The writes also
+    // carry the profile explicitly, so a switch after this check cannot redirect them.
     if (profileManager.currentProfileId() != pending.profileId) {
         _pendingCwRemoval.value = null
         return
@@ -115,7 +115,8 @@ internal fun HomeViewModel.commitPendingContinueWatchingRemoval(scope: Coroutine
         episode = pending.episode,
         isNextUp = pending.isNextUp,
         knownItems = pending.shownItems,
-        scope = scope
+        scope = scope,
+        profileId = pending.profileId
     )
     if (_pendingCwRemoval.value?.token == pending.token) _pendingCwRemoval.value = null
 }

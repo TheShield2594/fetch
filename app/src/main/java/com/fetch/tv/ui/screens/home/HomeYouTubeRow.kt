@@ -37,6 +37,12 @@ internal const val YOUTUBE_HOME_ROW_MAX_VIDEOS = 20
 internal const val YOUTUBE_HOME_ROW_CACHE_TTL_MS = 10L * 60L * 1000L
 
 /**
+ * How long a failed fetch is kept. Short, so the row comes back on the next return to Home once
+ * the network does, while a run of quick returns still doesn't retry each time.
+ */
+internal const val YOUTUBE_HOME_ROW_FAILURE_TTL_MS = 60L * 1000L
+
+/**
  * Whether Home may show the YouTube row at all. Restricted and kids profiles don't get it,
  * as they don't get the YouTube screen it opens.
  */
@@ -91,7 +97,13 @@ class HomeYouTubeRow @Inject constructor(
     // The channel matters as well as the profile: switching channel shows other subscriptions.
     private data class Gate(val show: Boolean, val profileId: Int, val pageId: String?)
 
-    private class CachedPage(val profileId: Int, val pageId: String?, val fetchedAtMs: Long, val page: YouTubePage)
+    private class CachedPage(
+        val profileId: Int,
+        val pageId: String?,
+        val fetchedAtMs: Long,
+        val page: YouTubePage,
+        val failed: Boolean = false
+    )
 
     private val cacheMutex = Mutex()
     private var cached: CachedPage? = null
@@ -151,8 +163,14 @@ class HomeYouTubeRow @Inject constructor(
 
     private suspend fun page(profileId: Int, pageId: String?): YouTubePage = cacheMutex.withLock {
         val now = SystemClock.elapsedRealtime()
-        cached?.takeIf { it.profileId == profileId && it.pageId == pageId && youTubeHomeRowCacheFresh(it.fetchedAtMs, now) }
-            ?.let { return@withLock it.page }
+        val previous = cached?.takeIf { it.profileId == profileId && it.pageId == pageId }
+        previous?.takeIf {
+            youTubeHomeRowCacheFresh(
+                fetchedAtMs = it.fetchedAtMs,
+                nowMs = now,
+                ttlMs = if (it.failed) YOUTUBE_HOME_ROW_FAILURE_TTL_MS else YOUTUBE_HOME_ROW_CACHE_TTL_MS
+            )
+        }?.let { return@withLock it.page }
         val loaded = withTimeoutOrNull(timeoutMs) {
             try {
                 youTubeService.loadFeed(YouTubeFeed.SUBSCRIPTIONS)
@@ -163,11 +181,16 @@ class HomeYouTubeRow @Inject constructor(
                 null
             }
         }
-        // Signed out, offline, unreachable or a changed response: the row stays hidden, and the
-        // empty page is kept for the cache time so each return to Home doesn't try again.
-        val page = loaded ?: YouTubePage(emptyList(), null)
-        cached = CachedPage(profileId, pageId, now, page)
-        page
+        // Signed out, offline, unreachable or a changed response: the last good page stays (or
+        // the row stays hidden), and the failure is kept only briefly, so the row comes back on a
+        // later return to Home once the network does instead of after the full cache time.
+        if (loaded == null) {
+            val page = previous?.page ?: YouTubePage(emptyList(), null)
+            cached = CachedPage(profileId, pageId, now, page, failed = true)
+            return@withLock page
+        }
+        cached = CachedPage(profileId, pageId, now, loaded)
+        loaded
     }
 
     private companion object {

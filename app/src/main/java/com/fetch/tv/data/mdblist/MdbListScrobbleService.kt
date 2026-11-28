@@ -23,6 +23,8 @@ class MdbListScrobbleService @Inject constructor(
 
     suspend fun clear(scope: MdbListAuthScope, contentId: String, season: Int?, episode: Int?) {
         sync.ensureLoaded()
+        // A profile or account switch while loading: the snapshot is now another account's (#837).
+        if (sync.currentScope() != scope) return
         val sessions = sync.currentSnapshot()?.playback.orEmpty().filter { session ->
             contentId in session.media.ids.aliases() &&
                 (season == null || episode == null || session.season == season && session.episode == episode)

@@ -240,6 +240,19 @@ class HomeViewModel @Inject constructor(
 
     /** True once the CW pipeline has completed its first emission (items or empty). */
     internal val _initialCwResolved = MutableStateFlow(false)
+    /**
+     * Set before the pipeline's first Continue Watching write; the disk restore then stays out.
+     * Written and read under [cwPublishLock], so a restore that already checked it has finished its
+     * write before the pipeline's write runs, and the pipeline's write always lands last.
+     */
+    @Volatile
+    internal var cwLivePublished: Boolean = false
+    internal val cwPublishLock = Any()
+
+    /** Marks the pipeline as published; call right before each of its Continue Watching writes. */
+    internal fun markCwLivePublished() {
+        synchronized(cwPublishLock) { cwLivePublished = true }
+    }
     val initialCwResolved: StateFlow<Boolean> = _initialCwResolved.asStateFlow()
     val effectiveAutoplayEnabled = playerSettingsDataStore.playerSettings
         .map(StreamAutoPlayPolicy::isEffectivelyEnabled)
@@ -598,12 +611,16 @@ class HomeViewModel @Inject constructor(
                         it.copy(
                             layoutPreferencesReady = false,
                             continueWatchingItems = emptyList(),
+                            // Upcoming is the same pipeline's other half; left alone, the
+                            // previous profile's row stayed until the new final merge (#809).
+                            upcomingItems = emptyList(),
                             becauseYouWatchedRows = emptyList()
                         )
                     }
                     clearFocusState()
                                 // Reset so the new profile's pipeline signals first completion correctly.
                     _initialCwResolved.value = false
+                    synchronized(cwPublishLock) { cwLivePublished = false }
                     loadContinueWatching()
                     // Clear watched badges so they don't leak between profiles.
                     watchedSeriesStateHolder.clearInMemory()
@@ -989,8 +1006,23 @@ class HomeViewModel @Inject constructor(
             // A profile switch while this ran has already cleared Home for the new profile.
             if (items.isNotEmpty() && profileManager.currentProfileId() == profileId) {
                 val (mainItems, upcomingOnly) = splitUpcomingItems(items, sortMode)
-                _uiState.update { it.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly) }
-                _initialCwResolved.value = true
+                var restored = false
+                synchronized(cwPublishLock) { _uiState.update { state ->
+                    // Only a placeholder until the pipeline's first result: on slow storage this
+                    // can land after it, and must not put the older disk copy back over it.
+                    if (_initialCwResolved.value ||
+                        cwLivePublished ||
+                        state.continueWatchingItems.isNotEmpty() ||
+                        state.upcomingItems.isNotEmpty()
+                    ) {
+                        restored = false
+                        state
+                    } else {
+                        restored = true
+                        state.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly)
+                    }
+                } }
+                if (restored) _initialCwResolved.value = true
             }
         }
         loadContinueWatchingPipeline()
@@ -1205,6 +1237,7 @@ class HomeViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        android.util.Log.d(TAG, "HomeViewModel cleared (profile ${profileManager.currentProfileId()})")
         // Leaving the app commits a removal still in its undo window. The view model's own scope
         // is already cancelled here, so the writes run on a scope of their own.
         commitPendingContinueWatchingRemoval(

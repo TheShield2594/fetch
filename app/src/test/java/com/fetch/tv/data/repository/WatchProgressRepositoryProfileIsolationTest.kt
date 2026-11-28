@@ -3,7 +3,9 @@ package com.fetch.tv.data.repository
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.tmdb.TmdbService
 import com.fetch.tv.core.tracking.TrackingHistoryWriterRegistry
+import com.fetch.tv.core.tracking.TrackingProgressProvider
 import com.fetch.tv.core.tracking.TrackingProgressProviderRegistry
+import com.fetch.tv.core.tracking.TrackingProviderId
 import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.TraktSettingsDataStore
 import com.fetch.tv.data.local.WatchProgressPreferences
@@ -16,6 +18,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
@@ -74,7 +77,52 @@ class WatchProgressRepositoryProfileIsolationTest {
         }
     }
 
-    private fun harness(activeProfileId: Int): Harness {
+    @Test
+    fun `explicit removal deletes its own profile and skips the other profile's trackers`() = runTest {
+        val provider = trackingProvider()
+        val harness = harness(activeProfileId = 2, providers = setOf(provider))
+
+        harness.repository.removeProgress("item", null, null, profileId = 1)
+
+        coVerify(exactly = 1) {
+            harness.progressPreferences.removeProgress("item", null, null, 1)
+        }
+        coVerify(exactly = 0) {
+            harness.progressPreferences.removeProgress("item", null, null, 2)
+        }
+        coVerify(exactly = 0) { provider.removeProgress(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `a profile switch during the tracker call does not redirect the local delete`() = runTest {
+        val provider = trackingProvider()
+        val harness = harness(activeProfileId = 1, providers = setOf(provider))
+        coEvery { provider.removeProgress("item", null, null, 1) } coAnswers {
+            harness.activeProfile.value = 2
+        }
+
+        harness.repository.removeProgress("item", null, null, profileId = 1)
+
+        coVerify(exactly = 1) { provider.removeProgress("item", null, null, 1) }
+        coVerify(exactly = 1) {
+            harness.progressPreferences.removeProgress("item", null, null, 1)
+        }
+        coVerify(exactly = 0) {
+            harness.progressPreferences.removeProgress("item", null, null, 2)
+        }
+    }
+
+    private fun trackingProvider(): TrackingProgressProvider {
+        val provider = mockk<TrackingProgressProvider>(relaxed = true)
+        every { provider.providerId } returns TrackingProviderId.entries.first()
+        every { provider.isAuthenticated } returns flowOf(true)
+        return provider
+    }
+
+    private fun harness(
+        activeProfileId: Int,
+        providers: Set<TrackingProgressProvider> = emptySet()
+    ): Harness {
         val activeProfile = MutableStateFlow(activeProfileId)
         val profileManager = mockk<ProfileManager>()
         every { profileManager.activeProfileId } returns activeProfile
@@ -93,7 +141,7 @@ class WatchProgressRepositoryProfileIsolationTest {
             metaRepository = mockk<MetaRepository>(relaxed = true),
             tmdbService = mockk<TmdbService>(relaxed = true),
             profileManager = profileManager,
-            trackingProgressProviders = TrackingProgressProviderRegistry(emptySet()),
+            trackingProgressProviders = TrackingProgressProviderRegistry(providers),
             trackingHistoryWriters = TrackingHistoryWriterRegistry(emptySet()),
             serverWatched = mockk(relaxed = true)
         )

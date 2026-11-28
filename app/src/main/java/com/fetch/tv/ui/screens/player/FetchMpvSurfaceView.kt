@@ -175,6 +175,21 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Unloads the current file and keeps the core (#766). The decoder, the network connection and
+     * the demuxer cache are freed while the app is in the background; the next [setMedia] loads
+     * the file again rather than treating it as already queued.
+     */
+    fun stopForBackground() {
+        if (!initialized) return
+        mpv.command("stop")
+        hasQueuedInitialMedia = false
+        lastMediaRequestKey = null
+        pendingInitialMediaUrl = null
+        pendingInitialStartOption = null
+        deferredLoadUntilSurface = false
+    }
+
     fun setPaused(paused: Boolean) {
         if (!initialized) return
         mpv.setPropertyBoolean("pause", paused)

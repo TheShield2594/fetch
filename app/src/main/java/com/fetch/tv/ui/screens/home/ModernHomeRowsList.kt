@@ -151,6 +151,13 @@ internal fun ModernHomeRowsList(
 
     val rowFocusRequesters = remember { mutableMapOf<String, FocusRequester>() }
     val stableItemFocusRequestersByRow = remember { mutableMapOf<String, StableRef<MutableMap<Int, FocusRequester>>>() }
+    // Drop the requesters of rows that are gone (a removed addon, a filter, a profile's rows), so
+    // the maps don't grow for the life of Home. A row that comes back just gets new ones.
+    LaunchedEffect(carouselRows) {
+        val liveKeys = carouselRows.list.mapTo(HashSet()) { it.key }
+        rowFocusRequesters.keys.retainAll(liveKeys)
+        stableItemFocusRequestersByRow.keys.retainAll(liveKeys)
+    }
 
     val density = LocalDensity.current
     val context = LocalContext.current

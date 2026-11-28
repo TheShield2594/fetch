@@ -144,6 +144,19 @@ class FetchWebsiteTrackingRepository @Inject constructor(
         _snapshot.update { current -> current?.let(transform)?.copy(fetchedAtMs = 0L) }
     }
 
+    /**
+     * [mutate], but only on a snapshot read for TV slot [slot]; any other snapshot is left as it
+     * is. The slot is checked inside the same atomic update, so a profile switch can't slip in
+     * between the check and the write (#837).
+     */
+    fun mutateFor(slot: Int, transform: (FetchWebsiteTrackingSnapshot) -> FetchWebsiteTrackingSnapshot) {
+        mutationGeneration.incrementAndGet()
+        _snapshot.update { current ->
+            if (current == null || current.slot != slot) current
+            else transform(current).copy(fetchedAtMs = 0L)
+        }
+    }
+
     /** Something changed on the website because of this TV; read it again now. */
     fun invalidate() {
         mutate { it }

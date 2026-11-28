@@ -53,11 +53,15 @@ fun mergeAiredNextEpisodeIntoBadgeCache(
 /**
  * After injecting the new aired episode, the series is fully watched only if
  * every aired episode (including the new one) is in the watched set.
+ *
+ * Season 0 (specials) is ignored on both sides. Watched specials never count toward
+ * the regular episodes, and an unwatched special does not keep a show from being done.
  */
 fun isFullyWatchedAgainstAiredList(
     airedEpisodes: Set<Pair<Int, Int>>,
     watchedEpisodes: Set<Pair<Int, Int>>,
 ): Boolean {
-    if (airedEpisodes.isEmpty()) return false
-    return airedEpisodes.all { it in watchedEpisodes }
+    val airedRegular = airedEpisodes.filterTo(HashSet()) { it.first != 0 }
+    if (airedRegular.isEmpty()) return false
+    return airedRegular.all { it in watchedEpisodes }
 }

@@ -1501,8 +1501,9 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
         return
     }
     val activeAutoPlay = state.postPlayMode as? PostPlayMode.AutoPlay
-    if (activeAutoPlay?.waitingForEnd == true && userInitiated) {
-        // A source is already picked and waits for the end of the file: start it now.
+    if (userInitiated && (activeAutoPlay?.waitingForEnd == true || activeAutoPlay?.countdownSec != null)) {
+        // A source is already picked and waits for the end of the file or counts down (perhaps
+        // held by a pause, #694): start it now.
         nextEpisodeStartNowSignal?.complete(Unit)
         return
     }
@@ -1733,11 +1734,14 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                 // for (Next, the card's Play, the remote's Next key) begins at once.
                 val countdownTotal = if (startedByUser) 0 else autoCountdown
                 var remaining = countdownTotal
-                while (remaining >= 1) {
+                // Next or the card's Play during the countdown starts at once, held or not.
+                val startNow = CompletableDeferred<Unit>()
+                if (countdownTotal > 0) nextEpisodeStartNowSignal = startNow
+                while (remaining >= 1 && !startNow.isCompleted) {
                     // Paused, or behind another app: hold the count where it is (#694). A rewind
                     // out of the card's window cancels this job from evaluatePostPlayOverlayVisibility.
                     if (autoPlayCountdownHeld()) {
-                        delay(AUTO_PLAY_END_WAIT_POLL_MS)
+                        withTimeoutOrNull(AUTO_PLAY_END_WAIT_POLL_MS) { startNow.await() }
                         continue
                     }
                     _uiState.update { current ->
@@ -1752,10 +1756,12 @@ internal fun PlayerRuntimeController.playNextEpisode(userInitiated: Boolean = fa
                             ),
                         )
                     }
-                    delay(POST_PLAY_COUNTDOWN_TICK_MS.toLong())
+                    withTimeoutOrNull(POST_PLAY_COUNTDOWN_TICK_MS.toLong()) { startNow.await() }
                     // A pause during the tick holds this second too, rather than consuming it.
                     if (!autoPlayCountdownHeld()) remaining--
                 }
+                if (nextEpisodeStartNowSignal === startNow) nextEpisodeStartNowSignal = null
+                if (startNow.isCompleted) startedByUser = true
                 _uiState.update {
                     it.copy(
                         postPlayMode = null,

@@ -117,7 +117,8 @@ fun PlayerScreen(state: AppState, session: PlayerSession) {
 
     LaunchedEffect(Unit) { focus.requestFocus() }
     // The display stays on while a file plays, and may blank again once it's paused or closed (#755).
-    val keepAwake = !mpv.paused && mpv.duration > 0 && mpv.error == null
+    // A live stream has no duration, so a moving position counts as playing too.
+    val keepAwake = !mpv.paused && (mpv.duration > 0 || mpv.position > 0) && mpv.error == null
     DisposableEffect(keepAwake) {
         if (keepAwake) com.fetch.desktop.player.IdleInhibitor.hold()
         onDispose { if (keepAwake) com.fetch.desktop.player.IdleInhibitor.release() }

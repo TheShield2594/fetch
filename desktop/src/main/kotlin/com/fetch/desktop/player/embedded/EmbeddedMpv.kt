@@ -312,12 +312,12 @@ class EmbeddedMpv private constructor(
     fun attachSubtitles(urls: List<String>) {
         if (urls.isEmpty()) return
         synchronized(subtitleLock) {
-            if (!fileLoaded) {
+            if (fileLoaded) {
+                urls.forEach { command("sub-add", it, "auto") }
+            } else {
                 pendingSubtitles = pendingSubtitles + urls
-                return
             }
         }
-        urls.forEach { command("sub-add", it, "auto") }
     }
 
     /** Adds a subtitle file (an addon's) and shows it. */
@@ -411,11 +411,14 @@ class EmbeddedMpv private constructor(
                 }
                 LibMpv.EVENT_START_FILE -> awaitingStart = false
                 LibMpv.EVENT_FILE_LOADED -> {
-                    val subtitles = synchronized(subtitleLock) {
+                    // Sent under the lock, so a load() after this can't slip its loadfile in
+                    // ahead of the previous file's subtitles.
+                    synchronized(subtitleLock) {
                         fileLoaded = true
-                        pendingSubtitles.also { pendingSubtitles = emptyList() }
+                        val subtitles = pendingSubtitles
+                        pendingSubtitles = emptyList()
+                        subtitles.forEach { command("sub-add", it, "auto") }
                     }
-                    subtitles.forEach { command("sub-add", it, "auto") }
                 }
                 LibMpv.EVENT_PLAYBACK_RESTART -> ui { buffering = false }
                 LibMpv.EVENT_END_FILE -> {

@@ -26,7 +26,11 @@ object IdleInhibitor {
 
     init {
         // A systemd-inhibit child would outlive the app and keep the screen on.
-        Runtime.getRuntime().addShutdownHook(Thread { (held as? SystemdInhibit)?.let { runCatching { it.release() } } })
+        Runtime.getRuntime().addShutdownHook(Thread {
+            (held as? SystemdInhibit)?.let { runCatching { it.release() } }
+            // One still being started (not yet in held) is stopped too.
+            SystemdInhibit.starting?.let { runCatching { it.destroy() } }
+        })
     }
 
     private sealed interface Held {
@@ -39,7 +43,10 @@ object IdleInhibitor {
     fun hold(reason: String = "Playing a video") {
         if (!isLinux) return
         worker.execute {
-            if (held == null) held = runCatching { ScreenSaverBus.inhibit(reason) }.getOrNull() ?: SystemdInhibit.start(reason)
+            if (held == null) {
+                held = runCatching { ScreenSaverBus.inhibit(reason) }.getOrNull() ?: SystemdInhibit.start(reason)
+                SystemdInhibit.starting = null
+            }
         }
     }
 
@@ -87,10 +94,14 @@ object IdleInhibitor {
                 ) ?: return null
                 try {
                     val args = mutableListOf<Any>()
+                    // The char** below holds only the text's address: keep each text buffer itself
+                    // reachable until append_args has copied it, or GC could free it first.
+                    val texts = mutableListOf<Memory>()
                     // Each argument is passed by address: a char** for a string, a dbus_uint32_t* for a uint32.
                     strings.forEach { value ->
                         val bytes = value.toByteArray(Charsets.UTF_8)
                         val text = Memory(bytes.size + 1L).apply { write(0, bytes, 0, bytes.size); setByte(bytes.size.toLong(), 0) }
+                        texts += text
                         val ref = Memory(Native.POINTER_SIZE.toLong()).apply { setPointer(0, text) }
                         args += DBUS_TYPE_STRING
                         args += ref
@@ -101,7 +112,10 @@ object IdleInhibitor {
                     }
                     if (args.isNotEmpty()) {
                         val first = args.removeAt(0) as Int
-                        if (lib.dbus_message_append_args(message, first, *args.toTypedArray(), DBUS_TYPE_INVALID) == 0) return null
+                        val appended = lib.dbus_message_append_args(message, first, *args.toTypedArray(), DBUS_TYPE_INVALID)
+                        java.lang.ref.Reference.reachabilityFence(texts)
+                        java.lang.ref.Reference.reachabilityFence(args)
+                        if (appended == 0) return null
                     }
                     val callError = newError()
                     val reply = lib.dbus_connection_send_with_reply_and_block(connection, message, CALL_TIMEOUT_MS, callError)
@@ -139,11 +153,15 @@ object IdleInhibitor {
         }
 
         companion object {
+            /** The process between its start and [held], for the shutdown hook. */
+            @Volatile var starting: Process? = null
+
             fun start(reason: String): Held? = runCatching {
                 val process = ProcessBuilder(
                     "systemd-inhibit", "--what=idle", "--who=Fetch", "--why=$reason", "--mode=block",
                     "sleep", "infinity"
                 ).redirectErrorStream(true).redirectOutput(ProcessBuilder.Redirect.DISCARD).start()
+                starting = process
                 // One that can't inhibit (no logind) exits at once.
                 if (process.waitFor(300, TimeUnit.MILLISECONDS)) null else SystemdInhibit(process)
             }.getOrNull()

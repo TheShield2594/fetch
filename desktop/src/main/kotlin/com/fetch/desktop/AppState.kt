@@ -2043,7 +2043,10 @@ class AppState(
             ) {
                 return@launch
             }
-            // mpv's window takes its subtitles on the command line, so it waits for them.
+            // mpv's window takes its subtitles on the command line, so it waits for them, and says so.
+            if (addonSubtitlesLater?.isCompleted == false || segmentsLater?.isCompleted == false) {
+                message = "Getting subtitles and skip times ready…"
+            }
             val subtitles = serverSubtitles + addonSubtitlesLater?.await().orEmpty()
             val options = MpvArgs.build(player, subtitles)
             val segments = segmentsLater?.await().orEmpty()
@@ -2392,15 +2395,21 @@ class AppState(
             session.mpv.follow(onPosition = { position -> watch.on(position); onPosition(position) }, onSample = onSample)
         }
         // Playing already: what was still being looked up joins this file as it arrives (#754).
+        // Each is taken as it arrives, in whichever order.
         fun stillThisFile() = playerSession === session && session.loads == load
-        if (segmentsLater != null && !segmentsLater.isCompleted) {
-            val late = segmentsLater.await()
-            if (stillThisFile() && late.isNotEmpty()) {
-                session.segments = late
-                skipper.set(SkipPlanner(late, settings.player.autoSkip).takeUnless { it.isEmpty })
+        coroutineScope {
+            if (segmentsLater != null && !segmentsLater.isCompleted) launch {
+                val late = segmentsLater.await()
+                if (stillThisFile() && late.isNotEmpty()) {
+                    session.segments = late
+                    skipper.set(SkipPlanner(late, settings.player.autoSkip).takeUnless { it.isEmpty })
+                }
+            }
+            if (addonSubtitlesLater != null) launch {
+                val late = addonSubtitlesLater.await()
+                if (stillThisFile() && late.isNotEmpty()) session.mpv.attachSubtitles(late)
             }
         }
-        addonSubtitlesLater?.await()?.takeIf { it.isNotEmpty() && stillThisFile() }?.let { session.mpv.attachSubtitles(it) }
         return true
     }
 

@@ -29,7 +29,6 @@ import com.fetch.desktop.UpdateChecker
 import com.fetch.desktop.data.AutoPlayMode
 import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.player.MpvArgs
-import com.fetch.desktop.player.embedded.LibMpv
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
 import com.fetch.tv.domain.model.ExperienceMode
 
@@ -112,18 +111,7 @@ fun PlaybackBasicsPage(state: AppState) {
     val p = s.player
     PageHeader("Playback", subtitle = "Simple playback, subtitle and audio preferences.")
     SettingsSection("Playback basics") {
-        val libmpv = remember { LibMpv.available }
-        SettingsChoice(
-            "Default Player",
-            when {
-                p.askPlayer -> "Fetch asks each time you press Play."
-                p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
-                p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls."
-                else -> "mpv, in its own window."
-            },
-            if (p.askPlayer) null else p.builtInPlayer,
-            listOf(DropdownOption<Boolean?>(false, "mpv window"), DropdownOption<Boolean?>(true, "Built-in (beta)"), DropdownOption<Boolean?>(null, "Ask every time"))
-        ) { v -> state.updatePlayerSettings { it.copy(builtInPlayer = v ?: it.builtInPlayer, askPlayer = v == null) } }
+        DefaultPlayerChoice(state)
         // The TV's Essential toggle: Manual, or let Fetch pick (Best match). Other modes show as they are.
         SettingsChoice(
             "Stream selection",

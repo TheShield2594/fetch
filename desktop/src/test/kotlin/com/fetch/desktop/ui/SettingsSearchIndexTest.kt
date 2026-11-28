@@ -81,4 +81,13 @@ class SettingsSearchIndexTest {
         assertTrue(SettingsSearch.search("dearrow", ExperienceMode.ADVANCED, hidden).none { it.page == SettingsPage.YOUTUBE })
         assertTrue(SettingsSearch.search("dearrow", ExperienceMode.ADVANCED).any { it.page == SettingsPage.YOUTUBE })
     }
+
+    @Test
+    fun `essential search leaves out hub rows for hidden pages`() {
+        val essential = SettingsSearch.visibleEntries(ExperienceMode.ESSENTIAL)
+        assertTrue(essential.none { it.title == "Home folders" || it.title == "Filter rows" })
+        assertTrue(essential.any { it.title == "Addons" && it.page == SettingsPage.CONTENT_DISCOVERY })
+        val advanced = SettingsSearch.visibleEntries(ExperienceMode.ADVANCED)
+        assertTrue(advanced.any { it.title == "Home folders" && it.page == SettingsPage.CONTENT_DISCOVERY })
+    }
 }

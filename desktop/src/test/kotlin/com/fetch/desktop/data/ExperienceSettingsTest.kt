@@ -46,6 +46,10 @@ class ExperienceSettingsTest {
         assertEquals(SettingsPage.PLAYBACK_BASICS, ExperiencePolicy.substitute(SettingsPage.STREAM_BADGES, ExperienceMode.ESSENTIAL))
         assertEquals(SettingsPage.PLAYER, ExperiencePolicy.substitute(SettingsPage.PLAYBACK_BASICS, ExperienceMode.ADVANCED))
         assertEquals(SettingsPage.LAYOUT, ExperiencePolicy.substitute(SettingsPage.LAYOUT, ExperienceMode.ESSENTIAL))
+        // A hidden sub-page opens its hub, not System › Advanced.
+        assertEquals(SettingsPage.CONTENT_DISCOVERY, ExperiencePolicy.substitute(SettingsPage.COLLECTIONS, ExperienceMode.ESSENTIAL))
+        assertEquals(SettingsPage.CONTENT_DISCOVERY, ExperiencePolicy.substitute(SettingsPage.FILTER_ROWS, ExperienceMode.ESSENTIAL))
+        assertEquals(SettingsPage.ADVANCED, ExperiencePolicy.substitute(SettingsPage.YOUTUBE, ExperienceMode.ESSENTIAL))
         assertFalse(ExperiencePolicy.canReorderAddons(ExperienceMode.ESSENTIAL))
         assertTrue(ExperiencePolicy.canReorderAddons(ExperienceMode.ADVANCED))
     }

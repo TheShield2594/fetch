@@ -57,12 +57,16 @@ object ExperiencePolicy {
     fun isVisible(page: SettingsPage, mode: ExperienceMode?): Boolean =
         page !in hiddenPages(mode) && page.parent?.let { it !in hiddenPages(mode) } != false
 
-    /** Where a hidden page sends you instead (a Playback page opens Playback basics in Essential). */
+    /**
+     * Where a hidden page sends you instead: a Playback page opens Playback basics in Essential, and
+     * a hidden sub-page (Home folders, Filter rows) opens its hub, so nothing lands on Advanced
+     * unless its whole section is hidden.
+     */
     fun substitute(page: SettingsPage, mode: ExperienceMode?): SettingsPage = when {
         isVisible(page, mode) -> page
         mode == ExperienceMode.ESSENTIAL && (page in playbackPages || page == SettingsPage.STREAM_BADGES) -> SettingsPage.PLAYBACK_BASICS
         mode != ExperienceMode.ESSENTIAL && page == SettingsPage.PLAYBACK_BASICS -> SettingsPage.PLAYER
-        else -> SettingsPage.ADVANCED
+        else -> page.parent?.takeIf { isVisible(it, mode) } ?: SettingsPage.ADVANCED
     }
 
     /** Addon order is an Advanced control, as on TV; installing and removing stay. */

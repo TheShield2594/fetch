@@ -43,7 +43,7 @@ javaxInject = "1"
 # Desktop: the built-in player talks to libmpv through JNA.
 jna = "5.18.1"
 desugarJdkLibs = "2.1.4"
-checkerQual = "3.43.0"
+checkerQual = "4.4.0"
 coreSplashscreen = "1.0.1"
 guava = "33.3.1-android"
 assMedia = "0.4.0"

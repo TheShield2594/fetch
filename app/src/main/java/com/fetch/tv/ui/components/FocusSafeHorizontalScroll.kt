@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.fetch.tv.ui.theme.FetchTheme
 
 /**
@@ -43,16 +42,19 @@ fun Modifier.focusSafeHorizontalScroll(
      */
     fadeEdges: Boolean = false
 ): Modifier = this
-    .bleed(horizontal = inset, vertical = if (fadeEdges) inset else 0.dp)
-    .then(if (fadeEdges) Modifier.fadeScrolledEdges(state, inset) else Modifier)
+    .bleed(horizontal = inset, vertical = if (fadeEdges) inset else Dp.Hairline)
+    .then(if (fadeEdges) Modifier.fadeScrolledEdges(state, inset, FetchTheme.colors.Background) else Modifier)
     .horizontalScroll(state)
-    .padding(horizontal = inset, vertical = if (fadeEdges) inset else 0.dp)
+    .padding(horizontal = inset, vertical = if (fadeEdges) inset else Dp.Hairline)
 
 /**
  * The fade is drawn into an offscreen layer, which clips to its bounds; the caller bleeds the row
  * vertically too, so focus rings above and below the controls aren't cut.
+ *
+ * The mask keeps content where [opaque] is drawn and hides it where the gradient is clear. Only
+ * its alpha counts: any opaque colour does, and the page background is one.
  */
-private fun Modifier.fadeScrolledEdges(state: ScrollState, fade: Dp): Modifier = this
+private fun Modifier.fadeScrolledEdges(state: ScrollState, fade: Dp, opaque: Color): Modifier = this
     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
     .drawWithContent {
         drawContent()
@@ -60,7 +62,7 @@ private fun Modifier.fadeScrolledEdges(state: ScrollState, fade: Dp): Modifier =
         if (width <= 0f) return@drawWithContent
         if (state.canScrollBackward) {
             drawRect(
-                brush = Brush.horizontalGradient(0f to Color.Transparent, 1f to Color.Black, startX = 0f, endX = width),
+                brush = Brush.horizontalGradient(0f to Color.Transparent, 1f to opaque, startX = 0f, endX = width),
                 size = Size(width, size.height),
                 blendMode = BlendMode.DstIn
             )
@@ -68,7 +70,7 @@ private fun Modifier.fadeScrolledEdges(state: ScrollState, fade: Dp): Modifier =
         if (state.canScrollForward) {
             drawRect(
                 brush = Brush.horizontalGradient(
-                    0f to Color.Black,
+                    0f to opaque,
                     1f to Color.Transparent,
                     startX = size.width - width,
                     endX = size.width

@@ -395,9 +395,6 @@ private fun LibraryListPrivacy.labelRes(): Int = when (this) {
 internal fun libraryButtonShape() = ButtonDefaults.shape(FetchButtonDefaults.shape())
 
 @Composable
-internal fun libraryButtonColors() = FetchButtonDefaults.colors()
-
-@Composable
 internal fun selectableButtonColors(selected: Boolean) = FetchButtonDefaults.colors(selected = selected)
 
 /** Leading checkmark for the selected option, so selection isn't carried by color alone. */

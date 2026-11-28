@@ -200,7 +200,7 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
     }
 
     /** The image track's timings: the Matroska index first (a few small reads), else ffprobe's sampled packets. */
-    private fun readFileReference(reference: ReferenceTrack): FileReference? {
+    private suspend fun readFileReference(reference: ReferenceTrack): FileReference? {
         val path = mpv.property("path") ?: return null
         val headers = AutoSyncSources.headers(mpv.property("http-header-fields"), mpv.property("user-agent"))
         val durationMs = (mpv.duration * 1000).toLong().takeIf { it > 0 }
@@ -317,9 +317,13 @@ private class AutoSyncRun(private val state: AppState, private val session: Play
     }.getOrNull()
 }
 
+/** One client for every subtitle Auto Sync downloads, so they share its connections and threads. */
+private val subtitleClient: okhttp3.OkHttpClient by lazy {
+    okhttp3.OkHttpClient.Builder().callTimeout(15, java.util.concurrent.TimeUnit.SECONDS).build()
+}
+
 internal fun downloadSubtitle(url: String): String? = runCatching {
-    val client = okhttp3.OkHttpClient.Builder().callTimeout(15, java.util.concurrent.TimeUnit.SECONDS).build()
-    client.newCall(okhttp3.Request.Builder().url(url).build()).execute().use { response ->
+    subtitleClient.newCall(okhttp3.Request.Builder().url(url).build()).execute().use { response ->
         if (!response.isSuccessful) return@use null
         val bytes = response.body?.byteStream()?.use { it.readNBytes(4 * 1024 * 1024) } ?: return@use null
         val gz = bytes.size > 2 && bytes[0] == 0x1f.toByte() && bytes[1] == 0x8b.toByte()

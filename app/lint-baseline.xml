@@ -7,7 +7,7 @@
         errorLine1="            hdrTypes?.contains(Display.HdrCapabilities.HDR_TYPE_HDR10_PLUS) == true"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/DolbyVisionBaseLayerPolicy.kt"
+            file="src/main/java/com/fetch/tv/core/player/DolbyVisionBaseLayerPolicy.kt"
             line="197"
             column="32"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="    private const val DvheStProfile = CodecProfileLevel.DolbyVisionProfileDvheSt"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/fetch/tv/ui/screens/player/DolbyVisionBaseLayerPolicy.kt"
+            file="src/main/java/com/fetch/tv/core/player/DolbyVisionBaseLayerPolicy.kt"
             line="266"
             column="39"/>
     </issue>
@@ -13405,27 +13405,7 @@
             column="13"/>
     </issue>
 
-    <issue
-        id="MissingTranslation"
-        message="&quot;discover_disabled_title&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;discover_disabled_title&quot;>Discover is disabled&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="2079"
-            column="13"/>
-    </issue>
 
-    <issue
-        id="MissingTranslation"
-        message="&quot;discover_disabled_subtitle&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;discover_disabled_subtitle&quot;>Enable Discover in Layout settings&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="2080"
-            column="13"/>
-    </issue>
 
     <issue
         id="MissingTranslation"
@@ -14032,16 +14012,6 @@
             column="13"/>
     </issue>
 
-    <issue
-        id="MissingTranslation"
-        message="&quot;cd_open_discover&quot; is not translated in &quot;hi&quot; (Hindi), &quot;no&quot; (Norwegian), &quot;lt&quot; (Lithuanian), &quot;ro&quot; (Romanian)"
-        errorLine1="    &lt;string name=&quot;cd_open_discover&quot;>Open discover&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="2167"
-            column="13"/>
-    </issue>
 
     <issue
         id="MissingTranslation"
@@ -27069,39 +27039,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.string.player_seek_back_10` appears to be unused"
-        errorLine1="    &lt;string name=&quot;player_seek_back_10&quot;>Back 10 seconds&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1623"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.player_seek_forward_30` appears to be unused"
-        errorLine1="    &lt;string name=&quot;player_seek_forward_30&quot;>Forward 30 seconds&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1624"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.player_error_title` appears to be unused"
-        errorLine1="    &lt;string name=&quot;player_error_title&quot;>Playback error&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="1640"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.account_signin_qr_title` appears to be unused"
         errorLine1="    &lt;string name=&quot;account_signin_qr_title&quot;>Sign In with QR&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -27155,16 +27092,6 @@
             column="13"/>
     </issue>
 
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.library_open_calendar` appears to be unused"
-        errorLine1="    &lt;string name=&quot;library_open_calendar&quot;>Calendar&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings_stats_calendar.xml"
-            line="5"
-            column="13"/>
-    </issue>
 
     <issue
         id="UsableSpace"

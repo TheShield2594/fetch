@@ -47,7 +47,7 @@ import java.util.Locale
 @Composable
 fun HeroTrailer(state: AppState, preview: MetaPreview?, height: androidx.compose.ui.unit.Dp) {
     val layout = state.settings.layout
-    if (preview == null || !layout.focusedPosterTrailer || !layout.trailersEnabled || state.playerSession != null) return
+    if (preview == null || !layout.focusedPosterTrailer || !layout.trailersEnabled || state.isPlaying) return
     if (layout.focusedPosterTrailerTarget != com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget.HERO_MEDIA) return
     val yt = preview.trailerYtIds.firstOrNull() ?: return
     androidx.compose.runtime.key(preview.id) {
@@ -70,7 +70,7 @@ fun HeroTrailer(state: AppState, preview: MetaPreview?, height: androidx.compose
 @Composable
 fun FolderHeroVideo(state: AppState, folder: com.fetch.tv.domain.model.CollectionFolder?, height: androidx.compose.ui.unit.Dp, startDelayMs: Long = 600) {
     val url = folder?.heroVideoUrl?.trim()?.takeIf { it.startsWith("http") } ?: return
-    if (state.playerSession != null) return
+    if (state.isPlaying) return
     val layout = state.settings.layout
     androidx.compose.runtime.key(folder.id, url) {
         BackgroundVideo(

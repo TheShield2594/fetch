@@ -926,8 +926,7 @@ private fun RightStreamSection(
                     },
                     onAddonSelected = { onAddonFilterSelected(it) },
                     externalFocusRequesters = chipFocusRequesters,
-                    externalOrderedNames = orderedAddonNames,
-                    debugTag = "StreamScreen"
+                    externalOrderedNames = orderedAddonNames
                 )
             }
         }

@@ -3,7 +3,6 @@ package com.fetch.tv.ui.screens.player
 import android.app.Activity
 import android.os.SystemClock
 import android.util.Log
-import androidx.core.net.toUri
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -31,14 +30,14 @@ internal fun PlayerRuntimeController.startInitialPlaybackIfNeeded() {
         ?.let { (SystemClock.elapsedRealtime() - it).coerceAtLeast(0L) }
         ?: -1L
     queuePlaybackRawEventLine(
-        "PLAYER_START_REQUEST: clickElapsedMs=$clickElapsedMs host=${initialStreamUrl.safeStartupHost()} " +
+        "PLAYER_START_REQUEST: clickElapsedMs=$clickElapsedMs host=${initialStreamUrl.safeLogHost()} " +
             "contentId=${contentId ?: "n/a"} videoId=${currentVideoId ?: "n/a"} " +
             "S${currentSeason ?: "-"}E${currentEpisode ?: "-"} infoHash=${infoHash != null} " +
             "startFromBeginning=${navigationArgs.startFromBeginning} streamName=${streamName ?: "n/a"}"
     )
     Log.d(
         "PlayerStartup",
-        "startInitialPlayback: infoHash=$infoHash host=${currentStreamUrl.safeStartupHost()} " +
+        "startInitialPlayback: infoHash=$infoHash host=${currentStreamUrl.safeLogHost()} " +
             "urlHash=${currentStreamUrl.hashCode().toUInt().toString(16)}"
     )
     preparePlaybackBeforeStart(
@@ -50,10 +49,4 @@ internal fun PlayerRuntimeController.startInitialPlaybackIfNeeded() {
 
 internal fun PlayerRuntimeController.currentHostActivity(): Activity? {
     return hostActivityRef?.get()
-}
-
-private fun String.safeStartupHost(): String {
-    return runCatching {
-        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
-    }.getOrDefault("unknown")
 }

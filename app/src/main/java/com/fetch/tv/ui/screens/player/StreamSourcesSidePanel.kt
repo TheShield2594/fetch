@@ -34,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,7 +65,6 @@ import com.fetch.tv.ui.util.dpadRepeatThrottle
 @Composable
 internal fun StreamSourcesSidePanel(
     uiState: PlayerUiState,
-    streamsFocusRequester: FocusRequester,
     onClose: () -> Unit,
     onReload: () -> Unit,
     onAddonFilterSelected: (String?) -> Unit,
@@ -343,8 +341,7 @@ internal fun StreamSourcesSidePanel(
                         externalOrderedNames = orderedAddonNames,
                         onUpKey = {
                             try { closeButtonFocusRequester.requestFocus() } catch (_: Exception) {}
-                        },
-                        debugTag = "SourcesSidePanel"
+                        }
                     )
                 }
             }

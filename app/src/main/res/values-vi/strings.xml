@@ -1270,14 +1270,11 @@
     <string name="player_queue_move_down">Di chuyển xuống</string>
     <string name="player_queue_removed">Đã xóa %1$s khỏi hàng chờ</string>
     <string name="player_queue_undo">Hoàn tác</string>
-    <string name="player_seek_back_10">Lùi 10 giây</string>
-    <string name="player_seek_forward_30">Tiến 30 giây</string>
     <string name="player_live_watched">TRỰC TIẾP  %1$s</string>
     <string name="player_via">qua %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">M%1$d T%2$d</string>
     <string name="player_subtitle_delay">Độ trễ phụ đề</string>
-    <string name="player_error_title">Lỗi phát lại</string>
     <string name="player_error_choose_source">Chọn nguồn khác</string>
     <string name="player_switch_to_mpv">Chuyển sang trình phát MPV</string>
     <string name="player_speed_title">Tốc độ phát lại</string>
@@ -1588,7 +1585,7 @@
     <string name="ratings_load_error">Không thể tải điểm đánh giá các tập phim.</string>
     <string name="ratings_season_summary">Mùa %1$d - %2$d tập</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Khám phá</string>
     <string name="discover_load_more">Tải thêm</string>
     <string name="discover_loading">Đang tải…</string>
@@ -1634,8 +1631,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Khám phá đã bị tắt</string>
-    <string name="discover_disabled_subtitle">Bật Khám phá trong phần cài đặt Bố cục</string>
 
     <!-- Library -->
 
@@ -1715,7 +1710,6 @@
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Mã QR kích hoạt Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Mở mục khám phá</string>
     <string name="cd_clear_search">Xóa tìm kiếm</string>
     <string name="cd_voice_search">Tìm kiếm bằng giọng nói</string>
     <string name="cd_expand">Mở rộng %1$s</string>

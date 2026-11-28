@@ -225,9 +225,6 @@ com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt|ALPHA|6
 com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt|DP|21
 com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt|FOCUS_SCALE|7
 com/fetch/tv/ui/screens/player/SubtitleSelectionOverlay.kt|SPACING_AS_STROKE|3
-com/fetch/tv/ui/screens/player/SubtitleStyleSidePanel.kt|ALPHA|2
-com/fetch/tv/ui/screens/player/SubtitleStyleSidePanel.kt|DP|17
-com/fetch/tv/ui/screens/player/SubtitleStyleSidePanel.kt|SPACING_AS_STROKE|1
 com/fetch/tv/ui/screens/player/SubtitleTimingDialog.kt|ALPHA|1
 com/fetch/tv/ui/screens/player/SubtitleTimingDialog.kt|DP|9
 com/fetch/tv/ui/screens/player/SubtitleTimingDialog.kt|FOCUS_SCALE|1

@@ -9,7 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -56,7 +55,8 @@ internal fun PlayerRuntimeController.playbackDetailsSnapshot(): PlaybackDetailsS
     if (isUsingMpvEngine()) {
         val mpv = mpvView ?: return PlaybackDetailsSnapshot()
         return PlaybackDetailsSnapshot(
-            audioPath = mpv.isAudioPassthroughNow()?.let { if (it) PlaybackAudioPath.PASSTHROUGH else PlaybackAudioPath.DECODED },
+            // mpv never has audio-spdif set, so it always decodes once the output is open.
+            audioPath = PlaybackAudioPath.DECODED.takeIf { mpv.hasAudioOutputNow() },
             bitrateBps = mpv.currentBitrateBps() ?: fileBitrate()
         )
     }

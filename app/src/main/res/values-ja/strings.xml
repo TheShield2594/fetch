@@ -983,13 +983,10 @@
     <string name="player_queue_move_down">下へ移動</string>
     <string name="player_queue_removed">%1$sをキューから削除しました</string>
     <string name="player_queue_undo">元に戻す</string>
-    <string name="player_seek_back_10">10秒戻る</string>
-    <string name="player_seek_forward_30">30秒進む</string>
     <string name="player_via">%1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02) -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">字幕の遅延</string>
-    <string name="player_error_title">再生エラー</string>
     <string name="player_error_choose_source">別のソースを選択</string>
     <string name="player_speed_title">再生速度</string>
     <string name="player_error_no_stream_url">このソースにはストリームリンクがありません。別のソースを選択してください。</string>
@@ -1246,7 +1243,7 @@
     <string name="ratings_load_error">エピソード評価を読み込めませんでした</string>
     <string name="ratings_season_summary">シーズン%1$d - %2$dエピソード</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">ディスカバー</string>
     <string name="discover_load_more">さらに読み込む</string>
     <string name="discover_loading">読み込み中…</string>
@@ -1291,8 +1288,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">ディスカバーは無効です</string>
-    <string name="discover_disabled_subtitle">レイアウト設定でディスカバーを有効にしてください</string>
 
     <!-- Library -->
 
@@ -1369,7 +1364,6 @@
     <string name="cd_trakt_logo">Traktロゴ</string>
     <string name="cd_trakt_qr">Trakt認証QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">ディスカバーを開く</string>
     <string name="cd_voice_search">音声検索</string>
     <string name="cd_expand">%1$sを展開</string>
     <string name="cd_collapse">%1$sを折りたたむ</string>

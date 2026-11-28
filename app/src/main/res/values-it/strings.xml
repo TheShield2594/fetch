@@ -1127,14 +1127,11 @@
     <string name="player_queue_move_down">Sposta giù</string>
     <string name="player_queue_removed">%1$s rimosso dalla coda</string>
     <string name="player_queue_undo">Annulla</string>
-    <string name="player_seek_back_10">Indietro di 10 secondi</string>
-    <string name="player_seek_forward_30">Avanti di 30 secondi</string>
 <string name="player_live_watched">LIVE  %1$s</string>
 <string name="player_via">tramite %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
 <string name="season_episode_format">S%1$d E%2$d</string>
 <string name="player_subtitle_delay">Ritardo sottotitoli</string>
-<string name="player_error_title">Errore di riproduzione</string>
 <string name="player_error_choose_source">Scegli un’altra sorgente</string>
 <string name="player_speed_title">Velocità di riproduzione</string>
 <string name="player_error_no_stream_url">Questa sorgente non ha un link allo stream. Scegli un’altra sorgente.</string>
@@ -1440,7 +1437,7 @@
 <string name="ratings_load_error">Impossibile caricare le valutazioni degli episodi.</string>
 <string name="ratings_season_summary">Stagione %1$d - %2$d episodi</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
 <string name="discover_title">Scopri</string>
 <string name="discover_load_more">Carica altri</string>
 <string name="discover_loading">Caricamento\u2026</string>
@@ -1486,8 +1483,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-<string name="discover_disabled_title">Scopri è disattivato</string>
-<string name="discover_disabled_subtitle">Abilita Scopri nelle impostazioni</string>
 
     <!-- Library -->
 
@@ -1567,7 +1562,6 @@
 <string name="cd_trakt_logo">Logo Trakt</string>
 <string name="cd_trakt_qr">QR attivazione Trakt</string>
 <string name="cd_imdb">IMDb</string>
-<string name="cd_open_discover">Apri Scopri</string>
 <string name="cd_clear_search">Cancella ricerca</string>
 <string name="cd_voice_search">Ricerca vocale</string>
 <string name="cd_expand">Espandi %1$s</string>

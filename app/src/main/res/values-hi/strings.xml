@@ -548,11 +548,8 @@
     <string name="player_queue_move_down">नीचे ले जाएँ</string>
     <string name="player_queue_removed">%1$s को कतार से हटाया गया</string>
     <string name="player_queue_undo">पहले जैसा करें</string>
-    <string name="player_seek_back_10">10 सेकंड पीछे</string>
-    <string name="player_seek_forward_30">30 सेकंड आगे</string>
     <string name="player_via">%1$s के माध्यम से</string>
     <string name="player_subtitle_delay">सबटाइटल देरी</string>
-    <string name="player_error_title">प्लेबैक त्रुटि</string>
     <string name="player_error_choose_source">कोई दूसरा सोर्स चुनें</string>
     <string name="player_speed_title">प्लेबैक गति</string>
 
@@ -723,7 +720,7 @@
     <string name="ratings_load_error">एपिसोड रेटिंग लोड नहीं हो सकीं।</string>
     <string name="ratings_season_summary">सीज़न %1$d - %2$d एपिसोड</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">डिस्कवर</string>
     <string name="discover_load_more">और लोड करें</string>
     <string name="discover_loading">लोड हो रहा है…</string>

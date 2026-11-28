@@ -200,11 +200,9 @@ class SearchViewModelPaginationTest {
         )
 
         val layoutPreferences = mockk<LayoutPreferenceDataStore>()
-        every { layoutPreferences.discoverLocation } returns flowOf(com.fetch.tv.domain.model.DiscoverLocation.OFF)
         every { layoutPreferences.posterCardWidthDp } returns flowOf(126)
         every { layoutPreferences.posterLabelsEnabled } returns flowOf(true)
         every { layoutPreferences.catalogAddonNameEnabled } returns flowOf(true)
-        every { layoutPreferences.posterCardHeightDp } returns flowOf(189)
         every { layoutPreferences.posterCardCornerRadiusDp } returns flowOf(12)
         every { layoutPreferences.catalogTypeSuffixEnabled } returns flowOf(true)
         every { layoutPreferences.searchSystemKeyboard } returns flowOf(false)

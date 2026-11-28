@@ -10,13 +10,11 @@ package com.fetch.tv.ui.screens.player
 import androidx.compose.runtime.mutableLongStateOf
 import com.fetch.tv.core.streams.SpecLine
 import com.fetch.tv.ui.components.SpecStrip
-import com.fetch.tv.ui.screens.detail.formatPlaybackTime
 import com.fetch.tv.ui.theme.FetchMotion
 
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.theme.accentBrush
 
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -28,10 +26,6 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,7 +39,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -62,14 +55,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Pause
@@ -203,8 +192,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import io.github.peerless2012.ass.media.widget.AssSubtitleView
 import kotlin.math.abs
 import kotlin.math.roundToInt
-import kotlinx.coroutines.flow.collectLatest
-import com.fetch.tv.ui.theme.FetchStatusTones
 import com.fetch.tv.ui.theme.FetchPrimitives
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -271,8 +258,6 @@ fun PlayerScreen(
     val playPauseFocusRequester = remember { FocusRequester() }
     val progressBarFocusRequester = remember { FocusRequester() }
     val episodesFocusRequester = remember { FocusRequester() }
-    val streamsFocusRequester = remember { FocusRequester() }
-    val sourceStreamsFocusRequester = remember { FocusRequester() }
     val skipIntroFocusRequester = remember { FocusRequester() }
     val streamInfoFocusRequester = remember { FocusRequester() }
     val postPlayRecommendationFocusRequester = remember { FocusRequester() }
@@ -446,8 +431,6 @@ fun PlayerScreen(
             viewModel.onEvent(PlayerEvent.OnDismissSubtitleTimingDialog)
         } else if (uiState.showSubtitleDelayOverlay) {
             viewModel.onEvent(PlayerEvent.OnHideSubtitleDelayOverlay)
-        } else if (uiState.showSubtitleStylePanel) {
-            viewModel.onEvent(PlayerEvent.OnDismissSubtitleStylePanel)
         } else if (uiState.showQueuePanel) {
             viewModel.onEvent(PlayerEvent.OnDismissQueuePanel)
         } else if (uiState.showSourcesPanel) {
@@ -634,7 +617,6 @@ fun PlayerScreen(
                 if (currentFrameRateMatchingMode == com.fetch.tv.data.local.FrameRateMatchingMode.START_STOP) {
                     com.fetch.tv.core.player.FrameRateUtils.restoreOriginalDisplayMode(activity)
                 } else {
-                    com.fetch.tv.core.player.FrameRateUtils.cleanupDisplayListener()
                     com.fetch.tv.core.player.FrameRateUtils.clearOriginalDisplayMode()
                 }
             }
@@ -1263,7 +1245,7 @@ fun PlayerScreen(
 
             Box(modifier = playerSurfaceModifier) {
                 val subtitleLiftPx = computeSubtitleLiftPx(
-                    previewConfiguredPosition = uiState.showSubtitleOverlay || uiState.showSubtitleStylePanel,
+                    previewConfiguredPosition = uiState.showSubtitleOverlay,
                     controlsVisible = playerControlsVisible,
                     controlsClearancePx = subtitleControlsClearancePx,
                     fallbackControlsLiftPx = fallbackSubtitleLiftPx,
@@ -1831,7 +1813,6 @@ fun PlayerScreen(
                 EpisodesSidePanel(
                     uiState = uiState,
                     episodesFocusRequester = episodesFocusRequester,
-                    streamsFocusRequester = streamsFocusRequester,
                     onClose = { viewModel.onEvent(PlayerEvent.OnDismissEpisodesPanel) },
                     onBackToEpisodes = { viewModel.onEvent(PlayerEvent.OnBackFromEpisodeStreams) },
                     onReloadEpisodeStreams = { viewModel.onEvent(PlayerEvent.OnReloadEpisodeStreams) },
@@ -1846,7 +1827,6 @@ fun PlayerScreen(
         PlayerSidePanel(visible = uiState.showSourcesPanel && uiState.error == null, width = PlayerSidePanelListWidth) {
                 StreamSourcesSidePanel(
                     uiState = uiState,
-                    streamsFocusRequester = sourceStreamsFocusRequester,
                     onClose = {
                         if (uiState.currentStreamUrl.isNullOrBlank()) {
                             exitPlayer()
@@ -1872,72 +1852,6 @@ fun PlayerScreen(
                 onRestore = { item, index -> viewModel.onEvent(PlayerEvent.OnRestoreQueueItem(item, index)) },
                 onClose = { viewModel.onEvent(PlayerEvent.OnDismissQueuePanel) }
             )
-        }
-
-        // Subtitle style panel scrim
-        AnimatedVisibility(
-            visible = uiState.showSubtitleStylePanel && uiState.error == null,
-            enter = fadeIn(animationSpec = tween(FetchMotion.tokens.durations.quick)),
-            exit = fadeOut(animationSpec = tween(FetchMotion.tokens.durations.quick))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(FetchTheme.colors.Player.ScrimLight)
-            )
-        }
-
-        // Subtitle style panel
-        AnimatedVisibility(
-            visible = uiState.showSubtitleStylePanel && uiState.error == null,
-            enter = if (FetchTheme.fullMotion) {
-                slideInVertically(
-                    animationSpec = tween(FetchMotion.tokens.durations.fast),
-                    initialOffsetY = { -it }
-                )
-            } else {
-                fadeIn(animationSpec = FetchMotion.enterTween())
-            },
-            exit = if (FetchTheme.fullMotion) {
-                slideOutVertically(
-                    animationSpec = tween(FetchMotion.tokens.durations.fast),
-                    targetOffsetY = { -it }
-                )
-            } else {
-                fadeOut(animationSpec = FetchMotion.exitTween())
-            }
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val isCurrentSubtitleAss = run {
-                    val addon = uiState.selectedAddonSubtitle
-                    if (addon != null) {
-                        val url = addon.url.lowercase(java.util.Locale.US)
-                        return@run url.contains(".ass") || url.contains(".ssa")
-                    }
-                    val track = uiState.subtitleTracks.getOrNull(uiState.selectedSubtitleTrackIndex)
-                    if (track != null) {
-                        val codec = track.codec?.lowercase(java.util.Locale.US).orEmpty()
-                        return@run codec.contains("ass") || codec.contains("ssa") || track.name.contains("ASS", ignoreCase = true)
-                    }
-                    false
-                }
-                val isUsingMpv = uiState.internalPlayerEngine == InternalPlayerEngine.MVP_PLAYER
-                val isAssDisabled = isCurrentSubtitleAss && (isUsingMpv || uiState.useLibass)
-                // The system caption style replaces these controls on the standard player.
-                val isSystemStyleActive = !isUsingMpv &&
-                    systemCaptionStyleApplies(LocalContext.current, uiState.editableSubtitleStyle)
-
-                SubtitleStyleSidePanel(
-                    subtitleStyle = uiState.editableSubtitleStyle,
-                    isEditingHdrStyle = uiState.isEditingHdrSubtitleStyle,
-                    onEvent = { if (!isAssDisabled && !isSystemStyleActive) viewModel.onEvent(it) },
-                    isStyleDisabledByLibass = isAssDisabled || isSystemStyleActive,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                )
-            }
         }
 
         // Audio track dialog
@@ -2143,7 +2057,7 @@ private fun ExoPlayerSurface(
             keepScreenOn = false
             resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
             setShowBuffering(PlayerView.SHOW_BUFFERING_NEVER)
-            enableComposeSurfaceSyncWorkaroundIfAvailable()
+            setEnableComposeSurfaceSyncWorkaround(false)
             this.player = player
         }
     }
@@ -2291,14 +2205,6 @@ private fun ExoPlayerSurface(
         }
         captioning?.addCaptioningChangeListener(listener)
         onDispose { captioning?.removeCaptioningChangeListener(listener) }
-    }
-}
-
-private fun PlayerView.enableComposeSurfaceSyncWorkaroundIfAvailable() {
-    runCatching {
-        javaClass
-            .getMethod("setEnableComposeSurfaceSyncWorkaround", java.lang.Boolean.TYPE)
-            .invoke(this, false)
     }
 }
 
@@ -2896,8 +2802,7 @@ internal fun PlayerControlsOverlay(
                             onClick = onOpenAspectList,
                             upFocusRequester = progressUpTarget,
                             onDownKey = backToMore,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                         onOpenInExternalPlayer?.let { openInExternalPlayer ->
                             ControlButton(
@@ -2906,8 +2811,7 @@ internal fun PlayerControlsOverlay(
                                 onClick = openInExternalPlayer,
                                 upFocusRequester = progressUpTarget,
                                 onDownKey = backToMore,
-                                onFocused = onResetHideTimer,
-                                labelAbove = true
+                                onFocused = onResetHideTimer
                             )
                         }
                         if (uiState.chapters.size > 1) {
@@ -2917,8 +2821,7 @@ internal fun PlayerControlsOverlay(
                                 onClick = { viewModel.onEvent(PlayerEvent.OnPreviousChapter()) },
                                 upFocusRequester = progressUpTarget,
                                 onDownKey = backToMore,
-                                onFocused = onResetHideTimer,
-                                labelAbove = true
+                                onFocused = onResetHideTimer
                             )
                             ControlButton(
                                 icon = Icons.Default.SkipNext,
@@ -2926,8 +2829,7 @@ internal fun PlayerControlsOverlay(
                                 onClick = { viewModel.onEvent(PlayerEvent.OnNextChapter()) },
                                 upFocusRequester = progressUpTarget,
                                 onDownKey = backToMore,
-                                onFocused = onResetHideTimer,
-                                labelAbove = true
+                                onFocused = onResetHideTimer
                             )
                         }
                         if (!isLivePlayback) {
@@ -2940,8 +2842,7 @@ internal fun PlayerControlsOverlay(
                                 onClick = { viewModel.onEvent(PlayerEvent.OnToggleTimeRemaining) },
                                 upFocusRequester = progressUpTarget,
                                 onDownKey = backToMore,
-                                onFocused = onResetHideTimer,
-                                labelAbove = true
+                                onFocused = onResetHideTimer
                             )
                             if (uiState.resumedFromPosition) {
                                 ControlButton(
@@ -2950,8 +2851,7 @@ internal fun PlayerControlsOverlay(
                                     onClick = { viewModel.onEvent(PlayerEvent.OnStartFromBeginning) },
                                     upFocusRequester = progressUpTarget,
                                     onDownKey = backToMore,
-                                    onFocused = onResetHideTimer,
-                                    labelAbove = true
+                                    onFocused = onResetHideTimer
                                 )
                             }
                         }
@@ -2964,8 +2864,7 @@ internal fun PlayerControlsOverlay(
                             focusRequester = streamInfoFocusRequester,
                             upFocusRequester = progressUpTarget,
                             onDownKey = backToMore,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                         if (uiState.markerSubmissionAvailable) {
                             val marking = uiState.markerStartSec != null
@@ -2984,7 +2883,6 @@ internal fun PlayerControlsOverlay(
                                 upFocusRequester = progressUpTarget,
                                 onDownKey = backToMore,
                                 onFocused = onResetHideTimer,
-                                labelAbove = true,
                                 contentColor = if (marking) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                             )
                         }
@@ -2996,7 +2894,6 @@ internal fun PlayerControlsOverlay(
                             upFocusRequester = progressUpTarget,
                             onDownKey = backToMore,
                             onFocused = onResetHideTimer,
-                            labelAbove = true,
                             contentColor = if (uiState.sleepTimer != null) FetchTheme.colors.Secondary else FetchTheme.colors.Player.TextPrimary
                         )
                         ControlButton(
@@ -3005,8 +2902,7 @@ internal fun PlayerControlsOverlay(
                             onClick = onSwitchPlayerEngine,
                             upFocusRequester = progressUpTarget,
                             onDownKey = backToMore,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                     }
                 }
@@ -3030,8 +2926,7 @@ internal fun PlayerControlsOverlay(
                             focusRequester = panelButtonFocus.episodes,
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                     }
                     ControlButton(
@@ -3041,8 +2936,7 @@ internal fun PlayerControlsOverlay(
                         focusRequester = panelButtonFocus.queue,
                         upFocusRequester = progressUpTarget,
                         onDownKey = onHideControls,
-                        onFocused = onResetHideTimer,
-                        labelAbove = true
+                        onFocused = onResetHideTimer
                     )
                     if (showNextEpisodeButton) {
                         ControlButton(
@@ -3051,8 +2945,7 @@ internal fun PlayerControlsOverlay(
                             onClick = onPlayNextEpisode,
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                     }
                 }
@@ -3078,7 +2971,6 @@ internal fun PlayerControlsOverlay(
                             } else {
                                 null
                             },
-                            labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = 32.dp
                         )
@@ -3106,7 +2998,6 @@ internal fun PlayerControlsOverlay(
                             onDownKey = onHideControls,
                             onFocused = onResetHideTimer,
                             focusLabel = stringResource(R.string.player_go_live),
-                            labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = TRANSPORT_SKIP_ICON_SIZE
                         )
@@ -3126,7 +3017,6 @@ internal fun PlayerControlsOverlay(
                             } else {
                                 null
                             },
-                            labelAbove = true,
                             size = TRANSPORT_SKIP_SIZE,
                             iconSize = 32.dp
                         )
@@ -3147,8 +3037,7 @@ internal fun PlayerControlsOverlay(
                             focusRequester = panelButtonFocus.subtitles,
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                     }
                     if (hasAudioControl) {
@@ -3160,8 +3049,7 @@ internal fun PlayerControlsOverlay(
                             focusRequester = panelButtonFocus.audio,
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                     }
                     ControlButton(
@@ -3172,8 +3060,7 @@ internal fun PlayerControlsOverlay(
                         focusRequester = panelButtonFocus.sources,
                         upFocusRequester = progressUpTarget,
                         onDownKey = onHideControls,
-                        onFocused = onResetHideTimer,
-                        labelAbove = true
+                        onFocused = onResetHideTimer
                     )
                     // Tunneled playback can't change speed, so the button is not offered (#776).
                     if (!uiState.tunnelingEnabled) {
@@ -3183,8 +3070,7 @@ internal fun PlayerControlsOverlay(
                             onClick = onShowSpeedDialog,
                             upFocusRequester = progressUpTarget,
                             onDownKey = onHideControls,
-                            onFocused = onResetHideTimer,
-                            labelAbove = true
+                            onFocused = onResetHideTimer
                         )
                     }
                     ControlButton(
@@ -3194,8 +3080,7 @@ internal fun PlayerControlsOverlay(
                         focusRequester = moreFocusRequester,
                         upFocusRequester = if (uiState.showMoreDialog) moreExtrasFocusRequester else progressUpTarget,
                         onDownKey = onHideControls,
-                        onFocused = onResetHideTimer,
-                        labelAbove = true
+                        onFocused = onResetHideTimer
                     )
                 }
             }
@@ -3324,37 +3209,32 @@ private fun ControlButton(
     onClick: () -> Unit,
     focusRequester: FocusRequester? = null,
     upFocusRequester: FocusRequester? = null,
-    enabled: Boolean = true,
     onDownKey: (() -> Unit)? = null,
     onFocused: (() -> Unit)? = null,
     contentColor: Color = FetchTheme.colors.Player.TextPrimary,
-    /** Shown beside the focused button, as on the detail hero; null keeps the button bare. */
+    /**
+     * Floated above the focused button, so it takes no room and nothing in the row moves while
+     * focus walks along it; null keeps the button bare.
+     */
     focusLabel: String? = contentDescription,
     size: Dp = FetchTheme.spacing.xxxl,
-    iconSize: Dp? = null,
-    /**
-     * Float the label above the focused button instead of beside it, so it takes no room and
-     * nothing in the row moves while focus walks along it.
-     */
-    labelAbove: Boolean = false
+    iconSize: Dp? = null
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    // In the scrolling bottom row, keep the label (not just the button) on screen once it joins.
+    // In the scrolling bottom row, keep the focused button on screen.
     val labelBringIntoView = remember { BringIntoViewRequester() }
     LaunchedEffect(isFocused) {
         if (isFocused && focusLabel != null) labelBringIntoView.bringIntoView()
     }
 
     // Icon-only buttons (engine, aspect, flag, report) were hard to tell apart from the
-    // couch. The label joins and leaves layout in one frame with focus; only its fade animates.
-    Row(
+    // couch, so the focused one names itself; only the label's fade animates.
+    Box(
         modifier = Modifier.bringIntoViewRequester(labelBringIntoView),
-        verticalAlignment = Alignment.CenterVertically
+        contentAlignment = Alignment.Center
     ) {
-    Box(contentAlignment = Alignment.Center) {
     IconButton(
         onClick = onClick,
-        enabled = enabled,
         modifier = Modifier
             .size(size)
             .then(
@@ -3415,7 +3295,7 @@ private fun ControlButton(
             )
         }
     }
-    if (labelAbove && isFocused && focusLabel != null) {
+    if (isFocused && focusLabel != null) {
         val gapPx = with(LocalDensity.current) { FetchTheme.spacing.sm.roundToPx() }
         Text(
             text = focusLabel,
@@ -3431,22 +3311,6 @@ private fun ControlButton(
                         placeable.place(-placeable.width / 2, -placeable.height - gapPx)
                     }
                 }
-                .focusLabelEntrance()
-                .clearAndSetSemantics { }
-                .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
-                .padding(horizontal = FetchTheme.spacing.md, vertical = FetchTheme.spacing.xs)
-        )
-    }
-    }
-    if (!labelAbove && isFocused && focusLabel != null) {
-        Text(
-            text = focusLabel,
-            color = FetchTheme.colors.TextPrimary,
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .padding(start = FetchTheme.spacing.sm)
                 .focusLabelEntrance()
                 .clearAndSetSemantics { }
                 .background(FetchTheme.colors.BackgroundCard, FetchTheme.shapes.navItem)
@@ -3853,9 +3717,7 @@ private fun SeekFeedbackBubble(
                 }
             }
         },
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag(SEEK_FEEDBACK_TAG)
+        modifier = Modifier.fillMaxWidth()
     ) { measurables, constraints ->
         val placeable = measurables.single().measure(constraints.copy(minWidth = 0, minHeight = 0))
         val width = constraints.maxWidth
@@ -3866,8 +3728,6 @@ private fun SeekFeedbackBubble(
         }
     }
 }
-
-internal const val SEEK_FEEDBACK_TAG = "player_seek_feedback"
 
 /** The name of the marked segment at [positionMs], or null outside every one. */
 private fun segmentLabelRes(segments: List<SkipInterval>, positionMs: Long): Int? {
@@ -4792,7 +4652,8 @@ private fun formatTime(millis: Long): String {
     }
 }
 
-private fun formatSubtitleDelay(delayMs: Int): String {
+/** The subtitle delay in seconds, signed, as "+1.500s"; the delay overlay and the subtitle panel share it. */
+internal fun formatSubtitleDelay(delayMs: Int): String {
     return String.format(Locale.US, "%+.3fs", delayMs / 1000f)
 }
 

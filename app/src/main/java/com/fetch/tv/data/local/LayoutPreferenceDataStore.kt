@@ -23,7 +23,6 @@ import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.Collection
 import com.fetch.tv.domain.model.ContinueWatchingCardStyle
 import com.fetch.tv.domain.model.ContinueWatchingSortMode
-import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.EpisodeOptionsOverlayStyle
 import com.fetch.tv.domain.model.FocusedPosterTrailerPlaybackTarget
 import com.fetch.tv.domain.model.DetailImdbRatingsVisibility
@@ -36,7 +35,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -266,11 +264,8 @@ class LayoutPreferenceDataStore @Inject constructor(
         prefs[homeContentFilterKey]
     }
 
-    /**
-     * Discover is always its own item in the TV sidebar, so this no longer reads the stored
-     * `discover_location` value. The key is still kept and synced for the phone and desktop apps.
-     */
-    val discoverLocation: Flow<DiscoverLocation> = flowOf(DiscoverLocation.IN_SIDEBAR)
+    // Discover is always its own item in the TV sidebar, so the stored `discover_location` is
+    // not read here. The key is still kept and synced for the phone and desktop apps.
 
     val posterLabelsEnabled: Flow<Boolean> = profileFlow { prefs ->
         prefs[posterLabelsEnabledKey] ?: true

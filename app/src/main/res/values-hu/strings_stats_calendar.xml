@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statisztika</string>
-    <string name="library_open_calendar">Naptár</string>
     <string name="insights_source_eyebrow">A Fetch weboldaláról</string>
     <string name="insights_loading">Betöltés…</string>
     <string name="insights_not_paired_subtitle">Jelentkeztesd be ezt a TV-t a Fetch weboldalán a Beállítások › Fiók menüben, hogy itt is lásd. A weboldal tárolja a megtekintési előzményeidet, és ebből számol.</string>

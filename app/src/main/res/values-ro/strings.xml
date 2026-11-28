@@ -436,11 +436,8 @@
     <string name="player_queue_move_down">Mută în jos</string>
     <string name="player_queue_removed">Eliminat din coadă: %1$s</string>
     <string name="player_queue_undo">Anulează</string>
-    <string name="player_seek_back_10">Înapoi 10 secunde</string>
-    <string name="player_seek_forward_30">Înainte 30 de secunde</string>
     <string name="player_via">prin %1$s</string>
     <string name="player_subtitle_delay">Întârziere subtitrări</string>
-    <string name="player_error_title">Eroare de redare</string>
     <string name="player_error_choose_source">Alege altă sursă</string>
     <string name="player_speed_title">Viteză redare</string>
 
@@ -594,7 +591,7 @@
     <string name="ratings_unavailable">Evaluările episodului nu sunt disponibile.</string>
     <string name="ratings_season_summary">Sezon %1$d - %2$d episoade</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Descoperă</string>
     <string name="discover_load_more">Încarcă mai mult</string>
     <string name="discover_loading">Încărcare…</string>

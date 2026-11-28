@@ -52,8 +52,7 @@ internal fun AddonFilterChips(
     onAddonSelected: (String?) -> Unit,
     externalFocusRequesters: List<FocusRequester>? = null,
     externalOrderedNames: List<String>? = null,
-    onUpKey: (() -> Unit)? = null,
-    debugTag: String = "AddonFilterChips"
+    onUpKey: (() -> Unit)? = null
 ) {
     val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
     val chipMap = sourceChips.associateBy { it.name }

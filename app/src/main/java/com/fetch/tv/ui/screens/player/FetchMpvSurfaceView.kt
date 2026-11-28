@@ -213,12 +213,10 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         return mpv.getPropertyDouble("demuxer-cache-duration")
     }
 
-    /** Whether mpv sends the audio on as an S/PDIF bitstream; null until the output is open. */
-    fun isAudioPassthroughNow(): Boolean? {
-        if (!initialized) return null
-        val format = runCatching { mpv.getPropertyString("audio-out-params/format") }.getOrNull()
-            ?.takeIf { it.isNotBlank() } ?: return null
-        return format.startsWith("spdif")
+    /** Whether mpv has opened its audio output. */
+    fun hasAudioOutputNow(): Boolean {
+        if (!initialized) return false
+        return !runCatching { mpv.getPropertyString("audio-out-params/format") }.getOrNull().isNullOrBlank()
     }
 
     /** The demuxed video plus audio bitrate mpv measures as it plays, or null before it has one. */
@@ -290,12 +288,6 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
     fun isSeekableNow(): Boolean {
         if (!initialized) return false
         return mpv.getPropertyBoolean("seekable") == true
-    }
-
-    fun hasVideoTrackSelectedNow(): Boolean {
-        if (!initialized) return false
-        val vid = mpv.getPropertyString("vid")?.trim()
-        return !vid.isNullOrBlank() && !vid.equals("no", ignoreCase = true)
     }
 
     fun setPlaybackSpeed(speed: Float) {
@@ -751,14 +743,12 @@ class FetchMpvSurfaceView @JvmOverloads constructor(
         mpv.setOptionString("audio-set-media-role", "yes")
         mpv.setOptionString("tls-verify", "yes")
         mpv.setOptionString("tls-ca-file", "${context.filesDir.path}/cacert.pem")
-        mpv.setOptionString("input-default-bindings", "yes")
         mpv.setOptionString("demuxer-max-bytes", demuxerCacheLimits.forwardBytes.toString())
         mpv.setOptionString("demuxer-max-back-bytes", demuxerCacheLimits.backBytes.toString())
         mpv.setOptionString("keep-open", "yes")
         // Without it a dead connection waits on mpv's default before the stall watchdog's
         // recovery can reopen the stream (#697).
         mpv.setOptionString("network-timeout", "30")
-        mpv.setOptionString("softvol", "yes")
         mpv.setOptionString("volume-max", MPV_MAX_VOLUME_PERCENT.toInt().toString())
     }
 

@@ -33,17 +33,26 @@ import com.fetch.tv.domain.model.ExperienceMode
  * One setting search can find: the row's [title] as its page shows it (so the row can be
  * highlighted), the [page] it's on and words people might type instead. [essential] marks the
  * rows Essential mode keeps on the pages it shows only in part ([ExperiencePolicy.reducedPages]).
+ * [opens] is the sub-page a hub row leads to (Content & Discovery's rows); the entry is left out
+ * wherever that page is hidden, as its row is.
  */
 data class SettingsSearchEntry(
     val title: String,
     val page: SettingsPage,
     val keywords: List<String> = emptyList(),
     val section: String? = null,
-    val essential: Boolean = false
+    val essential: Boolean = false,
+    val opens: SettingsPage? = null
 )
 
-private fun e(title: String, page: SettingsPage, vararg keywords: String, section: String? = null, essential: Boolean = false) =
-    SettingsSearchEntry(title, page, keywords.toList(), section, essential)
+private fun e(
+    title: String,
+    page: SettingsPage,
+    vararg keywords: String,
+    section: String? = null,
+    essential: Boolean = false,
+    opens: SettingsPage? = null
+) = SettingsSearchEntry(title, page, keywords.toList(), section, essential, opens)
 
 /**
  * Every desktop setting by page, as the TV's `settingsSearchIndex`. SettingsSearchIndexTest checks
@@ -137,11 +146,11 @@ val settingsSearchIndex: List<SettingsSearchEntry> = listOf(
     e("Audio language", PLAYBACK_BASICS, "dub", "track", section = "Subtitles and audio"),
 
     // Sources
-    e("Addons", CONTENT_DISCOVERY, "stremio", "install", "manifest", "plugins", essential = true),
-    e("Media servers", CONTENT_DISCOVERY, "jellyfin", "emby", "plex", essential = true),
-    e("Home catalogs", CONTENT_DISCOVERY, "rows", "pin", "hide", "order", essential = true),
-    e("Home folders", CONTENT_DISCOVERY, "collections", "folders", "rows", essential = true),
-    e("Filter rows", CONTENT_DISCOVERY, "genre", "library rows", essential = true),
+    e("Addons", CONTENT_DISCOVERY, "stremio", "install", "manifest", "plugins", opens = ADDONS),
+    e("Media servers", CONTENT_DISCOVERY, "jellyfin", "emby", "plex", opens = MEDIA_SERVERS),
+    e("Home catalogs", CONTENT_DISCOVERY, "rows", "pin", "hide", "order", opens = HOME_CATALOGS),
+    e("Home folders", CONTENT_DISCOVERY, "collections", "folders", "rows", opens = COLLECTIONS),
+    e("Filter rows", CONTENT_DISCOVERY, "genre", "library rows", opens = FILTER_ROWS),
     e("Install", ADDONS, "addon", "manifest", "url", "link", "debrid"),
     e("Add Jellyfin", MEDIA_SERVERS, "jellyfin", "server", "sign in"),
     e("Add Emby", MEDIA_SERVERS, "emby", "server", "sign in"),
@@ -273,6 +282,7 @@ object SettingsSearch {
         index: List<SettingsSearchEntry> = settingsSearchIndex
     ): List<SettingsSearchEntry> = index.filter { entry ->
         ExperiencePolicy.isVisible(entry.page, mode) && entry.page !in hidden && entry.page.railPage !in hidden &&
+            entry.opens.let { it == null || (ExperiencePolicy.isVisible(it, mode) && it !in hidden) } &&
             (mode != ExperienceMode.ESSENTIAL || entry.page.railPage !in ExperiencePolicy.reducedPages || entry.essential)
     }
 }

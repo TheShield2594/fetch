@@ -245,28 +245,39 @@ internal fun SubPageHeader(
 private fun AppState.updatePlayer(change: (PlayerSettings) -> PlayerSettings) =
     updateSettings { it.copy(player = change(it.player)) }
 
+/**
+ * The Default Player row, the same on Player and on Essential's Playback basics: where streams
+ * play, and a warning when mpv or libmpv is missing.
+ */
+@Composable
+fun DefaultPlayerChoice(state: AppState) {
+    val p = state.settings.player
+    val mpv = remember { ExternalPlayer.findMpv() }
+    val libmpv = remember { LibMpv.available }
+    SettingsChoice(
+        "Default Player",
+        when {
+            p.askPlayer -> "Fetch asks each time you press Play."
+            p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
+            p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls."
+            else -> mpv?.let { "mpv ($it), in its own window." }
+                ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
+        },
+        if (p.askPlayer) null else p.builtInPlayer,
+        listOf(DropdownOption<Boolean?>(false, "mpv window"), DropdownOption<Boolean?>(true, "Built-in (beta)"), DropdownOption<Boolean?>(null, "Ask every time"))
+    ) { v -> state.updatePlayer { it.copy(builtInPlayer = v ?: it.builtInPlayer, askPlayer = v == null) } }
+}
+
 private val LanguageOptions: List<DropdownOption<String?>> =
     MpvArgs.languages.map { DropdownOption<String?>(it.code, it.label) }
 
 @Composable
 private fun PlayerPage(state: AppState) {
     val p = state.settings.player
-    val mpv = remember { ExternalPlayer.findMpv() }
     PageHeader("Player", subtitle = "Fetch plays streams with mpv.")
     SettingsSection(null) {
         val libmpv = remember { LibMpv.available }
-        SettingsChoice(
-            "Default Player",
-            when {
-                p.askPlayer -> "Fetch asks each time you press Play."
-                p.builtInPlayer && !libmpv -> "libmpv isn't installed (sudo apt install libmpv2), so mpv's window is used."
-                p.builtInPlayer -> "Inside Fetch's window, with Fetch's controls."
-                else -> mpv?.let { "mpv ($it), in its own window." }
-                    ?: "mpv isn't installed, so streams open in your default video player. Install mpv for resume, Continue Watching, subtitles and Up Next."
-            },
-            if (p.askPlayer) null else p.builtInPlayer,
-            listOf(DropdownOption<Boolean?>(false, "mpv window"), DropdownOption<Boolean?>(true, "Built-in (beta)"), DropdownOption<Boolean?>(null, "Ask every time"))
-        ) { v -> state.updatePlayer { it.copy(builtInPlayer = v ?: it.builtInPlayer, askPlayer = v == null) } }
+        DefaultPlayerChoice(state)
         if (p.builtInPlayer && libmpv) {
             SettingsToggle(
                 "Draw with the graphics card",
@@ -821,6 +832,9 @@ private fun TmdbPage(state: AppState) {
 @Composable
 private fun ContentDiscoveryPage(state: AppState) {
     PageHeader("Content & Discovery", subtitle = "Add-ons, catalogs, and discovery sources")
+    // Essential hides Home folders and Filter rows; their rows go with them.
+    val mode = state.settings.experience.mode
+    fun shown(page: SettingsPage) = com.fetch.desktop.data.ExperiencePolicy.isVisible(page, mode)
     SettingsSection(null) {
         SettingsRow(
             "Addons",
@@ -837,12 +851,12 @@ private fun ContentDiscoveryPage(state: AppState) {
             "Reorder home catalogs: pin rows to the top or hide them.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.HOME_CATALOGS)) }
         ) { Chevron() }
-        SettingsRow(
+        if (shown(SettingsPage.COLLECTIONS)) SettingsRow(
             "Home folders",
             "Rows of folders on Home, each folder a page of catalogs, TMDB, Trakt and your lists. ${state.collections.collections.size} made.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.COLLECTIONS)) }
         ) { Chevron() }
-        SettingsRow(
+        if (shown(SettingsPage.FILTER_ROWS)) SettingsRow(
             "Filter rows",
             "Home rows filtered from a server library (genre, years, watched, rating) or an addon catalog's genre. ${state.filterRows.size} made.",
             onClick = { state.navigate(Screen.Settings(SettingsPage.FILTER_ROWS)) }

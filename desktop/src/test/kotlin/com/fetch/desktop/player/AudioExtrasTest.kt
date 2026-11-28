@@ -99,4 +99,20 @@ class AudioExtrasTest {
         assertEquals("10.0 Mbps   avg 10.0", first.first { it.label == "network" }.value)
         assertFalse("no reading, no row", second.any { it.label == "network" })
     }
+
+    @Test
+    fun `the default sink is asked only when needed, and at most every half minute`() {
+        var asked = 0
+        val ask = { asked++; "alsa_output.hdmi" }
+        // A chosen device doesn't need the default sink at all.
+        assertEquals("alsa/hdmi", AudioExtras.routeKeyAsking("alsa/hdmi", "alsa") { asked++; null })
+        assertEquals(0, asked)
+        AudioExtras.resetSinkCache()
+        assertEquals("alsa_output.hdmi", AudioExtras.cachedDefaultSink(nowMs = 1_000, ask = ask))
+        assertEquals("alsa_output.hdmi", AudioExtras.cachedDefaultSink(nowMs = 25_000, ask = ask))
+        assertEquals(1, asked)
+        AudioExtras.cachedDefaultSink(nowMs = 1_000 + AudioExtras.DEFAULT_SINK_CACHE_MS, ask = ask)
+        assertEquals(2, asked)
+        AudioExtras.resetSinkCache()
+    }
 }

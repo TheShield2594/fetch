@@ -160,17 +160,6 @@ class LibraryPreferences @Inject constructor(
         return entries.all(profileId).toItems(profileId)
     }
 
-    suspend fun updateLogo(
-        id: String,
-        type: String,
-        logo: String,
-        profileId: Int
-    ) = edit(profileId) { items ->
-        items.map { item ->
-            if (item.id == id && item.type.equals(type, ignoreCase = true)) item.copy(logo = logo) else item
-        }
-    }
-
     /**
      * Applies [transform] to the saved items in one transaction and writes only the rows that
      * differ. A deleted profile refuses, as its DataStore does.

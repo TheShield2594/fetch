@@ -128,7 +128,11 @@ interface LibC : Library {
     fun setlocale(category: Int, locale: String): String?
 
     companion object {
-        const val LC_NUMERIC = 1
-        val instance: LibC by lazy { Native.load("c", LibC::class.java) }
+        /** LC_NUMERIC on this system: 1 in glibc and musl, 4 on macOS, the BSDs and Windows' CRT. */
+        val LC_NUMERIC: Int get() = lcNumeric(com.sun.jna.Platform.isLinux() || com.sun.jna.Platform.isAndroid())
+
+        internal fun lcNumeric(linux: Boolean): Int = if (linux) 1 else 4
+
+        val instance: LibC by lazy { Native.load(if (com.sun.jna.Platform.isWindows()) "msvcrt" else "c", LibC::class.java) }
     }
 }

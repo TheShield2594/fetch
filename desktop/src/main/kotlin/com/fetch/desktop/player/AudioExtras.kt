@@ -65,11 +65,31 @@ object AudioExtras {
      * Which output the sound goes to, as a key for the remembered delay: mpv's `audio-device`
      * when one is picked, else the audio system and its default sink (PulseAudio or PipeWire).
      */
-    fun routeKey(audioDevice: String?, currentAo: String?, defaultSink: String?): String? {
+    fun routeKey(audioDevice: String?, currentAo: String?, defaultSink: String?): String? =
+        routeKeyAsking(audioDevice, currentAo) { defaultSink }
+
+    /** Like [routeKey], asking for [defaultSink] only when mpv plays to its "auto" device. */
+    fun routeKeyAsking(audioDevice: String?, currentAo: String?, defaultSink: () -> String?): String? {
         val device = audioDevice?.trim().orEmpty()
         if (device.isNotEmpty() && device != "auto") return device
-        val ao = currentAo?.trim()?.takeIf { it.isNotEmpty() } ?: return defaultSink?.trim()?.takeIf { it.isNotEmpty() }?.let { "auto/$it" }
-        return "$ao/" + (defaultSink?.trim()?.takeIf { it.isNotEmpty() } ?: "default")
+        val sink = defaultSink()?.trim()?.takeIf { it.isNotEmpty() }
+        val ao = currentAo?.trim()?.takeIf { it.isNotEmpty() } ?: return sink?.let { "auto/$it" }
+        return "$ao/" + (sink ?: "default")
+    }
+
+    /** How long [cachedDefaultSink] keeps an answer: the sink rarely changes mid-film. */
+    const val DEFAULT_SINK_CACHE_MS = 30_000L
+
+    @Volatile private var sinkCache: Pair<Long, String?>? = null
+
+    /** [defaultSink], asked at most every [DEFAULT_SINK_CACHE_MS] rather than spawning `pactl` on every check. */
+    fun cachedDefaultSink(nowMs: Long = System.currentTimeMillis(), ask: () -> String? = ::defaultSink): String? {
+        sinkCache?.let { (at, sink) -> if (nowMs - at in 0 until DEFAULT_SINK_CACHE_MS) return sink }
+        return ask().also { sinkCache = nowMs to it }
+    }
+
+    internal fun resetSinkCache() {
+        sinkCache = null
     }
 
     /** The default sink's name from `pactl get-default-sink`; null without PulseAudio or PipeWire. */

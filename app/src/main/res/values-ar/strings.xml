@@ -995,13 +995,10 @@
     <string name="player_queue_move_down">نقل لأسفل</string>
     <string name="player_queue_removed">تمت إزالة %1$s من قائمة الانتظار</string>
     <string name="player_queue_undo">تراجع</string>
-    <string name="player_seek_back_10">رجوع 10 ثوانٍ</string>
-    <string name="player_seek_forward_30">تقديم 30 ثانية</string>
     <string name="player_via">بواسطة %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">تأخير الترجمة</string>
-    <string name="player_error_title">خطأ في التشغيل</string>
     <string name="player_error_choose_source">اختر مصدراً آخر</string>
     <string name="player_speed_title">سرعة التشغيل</string>
     <string name="player_error_no_stream_url">لا يحتوي هذا المصدر على رابط بث. يرجى اختيار مصدر آخر.</string>
@@ -1276,7 +1273,7 @@
     <string name="ratings_load_error">تعذر تحميل تقييمات الحلقة.</string>
     <string name="ratings_season_summary">الموسم %1$d - %2$d حلقة</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">استكشاف</string>
     <string name="discover_load_more">تحميل المزيد</string>
     <string name="discover_loading">جاري التحميل…</string>
@@ -1315,8 +1312,6 @@
     <string name="profile_pin_current_required">الملف محمي برمز PIN.أدخل الرمز الحالي لتغييره.</string>
 
     <!-- Search -->
-    <string name="discover_disabled_title">ميزة \"استكشاف\" معطلة</string>
-    <string name="discover_disabled_subtitle">فعل \"استكشاف\" من إعدادات التنسيق</string>
 
     <!-- Error messages (shared) -->
     <string name="error_network_required">اتصل بشبكة انترنت لاستخدام هذه الميزة</string>
@@ -1391,7 +1386,6 @@
     <string name="cd_trakt_logo">شعار Trakt</string>
     <string name="cd_trakt_qr">رمز QR لتفعيل Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">فتح الاستكشاف</string>
     <string name="cd_voice_search">بحث صوتي</string>
     <string name="cd_expand">توسيع %1$s</string>
     <string name="cd_collapse">طي %1$s</string>

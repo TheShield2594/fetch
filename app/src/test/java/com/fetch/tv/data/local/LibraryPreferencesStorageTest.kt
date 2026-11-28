@@ -72,13 +72,13 @@ class LibraryPreferencesStorageTest {
     }
 
     @Test
-    fun `a logo update writes the one title`() = runBlocking {
+    fun `re-saving one title writes the one title`() = runBlocking {
         val rows = InMemoryKeyedEntryStore()
         val preferences = preferences(rows = rows)
         (0 until 100).forEach { preferences.addItem(item(it), profileId = 1) }
         rows.resetWriteCount()
 
-        preferences.updateLogo("tt5", "MOVIE", "logo.png", profileId = 1)
+        preferences.addItem(item(5).copy(logo = "logo.png"), profileId = 1)
 
         assertEquals(1, rows.entriesWritten)
         assertEquals("logo.png", preferences.getAllItems(profileId = 1).single { it.id == "tt5" }.logo)

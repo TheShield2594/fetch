@@ -2,7 +2,6 @@
 <resources>
     <!-- Library header -->
     <string name="library_open_stats">পরিসংখ্যান</string>
-    <string name="library_open_calendar">ক্যালেন্ডার</string>
 
     <!-- Shared by Stats and Calendar -->
     <string name="insights_source_eyebrow">Fetch ওয়েবসাইট থেকে</string>

@@ -2,7 +2,6 @@
 <resources>
     <!-- Library header -->
     <string name="library_open_stats">புள்ளிவிவரம்</string>
-    <string name="library_open_calendar">நாள்காட்டி</string>
 
     <!-- Shared by Stats and Calendar -->
     <string name="insights_source_eyebrow">Fetch இணையதளத்திலிருந்து</string>

@@ -34,7 +34,7 @@ data class RemoteSharedSettings(
     val showAddonName: Boolean? = null,
     /** `layout_settings.poster_labels_enabled` (TV default true). */
     val showPosterLabels: Boolean? = null,
-    /** `layout_settings.discover_location`: `OFF`, `IN_SEARCH` (TV default) or `IN_SIDEBAR`. */
+    /** `layout_settings.discover_location`: `OFF`, `IN_SEARCH` or `IN_SIDEBAR`. The TV always shows Discover in its sidebar and ignores it. */
     val discoverLocation: String? = null,
     /** `player_settings.preferred_audio_language`: a language code, or `device`, `default`, `original`. */
     val audioLanguage: String? = null,

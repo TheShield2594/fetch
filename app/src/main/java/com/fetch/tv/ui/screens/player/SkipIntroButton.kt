@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SkipNext
@@ -130,14 +129,6 @@ fun SkipIntroButton(
                 easing = LinearEasing
             ))
             autoHidden = true
-        }
-    }
-
-    // Re-show when controls become visible while auto-hidden — but don't restart countdown
-    // When controls hide again and we were auto-hidden, stay hidden
-    LaunchedEffect(controlsVisible) {
-        if (!controlsVisible && autoHidden) {
-            // controls closed, stay hidden — nothing to do
         }
     }
 

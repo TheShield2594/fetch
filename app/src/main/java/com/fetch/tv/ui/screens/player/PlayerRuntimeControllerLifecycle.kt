@@ -82,7 +82,6 @@ internal fun PlayerRuntimeController.releasePlayer(
     playbackPreparationJob = null
     traktMappingJob?.cancel()
     traktMappingJob = null
-    delayMpvResumeSeekUntilVideoTrack = false
     mpvMediaLoadPrepared = false
     nextEpisodeAutoPlayJob?.cancel()
     nextEpisodeAutoPlayJob = null

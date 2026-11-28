@@ -20,7 +20,6 @@ import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.Locale
@@ -454,10 +453,6 @@ object FrameRateUtils {
         )
     }
 
-    fun cleanupDisplayListener() {
-        // Kept for API compatibility with existing call sites.
-    }
-
     fun clearOriginalDisplayMode() {
         originalModeId = null
     }
@@ -472,7 +467,6 @@ object FrameRateUtils {
                 originalModeId = null
                 true
             } else {
-                cleanupDisplayListener()
                 val layoutParams = window.attributes
                 layoutParams.preferredDisplayModeId = targetModeId
                 window.attributes = layoutParams
@@ -618,18 +612,6 @@ object FrameRateUtils {
             Log.d(TAG, "AFR CDN warmup failed: ${e.message}")
             false
         }
-    }
-
-    fun detectFrameRateFromSource(
-        context: Context,
-        sourceUrl: String,
-        headers: Map<String, String> = emptyMap(),
-        mimeType: String? = null,
-        filename: String? = null
-    ): FrameRateDetection? {
-        detectFrameRateWithOkHttpProbe(context, sourceUrl, headers, mimeType, filename)?.let { return it }
-        detectFrameRateFromNextLib(context, sourceUrl, headers, mimeType, filename)?.let { return it }
-        return detectFrameRateFromExtractor(context, sourceUrl, headers)
     }
 
     fun detectFrameRateFromNextLib(

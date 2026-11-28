@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statystyki</string>
-    <string name="library_open_calendar">Kalendarz</string>
     <string name="insights_source_eyebrow">Ze strony Fetch</string>
     <string name="insights_loading">Ładowanie…</string>
     <string name="insights_not_paired_subtitle">Zaloguj ten telewizor na stronie Fetch w Ustawienia › Konto, aby zobaczyć to tutaj. Strona przechowuje twoją historię oglądania i na jej podstawie wszystko oblicza.</string>

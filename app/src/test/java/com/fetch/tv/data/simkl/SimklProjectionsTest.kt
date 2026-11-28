@@ -38,11 +38,6 @@ class SimklProjectionsTest {
 
         assertEquals(3, projection.items.size)
         assertEquals("simkl", item.trackingProviderId)
-        assertEquals("simkl:53536", item.trackingProviderItemId)
-        assertEquals(
-            "https://simkl.com/movies/53536/terminator-3-rise-of-the-machines",
-            item.trackingSourceUrl
-        )
         assertTrue(item.poster.orEmpty().contains("simkl.in/posters/12/poster_m.webp"))
         assertEquals(1_700_000_000_000L, item.listedAt)
         assertEquals(5, projection.tabs.size)

@@ -1197,14 +1197,11 @@
     <string name="player_queue_move_down">Μετακίνηση κάτω</string>
     <string name="player_queue_removed">Αφαιρέθηκε από την ουρά: %1$s</string>
     <string name="player_queue_undo">Αναίρεση</string>
-    <string name="player_seek_back_10">Πίσω 10 δευτερόλεπτα</string>
-    <string name="player_seek_forward_30">Μπροστά 30 δευτερόλεπτα</string>
   <string name="player_live_watched">ΖΩΝΤΑΝΑ  %1$s</string>
   <string name="player_via">μέσω %1$s</string>
   <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
   <string name="season_episode_format">S%1$d E%2$d</string>
   <string name="player_subtitle_delay">Καθυστέρηση υπότιτλων</string>
-  <string name="player_error_title">Σφάλμα αναπαραγωγής</string>
   <string name="player_error_choose_source">Επιλέξτε άλλη πηγή</string>
   <string name="player_switch_to_mpv">Εναλλαγή σε MPV</string>
   <string name="player_speed_title">Ταχύτητα αναπαραγωγής</string>
@@ -1486,7 +1483,7 @@
   <string name="ratings_unavailable">Οι βαθμολογίες επεισοδίου δεν είναι διαθέσιμες.</string>
   <string name="ratings_load_error">Δεν ήταν δυνατή η φόρτωση βαθμολογιών επεισοδίου.</string>
   <string name="ratings_season_summary">Σεζόν %1$d - %2$d επεισόδια</string>
-  <!-- SearchDiscoverSection -->
+  <!-- DiscoverSection -->
   <string name="discover_title">Ανακάλυψη</string>
   <string name="discover_load_more">Φόρτωση περισσότερων</string>
   <string name="discover_loading">Φόρτωση…</string>
@@ -1522,8 +1519,6 @@
   <!-- Sync screens -->
   <!-- Search -->
   <string name="search_no_results_subtitle">Δοκιμάστε αναζήτηση με διαφορετικές λέξεις-κλειδιά</string>
-  <string name="discover_disabled_title">Η Ανακάλυψη είναι απενεργοποιημένη</string>
-  <string name="discover_disabled_subtitle">Ενεργοποιήστε την Ανακάλυψη στις ρυθμίσεις διάταξης</string>
   <!-- Library -->
   <string name="library_list_create_dialog_title">Δημιουργία λίστας</string>
   <string name="library_list_edit_dialog_title">Επεξεργασία λίστας</string>
@@ -1617,7 +1612,6 @@
   <string name="cd_trakt_logo">Λογότυπο Trakt</string>
   <string name="cd_trakt_qr">QR ενεργοποίησης Trakt</string>
   <string name="cd_imdb">IMDb</string>
-  <string name="cd_open_discover">Άνοιγμα Ανακάλυψης</string>
   <string name="cd_voice_search">Φωνητική αναζήτηση</string>
   <string name="cd_expand">Ανάπτυξη %1$s</string>
   <string name="cd_collapse">Σύμπτυξη %1$s</string>

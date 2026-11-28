@@ -7,7 +7,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
@@ -110,7 +109,6 @@ internal object AutomaticSubtitleSync {
         /** False when the player does not feed [EmbeddedSubtitleCueStore] (mpv): indexed references only. */
         allowLiveReference: Boolean = true,
     ): AutoSyncResolvedTimeline? {
-        Unit
         val aggressiveMode = AutoSyncPreferences.aggressiveMode.value
 
         val result = supervisorScope {

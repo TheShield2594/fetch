@@ -47,23 +47,6 @@ object OpenSubtitlesHasher {
         headers: Map<String, String>,
         client: OkHttpClient
     ): Long? {
-        // Query the static probeInfoCache in PlayerMediaSourceFactory to bypass connection if possible
-        try {
-            val cacheInfo = PlayerMediaSourceFactory.getProbeInfo(url, headers)
-            if (cacheInfo != null) {
-                // If the stream doesn't accept range requests, we cannot calculate OpenSubtitles hash (which requires reading the end of the file).
-                // Abort early to avoid throwing exceptions and wasting network calls.
-                if (!cacheInfo.acceptsRanges) {
-                    return null
-                }
-                if (cacheInfo.contentLength > 0L) {
-                    return cacheInfo.contentLength
-                }
-            }
-        } catch (_: Exception) {
-            // Fallback to active network request if package/class is unresolved in tests or background scenarios
-        }
-
         val requestBuilder = Request.Builder()
             .url(url)
             .head()

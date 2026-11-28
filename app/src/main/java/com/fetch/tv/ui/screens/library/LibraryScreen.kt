@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.focusable
 import androidx.compose.material.icons.Icons
@@ -106,7 +105,6 @@ private fun localizedTypeLabel(key: String): String = when (key.lowercase()) {
 fun LibraryScreen(
     viewModel: LibraryViewModel = hiltViewModel(),
     serversViewModel: LibraryServersViewModel = hiltViewModel(),
-    showBuiltInHeader: Boolean = true,
     onNavigateToDetail: (String, String, String?) -> Unit,
     onNavigateToCatalogSeeAll: (String, String, String) -> Unit = { _, _, _ -> },
     onNavigateToSearch: () -> Unit = {},
@@ -406,7 +404,7 @@ fun LibraryScreen(
     val showHero = heroAllowed && heroItem != null && heroTarget != null
 
     com.fetch.tv.ui.components.BrowseScaffold(
-        title = if (showBuiltInHeader) stringResource(R.string.library_title) else null,
+        title = stringResource(R.string.library_title),
         collapsed = collapsed,
         layoutKey = tab,
         heroBackdrop = heroTarget?.backdrop,
@@ -707,7 +705,7 @@ fun LibraryScreen(
                         onPlayTitle(item.id, item.type, item.addonBaseUrl)
                     }),
                     posterCardStyle = posterCardStyle,
-                    isWatched = if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds,
+                    isWatched = item.isWatchedIn(watchedMovieIds, watchedSeriesIds),
                     focusRequester = posterFocusRequesters[focusKey],
                     showLabel = true,
                     selected = selected,
@@ -757,7 +755,7 @@ fun LibraryScreen(
                     viewModel.posterOptions.show(preview, item.addonBaseUrl)
                 },
                 isWatched = { item ->
-                    if (item.isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
+                    com.fetch.tv.ui.util.isTitleWatched(item.id, item.type, watchedMovieIds, watchedSeriesIds)
                 },
                 selectedFor = { key -> if (selection.active) selection.isSelected(key) else null },
                 newEpisodeBadgeFor = { item -> badgeLabel(newEpisodeBadges.badgeFor(item.id).takeIf { item.isSeries }) },
@@ -786,7 +784,6 @@ fun LibraryScreen(
                 onNavigateToSettings = onNavigateToSettings,
                 onRetry = serversViewModel::reload,
                 posterCardStyle = posterCardStyle,
-                rowInset = FetchTheme.spacing.xxxl,
                 focusTarget = serverFocusTarget,
                 focusedIndexes = serversViewModel.focusedIndexes,
                 onItemFocused = { shelfKey, index ->
@@ -797,8 +794,7 @@ fun LibraryScreen(
                     }
                 },
                 isWatched = { item ->
-                    val isSeries = com.fetch.tv.ui.util.isSeriesContentType(item.apiType)
-                    if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
+                    com.fetch.tv.ui.util.isTitleWatched(item.id, item.apiType, watchedMovieIds, watchedSeriesIds)
                 },
                 onItemClick = { itemId, itemType, addonBaseUrl ->
                     HeroBackdropState.update(viewModel.getCachedBackdrop(itemId, itemType))

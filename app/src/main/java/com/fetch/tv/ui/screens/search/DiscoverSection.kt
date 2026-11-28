@@ -100,9 +100,6 @@ internal fun DiscoverSection(
     heroEnabled: Boolean = false,
     heroMetaVersion: Int = 0,
     cachedMeta: (id: String, type: String) -> com.fetch.tv.domain.model.Meta? = { _, _ -> null },
-    focusResults: Boolean,
-    showBuiltInHeader: Boolean = true,
-    firstItemFocusRequester: FocusRequester,
     /** The title last focused in the grid ([discoverItemKey]), or null for the first card. */
     focusedItemKey: String?,
     shouldRestoreFocusedItem: Boolean,
@@ -244,6 +241,7 @@ internal fun DiscoverSection(
     // A genre tile or a shelf's See all (#858): focus moves to the grid's first card once the
     // filtered grid is in.
     var pendingGridFocus by remember { mutableStateOf(false) }
+    val firstItemFocusRequester = remember { FocusRequester() }
     val shelfScope = rememberCoroutineScope()
     val gridReadyForFocus = pendingGridFocus && results.isNotEmpty() && !uiState.discoverLoading && !shelvesAllowed
     LaunchedEffect(gridReadyForFocus) {
@@ -282,7 +280,7 @@ internal fun DiscoverSection(
     val showHero = heroAllowed && heroItem != null && heroTarget != null
 
     com.fetch.tv.ui.components.BrowseScaffold(
-        title = if (showBuiltInHeader) stringResource(R.string.discover_title) else null,
+        title = stringResource(R.string.discover_title),
         collapsed = collapsed,
         modifier = modifier,
         layoutKey = uiState.selectedDiscoverType,
@@ -403,7 +401,7 @@ internal fun DiscoverSection(
                         posterCardStyle = posterCardStyle,
                         watchedMovieIds = watchedMovieIds,
                         watchedSeriesIds = watchedSeriesIds,
-                        focusResults = focusResults || pendingGridFocus,
+                        focusResults = pendingGridFocus,
                         firstItemFocusRequester = firstItemFocusRequester,
                         focusedItemIndex = focusedItemIndex.coerceAtLeast(0),
                         shouldRestoreFocusedItem = shouldRestoreFocusedItem && focusedItemIndex >= 0,
@@ -414,7 +412,7 @@ internal fun DiscoverSection(
                         // A sorted grid adds a sorted batch only when asked, below what is shown (#843).
                         autoLoadPaused = uiState.discoverPagingPaused || filters.sorted,
                         onLoadMore = onLoadMore,
-                        onItemClick = { _, item ->
+                        onItemClick = { item ->
                             HeroBackdropState.update(item.backdropUrl)
                             onNavigateToDetail(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
                         },
@@ -563,8 +561,9 @@ internal fun DiscoverGrid(
     posterCardStyle: PosterCardStyle,
     watchedMovieIds: Set<String> = emptySet(),
     watchedSeriesIds: Set<String> = emptySet(),
-    focusResults: Boolean,
-    firstItemFocusRequester: FocusRequester,
+    /** Hand focus to the first card through [firstItemFocusRequester] (a genre tile or See all, #858). */
+    focusResults: Boolean = false,
+    firstItemFocusRequester: FocusRequester? = null,
     focusedItemIndex: Int,
     shouldRestoreFocusedItem: Boolean,
     onRestoreFocusedItemHandled: () -> Unit,
@@ -574,7 +573,7 @@ internal fun DiscoverGrid(
     /** Scroll paging has paused (a failed page, or pages the filters keep nothing from): show Load more. */
     autoLoadPaused: Boolean = false,
     onLoadMore: () -> Unit,
-    onItemClick: (Int, MetaPreview) -> Unit,
+    onItemClick: (MetaPreview) -> Unit,
     onItemLongPress: (MetaPreview) -> Unit = {},
     filterKey: String = "",
     libraryIds: Set<String> = emptySet(),
@@ -707,7 +706,7 @@ internal fun DiscoverGrid(
             if (headerItemCount > 0) return@onFocusFirstCard false
             val firstCard = when {
                 effectiveShouldRestoreFocusedItem && effectiveFocusedItemIndex == 0 -> restoreFocusRequester
-                focusResults -> firstItemFocusRequester
+                focusResults && firstItemFocusRequester != null -> firstItemFocusRequester
                 else -> itemFocusRequesters.focusRequesterFor(0)
             }
             firstCard.requestFocusAfterFrames()
@@ -746,19 +745,15 @@ internal fun DiscoverGrid(
             val itemFocusReq = remember(index) { itemFocusRequesters.focusRequesterFor(index) }
             val focusReq = when {
                 effectiveShouldRestoreFocusedItem && index == effectiveFocusedItemIndex -> restoreFocusRequester
-                focusResults && index == 0 -> firstItemFocusRequester
+                focusResults && index == 0 && firstItemFocusRequester != null -> firstItemFocusRequester
                 else -> itemFocusReq
             }
             GridContentCard(
                 item = item,
-                onClick = { onItemClick(index, item) },
+                onClick = { onItemClick(item) },
                 onLongPress = { onItemLongPress(item) },
                 posterCardStyle = posterCardStyle,
-                isWatched = if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) {
-                    item.id in watchedSeriesIds
-                } else {
-                    item.id in watchedMovieIds
-                },
+                isWatched = com.fetch.tv.ui.util.isTitleWatched(item.id, item.apiType, watchedMovieIds, watchedSeriesIds, item.imdbId),
                 // No width here: the card sizes itself (landscape cards are wider than posters), as
                 // in the Library and See all (#842). The grid's top padding gives the focused
                 // card room to grow (#850).

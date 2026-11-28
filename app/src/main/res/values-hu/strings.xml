@@ -1265,14 +1265,11 @@
     <string name="player_queue_move_down">Lejjebb</string>
     <string name="player_queue_removed">Eltávolítva a sorból: %1$s</string>
     <string name="player_queue_undo">Visszavonás</string>
-    <string name="player_seek_back_10">Vissza 10 másodpercet</string>
-    <string name="player_seek_forward_30">Előre 30 másodpercet</string>
     <string name="player_live_watched">ÉLŐ  %1$s</string>
     <string name="player_via">forrás: %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Felirat késleltetése</string>
-    <string name="player_error_title">Lejátszási hiba</string>
     <string name="player_error_choose_source">Válassz másik forrást</string>
     <string name="player_switch_to_mpv">Váltás az MPV-lejátszóra</string>
     <string name="player_speed_title">Lejátszási sebesség</string>
@@ -1583,7 +1580,7 @@
     <string name="ratings_load_error">Nem sikerült betölteni az értékeléseket.</string>
     <string name="ratings_season_summary">%1$d. évad – %2$d rész</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Felfedezés</string>
     <string name="discover_load_more">Továbbiak betöltése</string>
     <string name="discover_loading">Betöltés\u2026</string>
@@ -1629,8 +1626,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">A felfedezés ki van kapcsolva</string>
-    <string name="discover_disabled_subtitle">Engedélyezd a Felfedezést az Elrendezés beállításaiban</string>
 
     <!-- Library -->
 
@@ -1710,7 +1705,6 @@
     <string name="cd_trakt_logo">Trakt logó</string>
     <string name="cd_trakt_qr">Trakt aktivációs QR-kód</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Felfedezés megnyitása</string>
     <string name="cd_clear_search">Keresés törlése</string>
     <string name="cd_voice_search">Hangalapú keresés</string>
     <string name="cd_expand">Kibontás: %1$s</string>

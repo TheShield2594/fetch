@@ -1191,13 +1191,10 @@
     <string name="player_queue_move_down">নিচে সরান</string>
     <string name="player_queue_removed">কিউ থেকে %1$s সরানো হয়েছে</string>
     <string name="player_queue_undo">আনডু</string>
-    <string name="player_seek_back_10">১০ সেকেন্ড পিছনে</string>
-    <string name="player_seek_forward_30">৩০ সেকেন্ড সামনে</string>
     <string name="player_live_watched">লাইভ  %1$s</string>
     <string name="player_via">%1$s দিয়ে</string>
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">সাবটাইটেল ডিলে</string>
-    <string name="player_error_title">প্লেব্যাক এরর</string>
     <string name="player_error_choose_source">অন্য একটি সোর্স বেছে নিন</string>
     <string name="player_switch_to_mpv">MPV প্লেয়ারে সুইচ করুন</string>
     <string name="player_speed_title">প্লেব্যাক স্পিড</string>
@@ -1503,8 +1500,6 @@
     <string name="profile_pin_verify_error">পিন যাচাই করা যায়নি। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_incorrect">ভুল পিন। আবার চেষ্টা করুন।</string>
     <string name="profile_pin_current_required">এই প্রোফাইলে ইতিমধ্যেই একটি পিন রয়েছে। এটি পরিবর্তন করতে বর্তমান পিনটি লিখুন।</string>
-    <string name="discover_disabled_title">Discover নিষ্ক্রিয় করা আছে</string>
-    <string name="discover_disabled_subtitle">লেআউট সেটিংসে Discover সক্রিয় করুন</string>
     <string name="error_network_required">এই ফিচারটি ব্যবহার করতে Wi-Fi বা ইথারনেটের সাথে কানেক্ট করুন</string>
     <string name="error_server_ports_unavailable">ফোন কানেকশন শুরু করা যায়নি। Fetch রিস্টার্ট করে আবার চেষ্টা করুন।</string>
     <string name="trakt_error_code_expired">ডিভাইস কোডের মেয়াদ শেষ হয়েছে। আবার শুরু করুন।</string>
@@ -1563,7 +1558,6 @@
     <string name="cd_trakt_logo">Trakt লোগো</string>
     <string name="cd_trakt_qr">Trakt অ্যাক্টিভেশন QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">ডিসকভার খুলুন</string>
     <string name="cd_clear_search">সাফ সার্চ</string>
     <string name="cd_voice_search">ভয়েস সার্চ</string>
     <string name="cd_expand">%1$s সম্প্রসারিত করুন</string>

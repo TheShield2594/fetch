@@ -1140,14 +1140,11 @@
     <string name="player_queue_move_down">Pomeri dole</string>
     <string name="player_queue_removed">Uklonjeno iz reda: %1$s</string>
     <string name="player_queue_undo">Opozovi</string>
-    <string name="player_seek_back_10">Nazad 10 sekundi</string>
-    <string name="player_seek_forward_30">Napred 30 sekundi</string>
     <string name="player_live_watched">UŽIVO %1$s</string>
     <string name="player_via">preko %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Kašnjenje titlova</string>
-    <string name="player_error_title">Greška pri reprodukciji</string>
     <string name="player_error_choose_source">Izaberite drugi izvor</string>
     <string name="player_switch_to_mpv">Prebaci na MPV plejer</string>
     <string name="player_speed_title">Brzina reprodukcije</string>
@@ -1455,7 +1452,7 @@
     <string name="ratings_load_error">Nije moguće učitati ocene epizoda.</string>
     <string name="ratings_season_summary">Sezona %1$d - %2$d epizoda</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Otkrijte</string>
     <string name="discover_load_more">Učitaj još</string>
     <string name="discover_loading">Učitavanje…</string>
@@ -1501,8 +1498,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Sekcija Otkrijte je onemogućena</string>
-    <string name="discover_disabled_subtitle">Omogućite sekciju Otkrijte u podešavanjima izgleda</string>
 
     <!-- Library -->
 
@@ -1582,7 +1577,6 @@
     <string name="cd_trakt_logo">Trakt logotip</string>
     <string name="cd_trakt_qr">QR kod za Trakt aktivaciju</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Otvori sekciju Otkrijte</string>
     <string name="cd_clear_search">Očisti pretragu</string>
     <string name="cd_voice_search">Glasovna pretraga</string>
     <string name="cd_expand">Proširi %1$s</string>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistiky</string>
-    <string name="library_open_calendar">Kalendář</string>
     <string name="insights_source_eyebrow">Z webu Fetch</string>
     <string name="insights_loading">Načítání…</string>
     <string name="insights_not_paired_subtitle">Přihlaste tuto televizi k webu Fetch v části Nastavení › Účet a uvidíte to tady. Web uchovává vaši historii sledování a počítá to z ní.</string>

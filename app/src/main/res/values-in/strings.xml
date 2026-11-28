@@ -958,13 +958,10 @@
     <string name="player_queue_move_down">Turunkan</string>
     <string name="player_queue_removed">%1$s dihapus dari antrean</string>
     <string name="player_queue_undo">Urungkan</string>
-    <string name="player_seek_back_10">Mundur 10 detik</string>
-    <string name="player_seek_forward_30">Maju 30 detik</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">M%1$d E%2$d</string>
     <string name="player_subtitle_delay">Penundaan Subtitle</string>
-    <string name="player_error_title">Error pemutaran</string>
     <string name="player_error_choose_source">Pilih sumber lain</string>
     <string name="player_speed_title">Kecepatan Pemutaran</string>
 
@@ -1216,7 +1213,7 @@
     <string name="ratings_load_error">Tidak dapat memuat rating episode.</string>
     <string name="ratings_season_summary">Musim %1$d - %2$d episode</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Temukan</string>
     <string name="discover_load_more">Muat lebih banyak</string>
     <string name="discover_loading">Memuat…</string>
@@ -1260,8 +1257,6 @@
 
     <!-- Search -->
     <string name="search_no_results_subtitle">Coba cari dengan kata kunci yang berbeda</string>
-    <string name="discover_disabled_title">Penemuan dinonaktifkan</string>
-    <string name="discover_disabled_subtitle">Aktifkan Penemuan di pengaturan Tata Letak</string>
 
     <!-- Library -->
     <string name="library_list_create_dialog_title">Buat Daftar</string>
@@ -1367,7 +1362,6 @@
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">QR aktivasi Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Buka penemuan</string>
     <string name="cd_voice_search">Pencarian suara</string>
     <string name="cd_expand">Luaskan %1$s</string>
     <string name="cd_collapse">Ciutkan %1$s</string>

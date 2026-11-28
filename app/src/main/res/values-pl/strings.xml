@@ -654,8 +654,6 @@
     <string name="player_queue_move_down">Przenieś w dół</string>
     <string name="player_queue_removed">Usunięto z kolejki: %1$s</string>
     <string name="player_queue_undo">Cofnij</string>
-    <string name="player_seek_back_10">10 sekund wstecz</string>
-    <string name="player_seek_forward_30">30 sekund do przodu</string>
     <string name="player_no_external_player">Nie znaleziono zewnętrznego odtwarzacza</string>
 
     <!-- ParentalGuideOverlay -->
@@ -677,7 +675,6 @@
     <string name="player_loading_building">Budowanie odtwarzacza…</string>
     <string name="player_loading_starting">Uruchamianie strumienia…</string>
     <string name="player_loading_buffering">Buforowanie…</string>
-    <string name="player_error_title">Błąd odtwarzania</string>
     <string name="player_error_choose_source">Wybierz inne źródło</string>
     <string name="player_speed_title">Prędkość odtwarzania</string>
 
@@ -866,7 +863,7 @@
     <string name="ratings_load_error">Nie udało się załadować ocen odcinków.</string>
     <string name="ratings_season_summary">Sezon %1$d - %2$d odcinkow</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Odkrywaj</string>
     <string name="discover_load_more">Zaladuj wiecej</string>
     <string name="discover_loading">Ladowanie…</string>
@@ -1115,7 +1112,6 @@
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">Kod QR aktywacji Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Otwórz odkrywaj</string>
     <string name="cd_voice_search">Wyszukiwanie głosowe</string>
     <string name="cd_expand">Rozwiń %1$s</string>
     <string name="cd_collapse">Zwiń %1$s</string>
@@ -1124,8 +1120,6 @@
     <string name="debug_generate_description">Element wygenerowany przez debug %1$s nr %2$d</string>
     <string name="debug_generate_result_failed">Błąd: %1$s</string>
 
-    <string name="discover_disabled_title">Odkrywaj jest wyłączone</string>
-    <string name="discover_disabled_subtitle">Włącz Odkrywaj w wyszukiwarce w ustawieniach</string>
 
     <string name="error_network_required">Połącz się z Wi-Fi lub Ethernet, aby użyć tej funkcji</string>
     <string name="error_server_ports_unavailable">Nie udało się uruchomić połączenia z telefonem. Uruchom ponownie Fetch i spróbuj jeszcze raz.</string>

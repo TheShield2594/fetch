@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistieken</string>
-    <string name="library_open_calendar">Kalender</string>
 
     <string name="insights_source_eyebrow">Van de Fetch-website</string>
     <string name="insights_loading">Laden…</string>

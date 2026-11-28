@@ -4,22 +4,12 @@ import com.fetch.tv.domain.model.THEME_CARD_CORNER_RADIUS
 import androidx.compose.runtime.Immutable
 import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogRow
-import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.MetaPreview
 
 internal const val MIN_SEARCH_QUERY_LENGTH = 2
 
 internal fun submittedSearchQuery(rawQuery: String): String =
     rawQuery.trim().takeIf { it.length >= MIN_SEARCH_QUERY_LENGTH }.orEmpty()
-
-internal fun shouldShowDiscoverInSearch(
-    discoverLocation: DiscoverLocation,
-    query: String,
-    submittedQuery: String
-): Boolean =
-    discoverLocation == DiscoverLocation.IN_SEARCH &&
-        query.trim().length < MIN_SEARCH_QUERY_LENGTH &&
-        submittedQuery.isBlank()
 
 @Immutable
 data class SearchUiState(
@@ -33,7 +23,6 @@ data class SearchUiState(
     val error: String? = null,
     val catalogRows: List<CatalogRow> = emptyList(),
     val installedAddons: List<Addon> = emptyList(),
-    val discoverLocation: DiscoverLocation = DiscoverLocation.IN_SIDEBAR,
     val discoverInitialized: Boolean = false,
     val discoverLoading: Boolean = false,
     val discoverLoadingMore: Boolean = false,
@@ -69,7 +58,6 @@ data class SearchUiState(
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,
     val posterCardWidthDp: Int = 126,
-    val posterCardHeightDp: Int = 189,
     val posterCardCornerRadiusDp: Int = THEME_CARD_CORNER_RADIUS,
     val recentSearches: List<String> = emptyList(),
     val suggestions: List<String> = emptyList(),
@@ -88,7 +76,6 @@ data class SearchUiState(
 
 @Immutable
 data class DiscoverCatalog(
-    val key: String,
     val addonId: String,
     val addonName: String,
     val addonBaseUrl: String,

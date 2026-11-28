@@ -25,8 +25,6 @@ internal fun PlayerRuntimeController.resetLoadingDiagnostics(
     loadingDiagnosticsStartedAtMs = now
     currentLoadingPhase = phase
     currentLoadingPhaseStartedAtMs = now
-    currentLoadingMessageForReport = message
-    currentLoadingProgressForReport = progress
     lastLoadingDiagnosticSignature = ""
     startupPhaseSequence = 0
     loadingDiagnosticEvents.clear()
@@ -67,8 +65,6 @@ internal fun PlayerRuntimeController.recordLoadingDiagnosticEvent(
         currentLoadingPhase = phase
         currentLoadingPhaseStartedAtMs = now
     }
-    currentLoadingMessageForReport = message
-    currentLoadingProgressForReport = progress
     val normalizedProgress = progress?.let { "%.3f".format(it.coerceIn(0f, 1f)) }.orEmpty()
     val signature = "$phase|${message.orEmpty()}|$normalizedProgress|${detail.orEmpty()}"
     if (signature == lastLoadingDiagnosticSignature) return
@@ -80,7 +76,7 @@ internal fun PlayerRuntimeController.recordLoadingDiagnosticEvent(
     recordLoadingDiagnosticRawEventLine(
         "STARTUP_STAGE: seq=$startupPhaseSequence phase=$phase elapsedMs=$elapsedMs " +
             "phaseElapsedMs=$phaseElapsedMs clickElapsedMs=${clickElapsedMs ?: -1L} " +
-            "engine=$currentInternalPlayerEngine host=${currentStreamUrl.safePlaybackRawHost()} " +
+            "engine=$currentInternalPlayerEngine host=${currentStreamUrl.safeLogHost()} " +
             "message=${message?.compactTraceValue() ?: "n/a"} progress=${progress ?: -1f} " +
             "detail=${detail?.compactTraceValue() ?: "n/a"}"
     )
@@ -110,7 +106,8 @@ private fun PlayerRuntimeController.recordLoadingDiagnosticRawEventLine(line: St
     }
 }
 
-private fun String.safePlaybackRawHost(): String {
+/** The host of a URL for logs; the scheme when there is no host; never the full URL. */
+internal fun String.safeLogHost(): String {
     return runCatching {
         toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
     }.getOrDefault("unknown")

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -99,7 +98,6 @@ internal fun AudioSelectionOverlay(
     val canDecreaseCenterMix = isCenterMixAvailable && currentCenterMixDb > CENTER_MIX_LEVEL_MIN_DB
     val canIncreaseCenterMix = isCenterMixAvailable && currentCenterMixDb < CENTER_MIX_LEVEL_MAX_DB
 
-    var lastFocusedAudioIndex by rememberSaveable { mutableStateOf<Int?>(null) }
     var pendingControlFocusTarget by rememberSaveable {
         mutableStateOf<AudioControlFocusTarget?>(null)
     }
@@ -219,7 +217,6 @@ internal fun AudioSelectionOverlay(
                             canIncreaseCenterMix -> centerPlusFocusRequester
                             else -> persistFocusRequester
                         },
-                        onTrackFocused = { lastFocusedAudioIndex = it },
                         onTrackSelected = onTrackSelected
                     )
                 }
@@ -260,7 +257,6 @@ private fun AudioTracksContent(
     listState: androidx.compose.foundation.lazy.LazyListState,
     initialFocusRequester: FocusRequester,
     rightFocusRequester: FocusRequester,
-    onTrackFocused: (Int) -> Unit,
     onTrackSelected: (Int) -> Unit
 ) {
     if (tracks.isEmpty()) {
@@ -285,7 +281,6 @@ private fun AudioTracksContent(
             AudioTrackCard(
                 track = track,
                 isSelected = track.index == selectedIndex,
-                onFocused = { onTrackFocused(track.index) },
                 onClick = { onTrackSelected(track.index) },
                 rightFocusRequester = rightFocusRequester,
                 focusRequester = if (
@@ -304,7 +299,6 @@ private fun AudioTracksContent(
 private fun AudioTrackCard(
     track: TrackInfo,
     isSelected: Boolean,
-    onFocused: () -> Unit,
     onClick: () -> Unit,
     rightFocusRequester: FocusRequester,
     focusRequester: FocusRequester?
@@ -320,8 +314,7 @@ private fun AudioTrackCard(
         modifier = Modifier
             .fillMaxWidth()
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .focusProperties { right = rightFocusRequester }
-            .onFocusChanged { if (it.isFocused) onFocused() },
+            .focusProperties { right = rightFocusRequester },
         colors = CardDefaults.colors(
             containerColor = if (isSelected) FetchTheme.colors.Secondary else Color.Transparent,
             focusedContainerColor = if (isSelected) FetchTheme.colors.Secondary else Color.Transparent

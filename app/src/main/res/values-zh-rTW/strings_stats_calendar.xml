@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">統計</string>
-    <string name="library_open_calendar">行事曆</string>
     <string name="insights_source_eyebrow">來自 Fetch 網站</string>
     <string name="insights_loading">載入中…</string>
     <string name="insights_not_paired_subtitle">在「設定 › 帳戶」中讓這台電視登入 Fetch 網站，即可在這裡查看。網站會保存你的觀看紀錄，並據此計算這些內容。</string>

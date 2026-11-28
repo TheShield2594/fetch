@@ -985,13 +985,10 @@
     <string name="player_queue_move_down">Flyt ned</string>
     <string name="player_queue_removed">%1$s fjernet fra køen</string>
     <string name="player_queue_undo">Fortryd</string>
-    <string name="player_seek_back_10">10 sekunder tilbage</string>
-    <string name="player_seek_forward_30">30 sekunder frem</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Undertekst-forsinkelse</string>
-    <string name="player_error_title">Afspilningsfejl</string>
     <string name="player_error_choose_source">Vælg en anden kilde</string>
     <string name="player_speed_title">Afspilningshastighed</string>
     <string name="player_error_no_stream_url">Denne kilde har intet stream-link. Vælg en anden kilde.</string>
@@ -1248,7 +1245,7 @@
     <string name="ratings_load_error">Kan ikke indlæse episodebedømmelser.</string>
     <string name="ratings_season_summary">Sæson %1$d - %2$d episoder</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Opdag</string>
     <string name="discover_load_more">Indlæs mere</string>
     <string name="discover_loading">Indlæser…</string>
@@ -1293,8 +1290,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Opdag er deaktiveret</string>
-    <string name="discover_disabled_subtitle">Aktivér Opdag i layout-indstillinger</string>
 
     <!-- Library -->
 
@@ -1374,7 +1369,6 @@
     <string name="cd_trakt_logo">Trakt-logo</string>
     <string name="cd_trakt_qr">Trakt-aktiverings-QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Åbn Opdag</string>
     <string name="cd_voice_search">Stemmesøgning</string>
     <string name="cd_expand">Udvid %1$s</string>
     <string name="cd_collapse">Skjul %1$s</string>

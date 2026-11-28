@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistik</string>
-    <string name="library_open_calendar">Kalender</string>
     <string name="insights_source_eyebrow">Dari situs web Fetch</string>
     <string name="insights_loading">Memuat…</string>
     <string name="insights_not_paired_subtitle">Hubungkan TV ini ke situs web Fetch di Pengaturan › Akun untuk melihatnya di sini. Situs web menyimpan riwayat tontonan Anda dan menghitungnya dari situ.</string>

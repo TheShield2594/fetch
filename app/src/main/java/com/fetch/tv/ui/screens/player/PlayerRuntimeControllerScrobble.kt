@@ -2,7 +2,6 @@ package com.fetch.tv.ui.screens.player
 
 import android.os.SystemClock
 import android.util.Log
-import androidx.core.net.toUri
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -22,16 +21,11 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
         _uiState.update { it.copy(currentStreamUrl = playbackUrl) }
     }
 
-    logSwitchTrace(
-        stage = "prepare-playback-before-start",
-        message = "urlHash=${playbackUrl.hashCode().toUInt().toString(16)} loadSavedProgress=$loadSavedProgress " +
-            "clearPendingSwitchPref=true"
-    )
     val clickElapsedMs = launchStartedAtElapsedMs
         ?.let { (SystemClock.elapsedRealtime() - it).coerceAtLeast(0L) }
         ?: -1L
     queuePlaybackRawEventLine(
-        "PREPARE_PLAYBACK: clickElapsedMs=$clickElapsedMs host=${playbackUrl.safeScrobbleHost()} " +
+        "PREPARE_PLAYBACK: clickElapsedMs=$clickElapsedMs host=${playbackUrl.safeLogHost()} " +
             "loadSavedProgress=$loadSavedProgress currentSeason=${currentSeason ?: -1} " +
             "currentEpisode=${currentEpisode ?: -1} streamName=${_uiState.value.currentStreamName ?: "n/a"}"
     )
@@ -53,11 +47,6 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
         if (persistedTrackPreference == null) {
             contentId?.let { id ->
                 val loaded = trackPreferenceDataStore.load(id)?.toTrackPreference()
-                logSwitchTrace(
-                    stage = "track-pref-load",
-                    message = "contentId=$id loadedAudio=${loaded?.audio?.language}/${loaded?.audio?.name} " +
-                        "loadedSubtitle=${loaded?.subtitle?.javaClass?.simpleName ?: "none"}"
-                )
                 Log.d(
                     PlayerRuntimeController.TAG,
                     "TRACK_PREF load: contentId=$id S${currentSeason}E${currentEpisode} " +
@@ -75,12 +64,6 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
                 "TRACK_PREF load: skipped (persistedTrackPreference already set: " +
                     "audio=${persistedTrackPreference?.audio?.language}/${persistedTrackPreference?.audio?.name} " +
                     "subtitle=${persistedTrackPreference?.subtitle?.javaClass?.simpleName})"
-            )
-            logSwitchTrace(
-                stage = "track-pref-load",
-                message = "skipped=true reason=persisted-already-set " +
-                    "audio=${persistedTrackPreference?.audio?.language}/${persistedTrackPreference?.audio?.name} " +
-                    "subtitle=${persistedTrackPreference?.subtitle?.javaClass?.simpleName ?: "none"}"
             )
         }
         // Subtitle delay is keyed per video and release, so it is loaded on every
@@ -124,43 +107,22 @@ internal fun PlayerRuntimeController.preparePlaybackBeforeStart(
     }
 }
 
-private fun String.safeScrobbleHost(): String {
-    return runCatching {
-        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
-    }.getOrDefault("unknown")
-}
-
 internal suspend fun PlayerRuntimeController.warmTraktEpisodeMappingForCurrentPlayback() {
     if (!traktEpisodeMappingService.isTraktAuthenticated()) {
-        currentTraktEpisodeMapping = null
-        currentTraktEpisodeMappingKey = null
         return
     }
 
     val normalizedType = contentType?.lowercase()
     if (normalizedType !in listOf("series", "tv")) {
-        currentTraktEpisodeMapping = null
-        currentTraktEpisodeMappingKey = null
         return
     }
 
-    val resolvedContentId = contentId?.takeIf { it.isNotBlank() } ?: run {
-        currentTraktEpisodeMapping = null
-        currentTraktEpisodeMappingKey = null
-        return
-    }
-    val season = currentSeason ?: run {
-        currentTraktEpisodeMapping = null
-        currentTraktEpisodeMappingKey = null
-        return
-    }
-    val episode = currentEpisode ?: run {
-        currentTraktEpisodeMapping = null
-        currentTraktEpisodeMappingKey = null
-        return
-    }
+    val resolvedContentId = contentId?.takeIf { it.isNotBlank() } ?: return
+    val season = currentSeason ?: return
+    val episode = currentEpisode ?: return
 
-    currentTraktEpisodeMapping = withTimeoutOrNull(12_000L) {
+    // Warms the service's mapping cache, which scrobbling reads.
+    withTimeoutOrNull(12_000L) {
         traktEpisodeMappingService.prefetchEpisodeMapping(
             contentId = resolvedContentId,
             contentType = contentType,
@@ -169,14 +131,4 @@ internal suspend fun PlayerRuntimeController.warmTraktEpisodeMappingForCurrentPl
             episode = episode
         )
     }
-    currentTraktEpisodeMappingKey = currentEpisodeMappingCacheKey()
-}
-
-internal fun PlayerRuntimeController.currentEpisodeMappingCacheKey(): String? {
-    val resolvedContentId = contentId?.trim()?.takeIf { it.isNotBlank() } ?: return null
-    val resolvedType = contentType?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: return null
-    val season = currentSeason ?: return null
-    val episode = currentEpisode ?: return null
-    val videoId = currentVideoId?.trim().orEmpty()
-    return "$resolvedType|$resolvedContentId|$videoId|$season|$episode"
 }

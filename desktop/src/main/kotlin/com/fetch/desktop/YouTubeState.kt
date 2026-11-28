@@ -744,6 +744,13 @@ class YouTubeState(
         val play = ++plays
         scope.launch {
             val useBuiltIn = builtIn ?: host.chooseBuiltIn() ?: return@launch
+            // mpv (either player) opens YouTube through yt-dlp; without it, say so rather than "couldn't play".
+            if (useBuiltIn || ExternalPlayer.findMpv() != null) {
+                com.fetch.desktop.player.YtDlp.missingFor(video.watchUrl)?.let { missing ->
+                    host.message(missing)
+                    return@launch
+                }
+            }
             val yt = settings
             val modes = yt.activeModes
             val segments = async {

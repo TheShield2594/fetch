@@ -6,6 +6,7 @@ import com.fetch.desktop.data.PlayerSettings
 import com.fetch.desktop.data.SubtitleMode
 import com.fetch.desktop.player.ExternalPlayer
 import com.fetch.desktop.player.MpvArgs
+import com.fetch.desktop.player.YtDlp
 import com.fetch.desktop.youtube.YouTubePlayback
 import com.fetch.tv.domain.model.Stream
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +27,13 @@ class TrailerPlayer(private val scope: CoroutineScope, private val host: YouTube
             val builtIn = host.chooseBuiltIn() ?: return@launch
             val label = "$title (trailer)"
             val url = watchUrl(ytId)
+            // mpv (either player) opens YouTube through yt-dlp; without it, say so rather than "couldn't play".
+            if (builtIn || ExternalPlayer.findMpv() != null) {
+                YtDlp.missingFor(url)?.let { missing ->
+                    host.message(missing)
+                    return@launch
+                }
+            }
             val options = options(host.playerSettings)
             val session = if (builtIn) host.openBuiltInPlayer() else null
             if (session == null) {

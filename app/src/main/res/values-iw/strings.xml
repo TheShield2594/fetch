@@ -1289,14 +1289,11 @@
     <string name="player_queue_move_down">העברה למטה</string>
     <string name="player_queue_removed">%1$s הוסר מהתור</string>
     <string name="player_queue_undo">ביטול</string>
-    <string name="player_seek_back_10">10 שניות אחורה</string>
-    <string name="player_seek_forward_30">30 שניות קדימה</string>
     <string name="player_live_watched">LIVE  %1$s</string>
     <string name="player_via">דרך %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">עיכוב כתוביות</string>
-    <string name="player_error_title">שגיאת הפעלה</string>
     <string name="player_error_choose_source">יש לבחור מקור אחר</string>
     <string name="player_switch_to_mpv">מעבר לנגן MPV</string>
     <string name="player_speed_title">מהירות הפעלה</string>
@@ -1607,7 +1604,7 @@
     <string name="ratings_load_error">לא ניתן לטעון דירוגי פרקים.</string>
     <string name="ratings_season_summary">עונה %1$d - %2$d פרקים</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">גילוי</string>
     <string name="discover_load_more">טעינת עוד פריטים</string>
     <string name="discover_loading">טוען…</string>
@@ -1653,8 +1650,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">גילוי מושבת</string>
-    <string name="discover_disabled_subtitle">הפעלת גילוי בהגדרות התצוגה</string>
 
     <!-- Library -->
 
@@ -1734,7 +1729,6 @@
     <string name="cd_trakt_logo">לוגו Trakt</string>
     <string name="cd_trakt_qr">קוד QR להפעלת Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">פתיחת גילוי</string>
     <string name="cd_clear_search">ניקוי חיפוש</string>
     <string name="cd_voice_search">חיפוש קולי</string>
     <string name="cd_expand">הרחבת %1$s</string>

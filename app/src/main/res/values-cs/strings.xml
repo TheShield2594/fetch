@@ -1001,13 +1001,10 @@
     <string name="player_queue_move_down">Posunout dolů</string>
     <string name="player_queue_removed">%1$s odebráno z fronty</string>
     <string name="player_queue_undo">Zpět</string>
-    <string name="player_seek_back_10">Zpět o 10 sekund</string>
-    <string name="player_seek_forward_30">Vpřed o 30 sekund</string>
     <string name="player_via">přes %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Zpoždění titulků</string>
-    <string name="player_error_title">Chyba přehrávání</string>
     <string name="player_error_choose_source">Vyberte jiný zdroj</string>
     <string name="player_speed_title">Rychlost přehrávání</string>
     <string name="player_error_no_stream_url">Tento zdroj nemá odkaz na stream. Vyberte jiný zdroj.</string>
@@ -1265,7 +1262,7 @@
     <string name="ratings_load_error">Nepodařilo se načíst hodnocení epizod.</string>
     <string name="ratings_season_summary">Sezóna %1$d - %2$d epizod</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Objevovat</string>
     <string name="discover_load_more">Načíst další</string>
     <string name="discover_loading">Načítání…</string>
@@ -1310,8 +1307,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Objevování je zakázáno</string>
-    <string name="discover_disabled_subtitle">Povolte Objevování ve vyhledávání v nastavení</string>
 
     <!-- Library -->
 
@@ -1391,7 +1386,6 @@
     <string name="cd_trakt_logo">Logo Trakt</string>
     <string name="cd_trakt_qr">QR kód aktivace Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Otevřít objevování</string>
     <string name="cd_voice_search">Hlasové vyhledávání</string>
     <string name="cd_expand">Rozbalit %1$s</string>
     <string name="cd_collapse">Sbalit %1$s</string>

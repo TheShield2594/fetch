@@ -1130,14 +1130,11 @@
     <string name="player_queue_move_down">Omlaag</string>
     <string name="player_queue_removed">%1$s uit de wachtrij verwijderd</string>
     <string name="player_queue_undo">Ongedaan maken</string>
-    <string name="player_seek_back_10">10 seconden terug</string>
-    <string name="player_seek_forward_30">30 seconden vooruit</string>
     <string name="player_live_watched">LIVE  %1$s</string>
     <string name="player_via">via %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d A%2$d</string>
     <string name="player_subtitle_delay">Ondertitelvertraging</string>
-    <string name="player_error_title">Afspeelfout</string>
     <string name="player_error_choose_source">Kies een andere bron</string>
     <string name="player_speed_title">Afspeelsnelheid</string>
     <string name="player_error_no_stream_url">Deze bron heeft geen streamlink. Kies een andere bron.</string>
@@ -1444,7 +1441,7 @@
     <string name="ratings_load_error">Kan de beoordelingen van afleveringen niet laden.</string>
     <string name="ratings_season_summary">Seizoen %1$d - %2$d afleveringen</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Ontdekken</string>
     <string name="discover_load_more">Meer laden</string>
     <string name="discover_loading">Laden\u2026</string>
@@ -1490,8 +1487,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Ontdekken is uitgeschakeld</string>
-    <string name="discover_disabled_subtitle">Schakel Ontdekken in bij de indelingsinstellingen</string>
 
     <!-- Library -->
 
@@ -1571,7 +1566,6 @@
     <string name="cd_trakt_logo">Trakt-logo</string>
     <string name="cd_trakt_qr">QR-code voor Trakt-activering</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Ontdekken openen</string>
     <string name="cd_clear_search">Zoekopdracht wissen</string>
     <string name="cd_voice_search">Spraakzoeken</string>
     <string name="cd_expand">%1$s uitvouwen</string>

@@ -1192,7 +1192,6 @@ private fun PlaybackNavHost(
                         Screen.CatalogSeeAll.createRoute(catalogId, addonId, type, fromSearch = true)
                     )
                 },
-                onOpenDiscover = { navController.navigate(Screen.Discover.route) },
                 onNavigateToAddons = { navController.navigate(Screen.AddonManager.route) },
                 onNavigateToPerson = { personId, personName, preferCrew ->
                     navController.navigate(Screen.CastDetail.createRoute(personId, personName, preferCrew))
@@ -1202,7 +1201,6 @@ private fun PlaybackNavHost(
 
         composable(Screen.Discover.route) {
             DiscoverScreen(
-                showBuiltInHeader = !hideBuiltInHeaders,
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
                     val heroBackdrop = HeroBackdropState.consumeAndClear()
                     navController.navigate(
@@ -1234,7 +1232,6 @@ private fun PlaybackNavHost(
 
         composable(Screen.Library.route) {
             LibraryScreen(
-                showBuiltInHeader = !hideBuiltInHeaders,
                 onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
                     // The backdrop the Library already had for the title, as Discover and Search
                     // hand theirs over (#847).

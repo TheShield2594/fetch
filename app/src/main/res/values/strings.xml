@@ -1668,8 +1668,6 @@
     <string name="player_queue_undo">Undo</string>
     <string name="player_queue_clear_all">Clear all</string>
     <string name="player_queue_cleared">Cleared the queue</string>
-    <string name="player_seek_back_10">Back 10 seconds</string>
-    <string name="player_seek_forward_30">Forward 30 seconds</string>
     <string name="player_live_watched">LIVE  %1$s</string>
     <string name="player_go_live">Go live</string>
     <string name="player_via">via %1$s</string>
@@ -1686,7 +1684,6 @@
     <!-- A display refresh rate, e.g. "23.976 Hz". %1$s = the rate. -->
     <string name="display_refresh_hz">%1$s Hz</string>
     <string name="player_subtitle_delay">Subtitles Delay</string>
-    <string name="player_error_title">Playback error</string>
     <string name="player_error_choose_source">Choose another source</string>
     <string name="player_error_try_next_source">Try next source</string>
     <string name="player_error_all_sources">All sources</string>
@@ -2064,7 +2061,7 @@
     <string name="ratings_load_error">Unable to load episode ratings.</string>
     <string name="ratings_season_summary">Season %1$d - %2$d episodes</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Load more</string>
     <string name="discover_loading">Loading…</string>
@@ -2153,8 +2150,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Discover is disabled</string>
-    <string name="discover_disabled_subtitle">Enable Discover in Layout settings</string>
 
     <!-- Library -->
 
@@ -2242,7 +2237,6 @@
     <string name="cd_imdb">IMDb</string>
     <!-- TalkBack, after a focused Home card's title: the IMDb rating the hero shows, e.g. "IMDb 7.8". -->
     <string name="cd_hero_imdb_rating">IMDb %1$s</string>
-    <string name="cd_open_discover">Open discover</string>
     <string name="cd_clear_search">Clear search</string>
     <string name="cd_voice_search">Voice search</string>
     <string name="cd_expand">Expand %1$s</string>

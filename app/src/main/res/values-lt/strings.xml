@@ -546,11 +546,8 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="player_queue_move_down">Perkelti žemyn</string>
     <string name="player_queue_removed">Pašalinta iš eilės: %1$s</string>
     <string name="player_queue_undo">Anuliuoti</string>
-    <string name="player_seek_back_10">Atgal 10 sekundžių</string>
-    <string name="player_seek_forward_30">Pirmyn 30 sekundžių</string>
     <string name="player_via">per %1$s</string>
     <string name="player_subtitle_delay">Subtitrų delsa</string>
-    <string name="player_error_title">Atkūrimo klaida</string>
     <string name="player_error_choose_source">Pasirinkite kitą šaltinį</string>
     <string name="player_speed_title">Atkūrimo greitis</string>
 
@@ -721,7 +718,7 @@ Klaida: Bandomoji simuliuojama klaida — tai nėra tikras gedimas. Šaltinis gr
     <string name="ratings_load_error">Nepavyko įkelti įvertinimų</string>
     <string name="ratings_season_summary">Sezonas %1$d - epizodų: %2$d</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Atrasti</string>
     <string name="discover_load_more">Įkelti daugiau</string>
     <string name="discover_loading">Įkeliama…</string>

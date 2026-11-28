@@ -66,9 +66,10 @@ object MpvProgress {
         var lastEmit = 0L
         var reachedEnd = false
         try {
+            // The file can appear a moment before mpv listens on it: a few tries, while mpv runs.
+            val connected = connect(socket, process) ?: return Ending(null, reachedEnd = false)
             runInterruptible {
-                SocketChannel.open(StandardProtocolFamily.UNIX).use { channel ->
-                    channel.connect(UnixDomainSocketAddress.of(socket.toPath()))
+                connected.use { channel ->
                     val commands = """{"command":["observe_property",1,"time-pos"]}""" + "\n" +
                         """{"command":["observe_property",2,"duration"]}""" + "\n"
                     // Writes come from this thread and from onConnected's callers: one at a time.
@@ -122,6 +123,25 @@ object MpvProgress {
         val d = duration
         val last = if (p != null && d != null && d > 0) Sample(p, d).also(onSample) else null
         return Ending(last, reachedEnd)
+    }
+
+    /** Connects to mpv's [socket], retrying [attempts] times [retryMs] apart while [process] runs; null when it never answers. */
+    internal suspend fun connect(socket: File, process: Process, attempts: Int = 10, retryMs: Long = 200): SocketChannel? {
+        repeat(attempts) { attempt ->
+            val channel = SocketChannel.open(StandardProtocolFamily.UNIX)
+            try {
+                channel.connect(UnixDomainSocketAddress.of(socket.toPath()))
+                return channel
+            } catch (e: java.io.IOException) {
+                runCatching { channel.close() }
+                if (!process.isAlive || attempt == attempts - 1) return null
+                delay(retryMs)
+            } catch (e: Throwable) {
+                runCatching { channel.close() }
+                throw e
+            }
+        }
+        return null
     }
 
     /** How long an [followToEnd] OSD note stays up. */

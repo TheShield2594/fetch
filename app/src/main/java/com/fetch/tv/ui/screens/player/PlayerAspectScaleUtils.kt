@@ -26,12 +26,6 @@ internal fun aspectModeAppliedToExoSurface(
     return if (tunnelingEnabled) AspectMode.ORIGINAL else aspectMode
 }
 
-internal fun nextAspectMode(current: AspectMode): AspectMode {
-    val modes = AspectMode.entries
-    val nextIndex = (modes.indexOf(current) + 1) % modes.size
-    return modes[nextIndex]
-}
-
 internal fun aspectModeLabel(mode: AspectMode, getString: (Int) -> String): String =
     getString(mode.labelResId)
 

@@ -1208,14 +1208,11 @@
     <string name="player_queue_move_down">Bajar</string>
     <string name="player_queue_removed">Se quitó %1$s de la cola</string>
     <string name="player_queue_undo">Deshacer</string>
-    <string name="player_seek_back_10">Retroceder 10 segundos</string>
-    <string name="player_seek_forward_30">Avanzar 30 segundos</string>
     <string name="player_live_watched">EN DIRECTO  %1$s</string>
     <string name="player_via">vía %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Retraso de subtítulos</string>
-    <string name="player_error_title">Error de reproducción</string>
     <string name="player_error_choose_source">Elige otra fuente</string>
     <string name="player_switch_to_mpv">Cambiar a reproductor MPV</string>
     <string name="player_speed_title">Velocidad de reproducción</string>
@@ -1524,7 +1521,7 @@
     <string name="ratings_load_error">No se pudo cargar calificaciones de episodios.</string>
     <string name="ratings_season_summary">Temporada %1$d - %2$d episodios</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Descubrir</string>
     <string name="discover_load_more">Cargar más</string>
     <string name="discover_loading">Cargando…</string>
@@ -1570,8 +1567,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Descubrir está desactivado</string>
-    <string name="discover_disabled_subtitle">Activa Descubrir en configuración de Diseño</string>
 
     <!-- Library -->
 
@@ -1651,7 +1646,6 @@
     <string name="cd_trakt_logo">Logotipo de Trakt</string>
     <string name="cd_trakt_qr">Código QR de activación de Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Abrir descubrir</string>
     <string name="cd_clear_search">Limpiar búsqueda</string>
     <string name="cd_voice_search">Búsqueda por voz</string>
     <string name="cd_expand">Expandir %1$s</string>

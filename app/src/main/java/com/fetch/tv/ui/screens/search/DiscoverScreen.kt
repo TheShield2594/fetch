@@ -1,16 +1,12 @@
 package com.fetch.tv.ui.screens.search
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.fetch.tv.ui.theme.cardCornerRadius
 import com.fetch.tv.ui.theme.FetchTheme
 import com.fetch.tv.ui.screens.home.HeroBackdropState
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -21,24 +17,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.compose.ui.res.stringResource
-import com.fetch.tv.R
-import com.fetch.tv.domain.model.DiscoverLocation
-import com.fetch.tv.ui.components.EmptyScreenState
-import com.fetch.tv.ui.components.PosterCardDefaults
-import com.fetch.tv.ui.components.PosterCardStyle
-import kotlin.math.roundToInt
 
 @Composable
 fun DiscoverScreen(
     viewModel: SearchViewModel = hiltViewModel(),
-    showBuiltInHeader: Boolean = true,
     onNavigateToDetail: (String, String, String) -> Unit,
     /** Play/Pause on a card: starts the title (id, type, addon) without its detail page (#857). */
     onPlayTitle: (String, String, String) -> Unit = { _, _, _ -> }
@@ -53,7 +39,6 @@ fun DiscoverScreen(
     val heroSetting by viewModel.heroEnabled.collectAsStateWithLifecycle()
     val metaCacheVersion by viewModel.metaCacheVersion.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
-    val discoverFirstItemFocusRequester = remember { FocusRequester() }
     // The focused title's key, not its index, so it survives re-sorts and new pages (#844).
     var discoverFocusedItemKey by rememberSaveable { mutableStateOf<String?>(null) }
     var restoreDiscoverFocus by rememberSaveable { mutableStateOf(false) }
@@ -64,12 +49,10 @@ fun DiscoverScreen(
         mutableStateOf(restoreDiscoverFocus || pendingDiscoverRestoreOnResume)
     }
 
-    LaunchedEffect(uiState.discoverLocation) {
-        if (uiState.discoverLocation != DiscoverLocation.OFF) {
-            // Coming back from a title keeps the grid as it was, so the focused card can be
-            // restored; other entries refetch stale results (#845).
-            viewModel.ensureDiscoverLoaded(allowRefresh = !(restoreDiscoverFocus || pendingDiscoverRestoreOnResume))
-        }
+    LaunchedEffect(Unit) {
+        // Coming back from a title keeps the grid as it was, so the focused card can be
+        // restored; other entries refetch stale results (#845).
+        viewModel.ensureDiscoverLoaded(allowRefresh = !(restoreDiscoverFocus || pendingDiscoverRestoreOnResume))
     }
 
     val latestPendingDiscoverRestore by rememberUpdatedState(pendingDiscoverRestoreOnResume)
@@ -89,95 +72,84 @@ fun DiscoverScreen(
             .fillMaxSize()
             .background(FetchTheme.colors.Background)
     ) {
-        if (uiState.discoverLocation == DiscoverLocation.OFF) {
-            EmptyScreenState(
-                title = stringResource(R.string.discover_disabled_title),
-                subtitle = stringResource(R.string.discover_disabled_subtitle),
-                icon = Icons.Default.Search
-            )
-        } else {
-            DiscoverSection(
-                uiState = uiState,
-                watchedMovieIds = watchedMovieIds,
-                watchedSeriesIds = watchedSeriesIds,
-                progressByContentId = progressByContentId,
-                heroEnabled = heroSetting,
-                heroMetaVersion = metaCacheVersion,
-                cachedMeta = viewModel::cachedMeta,
-                focusResults = false,
-                showBuiltInHeader = showBuiltInHeader,
-                firstItemFocusRequester = discoverFirstItemFocusRequester,
-                focusedItemKey = discoverFocusedItemKey,
-                shouldRestoreFocusedItem = restoreDiscoverFocus,
-                restorePending = restoreDiscoverFocus || pendingDiscoverRestoreOnResume,
-                requestInitialFocus = !initialFocusHandled,
-                onInitialFocusHandled = { initialFocusHandled = true },
-                onRestoreFocusedItemHandled = { restoreDiscoverFocus = false },
-                onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
-                    pendingDiscoverRestoreOnResume = true
-                    onNavigateToDetail(itemId, itemType, addonBaseUrl)
-                },
-                onDiscoverItemFocused = { item ->
-                    discoverFocusedItemKey = discoverItemKey(item)
-                    viewModel.prefetchMetaOnFocus(item.id, item.rawType)
-                },
-                librarySeedGenres = librarySeedGenres,
-                onShelfItemFocused = { key, item ->
-                    discoverFocusedItemKey = key
-                    viewModel.prefetchMetaOnFocus(item.id, item.rawType)
-                },
-                onSelectType = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.SelectDiscoverType(it))
-                },
-                onSelectGenre = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.SelectDiscoverGenre(it))
-                },
-                onSelectYearRange = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.SelectDiscoverYearRange(it))
-                },
-                onSelectMinRating = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.SelectDiscoverMinRating(it))
-                },
-                onSelectSort = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.SelectDiscoverSort(it))
-                },
-                libraryIds = libraryIds,
-                onItemPlay = if (!quickPlayAllowed) null else ({ item ->
-                    discoverFocusedItemKey = discoverItemKey(item)
-                    pendingDiscoverRestoreOnResume = true
-                    HeroBackdropState.update(item.backdropUrl)
-                    onPlayTitle(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
-                }),
-                onToggleHideWatched = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.ToggleDiscoverHideWatched)
-                },
-                onToggleIncludeUnrated = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.ToggleDiscoverIncludeUnrated)
-                },
-                onResetFilters = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
-                },
-                // The empty grid's Clear filters resets the genre and sort too, since the genre is
-                // often what emptied it (#849): the same as the Reset chip.
-                onClearFilters = {
-                    discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
-                },
-                onLoadMore = { viewModel.onEvent(SearchEvent.LoadNextDiscoverResults) },
-                onRetry = { viewModel.onEvent(SearchEvent.RetryDiscover) },
-                onItemLongPress = { item, addonBaseUrl ->
-                    viewModel.posterOptions.show(item, addonBaseUrl)
-                }
-            )
-        }
+        DiscoverSection(
+            uiState = uiState,
+            watchedMovieIds = watchedMovieIds,
+            watchedSeriesIds = watchedSeriesIds,
+            progressByContentId = progressByContentId,
+            heroEnabled = heroSetting,
+            heroMetaVersion = metaCacheVersion,
+            cachedMeta = viewModel::cachedMeta,
+            focusedItemKey = discoverFocusedItemKey,
+            shouldRestoreFocusedItem = restoreDiscoverFocus,
+            restorePending = restoreDiscoverFocus || pendingDiscoverRestoreOnResume,
+            requestInitialFocus = !initialFocusHandled,
+            onInitialFocusHandled = { initialFocusHandled = true },
+            onRestoreFocusedItemHandled = { restoreDiscoverFocus = false },
+            onNavigateToDetail = { itemId, itemType, addonBaseUrl ->
+                pendingDiscoverRestoreOnResume = true
+                onNavigateToDetail(itemId, itemType, addonBaseUrl)
+            },
+            onDiscoverItemFocused = { item ->
+                discoverFocusedItemKey = discoverItemKey(item)
+                viewModel.prefetchMetaOnFocus(item.id, item.rawType)
+            },
+            librarySeedGenres = librarySeedGenres,
+            onShelfItemFocused = { key, item ->
+                discoverFocusedItemKey = key
+                viewModel.prefetchMetaOnFocus(item.id, item.rawType)
+            },
+            onSelectType = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.SelectDiscoverType(it))
+            },
+            onSelectGenre = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.SelectDiscoverGenre(it))
+            },
+            onSelectYearRange = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.SelectDiscoverYearRange(it))
+            },
+            onSelectMinRating = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.SelectDiscoverMinRating(it))
+            },
+            onSelectSort = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.SelectDiscoverSort(it))
+            },
+            libraryIds = libraryIds,
+            onItemPlay = if (!quickPlayAllowed) null else ({ item ->
+                discoverFocusedItemKey = discoverItemKey(item)
+                pendingDiscoverRestoreOnResume = true
+                HeroBackdropState.update(item.backdropUrl)
+                onPlayTitle(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
+            }),
+            onToggleHideWatched = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.ToggleDiscoverHideWatched)
+            },
+            onToggleIncludeUnrated = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.ToggleDiscoverIncludeUnrated)
+            },
+            onResetFilters = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
+            },
+            // The empty grid's Clear filters resets the genre and sort too, since the genre is
+            // often what emptied it (#849): the same as the Reset chip.
+            onClearFilters = {
+                discoverFocusedItemKey = null
+                viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
+            },
+            onLoadMore = { viewModel.onEvent(SearchEvent.LoadNextDiscoverResults) },
+            onRetry = { viewModel.onEvent(SearchEvent.RetryDiscover) },
+            onItemLongPress = { item, addonBaseUrl ->
+                viewModel.posterOptions.show(item, addonBaseUrl)
+            }
+        )
 
         val posterOptionsState by viewModel.posterOptions.state.collectAsStateWithLifecycle()
         com.fetch.tv.ui.components.posteroptions.PosterOptionsHost(

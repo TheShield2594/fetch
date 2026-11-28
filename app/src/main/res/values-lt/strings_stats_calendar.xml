@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistika</string>
-    <string name="library_open_calendar">Kalendorius</string>
     <string name="insights_source_eyebrow">Iš „Fetch“ svetainės</string>
     <string name="insights_loading">Įkeliama…</string>
     <string name="insights_not_paired_subtitle">Prijunkite šį televizorių prie „Fetch“ svetainės skiltyje Nustatymai › Paskyra, kad tai matytumėte čia. Svetainė saugo jūsų žiūrėjimo istoriją ir pagal ją viską apskaičiuoja.</string>

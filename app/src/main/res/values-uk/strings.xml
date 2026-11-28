@@ -980,13 +980,10 @@
     <string name="player_queue_move_down">Перемістити вниз</string>
     <string name="player_queue_removed">%1$s видалено з черги</string>
     <string name="player_queue_undo">Скасувати</string>
-    <string name="player_seek_back_10">Назад на 10 секунд</string>
-    <string name="player_seek_forward_30">Уперед на 30 секунд</string>
     <string name="player_via">через %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">С%1$d Е%2$d</string>
     <string name="player_subtitle_delay">Затримка субтитрів</string>
-    <string name="player_error_title">Помилка відтворення</string>
     <string name="player_error_choose_source">Виберіть інше джерело</string>
     <string name="player_speed_title">Швидкість відтворення</string>
     <string name="player_error_no_stream_url">Це джерело не має посилання на потік. Виберіть інше джерело.</string>
@@ -1243,7 +1240,7 @@
     <string name="ratings_load_error">Не вдалося завантажити рейтинги епізоду.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d епізодів</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Навігатор</string>
     <string name="discover_load_more">Завантажити ще</string>
     <string name="discover_loading">Завантаження…</string>
@@ -1288,8 +1285,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Навігатор вимкнено</string>
-    <string name="discover_disabled_subtitle">Увімкніть Навігатор у налаштуваннях пошуку</string>
 
     <!-- Library -->
 
@@ -1369,7 +1364,6 @@
     <string name="cd_trakt_logo">Логотип Trakt</string>
     <string name="cd_trakt_qr">QR-код активації Trakt</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Відкрити Навігатор</string>
     <string name="cd_voice_search">Голосовий пошук</string>
     <string name="cd_expand">Розгорнути %1$s</string>
     <string name="cd_collapse">Згорнути %1$s</string>

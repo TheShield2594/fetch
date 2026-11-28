@@ -9,7 +9,6 @@ import com.fetch.tv.domain.model.Addon
 import com.fetch.tv.domain.model.CatalogDescriptor
 import com.fetch.tv.domain.model.CatalogRow
 import com.fetch.tv.domain.model.ContentType
-import com.fetch.tv.domain.model.DiscoverLocation
 import com.fetch.tv.domain.model.MetaPreview
 import com.fetch.tv.domain.model.PosterShape
 import com.fetch.tv.domain.repository.AddonRepository
@@ -459,11 +458,9 @@ class SearchViewModelDiscoverCatalogsTest {
         watchedMovies: Flow<Set<String>> = flowOf(emptySet())
     ): SearchViewModel {
         val layoutPreferences = mockk<LayoutPreferenceDataStore>()
-        every { layoutPreferences.discoverLocation } returns flowOf(DiscoverLocation.IN_SIDEBAR)
         every { layoutPreferences.posterCardWidthDp } returns flowOf(126)
         every { layoutPreferences.posterLabelsEnabled } returns flowOf(true)
         every { layoutPreferences.catalogAddonNameEnabled } returns flowOf(true)
-        every { layoutPreferences.posterCardHeightDp } returns flowOf(189)
         every { layoutPreferences.posterCardCornerRadiusDp } returns flowOf(12)
         every { layoutPreferences.catalogTypeSuffixEnabled } returns flowOf(true)
         every { layoutPreferences.searchSystemKeyboard } returns flowOf(false)

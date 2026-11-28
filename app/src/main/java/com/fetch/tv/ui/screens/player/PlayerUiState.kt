@@ -266,7 +266,6 @@ data class PlayerUiState(
 ) {
     val showAudioOverlay: Boolean get() = activeOverlay == PlayerOverlay.AUDIO
     val showSubtitleOverlay: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLES
-    val showSubtitleStylePanel: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLE_STYLE
     val showSubtitleTimingDialog: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLE_TIMING
     val showSubtitleDelayOverlay: Boolean get() = activeOverlay == PlayerOverlay.SUBTITLE_DELAY
     val showSpeedDialog: Boolean get() = activeOverlay == PlayerOverlay.SPEED
@@ -376,13 +375,10 @@ sealed class PlayerEvent {
     data object OnToggleControls : PlayerEvent()
     data object OnShowAudioOverlay : PlayerEvent()
     data object OnShowSubtitleOverlay : PlayerEvent()
-    data object OnOpenSubtitleStylePanel : PlayerEvent()
-    data object OnDismissSubtitleStylePanel : PlayerEvent()
     data object OnShowSubtitleTimingDialog : PlayerEvent()
     data object OnDismissSubtitleTimingDialog : PlayerEvent()
     data object OnCaptureSubtitleAutoSyncTime : PlayerEvent()
     data class OnApplySubtitleAutoSyncCue(val cueStartTimeMs: Long) : PlayerEvent()
-    data object OnReloadSubtitleAutoSyncCues : PlayerEvent()
     data object OnShowSubtitleDelayOverlay : PlayerEvent()
     data object OnHideSubtitleDelayOverlay : PlayerEvent()
     data class OnAdjustSubtitleDelay(val deltaMs: Int, val showOverlay: Boolean = true) : PlayerEvent()
@@ -415,7 +411,6 @@ sealed class PlayerEvent {
     data object OnErrorTryNextSource : PlayerEvent()
     data object OnErrorShowAllSources : PlayerEvent()
     data object OnParentalGuideHide : PlayerEvent()
-    data class OnShowDisplayModeInfo(val info: DisplayModeInfo) : PlayerEvent()
     data object OnHideDisplayModeInfo : PlayerEvent()
     data object OnDismissPauseOverlay : PlayerEvent()
     data object OnSkipIntro : PlayerEvent()
@@ -523,7 +518,6 @@ enum class PlayerOverlay(
 ) {
     AUDIO,
     SUBTITLES,
-    SUBTITLE_STYLE,
     SUBTITLE_TIMING,
     SUBTITLE_DELAY,
     SPEED,

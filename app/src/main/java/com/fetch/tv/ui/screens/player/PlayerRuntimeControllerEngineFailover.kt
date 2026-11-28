@@ -22,11 +22,6 @@ internal fun PlayerRuntimeController.maybeAutoSwitchInternalPlayerOnStartupError
         InternalPlayerEngine.MVP_PLAYER -> InternalPlayerEngine.EXOPLAYER
         InternalPlayerEngine.AUTO -> if (mpvView != null) InternalPlayerEngine.EXOPLAYER else InternalPlayerEngine.MVP_PLAYER
     }
-    beginSwitchTraceSession(reason = "startup-failover", targetEngine = targetEngine)
-    logSwitchTrace(
-        stage = "startup-failover-trigger",
-        message = "allowEngineFailover=$allowEngineFailover detailedError=${detailedError.take(220)}"
-    )
     rememberCurrentTrackPreferenceForEngineSwitch()
     Log.w(PlayerRuntimeController.TAG, "Startup playback error; auto-switching engine: $detailedError")
     startupEngineFailoverTriggered = true
@@ -46,7 +41,6 @@ internal fun PlayerRuntimeController.maybeAutoSwitchInternalPlayerOnStartupError
 
     val switchingToMpv = targetEngine == InternalPlayerEngine.MVP_PLAYER
     pendingMpvHardRestartOnNextAttach = switchingToMpv
-    delayMpvResumeSeekUntilVideoTrack = switchingToMpv
     releasePlayer(flushPlaybackState = false)
     initializePlayer(
         url = currentStreamUrl,
@@ -62,21 +56,12 @@ internal fun PlayerRuntimeController.maybeAutoSwitchInternalPlayerOnStartupError
     return true
 }
 
-internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
-    targetEngine: InternalPlayerEngine,
-    reason: String = "manual-switch"
-) {
+internal fun PlayerRuntimeController.switchToInternalPlayerEngine(targetEngine: InternalPlayerEngine) {
     if (currentStreamUrl.isBlank()) return
 
-    beginSwitchTraceSession(reason = reason, targetEngine = targetEngine)
     val targetEngineLabel = targetEngineLabel(targetEngine)
     val switchMessage = context.getString(R.string.player_engine_switching_manual_message, targetEngineLabel)
     val currentPosition = currentPlaybackPositionMs()?.coerceAtLeast(0L) ?: 0L
-    logSwitchTrace(
-        stage = "manual-switch-trigger",
-        message = "targetEngine=$targetEngine positionMs=$currentPosition " +
-            "audioUiIndex=${_uiState.value.selectedAudioTrackIndex} subtitleUiIndex=${_uiState.value.selectedSubtitleTrackIndex}"
-    )
 
     rememberCurrentTrackPreferenceForEngineSwitch()
 
@@ -92,7 +77,7 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
     hidePlayerEngineSwitchInfoJob?.cancel()
     _uiState.update {
         it.copy(
-            activeOverlay = it.activeOverlay.closing(PlayerOverlay.AUDIO, PlayerOverlay.SUBTITLES, PlayerOverlay.SUBTITLE_STYLE, PlayerOverlay.SUBTITLE_DELAY, PlayerOverlay.SPEED, PlayerOverlay.MORE),
+            activeOverlay = it.activeOverlay.closing(PlayerOverlay.AUDIO, PlayerOverlay.SUBTITLES, PlayerOverlay.SUBTITLE_DELAY, PlayerOverlay.SPEED, PlayerOverlay.MORE),
             error = null,
             showSwitchToMpvErrorAction = false,
             showPauseOverlay = false,
@@ -107,7 +92,6 @@ internal fun PlayerRuntimeController.switchToInternalPlayerEngine(
 
     val switchingToMpv = targetEngine == InternalPlayerEngine.MVP_PLAYER
     pendingMpvHardRestartOnNextAttach = switchingToMpv
-    delayMpvResumeSeekUntilVideoTrack = switchingToMpv
 
     releasePlayer(flushPlaybackState = true)
     initializePlayer(
@@ -132,7 +116,7 @@ internal fun PlayerRuntimeController.switchInternalPlayerEngineManually() {
         InternalPlayerEngine.MVP_PLAYER -> InternalPlayerEngine.EXOPLAYER
         InternalPlayerEngine.AUTO -> if (mpvView != null) InternalPlayerEngine.EXOPLAYER else InternalPlayerEngine.MVP_PLAYER
     }
-    switchToInternalPlayerEngine(targetEngine, reason = "manual-osd")
+    switchToInternalPlayerEngine(targetEngine)
 }
 
 private fun PlayerRuntimeController.isStartupPhaseForEngineFailover(): Boolean {
@@ -150,23 +134,12 @@ private fun PlayerRuntimeController.targetEngineLabel(targetEngine: InternalPlay
 }
 
 internal fun PlayerRuntimeController.clearPendingEngineSwitchTrackPreference() {
-    logSwitchTrace(
-        stage = "pending-switch-pref-clear",
-        message = "reason=explicit-clear previous=${pendingEngineSwitchTrackPreference != null}"
-    )
     pendingEngineSwitchTrackPreference = null
 }
 
 private fun PlayerRuntimeController.rememberCurrentTrackPreferenceForEngineSwitch() {
     val state = _uiState.value
     val sourceEngine = currentInternalPlayerEngine
-    logSwitchTrace(
-        stage = "capture-start",
-        message = "sourceEngine=$sourceEngine uiAudioIndex=${state.selectedAudioTrackIndex} " +
-            "uiSubtitleIndex=${state.selectedSubtitleTrackIndex} " +
-            "uiAudioCount=${state.audioTracks.size} uiSubtitleCount=${state.subtitleTracks.size} " +
-            "uiAddonSelected=${state.selectedAddonSubtitle?.let { "${it.lang}/${it.addonName}/${it.id}" } ?: "none"}"
-    )
 
     val rememberedAudio = captureCurrentAudioSelectionForEngineSwitch(
         state = state,
@@ -189,13 +162,6 @@ private fun PlayerRuntimeController.rememberCurrentTrackPreferenceForEngineSwitc
             sourceEngine = sourceEngine
         )
     }
-    logSwitchTrace(
-        stage = "capture-finish",
-        message = "sourceEngine=$sourceEngine " +
-            "audio=${describeRememberedTrackForLog(rememberedAudio)} " +
-            "subtitle=${describeRememberedSubtitleForLog(rememberedSubtitle)} " +
-            "savedForSwitch=${capturedPreference != null}"
-    )
     subtitleDisabledByPersistedPreference = false
     subtitleAddonRestoredByPersistedPreference = false
     pendingRestoredAddonSubtitle = null
@@ -211,10 +177,6 @@ private fun PlayerRuntimeController.captureCurrentAudioSelectionForEngineSwitch(
         null
     }
     if (mpvSelected != null) {
-        logSwitchTrace(
-            stage = "capture-audio",
-            message = "source=mpv-snapshot lang=${mpvSelected.language} name=${mpvSelected.name} id=${mpvSelected.id}"
-        )
         return PlayerRuntimeController.RememberedTrackSelection(
             language = mpvSelected.language,
             name = mpvSelected.name,
@@ -239,10 +201,6 @@ private fun PlayerRuntimeController.captureCurrentAudioSelectionForEngineSwitch(
         null
     }
     if (exoSelected != null) {
-        logSwitchTrace(
-            stage = "capture-audio",
-            message = "source=exo-tracks lang=${exoSelected.language} name=${exoSelected.name} id=${exoSelected.trackId}"
-        )
         return exoSelected
     }
 
@@ -250,22 +208,11 @@ private fun PlayerRuntimeController.captureCurrentAudioSelectionForEngineSwitch(
         ?: state.audioTracks.firstOrNull { it.isSelected }
 
     return uiTrack?.let { track ->
-        logSwitchTrace(
-            stage = "capture-audio",
-            message = "source=ui-fallback lang=${track.language} name=${track.name} id=${track.trackId}"
-        )
         PlayerRuntimeController.RememberedTrackSelection(
             language = track.language,
             name = track.name,
             trackId = track.trackId
         )
-    }.also { selection ->
-        if (selection == null) {
-            logSwitchTrace(
-                stage = "capture-audio",
-                message = "source=none result=null"
-            )
-        }
     }
 }
 
@@ -283,13 +230,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
     )
 
     val mpvSnapshot = if (sourceEngine == InternalPlayerEngine.MVP_PLAYER) mpvView?.readTrackSnapshot() else null
-    logSwitchTrace(
-        stage = "capture-subtitle-start",
-        message = "sourceEngine=$sourceEngine uiSubtitleCount=${state.subtitleTracks.size} " +
-            "uiSelectedSubtitleIndex=${state.selectedSubtitleTrackIndex} " +
-            "uiAddonSelected=${state.selectedAddonSubtitle?.let { "${it.lang}/${it.addonName}/${it.id}" } ?: "none"} " +
-            "mpvSnapshotSubs=${mpvSnapshot?.subtitleTracks?.size ?: -1}"
-    )
     if (sourceEngine == InternalPlayerEngine.MVP_PLAYER) {
         val mpvSelectedSubtitle = mpvSnapshot?.subtitleTracks?.firstOrNull { it.isSelected }
         if (mpvSelectedSubtitle != null) {
@@ -300,10 +240,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                     language = mpvSelectedSubtitle.language
                 )
                 if (addon != null) {
-                    logSwitchTrace(
-                        stage = "capture-subtitle",
-                        message = "source=mpv-external->addon id=${addon.id} lang=${addon.lang} addon=${addon.addonName}"
-                    )
                     return PlayerRuntimeController.RememberedSubtitleSelection.Addon(
                         id = addon.id,
                         url = addon.url,
@@ -312,11 +248,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                     )
                 }
                 state.selectedAddonSubtitle?.let { selectedAddonFromUi ->
-                    logSwitchTrace(
-                        stage = "capture-subtitle",
-                        message = "source=mpv-external->ui-addon id=${selectedAddonFromUi.id} " +
-                            "lang=${selectedAddonFromUi.lang} addon=${selectedAddonFromUi.addonName}"
-                    )
                     return PlayerRuntimeController.RememberedSubtitleSelection.Addon(
                         id = selectedAddonFromUi.id,
                         url = selectedAddonFromUi.url,
@@ -325,11 +256,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                     )
                 }
             }
-            logSwitchTrace(
-                stage = "capture-subtitle",
-                message = "source=mpv-selected-internal id=${mpvSelectedSubtitle.id} lang=${mpvSelectedSubtitle.language} " +
-                    "name=${mpvSelectedSubtitle.name} forced=${mpvSelectedSubtitle.isForced} external=${mpvSelectedSubtitle.isExternal}"
-            )
             return PlayerRuntimeController.RememberedSubtitleSelection.Internal(
                 track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
                     state = state,
@@ -347,20 +273,12 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                 )
             )
         }
-        logSwitchTrace(
-            stage = "capture-subtitle",
-            message = "source=mpv-selected-internal result=none"
-        )
     }
 
     if (sourceEngine == InternalPlayerEngine.EXOPLAYER) {
         val exoPlayer = _exoPlayer
         val exoTextTrackDisabled =
             exoPlayer?.trackSelectionParameters?.disabledTrackTypes?.contains(C.TRACK_TYPE_TEXT) == true
-        logSwitchTrace(
-            stage = "capture-subtitle-exo",
-            message = "textTrackDisabled=$exoTextTrackDisabled hasPlayer=${exoPlayer != null}"
-        )
         val exoSelectedText = run {
             val player = exoPlayer ?: return@run null
             val internalTracks = mutableListOf<SelectedExoTextTrack>()
@@ -429,10 +347,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
             )
         }
         if (exoSelectedText == null && exoTextTrackDisabled) {
-            logSwitchTrace(
-                stage = "capture-subtitle",
-                message = "source=exo-selected result=disabled(no-selected-and-disabled=true)"
-            )
             return PlayerRuntimeController.RememberedSubtitleSelection.Disabled
         }
         if (exoSelectedText != null) {
@@ -446,10 +360,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                     language = formatLanguage
                 )
                 if (addon != null) {
-                    logSwitchTrace(
-                        stage = "capture-subtitle",
-                        message = "source=exo-addon-track->addon id=${addon.id} lang=${addon.lang} addon=${addon.addonName}"
-                    )
                     return PlayerRuntimeController.RememberedSubtitleSelection.Addon(
                         id = addon.id,
                         url = addon.url,
@@ -458,11 +368,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                     )
                 }
                 state.selectedAddonSubtitle?.let { selectedAddonFromUi ->
-                    logSwitchTrace(
-                        stage = "capture-subtitle",
-                        message = "source=exo-addon-track->ui-addon id=${selectedAddonFromUi.id} " +
-                            "lang=${selectedAddonFromUi.lang} addon=${selectedAddonFromUi.addonName}"
-                    )
                     return PlayerRuntimeController.RememberedSubtitleSelection.Addon(
                         id = selectedAddonFromUi.id,
                         url = selectedAddonFromUi.url,
@@ -472,12 +377,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
                 }
             }
 
-            logSwitchTrace(
-                stage = "capture-subtitle",
-                message = "source=exo-selected-internal id=$formatId lang=$formatLanguage name=$formatLabel " +
-                    "indexHint=${exoSelectedText.indexHint} languageIndexHint=${exoSelectedText.languageIndexHint} " +
-                    "forced=${exoSelectedText.isForced}"
-            )
             return PlayerRuntimeController.RememberedSubtitleSelection.Internal(
                 track = PlayerRuntimeController.RememberedTrackSelection(
                     language = formatLanguage,
@@ -494,10 +393,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
     val uiTrack = state.subtitleTracks.getOrNull(state.selectedSubtitleTrackIndex)
         ?: state.subtitleTracks.firstOrNull { it.isSelected }
     if (uiTrack != null) {
-        logSwitchTrace(
-            stage = "capture-subtitle",
-            message = "source=ui-track id=${uiTrack.trackId} lang=${uiTrack.language} name=${uiTrack.name} forced=${uiTrack.isForced}"
-        )
         return PlayerRuntimeController.RememberedSubtitleSelection.Internal(
             track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
                 state = state,
@@ -511,11 +406,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
     if (sourceEngine == InternalPlayerEngine.EXOPLAYER) {
         val uiFallbackTrack = pickUiInternalSubtitleTrackForEngineSwitchFallback(state)
         if (uiFallbackTrack != null) {
-            logSwitchTrace(
-                stage = "capture-subtitle",
-                message = "source=ui-fallback id=${uiFallbackTrack.trackId} lang=${uiFallbackTrack.language} " +
-                    "name=${uiFallbackTrack.name} forced=${uiFallbackTrack.isForced}"
-            )
             return PlayerRuntimeController.RememberedSubtitleSelection.Internal(
                 track = buildRememberedInternalSubtitleSelectionForEngineSwitch(
                     state = state,
@@ -530,11 +420,6 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
     }
 
     state.selectedAddonSubtitle?.let { selectedAddonFromUi ->
-        logSwitchTrace(
-            stage = "capture-subtitle",
-            message = "source=ui-selected-addon id=${selectedAddonFromUi.id} " +
-                "lang=${selectedAddonFromUi.lang} addon=${selectedAddonFromUi.addonName}"
-        )
         return PlayerRuntimeController.RememberedSubtitleSelection.Addon(
             id = selectedAddonFromUi.id,
             url = selectedAddonFromUi.url,
@@ -555,17 +440,9 @@ private fun PlayerRuntimeController.captureCurrentSubtitleSelectionForEngineSwit
         false
     }
     if (mpvHasSubtitleTracks || exoHasSubtitleTracks) {
-        logSwitchTrace(
-            stage = "capture-subtitle",
-            message = "source=implicit-disabled mpvHasTracks=$mpvHasSubtitleTracks exoHasTracks=$exoHasSubtitleTracks"
-        )
         return PlayerRuntimeController.RememberedSubtitleSelection.Disabled
     }
 
-    logSwitchTrace(
-        stage = "capture-subtitle",
-        message = "source=none result=null"
-    )
     return null
 }
 
@@ -577,17 +454,9 @@ private fun PlayerRuntimeController.resolveCurrentSubtitleSelectionForEngineSwit
         state = state,
         sourceEngine = sourceEngine
     )
-    logSwitchTrace(
-        stage = "resolve-subtitle-start",
-        message = "captured=${describeRememberedSubtitleForLog(capturedSelection)} sourceEngine=$sourceEngine"
-    )
     val shouldUseFallback =
         capturedSelection == null || capturedSelection == PlayerRuntimeController.RememberedSubtitleSelection.Disabled
     if (!shouldUseFallback) {
-        logSwitchTrace(
-            stage = "resolve-subtitle",
-            message = "result=${describeRememberedSubtitleForLog(capturedSelection)} reason=captured-direct"
-        )
         return capturedSelection
     }
 
@@ -595,11 +464,6 @@ private fun PlayerRuntimeController.resolveCurrentSubtitleSelectionForEngineSwit
         ?.takeIf { effective -> effective.streamUrl == currentStreamUrl }
         ?.selection
         ?.let { effectiveSelection ->
-            logSwitchTrace(
-                stage = "resolve-subtitle",
-                message = "result=${describeRememberedSubtitleForLog(effectiveSelection)} " +
-                    "reason=effective-fallback captured=${describeRememberedSubtitleForLog(capturedSelection)}"
-            )
             return effectiveSelection
         }
 
@@ -607,27 +471,13 @@ private fun PlayerRuntimeController.resolveCurrentSubtitleSelectionForEngineSwit
         ?.takeIf { explicit -> explicit.streamUrl == currentStreamUrl }
         ?.selection
         ?.let { explicitSelection ->
-            logSwitchTrace(
-                stage = "resolve-subtitle",
-                message = "result=${describeRememberedSubtitleForLog(explicitSelection)} " +
-                    "reason=explicit-fallback captured=${describeRememberedSubtitleForLog(capturedSelection)}"
-            )
             return explicitSelection
         }
 
     rememberedTrackPreference?.subtitle?.let { rememberedSelection ->
-        logSwitchTrace(
-            stage = "resolve-subtitle",
-            message = "result=${describeRememberedSubtitleForLog(rememberedSelection)} " +
-                "reason=remembered-fallback captured=${describeRememberedSubtitleForLog(capturedSelection)}"
-        )
         return rememberedSelection
     }
 
-    logSwitchTrace(
-        stage = "resolve-subtitle",
-        message = "result=${describeRememberedSubtitleForLog(capturedSelection)} reason=no-fallback-available"
-    )
     return capturedSelection
 }
 
@@ -635,25 +485,13 @@ private fun PlayerRuntimeController.pickUiInternalSubtitleTrackForEngineSwitchFa
     state: PlayerUiState
 ): TrackInfo? {
     if (state.subtitleTracks.isEmpty()) {
-        logSwitchTrace(
-            stage = "capture-subtitle-ui-fallback",
-            message = "result=null reason=no-ui-tracks"
-        )
         return null
     }
 
     state.subtitleTracks.getOrNull(state.selectedSubtitleTrackIndex)?.let {
-        logSwitchTrace(
-            stage = "capture-subtitle-ui-fallback",
-            message = "reason=selectedSubtitleTrackIndex index=${it.index} id=${it.trackId} lang=${it.language}"
-        )
         return it
     }
     state.subtitleTracks.firstOrNull { it.isSelected }?.let {
-        logSwitchTrace(
-            stage = "capture-subtitle-ui-fallback",
-            message = "reason=first-isSelected index=${it.index} id=${it.trackId} lang=${it.language}"
-        )
         return it
     }
 
@@ -663,27 +501,14 @@ private fun PlayerRuntimeController.pickUiInternalSubtitleTrackForEngineSwitchFa
     )
     if (preferredIndex >= 0) {
         state.subtitleTracks.getOrNull(preferredIndex)?.let {
-            logSwitchTrace(
-                stage = "capture-subtitle-ui-fallback",
-                message = "reason=preferred-language index=${it.index} id=${it.trackId} lang=${it.language}"
-            )
             return it
         }
     }
 
     state.subtitleTracks.firstOrNull { !it.isForced }?.let {
-        logSwitchTrace(
-            stage = "capture-subtitle-ui-fallback",
-            message = "reason=first-non-forced index=${it.index} id=${it.trackId} lang=${it.language}"
-        )
         return it
     }
-    return state.subtitleTracks.firstOrNull().also { selected ->
-        logSwitchTrace(
-            stage = "capture-subtitle-ui-fallback",
-            message = "reason=first-any index=${selected?.index} id=${selected?.trackId} lang=${selected?.language}"
-        )
-    }
+    return state.subtitleTracks.firstOrNull()
 }
 
 internal fun PlayerRuntimeController.buildRememberedInternalSubtitleSelectionForEngineSwitch(
@@ -713,12 +538,6 @@ internal fun PlayerRuntimeController.buildRememberedInternalSubtitleSelectionFor
         },
         isForcedHint = selectedUiTrack?.isForced ?: isForced
     )
-    logSwitchTrace(
-        stage = "capture-subtitle-hints-build",
-        message = "inputId=$trackId inputLang=$language inputName=$name inputForced=$isForced " +
-            "uiTrack=${selectedUiTrack?.let { "${it.index}/${it.trackId}/${it.language}/${it.name}/forced=${it.isForced}" } ?: "none"} " +
-            "result=${describeRememberedTrackForLog(selection)} allowUiFallback=$allowUiStateFallbackForHints"
-    )
     return selection
 }
 
@@ -733,10 +552,6 @@ private fun PlayerRuntimeController.resolveUiSubtitleTrackForEngineSwitchHints(
         state.subtitleTracks.firstOrNull { track ->
             normalizeTrackMatchValue(track.trackId) == normalizedTrackId
         }?.let {
-            logSwitchTrace(
-                stage = "capture-subtitle-hints",
-                message = "reason=track-id id=${it.trackId} lang=${it.language} name=${it.name}"
-            )
             return it
         }
     }
@@ -749,10 +564,6 @@ private fun PlayerRuntimeController.resolveUiSubtitleTrackForEngineSwitchHints(
             normalizeTrackMatchValue(track.language) == normalizedLanguage &&
                 normalizeTrackMatchValue(track.name) == normalizedName
         }?.let {
-            logSwitchTrace(
-                stage = "capture-subtitle-hints",
-                message = "reason=lang+name id=${it.trackId} lang=${it.language} name=${it.name}"
-            )
             return it
         }
     }
@@ -761,18 +572,10 @@ private fun PlayerRuntimeController.resolveUiSubtitleTrackForEngineSwitchHints(
         state.subtitleTracks.firstOrNull { track ->
             normalizeTrackMatchValue(track.language) == normalizedLanguage && track.isSelected
         }?.let {
-            logSwitchTrace(
-                stage = "capture-subtitle-hints",
-                message = "reason=lang+selected id=${it.trackId} lang=${it.language} name=${it.name}"
-            )
             return it
         }
     }
 
-    logSwitchTrace(
-        stage = "capture-subtitle-hints",
-        message = "reason=no-ui-match trackId=$trackId language=$language name=$name"
-    )
     return null
 }
 
@@ -801,11 +604,6 @@ internal fun PlayerRuntimeController.subtitleLanguageOrdinalHintForEngineSwitch(
     }
 
     val ordinal = candidates.indexOf(selectedTrackPosition).takeIf { it >= 0 }
-    logSwitchTrace(
-        stage = "capture-subtitle-language-ordinal",
-        message = "selectedIndex=${selectedTrack.index} selectedId=${selectedTrack.trackId} " +
-            "selectedLang=${selectedTrack.language} candidates=$candidates ordinal=$ordinal"
-    )
     return ordinal
 }
 
@@ -821,10 +619,6 @@ private fun PlayerRuntimeController.findAddonSubtitleByTrackIdOrLanguage(
             addonTrackId.equals(normalizedTrackId, ignoreCase = true) ||
                 normalizedTrackId.contains(addonTrackId, ignoreCase = true)
         }?.let {
-            logSwitchTrace(
-                stage = "capture-subtitle-addon-match",
-                message = "reason=trackId matchId=${it.id} matchLang=${it.lang} addon=${it.addonName} trackId=$trackId"
-            )
             return it
         }
     }
@@ -833,38 +627,8 @@ private fun PlayerRuntimeController.findAddonSubtitleByTrackIdOrLanguage(
         state.addonSubtitles.firstOrNull { subtitle ->
             PlayerSubtitleUtils.matchesLanguageCode(subtitle.lang, lang)
         }?.let {
-            logSwitchTrace(
-                stage = "capture-subtitle-addon-match",
-                message = "reason=language matchId=${it.id} matchLang=${it.lang} addon=${it.addonName} language=$language"
-            )
             return it
         }
     }
-    logSwitchTrace(
-        stage = "capture-subtitle-addon-match",
-        message = "reason=no-match trackId=$trackId language=$language addonPool=${state.addonSubtitles.size}"
-    )
     return null
-}
-
-private fun PlayerRuntimeController.describeRememberedSubtitleForLog(
-    selection: PlayerRuntimeController.RememberedSubtitleSelection?
-): String {
-    return when (selection) {
-        null -> "none"
-        PlayerRuntimeController.RememberedSubtitleSelection.Disabled -> "disabled"
-        is PlayerRuntimeController.RememberedSubtitleSelection.Internal ->
-            "internal:${describeRememberedTrackForLog(selection.track)}"
-        is PlayerRuntimeController.RememberedSubtitleSelection.Addon ->
-            "addon:${selection.language}/${selection.addonName}/${selection.id}"
-    }
-}
-
-private fun PlayerRuntimeController.describeRememberedTrackForLog(
-    selection: PlayerRuntimeController.RememberedTrackSelection?
-): String {
-    if (selection == null) return "none"
-    return "lang=${selection.language} name=${selection.name} trackId=${selection.trackId} " +
-        "indexHint=${selection.indexHint} languageIndexHint=${selection.languageIndexHint} " +
-        "forcedHint=${selection.isForcedHint}"
 }

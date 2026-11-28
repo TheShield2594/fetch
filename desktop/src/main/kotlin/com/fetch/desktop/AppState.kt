@@ -254,6 +254,9 @@ class AppState(
     val library = mutableStateListOf<LibraryEntry>().apply { addAll(libraryStore.load().items) }
     var progress: ProgressFile by mutableStateOf(progressStore.load())
         private set
+    /** The newest progress not yet on disk ([storeProgress]); null when the file is up to date. */
+    private val pendingProgress = java.util.concurrent.atomic.AtomicReference<ProgressFile?>(null)
+    private val progressWriteLock = Any()
 
     var detailMeta: Meta? by mutableStateOf(null)
         private set
@@ -1513,15 +1516,22 @@ class AppState(
         storeProgress(file)
     }
 
-    /** Saves [file] as is. Returns whether it reached the disk. */
-    private fun storeProgress(file: ProgressFile): Boolean {
+    /**
+     * Saves [file] as is: in memory now, on disk from the IO pool (playback saves every few
+     * seconds, which shouldn't hold up the UI thread). Writes that pile up collapse into the newest.
+     */
+    private fun storeProgress(file: ProgressFile) {
         progress = file
-        return try {
+        if (pendingProgress.getAndSet(file) == null) scope.launch(Dispatchers.IO) { writePendingProgress() }
+    }
+
+    /** Writes the newest pending progress, one write at a time and in order (also on shutdown). */
+    private fun writePendingProgress() = synchronized(progressWriteLock) {
+        val file = pendingProgress.getAndSet(null) ?: return@synchronized
+        try {
             progressStore.save(file)
-            true
         } catch (_: Exception) {
             // Losing one position update isn't worth interrupting playback for.
-            false
         }
     }
 
@@ -1860,7 +1870,8 @@ class AppState(
         // Not a link from an addon that is switched off now.
         if (activeAddons.none { it.displayName == link.addonName } && addons.any { !it.enabled && it.displayName == link.addonName }) return false
         stopAutoPlayWait()
-        playStream(link.toStream(), builtIn = null)
+        // Replayed, it keeps the age it had: reusing it doesn't restart its expiry.
+        playStream(link.toStream(), builtIn = null, reusedSavedAtMs = link.savedAtMs)
         return true
     }
 
@@ -1940,7 +1951,7 @@ class AppState(
     }
 
     /** Plays [stream] for the title or episode the sources are for. */
-    private fun playStream(stream: Stream, builtIn: Boolean?) {
+    private fun playStream(stream: Stream, builtIn: Boolean?, reusedSavedAtMs: Long? = null) {
         stopAutoPlayWait()
         autoplayRun = 0
         val context = sources ?: return
@@ -1959,19 +1970,36 @@ class AppState(
             video = context.video,
             episodes = meta?.videos.orEmpty()
         )
-        launchPlayback(stream, context.label, target, builtIn = builtIn, alternatives = context.ranked)
+        launchPlayback(stream, context.label, target, builtIn = builtIn, alternatives = context.ranked, reusedSavedAtMs = reusedSavedAtMs)
+    }
+
+    /**
+     * A stream as it starts for [videoId], for Reuse Last Link: [played] saves it once the first
+     * position comes in ([reusedSavedAtMs]: the cached link it was replayed from keeps its age),
+     * [failed] forgets it when it never opened. The file is written off the UI thread.
+     */
+    private inner class PlayedLink(val videoId: String, val stream: Stream, val reusedSavedAtMs: Long?) {
+        fun played() {
+            scope.launch(Dispatchers.IO) { linkCache.saveLink(videoId, stream, reusedSavedAtMs) }
+        }
+
+        fun failed() {
+            // Only this link: one that played since (another source) is kept.
+            val url = stream.getStreamUrl() ?: return
+            scope.launch(Dispatchers.IO) { linkCache.forgetLink(videoId, url) }
+        }
     }
 
     /** The stream playing (or last played), for the next episode's binge group. */
     private var playingStream: Stream? = null
 
     /**
-     * Bookkeeping as [stream] starts for [target]: Reuse Last Link and the binge group remember
-     * it, the queue lets go of it, and "Prefer this next time" is offered if it was picked by hand.
+     * Bookkeeping as [stream] starts for [target]: the binge group remembers it, the queue lets go
+     * of it, and "Prefer this next time" is offered if it was picked by hand. Reuse Last Link
+     * remembers it only once it really plays ([PlayedLink]).
      */
     private fun startedPlaying(stream: Stream, target: PlaybackTarget) {
         playingStream = stream
-        linkCache.saveLink(target.videoId, stream)
         if (stream.serverTarget == null) linkCache.saveBingeGroup(target.contentId, stream)
         extras.markStarted(target.videoId)
         extras.clearPostPlay(exceptVideoId = target.videoId)
@@ -1988,7 +2016,9 @@ class AppState(
         target: PlaybackTarget,
         start: String? = null,
         builtIn: Boolean? = null,
-        alternatives: List<RankedStream> = emptyList()
+        alternatives: List<RankedStream> = emptyList(),
+        /** Set when [stream] is Reuse Last Link's cached link: when that was saved. */
+        reusedSavedAtMs: Long? = null
     ) {
         currentBlock()?.let {
             screenTimeBlock = it
@@ -1998,11 +2028,12 @@ class AppState(
         if (builtIn == null && settings.player.askPlayer && playerSession == null && LibMpv.available) {
             playerChoice = { choice ->
                 playerChoice = null
-                if (choice != null) launchPlayback(stream, label, target, start, choice, alternatives)
+                if (choice != null) launchPlayback(stream, label, target, start, choice, alternatives, reusedSavedAtMs)
             }
             return
         }
         startedPlaying(stream, target)
+        val link = PlayedLink(target.videoId, stream, reusedSavedAtMs)
         // One launch at a time: a newer one (a second click, the next source, a source switch)
         // replaces one still getting ready, rather than both opening a player (#754).
         launchJob?.cancel()
@@ -2038,7 +2069,7 @@ class AppState(
             if (useBuiltIn && LibMpv.available &&
                 playEmbedded(
                     stream, played, label, target, resume, MpvArgs.build(player, serverSubtitles), serverStream,
-                    segmentsLater, addonSubtitlesLater, alternatives
+                    segmentsLater, addonSubtitlesLater, alternatives, link
                 )
             ) {
                 return@launch
@@ -2056,9 +2087,12 @@ class AppState(
             when (val result = ExternalPlayer.play(played, label, start = resume, options = options)) {
                 is ExternalPlayer.Result.Started -> {
                     message = if (resume != null) "Resuming in ${result.player}" else "Opening in ${result.player}"
-                    followProgress(result, target, serverStream, skipper, segments)
+                    followProgress(result, target, serverStream, skipper, segments, link)
                 }
-                is ExternalPlayer.Result.Failed -> message = result.message
+                is ExternalPlayer.Result.Failed -> {
+                    message = result.message
+                    link.failed()
+                }
             }
         }
     }
@@ -2144,7 +2178,8 @@ class AppState(
         target: PlaybackTarget,
         serverStream: ServerStream? = null,
         skipper: SkipPlanner? = null,
-        segments: List<Segment> = emptyList()
+        segments: List<Segment> = emptyList(),
+        link: PlayedLink? = null
     ) {
         val process = result.process ?: return
         val socket = result.ipcSocket ?: return
@@ -2163,7 +2198,7 @@ class AppState(
             onCancelled = { scope.launch { upNextCancelledFor = target.videoId } }
         )
         follow(
-            target, serverStream, { skipper },
+            target, serverStream, { skipper }, link,
             afterEnd = { _, continued ->
                 // The countdown ran out and closed the window: the next episode, as at the end of the file.
                 if (upNext.movedOn && !continued && upNextCancelledFor != target.videoId) target.video?.let { continueToNext(target, it, countdown = false) }
@@ -2194,12 +2229,15 @@ class AppState(
         serverStream: ServerStream?,
         /** Read at each position, so segments that arrive after the start are skipped too (#754). */
         skipper: () -> SkipPlanner?,
+        /** The link for Reuse Last Link: saved at the first position, forgotten if it never played. */
+        link: PlayedLink? = null,
         afterEnd: suspend (ending: MpvProgress.Ending, continued: Boolean) -> Unit = { _, _ -> },
         run: suspend (onPosition: (Double) -> MpvProgress.Seek?, onSample: (MpvProgress.Sample) -> Unit) -> MpvProgress.Ending
     ) {
         scope.launch {
             playbackFollowers++
             var scrobbled = false
+            var linkSaved = false
             var lastPosition: Double? = null
             val ending = withContext(Dispatchers.IO) {
                 run(
@@ -2212,6 +2250,11 @@ class AppState(
                             if (played in 0.0..30.0) countWatched((played * 1000).toLong())
                         }
                         lastPosition = sample.positionSec
+                        // It plays: now it's the link Reuse Last Link replays.
+                        if (!linkSaved) {
+                            linkSaved = true
+                            link?.played()
+                        }
                         recordProgress(target, sample)
                         // A movie's recommendation is looked up before its end (mpv's window too).
                         if (target.video == null && com.fetch.desktop.playback.PostPlayTiming.shouldPrefetch(sample.positionSec, sample.durationSec, emptyList(), settings.autoPlay)) {
@@ -2225,6 +2268,8 @@ class AppState(
                     }
                 }
             }
+            // Never got going (a dead link, an error, closed while it wouldn't load): not reused again.
+            if (link != null && ending.last == null && !ending.reachedEnd) link.failed()
             // Stop at 80% or more marks it watched on both services.
             val last = ending.last
             if (last != null && scrobbled) endingWork += tracking.scrobble(target, ScrobbleAction.STOP, last.percent())
@@ -2280,6 +2325,8 @@ class AppState(
             syncAccount()
             syncJob?.join()
         }
+        // Progress saves run on the IO pool: the last one reaches the disk before the window goes.
+        withContext(Dispatchers.IO) { writePendingProgress() }
     }
 
     /** Playbacks being followed (mpv's window or the built-in player); Ambient Mode waits while any are. */
@@ -2345,7 +2392,8 @@ class AppState(
         serverStream: ServerStream?,
         segmentsLater: kotlinx.coroutines.Deferred<List<Segment>>?,
         addonSubtitlesLater: kotlinx.coroutines.Deferred<List<String>>?,
-        alternatives: List<RankedStream>
+        alternatives: List<RankedStream>,
+        link: PlayedLink? = null
     ): Boolean {
         val url = ExternalPlayer.playableUrl(stream) ?: run {
             message = "This source has no playable link. Fetch plays direct and debrid links only."
@@ -2383,6 +2431,7 @@ class AppState(
             target,
             serverStream,
             skipper::get,
+            link,
             afterEnd = end@{ ending, continued ->
                 // A source that wouldn't open: the next one in the ranking, when that's on.
                 if (!ending.reachedEnd && ending.last == null && session.mpv.error != null && playerSession === session &&
@@ -2475,7 +2524,7 @@ class AppState(
 
     /** The built-in player couldn't open [failed]: the next eligible source plays, from where it was. */
     private fun tryNextSource(session: PlayerSession, target: PlaybackTarget, failed: Stream): Boolean {
-        linkCache.forgetLink(target.videoId)
+        PlayedLink(target.videoId, failed, null).failed()
         if (!settings.autoPlay.nextSourceOnFailure) return false
         if (failedFor != target.videoId) {
             failedFor = target.videoId

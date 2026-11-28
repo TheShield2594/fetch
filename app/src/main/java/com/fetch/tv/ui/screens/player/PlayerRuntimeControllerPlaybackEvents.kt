@@ -3,7 +3,6 @@
 package com.fetch.tv.ui.screens.player
 
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.SeekParameters
 import com.fetch.tv.R
@@ -297,7 +296,7 @@ internal fun PlayerRuntimeController.startProgressUpdates() {
                                 "PLAYBACK_STARTUP: clickToFirstFrameMs=$clickToFirstFrameMs " +
                                     "initToFirstFrameMs=$initToFirstFrameMs playbackSpeed=${_uiState.value.playbackSpeed} " +
                                     "currentPositionMs=$pos durationMs=$playerDuration engine=MPV " +
-                                    "host=${currentStreamUrl.safePlaybackEventsHost()}"
+                                    "host=${currentStreamUrl.safeLogHost()}"
                             )
                             finishLoadingDiagnostics("mpv_first_frame_ready")
                             if (_uiState.value.postPlayDismissedForCurrentEpisode) {
@@ -1020,7 +1019,7 @@ fun PlayerRuntimeController.scheduleHideControls() {
         // A screen reader needs longer to read a control out than a glance takes.
         delay(com.fetch.tv.ui.theme.controlsAutoHideDelayMs(controlsAutoHideMsSetting, com.fetch.tv.ui.theme.isScreenReaderOn(context)))
         if (_uiState.value.isPlaying && !_uiState.value.showAudioOverlay &&
-            !_uiState.value.showSubtitleOverlay && !_uiState.value.showSubtitleStylePanel &&
+            !_uiState.value.showSubtitleOverlay &&
             !_uiState.value.showSpeedDialog && !_uiState.value.showMoreDialog &&
             _uiState.value.choiceDialog == null &&
             !_uiState.value.showSubtitleDelayOverlay &&
@@ -1126,7 +1125,7 @@ internal fun PlayerRuntimeController.schedulePauseOverlay() {
     pauseOverlayJob = scope.launch {
         delay(pauseOverlayDelayMs)
         val s = _uiState.value
-        val anyPanelOpen = s.showSubtitleOverlay || s.showSubtitleStylePanel ||
+        val anyPanelOpen = s.showSubtitleOverlay ||
             s.showSpeedDialog || s.showMoreDialog || s.choiceDialog != null || s.showEpisodesPanel ||
             s.showSourcesPanel || s.showAudioOverlay || s.showStreamInfoOverlay ||
             s.showSubtitleTimingDialog || s.showSubtitleDelayOverlay
@@ -1149,7 +1148,6 @@ internal fun PlayerRuntimeController.cancelPauseOverlay() {
  */
 internal fun PlayerEvent.isUserInteraction(): Boolean = when (this) {
     PlayerEvent.OnParentalGuideHide,
-    is PlayerEvent.OnShowDisplayModeInfo,
     PlayerEvent.OnHideDisplayModeInfo,
     PlayerEvent.OnQueuePlaybackHandled -> false
     else -> true
@@ -1324,10 +1322,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         is PlayerEvent.OnSelectAudioTrack -> {
-            logSwitchTrace(
-                stage = "event-select-audio",
-                message = "index=${event.index}"
-            )
             if (_uiState.value.serverAudioTracks.isNotEmpty()) {
                 selectServerAudio(event.index)
             } else {
@@ -1385,10 +1379,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         is PlayerEvent.OnSelectSubtitleTrack -> {
-            logSwitchTrace(
-                stage = "event-select-subtitle-internal",
-                message = "index=${event.index}"
-            )
             autoSubtitleSelected = true
             pendingAddonSubtitleLanguage = null
             pendingAddonSubtitleTrackId = null
@@ -1410,10 +1400,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         PlayerEvent.OnDisableSubtitles -> {
-            logSwitchTrace(
-                stage = "event-disable-subtitles",
-                message = "selectedSubtitleIndex=${_uiState.value.selectedSubtitleTrackIndex}"
-            )
             autoSubtitleSelected = true
             pendingAddonSubtitleLanguage = null
             pendingAddonSubtitleTrackId = null
@@ -1459,7 +1445,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         is PlayerEvent.OnSetSubtitleMode -> {
             val mode = event.mode
-            logSwitchTrace(stage = "event-subtitle-mode", message = "mode=$mode")
             pendingAddonSubtitleLanguage = null
             pendingAddonSubtitleTrackId = null
             resetSubtitleAutoSyncState()
@@ -1487,10 +1472,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             scope.launch { playerSettingsDataStore.setSubtitleMode(mode) }
         }
         is PlayerEvent.OnSelectAddonSubtitle -> {
-            logSwitchTrace(
-                stage = "event-select-subtitle-addon",
-                message = "addonId=${event.subtitle.id} addonLang=${event.subtitle.lang} addonName=${event.subtitle.addonName}"
-            )
             autoSubtitleSelected = true
             rememberAddonSubtitleSelection(event.subtitle)
             selectAddonSubtitle(event.subtitle)
@@ -1571,18 +1552,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                 )
             }
         }
-        PlayerEvent.OnOpenSubtitleStylePanel -> {
-            _uiState.update {
-                it.copy(
-                    activeOverlay = PlayerOverlay.SUBTITLE_STYLE,
-                    showControls = true
-                )
-            }
-        }
-        PlayerEvent.OnDismissSubtitleStylePanel -> {
-            _uiState.update { it.copy(activeOverlay = it.activeOverlay.closing(PlayerOverlay.SUBTITLE_STYLE)) }
-            scheduleHideControls()
-        }
         PlayerEvent.OnShowSubtitleTimingDialog -> {
             showSubtitleTimingDialog()
         }
@@ -1594,9 +1563,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         is PlayerEvent.OnApplySubtitleAutoSyncCue -> {
             applySubtitleAutoSyncCue(event.cueStartTimeMs)
-        }
-        PlayerEvent.OnReloadSubtitleAutoSyncCues -> {
-            reloadSubtitleAutoSyncCues()
         }
         PlayerEvent.OnShowSubtitleDelayOverlay -> {
             showSubtitleDelayOverlay()
@@ -1728,7 +1694,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         PlayerEvent.OnDismissTransientOverlay -> {
             _uiState.update {
                 it.copy(
-                    activeOverlay = it.activeOverlay.closing(PlayerOverlay.AUDIO, PlayerOverlay.SUBTITLES, PlayerOverlay.SUBTITLE_STYLE, PlayerOverlay.SUBTITLE_TIMING, PlayerOverlay.SPEED, PlayerOverlay.SUBTITLE_DELAY, PlayerOverlay.MORE),
+                    activeOverlay = it.activeOverlay.closing(PlayerOverlay.AUDIO, PlayerOverlay.SUBTITLES, PlayerOverlay.SUBTITLE_TIMING, PlayerOverlay.SPEED, PlayerOverlay.SUBTITLE_DELAY, PlayerOverlay.MORE),
                     choiceDialog = null,
                 )
             }
@@ -1773,14 +1739,6 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
         }
         PlayerEvent.OnParentalGuideHide -> {
             _uiState.update { it.copy(showParentalGuide = false) }
-        }
-        is PlayerEvent.OnShowDisplayModeInfo -> {
-            _uiState.update {
-                it.copy(
-                    displayModeInfo = event.info,
-                    showDisplayModeInfo = true
-                )
-            }
         }
         PlayerEvent.OnHideDisplayModeInfo -> {
             _uiState.update { it.copy(showDisplayModeInfo = false) }
@@ -1870,6 +1828,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             }
         }
         PlayerEvent.OnToggleAspectRatio -> {
+            // Sent only by OnShowAspectDialog for tunneled playback, which has just Fit and Fill.
             val state = _uiState.value
             if (state.tunnelingEnabled) {
                 val fill = !state.tunneledSurfaceFill
@@ -1899,9 +1858,7 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
                     delay(1500)
                     _uiState.update { it.copy(showAspectRatioIndicator = false) }
                 }
-                return
             }
-            applyAspectMode(nextAspectMode(state.aspectMode))
         }
         PlayerEvent.OnShowAspectDialog -> {
             // Tunneled playback only has Fit and Fill, so the button keeps toggling between them.
@@ -1922,18 +1879,10 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             scheduleHideControls()
         }
         PlayerEvent.OnSwitchInternalPlayerEngine -> {
-            logSwitchTrace(
-                stage = "event-switch-engine",
-                message = "requestedByUser=true"
-            )
             switchInternalPlayerEngineManually()
         }
         PlayerEvent.OnSwitchToMpvPlayer -> {
-            logSwitchTrace(
-                stage = "event-switch-to-mpv",
-                message = "requestedByUser=true"
-            )
-            switchToInternalPlayerEngine(InternalPlayerEngine.MVP_PLAYER, reason = "user-error-dialog-switch-to-mpv")
+            switchToInternalPlayerEngine(InternalPlayerEngine.MVP_PLAYER)
         }
         PlayerEvent.OnShowStreamInfo -> {
             val info = buildStreamInfoData()
@@ -2037,10 +1986,4 @@ internal fun PlayerRuntimeController.buildStreamInfoData(): StreamInfoData {
         },
         serverPlayback = serverPlaybackSummary()
     )
-}
-
-private fun String.safePlaybackEventsHost(): String {
-    return runCatching {
-        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
-    }.getOrDefault("unknown")
 }

@@ -84,4 +84,4 @@ val LocalCardStyle = staticCompositionLocalOf { CardStyle() }
 
 /** The card style for [state]'s settings everywhere but a kids Home, which scales its own. */
 fun cardStyleFor(state: AppState): CardStyle =
-    CardStyle.from(state.settings.layout, gpu = state.settings.player.builtInGpu, playerOpen = state.playerSession != null)
+    CardStyle.from(state.settings.layout, gpu = state.settings.player.builtInGpu, playerOpen = state.isPlaying)

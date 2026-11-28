@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">Statistici</string>
-    <string name="library_open_calendar">Calendar</string>
 
     <string name="insights_source_eyebrow">De pe site-ul Fetch</string>
     <string name="insights_loading">Se încarcă…</string>

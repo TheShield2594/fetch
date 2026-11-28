@@ -988,13 +988,10 @@
     <string name="player_queue_move_down">Премести надолу</string>
     <string name="player_queue_removed">Премахнато от опашката: %1$s</string>
     <string name="player_queue_undo">Отмени</string>
-    <string name="player_seek_back_10">Назад 10 секунди</string>
-    <string name="player_seek_forward_30">Напред 30 секунди</string>
     <string name="player_via">чрез %1$s</string>
     <!-- Season/episode code shown in player UI (e.g. S01E02). %1$d = season, %2$d = episode. -->
     <string name="season_episode_format">S%1$d E%2$d</string>
     <string name="player_subtitle_delay">Забавяне на субтитрите</string>
-    <string name="player_error_title">Грешка при възпроизвеждане</string>
     <string name="player_error_choose_source">Избери друг източник</string>
     <string name="player_speed_title">Скорост на възпроизвеждане</string>
     <string name="player_error_no_stream_url">Този източник няма връзка към поток. Избери друг източник.</string>
@@ -1251,7 +1248,7 @@
     <string name="ratings_load_error">Не можахме да заредим рейтингите за епизода.</string>
     <string name="ratings_season_summary">Сезон %1$d - %2$d епизода</string>
 
-    <!-- SearchDiscoverSection -->
+    <!-- DiscoverSection -->
     <string name="discover_title">Discover</string>
     <string name="discover_load_more">Зареди още</string>
     <string name="discover_loading">Зареждане…</string>
@@ -1296,8 +1293,6 @@
     <!-- Sync screens -->
 
     <!-- Search -->
-    <string name="discover_disabled_title">Discover е деактивиран</string>
-    <string name="discover_disabled_subtitle">Включи Discover в настройките на Оформление</string>
 
     <!-- Library -->
 
@@ -1377,7 +1372,6 @@
     <string name="cd_trakt_logo">Trakt лого</string>
     <string name="cd_trakt_qr">Trakt activation QR</string>
     <string name="cd_imdb">IMDb</string>
-    <string name="cd_open_discover">Отвори discover</string>
     <string name="cd_voice_search">Гласово търсене</string>
     <string name="cd_expand">Разшири %1$s</string>
     <string name="cd_collapse">Свий %1$s</string>

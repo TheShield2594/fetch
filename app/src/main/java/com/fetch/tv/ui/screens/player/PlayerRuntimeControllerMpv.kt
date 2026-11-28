@@ -4,7 +4,6 @@ package com.fetch.tv.ui.screens.player
 
 import android.os.SystemClock
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.media3.exoplayer.SeekParameters
 import com.fetch.tv.data.local.InternalPlayerEngine
 import kotlinx.coroutines.CancellationException
@@ -184,7 +183,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         playbackAnalyticsDiagnostics.setStartupStartPosition(initialResumePosition)
         view.setMedia(url, headers, initialResumePosition)
         playbackAnalyticsDiagnostics.recordRawEventLine(
-            "PLAYER_INIT: engine=MPV host=${url.safeMpvTraceHost()} " +
+            "PLAYER_INIT: engine=MPV host=${url.safeLogHost()} " +
                 "playbackSpeed=${_uiState.value.playbackSpeed} resumePositionMs=$initialResumePosition"
         )
         if (initialResumePosition > 0L) {
@@ -292,12 +291,6 @@ private fun PlayerRuntimeController.detachAndReleaseMpvView(view: FetchMpvSurfac
 internal fun PlayerRuntimeController.releaseMpvPlayer() {
     unregisterMpvEventRelay()
     runCatching { mpvView?.releasePlayer() }
-}
-
-private fun String.safeMpvTraceHost(): String {
-    return runCatching {
-        toUri().host ?: substringBefore("://").takeIf { it.isNotBlank() } ?: "unknown"
-    }.getOrDefault("unknown")
 }
 
 internal fun PlayerRuntimeController.pauseForLifecycle() {
@@ -573,13 +566,6 @@ internal fun PlayerRuntimeController.updateMpvAvailableTracks() {
 private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnapshot) {
     val switchPending = pendingEngineSwitchTrackPreference
         ?.takeIf { it.streamUrl == currentStreamUrl && it.sourceEngine == InternalPlayerEngine.EXOPLAYER }
-    logSwitchTrace(
-        stage = "mpv-snapshot-read",
-        message = "switchPending=${switchPending != null} audioCount=${snapshot.audioTracks.size} " +
-            "subtitleCount=${snapshot.subtitleTracks.size} " +
-            "selectedAudioId=${snapshot.audioTracks.firstOrNull { it.isSelected }?.id} " +
-            "selectedSubtitleId=${snapshot.subtitleTracks.firstOrNull { it.isSelected }?.id}"
-    )
 
     val audioTracks = snapshot.audioTracks
         .mapIndexed { index, track ->
@@ -621,12 +607,6 @@ private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnap
     val selectedSubtitleIndex = internalSubtitleTracks.indexOfFirst { it.isSelected }
     val selectedExternalSubtitleTrack = snapshot.subtitleTracks.firstOrNull { it.isExternal && it.isSelected }
     val selectedExternalSubtitle = selectedExternalSubtitleTrack != null
-    logSwitchTrace(
-        stage = "mpv-snapshot-mapped",
-        message = "selectedAudioIndex=$selectedAudioIndex selectedSubtitleIndex=$selectedSubtitleIndex " +
-            "selectedExternalSubtitle=${selectedExternalSubtitleTrack?.id ?: "none"} " +
-            "mappedInternalSubtitleCount=${internalSubtitleTracks.size}"
-    )
 
     markMpvTextTracksScannedIfReady(hasInternalSubtitleTracks = internalSubtitleTracks.isNotEmpty())
     maybeRestorePendingAudioSelectionAfterSubtitleRefresh(audioTracks)
@@ -672,12 +652,6 @@ private fun PlayerRuntimeController.applyMpvTrackSnapshot(snapshot: MpvTrackSnap
         audioTracks = audioTracks,
         subtitleTracks = internalSubtitleTracks
     )
-    logSwitchTrace(
-        stage = "mpv-snapshot-after-restore",
-        message = "uiAudioIndex=${_uiState.value.selectedAudioTrackIndex} " +
-            "uiSubtitleIndex=${_uiState.value.selectedSubtitleTrackIndex} " +
-            "uiAddonSelected=${_uiState.value.selectedAddonSubtitle?.let { "${it.lang}/${it.addonName}/${it.id}" } ?: "none"}"
-    )
 }
 
 private fun PlayerRuntimeController.performPendingMpvHardRestartIfNeeded(view: FetchMpvSurfaceView): Boolean {
@@ -698,10 +672,6 @@ internal fun PlayerRuntimeController.applyPendingMpvSeekIfNeeded(
     durationMs: Long = view.durationMs().coerceAtLeast(0L)
 ) {
     if (!isUsingMpvEngine()) return
-    if (delayMpvResumeSeekUntilVideoTrack) {
-        if (!view.hasVideoTrackSelectedNow()) return
-        delayMpvResumeSeekUntilVideoTrack = false
-    }
 
     // The player's own signal too: on the first tick the timeline hasn't caught up yet.
     if (pendingResumeProgress != null && (isLiveForWatchProgress() || view.isLiveStreamNow())) {

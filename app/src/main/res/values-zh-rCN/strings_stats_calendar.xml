@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="library_open_stats">统计</string>
-    <string name="library_open_calendar">日历</string>
     <string name="insights_source_eyebrow">来自 Fetch 网站</string>
     <string name="insights_loading">正在加载…</string>
     <string name="insights_not_paired_subtitle">在“设置 › 账户”中将这台电视登录到 Fetch 网站，即可在此查看。网站会保存你的观看记录，并据此生成这些内容。</string>

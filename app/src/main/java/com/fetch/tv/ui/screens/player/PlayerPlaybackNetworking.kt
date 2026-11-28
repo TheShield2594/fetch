@@ -13,10 +13,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HttpsURLConnection
 
 internal object PlayerPlaybackNetworking {
     private const val LOOPBACK_READ_TIMEOUT_SECONDS = 65L
@@ -136,28 +133,6 @@ internal object PlayerPlaybackNetworking {
         )
     }
 
-    fun openConnection(
-        url: String,
-        headers: Map<String, String>,
-        method: String,
-        connectTimeoutMs: Int,
-        readTimeoutMs: Int,
-        range: String? = null
-    ): HttpURLConnection {
-        return (URL(url).openConnection() as HttpURLConnection).apply {
-            instanceFollowRedirects = true
-            connectTimeout = connectTimeoutMs
-            readTimeout = readTimeoutMs
-            requestMethod = method
-            setRequestProperty("User-Agent", headers["User-Agent"] ?: PlayerMediaSourceFactory.DEFAULT_USER_AGENT)
-            headers.forEach { (key, value) ->
-                if (key.equals("Range", ignoreCase = true)) return@forEach
-                if (key.equals("User-Agent", ignoreCase = true)) return@forEach
-                setRequestProperty(key, value)
-            }
-            range?.let { setRequestProperty("Range", it) }
-        }
-    }
 }
 
 /**

@@ -6,6 +6,7 @@ import com.fetch.tv.data.local.LayoutPreferenceDataStore
 import com.fetch.tv.data.local.TmdbSettingsDataStore
 import com.fetch.tv.data.remote.api.TmdbApi
 import com.fetch.tv.data.remote.api.TmdbDetailsResponse
+import com.fetch.tv.data.remote.api.TmdbNextEpisode
 import com.fetch.tv.data.website.WebsiteCalendarEntry
 import com.fetch.tv.domain.repository.WatchProgressRepository
 import java.time.LocalDate
@@ -71,6 +72,10 @@ class WatchHistoryCalendarSource internal constructor(
     // Changing the range or reopening the screen shouldn't look every show up again.
     private val detailsCache = ConcurrentHashMap<String, CachedDetails>()
 
+    private data class CachedSeason(val episodes: List<TmdbNextEpisode>, val fetchedAtMs: Long)
+
+    private val seasonCache = ConcurrentHashMap<String, CachedSeason>()
+
     suspend fun upcoming(days: Int, today: LocalDate): CalendarLookup = withContext(Dispatchers.IO) {
         // Trakt and the other services fill the history some seconds after start-up; read it once
         // they have, or after the timeout, when what's there counts as the history.
@@ -88,6 +93,21 @@ class WatchHistoryCalendarSource internal constructor(
                 async { permits.withPermit { show to lookUp(show.id, language) } }
             }.awaitAll()
         }
+        // Every episode of the past week, not only the latest: the season of a show whose latest
+        // episode aired in that week. Only those shows cost a second request.
+        val recentSeasons = coroutineScope {
+            lookups.map { (show, result) ->
+                async {
+                    val details = result.getOrNull() ?: return@async show.id to null
+                    val last = details.lastEpisodeToAir
+                    val inWindow = last?.airDate?.let(::parseAirDate)
+                        ?.let { !it.isAfter(today) && !it.isBefore(today.minusDays(CalendarPastDays.toLong())) } == true
+                    val season = last?.seasonNumber
+                    if (!inWindow || season == null) return@async show.id to null
+                    show.id to permits.withPermit { seasonEpisodes(details.id, season, language) }
+                }
+            }.awaitAll().toMap()
+        }
         if (lookups.none { it.second.isSuccess }) {
             throw CalendarLookupException(lookups.firstNotNullOfOrNull { it.second.exceptionOrNull()?.message } ?: "TMDB didn't answer")
         }
@@ -97,20 +117,23 @@ class WatchHistoryCalendarSource internal constructor(
         val watchedKeys = watchedEpisodeKeys(inProgress, watched)
         val entries = lookups.flatMap { (show, result) ->
             val details = result.getOrNull() ?: return@flatMap emptyList()
-            // The latest aired episode, for the past week, marked from the watch history; its
-            // still shows when spoilers aren't hidden, or once it's been watched.
-            val recent = recentEntry(
-                series = show,
-                last = details.lastEpisodeToAir,
-                fallbackPoster = details.posterPath?.let { "$POSTER_BASE$it" },
-                today = today,
-                pastDays = CalendarPastDays,
-                watchedKeys = watchedKeys,
-                backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" }
-            )?.let { entry ->
-                val still = details.lastEpisodeToAir?.stillPath?.takeIf { it.isNotBlank() }
-                    ?.takeIf { showStills || entry.watched }
-                entry.copy(still = still?.let { "$BACKDROP_BASE$it" })
+            // The past week's episodes (the season's where it could be read, else the latest
+            // alone), marked from the watch history; a still shows when spoilers aren't hidden,
+            // or once that episode has been watched.
+            val aired = recentSeasons[show.id] ?: listOfNotNull(details.lastEpisodeToAir)
+            val recent = aired.mapNotNull { episode ->
+                recentEntry(
+                    series = show,
+                    last = episode,
+                    fallbackPoster = details.posterPath?.let { "$POSTER_BASE$it" },
+                    today = today,
+                    pastDays = CalendarPastDays,
+                    watchedKeys = watchedKeys,
+                    backdrop = details.backdropPath?.let { "$BACKDROP_BASE$it" }
+                )?.let { entry ->
+                    val still = episode.stillPath?.takeIf { it.isNotBlank() }?.takeIf { showStills || entry.watched }
+                    entry.copy(still = still?.let { "$BACKDROP_BASE$it" })
+                }
             }
             val upcoming = upcomingEntry(
                 series = show,
@@ -124,9 +147,36 @@ class WatchHistoryCalendarSource internal constructor(
                     ?.takeIf { showStills && it.isNotBlank() }
                     ?.let { "$BACKDROP_BASE$it" }
             )
-            listOfNotNull(recent, upcoming)
+            recent + listOfNotNull(upcoming)
         }
         CalendarLookup(entries, failedSeries = lookups.count { it.second.isFailure })
+    }
+
+    /**
+     * One season's episodes, as the calendar reads them; null when TMDB can't be asked, and the
+     * caller falls back to the latest episode alone.
+     */
+    private suspend fun seasonEpisodes(tmdbId: Int, season: Int, language: String): List<TmdbNextEpisode>? {
+        val cacheKey = "$tmdbId:$season:$language"
+        seasonCache[cacheKey]?.takeIf { nowMs() - it.fetchedAtMs in 0 until CACHE_TTL_MS }?.let { return it.episodes }
+        return try {
+            val response = tmdbApi.getTvSeasonDetails(tmdbId, season, apiKey, language)
+            val episodes = response.body()?.episodes?.takeIf { response.isSuccessful } ?: return null
+            episodes.map { episode ->
+                TmdbNextEpisode(
+                    seasonNumber = season,
+                    episodeNumber = episode.episodeNumber,
+                    name = episode.name,
+                    overview = episode.overview,
+                    airDate = episode.airDate,
+                    stillPath = episode.stillPath
+                )
+            }.also { seasonCache[cacheKey] = CachedSeason(it, nowMs()) }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            null
+        }
     }
 
     /** The series' TMDB details; success with null when TMDB has no such series. */

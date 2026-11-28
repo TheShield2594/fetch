@@ -179,9 +179,20 @@ internal fun DiscoverSection(
 
     // "120 titles · 7 catalogs"; a sort orders the titles loaded, not the whole catalog, so it
     // says how many it covers (#843, #850).
+    // Under a Rating filter, says which catalogs it leaves out for sending no ratings (#864).
+    val unratedNote = if (filters.excludesUnrated && uiState.discoverUnratedSourceCount > 0) {
+        pluralStringResource(
+            R.plurals.discover_unrated_sources_left_out,
+            uiState.discoverUnratedSourceCount,
+            uiState.discoverUnratedSourceCount
+        )
+    } else {
+        null
+    }
     val summary = if (uiState.discoverSourceCount > 0 && results.isNotEmpty()) {
         val sourceLine = pluralStringResource(R.plurals.library_title_count, results.size, results.size) + " · " +
-            pluralStringResource(R.plurals.discover_source_count, uiState.discoverSourceCount, uiState.discoverSourceCount)
+            pluralStringResource(R.plurals.discover_source_count, uiState.discoverSourceCount, uiState.discoverSourceCount) +
+            unratedNote?.let { " · $it" }.orEmpty()
         if (filters.sorted && uiState.discoverSortedTitleCount > 0) {
             stringResource(
                 R.string.discover_summary_sorted,
@@ -368,6 +379,16 @@ internal fun DiscoverSection(
                 )
             }
 
+            uiState.discoverError != null -> {
+                // A failed load isn't "No content found" or "No catalogs": say what went wrong
+                // and offer Retry, which reads the addons again when there are no catalogs (#845).
+                ErrorState(
+                    message = uiState.discoverError,
+                    onRetry = onRetry,
+                    modifier = stateModifier.height(com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight)
+                )
+            }
+
             uiState.discoverInitialized && uiState.discoverCatalogs.isEmpty() -> {
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_no_catalogs_title),
@@ -375,15 +396,6 @@ internal fun DiscoverSection(
                     icon = Icons.Default.Search,
                     height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,
                     modifier = stateModifier
-                )
-            }
-
-            uiState.discoverError != null -> {
-                // A failed load isn't "No content found": say what went wrong and offer Retry.
-                ErrorState(
-                    message = uiState.discoverError,
-                    onRetry = onRetry,
-                    modifier = stateModifier.height(com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight)
                 )
             }
 
@@ -403,7 +415,9 @@ internal fun DiscoverSection(
             uiState.discoverInitialized && filters.narrowsResults && uiState.discoverSourceCount > 0 -> {
                 EmptyScreenState(
                     title = stringResource(R.string.discover_empty_filtered_title),
-                    subtitle = stringResource(R.string.discover_empty_filtered_subtitle),
+                    subtitle = unratedNote?.let {
+                        stringResource(R.string.discover_empty_filtered_subtitle_with_note, stringResource(R.string.discover_empty_filtered_subtitle), it)
+                    } ?: stringResource(R.string.discover_empty_filtered_subtitle),
                     icon = Icons.Default.Search,
                     action = StateAction(stringResource(R.string.discover_clear_filters), onClearFilters),
                     height = com.fetch.tv.ui.components.BrowseDefaults.EmptyStateHeight,

@@ -407,7 +407,8 @@ fun SearchScreen(
         )
     }
     LaunchedEffect(isDiscoverMode) {
-        if (isDiscoverMode) viewModel.ensureDiscoverLoaded()
+        // Coming back from a title keeps the grid as it was, so the focused card can be restored.
+        if (isDiscoverMode) viewModel.ensureDiscoverLoaded(allowRefresh = !(restoreDiscoverFocus || pendingDiscoverRestoreOnResume))
     }
     val hasPendingUnsubmittedQuery = remember(isDiscoverMode, trimmedQuery, trimmedSubmittedQuery) {
         !isDiscoverMode &&

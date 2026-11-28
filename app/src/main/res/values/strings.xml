@@ -1886,6 +1886,8 @@
     <string name="library_filter_sort">Sort</string>
     <string name="library_filter_genre">Genre</string>
     <string name="library_filter_year">Year</string>
+    <!-- Library: the chip that reveals the Genre and Year filters (#862). -->
+    <string name="library_more_filters">More filters</string>
     <string name="library_filter_watched">Watched</string>
     <string name="library_watched_filter_all">All</string>
     <string name="library_watched_filter_watched">Watched</string>
@@ -2095,6 +2097,13 @@
     <string name="discover_clear_filters">Clear filters</string>
     <string name="discover_empty_filtered_title">Nothing matches these filters</string>
     <string name="discover_empty_filtered_subtitle">Try a wider year range or a lower rating</string>
+    <!-- The filtered-empty subtitle, then which catalogs the Rating filter leaves out (#864). -->
+    <string name="discover_empty_filtered_subtitle_with_note">%1$s. %2$s.</string>
+    <!-- Under a Rating filter: catalogs whose titles come with no ratings, which the filter leaves out (#864). -->
+    <plurals name="discover_unrated_sources_left_out">
+        <item quantity="one">%d catalog sends no ratings and is left out</item>
+        <item quantity="other">%d catalogs send no ratings and are left out</item>
+    </plurals>
     <string name="discover_empty_no_catalogs_title">No catalogs to browse</string>
     <string name="discover_empty_no_catalogs_subtitle">Install an addon with catalogs to browse them here</string>
     <string name="discover_empty_no_content_title">No content found</string>

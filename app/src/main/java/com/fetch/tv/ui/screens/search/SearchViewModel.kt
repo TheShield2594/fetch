@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -190,8 +191,25 @@ class SearchViewModel @Inject constructor(
         val catalog: DiscoverCatalog,
         val nextSkip: Int = 0,
         val hasMore: Boolean = true,
-        val failures: Int = 0
-    )
+        val failures: Int = 0,
+        /** Whether a page from this catalog has had titles, and whether any of them had a rating (#864). */
+        val sawTitles: Boolean = false,
+        val sawRating: Boolean = false
+    ) {
+        /** Titles have come, none rated: a Rating filter (without "Include unrated") keeps none of them. */
+        val sendsNoRatings: Boolean get() = sawTitles && !sawRating
+
+        /**
+         * Whether paging this catalog can add anything [filters] keep. Under a Rating filter, a
+         * catalog that sends no ratings is left out of paging, so it cannot stall the others (#864).
+         */
+        fun pageable(filters: DiscoverFilters): Boolean =
+            hasMore && !(filters.excludesUnrated && sendsNoRatings)
+    }
+
+    /** Whether any catalog can still page for [filters]. */
+    private fun discoverCanFetch(filters: DiscoverFilters = _uiState.value.discoverFilters): Boolean =
+        discoverCursors.any { it.pageable(filters) }
 
     /** The catalogs merged into the current Discover results, in catalog order. */
     private var discoverCursors: List<DiscoverSourceCursor> = emptyList()
@@ -212,6 +230,18 @@ class SearchViewModel @Inject constructor(
     /** Paging rounds in a row that added nothing the filters keep. */
     private var discoverUnproductiveRounds = 0
     private var hideUnreleasedContent = false
+
+    /** Set once a catalog list has been built, so a later addon change rebuilds it (#845). */
+    private var discoverCatalogsLoaded = false
+
+    /** The grid a keep-grid refresh in flight would put back if it fails (#845). */
+    private var discoverRefreshSnapshot: DiscoverSnapshot? = null
+
+    /** When the current Discover results were first loaded, for the refetch on entry (#845). */
+    private var discoverLoadedAtMs: Long? = null
+
+    /** The clock the stale-results check reads; tests move it on. */
+    internal var discoverClockMs: () -> Long = { System.currentTimeMillis() }
 
     private companion object {
         /** Below this many filtered results, Discover pages on its own to fill the grid. */
@@ -234,6 +264,9 @@ class SearchViewModel @Inject constructor(
 
         /** Failed pages in a row before a catalog is left out of further paging. */
         const val DISCOVER_MAX_SOURCE_FAILURES = 2
+
+        /** Results older than this are fetched again when Discover is entered (#845). */
+        const val DISCOVER_STALE_AFTER_MS = 30 * 60 * 1000L
         const val SUGGESTION_DEBOUNCE_MS = 150L
 
         /**
@@ -284,6 +317,9 @@ class SearchViewModel @Inject constructor(
                     discoverMergedItems = emptyList()
                     resetDiscoverSortedBatches()
                     discoverUnproductiveRounds = 0
+                    discoverCatalogsLoaded = false
+                    discoverLoadedAtMs = null
+                    discoverRefreshSnapshot = null
                     _uiState.update {
                         it.copy(
                             discoverInitialized = false,
@@ -297,11 +333,27 @@ class SearchViewModel @Inject constructor(
                             discoverResults = emptyList(),
                             discoverHasMore = true,
                             discoverError = null,
-                            discoverPagingPaused = false
+                            discoverPagingPaused = false,
+                            discoverUnratedSourceCount = 0
                         )
                     }
                 }
             }
+        }
+        // Addons or media-server catalogs installed, removed, enabled or reordered reach Discover
+        // without a restart (#845): a changed list of browsable catalogs is rebuilt and reloaded,
+        // keeping the type, genre and filters where they still apply.
+        viewModelScope.launch {
+            discoverAddons()
+                .map { addons -> addons to buildDiscoverCatalogs(addons) }
+                .distinctUntilChanged { old, new -> old.second == new.second }
+                .catch { /* Keep what is on screen; Retry reads the addons again. */ }
+                .collectLatest { (addons, catalogs) ->
+                    val state = _uiState.value
+                    if (!discoverCatalogsLoaded || state.discoverLocation == DiscoverLocation.OFF) return@collectLatest
+                    if (catalogs == state.discoverCatalogs) return@collectLatest
+                    applyDiscoverCatalogs(addons, catalogs)
+                }
         }
         // Combine all layout preference flows into a single collector to reduce coroutine overhead
         viewModelScope.launch {
@@ -340,8 +392,14 @@ class SearchViewModel @Inject constructor(
         }
         viewModelScope.launch {
             layoutPreferenceDataStore.hideUnreleasedContent.collectLatest { enabled ->
+                val changed = enabled != hideUnreleasedContent
                 hideUnreleasedContent = enabled
                 scheduleCatalogRowsUpdate()
+                // Discover drops unreleased titles as pages arrive, so a change reloads it, with
+                // the grid kept on screen until the new first page is in (#845).
+                if (changed && discoverCatalogsLoaded && _uiState.value.discoverLocation != DiscoverLocation.OFF) {
+                    fetchDiscoverContent(reset = true, keepGrid = true)
+                }
             }
         }
         viewModelScope.launch {
@@ -359,11 +417,27 @@ class SearchViewModel @Inject constructor(
         val cornerRadiusDp: Int
     )
 
-    fun ensureDiscoverLoaded() {
+    /**
+     * Loads Discover the first time it is shown. Later entries refetch results older than
+     * [DISCOVER_STALE_AFTER_MS], keeping the grid until the new first page is in (#845);
+     * [allowRefresh] is false when returning from a title, so the focused card stays put.
+     */
+    fun ensureDiscoverLoaded(allowRefresh: Boolean = true) {
         val state = _uiState.value
         if (state.discoverLocation == DiscoverLocation.OFF) return
-        if (state.discoverInitialized || state.discoverLoading) return
-        viewModelScope.launch { loadDiscoverCatalogs() }
+        if (state.discoverLoading) return
+        if (!state.discoverInitialized) {
+            viewModelScope.launch { loadDiscoverCatalogs() }
+            return
+        }
+        if (allowRefresh && discoverResultsStale() && discoverJob?.isActive != true) {
+            fetchDiscoverContent(reset = true, keepGrid = true)
+        }
+    }
+
+    private fun discoverResultsStale(): Boolean {
+        val loadedAt = discoverLoadedAtMs ?: return false
+        return discoverClockMs() - loadedAt >= DISCOVER_STALE_AFTER_MS
     }
 
     private val metaPrefetchedIds: MutableSet<String> = java.util.concurrent.ConcurrentHashMap.newKeySet()
@@ -468,7 +542,12 @@ class SearchViewModel @Inject constructor(
             SearchEvent.ToggleDiscoverIncludeUnrated -> updateDiscoverFilters { it.copy(includeUnrated = !it.includeUnrated) }
             SearchEvent.ResetDiscoverFilters -> resetDiscoverFilters()
             SearchEvent.LoadNextDiscoverResults -> loadNextDiscoverResults()
-            SearchEvent.RetryDiscover -> fetchDiscoverContent(reset = true)
+            // With no catalogs (their load failed), Retry reads the addons again (#845).
+            SearchEvent.RetryDiscover -> if (_uiState.value.discoverCatalogs.isEmpty()) {
+                if (!_uiState.value.discoverLoading) viewModelScope.launch { loadDiscoverCatalogs() }
+            } else {
+                fetchDiscoverContent(reset = true)
+            }
             SearchEvent.Retry -> {
                 // An explicit retry must refetch even though nothing about the request changed.
                 lastRequestKey = null
@@ -1222,17 +1301,37 @@ class SearchViewModel @Inject constructor(
     private suspend fun searchAddons(): List<Addon> =
         addonRepository.getInstalledAddons().first().enabledAddons() + serverCatalog.searchAddons.first()
 
+    /** Enabled addons and media-server catalogs, as Discover browses them. */
+    private fun discoverAddons(): kotlinx.coroutines.flow.Flow<List<Addon>> =
+        combine(
+            addonRepository.getInstalledAddons().map { it.enabledAddons() },
+            serverCatalog.searchAddons
+        ) { installed, server -> installed + server }
+
     private suspend fun loadDiscoverCatalogs() {
         if (_uiState.value.discoverLocation == DiscoverLocation.OFF) return
-        _uiState.update { it.copy(discoverLoading = true) }
+        _uiState.update { it.copy(discoverLoading = true, discoverError = null) }
         val addons = try {
-            searchAddons()
+            discoverAddons().first()
+        } catch (error: CancellationException) {
+            _uiState.update { it.copy(discoverLoading = false) }
+            throw error
         } catch (_: Exception) {
-            _uiState.update { it.copy(discoverInitialized = true, discoverLoading = false) }
+            // A failed read is an error with Retry, not "no catalogs installed" (#845).
+            _uiState.update {
+                it.copy(
+                    discoverInitialized = true,
+                    discoverLoading = false,
+                    discoverError = errorWithFix(R.string.search_error_load_addons_failed, R.string.error_state_fix_retry_soon)
+                )
+            }
             return
         }
+        applyDiscoverCatalogs(addons, buildDiscoverCatalogs(addons))
+    }
 
-        val discoverCatalogs = addons.flatMap { addon ->
+    private fun buildDiscoverCatalogs(addons: List<Addon>): List<DiscoverCatalog> =
+        addons.flatMap { addon ->
             addon.catalogs
                 .filter { catalog ->
                     !(catalog.supportsExtra("search") &&
@@ -1266,6 +1365,14 @@ class SearchViewModel @Inject constructor(
                 }
         }
 
+    /**
+     * Puts [discoverCatalogs] on screen and loads them. The first time, the type, genre and filters
+     * come from what this profile last used; on a rebuild (an addon change, #845) the ones on
+     * screen are kept where the new catalogs still offer them.
+     */
+    private suspend fun applyDiscoverCatalogs(addons: List<Addon>, discoverCatalogs: List<DiscoverCatalog>) {
+        val previousType = _uiState.value.selectedDiscoverType
+        val previousGenre = _uiState.value.selectedDiscoverGenre
         val selectedType = resolveDiscoverType(
             types = discoverTypes(discoverCatalogs),
             preferredType = discoverSelectionDataStore.getSelectedType(),
@@ -1275,7 +1382,7 @@ class SearchViewModel @Inject constructor(
         // The filters and genre last used for this type on this profile (#851, #857); the genre
         // only when the catalogs still offer it.
         val stored = com.fetch.tv.core.util.runSuspendCatching { discoverSelectionDataStore.getFilters(selectedType) }.getOrNull()
-        val storedFilters = if (_uiState.value.discoverInitialized) {
+        val storedFilters = if (discoverCatalogsLoaded) {
             _uiState.value.discoverFilters
         } else {
             stored?.toDiscoverFilters() ?: DiscoverFilters()
@@ -1293,11 +1400,14 @@ class SearchViewModel @Inject constructor(
                 discoverFilters = storedFilters,
                 discoverInitialized = true,
                 discoverLoading = false,
-                discoverResults = emptyList(),
+                discoverError = null,
                 discoverHasMore = true
             )
         }
-        fetchDiscoverContent(reset = true)
+        // A rebuild for the same type and genre keeps the grid until the new first page is in.
+        val keepGrid = discoverCatalogsLoaded && selectedType == previousType && keptGenre == previousGenre
+        discoverCatalogsLoaded = true
+        fetchDiscoverContent(reset = true, keepGrid = keepGrid)
     }
 
     /**
@@ -1364,6 +1474,9 @@ class SearchViewModel @Inject constructor(
     private fun refilterDiscoverForWatched() {
         val filters = _uiState.value.discoverFilters
         if (!filters.hideWatched || !_uiState.value.discoverInitialized) return
+        // During a keep-grid refresh the merged titles are reset and the grid on screen is the old
+        // one; the new first page, or the restore if it fails, applies the watched titles (#845).
+        if (discoverRefreshSnapshot != null) return
         if (!filters.sorted) {
             _uiState.update { it.copy(discoverResults = applyDiscoverFilters(discoverMergedItems, filters, discoverIsWatched)) }
             return
@@ -1403,7 +1516,7 @@ class SearchViewModel @Inject constructor(
         resetDiscoverSortedBatches()
         saveDiscoverFilters(next)
         val state = _uiState.value
-        val canLoadMore = state.discoverInitialized && discoverCursors.any { it.hasMore }
+        val canLoadMore = state.discoverInitialized && discoverCanFetch(next)
         if (next.sorted) {
             val needsFill = canLoadMore && discoverMergedItems.size < DISCOVER_SORT_BATCH_SIZE
             if (!needsFill) placeDiscoverSortedBatch(next)
@@ -1426,6 +1539,9 @@ class SearchViewModel @Inject constructor(
                 discoverFilters = next,
                 discoverResults = applyDiscoverFilters(discoverMergedItems, next, discoverIsWatched),
                 discoverSortedTitleCount = 0,
+                // A Rating filter leaves catalogs without ratings out of paging, and clearing it
+                // brings them back (#864).
+                discoverHasMore = if (it.discoverInitialized) discoverCanFetch(next) else it.discoverHasMore,
                 discoverPagingPaused = false
             )
         }
@@ -1470,13 +1586,13 @@ class SearchViewModel @Inject constructor(
 
     /** Whether more can come: a catalog has more pages, or (sorted) loaded titles wait for a batch. */
     private fun discoverHasMoreTitles(filters: DiscoverFilters): Boolean =
-        discoverCursors.any { it.hasMore } || (filters.sorted && discoverBufferedCount() > 0)
+        discoverCanFetch(filters) || (filters.sorted && discoverBufferedCount() > 0)
 
     private fun loadNextDiscoverResults() {
         val state = _uiState.value
         if (state.discoverLoading || state.discoverLoadingMore) return
         val filters = state.discoverFilters
-        val canFetch = discoverCursors.any { it.hasMore }
+        val canFetch = discoverCanFetch(filters)
         // A full batch already loaded, or the last titles once the catalogs are done, is placed
         // without a request.
         if (filters.sorted && (discoverBufferedCount() >= DISCOVER_SORT_BATCH_SIZE || (!canFetch && discoverBufferedCount() > 0))) {
@@ -1502,18 +1618,26 @@ class SearchViewModel @Inject constructor(
      * over from each catalog's first page; otherwise the next page comes from each catalog that has
      * more. Either way, rounds repeat while the filtered grid is still short.
      */
-    private fun fetchDiscoverContent(reset: Boolean) {
+    private fun fetchDiscoverContent(reset: Boolean, keepGrid: Boolean = false) {
         if (!reset && discoverJob?.isActive == true) return
         discoverJob?.cancel()
         discoverJob = viewModelScope.launch {
             val state = _uiState.value
             if (state.query.trim().isNotEmpty()) return@launch
+            // A refetch with the grid kept (#845): the grid as it was, put back if the new first
+            // round fails everywhere, so a failed refresh never empties a working screen.
+            var kept: DiscoverSnapshot? = null
             if (reset) {
                 val sources = selectDiscoverSources(
                     catalogs = state.discoverCatalogs,
                     type = state.selectedDiscoverType,
                     genre = state.selectedDiscoverGenre
                 )
+                val keep = keepGrid && sources.isNotEmpty() && state.discoverResults.isNotEmpty()
+                // A refresh replacing one still in flight keeps the first one's snapshot: by now
+                // the merged titles and cursors are already reset, and only the grid is left.
+                kept = if (keep) discoverRefreshSnapshot ?: discoverSnapshot() else null
+                discoverRefreshSnapshot = kept
                 discoverCursors = sources.map { DiscoverSourceCursor(catalog = it) }
                 discoverMergedItems = emptyList()
                 resetDiscoverSortedBatches()
@@ -1522,12 +1646,13 @@ class SearchViewModel @Inject constructor(
                     it.copy(
                         discoverLoading = sources.isNotEmpty(),
                         discoverLoadingMore = false,
-                        discoverResults = emptyList(),
-                        discoverSortedTitleCount = 0,
+                        discoverResults = if (keep) it.discoverResults else emptyList(),
+                        discoverSortedTitleCount = if (keep) it.discoverSortedTitleCount else 0,
                         discoverSourceCount = sources.size,
                         discoverHasMore = sources.isNotEmpty(),
                         discoverError = null,
-                        discoverPagingPaused = false
+                        discoverPagingPaused = false,
+                        discoverUnratedSourceCount = 0
                     )
                 }
                 if (sources.isEmpty()) return@launch
@@ -1542,7 +1667,8 @@ class SearchViewModel @Inject constructor(
                 val keepFilling = runDiscoverRound(
                     firstRound = firstRound,
                     genre = state.selectedDiscoverGenre,
-                    lastSortedRound = rounds + 1 >= DISCOVER_SORT_MAX_ROUNDS
+                    lastSortedRound = rounds + 1 >= DISCOVER_SORT_MAX_ROUNDS,
+                    keptGrid = if (firstRound) kept else null
                 )
                 firstRound = false
                 rounds++
@@ -1563,14 +1689,91 @@ class SearchViewModel @Inject constructor(
     }
 
     /**
+     * Which catalog a cursor pages. The row key leaves out the addon's URL, and two configurations
+     * of one addon share its id, so the URL is part of it.
+     */
+    private fun DiscoverCatalog.sourceIdentity() = listOf(addonBaseUrl, addonId, type, catalogId)
+
+    /** Discover's paging state and grid, so a failed refetch can put them back (#845). */
+    private class DiscoverSnapshot(
+        val cursors: List<DiscoverSourceCursor>,
+        val merged: List<MetaPreview>,
+        val sortedShown: List<MetaPreview>,
+        val sortedCount: Int,
+        val sortedBatchEnds: List<Int>,
+        val state: SearchUiState
+    )
+
+    private fun discoverSnapshot() = DiscoverSnapshot(
+        cursors = discoverCursors,
+        merged = discoverMergedItems,
+        sortedShown = discoverSortedShown,
+        sortedCount = discoverSortedCount,
+        sortedBatchEnds = discoverSortedBatchEnds.toList(),
+        state = _uiState.value
+    )
+
+    /**
+     * Puts back the paging state and grid a failed refetch replaced. Filters or Hide unreleased
+     * changed while it ran are applied to the restored titles, so the grid matches what is set.
+     */
+    private fun restoreDiscoverSnapshot(snapshot: DiscoverSnapshot) {
+        val filters = _uiState.value.discoverFilters
+        val merged = if (hideUnreleasedContent) {
+            val today = LocalDate.now()
+            snapshot.merged.filterNot { it.isUnreleased(today) }
+        } else {
+            snapshot.merged
+        }
+        discoverCursors = snapshot.cursors
+        discoverMergedItems = merged
+        val old = snapshot.state
+        val unchanged = filters == old.discoverFilters && merged.size == snapshot.merged.size
+        resetDiscoverSortedBatches()
+        val results = when {
+            unchanged -> {
+                discoverSortedShown = snapshot.sortedShown
+                discoverSortedCount = snapshot.sortedCount
+                discoverSortedBatchEnds += snapshot.sortedBatchEnds
+                old.discoverResults
+            }
+            filters.sorted -> {
+                placeDiscoverSortedBatch(filters)
+                discoverSortedShown
+            }
+            else -> applyDiscoverFilters(merged, filters, discoverIsWatched)
+        }
+        _uiState.update {
+            it.copy(
+                discoverLoading = false,
+                discoverLoadingMore = false,
+                discoverResults = results,
+                discoverSortedTitleCount = if (filters.sorted) discoverSortedCount else 0,
+                discoverHasMore = discoverHasMoreTitles(filters),
+                discoverError = null,
+                discoverPagingPaused = if (unchanged) old.discoverPagingPaused else false,
+                discoverUnratedSourceCount = snapshot.cursors.count { c -> c.sendsNoRatings }
+            )
+        }
+        // Titles watched while the refresh ran leave the restored grid too, batches kept in place.
+        refilterDiscoverForWatched()
+    }
+
+    /**
      * Fetches one page from every catalog that has more, appends them in catalog order, and
      * re-applies the filters. Returns whether the grid is still short and another round should run.
      * Under a sort, the grid only changes once a batch is full; [lastSortedRound] closes the batch
      * with what has come.
      */
-    private suspend fun runDiscoverRound(firstRound: Boolean, genre: String?, lastSortedRound: Boolean = false): Boolean {
+    private suspend fun runDiscoverRound(
+        firstRound: Boolean,
+        genre: String?,
+        lastSortedRound: Boolean = false,
+        keptGrid: DiscoverSnapshot? = null
+    ): Boolean {
         val cursors = discoverCursors
-        val activeIndices = cursors.indices.filter { cursors[it].hasMore }
+        val roundFilters = _uiState.value.discoverFilters
+        val activeIndices = cursors.indices.filter { cursors[it].pageable(roundFilters) }
         if (activeIndices.isEmpty()) {
             _uiState.update {
                 it.copy(discoverLoading = false, discoverLoadingMore = false, discoverHasMore = false)
@@ -1608,7 +1811,9 @@ class SearchViewModel @Inject constructor(
                         nextSkip = row.nextSkip,
                         // A page with nothing new (an addon ignoring skip) ends that catalog.
                         hasMore = row.hasMore && addsNew && row.nextSkip > cursor.nextSkip,
-                        failures = 0
+                        failures = 0,
+                        sawTitles = cursor.sawTitles || items.isNotEmpty(),
+                        sawRating = cursor.sawRating || items.any { it.imdbRating != null }
                     )
                     pages.add(items)
                 }
@@ -1625,7 +1830,22 @@ class SearchViewModel @Inject constructor(
                 NetworkResult.Loading -> Unit
             }
         }
+        val allFailed = successes == 0
+        if (keptGrid != null) discoverRefreshSnapshot = null
+        // A refetch that failed everywhere keeps the grid it was refreshing (#845), but only for
+        // the same catalogs: after an addon change the old cursors could page a removed catalog,
+        // so a failed rebuild shows the error with Retry instead.
+        if (keptGrid != null && allFailed &&
+            keptGrid.cursors.mapTo(HashSet()) { it.catalog.sourceIdentity() } ==
+            cursors.mapTo(HashSet()) { it.catalog.sourceIdentity() }
+        ) {
+            restoreDiscoverSnapshot(keptGrid)
+            return false
+        }
+        // A first page that came from somewhere dates the results, for the refetch on entry.
+        if (firstRound && !allFailed) discoverLoadedAtMs = discoverClockMs()
         discoverCursors = nextCursors
+        val unratedSources = nextCursors.count { it.sendsNoRatings }
 
         val releasedPages = if (hideUnreleasedContent) {
             val today = LocalDate.now()
@@ -1635,9 +1855,8 @@ class SearchViewModel @Inject constructor(
         }
         discoverMergedItems = appendDiscoverRound(mergedBefore, releasedPages)
 
-        val hasMore = nextCursors.any { it.hasMore }
-        val allFailed = successes == 0
         val filters = _uiState.value.discoverFilters
+        val hasMore = nextCursors.any { it.pageable(filters) }
         if (filters.sorted) {
             // A round counts when it loads titles: the batch is sorted once it is full, so how
             // many the filters keep cannot tell yet, and catalogs without ratings still count.
@@ -1657,12 +1876,13 @@ class SearchViewModel @Inject constructor(
                         discoverSortedTitleCount = discoverSortedCount,
                         discoverHasMore = discoverHasMoreTitles(filters),
                         discoverError = if (firstRound && allFailed) error else null,
-                        discoverPagingPaused = paused
+                        discoverPagingPaused = paused,
+                        discoverUnratedSourceCount = unratedSources
                     )
                 }
                 return false
             }
-            _uiState.update { it.copy(discoverHasMore = hasMore) }
+            _uiState.update { it.copy(discoverHasMore = hasMore, discoverUnratedSourceCount = unratedSources) }
             return true
         }
 
@@ -1685,7 +1905,8 @@ class SearchViewModel @Inject constructor(
                 // Only a first page that failed everywhere is an error screen; a later failure
                 // keeps the grid and pauses paging instead.
                 discoverError = if (firstRound && allFailed) error else null,
-                discoverPagingPaused = paused
+                discoverPagingPaused = paused,
+                discoverUnratedSourceCount = unratedSources
             )
         }
         return hasMore && !paused && shown < DISCOVER_MIN_RESULTS

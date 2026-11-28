@@ -170,6 +170,44 @@ internal fun watchedEpisodeKeys(
     }
 }
 
+/** The ids of every film the profile has watched, from its history and finished playback. */
+internal fun watchedMovieIds(
+    progress: List<com.fetch.tv.domain.model.WatchProgress>,
+    watched: List<com.fetch.tv.domain.model.WatchedItem>
+): Set<String> = buildSet {
+    watched.forEach { if (it.season == null && !isSeriesEntry(it.contentType, null)) add(it.contentId) }
+    progress.forEach { if (it.season == null && !isSeriesEntry(it.contentType, null) && it.isCompleted()) add(it.contentId) }
+}
+
+/**
+ * A watchlist film as a calendar entry when it's released in the [pastDays] days before [today]
+ * or the [days] after; null when it has no readable release date or falls outside that.
+ */
+internal fun movieEntry(
+    movie: com.fetch.tv.domain.model.LibraryEntry,
+    releaseDate: String?,
+    fallbackPoster: String?,
+    backdrop: String?,
+    overview: String?,
+    today: LocalDate,
+    pastDays: Int,
+    days: Int,
+    watchedIds: Set<String>
+): WebsiteCalendarEntry? {
+    val date = releaseDate?.let(::parseAirDate) ?: return null
+    if (date.isBefore(today.minusDays(pastDays.toLong())) || date.isAfter(today.plusDays(days.toLong()))) return null
+    return WebsiteCalendarEntry(
+        seriesImdbId = movie.id,
+        seriesName = movie.name,
+        poster = movie.poster ?: fallbackPoster,
+        airDate = date.toString(),
+        overview = (movie.description ?: overview)?.takeIf { it.isNotBlank() },
+        kind = "movie",
+        backdrop = movie.background ?: backdrop,
+        watched = movie.id in watchedIds || movie.imdbId?.let { it in watchedIds } == true
+    )
+}
+
 /**
  * [series]' most recently aired episode as a calendar entry when it aired in the [pastDays] days
  * before [today] (or today), marked watched from [watchedKeys]; null otherwise.

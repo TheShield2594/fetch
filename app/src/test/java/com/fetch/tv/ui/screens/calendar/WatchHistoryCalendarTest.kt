@@ -76,6 +76,27 @@ class WatchHistoryCalendarTest {
     }
 
     @Test
+    fun `a watchlist film released in the window becomes a movie entry, watched from the history`() {
+        val film = com.fetch.tv.domain.model.LibraryEntry(
+            id = "tt7", type = "movie", name = "Film", poster = null, background = null, logo = null,
+            description = null, releaseInfo = null, imdbRating = null, genres = emptyList(), addonBaseUrl = null
+        )
+        val watchedIds = watchedMovieIds(
+            progress = emptyList(),
+            watched = listOf(WatchedItem(contentId = "tt7", contentType = "movie", title = "Film", watchedAt = 1))
+        )
+
+        val past = movieEntry(film, "2026-11-01", null, null, null, today, pastDays = 7, days = 30, watchedIds = watchedIds)
+
+        assertNotNull(past)
+        assertEquals(true, past!!.isMovie)
+        assertEquals(true, past.watched)
+        assertEquals(false, movieEntry(film, "2026-11-20", null, null, null, today, 7, 30, emptySet())!!.watched)
+        assertNull(movieEntry(film, "2026-10-01", null, null, null, today, 7, 30, watchedIds))
+        assertNull(movieEntry(film, null, null, null, null, today, 7, 30, watchedIds))
+    }
+
+    @Test
     fun `the latest aired episode of the past week is listed, marked watched from the history`() {
         val keys = watchedEpisodeKeys(progress = emptyList(), watched = listOf(watched("tt1:1:2", at = 1)))
         val one = show.copy(id = "tt1")

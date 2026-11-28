@@ -156,7 +156,10 @@ fun CalendarScreen(
                         val dayKey = day.date?.toString() ?: "undated"
                         item(key = "day:$dayKey") { DayHeading(day) }
                         items(day.entries, key = { "entry:$dayKey:${it.seriesImdbId}:${it.season}:${it.episode}" }) { entry ->
-                            CalendarEntryRow(entry, onClick = { onNavigateToDetail(entry.seriesImdbId, "series") })
+                            CalendarEntryRow(
+                                entry,
+                                onClick = { onNavigateToDetail(entry.seriesImdbId, if (entry.isMovie) "movie" else "series") }
+                            )
                         }
                     }
                 }
@@ -214,9 +217,12 @@ private fun DayHeading(day: CalendarDay) {
 private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
     val shape = RoundedCornerShape(FetchTheme.radii.md)
     val code = episodeCode(entry.season, entry.episode)
-    val episodeLine = entry.episodeName?.takeIf { it.isNotBlank() }
-        ?.let { stringResource(R.string.calendar_episode_with_name, code, it) }
-        ?: code
+    val name = entry.episodeName?.takeIf { it.isNotBlank() }
+    val episodeLine = when {
+        entry.isMovie -> stringResource(R.string.type_movie)
+        code != null && name != null -> stringResource(R.string.calendar_episode_with_name, code, name)
+        else -> code ?: name
+    }
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -259,12 +265,14 @@ private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = episodeLine,
-                    style = FetchTheme.textStyles.metadata,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                episodeLine?.let {
+                    Text(
+                        text = it,
+                        style = FetchTheme.textStyles.metadata,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 entry.overview?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         text = it,

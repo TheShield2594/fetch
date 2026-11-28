@@ -55,5 +55,6 @@ class CalendarPresentationTest {
     @Test
     fun `episodes are labelled as on the website`() {
         assertEquals("S2:E5", episodeCode(2, 5))
+        assertNull(episodeCode(null, null))
     }
 }

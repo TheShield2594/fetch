@@ -245,18 +245,29 @@ data class WebsiteYearInReview(
     val busiestMonthCount: Int = 0
 )
 
-/** An episode that hasn't aired yet, of a series the profile has started. [airDate] is `YYYY-MM-DD`. */
+/**
+ * One dated thing on the website's calendar. [airDate] is `YYYY-MM-DD`.
+ *
+ * Named for the episode it started as: for a [kind] of `"movie"` (a watchlist film's release),
+ * [seriesImdbId] and [seriesName] are the film's own, and [season], [episode] and [episodeName]
+ * are null. An older website sends no [kind]; its entries are always episodes.
+ */
 @Serializable
 data class WebsiteCalendarEntry(
     val seriesImdbId: String,
     val seriesName: String,
     val poster: String? = null,
-    val season: Int,
-    val episode: Int,
+    val season: Int? = null,
+    val episode: Int? = null,
     val episodeName: String? = null,
     val airDate: String,
-    val overview: String? = null
-)
+    val overview: String? = null,
+    val kind: String? = null
+) {
+    /** A film's release rather than an episode. */
+    val isMovie: Boolean
+        get() = kind == "movie" || (season == null && episode == null)
+}
 
 @Serializable
 internal data class WebsiteCalendarBody(val calendar: List<WebsiteCalendarEntry> = emptyList())

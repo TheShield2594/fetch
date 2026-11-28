@@ -54,8 +54,9 @@ internal fun groupCalendarByDay(entries: List<WebsiteCalendarEntry>, today: Loca
     return if (undated.isEmpty()) days else days + CalendarDay(null, CalendarDayKind.LATER, undated)
 }
 
-/** `S2:E5`, as the website labels an episode. */
-internal fun episodeCode(season: Int, episode: Int): String = "S$season:E$episode"
+/** `S2:E5`, as the website labels an episode; null when either number is missing. */
+internal fun episodeCode(season: Int?, episode: Int?): String? =
+    if (season == null || episode == null) null else "S$season:E$episode"
 
 // ─── The calendar from the TV's own watch history ───
 //

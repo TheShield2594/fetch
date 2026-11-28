@@ -1070,7 +1070,7 @@ private fun LibrarySelectorsRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .focusSafeHorizontalScroll(),
+            .focusSafeHorizontalScroll(fadeEdges = true),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {

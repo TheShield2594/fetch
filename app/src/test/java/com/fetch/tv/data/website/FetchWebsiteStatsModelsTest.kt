@@ -3,6 +3,7 @@ package com.fetch.tv.data.website
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** The stats and calendar bodies as the website's routes send them. */
@@ -51,5 +52,20 @@ class FetchWebsiteStatsModelsTest {
 
         assertEquals("2026-11-09", entry.airDate)
         assertNull(entry.overview)
+    }
+
+    @Test
+    fun `a watchlist film's release decodes with no season or episode`() {
+        val body = """
+            {"calendar":[{"kind":"movie","seriesImdbId":"tt9","seriesName":"Film","poster":null,"still":null,
+             "backdrop":null,"season":null,"episode":null,"episodeName":null,"airDate":"2026-12-04",
+             "airsAt":null,"watched":false,"overview":null}]}
+        """.trimIndent()
+
+        val entry = json.decodeFromString(WebsiteCalendarBody.serializer(), body).calendar.single()
+
+        assertNull(entry.season)
+        assertNull(entry.episode)
+        assertTrue(entry.isMovie)
     }
 }

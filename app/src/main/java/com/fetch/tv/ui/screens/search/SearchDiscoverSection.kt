@@ -267,7 +267,7 @@ internal fun DiscoverSection(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusSafeHorizontalScroll(),
+                        .focusSafeHorizontalScroll(fadeEdges = true),
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically
                 ) {

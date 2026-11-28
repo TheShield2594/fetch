@@ -6,8 +6,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.fetch.tv.ui.theme.FetchTheme
 
 /**
@@ -26,19 +35,69 @@ import com.fetch.tv.ui.theme.FetchTheme
 @Composable
 fun Modifier.focusSafeHorizontalScroll(
     state: ScrollState = rememberScrollState(),
-    inset: Dp = FetchTheme.spacing.lg
+    inset: Dp = FetchTheme.spacing.lg,
+    /**
+     * Fades the row out over [inset] at a side with more to scroll to, so a control cut off at
+     * the screen edge reads as "more this way" rather than as clipped. Off for rows that sit
+     * between other content, where a fade would look like a gap.
+     */
+    fadeEdges: Boolean = false
 ): Modifier = this
-    .bleedHorizontally(inset)
+    .bleed(horizontal = inset, vertical = if (fadeEdges) inset else 0.dp)
+    .then(if (fadeEdges) Modifier.fadeScrolledEdges(state, inset) else Modifier)
     .horizontalScroll(state)
-    .padding(horizontal = inset)
+    .padding(horizontal = inset, vertical = if (fadeEdges) inset else 0.dp)
 
-/** Measures [horizontal] wider on each side and places it centred, reporting the original width. */
-private fun Modifier.bleedHorizontally(horizontal: Dp): Modifier = layout { measurable, constraints ->
-    val extra = horizontal.roundToPx() * 2
-    val maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth + extra else constraints.maxWidth
+/**
+ * The fade is drawn into an offscreen layer, which clips to its bounds; the caller bleeds the row
+ * vertically too, so focus rings above and below the controls aren't cut.
+ */
+private fun Modifier.fadeScrolledEdges(state: ScrollState, fade: Dp): Modifier = this
+    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    .drawWithContent {
+        drawContent()
+        val width = fade.toPx().coerceAtMost(size.width / 2)
+        if (width <= 0f) return@drawWithContent
+        if (state.canScrollBackward) {
+            drawRect(
+                brush = Brush.horizontalGradient(0f to Color.Transparent, 1f to Color.Black, startX = 0f, endX = width),
+                size = Size(width, size.height),
+                blendMode = BlendMode.DstIn
+            )
+        }
+        if (state.canScrollForward) {
+            drawRect(
+                brush = Brush.horizontalGradient(
+                    0f to Color.Black,
+                    1f to Color.Transparent,
+                    startX = size.width - width,
+                    endX = size.width
+                ),
+                topLeft = Offset(size.width - width, 0f),
+                size = Size(width, size.height),
+                blendMode = BlendMode.DstIn
+            )
+        }
+    }
+
+/**
+ * Measures the content [horizontal] wider on each side (and [vertical] taller) and places it
+ * centred, reporting the original size.
+ */
+private fun Modifier.bleed(horizontal: Dp, vertical: Dp): Modifier = layout { measurable, constraints ->
+    val extraX = horizontal.roundToPx() * 2
+    val extraY = vertical.roundToPx() * 2
+    val maxWidth = if (constraints.hasBoundedWidth) constraints.maxWidth + extraX else constraints.maxWidth
+    val maxHeight = if (constraints.hasBoundedHeight) constraints.maxHeight + extraY else constraints.maxHeight
     val placeable = measurable.measure(
-        constraints.copy(minWidth = constraints.minWidth + extra, maxWidth = maxWidth)
+        constraints.copy(
+            minWidth = constraints.minWidth + extraX,
+            maxWidth = maxWidth,
+            minHeight = constraints.minHeight + extraY,
+            maxHeight = maxHeight
+        )
     )
-    val width = (placeable.width - extra).coerceAtLeast(0)
-    layout(width, placeable.height) { placeable.place(-extra / 2, 0) }
+    val width = (placeable.width - extraX).coerceAtLeast(0)
+    val height = (placeable.height - extraY).coerceAtLeast(0)
+    layout(width, height) { placeable.place(-extraX / 2, -extraY / 2) }
 }

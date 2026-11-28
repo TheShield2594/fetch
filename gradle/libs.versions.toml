@@ -11,7 +11,7 @@ lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 
 # New dependencies
-hilt = "2.58"
+hilt = "2.60.1"
 hiltNavigationCompose = "1.2.0"
 retrofit = "2.12.0"
 okhttp = "4.12.0"

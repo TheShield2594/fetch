@@ -685,6 +685,8 @@ class PlayerRuntimeController(
     /** mpv's file was stopped in the background to free the decoder; reloaded paused on start. */
     internal var mpvStoppedForLifecycle: Boolean = false
     internal var mpvLifecycleResumePositionMs: Long = 0L
+    /** Between ON_STOP and ON_START. An mpv start-up that finishes in this window unloads again. */
+    internal var lifecycleStopped: Boolean = false
     internal var mpvTrackRefreshJob: Job? = null
     internal var mpvTrackRefreshInProgress: Boolean = false
     internal val mpvTrackRefreshGate = MpvTrackRefreshGate()

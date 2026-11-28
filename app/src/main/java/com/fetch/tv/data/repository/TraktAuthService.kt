@@ -399,7 +399,8 @@ class TraktAuthService @Inject constructor(
         call: suspend (authorizationHeader: String) -> Response<T>
     ): Response<T>? = executeAuthorizedRequest(traktAuthDataStore.activeProfileId(), call)
 
-    private suspend fun <T> executeAuthorizedRequest(
+    /** A request with [profileId]'s token, whichever profile is active when it runs. */
+    suspend fun <T> executeAuthorizedRequest(
         profileId: Int,
         call: suspend (authorizationHeader: String) -> Response<T>
     ): Response<T>? {

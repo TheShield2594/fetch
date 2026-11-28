@@ -240,6 +240,9 @@ class HomeViewModel @Inject constructor(
 
     /** True once the CW pipeline has completed its first emission (items or empty). */
     internal val _initialCwResolved = MutableStateFlow(false)
+    /** Set before the pipeline's first Continue Watching write; the disk restore then stays out. */
+    @Volatile
+    internal var cwLivePublished: Boolean = false
     val initialCwResolved: StateFlow<Boolean> = _initialCwResolved.asStateFlow()
     val effectiveAutoplayEnabled = playerSettingsDataStore.playerSettings
         .map(StreamAutoPlayPolicy::isEffectivelyEnabled)
@@ -607,6 +610,7 @@ class HomeViewModel @Inject constructor(
                     clearFocusState()
                                 // Reset so the new profile's pipeline signals first completion correctly.
                     _initialCwResolved.value = false
+                    cwLivePublished = false
                     loadContinueWatching()
                     // Clear watched badges so they don't leak between profiles.
                     watchedSeriesStateHolder.clearInMemory()
@@ -997,6 +1001,7 @@ class HomeViewModel @Inject constructor(
                     // Only a placeholder until the pipeline's first result: on slow storage this
                     // can land after it, and must not put the older disk copy back over it.
                     if (_initialCwResolved.value ||
+                        cwLivePublished ||
                         state.continueWatchingItems.isNotEmpty() ||
                         state.upcomingItems.isNotEmpty()
                     ) {

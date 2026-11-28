@@ -64,6 +64,9 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
         startWatchProgressSaving()
         startMpvPlatformIntegration()
         updateMpvAvailableTracks()
+        // ON_STOP came while this start-up was pending (AFR preflight, waiting for the surface):
+        // it skipped the unload then, so do it now that there is a file to unload.
+        if (lifecycleStopped && !mpvStoppedForLifecycle) stopMpvForLifecycle(fromStartup = true)
         scheduleHideControls()
         // Started paused (#706): the scrobble starts when playback does, on resume.
         if (!userPausedManually) emitScrobbleStart()
@@ -217,6 +220,9 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         startWatchProgressSaving()
         startMpvPlatformIntegration()
         updateMpvAvailableTracks()
+        // ON_STOP came while this start-up was pending (AFR preflight, waiting for the surface):
+        // it skipped the unload then, so do it now that there is a file to unload.
+        if (lifecycleStopped && !mpvStoppedForLifecycle) stopMpvForLifecycle(fromStartup = true)
         scheduleHideControls()
         // Started paused (#706): the scrobble starts when playback does, on resume.
         if (!userPausedManually) emitScrobbleStart()
@@ -312,6 +318,7 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
 internal fun PlayerRuntimeController.stopForLifecycle() {
     // Hidden, not just covered by an overlay: coming back waits for the user to press play.
     resumePlaybackAfterTransientPause = false
+    lifecycleStopped = true
     if (isUsingMpvEngine()) {
         stopMpvForLifecycle()
         return
@@ -325,6 +332,7 @@ internal fun PlayerRuntimeController.stopForLifecycle() {
 }
 
 internal fun PlayerRuntimeController.startForLifecycle() {
+    lifecycleStopped = false
     if (mpvStoppedForLifecycle) {
         startMpvForLifecycle()
         return
@@ -345,9 +353,10 @@ internal fun PlayerRuntimeController.startForLifecycle() {
  * the decoder, the network connection and the demuxer cache, and [startMpvForLifecycle] loads it
  * again, paused, where it was. The core itself stays, so the surface callbacks stay valid.
  */
-private fun PlayerRuntimeController.stopMpvForLifecycle() {
+internal fun PlayerRuntimeController.stopMpvForLifecycle(fromStartup: Boolean = false) {
     val view = mpvView ?: return
-    if (isReleasingPlayer || mpvInitializationInProgress || currentStreamUrl.isBlank()) return
+    // A start-up still pending (AFR preflight) unloads itself once it loads; see initializeMpvPlayer.
+    if (isReleasingPlayer || (mpvInitializationInProgress && !fromStartup) || currentStreamUrl.isBlank()) return
     val state = _uiState.value
     // An ended or failed playback has nothing to come back to; reloading it would replay the end.
     if (state.playbackEnded || state.error != null) return
@@ -360,7 +369,9 @@ private fun PlayerRuntimeController.stopMpvForLifecycle() {
     mpvStoppedForLifecycle = true
     mpvLifecycleResumePositionMs = position.coerceAtLeast(0L)
     // Nothing on screen is updated in the background, and an unloaded file must not read as idle.
+    // A start-up that finished while stopped started the progress saving too.
     stopProgressUpdates()
+    stopWatchProgressSaving()
     cancelStallWatchdog()
     unregisterMpvEventRelay()
     runCatching { view.stopForBackground() }

@@ -881,14 +881,39 @@ class TraktProgressService @Inject constructor(
             || (videoCanonicalKey != null && watchedMovies.contains(videoCanonicalKey))
     }
 
-    suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) {
+    /**
+     * Removes the playback entries for [contentId]. With [profileId], every read and delete uses
+     * that profile's token, so a profile switch while a request is in flight cannot reach the
+     * other profile's account (#837); the shared playback cache, which is the active profile's,
+     * is then left alone.
+     */
+    suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int? = null) {
         Log.d(
             TAG,
             "removeProgress start contentId=$contentId season=$season episode=$episode"
         )
         applyOptimisticRemoval(contentId, season, episode)
-        val playbackMovies = getPlayback("movies", force = true).orEmpty()
-        val playbackEpisodes = getPlayback("episodes", force = true).orEmpty()
+        val playbackMovies = if (profileId == null) {
+            getPlayback("movies", force = true)
+        } else {
+            fetchPlaybackForProfile(profileId, "movies")
+        }.orEmpty()
+        val playbackEpisodes = if (profileId == null) {
+            getPlayback("episodes", force = true)
+        } else {
+            fetchPlaybackForProfile(profileId, "episodes")
+        }.orEmpty()
+        suspend fun delete(playbackId: Long) {
+            if (profileId == null) {
+                traktAuthService.executeAuthorizedWriteRequest { authHeader ->
+                    traktApi.deletePlayback(authHeader, playbackId)
+                }
+            } else {
+                traktAuthService.executeAuthorizedWriteRequest(profileId) { authHeader ->
+                    traktApi.deletePlayback(authHeader, playbackId)
+                }
+            }
+        }
 
         val target = contentId.trim()
         playbackMovies
@@ -896,9 +921,7 @@ class TraktProgressService @Inject constructor(
             .forEach { item ->
                 item.id?.let { playbackId ->
                     Log.d(TAG, "removeProgress deleting movie playbackId=$playbackId")
-                    traktAuthService.executeAuthorizedWriteRequest { authHeader ->
-                        traktApi.deletePlayback(authHeader, playbackId)
-                    }
+                    delete(playbackId)
                 }
             }
 
@@ -918,9 +941,7 @@ class TraktProgressService @Inject constructor(
                         TAG,
                         "removeProgress deleting episode playbackId=$playbackId s=${item.episode?.season} e=${item.episode?.number}"
                     )
-                    traktAuthService.executeAuthorizedWriteRequest { authHeader ->
-                        traktApi.deletePlayback(authHeader, playbackId)
-                    }
+                    delete(playbackId)
                 }
             }
 
@@ -2224,6 +2245,14 @@ class TraktProgressService @Inject constructor(
     }
 
     /** Returns null when the request failed, so callers can tell a failure from no playback. */
+    /** The playback list for [profileId]'s account, uncached (the cache is the active profile's). */
+    private suspend fun fetchPlaybackForProfile(profileId: Int, type: String): List<TraktPlaybackItemDto>? {
+        val response = traktAuthService.executeAuthorizedRequest(profileId) { authHeader ->
+            traktApi.getPlayback(authorization = authHeader, type = type, startAt = null, endAt = null)
+        } ?: return null
+        return if (response.isSuccessful) response.body().orEmpty() else null
+    }
+
     private suspend fun getPlayback(
         type: String,
         force: Boolean = false,

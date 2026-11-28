@@ -4,10 +4,14 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 
 /**
  * Holds the store that a root NavHost's back stack ViewModels live in. It is kept in the
@@ -51,9 +55,25 @@ internal fun rememberNavHostViewModelStoreOwner(activity: ComponentActivity): Vi
             if (!activity.isChangingConfigurations) holder.release(store)
         }
     }
-    return remember(store) {
-        object : ViewModelStoreOwner {
-            override val viewModelStore: ViewModelStore = store
+    return remember(activity, store) { NavHostViewModelStoreOwner(activity, store) }
+}
+
+/**
+ * The branch-owned store, with the activity's factory and creation extras: `hiltViewModel()`
+ * calls made against this owner (PlaybackAvailabilityProvider, above the NavHost's destinations)
+ * need Hilt's factory, and a bare [ViewModelStoreOwner] would fall back to one that can only
+ * build no-argument ViewModels. The extras name this owner, so a SavedStateHandle's holder lives
+ * in this store too and is cleared with it.
+ */
+internal class NavHostViewModelStoreOwner(
+    private val activity: ComponentActivity,
+    override val viewModelStore: ViewModelStore
+) : ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+    override val defaultViewModelProviderFactory: ViewModelProvider.Factory
+        get() = activity.defaultViewModelProviderFactory
+
+    override val defaultViewModelCreationExtras: CreationExtras
+        get() = MutableCreationExtras(activity.defaultViewModelCreationExtras).apply {
+            set(VIEW_MODEL_STORE_OWNER_KEY, this@NavHostViewModelStoreOwner)
         }
-    }
 }

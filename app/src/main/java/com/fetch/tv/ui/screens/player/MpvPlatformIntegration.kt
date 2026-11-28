@@ -140,7 +140,9 @@ internal enum class MpvFocusAction { NONE, PAUSE, PAUSE_FOR_GAIN, RESUME }
 
 /**
  * Mirrors what Media3 does for a movie: a permanent loss pauses for good, a transient one pauses
- * until focus comes back, and a duck keeps playing (a video's audio is not lowered to a murmur).
+ * until focus comes back, and a duck keeps playing. On Android 8+ the system lowers the volume
+ * itself for a duck (the request does not ask to pause when ducked, as Media3 doesn't for movie
+ * content), so the listener has nothing to do then.
  */
 internal fun mpvFocusAction(
     focusChange: Int,
@@ -180,8 +182,10 @@ internal class MpvAudioFocusAndRouting(
                 pause()
             }
             MpvFocusAction.PAUSE_FOR_GAIN -> {
-                pausedForTransientLoss = true
+                // After the pause: an explicit pause (which the pause itself goes through)
+                // clears the mark, so it is set once that has run.
                 pause()
+                pausedForTransientLoss = true
             }
             MpvFocusAction.RESUME -> {
                 pausedForTransientLoss = false
@@ -209,11 +213,23 @@ internal class MpvAudioFocusAndRouting(
         }
     }
 
-    /** Playback started or resumed: take focus and watch the audio route. */
+    /**
+     * Playback started or resumed: take focus and watch the audio route. If the system refuses
+     * focus (a call, another app holding it exclusively) playback pauses, as Media3 holds an
+     * ExoPlayer back; the next play asks again.
+     */
     fun onPlaying() {
         pausedForTransientLoss = false
-        requestFocus()
+        if (requestFocus() == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+            pause()
+            return
+        }
         registerReceiver()
+    }
+
+    /** An explicit pause or stop: a focus gain afterwards must not resume playback. */
+    fun cancelPendingResume() {
+        pausedForTransientLoss = false
     }
 
     /** Playback paused: keep focus (a transient loss may resume) but stop watching the route. */
@@ -227,10 +243,11 @@ internal class MpvAudioFocusAndRouting(
         pausedForTransientLoss = false
     }
 
-    private fun requestFocus() {
-        if (holdsFocus) return
-        val manager = audioManager ?: return
-        val granted = runCatching {
+    /** The request's result, or null when focus is already held or could not be asked for. */
+    private fun requestFocus(): Int? {
+        if (holdsFocus) return null
+        val manager = audioManager ?: return null
+        val result = runCatching {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val request = focusRequest ?: AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setAudioAttributes(
@@ -250,7 +267,8 @@ internal class MpvAudioFocusAndRouting(
             }
         }.onFailure { Log.w(TAG, "mpv audio focus request failed: ${it.message}") }
             .getOrNull()
-        holdsFocus = granted == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        holdsFocus = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        return result
     }
 
     private fun abandonFocus() {

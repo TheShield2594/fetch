@@ -1221,6 +1221,9 @@ fun PlayerRuntimeController.onEvent(event: PlayerEvent) {
             if (!hasActivePlayIntent()) onEvent(PlayerEvent.OnPlayPause)
         }
         PlayerEvent.OnPause -> {
+            // An explicit pause (remote, media keys, MediaSession) also cancels mpv's resume after
+            // a transient audio focus loss, even when focus already paused it (#766).
+            mpvAudioFocus?.cancelPendingResume()
             if (hasActivePlayIntent()) onEvent(PlayerEvent.OnPlayPause)
         }
         PlayerEvent.OnSeekForward -> {

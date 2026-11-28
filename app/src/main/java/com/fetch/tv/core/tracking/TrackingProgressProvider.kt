@@ -34,6 +34,14 @@ interface TrackingProgressProvider {
     fun isWatchedByVideoId(videoId: String, episode: Int): Boolean? = null
     suspend fun refresh(intent: TrackingRefreshIntent)
     suspend fun removeProgress(contentId: String, season: Int?, episode: Int?)
+
+    /**
+     * [removeProgress] with [profileId]'s account for every request, whichever profile is active
+     * when each one runs. Providers without per-request profile credentials use the active one;
+     * the caller only starts this while [profileId] is active.
+     */
+    suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int) =
+        removeProgress(contentId, season, episode)
     fun applyOptimisticProgress(progress: WatchProgress, quiet: Boolean)
     fun applyOptimisticRemoval(contentId: String, season: Int?, episode: Int?)
     fun clearOptimistic()

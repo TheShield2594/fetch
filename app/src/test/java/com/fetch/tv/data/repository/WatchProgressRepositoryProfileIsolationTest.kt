@@ -90,20 +90,20 @@ class WatchProgressRepositoryProfileIsolationTest {
         coVerify(exactly = 0) {
             harness.progressPreferences.removeProgress("item", null, null, 2)
         }
-        coVerify(exactly = 0) { provider.removeProgress(any(), any(), any()) }
+        coVerify(exactly = 0) { provider.removeProgress(any(), any(), any(), any()) }
     }
 
     @Test
     fun `a profile switch during the tracker call does not redirect the local delete`() = runTest {
         val provider = trackingProvider()
         val harness = harness(activeProfileId = 1, providers = setOf(provider))
-        coEvery { provider.removeProgress("item", null, null) } coAnswers {
+        coEvery { provider.removeProgress("item", null, null, 1) } coAnswers {
             harness.activeProfile.value = 2
         }
 
         harness.repository.removeProgress("item", null, null, profileId = 1)
 
-        coVerify(exactly = 1) { provider.removeProgress("item", null, null) }
+        coVerify(exactly = 1) { provider.removeProgress("item", null, null, 1) }
         coVerify(exactly = 1) {
             harness.progressPreferences.removeProgress("item", null, null, 1)
         }

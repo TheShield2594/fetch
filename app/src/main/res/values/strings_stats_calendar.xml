@@ -103,6 +103,12 @@
     <string name="calendar_watched">Watched</string>
     <!-- On a calendar entry that has aired but the profile hasn't watched. -->
     <string name="calendar_not_watched">Not watched yet</string>
+    <!-- Button beside a calendar entry that has aired. -->
+    <string name="calendar_mark_watched">Mark watched</string>
+    <!-- The same button once the entry is watched. -->
+    <string name="calendar_mark_unwatched">Mark unwatched</string>
+    <!-- Shown when a watched mark from the calendar couldn't be saved. -->
+    <string name="calendar_watched_failed">Couldn\'t save that watched mark. Try again.</string>
     <plurals name="calendar_day_count">
         <item quantity="one">%d episode</item>
         <item quantity="other">%d episodes</item>

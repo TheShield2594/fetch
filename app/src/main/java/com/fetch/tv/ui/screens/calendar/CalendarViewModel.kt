@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fetch.tv.core.profile.ProfileManager
 import com.fetch.tv.core.sync.backend.SyncBackends
+import com.fetch.tv.data.website.WebsiteCalendarEntry
+import com.fetch.tv.domain.model.WatchProgress
 import com.fetch.tv.domain.repository.WatchProgressRepository
 import com.fetch.tv.data.website.FetchWebsiteClient
 import com.fetch.tv.data.website.FetchWebsiteTrackingRepository
@@ -30,8 +32,16 @@ data class CalendarUiState(
     val source: CalendarSource = CalendarSource.WATCH_HISTORY,
     val state: WebsiteReadState<List<CalendarDay>> = WebsiteReadState.Loading,
     /** Watch history only: series TMDB couldn't be asked about, so the calendar may be missing some. */
-    val failedSeries: Int = 0
+    val failedSeries: Int = 0,
+    /** Entries ([calendarEntryKey]) whose watched mark is being saved; their button waits. */
+    val pendingWatched: Set<String> = emptySet(),
+    /** A mark that couldn't be saved, shown until the next one. */
+    val watchedError: Boolean = false
 )
+
+/** One calendar entry, the same however it was read. */
+internal fun calendarEntryKey(entry: WebsiteCalendarEntry): String =
+    "${entry.seriesImdbId}:${entry.season}:${entry.episode}"
 
 /**
  * Upcoming episodes of the series the active profile has started, grouped by the day they air.
@@ -47,7 +57,7 @@ class CalendarViewModel @Inject constructor(
     private val client: FetchWebsiteClient,
     private val watchHistory: WatchHistoryCalendarSource,
     private val syncBackends: SyncBackends,
-    progress: WatchProgressRepository,
+    private val progress: WatchProgressRepository,
     profileManager: ProfileManager
 ) : ViewModel() {
     private val range = MutableStateFlow(DefaultCalendarRange)
@@ -120,5 +130,90 @@ class CalendarViewModel @Inject constructor(
 
     fun retry() {
         retries.update { it + 1 }
+    }
+
+    /**
+     * Marks [entry] watched, or unwatched when it already is, through the same path as the title's
+     * own page, so it reaches Trakt or the website as any other mark does. The row changes at once
+     * and changes back if the mark can't be saved.
+     */
+    fun toggleWatched(entry: WebsiteCalendarEntry) {
+        val key = calendarEntryKey(entry)
+        if (key in _uiState.value.pendingWatched) return
+        val watched = !entry.watched
+        setWatched(key, watched, pending = true)
+        viewModelScope.launch {
+            val saved = try {
+                if (watched) markWatched(entry) else markUnwatched(entry)
+                true
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                false
+            }
+            setWatched(key, if (saved) watched else !watched, pending = false)
+            _uiState.update { it.copy(watchedError = !saved) }
+        }
+    }
+
+    private suspend fun markWatched(entry: WebsiteCalendarEntry) {
+        val now = System.currentTimeMillis()
+        if (entry.isMovie) {
+            val ids = setOf(entry.seriesImdbId)
+            progress.applyOptimisticWatchedMovie(ids, add = true)
+            try {
+                progress.markAsCompleted(completedProgress(entry, "movie", entry.seriesImdbId, now))
+            } catch (error: Exception) {
+                progress.revertOptimisticWatchedMovie(ids, add = true)
+                throw error
+            }
+        } else {
+            val videoId = "${entry.seriesImdbId}:${entry.season}:${entry.episode}"
+            progress.markAsCompleted(completedProgress(entry, "series", videoId, now))
+        }
+    }
+
+    private suspend fun markUnwatched(entry: WebsiteCalendarEntry) {
+        if (entry.isMovie) {
+            progress.removeFromHistory(entry.seriesImdbId, videoId = entry.seriesImdbId)
+        } else {
+            progress.removeFromHistory(
+                entry.seriesImdbId,
+                videoId = "${entry.seriesImdbId}:${entry.season}:${entry.episode}",
+                season = entry.season,
+                episode = entry.episode
+            )
+        }
+    }
+
+    private fun completedProgress(entry: WebsiteCalendarEntry, type: String, videoId: String, now: Long) = WatchProgress(
+        contentId = entry.seriesImdbId,
+        contentType = type,
+        name = entry.seriesName,
+        poster = entry.poster,
+        backdrop = entry.still ?: entry.backdrop,
+        logo = null,
+        videoId = videoId,
+        season = entry.season,
+        episode = entry.episode,
+        episodeTitle = entry.episodeName,
+        position = 1L,
+        duration = 1L,
+        lastWatched = now,
+        progressPercent = 100f
+    )
+
+    /** Sets the watched mark of the entry with [key] wherever it's listed. */
+    private fun setWatched(key: String, watched: Boolean, pending: Boolean) {
+        _uiState.update { state ->
+            val loaded = state.state as? WebsiteReadState.Loaded ?: return@update state
+            val days = loaded.value.map { day ->
+                day.copy(entries = day.entries.map { if (calendarEntryKey(it) == key) it.copy(watched = watched) else it })
+            }
+            state.copy(
+                state = WebsiteReadState.Loaded(days),
+                pendingWatched = if (pending) state.pendingWatched + key else state.pendingWatched - key
+            )
+        }
     }
 }

@@ -63,7 +63,7 @@ class DiscoverBrowseTest {
             catalog("anime", "anime"),
             catalog("shows", "series", genres = listOf("Drama")),
             catalog("films", "movie", genres = listOf("Action", "Drama")),
-            catalog("more", "movie", genres = listOf("action", "Horror", " "))
+            catalog("more", "movie", genres = listOf("None", "action", "Horror", " "))
         )
 
         assertEquals(listOf("movie", "series", "anime"), discoverTypes(catalogs))

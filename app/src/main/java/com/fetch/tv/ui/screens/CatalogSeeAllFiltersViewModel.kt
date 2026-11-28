@@ -230,7 +230,7 @@ internal fun seeAllGenreOptions(catalog: CatalogDescriptor): List<String> =
         .firstOrNull { it.name.equals("genre", ignoreCase = true) }
         ?.options
         .orEmpty()
-        .filter { it.isNotBlank() }
+        .filterNot { com.fetch.tv.ui.screens.search.isNoGenreOption(it) }
         .distinctBy { it.trim().lowercase(java.util.Locale.ROOT) }
 
 /**

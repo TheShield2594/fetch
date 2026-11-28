@@ -104,12 +104,19 @@ internal fun resolveDiscoverType(
         ?: types.firstOrNull { it == currentType }
         ?: types.firstOrNull()
 
+/**
+ * A genre option that means "no genre": some addons list "None" among their genres for an
+ * unfiltered catalog. Shown as a genre it only repeats "All genres", so pickers leave it out.
+ */
+internal fun isNoGenreOption(genre: String): Boolean =
+    genre.isBlank() || genre.trim().equals("none", ignoreCase = true)
+
 /** Every genre any catalog of [type] offers, de-duplicated ignoring case, first spelling kept. */
 internal fun discoverGenres(catalogs: List<DiscoverCatalog>, type: String): List<String> =
     catalogs.asSequence()
         .filter { it.type == type }
         .flatMap { it.genres.asSequence() }
-        .filter { it.isNotBlank() }
+        .filterNot(::isNoGenreOption)
         .distinctBy { it.trim().lowercase(Locale.ROOT) }
         .toList()
 

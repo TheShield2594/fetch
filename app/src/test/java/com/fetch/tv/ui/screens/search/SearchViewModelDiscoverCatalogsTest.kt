@@ -214,14 +214,19 @@ class SearchViewModelDiscoverCatalogsTest {
         val viewModel = newViewModel(catalogs, MutableStateFlow(listOf(addon("rated"))), hideUnreleased)
         viewModel.ensureDiscoverLoaded()
         advanceUntilIdle()
-        assertTrue(viewModel.uiState.value.discoverResults.any { it.releaseInfo == "2999" })
+        assertTrue(viewModel.uiState.value.discoverResults.any { it.releaseInfo == NEXT_YEAR })
 
         hideUnreleased.value = true
         advanceUntilIdle()
 
         val results = viewModel.uiState.value.discoverResults
         assertTrue(results.isNotEmpty())
-        assertTrue(results.none { it.releaseInfo == "2999" })
+        assertTrue(results.none { it.releaseInfo == NEXT_YEAR })
+    }
+
+    private companion object {
+        /** A release year that is still to come, which Hide unreleased leaves out. */
+        val NEXT_YEAR = (java.time.LocalDate.now().year + 1).toString()
     }
 
     /**
@@ -266,7 +271,7 @@ class SearchViewModelDiscoverCatalogsTest {
                     background = null,
                     logo = null,
                     description = null,
-                    releaseInfo = if (index % 10 == 5) "2999" else "2020",
+                    releaseInfo = if (index % 10 == 5) NEXT_YEAR else "2020",
                     imdbRating = if (catalogId == "unrated") null else if (index % 10 == 0) 8f else 5f,
                     genres = emptyList()
                 )

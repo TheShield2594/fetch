@@ -64,4 +64,23 @@ class LibraryStoredFiltersTest {
         runCurrent()
         assertEquals(StoredLibraryFilters(), f.savedFilters)
     }
+
+    @Test
+    fun `a Show pick during a slow restore keeps the stored genre, on screen and on disk`() = runTest {
+        val read = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val f = LibraryViewModelTestFixture(
+            storedFilters = StoredLibraryFilters(watchedFilter = "unwatched", genre = "Western"),
+            filtersRead = read
+        )
+        runCurrent()
+
+        f.viewModel.onSelectWatchedFilter(LibraryWatchedFilter.WATCHED)
+        runCurrent()
+        read.complete(Unit)
+        runCurrent()
+
+        assertEquals(LibraryWatchedFilter.WATCHED, f.viewModel.uiState.value.selectedWatchedFilter)
+        assertEquals("Western", f.viewModel.uiState.value.selectedGenre)
+        assertEquals(StoredLibraryFilters(watchedFilter = "watched", genre = "Western"), f.storedState)
+    }
 }

@@ -61,15 +61,19 @@ class LibraryViewPreferences @Inject constructor(
         )
     }
 
-    suspend fun setFilters(filters: StoredLibraryFilters) {
+    /** Writes [fields] of [filters]; the other stored filters are left as they are. */
+    suspend fun setFilters(
+        filters: StoredLibraryFilters,
+        fields: Set<StoredLibraryFilterField> = StoredLibraryFilterField.entries.toSet()
+    ) {
         val profileId = profileManager.activeProfileId.value
         store(profileId).edit { preferences ->
             fun put(key: Preferences.Key<String>, value: String?) {
                 if (value.isNullOrBlank()) preferences.remove(key) else preferences[key] = value
             }
-            put(watchedFilterKey, filters.watchedFilter)
-            put(genreKey, filters.genre)
-            put(yearKey, filters.year)
+            if (StoredLibraryFilterField.SHOW in fields) put(watchedFilterKey, filters.watchedFilter)
+            if (StoredLibraryFilterField.GENRE in fields) put(genreKey, filters.genre)
+            if (StoredLibraryFilterField.YEAR in fields) put(yearKey, filters.year)
         }
     }
 
@@ -132,6 +136,9 @@ class LibraryViewPreferences @Inject constructor(
         private val VIEW_KEYS = listOf(sortOptionKey, lastSelectedListKey, lastSelectedTypeKey)
     }
 }
+
+/** One of the Library's remembered filters (#851). */
+enum class StoredLibraryFilterField { SHOW, GENRE, YEAR }
 
 /** The Library's Show, Genre and Year filters as stored per profile (#851); null is "All". */
 data class StoredLibraryFilters(

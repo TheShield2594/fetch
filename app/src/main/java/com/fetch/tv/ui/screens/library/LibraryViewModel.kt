@@ -438,6 +438,14 @@ class LibraryViewModel @Inject constructor(
     private var messageClearJob: Job? = null
     private var selectedSortOverride: Pair<Int, LibrarySortOption>? = null
 
+    // Declared before init: the profile collector started there restores filters at once.
+    private var restoredFiltersAwaitingItems: RestoredFilters? = null
+    /** A restore is reading the stored filters; picks made meanwhile are saved field by field. */
+    private var restoreInFlight = false
+
+    /** Filters picked since the last restore began, which that restore must leave as picked. */
+    private val touchedSinceRestore = mutableSetOf<com.fetch.tv.data.local.StoredLibraryFilterField>()
+
     init {
         posterOptions.bind(viewModelScope)
         observeLayoutPreferences()
@@ -585,7 +593,7 @@ class LibraryViewModel @Inject constructor(
             val updated = current.copy(selectedGenre = key)
             updated.withVisibleItems()
         }
-        saveFilters()
+        saveFilters(setOf(com.fetch.tv.data.local.StoredLibraryFilterField.GENRE))
     }
 
     fun onSelectYear(key: String?) {
@@ -593,7 +601,7 @@ class LibraryViewModel @Inject constructor(
             val updated = current.copy(selectedYear = key)
             updated.withVisibleItems()
         }
-        saveFilters()
+        saveFilters(setOf(com.fetch.tv.data.local.StoredLibraryFilterField.YEAR))
     }
 
     fun onSelectWatchedFilter(filter: LibraryWatchedFilter) {
@@ -601,15 +609,18 @@ class LibraryViewModel @Inject constructor(
             val updated = current.copy(selectedWatchedFilter = filter)
             updated.withVisibleItems()
         }
-        saveFilters()
+        saveFilters(setOf(com.fetch.tv.data.local.StoredLibraryFilterField.SHOW))
     }
 
     /**
      * Show, Genre and Year are remembered per profile (#851), as the list, type and sort are and
      * as Discover keeps its filters. Ready to play is not: it depends on picks that expire.
      */
-    private fun saveFilters() {
-        filterSelectionVersion++
+    private fun saveFilters(fields: Set<com.fetch.tv.data.local.StoredLibraryFilterField>) {
+        touchedSinceRestore += fields
+        // While a restore is still reading, the filters not picked keep what is stored: writing
+        // their unset values now would wipe them before the restore puts them back.
+        val written = if (restoreInFlight) fields else com.fetch.tv.data.local.StoredLibraryFilterField.entries.toSet()
         val state = _uiState.value
         val profileId = profileManager.activeProfileId.value
         val stored = com.fetch.tv.data.local.StoredLibraryFilters(
@@ -619,18 +630,24 @@ class LibraryViewModel @Inject constructor(
         )
         viewModelScope.launch {
             if (profileManager.activeProfileId.value != profileId) return@launch
-            com.fetch.tv.core.util.runSuspendCatching { libraryViewPreferences.setFilters(stored) }
+            com.fetch.tv.core.util.runSuspendCatching { libraryViewPreferences.setFilters(stored, written) }
         }
     }
 
     /** Puts back the filters [profileId] last used; a profile with none stored opens on All. */
     private suspend fun restoreStoredFilters(profileId: Int) {
-        val versionAtRead = filterSelectionVersion
-        val stored = com.fetch.tv.core.util.runSuspendCatching { libraryViewPreferences.getFilters(profileId) }
-            .getOrNull() ?: com.fetch.tv.data.local.StoredLibraryFilters()
+        touchedSinceRestore.clear()
+        restoredFiltersAwaitingItems = null
+        restoreInFlight = true
+        val stored = try {
+            com.fetch.tv.core.util.runSuspendCatching { libraryViewPreferences.getFilters(profileId) }
+                .getOrNull() ?: com.fetch.tv.data.local.StoredLibraryFilters()
+        } finally {
+            restoreInFlight = false
+        }
         if (profileManager.activeProfileId.value != profileId) return
-        // A pick made while the read was out wins over what was stored before it.
-        if (filterSelectionVersion != versionAtRead) return
+        // A filter picked while the read was out keeps that pick; the others take what is stored.
+        val touched = touchedSinceRestore.toSet()
         val watched = LibraryWatchedFilter.entries
             .firstOrNull { it.key == stored.watchedFilter && it.isRemembered() }
             ?: LibraryWatchedFilter.ALL
@@ -639,44 +656,46 @@ class LibraryViewModel @Inject constructor(
         val itemsAtRestore = _uiState.value.allItems
         _uiState.update { current ->
             current.copy(
-                selectedWatchedFilter = watched,
-                selectedGenre = genre,
-                selectedYear = year
+                selectedWatchedFilter = if (com.fetch.tv.data.local.StoredLibraryFilterField.SHOW in touched) current.selectedWatchedFilter else watched,
+                selectedGenre = if (com.fetch.tv.data.local.StoredLibraryFilterField.GENRE in touched) current.selectedGenre else genre,
+                selectedYear = if (com.fetch.tv.data.local.StoredLibraryFilterField.YEAR in touched) current.selectedYear else year
             ).withVisibleItems()
         }
         // On a profile switch the list on screen can still be the previous profile's, which
         // may lack the genre or year; they go back on once this profile's titles arrive.
         val state = _uiState.value
-        restoredFiltersAwaitingItems = if (
-            (genre != null || year != null) && (state.selectedGenre != genre || state.selectedYear != year)
-        ) {
-            RestoredFilters(genre, year, itemsAtRestore, filterSelectionVersion)
+        val genreLost = com.fetch.tv.data.local.StoredLibraryFilterField.GENRE !in touched && genre != null && state.selectedGenre != genre
+        val yearLost = com.fetch.tv.data.local.StoredLibraryFilterField.YEAR !in touched && year != null && state.selectedYear != year
+        restoredFiltersAwaitingItems = if (genreLost || yearLost) {
+            RestoredFilters(genre.takeIf { genreLost }, year.takeIf { yearLost }, itemsAtRestore)
         } else {
             null
         }
     }
 
     private class RestoredFilters(
+        /** Null for a filter that survived validation and needs nothing put back. */
         val genre: String?,
         val year: String?,
-        val itemsAtRestore: List<LibraryEntry>,
-        val selectionVersion: Int
+        val itemsAtRestore: List<LibraryEntry>
     )
-    private var restoredFiltersAwaitingItems: RestoredFilters? = null
 
     /** Puts a restored genre and year back once the restored profile's own titles are in. */
     private fun applyRestoredFiltersAwaitingItems(items: List<LibraryEntry>) {
         val pending = restoredFiltersAwaitingItems ?: return
         if (items === pending.itemsAtRestore) return
         restoredFiltersAwaitingItems = null
-        if (pending.selectionVersion != filterSelectionVersion) return
+        val genre = pending.genre?.takeIf { com.fetch.tv.data.local.StoredLibraryFilterField.GENRE !in touchedSinceRestore }
+        val year = pending.year?.takeIf { com.fetch.tv.data.local.StoredLibraryFilterField.YEAR !in touchedSinceRestore }
+        if (genre == null && year == null) return
         _uiState.update { current ->
-            current.copy(selectedGenre = pending.genre, selectedYear = pending.year).withVisibleItems()
+            current.copy(
+                selectedGenre = genre ?: current.selectedGenre,
+                selectedYear = year ?: current.selectedYear
+            ).withVisibleItems()
         }
     }
 
-    /** Moves on with every Show, Genre or Year pick, so a restore read before one leaves it be. */
-    private var filterSelectionVersion = 0
 
     private fun LibraryWatchedFilter.isRemembered(): Boolean =
         this == LibraryWatchedFilter.WATCHED || this == LibraryWatchedFilter.UNWATCHED
@@ -690,7 +709,7 @@ class LibraryViewModel @Inject constructor(
                 selectedWatchedFilter = LibraryWatchedFilter.ALL
             ).withVisibleItems()
         }
-        saveFilters()
+        saveFilters(com.fetch.tv.data.local.StoredLibraryFilterField.entries.toSet())
     }
 
     fun onSelectSortOption(option: LibrarySortOption) {

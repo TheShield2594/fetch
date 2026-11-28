@@ -31,10 +31,14 @@ internal class LibraryViewModelTestFixture(
     /** The Layout setting for the hero band (#852); off so layout tests measure the grid alone. */
     heroEnabled: Boolean = false,
     /** The Show, Genre and Year filters the profile last used (#851). */
-    storedFilters: com.fetch.tv.data.local.StoredLibraryFilters = com.fetch.tv.data.local.StoredLibraryFilters()
+    storedFilters: com.fetch.tv.data.local.StoredLibraryFilters = com.fetch.tv.data.local.StoredLibraryFilters(),
+    /** When set, the stored-filters read waits on it (a slow disk). */
+    filtersRead: kotlinx.coroutines.CompletableDeferred<Unit>? = null
 ) {
     /** The filters last written to the profile's view preferences. */
     var savedFilters: com.fetch.tv.data.local.StoredLibraryFilters? = null
+    /** The profile's stored filters as the fake store holds them, field writes merged in. */
+    var storedState: com.fetch.tv.data.local.StoredLibraryFilters = storedFilters
     /** What the History and In progress tabs read. */
     val watched = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchedItem>())
     val inProgress = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchProgress>())
@@ -79,8 +83,21 @@ internal class LibraryViewModelTestFixture(
             coEvery { setSortOption(any()) } coAnswers { persistedSort.value = firstArg() }
             every { lastSelectedList } returns flowOf(null)
             every { lastSelectedType } returns flowOf(null)
-            coEvery { getFilters(any()) } returns storedFilters
-            coEvery { setFilters(any()) } coAnswers { savedFilters = firstArg() }
+            coEvery { getFilters(any()) } coAnswers {
+                val snapshot = storedState
+                filtersRead?.await()
+                snapshot
+            }
+            coEvery { setFilters(any(), any()) } coAnswers {
+                val written: com.fetch.tv.data.local.StoredLibraryFilters = firstArg()
+                val fields: Set<com.fetch.tv.data.local.StoredLibraryFilterField> = secondArg()
+                savedFilters = written
+                storedState = storedState.copy(
+                    watchedFilter = if (com.fetch.tv.data.local.StoredLibraryFilterField.SHOW in fields) written.watchedFilter else storedState.watchedFilter,
+                    genre = if (com.fetch.tv.data.local.StoredLibraryFilterField.GENRE in fields) written.genre else storedState.genre,
+                    year = if (com.fetch.tv.data.local.StoredLibraryFilterField.YEAR in fields) written.year else storedState.year
+                )
+            }
         },
         trackingProviderRegistry = TrackingLibraryProviderRegistry(setOf(provider)),
         watchProgressRepository = mockk<WatchProgressRepository> {

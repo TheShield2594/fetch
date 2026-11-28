@@ -1,6 +1,6 @@
 [versions]
 agp = "8.13.2"
-kotlin = "2.3.0"
+kotlin = "2.4.21"
 coreKtx = "1.15.0"
 appcompat = "1.6.1"
 composeBom = "2026.05.01"
@@ -23,7 +23,7 @@ datastore = "1.1.7"
 # Watched items, progress and the library live in SQLite; settings stay in DataStore.
 room = "2.8.4"
 lifecycleViewModelCompose = "2.9.4"
-ksp = "2.3.0"
+ksp = "2.3.14"
 # Dependabot leaves this alone: it must match the decoder AARs in app/libs/ (README there).
 media3 = "1.8.0"
 gson = "2.13.2"

@@ -38,4 +38,12 @@
     <string name="card_state_saved">சேமிக்கப்பட்டது</string>
     <string name="discover_include_unrated">மதிப்பீடு இல்லாதவற்றையும் சேர்</string>
     <string name="discover_reset_filters">மீட்டமை</string>
+    <!-- Discover shelves over the grid (#858) -->
+    <string name="discover_shelf_trending">இப்போது பிரபலமானவை</string>
+    <string name="discover_shelf_genres">வகைகள்</string>
+    <string name="discover_shelf_because_library">உங்கள் நூலகத்தில் உள்ளதால்</string>
+    <string name="discover_shelf_new_this_year">இந்த ஆண்டின் புதியவை</string>
+    <string name="discover_shelf_all_movies">அனைத்து திரைப்படங்கள்</string>
+    <string name="discover_shelf_all_series">அனைத்து தொடர்கள்</string>
+    <string name="discover_shelf_all_titles">அனைத்து தலைப்புகள்</string>
 </resources>

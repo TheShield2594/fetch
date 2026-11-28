@@ -245,18 +245,44 @@ data class WebsiteYearInReview(
     val busiestMonthCount: Int = 0
 )
 
-/** An episode that hasn't aired yet, of a series the profile has started. [airDate] is `YYYY-MM-DD`. */
+/**
+ * One dated thing on the website's calendar. [airDate] is `YYYY-MM-DD`.
+ *
+ * Named for the episode it started as: for a [kind] of `"movie"` (a watchlist film's release),
+ * [seriesImdbId] and [seriesName] are the film's own, and [season], [episode] and [episodeName]
+ * are null. An older website sends no [kind]; its entries are always episodes.
+ *
+ * [still] is the episode's own 16:9 frame (null where spoiler protection hides it) and
+ * [backdrop] the title's 16:9 backdrop, its fallback. An older website sends neither.
+ *
+ * [airsAt] is the instant it airs (ISO 8601), where the source knows it: Trakt, for a profile
+ * that has connected it. Where set, it places the entry on the viewer's local day.
+ *
+ * [watched] says whether the profile has already watched it, for the days that have passed.
+ *
+ * [finale] is `"season"`, `"series"` or `"mid_season"` for an episode that ends one; null otherwise.
+ */
 @Serializable
 data class WebsiteCalendarEntry(
     val seriesImdbId: String,
     val seriesName: String,
     val poster: String? = null,
-    val season: Int,
-    val episode: Int,
+    val season: Int? = null,
+    val episode: Int? = null,
     val episodeName: String? = null,
     val airDate: String,
-    val overview: String? = null
-)
+    val overview: String? = null,
+    val kind: String? = null,
+    val still: String? = null,
+    val backdrop: String? = null,
+    val airsAt: String? = null,
+    val watched: Boolean = false,
+    val finale: String? = null
+) {
+    /** A film's release rather than an episode. */
+    val isMovie: Boolean
+        get() = kind == "movie" || (season == null && episode == null)
+}
 
 @Serializable
 internal data class WebsiteCalendarBody(val calendar: List<WebsiteCalendarEntry> = emptyList())

@@ -483,12 +483,25 @@ class FetchWebsiteClient internal constructor(
             authedText("watch/stats/year/$year", profileId = profileId, profileToken = profileToken)
         )
 
-    /** Episodes airing in the next [days] days (the website allows 1 to 90). */
-    suspend fun calendar(profileId: String, profileToken: String?, days: Int): List<WebsiteCalendarEntry> =
-        json.decodeFromString(
+    /**
+     * What airs in the [days] days from [start] (today when null; the website allows 1 to 90 days,
+     * starting up to about a year back).
+     */
+    suspend fun calendar(
+        profileId: String,
+        profileToken: String?,
+        days: Int,
+        start: java.time.LocalDate? = null
+    ): List<WebsiteCalendarEntry> {
+        val query = buildString {
+            append("calendar?days=").append(days.coerceIn(1, MAX_CALENDAR_DAYS))
+            if (start != null) append("&start=").append(start)
+        }
+        return json.decodeFromString(
             WebsiteCalendarBody.serializer(),
-            authedText("calendar?days=${days.coerceIn(1, MAX_CALENDAR_DAYS)}", profileId = profileId, profileToken = profileToken)
+            authedText(query, profileId = profileId, profileToken = profileToken)
         ).calendar
+    }
 
     // ─── Plumbing ───
 

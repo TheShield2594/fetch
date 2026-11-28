@@ -142,7 +142,7 @@ internal fun SeeAllFilterBar(
         modifier = modifier
             .fillMaxWidth()
             .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
-            .focusSafeHorizontalScroll(),
+            .focusSafeHorizontalScroll(fadeEdges = true),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {

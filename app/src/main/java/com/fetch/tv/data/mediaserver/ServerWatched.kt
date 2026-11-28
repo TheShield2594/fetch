@@ -68,7 +68,15 @@ class ServerWatched internal constructor(
         }
     }
 
-    fun mirror(marks: List<ServerWatchMark>, played: Boolean): Job? {
+    /**
+     * Copies [marks] to the media servers that match catalog items. [onFailed] runs when a lookup
+     * or a write fails, after the failure toast.
+     */
+    fun mirror(
+        marks: List<ServerWatchMark>,
+        played: Boolean,
+        onFailed: suspend () -> Unit = {}
+    ): Job? {
         val connections = repository.enabledConnections().filter { it.useCatalogMetadata }
         val catalogMarks = marks.filterNot { ServerItemRef.isServerId(it.contentId) }
         if (connections.isEmpty() || catalogMarks.isEmpty()) return null
@@ -94,12 +102,14 @@ class ServerWatched internal constructor(
             if (lookupFailures > 0) {
                 Log.w(TAG, "Skipped mirroring played=$played after $lookupFailures failed lookups")
                 notifyFailure()
+                onFailed()
                 return@launch
             }
             val failed = write(targets, played)
             if (failed.isNotEmpty()) {
                 Log.w(TAG, "Could not mirror played=$played to ${failed.size} of ${targets.size} server items")
                 notifyFailure()
+                onFailed()
                 return@launch
             }
             Log.i(TAG, "Mirrored played=$played to ${targets.size} server items")

@@ -1,4 +1,4 @@
-import type { CalendarEntry } from "@fetch/shared";
+import type { CalendarEntry, CalendarFinale } from "@fetch/shared";
 import type { FastifyBaseLogger } from "fastify";
 import { LRUCache } from "lru-cache";
 import { ListKind, MetadataType, WatchEventType } from "@prisma/client";
@@ -7,6 +7,7 @@ import { getTmdb } from "./tmdb-client.js";
 import { loadEpisodes } from "./detail.js";
 import { getCachedShowDetails } from "./upcoming-episodes.js";
 import { getTraktClient, isTraktConnected } from "./trakt-client.js";
+import { simklAirTimes } from "./simkl-calendar.js";
 
 /**
  * How many in-progress series, and how many watchlisted ones, the calendar
@@ -22,6 +23,19 @@ const BATCH_SIZE = 5;
 
 /** TMDB statuses after which nothing more will air. */
 const NO_FURTHER_EPISODES = new Set(["Ended", "Canceled"]);
+
+/**
+ * Which finale an episode is, from TMDB's episode type: a "finale" of a show
+ * that has ended is the series finale, otherwise a season's.
+ */
+export const calendarFinale = (
+  episodeType: string | null | undefined,
+  status: string | null
+): CalendarFinale | null => {
+  if (episodeType === "mid_season") return "mid_season";
+  if (episodeType !== "finale") return null;
+  return status && NO_FURTHER_EPISODES.has(status) ? "series" : "season";
+};
 
 /** `YYYY-MM-DD` for a UTC day, the shape air and release dates are stored in. */
 const isoDay = (date: Date): string => date.toISOString().slice(0, 10);
@@ -109,7 +123,15 @@ async function episodesInWindow(
   series: SeriesMeta,
   window: { from: string; to: string },
   log?: FastifyBaseLogger
-): Promise<{ season: number; episode: number; name: string; airDate: string; still: string | null; overview: string | null }[]> {
+): Promise<{
+  season: number;
+  episode: number;
+  name: string;
+  airDate: string;
+  still: string | null;
+  overview: string | null;
+  episodeType: string | null;
+}[]> {
   if (!series.tmdbId) return [];
   const tmdb = await getTmdb();
   const details = await getCachedShowDetails(tmdb, series.tmdbId);
@@ -123,7 +145,15 @@ async function episodesInWindow(
     for (const ep of episodes) {
       if (!ep.airDate || !ISO_DAY.test(ep.airDate)) continue;
       if (ep.airDate < window.from || ep.airDate > window.to) continue;
-      found.push({ season, episode: ep.episodeNumber, name: ep.name, airDate: ep.airDate, still: ep.still, overview: ep.overview });
+      found.push({
+        season,
+        episode: ep.episodeNumber,
+        name: ep.name,
+        airDate: ep.airDate,
+        still: ep.still,
+        overview: ep.overview,
+        episodeType: ep.episodeType ?? null,
+      });
     }
     // Stop once this season began on or before the window did: nothing in an
     // earlier one can fall inside it.
@@ -187,7 +217,12 @@ export const getCalendar = async (
   const movieIds = watchlistItems.filter((item) => item.type === "movie").map((item) => item.imdbId);
   const seriesIds = [...followed, ...premiereOnly];
 
-  const [seriesMeta, films, traktTimes] = await Promise.all([
+  // Simkl's times, for a profile on Simkl; a day either side, as for Trakt.
+  const simklFrom = new Date(window.start);
+  simklFrom.setUTCDate(simklFrom.getUTCDate() - 1);
+  const simklTo = new Date(window.start);
+  simklTo.setUTCDate(simklTo.getUTCDate() + window.days + 1);
+  const [seriesMeta, films, traktTimes, simklTimes] = await Promise.all([
     seriesIds.length === 0
       ? Promise.resolve([] as SeriesMeta[])
       : prisma.metadata.findMany({
@@ -208,6 +243,7 @@ export const getCalendar = async (
           select: { imdbId: true, name: true, poster: true, background: true, description: true, releaseDate: true },
         }),
     traktAirTimes(profileId, window, log),
+    simklAirTimes(profileId, simklFrom, simklTo, log),
   ]);
 
   const metaById = new Map(seriesMeta.map((m) => [m.imdbId, m]));
@@ -282,7 +318,10 @@ export const getCalendar = async (
       episode: ep.episode,
       episodeName: guard ? `Episode ${ep.episode}` : ep.name,
       airDate: ep.airDate,
-      airsAt: traktTimes.get(key) ?? null,
+      finale: calendarFinale(ep.episodeType, series.status),
+      // Trakt's time where it has one, else Simkl's: by episode, or for anime
+      // (which Simkl numbers its own way) by show and air date.
+      airsAt: traktTimes.get(key) ?? simklTimes.get(key) ?? simklTimes.get(`date:${series.imdbId}:${ep.airDate}`) ?? null,
       watched,
       overview: guard ? null : ep.overview,
     };

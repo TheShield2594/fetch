@@ -361,7 +361,9 @@ data class TmdbDetailsResponse(
     @Json(name = "status") val status: String? = null,
     @Json(name = "belongs_to_collection") val belongsToCollection: TmdbCollectionSummary? = null,
     /** A series' next episode, when TMDB knows one is scheduled. */
-    @Json(name = "next_episode_to_air") val nextEpisodeToAir: TmdbNextEpisode? = null
+    @Json(name = "next_episode_to_air") val nextEpisodeToAir: TmdbNextEpisode? = null,
+    /** A series' most recently aired episode. */
+    @Json(name = "last_episode_to_air") val lastEpisodeToAir: TmdbNextEpisode? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -370,7 +372,10 @@ data class TmdbNextEpisode(
     @Json(name = "episode_number") val episodeNumber: Int? = null,
     @Json(name = "name") val name: String? = null,
     @Json(name = "overview") val overview: String? = null,
-    @Json(name = "air_date") val airDate: String? = null
+    @Json(name = "air_date") val airDate: String? = null,
+    @Json(name = "still_path") val stillPath: String? = null,
+    /** "standard", "mid_season" or "finale". */
+    @Json(name = "episode_type") val episodeType: String? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -525,7 +530,9 @@ data class TmdbEpisode(
     @Json(name = "still_path") val stillPath: String? = null,
     @Json(name = "air_date") val airDate: String? = null,
     @Json(name = "runtime") val runtime: Int? = null,
-    @Json(name = "guest_stars") val guestStars: List<TmdbCastMember>? = null
+    @Json(name = "guest_stars") val guestStars: List<TmdbCastMember>? = null,
+    /** "standard", "mid_season" or "finale". */
+    @Json(name = "episode_type") val episodeType: String? = null
 )
 
 @JsonClass(generateAdapter = true)

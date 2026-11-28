@@ -2,6 +2,9 @@ package com.fetch.tv.ui.screens.calendar
 
 import com.fetch.tv.data.website.WebsiteCalendarEntry
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
@@ -9,8 +12,11 @@ import java.time.temporal.ChronoUnit
 internal val CalendarRanges = listOf(14, 30, 60, 90)
 internal const val DefaultCalendarRange = 30
 
+/** How many days back the website calendar also reads, for what aired recently and whether it was watched. */
+internal const val CalendarPastDays = 7
+
 /** How a day heading reads: relative for the next two days, the date after that. */
-enum class CalendarDayKind { TODAY, TOMORROW, LATER }
+enum class CalendarDayKind { PAST, TODAY, TOMORROW, LATER }
 
 /** One day of the agenda. [date] is null for entries whose air date couldn't be read. */
 data class CalendarDay(
@@ -26,36 +32,69 @@ internal fun parseAirDate(value: String): LocalDate? = try {
     null
 }
 
+/** When [entry] airs in [zone], from its `airsAt`; null when the source didn't say or sent nonsense. */
+internal fun calendarAirTime(entry: WebsiteCalendarEntry, zone: ZoneId): ZonedDateTime? =
+    entry.airsAt?.takeIf { it.isNotBlank() }?.let { value ->
+        try {
+            OffsetDateTime.parse(value.trim()).atZoneSameInstant(zone)
+        } catch (_: DateTimeParseException) {
+            null
+        }
+    }
+
+/** The local day [entry] airs: from its air time where known, else its `airDate`. */
+internal fun calendarDay(entry: WebsiteCalendarEntry, zone: ZoneId): LocalDate? =
+    calendarAirTime(entry, zone)?.toLocalDate() ?: parseAirDate(entry.airDate)
+
 internal fun dayKind(date: LocalDate, today: LocalDate): CalendarDayKind =
-    when (ChronoUnit.DAYS.between(today, date)) {
+    when (val offset = ChronoUnit.DAYS.between(today, date)) {
         0L -> CalendarDayKind.TODAY
         1L -> CalendarDayKind.TOMORROW
-        else -> CalendarDayKind.LATER
+        else -> if (offset < 0) CalendarDayKind.PAST else CalendarDayKind.LATER
     }
 
 /**
- * The entries grouped by air day, earliest first, each day in series-name order. An air date the
+ * The entries grouped by air day, earliest first; within a day, those with a known air time first
+ * in time order, then by series name. An entry's day is its local air day where its air time is
+ * known (so a 02:00 UTC premiere sits on the evening before in the Americas). An air date the
  * website sent in a shape this can't read is kept, under a day of its own at the end, rather than
  * dropped without a trace. An episode listed twice appears once.
  */
-internal fun groupCalendarByDay(entries: List<WebsiteCalendarEntry>, today: LocalDate): List<CalendarDay> {
+internal fun groupCalendarByDay(
+    entries: List<WebsiteCalendarEntry>,
+    today: LocalDate,
+    zone: ZoneId = ZoneId.systemDefault()
+): List<CalendarDay> {
     val unique = entries.distinctBy { "${it.seriesImdbId}:${it.season}:${it.episode}" }
-    val (dated, undated) = unique.partition { parseAirDate(it.airDate) != null }
+    val (dated, undated) = unique.partition { calendarDay(it, zone) != null }
+    // Within a day, what has a known air time comes first, in time order; the rest by name.
+    val order = compareBy<WebsiteCalendarEntry, java.time.Instant?>(nullsLast()) { calendarAirTime(it, zone)?.toInstant() }
+        .thenBy { it.seriesName.lowercase() }
+        .thenBy { it.season }
+        .thenBy { it.episode }
     val days = dated
-        .groupBy { parseAirDate(it.airDate)!! }
+        .groupBy { calendarDay(it, zone)!! }
         .toSortedMap()
         .map { (date, dayEntries) ->
             CalendarDay(
                 date = date,
                 kind = dayKind(date, today),
-                entries = dayEntries.sortedWith(compareBy({ it.seriesName.lowercase() }, { it.season }, { it.episode }))
+                entries = dayEntries.sortedWith(order)
             )
         }
     return if (undated.isEmpty()) days else days + CalendarDay(null, CalendarDayKind.LATER, undated)
 }
 
-/** `S2:E5`, as the website labels an episode. */
-internal fun episodeCode(season: Int, episode: Int): String = "S$season:E$episode"
+/**
+ * The 16:9 picture for a calendar row: the episode's still, else the title's backdrop. Null when
+ * there is neither, and the row shows the poster instead.
+ */
+internal fun calendarWideArtwork(entry: WebsiteCalendarEntry): String? =
+    entry.still?.takeIf { it.isNotBlank() } ?: entry.backdrop?.takeIf { it.isNotBlank() }
+
+/** `S2:E5`, as the website labels an episode; null when either number is missing. */
+internal fun episodeCode(season: Int?, episode: Int?): String? =
+    if (season == null || episode == null) null else "S$season:E$episode"
 
 // ─── The calendar from the TV's own watch history ───
 //
@@ -116,6 +155,159 @@ internal fun startedSeries(
         .take(limit)
 }
 
+/** `series:season:episode` for every episode the profile has watched, by [seriesBaseId]. */
+internal fun watchedEpisodeKeys(
+    progress: List<com.fetch.tv.domain.model.WatchProgress>,
+    watched: List<com.fetch.tv.domain.model.WatchedItem>
+): Set<String> = buildSet {
+    watched.forEach { item ->
+        if (item.season != null && item.episode != null) add("${seriesBaseId(item.contentId)}:${item.season}:${item.episode}")
+    }
+    progress.forEach { item ->
+        if (item.season != null && item.episode != null && item.isCompleted()) {
+            add("${seriesBaseId(item.contentId)}:${item.season}:${item.episode}")
+        }
+    }
+}
+
+/**
+ * Which finale an episode is, from TMDB's episode type, as the website's calendar says it: a
+ * finale of a show that has ended is the series', otherwise the season's.
+ */
+internal fun calendarFinale(episodeType: String?, status: String?): String? = when (episodeType?.trim()) {
+    "mid_season" -> "mid_season"
+    "finale" -> if (isFinishedSeriesStatus(status)) "series" else "season"
+    else -> null
+}
+
+/** An episode 1 opens a season, as the website's calendar marks it. */
+internal fun episodeKind(episode: Int): String = if (episode == 1) "premiere" else "episode"
+
+/** Trakt allows a calendar request this many days long at most. */
+internal const val TraktCalendarMaxDays = 33
+
+/** The (start, days) requests that cover [days] days from [start], none longer than Trakt allows. */
+internal fun traktCalendarChunks(start: LocalDate, days: Int): List<Pair<LocalDate, Int>> =
+    (0 until days step TraktCalendarMaxDays).map { offset ->
+        start.plusDays(offset.toLong()) to minOf(TraktCalendarMaxDays, days - offset)
+    }
+
+/**
+ * Air times by `series:season:episode`, from the profile's Trakt calendar: keyed by the show's
+ * IMDb id and by `tmdb:<id>`, as a series can be followed by either.
+ */
+internal fun traktAirTimes(items: List<com.fetch.tv.data.remote.dto.trakt.TraktCalendarShowDto>): Map<String, String> = buildMap {
+    items.forEach { item ->
+        val airsAt = item.firstAired?.takeIf { it.isNotBlank() } ?: return@forEach
+        val season = item.episode?.season ?: return@forEach
+        val episode = item.episode.number ?: return@forEach
+        val ids = item.show?.ids ?: return@forEach
+        ids.imdb?.takeIf { it.isNotBlank() }?.let { put("$it:$season:$episode", airsAt) }
+        ids.tmdb?.let { put("tmdb:$it:$season:$episode", airsAt) }
+    }
+}
+
+/** [entry] with its air time from [airTimes] where Trakt knows it. */
+internal fun withAirTime(entry: WebsiteCalendarEntry, airTimes: Map<String, String>): WebsiteCalendarEntry {
+    if (entry.isMovie || entry.airsAt != null) return entry
+    // By episode, else (Simkl's anime, numbered its own way) by show and air date.
+    val time = airTimes["${entry.seriesImdbId}:${entry.season}:${entry.episode}"]
+        ?: airTimes["date:${entry.seriesImdbId}:${entry.airDate.trim()}"]
+    return time?.let { entry.copy(airsAt = it) } ?: entry
+}
+
+/**
+ * [entries] with their air times from [airTimes], keeping those whose local day (in [zone]) is no
+ * earlier than [pastDays] before [today]. The candidates come a day wider than the week, as an air
+ * time can move an episode onto the viewer's next day; this is where the week is checked again.
+ */
+internal fun placeOnLocalDays(
+    entries: List<WebsiteCalendarEntry>,
+    airTimes: Map<String, String>,
+    today: LocalDate,
+    pastDays: Int,
+    zone: ZoneId
+): List<WebsiteCalendarEntry> {
+    val weekStart = today.minusDays(pastDays.toLong())
+    return entries.map { withAirTime(it, airTimes) }.filter { calendarDay(it, zone)?.isBefore(weekStart) != true }
+}
+
+/** The ids of every film the profile has watched, from its history and finished playback. */
+internal fun watchedMovieIds(
+    progress: List<com.fetch.tv.domain.model.WatchProgress>,
+    watched: List<com.fetch.tv.domain.model.WatchedItem>
+): Set<String> = buildSet {
+    watched.forEach { if (it.season == null && !isSeriesEntry(it.contentType, null)) add(it.contentId) }
+    progress.forEach { if (it.season == null && !isSeriesEntry(it.contentType, null) && it.isCompleted()) add(it.contentId) }
+}
+
+/**
+ * A watchlist film as a calendar entry when it's released in the [pastDays] days before [today]
+ * or the [days] after; null when it has no readable release date or falls outside that.
+ */
+internal fun movieEntry(
+    movie: com.fetch.tv.domain.model.LibraryEntry,
+    releaseDate: String?,
+    fallbackPoster: String?,
+    backdrop: String?,
+    overview: String?,
+    today: LocalDate,
+    pastDays: Int,
+    days: Int,
+    watchedIds: Set<String>
+): WebsiteCalendarEntry? {
+    val date = releaseDate?.let(::parseAirDate) ?: return null
+    if (date.isBefore(today.minusDays(pastDays.toLong())) || date.isAfter(today.plusDays(days.toLong()))) return null
+    return WebsiteCalendarEntry(
+        seriesImdbId = movie.id,
+        seriesName = movie.name,
+        poster = movie.poster ?: fallbackPoster,
+        airDate = date.toString(),
+        overview = (movie.description ?: overview)?.takeIf { it.isNotBlank() },
+        kind = "movie",
+        backdrop = movie.background ?: backdrop,
+        watched = movie.id in watchedIds || movie.imdbId?.let { it in watchedIds } == true
+    )
+}
+
+/**
+ * [series]' most recently aired episode as a calendar entry when it aired in the [pastDays] days
+ * before [today] (or today), marked watched from [watchedKeys]; null otherwise.
+ */
+internal fun recentEntry(
+    series: StartedSeries,
+    last: com.fetch.tv.data.remote.api.TmdbNextEpisode?,
+    fallbackPoster: String?,
+    today: LocalDate,
+    pastDays: Int,
+    watchedKeys: Set<String>,
+    backdrop: String? = null,
+    /** The episode's still; the caller leaves it null when spoilers are hidden and it's unwatched. */
+    still: String? = null,
+    /** The show's TMDB status, for whether a finale is the series'. */
+    status: String? = null
+): WebsiteCalendarEntry? {
+    val airDate = last?.airDate?.let(::parseAirDate) ?: return null
+    if (airDate.isAfter(today) || airDate.isBefore(today.minusDays(pastDays.toLong()))) return null
+    val season = last.seasonNumber ?: return null
+    val episode = last.episodeNumber ?: return null
+    return WebsiteCalendarEntry(
+        seriesImdbId = series.id,
+        seriesName = series.name,
+        poster = series.poster ?: fallbackPoster,
+        season = season,
+        episode = episode,
+        episodeName = last.name?.takeIf { it.isNotBlank() },
+        airDate = airDate.toString(),
+        overview = last.overview?.takeIf { it.isNotBlank() },
+        backdrop = backdrop,
+        still = still,
+        watched = "${series.id}:$season:$episode" in watchedKeys,
+        kind = episodeKind(episode),
+        finale = calendarFinale(last.episodeType, status)
+    )
+}
+
 /**
  * [series]' next episode as a calendar entry when it airs between [today] and [days] days
  * after it; null when there's none, it has aired, it's further out, or the show has ended.
@@ -126,7 +318,11 @@ internal fun upcomingEntry(
     status: String?,
     fallbackPoster: String?,
     today: LocalDate,
-    days: Int
+    days: Int,
+    /** The series' backdrop, the row's picture when there's no [still]. */
+    backdrop: String? = null,
+    /** The episode's still; the caller leaves it null under the spoiler setting. */
+    still: String? = null
 ): WebsiteCalendarEntry? {
     if (next == null || isFinishedSeriesStatus(status)) return null
     val airDate = next.airDate?.let(::parseAirDate) ?: return null
@@ -141,6 +337,10 @@ internal fun upcomingEntry(
         episode = episode,
         episodeName = next.name?.takeIf { it.isNotBlank() },
         airDate = airDate.toString(),
-        overview = next.overview?.takeIf { it.isNotBlank() }
+        overview = next.overview?.takeIf { it.isNotBlank() },
+        backdrop = backdrop,
+        still = still,
+        kind = episodeKind(episode),
+        finale = calendarFinale(next.episodeType, status)
     )
 }

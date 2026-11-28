@@ -26,6 +26,9 @@ vi.mock("./trakt-client.js", () => ({
   getTraktClient: async () => ({ fetchMyShowsCalendar: (...a: unknown[]) => fetchMyShowsCalendar(...a) }),
 }));
 
+const simklAirTimes = vi.fn(async () => new Map<string, string>());
+vi.mock("./simkl-calendar.js", () => ({ simklAirTimes: (...a: unknown[]) => simklAirTimes(...(a as [])) }));
+
 const { getCalendar } = await import("./calendar.js");
 
 // A fresh profile per test: the Trakt times are cached per profile and window.
@@ -251,5 +254,17 @@ describe("getCalendar", () => {
     const entries = await getCalendar(nextProfile(), window30());
 
     expect(entries.map((e) => e.seriesName)).toEqual(["Bluey", "Andor", "A Film"]);
+  });
+});
+
+describe("calendarFinale", () => {
+  it("reads TMDB's episode type, a finale of an ended show being the series'", async () => {
+    const { calendarFinale } = await import("./calendar.js");
+    expect(calendarFinale("finale", "Returning Series")).toBe("season");
+    expect(calendarFinale("finale", "Ended")).toBe("series");
+    expect(calendarFinale("finale", "Canceled")).toBe("series");
+    expect(calendarFinale("mid_season", "Returning Series")).toBe("mid_season");
+    expect(calendarFinale("standard", "Ended")).toBeNull();
+    expect(calendarFinale(undefined, null)).toBeNull();
   });
 });

@@ -729,6 +729,27 @@ class WatchProgressRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeFromHistory(contentId: String, videoId: String?, season: Int?, episode: Int?) {
+        removeFromHistory(contentId, videoId, season, episode, confirm = false)
+    }
+
+    override suspend fun removeFromHistoryConfirmed(
+        contentId: String,
+        videoId: String?,
+        season: Int?,
+        episode: Int?
+    ): Boolean = removeFromHistory(contentId, videoId, season, episode, confirm = true)
+
+    /**
+     * The removal; with [confirm], it waits for the media servers too, and returns whether every
+     * tracker and server took it, putting this TV's record back to watched when one didn't.
+     */
+    private suspend fun removeFromHistory(
+        contentId: String,
+        videoId: String?,
+        season: Int?,
+        episode: Int?,
+        confirm: Boolean
+    ): Boolean {
         val profileId = profileManager.activeProfileId.value
         val media = buildTrackingMediaReference(
             contentType = if (season != null || episode != null) "series" else "movie",
@@ -740,14 +761,23 @@ class WatchProgressRepositoryImpl @Inject constructor(
         connectedProgressProviders().forEach { provider ->
             provider.applyOptimisticRemoval(contentId, season, episode)
         }
-        broadcastHistoryRemoval(profileId, listOf(media))
-        syncServerWatched(
-            listOf(ServerWatchMark(contentId, if (season != null || episode != null) "series" else "movie", videoId, season, episode)),
+        val trackersTookIt = broadcastHistoryRemoval(profileId, listOf(media))
+        val contentType = if (season != null || episode != null) "series" else "movie"
+        val serversTookIt = syncServerWatched(
+            listOf(ServerWatchMark(contentId, contentType, videoId, season, episode)),
             played = false,
-            profileId = profileId
+            profileId = profileId,
+            await = confirm
         )
         watchProgressPreferences.removeProgress(contentId, season, episode, profileId)
         watchedItemsPreferences.unmarkAsWatched(contentId, season, episode, profileId = profileId)
+        if (!confirm || (trackersTookIt && serversTookIt)) return true
+        // A tracker or server still has it watched: so does this TV.
+        watchedItemsPreferences.markAsWatched(
+            WatchedItem(contentId, contentType, "", season, episode, System.currentTimeMillis()),
+            profileId = profileId
+        )
+        return false
     }
 
     override suspend fun removeFromHistoryBatch(
@@ -794,6 +824,22 @@ class WatchProgressRepositoryImpl @Inject constructor(
         profileId: Int,
         broadcastTrackingHistory: Boolean
     ) {
+        complete(progress, profileId, broadcastTrackingHistory, confirm = false)
+    }
+
+    override suspend fun markAsCompletedConfirmed(progress: WatchProgress): Boolean =
+        complete(progress, profileManager.activeProfileId.value, broadcastTrackingHistory = true, confirm = true)
+
+    /**
+     * The completion; with [confirm], it waits for the media servers too, and returns whether
+     * every tracker and server took it, taking this TV's record of the watch back when one didn't.
+     */
+    private suspend fun complete(
+        progress: WatchProgress,
+        profileId: Int,
+        broadcastTrackingHistory: Boolean,
+        confirm: Boolean
+    ): Boolean {
         if (progress.contentType.equals("series", ignoreCase = true) ||
             progress.contentType.equals("tv", ignoreCase = true)) {
             traktSettingsDataStore.removeDismissedNextUpKeysForContent(progress.contentId, profileId)
@@ -818,10 +864,22 @@ class WatchProgressRepositoryImpl @Inject constructor(
         watchProgressPreferences.saveProgress(completed, profileId = profileId)
         val watchedItem = completed.toWatchedItem(watchedAt = now)
         watchedItemsPreferences.markAsWatched(watchedItem, profileId = profileId)
-        if (broadcastTrackingHistory) {
-            broadcastHistoryAdd(profileId, listOf(completed.toTrackingHistoryItem(now)))
-            syncServerWatched(listOf(completed.toServerWatchMark()), played = true, profileId = profileId)
+        if (!broadcastTrackingHistory) return true
+        val trackersTookIt = broadcastHistoryAdd(profileId, listOf(completed.toTrackingHistoryItem(now)))
+        val serversTookIt = syncServerWatched(
+            listOf(completed.toServerWatchMark()),
+            played = true,
+            profileId = profileId,
+            await = confirm
+        )
+        if (!confirm || (trackersTookIt && serversTookIt)) return true
+        // A tracker or server didn't take the watch: neither does this TV.
+        watchedItemsPreferences.unmarkAsWatched(completed.contentId, completed.season, completed.episode, profileId = profileId)
+        watchProgressPreferences.removeProgress(completed.contentId, completed.season, completed.episode, profileId)
+        if (profileManager.activeProfileId.value == profileId) {
+            activeProgressProvider()?.applyOptimisticRemoval(completed.contentId, completed.season, completed.episode)
         }
+        return false
     }
 
     override suspend fun markAsCompletedBatch(progressList: List<WatchProgress>) {
@@ -870,9 +928,27 @@ class WatchProgressRepositoryImpl @Inject constructor(
         syncServerWatched(completedList.map { it.toServerWatchMark() }, played = true, profileId = profileId)
     }
 
-    private fun syncServerWatched(marks: List<ServerWatchMark>, played: Boolean, profileId: Int) {
-        serverWatched.apply(marks, played) { failed -> restoreServerWatched(failed, played, profileId) }
-        serverWatched.mirror(marks, played)
+    /**
+     * Marks [marks] on the media servers in the background; with [await], waits for the servers
+     * that own the items and for the catalog mirrors, and returns whether they all took it. A
+     * failed mirror leaves this TV's record alone; only the answer reports it.
+     */
+    private suspend fun syncServerWatched(
+        marks: List<ServerWatchMark>,
+        played: Boolean,
+        profileId: Int,
+        await: Boolean = false
+    ): Boolean {
+        var failed = false
+        val applied = serverWatched.apply(marks, played) { failedMarks ->
+            failed = true
+            restoreServerWatched(failedMarks, played, profileId)
+        }
+        val mirrored = serverWatched.mirror(marks, played) { failed = true }
+        if (!await) return true
+        applied?.join()
+        mirrored?.join()
+        return !failed
     }
 
     private suspend fun restoreServerWatched(failed: List<ServerWatchMark>, played: Boolean, profileId: Int) {
@@ -916,14 +992,18 @@ class WatchProgressRepositoryImpl @Inject constructor(
             dateUnknown = dateUnknown
         )
 
+    /**
+     * Sends [items] to every connected tracker; returns whether all of them took every item. A
+     * tracker that answers without finding some of them counts as not taking it.
+     */
     private suspend fun broadcastHistoryAdd(
         profileId: Int,
         items: Collection<TrackingHistoryItem>
-    ) {
+    ): Boolean {
         val items = items.filterNot { ServerItemRef.isServerId(it.media.catalog?.contentId) }
-        if (items.isEmpty()) return
+        if (items.isEmpty()) return true
         val connectedIds = connectedProgressProviders().mapTo(mutableSetOf()) { it.providerId }
-        supervisorScope {
+        return supervisorScope {
             trackingHistoryWriters.writers()
                 .filter { writer -> writer.providerId in connectedIds }
                 .map { writer ->
@@ -932,20 +1012,35 @@ class WatchProgressRepositoryImpl @Inject constructor(
                             .onFailure { error ->
                                 Log.w(TAG, "Failed ${writer.providerId.storageId} history add", error)
                             }
+                            .getOrNull()
+                            ?.also { result ->
+                                if (!result.isComplete) {
+                                    Log.w(
+                                        TAG,
+                                        "${writer.providerId.storageId} history add missed ${result.notFoundCount} items"
+                                    )
+                                }
+                            }
+                            ?.isComplete == true
                     }
                 }
-                .forEach { operation -> operation.await() }
+                .map { operation -> operation.await() }
+                .all { it }
         }
     }
 
+    /**
+     * Takes [items] off every connected tracker's history; returns whether all of them removed
+     * every item. A tracker that answers without finding some of them counts as not removing it.
+     */
     private suspend fun broadcastHistoryRemoval(
         profileId: Int,
         items: Collection<TrackingMediaReference>
-    ) {
+    ): Boolean {
         val items = items.filterNot { ServerItemRef.isServerId(it.catalog?.contentId) }
-        if (items.isEmpty()) return
+        if (items.isEmpty()) return true
         val connectedIds = connectedProgressProviders().mapTo(mutableSetOf()) { it.providerId }
-        supervisorScope {
+        return supervisorScope {
             trackingHistoryWriters.writers()
                 .filter { writer -> writer.providerId in connectedIds }
                 .map { writer ->
@@ -954,9 +1049,20 @@ class WatchProgressRepositoryImpl @Inject constructor(
                             .onFailure { error ->
                                 Log.w(TAG, "Failed ${writer.providerId.storageId} history removal", error)
                             }
+                            .getOrNull()
+                            ?.also { result ->
+                                if (!result.isComplete) {
+                                    Log.w(
+                                        TAG,
+                                        "${writer.providerId.storageId} history removal missed ${result.notFoundCount} items"
+                                    )
+                                }
+                            }
+                            ?.isComplete == true
                     }
                 }
-                .forEach { operation -> operation.await() }
+                .map { operation -> operation.await() }
+                .all { it }
         }
     }
 

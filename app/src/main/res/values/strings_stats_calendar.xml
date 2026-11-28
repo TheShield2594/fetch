@@ -97,9 +97,26 @@
     <string name="calendar_today">Today</string>
     <string name="calendar_tomorrow">Tomorrow</string>
     <string name="calendar_unknown_date">Date not announced</string>
+    <!-- Heading over the past week's days, below the days ahead. -->
+    <string name="calendar_recently_aired">Recently aired</string>
+    <!-- On a calendar entry the profile has watched. -->
+    <string name="calendar_watched">Watched</string>
+    <!-- On a calendar entry that has aired but the profile hasn't watched. -->
+    <string name="calendar_not_watched">Not watched yet</string>
+    <!-- Badges beside a calendar entry's title. -->
+    <string name="calendar_badge_premiere">Premiere</string>
+    <string name="calendar_badge_season_finale">Season finale</string>
+    <string name="calendar_badge_series_finale">Series finale</string>
+    <string name="calendar_badge_mid_season_finale">Mid-season finale</string>
+    <!-- Button beside a calendar entry that has aired. -->
+    <string name="calendar_mark_watched">Mark watched</string>
+    <!-- The same button once the entry is watched. -->
+    <string name="calendar_mark_unwatched">Mark unwatched</string>
+    <!-- Shown when a watched mark from the calendar couldn't be saved. -->
+    <string name="calendar_watched_failed">Couldn\'t save that watched mark. Try again.</string>
     <plurals name="calendar_day_count">
-        <item quantity="one">%d episode</item>
-        <item quantity="other">%d episodes</item>
+        <item quantity="one">%d title</item>
+        <item quantity="other">%d titles</item>
     </plurals>
     <!-- "S1:E4 — Episode name" -->
     <string name="calendar_episode_with_name" translatable="false">%1$s — %2$s</string>

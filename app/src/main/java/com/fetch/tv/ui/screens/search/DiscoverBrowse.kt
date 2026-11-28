@@ -104,12 +104,19 @@ internal fun resolveDiscoverType(
         ?: types.firstOrNull { it == currentType }
         ?: types.firstOrNull()
 
+/**
+ * A genre option that means "no genre": some addons list "None" among their genres for an
+ * unfiltered catalog. Shown as a genre it only repeats "All genres", so pickers leave it out.
+ */
+internal fun isNoGenreOption(genre: String): Boolean =
+    genre.isBlank() || genre.trim().equals("none", ignoreCase = true)
+
 /** Every genre any catalog of [type] offers, de-duplicated ignoring case, first spelling kept. */
 internal fun discoverGenres(catalogs: List<DiscoverCatalog>, type: String): List<String> =
     catalogs.asSequence()
         .filter { it.type == type }
         .flatMap { it.genres.asSequence() }
-        .filter { it.isNotBlank() }
+        .filterNot(::isNoGenreOption)
         .distinctBy { it.trim().lowercase(Locale.ROOT) }
         .toList()
 
@@ -127,7 +134,9 @@ internal fun selectDiscoverSources(
     if (!genre.isNullOrBlank()) {
         return ofType.filter { catalog -> catalog.genres.any { it.equals(genre, ignoreCase = true) } }
     }
-    val browsable = ofType.filter { !it.genreRequired }
+    // A required catalog whose default is "None" is its unfiltered view: it belongs under
+    // All genres, now that "None" isn't offered as a genre of its own.
+    val browsable = ofType.filter { !it.genreRequired || it.defaultGenre?.let(::isNoGenreOption) == true }
     return browsable.ifEmpty { ofType.filter { it.defaultGenre != null } }
 }
 

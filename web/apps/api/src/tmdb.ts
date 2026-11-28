@@ -100,6 +100,8 @@ type TmdbSeasonResponse = {
     still_path?: string | null;
     runtime?: number | null;
     overview?: string | null;
+    /** "standard", "mid_season" or "finale". */
+    episode_type?: string | null;
   }[];
 };
 
@@ -174,6 +176,8 @@ export type EpisodeInfo = {
   runtime: number | null;
   /** The episode's synopsis, or null when TMDB has none. A spoiler for anyone who hasn't seen it. */
   overview: string | null;
+  /** TMDB's "standard", "mid_season" or "finale"; absent from episodes cached before it was read. */
+  episodeType?: string | null;
 };
 
 export type WatchProvider = {
@@ -1132,6 +1136,7 @@ export class TmdbClient {
         still: e.still_path ? `${TmdbClient.imageBaseUrl}${e.still_path}` : null,
         runtime: typeof e.runtime === "number" ? e.runtime : null,
         overview: e.overview?.trim() || null,
+        episodeType: e.episode_type?.trim() || null,
       }));
     } catch {
       return [];

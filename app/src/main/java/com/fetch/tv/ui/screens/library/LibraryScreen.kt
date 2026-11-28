@@ -32,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
@@ -971,15 +972,37 @@ private fun LibraryPageButton(
     label: String,
     onClick: () -> Unit
 ) {
+    LibraryCompactButton(icon = icon, label = label, onClick = onClick)
+}
+
+/**
+ * A header action as an icon that shows its name while focused, so the header's tabs fit beside
+ * the actions instead of scrolling under them. [showLabel] keeps the name in view when it carries
+ * state ("Syncing…", "Done"). Always names itself to TalkBack.
+ */
+@Composable
+internal fun LibraryCompactButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    selected: Boolean = false,
+    showLabel: Boolean = false
+) {
     var focused by remember { mutableStateOf(false) }
     FetchButton(
         onClick = onClick,
-        modifier = Modifier
+        enabled = enabled,
+        selected = selected,
+        // The icon already says what the button does; a check in front of it would be noise.
+        showSelectedCheck = false,
+        modifier = modifier
             .onFocusChanged { focused = it.isFocused }
             .semantics { contentDescription = label }
     ) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
-        androidx.compose.animation.AnimatedVisibility(visible = focused) {
+        androidx.compose.animation.AnimatedVisibility(visible = focused || showLabel) {
             Row {
                 Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
                 Text(label, maxLines = 1)
@@ -1047,7 +1070,7 @@ private fun LibrarySelectorsRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .focusSafeHorizontalScroll(),
+            .focusSafeHorizontalScroll(fadeEdges = true),
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
@@ -1243,11 +1266,12 @@ private fun LibraryActionsRow(
         if (showRefresh) {
             // Stays enabled while syncing so it keeps focus; the "Syncing…" label is the state cue
             // and a press during a sync does nothing.
-            FetchButton(
-                onClick = { if (!pending && !isSyncing) onRefresh() }
-            ) {
-                Text(if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn))
-            }
+            LibraryCompactButton(
+                icon = Icons.Default.Sync,
+                label = if (isSyncing) stringResource(R.string.library_syncing_btn) else stringResource(R.string.library_sync_btn),
+                onClick = { if (!pending && !isSyncing) onRefresh() },
+                showLabel = isSyncing
+            )
         }
     }
 }

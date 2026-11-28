@@ -34,6 +34,7 @@ const entry = () => ({
   airsAt: "2026-09-15T01:00:00.000Z",
   watched: false,
   overview: null,
+  finale: "series" as const,
 });
 
 describe("parseCalendarResponse", () => {
@@ -48,12 +49,14 @@ describe("parseCalendarResponse", () => {
     delete old.backdrop;
     delete old.airsAt;
     delete old.watched;
+    delete old.finale;
     expect(parseCalendarResponse({ calendar: [old] }).calendar[0]).toEqual({
       ...entry(),
       still: null,
       backdrop: null,
       airsAt: null,
       watched: false,
+      finale: null,
     });
   });
 
@@ -75,7 +78,12 @@ describe("parseCalendarResponse", () => {
       season: null,
       episode: null,
       episodeName: null,
+      finale: null,
     });
+  });
+
+  it("rejects a finale it doesn't know", () => {
+    expect(() => parseCalendarResponse({ calendar: [{ ...entry(), finale: "big" }] })).toThrow(/finale/);
   });
 
   it("rejects an airsAt that is not an instant, and a watched that is not a boolean", () => {

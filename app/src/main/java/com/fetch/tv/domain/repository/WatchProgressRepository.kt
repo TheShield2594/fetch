@@ -151,6 +151,22 @@ interface WatchProgressRepository {
     suspend fun removeFromHistory(contentId: String, videoId: String? = null, season: Int? = null, episode: Int? = null)
 
     /**
+     * [removeFromHistory], waiting for every connected tracker and media server to answer. Returns
+     * whether all of them accepted the removal; when one didn't, this TV's own record is put back
+     * to watched, so the caller can show the mark as it really stands. The other trackers' answers
+     * stand: nothing is sent to undo them.
+     */
+    suspend fun removeFromHistoryConfirmed(
+        contentId: String,
+        videoId: String? = null,
+        season: Int? = null,
+        episode: Int? = null
+    ): Boolean {
+        removeFromHistory(contentId, videoId, season, episode)
+        return true
+    }
+
+    /**
      * Mark content as completed
      */
     suspend fun markAsCompleted(progress: WatchProgress, broadcastTrackingHistory: Boolean = true)
@@ -160,6 +176,17 @@ interface WatchProgressRepository {
         profileId: Int,
         broadcastTrackingHistory: Boolean = true
     ) = markAsCompleted(progress, broadcastTrackingHistory)
+
+    /**
+     * [markAsCompleted] with the trackers told, waiting for every connected tracker and media
+     * server to answer. Returns whether all of them accepted it; when one didn't, this TV's own
+     * record of the watch is taken back, so the caller can show the mark as it really stands. The
+     * other trackers' answers stand: nothing is sent to undo them.
+     */
+    suspend fun markAsCompletedConfirmed(progress: WatchProgress): Boolean {
+        markAsCompleted(progress, broadcastTrackingHistory = true)
+        return true
+    }
 
     /**
      * Mark multiple episodes as completed in a single batch operation.

@@ -306,6 +306,7 @@ describe("validated responses", () => {
       airsAt: null,
       watched: false,
       overview: null,
+      finale: "season",
     };
     fetchMock.mockResolvedValue(json({ calendar: [entry] }));
 

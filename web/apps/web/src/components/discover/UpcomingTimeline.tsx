@@ -4,7 +4,13 @@ import { CarouselTrack } from "../CarouselTrack";
 import { useHorizontalScroll } from "../carousel-utils";
 import { Poster } from "../Poster";
 import { ScrollArrows } from "../ScrollArrows";
-import { calendarEntryDay, calendarEntryKey, calendarEntryLabel, calendarEntryTime } from "../../utils/calendarEntry";
+import {
+  calendarEntryBadge,
+  calendarEntryDay,
+  calendarEntryKey,
+  calendarEntryLabel,
+  calendarEntryTime,
+} from "../../utils/calendarEntry";
 import { openWithTransition } from "../../utils/viewTransition";
 
 /** "Today", "Tomorrow", or the weekday and date. */
@@ -21,11 +27,15 @@ function UpcomingCard({ entry, onOpen }: { entry: CalendarEntry; onOpen: () => v
   const artRef = useRef<HTMLDivElement>(null);
   const still = entry.still ?? entry.backdrop;
   const time = calendarEntryTime(entry);
+  const label = calendarEntryLabel(entry);
+  const badge = calendarEntryBadge(entry);
+  // A premiere's label already says so; a finale's doesn't.
+  const spoken = badge && !label.toLowerCase().includes(badge.toLowerCase()) ? `${badge}, ${label}` : label;
   return (
     <button
       type="button"
       onClick={() => openWithTransition(artRef.current, onOpen)}
-      aria-label={`${entry.seriesName}, ${calendarEntryLabel(entry)}. Open details`}
+      aria-label={`${entry.seriesName}, ${spoken}. Open details`}
       className="group w-[15rem] flex-none rounded-2xl text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-ring-offset"
     >
       {/* The still sits clean — what airs and when are said under it, not
@@ -43,11 +53,22 @@ function UpcomingCard({ entry, onOpen }: { entry: CalendarEntry; onOpen: () => v
           className="h-full w-full"
         />
       </div>
-      <p className="mt-2 truncate text-[0.8125rem] font-semibold" style={{ color: "var(--text)" }}>
-        {entry.seriesName}
+      {/* The badge sits by the title, not on the still, which stays clean. */}
+      <p className="mt-2 flex min-w-0 items-center gap-2">
+        <span className="truncate text-[0.8125rem] font-semibold" style={{ color: "var(--text)" }}>
+          {entry.seriesName}
+        </span>
+        {badge && (
+          <span
+            aria-hidden="true"
+            className="flex-none rounded-full bg-accent-500 px-2 py-0.5 text-[0.6875rem] font-semibold text-accent-on"
+          >
+            {badge}
+          </span>
+        )}
       </p>
       <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>
-        {calendarEntryLabel(entry)}
+        {label}
         {time ? ` · ${time}` : ""}
       </p>
     </button>

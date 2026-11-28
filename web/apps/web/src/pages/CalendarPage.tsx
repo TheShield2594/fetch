@@ -18,6 +18,7 @@ import { useCachedState } from "../hooks/useCachedState";
 import { useClockBoundary } from "../hooks/useClockBoundary";
 import { SECTION_TITLE, KICKER, MICRO_LABEL } from "../components/typography";
 import {
+  calendarEntryBadge,
   calendarEntryDay,
   calendarEntryKey as entryKey,
   calendarEntryLabel as entryLabel,
@@ -145,6 +146,18 @@ function watchedNote(entries: CalendarEntry[]): string {
   return watched === entries.length ? ", all watched" : `, ${watched} watched`;
 }
 
+/**
+ * ", Andor season finale, Severance premiere" for a day with badged entries,
+ * so the month grid's day says aloud what its posters' flags show.
+ */
+function badgeNote(entries: CalendarEntry[]): string {
+  const notes = entries.flatMap((e) => {
+    const badge = calendarEntryBadge(e);
+    return badge ? [`${e.seriesName} ${badge.toLowerCase()}`] : [];
+  });
+  return notes.length ? `, ${notes.join(", ")}` : "";
+}
+
 /** The art an entry leads with: its own still, else the title's backdrop, else the poster. */
 function entryArt(entry: CalendarEntry): { art: string | null; isBackdrop: boolean } {
   const wide = entry.still ?? entry.backdrop;
@@ -160,6 +173,16 @@ function entryCaption(entry: CalendarEntry): string {
   return [time, entry.watched ? "Watched" : null, entryLabel(entry)].filter(Boolean).join(" · ");
 }
 
+/**
+ * What a screen reader hears for an entry: its badge where the caption doesn't
+ * already say it (a premiere's does), then the caption.
+ */
+function entrySpokenLabel(entry: CalendarEntry): string {
+  const badge = calendarEntryBadge(entry);
+  const caption = entryCaption(entry);
+  return badge && !caption.toLowerCase().includes(badge.toLowerCase()) ? `${badge}, ${caption}` : caption;
+}
+
 function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void; eager: boolean }) {
   const { art, isBackdrop } = entryArt(entry);
   const label = entryCaption(entry);
@@ -169,8 +192,9 @@ function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect:
       artIsBackdrop={isBackdrop}
       title={entry.seriesName}
       eyebrow={label}
+      badge={calendarEntryBadge(entry)}
       onOpen={() => onSelect(entry)}
-      openLabel={`${entry.seriesName}, ${label}`}
+      openLabel={`${entry.seriesName}, ${entrySpokenLabel(entry)}`}
       eager={eager}
       className="w-full"
     />
@@ -180,6 +204,7 @@ function EntryCard({ entry, onSelect, eager }: { entry: CalendarEntry; onSelect:
 /** A row in the day list: the same art, small, beside the words. */
 function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry: CalendarEntry) => void }) {
   const { art, isBackdrop } = entryArt(entry);
+  const badge = calendarEntryBadge(entry);
   return (
     <button
       type="button"
@@ -199,7 +224,14 @@ function EntryRow({ entry, onSelect }: { entry: CalendarEntry; onSelect: (entry:
         />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{entry.seriesName}</p>
+        <p className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm font-semibold" style={{ color: "var(--text)" }}>{entry.seriesName}</span>
+          {badge && (
+            <span className="flex-none rounded-full bg-accent-500 px-2 py-0.5 text-[0.6875rem] font-semibold text-accent-on">
+              {badge}
+            </span>
+          )}
+        </p>
         <p className="meta-row mt-0.5 truncate" style={{ color: "var(--text-dim)" }}>{entryCaption(entry)}</p>
       </div>
     </button>
@@ -655,7 +687,7 @@ export function CalendarPage() {
                               <button
                                 type="button"
                                 onClick={() => setOpenDay(day)}
-                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}${watchedNote(dayEntries)}`}
+                                aria-label={`${dateLabel}${isToday ? " (today)" : ""}: ${countLabel(dayEntries)}${watchedNote(dayEntries)}${badgeNote(dayEntries)}`}
                                 className="flex h-full w-full flex-col items-start p-1.5 text-left transition-colors hover:bg-[var(--surface)] focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset"
                               >
                                 {number}
@@ -676,6 +708,15 @@ export function CalendarPage() {
                                       {/* Seen already: the poster steps back and
                                           carries a tick, so a past month reads
                                           as what you caught and what you missed. */}
+                                      {/* A premiere or finale: an accent strip
+                                          along the poster's foot. A word won't
+                                          fit at 40px; the day's name says it. */}
+                                      {calendarEntryBadge(entry) && (
+                                        <span
+                                          className="absolute inset-x-0 bottom-0 h-1 bg-accent-500"
+                                          data-badge={calendarEntryBadge(entry) ?? undefined}
+                                        />
+                                      )}
                                       {entry.watched && (
                                         <span className="absolute inset-0 flex items-center justify-center">
                                           <Check className="h-4 w-4 text-white drop-shadow" strokeWidth={3} />

@@ -3,13 +3,14 @@ package com.fetch.tv.ui.screens.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -38,6 +40,20 @@ import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
+import com.fetch.tv.ui.components.FetchBadgeTone
+import com.fetch.tv.ui.components.FetchBadge
+import com.fetch.tv.ui.components.FetchButton
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.tv.material3.Icon
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.size
 import coil3.compose.AsyncImage
 import com.fetch.tv.R
 import com.fetch.tv.data.website.WebsiteCalendarEntry
@@ -51,6 +67,7 @@ import com.fetch.tv.ui.screens.stats.InsightsMessage
 import com.fetch.tv.ui.screens.stats.WebsiteReadState
 import com.fetch.tv.ui.screens.stats.WebsiteUnavailable
 import com.fetch.tv.ui.theme.FetchTheme
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import com.fetch.tv.ui.util.dpadRepeatThrottle
 
@@ -117,6 +134,16 @@ fun CalendarScreen(
             }
         }
 
+        if (uiState.watchedError) {
+            item(key = "watched_failed") {
+                Text(
+                    text = stringResource(R.string.calendar_watched_failed),
+                    style = FetchTheme.textStyles.metadata,
+                    color = FetchTheme.colors.Warning
+                )
+            }
+        }
+
         if (uiState.failedSeries > 0 && uiState.state is WebsiteReadState.Loaded) {
             item(key = "failed_series") {
                 Text(
@@ -137,7 +164,8 @@ fun CalendarScreen(
                 )
             }
             is WebsiteReadState.Loaded -> {
-                val days = state.value
+                // The days ahead first, as the screen opens on them; the past week below, newest first.
+                val (past, days) = state.value.partition { it.kind == CalendarDayKind.PAST }
                 if (days.isEmpty()) {
                     item(key = "empty") {
                         InsightsMessage(
@@ -151,12 +179,36 @@ fun CalendarScreen(
                             action = StateAction(stringResource(R.string.calendar_find_series), onNavigateToSearch)
                         )
                     }
-                } else {
-                    days.forEach { day ->
-                        val dayKey = day.date?.toString() ?: "undated"
-                        item(key = "day:$dayKey") { DayHeading(day) }
-                        items(day.entries, key = { "entry:$dayKey:${it.seriesImdbId}:${it.season}:${it.episode}" }) { entry ->
-                            CalendarEntryRow(entry, onClick = { onNavigateToDetail(entry.seriesImdbId, "series") })
+                }
+                val shownDays = days + if (past.isEmpty()) emptyList() else listOf(null) + past.reversed()
+                shownDays.forEach { day ->
+                    if (day == null) {
+                        item(key = "recently_aired") { RecentlyAiredHeading() }
+                        return@forEach
+                    }
+                    val dayKey = day.date?.toString() ?: "undated"
+                    item(key = "day:$dayKey") { DayHeading(day) }
+                    items(day.entries, key = { "entry:$dayKey:${it.seriesImdbId}:${it.season}:${it.episode}" }) { entry ->
+                        // Something that has aired (today or before) can be marked watched from here;
+                        // the row itself opens the title, so the mark is a button beside it.
+                        val aired = day.kind == CalendarDayKind.PAST || day.kind == CalendarDayKind.TODAY
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CalendarEntryRow(
+                                entry,
+                                aired = day.kind == CalendarDayKind.PAST,
+                                onClick = { onNavigateToDetail(entry.seriesImdbId, if (entry.isMovie) "movie" else "series") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (aired) {
+                                MarkWatchedButton(
+                                    watched = entry.watched,
+                                    pending = calendarEntryKey(entry) in uiState.pendingWatched,
+                                    onClick = { viewModel.toggleWatched(entry) }
+                                )
+                            }
                         }
                     }
                 }
@@ -209,17 +261,86 @@ private fun DayHeading(day: CalendarDay) {
     }
 }
 
+/** The badge an entry wears: a series, season or mid-season finale, else a premiere; null for others. */
+private fun calendarBadge(entry: WebsiteCalendarEntry): Pair<Int, FetchBadgeTone>? = when {
+    entry.isMovie -> null
+    entry.finale == "series" -> R.string.calendar_badge_series_finale to FetchBadgeTone.Accent
+    entry.finale == "season" -> R.string.calendar_badge_season_finale to FetchBadgeTone.Accent
+    entry.finale == "mid_season" -> R.string.calendar_badge_mid_season_finale to FetchBadgeTone.Neutral
+    entry.kind == "premiere" -> R.string.calendar_badge_premiere to FetchBadgeTone.Accent
+    else -> null
+}
+
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
+private fun RecentlyAiredHeading() {
+    Text(
+        text = stringResource(R.string.calendar_recently_aired),
+        style = FetchTheme.textStyles.sectionTitle,
+        color = FetchTheme.colors.TextPrimary,
+        modifier = Modifier
+            .padding(top = FetchTheme.spacing.xl)
+            .semantics { heading() }
+    )
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun MarkWatchedButton(watched: Boolean, pending: Boolean, onClick: () -> Unit) {
+    var focused by remember { mutableStateOf(false) }
+    val label = stringResource(if (watched) R.string.calendar_mark_unwatched else R.string.calendar_mark_watched)
+    // An icon until focused, so the rows keep their width; it names itself to TalkBack either way.
+    FetchButton(
+        onClick = { if (!pending) onClick() },
+        modifier = Modifier
+            .onFocusChanged { focused = it.isFocused }
+            .semantics { contentDescription = label }
+    ) {
+        Icon(
+            imageVector = if (watched) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+            contentDescription = null,
+            modifier = Modifier.size(FetchTheme.sizes.icons.sm)
+        )
+        androidx.compose.animation.AnimatedVisibility(visible = focused) {
+            Row {
+                Spacer(modifier = Modifier.width(FetchTheme.spacing.sm))
+                Text(label, maxLines = 1)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Composable
+private fun CalendarEntryRow(
+    entry: WebsiteCalendarEntry,
+    onClick: () -> Unit,
+    aired: Boolean = false,
+    modifier: Modifier = Modifier
+) {
     val shape = RoundedCornerShape(FetchTheme.radii.md)
     val code = episodeCode(entry.season, entry.episode)
-    val episodeLine = entry.episodeName?.takeIf { it.isNotBlank() }
-        ?.let { stringResource(R.string.calendar_episode_with_name, code, it) }
-        ?: code
+    val name = entry.episodeName?.takeIf { it.isNotBlank() }
+    val detail = when {
+        entry.isMovie -> stringResource(R.string.type_movie)
+        code != null && name != null -> stringResource(R.string.calendar_episode_with_name, code, name)
+        else -> code ?: name
+    }
+    // The air time, where Trakt knows it, in this TV's time zone and 12/24-hour setting.
+    val context = LocalContext.current
+    val locale = LocalConfiguration.current.locales[0]
+    val airTime = remember(entry.airsAt, locale) {
+        calendarAirTime(entry, ZoneId.systemDefault())?.let { time ->
+            val skeleton = if (android.text.format.DateFormat.is24HourFormat(context)) "Hm" else "hm"
+            time.format(
+                DateTimeFormatter.ofPattern(android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton), locale)
+            )
+        }
+    }
+    val episodeLine = listOfNotNull(airTime, detail).joinToString(" · ").ifEmpty { null }
     Surface(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = FetchTheme.colors.BackgroundCard,
@@ -234,37 +355,75 @@ private fun CalendarEntryRow(entry: WebsiteCalendarEntry, onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.lg),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // 16:9: the episode's still, else the show's backdrop. With only a poster, the poster
+            // sits whole in the middle of the frame, so every row keeps the same shape.
+            val wide = calendarWideArtwork(entry)
             Box(
                 modifier = Modifier
-                    .size(width = 56.dp, height = 84.dp)
+                    .height(84.dp)
+                    .aspectRatio(16f / 9f)
                     .clip(RoundedCornerShape(FetchTheme.radii.sm))
-                    .background(FetchTheme.colors.Surface)
+                    .background(FetchTheme.colors.Surface),
+                contentAlignment = Alignment.Center
             ) {
-                if (!entry.poster.isNullOrBlank()) {
-                    AsyncImage(
-                        model = entry.poster,
+                when {
+                    wide != null -> AsyncImage(
+                        model = wide,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-                } else {
-                    MonochromePosterPlaceholder()
+                    !entry.poster.isNullOrBlank() -> AsyncImage(
+                        model = entry.poster,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    else -> MonochromePosterPlaceholder()
                 }
             }
             // Text colours come from the surface, so they flip with it when the row is focused.
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xxs)) {
-                Text(
-                    text = entry.seriesName,
-                    style = FetchTheme.textStyles.cardTitle,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = episodeLine,
-                    style = FetchTheme.textStyles.metadata,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                // The title, then what this episode is when it opens or ends something.
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = entry.seriesName,
+                        style = FetchTheme.textStyles.cardTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    calendarBadge(entry)?.let { (label, tone) -> FetchBadge(text = stringResource(label), tone = tone) }
+                }
+                episodeLine?.let {
+                    Text(
+                        text = it,
+                        style = FetchTheme.textStyles.metadata,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                // Whether it's been watched: shown once it has aired, or whenever it has been.
+                if (entry.watched || aired) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.xs)
+                    ) {
+                        Icon(
+                            imageVector = if (entry.watched) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
+                            contentDescription = null,
+                            modifier = Modifier.size(FetchTheme.sizes.icons.sm)
+                        )
+                        Text(
+                            text = stringResource(if (entry.watched) R.string.calendar_watched else R.string.calendar_not_watched),
+                            style = FetchTheme.textStyles.metadata,
+                            maxLines = 1
+                        )
+                    }
+                }
                 entry.overview?.takeIf { it.isNotBlank() }?.let {
                     Text(
                         text = it,

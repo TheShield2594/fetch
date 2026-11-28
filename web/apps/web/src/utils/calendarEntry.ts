@@ -20,6 +20,26 @@ export function calendarEntryLabel(entry: CalendarEntry, { withName = true } = {
 }
 
 /**
+ * The badge an entry carries when its episode opens or ends something:
+ * "Series finale", "Season finale", "Mid-season finale" or "Premiere", else
+ * null. One badge: a finale ahead of a premiere, as on the TV app, since a
+ * one-episode season's only episode is both and its end is the news.
+ */
+export function calendarEntryBadge(entry: CalendarEntry): string | null {
+  if (entry.kind === "movie") return null;
+  switch (entry.finale) {
+    case "series":
+      return "Series finale";
+    case "season":
+      return "Season finale";
+    case "mid_season":
+      return "Mid-season finale";
+    default:
+      return entry.kind === "premiere" ? "Premiere" : null;
+  }
+}
+
+/**
  * The local day an entry falls on: the day of its air instant where a source
  * knew one (a 9pm Eastern episode is the next morning in Europe), else the day
  * it was dated. Midnight local time either way. An unreadable date stays an

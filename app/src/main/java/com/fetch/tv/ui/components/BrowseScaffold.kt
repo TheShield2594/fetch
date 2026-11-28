@@ -131,7 +131,10 @@ fun BrowseScaffold(
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .focusSafeHorizontalScroll()
+                        // Tabs are chips, which barely grow on focus, so a narrow allowance covers
+                        // the ring and still leaves a gap before the title and the actions: a
+                        // scrolled tab is never cut off flush against them.
+                        .focusSafeHorizontalScroll(inset = FetchTheme.spacing.sm)
                         .then(if (tabsDescription != null) Modifier.semantics { contentDescription = tabsDescription } else Modifier),
                     horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
                     verticalAlignment = Alignment.CenterVertically

@@ -23,7 +23,7 @@ class CatalogSeeAllFiltersTest {
             name = "Top",
             extra = listOf(
                 CatalogExtra(name = "skip"),
-                CatalogExtra(name = "Genre", options = listOf("Action", " ", "action", "Drama"))
+                CatalogExtra(name = "Genre", options = listOf("None", "Action", " ", "action", "Drama"))
             )
         )
         assertEquals(listOf("Action", "Drama"), seeAllGenreOptions(catalog))

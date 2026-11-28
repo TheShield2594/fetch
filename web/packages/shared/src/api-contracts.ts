@@ -443,6 +443,9 @@ const absentAsUndefined = <T>(value: unknown, read: () => T): T | undefined =>
  */
 export type CalendarEntryKind = "episode" | "premiere" | "movie";
 
+/** Which finale a calendar episode is; see `CalendarEntry.finale`. */
+export type CalendarFinale = "season" | "series" | "mid_season";
+
 /**
  * One dated thing on `GET /calendar`.
  *
@@ -453,7 +456,8 @@ export type CalendarEntryKind = "episode" | "premiere" | "movie";
  *
  * `kind`, `still`, `backdrop`, `airsAt` and `watched` arrived later and are
  * optional on the wire; a response without them reads as an unwatched episode
- * with no artwork beyond the poster and no time of day.
+ * with no artwork beyond the poster and no time of day. `finale` arrived later
+ * still, and a response without it reads as no finale.
  */
 export type CalendarEntry = {
   kind: CalendarEntryKind;
@@ -477,6 +481,12 @@ export type CalendarEntry = {
   /** Whether this profile has already watched it — the past half of a month. */
   watched: boolean;
   overview: string | null;
+  /**
+   * The finale this episode is, from TMDB's episode type: a season's, the
+   * series' (a season finale of a show that has ended), or a mid-season one.
+   * Null for any other episode and for films.
+   */
+  finale?: CalendarFinale | null;
 };
 
 export type CalendarResponse = { calendar: CalendarEntry[] };
@@ -531,6 +541,16 @@ const asCalendarKind = (value: unknown, what: string): CalendarEntryKind => {
     : fail(`${what} must be one of ${CALENDAR_KINDS.join(", ")}`);
 };
 
+const CALENDAR_FINALES: readonly CalendarFinale[] = ["season", "series", "mid_season"];
+
+/** Absent means an API from before finales were marked: no finale. */
+const asCalendarFinale = (value: unknown, what: string): CalendarFinale | null => {
+  if (value === undefined || value === null) return null;
+  return CALENDAR_FINALES.includes(value as CalendarFinale)
+    ? (value as CalendarFinale)
+    : fail(`${what} must be one of ${CALENDAR_FINALES.join(", ")}`);
+};
+
 export const parseCalendarResponse = (value: unknown): CalendarResponse => {
   const body = asObject(value, "response");
   const calendar = asArray(collection(body, "calendar"), "calendar").map((entry, index) => {
@@ -553,6 +573,7 @@ export const parseCalendarResponse = (value: unknown): CalendarResponse => {
       airsAt: asInstantOrNull(episode.airsAt, `${at}.airsAt`),
       watched: episode.watched === undefined || episode.watched === null ? false : asBoolean(episode.watched, `${at}.watched`),
       overview: nullableString(episode.overview, `${at}.overview`),
+      finale: asCalendarFinale(episode.finale, `${at}.finale`),
     };
   });
   return { calendar };

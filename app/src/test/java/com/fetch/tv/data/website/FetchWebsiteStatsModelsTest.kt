@@ -3,6 +3,7 @@ package com.fetch.tv.data.website
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** The stats and calendar bodies as the website's routes send them. */
@@ -51,5 +52,36 @@ class FetchWebsiteStatsModelsTest {
 
         assertEquals("2026-11-09", entry.airDate)
         assertNull(entry.overview)
+    }
+
+    @Test
+    fun `a watchlist film's release decodes with no season or episode`() {
+        val body = """
+            {"calendar":[{"kind":"movie","seriesImdbId":"tt9","seriesName":"Film","poster":null,"still":null,
+             "backdrop":null,"season":null,"episode":null,"episodeName":null,"airDate":"2026-12-04",
+             "airsAt":null,"watched":false,"overview":null}]}
+        """.trimIndent()
+
+        val entry = json.decodeFromString(WebsiteCalendarBody.serializer(), body).calendar.single()
+
+        assertNull(entry.season)
+        assertNull(entry.episode)
+        assertTrue(entry.isMovie)
+        assertEquals(false, entry.watched)
+    }
+
+    @Test
+    fun `a finale decodes, and an entry without one has none`() {
+        val body = """
+            {"calendar":[
+              {"kind":"episode","seriesImdbId":"tt1","seriesName":"Show","season":2,"episode":10,"airDate":"2026-11-30","finale":"season"},
+              {"seriesImdbId":"tt2","seriesName":"Other","season":1,"episode":3,"airDate":"2026-11-30"}
+            ]}
+        """.trimIndent()
+
+        val (finale, plain) = json.decodeFromString(WebsiteCalendarBody.serializer(), body).calendar
+
+        assertEquals("season", finale.finale)
+        assertNull(plain.finale)
     }
 }

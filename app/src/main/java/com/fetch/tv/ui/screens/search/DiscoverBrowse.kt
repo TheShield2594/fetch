@@ -39,6 +39,10 @@ data class DiscoverFilters(
     val narrowsResults: Boolean
         get() = yearRange != null || minRating != null || hideWatched
 
+    /** A minimum rating without "Include unrated": titles with no rating are left out (#864). */
+    val excludesUnrated: Boolean
+        get() = minRating != null && !includeUnrated
+
     /** Anything set away from Discover's defaults, which the Reset chip clears (#857). */
     val anySet: Boolean
         get() = narrowsResults || sorted || includeUnrated

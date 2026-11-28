@@ -65,7 +65,9 @@ fun DiscoverScreen(
 
     LaunchedEffect(uiState.discoverLocation) {
         if (uiState.discoverLocation != DiscoverLocation.OFF) {
-            viewModel.ensureDiscoverLoaded()
+            // Coming back from a title keeps the grid as it was, so the focused card can be
+            // restored; other entries refetch stale results (#845).
+            viewModel.ensureDiscoverLoaded(allowRefresh = !(restoreDiscoverFocus || pendingDiscoverRestoreOnResume))
         }
     }
 

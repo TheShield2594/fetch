@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -428,9 +429,31 @@ fun LibraryScreen(
             }
         },
         headerActions = {
-            // History and In progress have no filter row, so their Select sits in the header:
+            // Select, Manage lists and Sync sit at the end of the tab row on every tab, so the
+            // filter row holds only filters (#862). History and In progress have no filter row:
             // Down from a tab still lands on the grid in one press.
-            if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
+            if (tab.listScope != null) {
+                LibrarySelectButton(
+                    active = selection.active,
+                    enabled = uiState.visibleItems.isNotEmpty(),
+                    onClick = {
+                        expandedPicker = null
+                        toggleSelectionMode()
+                    }
+                )
+                LibraryActionsRow(
+                    pending = uiState.pendingOperation,
+                    isSyncing = uiState.isSyncing,
+                    // Lists are managed from the Lists tab, not over the watchlist.
+                    showManageLists = tab == LibraryTab.LISTS && uiState.listManagement != null && uiState.isTrackingAuthenticated,
+                    showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL && uiState.isTrackingAuthenticated,
+                    onManageLists = {
+                        expandedPicker = null
+                        viewModel.onOpenManageLists()
+                    },
+                    onRefresh = viewModel::onRefresh
+                )
+            } else if ((tab == LibraryTab.HISTORY || tab == LibraryTab.IN_PROGRESS) && activityKeys.isNotEmpty()) {
                 LibrarySelectButton(
                     active = selection.active,
                     enabled = true,
@@ -448,26 +471,9 @@ fun LibraryScreen(
                 }
             )
         },
-        // Kept while a sync runs, so the Sync button that started it keeps the focus (#846).
         filters = if (tab.listScope != null) {
             @Composable {
                 LibrarySelectorsRow(
-                    actions = {
-                        LibrarySelectButton(
-                            active = selection.active,
-                            enabled = uiState.visibleItems.isNotEmpty(),
-                            onClick = { toggleSelectionMode() }
-                        )
-                        LibraryActionsRow(
-                            pending = uiState.pendingOperation,
-                            isSyncing = uiState.isSyncing,
-                            // Lists are managed from the Lists tab, not over the watchlist.
-                            showManageLists = tab == LibraryTab.LISTS && uiState.listManagement != null && uiState.isTrackingAuthenticated,
-                            showRefresh = uiState.sourceMode != LibrarySourceMode.LOCAL && uiState.isTrackingAuthenticated,
-                            onManageLists = viewModel::onOpenManageLists,
-                            onRefresh = viewModel::onRefresh
-                        )
-                    },
                     sourceMode = uiState.sourceMode,
                     listTabs = uiState.scopedListTabs,
                     typeTabs = uiState.availableTypeTabs,
@@ -991,7 +997,6 @@ private fun LibraryMenuButton(text: String, onClick: () -> Unit) {
 @OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun LibrarySelectorsRow(
-    actions: @Composable () -> Unit,
     sourceMode: LibrarySourceMode,
     listTabs: List<LibraryListTab>,
     typeTabs: List<LibraryTypeTab>,
@@ -1026,8 +1031,14 @@ private fun LibrarySelectorsRow(
     val selectedGenreLabel = selectedGenre?.let { localizedGenreLabel(it) } ?: allLabel
     val selectedYearLabel = selectedYear ?: allLabel
 
-    // One row (audit C3): list, type, sort and Show first, then genre and year, then the
-    // actions. It scrolls sideways with focus when it's wider than the screen.
+    val genreYearSet = listOf(selectedGenre, selectedYear).count { it != null }
+    val hasMoreFilters = genres.isNotEmpty() || years.isNotEmpty()
+    // Genre and Year sit behind "More filters" (#862), revealed next to it. They open revealed
+    // while either is set, so a set filter is never out of sight.
+    var moreFiltersOpen by rememberSaveable { mutableStateOf(genreYearSet > 0) }
+
+    // One row (audit C3): List, Type, Sort and Show always in view, then More filters with Genre
+    // and Year after it once opened. It scrolls sideways with focus when it's wider than the screen.
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1035,70 +1046,99 @@ private fun LibrarySelectorsRow(
         horizontalArrangement = Arrangement.spacedBy(FetchTheme.spacing.sm),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
     ) {
-        run {
-            if (listTabs.isNotEmpty()) {
-                LibraryDropdownPicker(
-                    modifier = Modifier
-                        .focusRequester(primaryFocusRequester),
-                    upFocusRequester = upFocusRequester,
-                    title = stringResource(R.string.library_filter_list),
-                    value = selectedListLabel,
-                    selectedValue = selectedListKey,
-                    expanded = expandedPicker == "list",
-                    options = listTabs.map { LibraryOption(it.localizedTitle(), it.key) },
-                    onExpandedChange = { onExpandedChange("list", it) },
-                    onSelect = { onSelectList(it.value) }
-                )
-            }
-
+        if (listTabs.isNotEmpty()) {
             LibraryDropdownPicker(
-                modifier = if (listTabs.isNotEmpty()) {
-                    Modifier.weight(1f)
-                } else {
-                    Modifier
-                        .focusRequester(primaryFocusRequester)
-                },
+                modifier = Modifier.focusRequester(primaryFocusRequester),
                 upFocusRequester = upFocusRequester,
-                title = stringResource(R.string.library_filter_type),
-                value = selectedTypeLabel,
-                selectedValue = selectedTypeTab?.key,
-                expanded = expandedPicker == "type",
-                active = selectedTypeTab != null && selectedTypeTab.key != LibraryTypeTab.ALL_KEY,
-                options = typeTabs.map {
-                    if (it.key == LibraryTypeTab.ALL_KEY) {
-                        LibraryOption(it.label, it.key)
-                    } else {
-                        val count = it.label.substringAfterLast("(", "").removeSuffix(")").trim().toIntOrNull()
-                        LibraryOption(localizedTypeLabel(it.key), it.key, count)
-                    }
-                },
-                onExpandedChange = { onExpandedChange("type", it) },
-                onSelect = { option ->
-                    typeTabs.firstOrNull { it.key == option.value }?.let(onSelectType)
-                }
+                title = stringResource(R.string.library_filter_list),
+                value = selectedListLabel,
+                selectedValue = selectedListKey,
+                expanded = expandedPicker == "list",
+                options = listTabs.map { LibraryOption(it.localizedTitle(), it.key) },
+                onExpandedChange = { onExpandedChange("list", it) },
+                onSelect = { onSelectList(it.value) }
             )
-
-            if (sortOptions.isNotEmpty()) {
-                LibraryDropdownPicker(
-                                        upFocusRequester = upFocusRequester,
-                    title = stringResource(R.string.library_filter_sort),
-                    value = selectedSortLabel,
-                    selectedValue = selectedSortOption.key,
-                    expanded = expandedPicker == "sort",
-                    options = sortOptions.map { LibraryOption(stringResource(it.labelResId), it.key) },
-                    onExpandedChange = { onExpandedChange("sort", it) },
-                    onSelect = { option ->
-                        sortOptions.firstOrNull { it.key == option.value }?.let(onSelectSort)
-                    }
-                )
-            }
         }
 
-        run {
+        LibraryDropdownPicker(
+            modifier = if (listTabs.isNotEmpty()) Modifier else Modifier.focusRequester(primaryFocusRequester),
+            upFocusRequester = upFocusRequester,
+            title = stringResource(R.string.library_filter_type),
+            value = selectedTypeLabel,
+            selectedValue = selectedTypeTab?.key,
+            expanded = expandedPicker == "type",
+            active = selectedTypeTab != null && selectedTypeTab.key != LibraryTypeTab.ALL_KEY,
+            options = typeTabs.map {
+                if (it.key == LibraryTypeTab.ALL_KEY) {
+                    LibraryOption(it.label, it.key)
+                } else {
+                    val count = it.label.substringAfterLast("(", "").removeSuffix(")").trim().toIntOrNull()
+                    LibraryOption(localizedTypeLabel(it.key), it.key, count)
+                }
+            },
+            onExpandedChange = { onExpandedChange("type", it) },
+            onSelect = { option ->
+                typeTabs.firstOrNull { it.key == option.value }?.let(onSelectType)
+            }
+        )
+
+        if (sortOptions.isNotEmpty()) {
+            LibraryDropdownPicker(
+                upFocusRequester = upFocusRequester,
+                title = stringResource(R.string.library_filter_sort),
+                value = selectedSortLabel,
+                selectedValue = selectedSortOption.key,
+                expanded = expandedPicker == "sort",
+                options = sortOptions.map { LibraryOption(stringResource(it.labelResId), it.key) },
+                onExpandedChange = { onExpandedChange("sort", it) },
+                onSelect = { option ->
+                    sortOptions.firstOrNull { it.key == option.value }?.let(onSelectSort)
+                }
+            )
+        }
+
+        val watchedFilterLabel = stringResource(selectedWatchedFilter.labelResId)
+        LibraryDropdownPicker(
+            upFocusRequester = upFocusRequester,
+            title = stringResource(R.string.library_filter_watched),
+            value = watchedFilterLabel,
+            selectedValue = selectedWatchedFilter.key,
+            active = selectedWatchedFilter != LibraryWatchedFilter.ALL,
+            expanded = expandedPicker == "watched",
+            options = libraryWatchedFilterOptions(anythingReady, selectedWatchedFilter).map {
+                LibraryOption(stringResource(it.labelResId), it.key)
+            },
+            onExpandedChange = { onExpandedChange("watched", it) },
+            onSelect = { option ->
+                LibraryWatchedFilter.entries.firstOrNull { it.key == option.value }
+                    ?.let(onSelectWatchedFilter)
+            }
+        )
+
+        if (hasMoreFilters) {
+            com.fetch.tv.ui.components.FetchChip(
+                label = libraryMoreFiltersLabel(
+                    base = stringResource(R.string.library_more_filters),
+                    setCount = genreYearSet
+                ),
+                // Lit while Genre or Year is set, so a filter behind the chip still shows (#862).
+                selected = genreYearSet > 0,
+                modifier = Modifier.focusProperties { up = upFocusRequester },
+                onClick = {
+                    if (expandedPicker == "genre" || expandedPicker == "year") {
+                        onExpandedChange(expandedPicker, false)
+                    }
+                    moreFiltersOpen = !moreFiltersOpen
+                }
+            )
+        }
+
+        if (hasMoreFilters && moreFiltersOpen) {
             if (genres.isNotEmpty()) {
                 val genreAllOption = LibraryOption(allLabel, "__all__")
                 LibraryDropdownPicker(
-                                        title = stringResource(R.string.library_filter_genre),
+                    upFocusRequester = upFocusRequester,
+                    title = stringResource(R.string.library_filter_genre),
                     value = selectedGenreLabel,
                     selectedValue = selectedGenre ?: "__all__",
                     expanded = expandedPicker == "genre",
@@ -1116,7 +1156,8 @@ private fun LibrarySelectorsRow(
             if (years.isNotEmpty()) {
                 val yearAllOption = LibraryOption(allLabel, "__all__")
                 LibraryDropdownPicker(
-                                        title = stringResource(R.string.library_filter_year),
+                    upFocusRequester = upFocusRequester,
+                    title = stringResource(R.string.library_filter_year),
                     value = selectedYearLabel,
                     selectedValue = selectedYear ?: "__all__",
                     expanded = expandedPicker == "year",
@@ -1130,27 +1171,13 @@ private fun LibrarySelectorsRow(
                     }
                 )
             }
-
-            val watchedFilterLabel = stringResource(selectedWatchedFilter.labelResId)
-            LibraryDropdownPicker(
-                                title = stringResource(R.string.library_filter_watched),
-                value = watchedFilterLabel,
-                selectedValue = selectedWatchedFilter.key,
-                active = selectedWatchedFilter != LibraryWatchedFilter.ALL,
-                expanded = expandedPicker == "watched",
-                options = libraryWatchedFilterOptions(anythingReady, selectedWatchedFilter).map {
-                    LibraryOption(stringResource(it.labelResId), it.key)
-                },
-                onExpandedChange = { onExpandedChange("watched", it) },
-                onSelect = { option ->
-                    LibraryWatchedFilter.entries.firstOrNull { it.key == option.value }
-                        ?.let(onSelectWatchedFilter)
-                }
-            )
         }
-        actions()
     }
 }
+
+/** "More filters", or "More filters · 2" while Genre and Year are both set (#862). */
+internal fun libraryMoreFiltersLabel(base: String, setCount: Int): String =
+    if (setCount > 0) "$base · $setCount" else base
 
 /**
  * A Library filter: the shared [FetchFilterChip] (#851), whose choices open in a panel under it,

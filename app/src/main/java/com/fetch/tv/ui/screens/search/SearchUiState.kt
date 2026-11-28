@@ -58,6 +58,8 @@ data class SearchUiState(
     val discoverPagingPaused: Boolean = false,
     /** Under a Rating, Newest or Title sort: how many loaded titles the sort covers (#843). */
     val discoverSortedTitleCount: Int = 0,
+    /** Catalogs being browsed whose titles came with no ratings, left out by a Rating filter (#864). */
+    val discoverUnratedSourceCount: Int = 0,
     val posterLabelsEnabled: Boolean = true,
     val catalogAddonNameEnabled: Boolean = true,
     val catalogTypeSuffixEnabled: Boolean = true,

@@ -21,7 +21,7 @@ coil = "3.3.0"
 navigationCompose = "2.8.8"
 datastore = "1.1.7"
 # Watched items, progress and the library live in SQLite; settings stay in DataStore.
-room = "2.8.4"
+room = "2.8.5"
 lifecycleViewModelCompose = "2.9.4"
 ksp = "2.3.0"
 # Dependabot leaves this alone: it must match the decoder AARs in app/libs/ (README there).

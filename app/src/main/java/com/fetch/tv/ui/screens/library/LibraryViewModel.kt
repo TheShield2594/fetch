@@ -54,7 +54,9 @@ private const val MAX_FILTER_PASSES = 3
 
 data class LibraryTypeTab(
     val key: String,
-    val label: String
+    val label: String,
+    /** How many titles the tab keeps under the other filters; null before they are counted. */
+    val count: Int? = null
 ) {
     companion object {
         const val ALL_KEY = "__all__"
@@ -307,10 +309,6 @@ class LibraryViewModel @Inject constructor(
         state.filteredForProfile(parentalControls)
     }
 
-    private val _watchedMovieIds = MutableStateFlow<Set<String>>(emptySet())
-    val watchedMovieIds: StateFlow<Set<String>> = _watchedMovieIds.asStateFlow()
-    val watchedSeriesIds: StateFlow<Set<String>> = watchedSeriesStateHolder.fullyWatchedSeriesIds
-
     /**
      * The History tab: one entry per title at its latest watch, grouped by month, newest first,
      * from the watched items of the active tracking provider (or this TV's own). Null until the
@@ -456,7 +454,6 @@ class LibraryViewModel @Inject constructor(
         viewModelScope.launch {
             watchProgressRepository.observeWatchedMovieIds()
                 .collect { ids ->
-                    _watchedMovieIds.value = ids
                     _uiState.update { current ->
                         current.copy(watchedMovieIds = ids).withVisibleItems()
                     }
@@ -1141,14 +1138,10 @@ class LibraryViewModel @Inject constructor(
         val watchedFiltered = when (selectedWatchedFilter) {
             LibraryWatchedFilter.ALL -> yearFiltered
             LibraryWatchedFilter.WATCHED -> yearFiltered.filter { entry ->
-                val isMovie = entry.type.equals("movie", ignoreCase = true)
-                if (isMovie) watchedMovieIds.contains(entry.id)
-                else watchedSeriesIds.contains(entry.id)
+                entry.isWatchedIn(watchedMovieIds, watchedSeriesIds)
             }
             LibraryWatchedFilter.UNWATCHED -> yearFiltered.filter { entry ->
-                val isMovie = entry.type.equals("movie", ignoreCase = true)
-                if (isMovie) !watchedMovieIds.contains(entry.id)
-                else !watchedSeriesIds.contains(entry.id)
+                !entry.isWatchedIn(watchedMovieIds, watchedSeriesIds)
             }
             LibraryWatchedFilter.READY -> yearFiltered.filter { entry -> libraryEntryReady(entry, readyBestMatchKeys) }
         }
@@ -1233,11 +1226,11 @@ class LibraryViewModel @Inject constructor(
                     .thenBy { it.id }
             )
             LibrarySortOption.TITLE_ASC -> watchedFiltered.sortedWith(
-                compareBy<LibraryEntry> { titleSortKey(it.name.ifBlank { it.id }) }
+                com.fetch.tv.ui.util.titleSortComparator<LibraryEntry> { it.name.ifBlank { it.id } }
                     .thenBy { it.id }
             )
             LibrarySortOption.TITLE_DESC -> watchedFiltered.sortedWith(
-                compareByDescending<LibraryEntry> { titleSortKey(it.name.ifBlank { it.id }) }
+                com.fetch.tv.ui.util.titleSortComparator<LibraryEntry> { it.name.ifBlank { it.id } }.reversed()
                     .thenBy { it.id }
             )
         }
@@ -1294,7 +1287,11 @@ class LibraryViewModel @Inject constructor(
             countByType[key] = (countByType[key] ?: 0) + 1
         }
         val allCount = filteredItems.size
-        val allTab = LibraryTypeTab(key = LibraryTypeTab.ALL_KEY, label = "${context.getString(R.string.library_type_all)} ($allCount)")
+        val allTab = LibraryTypeTab(
+            key = LibraryTypeTab.ALL_KEY,
+            label = context.getString(R.string.library_type_all),
+            count = allCount
+        )
         // Stable order: movies, series/tv/show, anime, then anything else alphabetically.
         val typeOrder = listOf("movie", "series", "tv", "show", "anime")
         val sortedKeys = byKey.keys.sortedWith(compareBy { key ->
@@ -1302,19 +1299,15 @@ class LibraryViewModel @Inject constructor(
             if (idx >= 0) idx else typeOrder.size
         })
         return listOf(allTab) + sortedKeys.map { key ->
-            LibraryTypeTab(key = key, label = "${byKey[key]} (${countByType[key] ?: 0})")
+            LibraryTypeTab(key = key, label = byKey.getValue(key), count = countByType[key] ?: 0)
         }
     }
 }
 
-// Strip leading English articles ("The", "A", "An") when sorting by title, so
-// "The Walking Dead" sorts under W and not T. Matches how streaming services
-// and most media libraries order titles alphabetically.
-private val LEADING_ARTICLE_REGEX = Regex("^(the|an|a)\\s+", RegexOption.IGNORE_CASE)
-
-private fun titleSortKey(title: String): String =
-    title.trim().replace(LEADING_ARTICLE_REGEX, "").lowercase(Locale.ROOT)
-
 /** The date the title went on [listKey] when that list keeps one, else its latest addition anywhere. */
 private fun LibraryEntry.addedTo(listKey: String?): Long =
     listKey?.let(listAddedAt::get) ?: listedAt
+
+/** Whether the title is watched, read from the movie or series set by the shared series check (#849). */
+internal fun LibraryEntry.isWatchedIn(watchedMovieIds: Set<String>, watchedSeriesIds: Set<String>): Boolean =
+    if (com.fetch.tv.ui.util.isSeriesContentType(type)) id in watchedSeriesIds else id in watchedMovieIds

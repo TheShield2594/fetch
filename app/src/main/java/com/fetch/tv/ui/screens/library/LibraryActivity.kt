@@ -60,7 +60,7 @@ data class LibraryActivityItem(
     val key: String get() = com.fetch.tv.ui.components.browseItemKey(type, id)
 
     val isSeries: Boolean
-        get() = type.equals("series", ignoreCase = true) || type.equals("tv", ignoreCase = true)
+        get() = com.fetch.tv.ui.util.isSeriesContentType(type)
 
     /** [detail] goes in the card's second line (the episode, or how far in). */
     fun toMetaPreview(detail: String?): MetaPreview = MetaPreview(

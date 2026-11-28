@@ -124,8 +124,9 @@ fun LibraryScreen(
     onPlayTitle: (id: String, type: String, addonBaseUrl: String?) -> Unit = { _, _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val watchedMovieIds by viewModel.watchedMovieIds.collectAsStateWithLifecycle()
-    val watchedSeriesIds by viewModel.watchedSeriesIds.collectAsStateWithLifecycle()
+    // The ids the Watched filter reads, so the ticks and the filter can't disagree (#849).
+    val watchedMovieIds = uiState.watchedMovieIds
+    val watchedSeriesIds = uiState.watchedSeriesIds
     var showDeleteConfirm by remember(uiState.showManageDialog) { mutableStateOf(false) }
     var expandedPicker by remember { mutableStateOf<String?>(null) }
     var selectedTab by rememberSaveable { mutableStateOf(LibraryTab.WATCHLIST) }
@@ -392,7 +393,7 @@ fun LibraryScreen(
     }
     val heroCandidate = remember(heroItem, metaCacheVersion, movieLabel, seriesLabel) {
         heroItem?.let { item ->
-            val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+            val isSeries = com.fetch.tv.ui.util.isSeriesContentType(item.apiType)
             com.fetch.tv.ui.components.hero.browseHeroPreview(
                 item = item,
                 cached = viewModel.cachedMeta(item.id, item.apiType),
@@ -688,7 +689,7 @@ fun LibraryScreen(
 
             items(uiState.visibleItems, key = { com.fetch.tv.ui.components.browseItemKey(it.type, it.id) }) { item ->
                 val focusKey = com.fetch.tv.ui.components.browseItemKey(item.type, item.id)
-                val isSeries = item.type.equals("series", ignoreCase = true) || item.type.equals("tv", ignoreCase = true)
+                val isSeries = com.fetch.tv.ui.util.isSeriesContentType(item.type)
                 val previewForLongPress = remember(item) {
                     item.toMetaPreview().copy(posterShape = PosterShape.POSTER)
                 }
@@ -795,7 +796,7 @@ fun LibraryScreen(
                     }
                 },
                 isWatched = { item ->
-                    val isSeries = item.apiType.equals("series", ignoreCase = true) || item.apiType.equals("tv", ignoreCase = true)
+                    val isSeries = com.fetch.tv.ui.util.isSeriesContentType(item.apiType)
                     if (isSeries) item.id in watchedSeriesIds else item.id in watchedMovieIds
                 },
                 onItemClick = { itemId, itemType, addonBaseUrl ->
@@ -882,10 +883,14 @@ fun LibraryScreen(
 
     val transientMessage = uiState.transientMessage
     if (!transientMessage.isNullOrBlank()) {
+        // At the bottom, clear of the tab row and filters it used to cover, and above the
+        // selection bar while that is open (#849).
+        val selectionBarHeight = if (selection.active) with(density) { selectionBarHeightPx.toDp() } else Dp.Hairline
         Box(
             modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = androidx.compose.ui.Alignment.TopCenter
+                .fillMaxSize()
+                .padding(bottom = selectionBarHeight),
+            contentAlignment = androidx.compose.ui.Alignment.BottomCenter
         ) {
             Text(
                 text = transientMessage,
@@ -893,7 +898,7 @@ fun LibraryScreen(
                 color = if (uiState.transientMessageIsError) FetchStatusTones.errorText else FetchTheme.colors.TextPrimary,
                 modifier = Modifier
                     .semantics { liveRegion = LiveRegionMode.Polite }
-                    .padding(top = FetchTheme.spacing.xl)
+                    .padding(bottom = FetchTheme.spacing.xl)
                     .background(FetchTheme.colors.BackgroundElevated, RoundedCornerShape(FetchTheme.radii.sm))
                     .padding(horizontal = FetchTheme.spacing.lg, vertical = FetchTheme.spacing.md)
             )
@@ -1068,14 +1073,7 @@ private fun LibrarySelectorsRow(
             selectedValue = selectedTypeTab?.key,
             expanded = expandedPicker == "type",
             active = selectedTypeTab != null && selectedTypeTab.key != LibraryTypeTab.ALL_KEY,
-            options = typeTabs.map {
-                if (it.key == LibraryTypeTab.ALL_KEY) {
-                    LibraryOption(it.label, it.key)
-                } else {
-                    val count = it.label.substringAfterLast("(", "").removeSuffix(")").trim().toIntOrNull()
-                    LibraryOption(localizedTypeLabel(it.key), it.key, count)
-                }
-            },
+            options = typeTabs.map { LibraryOption(localizedTypeLabel(it.key), it.key, it.count) },
             onExpandedChange = { onExpandedChange("type", it) },
             onSelect = { option ->
                 typeTabs.firstOrNull { it.key == option.value }?.let(onSelectType)
@@ -1135,12 +1133,12 @@ private fun LibrarySelectorsRow(
 
         if (hasMoreFilters && moreFiltersOpen) {
             if (genres.isNotEmpty()) {
-                val genreAllOption = LibraryOption(allLabel, "__all__")
+                val genreAllOption = LibraryOption(allLabel, LibraryTypeTab.ALL_KEY)
                 LibraryDropdownPicker(
                     upFocusRequester = upFocusRequester,
                     title = stringResource(R.string.library_filter_genre),
                     value = selectedGenreLabel,
-                    selectedValue = selectedGenre ?: "__all__",
+                    selectedValue = selectedGenre ?: LibraryTypeTab.ALL_KEY,
                     expanded = expandedPicker == "genre",
                     active = selectedGenre != null,
                     options = listOf(genreAllOption) + genres.map {
@@ -1148,18 +1146,18 @@ private fun LibrarySelectorsRow(
                     },
                     onExpandedChange = { onExpandedChange("genre", it) },
                     onSelect = { option ->
-                        onSelectGenre(if (option.value == "__all__") null else option.value)
+                        onSelectGenre(if (option.value == LibraryTypeTab.ALL_KEY) null else option.value)
                     }
                 )
             }
 
             if (years.isNotEmpty()) {
-                val yearAllOption = LibraryOption(allLabel, "__all__")
+                val yearAllOption = LibraryOption(allLabel, LibraryTypeTab.ALL_KEY)
                 LibraryDropdownPicker(
                     upFocusRequester = upFocusRequester,
                     title = stringResource(R.string.library_filter_year),
                     value = selectedYearLabel,
-                    selectedValue = selectedYear ?: "__all__",
+                    selectedValue = selectedYear ?: LibraryTypeTab.ALL_KEY,
                     expanded = expandedPicker == "year",
                     active = selectedYear != null,
                     options = listOf(yearAllOption) + years.map {
@@ -1167,7 +1165,7 @@ private fun LibrarySelectorsRow(
                     },
                     onExpandedChange = { onExpandedChange("year", it) },
                     onSelect = { option ->
-                        onSelectYear(if (option.value == "__all__") null else option.value)
+                        onSelectYear(if (option.value == LibraryTypeTab.ALL_KEY) null else option.value)
                     }
                 )
             }

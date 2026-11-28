@@ -28,8 +28,7 @@ data class LibraryBulkTarget(
     val input: LibraryEntryInput
 ) {
     val isSeries: Boolean
-        get() = type.equals("series", ignoreCase = true) || type.equals("tv", ignoreCase = true) ||
-            type.equals("anime", ignoreCase = true)
+        get() = com.fetch.tv.ui.util.isSeriesContentType(type)
 }
 
 internal fun LibraryEntry.toBulkTarget(): LibraryBulkTarget = LibraryBulkTarget(

@@ -203,6 +203,15 @@ class DiscoverBrowseTest {
     }
 
     @Test
+    fun `title sort drops a leading article, as the Library does (#849)`() {
+        val items = listOf(item("1", name = "The Zebra"), item("2", name = "Apple"), item("3", name = "Moon"))
+
+        val sorted = applyDiscoverFilters(items, DiscoverFilters(sort = DiscoverSort.TITLE))
+
+        assertEquals(listOf("Apple", "Moon", "The Zebra"), sorted.map { it.name })
+    }
+
+    @Test
     fun `a sorted batch goes below what is shown and never moves it`() {
         val shown = listOf(item("a", rating = 9f), item("b", rating = 5f))
         val batch = listOf(item("c", rating = 6f), item("d", rating = 9.5f), item("a", rating = 9f))

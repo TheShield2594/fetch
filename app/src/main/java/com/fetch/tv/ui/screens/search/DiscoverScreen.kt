@@ -159,9 +159,11 @@ fun DiscoverScreen(
                     discoverFocusedItemKey = null
                     viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
                 },
+                // The empty grid's Clear filters resets the genre and sort too, since the genre is
+                // often what emptied it (#849): the same as the Reset chip.
                 onClearFilters = {
                     discoverFocusedItemKey = null
-                    viewModel.onEvent(SearchEvent.ClearDiscoverFilters)
+                    viewModel.onEvent(SearchEvent.ResetDiscoverFilters)
                 },
                 onLoadMore = { viewModel.onEvent(SearchEvent.LoadNextDiscoverResults) },
                 onRetry = { viewModel.onEvent(SearchEvent.RetryDiscover) },

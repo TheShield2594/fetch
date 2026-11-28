@@ -21,8 +21,6 @@ sealed interface SearchEvent {
     data class SelectDiscoverYearRange(val range: DiscoverYearRange?) : SearchEvent
     data class SelectDiscoverMinRating(val minRating: Int?) : SearchEvent
     data class SelectDiscoverSort(val sort: DiscoverSort) : SearchEvent
-    /** Clears the year and rating filters; the sort stays. */
-    data object ClearDiscoverFilters : SearchEvent
     /** Discover's Hide watched and Include unrated toggles (#857). */
     data object ToggleDiscoverHideWatched : SearchEvent
     data object ToggleDiscoverIncludeUnrated : SearchEvent

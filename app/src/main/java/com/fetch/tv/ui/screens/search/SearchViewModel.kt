@@ -535,9 +535,6 @@ class SearchViewModel @Inject constructor(
             is SearchEvent.SelectDiscoverYearRange -> updateDiscoverFilters { it.copy(yearRange = event.range) }
             is SearchEvent.SelectDiscoverMinRating -> updateDiscoverFilters { it.copy(minRating = event.minRating) }
             is SearchEvent.SelectDiscoverSort -> updateDiscoverFilters { it.copy(sort = event.sort) }
-            SearchEvent.ClearDiscoverFilters -> updateDiscoverFilters {
-                it.copy(yearRange = null, minRating = null, hideWatched = false, includeUnrated = false)
-            }
             SearchEvent.ToggleDiscoverHideWatched -> updateDiscoverFilters { it.copy(hideWatched = !it.hideWatched) }
             SearchEvent.ToggleDiscoverIncludeUnrated -> updateDiscoverFilters { it.copy(includeUnrated = !it.includeUnrated) }
             SearchEvent.ResetDiscoverFilters -> resetDiscoverFilters()

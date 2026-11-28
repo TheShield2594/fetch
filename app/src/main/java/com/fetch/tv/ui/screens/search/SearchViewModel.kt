@@ -97,6 +97,20 @@ class SearchViewModel @Inject constructor(
         .distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
+    /**
+     * Per content type, the genres of the titles saved most recently, for Discover's "Because it's
+     * in your library" shelf (#858).
+     */
+    internal val discoverLibrarySeedGenres: StateFlow<Map<String, List<String>>> = libraryRepository.libraryItems
+        .map { entries ->
+            entries.map { it.type.trim().lowercase(java.util.Locale.ROOT) }.distinct()
+                .associateWith { type -> discoverLibrarySeedGenres(entries, type) }
+                .filterValues { it.isNotEmpty() }
+        }
+        .distinctUntilChanged()
+        .flowOn(kotlinx.coroutines.Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     // Results are filtered by the profile's certification limit on the way out, and
     // refiltered when the limit changes or more certifications are known. The merged view is
     // built from the filtered rows, so a hidden title never becomes the top result.
@@ -1655,6 +1669,7 @@ class SearchViewModel @Inject constructor(
                 if (sources.isEmpty()) return@launch
             }
 
+            if (reset) refreshDiscoverTrending(force = keepGrid)
             var firstRound = reset
             var rounds = 0
             while (true) {
@@ -1681,6 +1696,61 @@ class SearchViewModel @Inject constructor(
                 ) {
                     break
                 }
+            }
+        }
+    }
+
+    /** Type and catalog the Trending shelf was last loaded for, so a filter change doesn't refetch it. */
+    private var discoverTrendingKey: List<String>? = null
+    private var discoverTrendingShownKey: List<String>? = null
+    private var discoverTrendingJob: kotlinx.coroutines.Job? = null
+
+    /**
+     * Loads the Trending shelf (#858) for the type on screen: the first page of its popular or
+     * trending catalog. Only when the type or that catalog changed, or on a [force]d refresh.
+     */
+    private fun refreshDiscoverTrending(force: Boolean = false) {
+        val state = _uiState.value
+        val catalog = discoverTrendingCatalog(state.discoverCatalogs, state.selectedDiscoverType)
+        if (catalog == null) {
+            discoverTrendingJob?.cancel()
+            discoverTrendingKey = null
+            discoverTrendingShownKey = null
+            if (state.discoverTrending != null) _uiState.update { it.copy(discoverTrending = null) }
+            return
+        }
+        val key = listOf(state.selectedDiscoverType) + catalog.sourceIdentity()
+        // Already up, or on its way; a fetch that failed is tried again on the next load.
+        if (!force && key == discoverTrendingKey &&
+            (discoverTrendingShownKey == key || discoverTrendingJob?.isActive == true)
+        ) return
+        discoverTrendingKey = key
+        discoverTrendingJob?.cancel()
+        // The shelf of another type or catalog must not stay up while this one loads.
+        if (discoverTrendingShownKey != key && state.discoverTrending != null) {
+            _uiState.update { it.copy(discoverTrending = null) }
+        }
+        discoverTrendingJob = viewModelScope.launch {
+            val result = fetchDiscoverPage(DiscoverSourceCursor(catalog = catalog), genre = null)
+            if (result !is NetworkResult.Success) return@launch
+            if (discoverTrendingKey != key) return@launch
+            val today = LocalDate.now()
+            val items = result.data.items
+                .asSequence()
+                .map { item -> if (item.sourceAddonBaseUrl == null) item.copy(sourceAddonBaseUrl = catalog.addonBaseUrl) else item }
+                .filterNot { hideUnreleasedContent && it.isUnreleased(today) }
+                .distinctBy { discoverItemKey(it) }
+                .take(DISCOVER_SHELF_SIZE)
+                .toList()
+            discoverTrendingShownKey = key
+            _uiState.update {
+                it.copy(
+                    discoverTrending = result.data.copy(
+                        items = items,
+                        hasMore = false,
+                        isLoading = false
+                    ).takeIf { items.isNotEmpty() }
+                )
             }
         }
     }

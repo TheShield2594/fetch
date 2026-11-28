@@ -449,6 +449,7 @@ class LibraryViewModel @Inject constructor(
                 // A failed refresh belongs to the profile it failed on.
                 _uiState.update { it.copy(refreshFailed = false) }
                 onCloseManageLists()
+                restoreStoredFilters(profileId)
             }
         }
         viewModelScope.launch {
@@ -584,6 +585,7 @@ class LibraryViewModel @Inject constructor(
             val updated = current.copy(selectedGenre = key)
             updated.withVisibleItems()
         }
+        saveFilters()
     }
 
     fun onSelectYear(key: String?) {
@@ -591,6 +593,7 @@ class LibraryViewModel @Inject constructor(
             val updated = current.copy(selectedYear = key)
             updated.withVisibleItems()
         }
+        saveFilters()
     }
 
     fun onSelectWatchedFilter(filter: LibraryWatchedFilter) {
@@ -598,7 +601,46 @@ class LibraryViewModel @Inject constructor(
             val updated = current.copy(selectedWatchedFilter = filter)
             updated.withVisibleItems()
         }
+        saveFilters()
     }
+
+    /**
+     * Show, Genre and Year are remembered per profile (#851), as the list, type and sort are and
+     * as Discover keeps its filters. Ready to play is not: it depends on picks that expire.
+     */
+    private fun saveFilters() {
+        val state = _uiState.value
+        val profileId = profileManager.activeProfileId.value
+        val stored = com.fetch.tv.data.local.StoredLibraryFilters(
+            watchedFilter = state.selectedWatchedFilter.takeIf { it.isRemembered() }?.key,
+            genre = state.selectedGenre,
+            year = state.selectedYear
+        )
+        viewModelScope.launch {
+            if (profileManager.activeProfileId.value != profileId) return@launch
+            com.fetch.tv.core.util.runSuspendCatching { libraryViewPreferences.setFilters(stored) }
+        }
+    }
+
+    /** Puts back the filters [profileId] last used; a profile with none stored opens on All. */
+    private suspend fun restoreStoredFilters(profileId: Int) {
+        val stored = com.fetch.tv.core.util.runSuspendCatching { libraryViewPreferences.getFilters(profileId) }
+            .getOrNull() ?: com.fetch.tv.data.local.StoredLibraryFilters()
+        if (profileManager.activeProfileId.value != profileId) return
+        val watched = LibraryWatchedFilter.entries
+            .firstOrNull { it.key == stored.watchedFilter && it.isRemembered() }
+            ?: LibraryWatchedFilter.ALL
+        _uiState.update { current ->
+            current.copy(
+                selectedWatchedFilter = watched,
+                selectedGenre = stored.genre?.takeIf { it.isNotBlank() },
+                selectedYear = stored.year?.takeIf { it.isNotBlank() }
+            ).withVisibleItems()
+        }
+    }
+
+    private fun LibraryWatchedFilter.isRemembered(): Boolean =
+        this == LibraryWatchedFilter.WATCHED || this == LibraryWatchedFilter.UNWATCHED
 
     /** Clears the genre, year and watched filters; list, type and sort are kept. */
     fun onClearFilters() {
@@ -609,6 +651,7 @@ class LibraryViewModel @Inject constructor(
                 selectedWatchedFilter = LibraryWatchedFilter.ALL
             ).withVisibleItems()
         }
+        saveFilters()
     }
 
     fun onSelectSortOption(option: LibrarySortOption) {
@@ -1239,8 +1282,12 @@ class LibraryViewModel @Inject constructor(
         val typeTabsWithCounts = buildTypeTabsWithCounts(listFiltered, itemsForTypeCounts)
 
         // Validate selections — clear if no longer valid
-        val validGenre = selectedGenre?.takeIf { g -> genreOptions.any { it.key.equals(g, ignoreCase = true) } }
-        val validYear = selectedYear?.takeIf { y -> yearOptions.any { it.key == y } }
+        // While the list is still empty (loading), a genre or year restored from the profile's
+        // last visit (#851) is kept, as the type is below.
+        val validGenre = selectedGenre?.takeIf { g ->
+            listFiltered.isEmpty() || genreOptions.any { it.key.equals(g, ignoreCase = true) }
+        }
+        val validYear = selectedYear?.takeIf { y -> listFiltered.isEmpty() || yearOptions.any { it.key == y } }
         // A type the list doesn't hold (e.g. a persisted "anime" on a list with no anime) falls
         // back to All. While the list is still empty (loading) the selection is kept.
         val validTypeTab = if (

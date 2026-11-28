@@ -131,6 +131,10 @@ internal fun DiscoverSection(
     onLoadMore: () -> Unit,
     onRetry: () -> Unit,
     onItemLongPress: (MetaPreview, String) -> Unit = { _, _ -> },
+    /** Genres of the titles saved most recently, per content type, for "Because it's in your library" (#858). */
+    librarySeedGenres: Map<String, List<String>> = emptyMap(),
+    /** A shelf card took focus; [key] ([discoverShelfFocusKey]) is what focus comes back to. */
+    onShelfItemFocused: (key: String, item: MetaPreview) -> Unit = { _, _ -> },
 ) {
     val localContext = LocalContext.current
     val types = remember(uiState.discoverCatalogs) { discoverTypes(uiState.discoverCatalogs) }
@@ -164,10 +168,26 @@ internal fun DiscoverSection(
     // nothing to compare the key against yet.
     val restoreSettled = uiState.discoverInitialized && !uiState.discoverLoading &&
         !(results.isEmpty() && uiState.discoverLoadingMore)
-    val restoreTargetMissing = shouldRestoreFocusedItem && restoreSettled && focusedItemIndex < 0
+    // A title focused on a shelf (#858) comes back there while the shelves are still up.
+    val shelvesAllowed = discoverShowsShelves(filters, uiState.selectedDiscoverGenre) && results.isNotEmpty()
+    val shelves = rememberDiscoverShelves(
+        enabled = shelvesAllowed,
+        uiState = uiState,
+        librarySeedGenres = librarySeedGenres,
+        libraryIds = libraryIds,
+        watchedMovieIds = watchedMovieIds,
+        watchedSeriesIds = watchedSeriesIds
+    )
+    val shelfFocusTarget = remember(focusedItemKey, shelves) {
+        parseDiscoverShelfFocusKey(focusedItemKey)?.takeIf { (shelfId, index) ->
+            shelves.any { it.id == shelfId && index in it.row.items.indices }
+        }
+    }
+    val restoreTargetMissing = shouldRestoreFocusedItem && restoreSettled && focusedItemIndex < 0 &&
+        shelfFocusTarget == null
     // The chips are held back only while the grid really has the title to give focus to; an
     // empty grid or a title that is gone leaves them focusable.
-    val blockFilterFocus = restorePending && focusedItemIndex >= 0
+    val blockFilterFocus = restorePending && (focusedItemIndex >= 0 || shelfFocusTarget != null)
     LaunchedEffect(restoreTargetMissing) {
         if (!restoreTargetMissing) return@LaunchedEffect
         // Nothing in the grid to return to: the selected type chip takes focus instead. The
@@ -216,6 +236,31 @@ internal fun DiscoverSection(
         }
     } else {
         null
+    }
+    val allTitlesLabel = stringResource(
+        when (uiState.selectedDiscoverType) {
+            "movie" -> R.string.discover_shelf_all_movies
+            "series" -> R.string.discover_shelf_all_series
+            else -> R.string.discover_shelf_all_titles
+        }
+    )
+    fun isWatchedItem(item: MetaPreview): Boolean =
+        if (com.fetch.tv.ui.util.isSeriesContentType(item.apiType)) item.id in watchedSeriesIds else item.id in watchedMovieIds
+    // A genre tile or a shelf's See all (#858): focus moves to the grid's first card once the
+    // filtered grid is in.
+    var pendingGridFocus by remember { mutableStateOf(false) }
+    val shelfScope = rememberCoroutineScope()
+    val gridReadyForFocus = pendingGridFocus && results.isNotEmpty() && !uiState.discoverLoading && !shelvesAllowed
+    LaunchedEffect(gridReadyForFocus) {
+        if (!gridReadyForFocus) return@LaunchedEffect
+        pendingGridFocus = false
+        firstItemFocusRequester.requestFocusAfterFrames(frames = 1)
+    }
+    LaunchedEffect(uiState.discoverLoading, results.isEmpty()) {
+        // Nothing came back: the type tab keeps focus and the hand-off is dropped.
+        if (pendingGridFocus && !uiState.discoverLoading && results.isEmpty() && uiState.discoverInitialized) {
+            pendingGridFocus = false
+        }
     }
     val collapsed = com.fetch.tv.ui.components.rememberBrowseHeaderCollapsed(gridState)
 
@@ -354,7 +399,7 @@ internal fun DiscoverSection(
                         posterCardStyle = posterCardStyle,
                         watchedMovieIds = watchedMovieIds,
                         watchedSeriesIds = watchedSeriesIds,
-                        focusResults = focusResults,
+                        focusResults = focusResults || pendingGridFocus,
                         firstItemFocusRequester = firstItemFocusRequester,
                         focusedItemIndex = focusedItemIndex.coerceAtLeast(0),
                         shouldRestoreFocusedItem = shouldRestoreFocusedItem && focusedItemIndex >= 0,
@@ -372,7 +417,43 @@ internal fun DiscoverSection(
                         onItemLongPress = { item ->
                             onItemLongPress(item, item.sourceAddonBaseUrl.orEmpty())
                         },
-                        filterKey = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverGenre}|$filters"
+                        filterKey = "${uiState.selectedDiscoverType}|${uiState.selectedDiscoverGenre}|$filters",
+                        headerItemCount = if (shelves.isEmpty()) 0 else shelves.size + 1,
+                        header = if (shelves.isEmpty()) {
+                            null
+                        } else {
+                            {
+                                discoverShelfItems(
+                                    shelves = shelves,
+                                    allTitlesLabel = allTitlesLabel,
+                                    posterCardStyle = posterCardStyle,
+                                    showPosterLabels = uiState.posterLabelsEnabled,
+                                    restoreTarget = shelfFocusTarget.takeIf { shouldRestoreFocusedItem },
+                                    onRestoreHandled = onRestoreFocusedItemHandled,
+                                    isWatched = ::isWatchedItem,
+                                    onItemFocused = onShelfItemFocused,
+                                    onItemClick = { item ->
+                                        HeroBackdropState.update(item.backdropUrl)
+                                        onNavigateToDetail(item.id, item.apiType, item.sourceAddonBaseUrl.orEmpty())
+                                    },
+                                    onItemLongPress = { item -> onItemLongPress(item, item.sourceAddonBaseUrl.orEmpty()) },
+                                    onSelectGenre = { genre ->
+                                        openFilter = null
+                                        onSelectGenre(genre)
+                                        // The shelves go with the genre set; the type tab holds
+                                        // focus until the genre's first cards are in.
+                                        pendingGridFocus = true
+                                        shelfScope.launch { typeFocusRequester.requestFocusAfterFrames(frames = 1) }
+                                    },
+                                    onSelectYearRange = { range ->
+                                        openFilter = null
+                                        onSelectYearRange(range)
+                                        pendingGridFocus = true
+                                        shelfScope.launch { typeFocusRequester.requestFocusAfterFrames(frames = 1) }
+                                    }
+                                )
+                            }
+                        }
                     )
                 }
             }
@@ -502,7 +583,13 @@ internal fun DiscoverGrid(
     /** The last step of the Back ladder: focus the header's tab row (#850). */
     onFocusHeader: suspend () -> Unit = {},
     /** False while a filter panel owns Back. */
-    backEnabled: Boolean = true
+    backEnabled: Boolean = true,
+    /**
+     * Full-width rows above the cards (#858's shelves and the "All movies" heading), and how many
+     * grid items [header] adds; card indexes stay 0-based and are offset by it in the grid.
+     */
+    headerItemCount: Int = 0,
+    header: (androidx.compose.foundation.lazy.grid.LazyGridScope.() -> Unit)? = null
 ) {
     val restoreFocusRequester = remember { FocusRequester() }
     // A new type or filter crossfades the grid's content in, the chips staying still (#853).
@@ -548,7 +635,7 @@ internal fun DiscoverGrid(
         if (target in 0 until totalCells) {
             // A card far down the grid may not be composed yet (a long scroll, or a grid rebuilt
             // after the app was stopped): the browse screens' one restore step scrolls it in (#850).
-            gridState.restoreBrowseFocus(target, restoreFocusRequester)
+            gridState.restoreBrowseFocus(target + headerItemCount, restoreFocusRequester)
         }
         if (localShouldRestoreFocusedItem) {
             localShouldRestoreFocusedItem = false
@@ -594,9 +681,9 @@ internal fun DiscoverGrid(
     // doesn't recompose the whole grid (#849).
     val shouldAutoLoad = canLoadMore && !isLoadingMore && !autoLoadPaused && items.isNotEmpty()
     val currentOnLoadMore by rememberUpdatedState(onLoadMore)
-    LaunchedEffect(gridState, items.size, shouldAutoLoad) {
+    LaunchedEffect(gridState, items.size, shouldAutoLoad, headerItemCount) {
         if (!shouldAutoLoad) return@LaunchedEffect
-        val threshold = items.size - DISCOVER_PREFETCH_DISTANCE
+        val threshold = items.size - DISCOVER_PREFETCH_DISTANCE + headerItemCount
         snapshotFlow { gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .filterNotNull()
             .first { lastVisible -> lastVisible >= threshold }
@@ -610,7 +697,10 @@ internal fun DiscoverGrid(
         gridState = gridState,
         gridHasFocus = gridHasFocus,
         enabled = backEnabled,
-        onFocusFirstCard = {
+        onFocusFirstCard = onFocusFirstCard@{
+            // With shelves above the cards the first card is off screen at the top; the header's
+            // tab row is the next step instead.
+            if (headerItemCount > 0) return@onFocusFirstCard false
             val firstCard = when {
                 effectiveShouldRestoreFocusedItem && effectiveFocusedItemIndex == 0 -> restoreFocusRequester
                 focusResults -> firstItemFocusRequester
@@ -641,6 +731,7 @@ internal fun DiscoverGrid(
         horizontalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.columnGap),
         verticalArrangement = Arrangement.spacedBy(com.fetch.tv.ui.components.BrowseDefaults.rowGap)
     ) {
+        header?.invoke(this)
         itemsIndexed(
             items = items,
             // Results are de-duplicated on this key, so it is unique, and it follows a title when

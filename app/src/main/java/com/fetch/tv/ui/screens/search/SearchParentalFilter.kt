@@ -24,6 +24,9 @@ internal fun SearchUiState.filteredForProfile(parentalControls: ParentalControls
             parentalControls.filterRow(row).keptAfterFiltering(original = row)
         },
         discoverResults = discoverResults.filter(parentalControls::isAllowed),
+        discoverTrending = discoverTrending?.let { row ->
+            row.copy(items = row.items.filter(parentalControls::isAllowed))
+        },
         // A person's page lists their whole filmography; restricted profiles browse titles only.
         peopleResults = emptyList()
     )

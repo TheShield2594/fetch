@@ -29,8 +29,12 @@ internal class LibraryViewModelTestFixture(
     sorter: TrackingLibrarySorter? = null,
     scope: LibraryListScope = LibraryListScope.LISTS,
     /** The Layout setting for the hero band (#852); off so layout tests measure the grid alone. */
-    heroEnabled: Boolean = false
+    heroEnabled: Boolean = false,
+    /** The Show, Genre and Year filters the profile last used (#851). */
+    storedFilters: com.fetch.tv.data.local.StoredLibraryFilters = com.fetch.tv.data.local.StoredLibraryFilters()
 ) {
+    /** The filters last written to the profile's view preferences. */
+    var savedFilters: com.fetch.tv.data.local.StoredLibraryFilters? = null
     /** What the History and In progress tabs read. */
     val watched = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchedItem>())
     val inProgress = MutableStateFlow(emptyList<com.fetch.tv.domain.model.WatchProgress>())
@@ -75,6 +79,8 @@ internal class LibraryViewModelTestFixture(
             coEvery { setSortOption(any()) } coAnswers { persistedSort.value = firstArg() }
             every { lastSelectedList } returns flowOf(null)
             every { lastSelectedType } returns flowOf(null)
+            coEvery { getFilters(any()) } returns storedFilters
+            coEvery { setFilters(any()) } coAnswers { savedFilters = firstArg() }
         },
         trackingProviderRegistry = TrackingLibraryProviderRegistry(setOf(provider)),
         watchProgressRepository = mockk<WatchProgressRepository> {

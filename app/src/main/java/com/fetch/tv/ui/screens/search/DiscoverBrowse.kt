@@ -248,3 +248,90 @@ internal fun com.fetch.tv.data.local.StoredDiscoverFilters.toDiscoverFilters(): 
         includeUnrated = includeUnrated
     )
 }
+
+/*
+ * Shelves above the grid (#858). With no genre or filter set, Discover opens on a few rows that
+ * suggest where to start, then the full grid under an "All movies" heading. Any filter hides them.
+ */
+
+/** How many titles a Discover shelf holds. */
+internal const val DISCOVER_SHELF_SIZE = 20
+
+/** How many of the most recently saved titles seed "Because it's in your library". */
+internal const val DISCOVER_LIBRARY_SEED_COUNT = 10
+
+/** Catalog ids or names that read as popular right now; Cinemeta's is id "top", name "Popular". */
+private val TRENDING_CATALOG_PATTERN = Regex("""(?i)trending|popular|\btop\b|\bhot\b""")
+
+/** Whether the shelves show: nothing is narrowing or re-ordering the grid. */
+internal fun discoverShowsShelves(filters: DiscoverFilters, genre: String?): Boolean =
+    genre.isNullOrBlank() && !filters.anySet
+
+/**
+ * The catalog the Trending shelf reads: the first catalog of [type] whose id or name says it is
+ * popular or trending and that can be browsed without a genre. Null when no addon has one.
+ */
+internal fun discoverTrendingCatalog(catalogs: List<DiscoverCatalog>, type: String): DiscoverCatalog? =
+    catalogs.firstOrNull { catalog ->
+        catalog.type == type &&
+            !catalog.genreRequired &&
+            (TRENDING_CATALOG_PATTERN.containsMatchIn(catalog.catalogId) ||
+                TRENDING_CATALOG_PATTERN.containsMatchIn(catalog.catalogName))
+    }
+
+/**
+ * The genres of the [DISCOVER_LIBRARY_SEED_COUNT] titles of [type] saved most recently, most
+ * shared first. Empty when nothing of that type is saved or none of it carries genres.
+ */
+internal fun discoverLibrarySeedGenres(
+    entries: List<com.fetch.tv.domain.model.LibraryEntry>,
+    type: String
+): List<String> {
+    val recent = entries.asSequence()
+        .filter { it.type.equals(type, ignoreCase = true) && it.genres.isNotEmpty() }
+        .sortedByDescending { it.listedAt }
+        .take(DISCOVER_LIBRARY_SEED_COUNT)
+        .toList()
+    if (recent.isEmpty()) return emptyList()
+    val counts = LinkedHashMap<String, Pair<String, Int>>()
+    recent.forEach { entry ->
+        entry.genres.asSequence()
+            .filter { it.isNotBlank() }
+            .distinctBy { it.trim().lowercase(Locale.ROOT) }
+            .forEach { genre ->
+                val key = genre.trim().lowercase(Locale.ROOT)
+                val (spelling, count) = counts[key] ?: (genre.trim() to 0)
+                counts[key] = spelling to count + 1
+            }
+    }
+    return counts.values.sortedByDescending { it.second }.map { it.first }
+}
+
+/**
+ * "Because it's in your library": loaded titles sharing a genre with [seedGenres], leaving out
+ * anything already saved or watched. In catalog order, so a page loading under the shelf only
+ * adds to its end and never moves the card in focus.
+ */
+internal fun discoverBecauseInLibrary(
+    items: List<MetaPreview>,
+    seedGenres: List<String>,
+    isSaved: (MetaPreview) -> Boolean,
+    isWatched: (MetaPreview) -> Boolean,
+    limit: Int = DISCOVER_SHELF_SIZE
+): List<MetaPreview> {
+    if (seedGenres.isEmpty() || items.isEmpty()) return emptyList()
+    val seeds = seedGenres.mapTo(HashSet()) { it.trim().lowercase(Locale.ROOT) }
+    return items.asSequence()
+        .filter { item -> item.genres.any { it.trim().lowercase(Locale.ROOT) in seeds } }
+        .filter { item -> !isSaved(item) && !isWatched(item) }
+        .take(limit)
+        .toList()
+}
+
+/** "New this year": loaded titles released in [currentYear], in catalog order. */
+internal fun discoverNewThisYear(
+    items: List<MetaPreview>,
+    currentYear: Int,
+    limit: Int = DISCOVER_SHELF_SIZE
+): List<MetaPreview> =
+    items.asSequence().filter { it.discoverYear() == currentYear }.take(limit).toList()

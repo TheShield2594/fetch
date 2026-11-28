@@ -156,9 +156,10 @@ class CalendarViewModel @Inject constructor(
     }
 
     /**
-     * Marks [entry] watched, or unwatched when it already is, through the same path as the title's
-     * own page, so it reaches Trakt or the website as any other mark does. The row changes at once
-     * and changes back if the mark can't be saved.
+     * Marks [entry] watched, or unwatched when it already is, through the same repository as the
+     * title's own page, so it reaches Trakt or the website as any other mark does. The row changes
+     * at once and stays pending until every connected tracker and media server has answered; if
+     * any of them didn't take it, the row changes back and the error shows.
      */
     fun toggleWatched(entry: WebsiteCalendarEntry) {
         val key = calendarEntryKey(entry)
@@ -169,9 +170,9 @@ class CalendarViewModel @Inject constructor(
         marks[key] = mark
         setWatched(key, watched)
         viewModelScope.launch {
+            // The row shows the mark while it's pending; whether it stays waits for every tracker.
             val saved = try {
                 if (watched) markWatched(entry) else markUnwatched(entry)
-                true
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Exception) {
@@ -190,35 +191,37 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    private suspend fun markWatched(entry: WebsiteCalendarEntry) {
+    /** Whether every tracker and media server took the watch. */
+    private suspend fun markWatched(entry: WebsiteCalendarEntry): Boolean {
         val now = System.currentTimeMillis()
-        if (entry.isMovie) {
-            val ids = setOf(entry.seriesImdbId)
-            progress.applyOptimisticWatchedMovie(ids, add = true)
-            try {
-                progress.markAsCompleted(completedProgress(entry, "movie", entry.seriesImdbId, now))
-            } catch (error: Exception) {
-                progress.revertOptimisticWatchedMovie(ids, add = true)
-                throw error
-            }
-        } else {
+        if (!entry.isMovie) {
             val videoId = "${entry.seriesImdbId}:${entry.season}:${entry.episode}"
-            progress.markAsCompleted(completedProgress(entry, "series", videoId, now))
+            return progress.markAsCompletedConfirmed(completedProgress(entry, "series", videoId, now))
         }
+        val ids = setOf(entry.seriesImdbId)
+        progress.applyOptimisticWatchedMovie(ids, add = true)
+        val saved = try {
+            progress.markAsCompletedConfirmed(completedProgress(entry, "movie", entry.seriesImdbId, now))
+        } catch (error: Exception) {
+            progress.revertOptimisticWatchedMovie(ids, add = true)
+            throw error
+        }
+        if (!saved) progress.revertOptimisticWatchedMovie(ids, add = true)
+        return saved
     }
 
-    private suspend fun markUnwatched(entry: WebsiteCalendarEntry) {
+    /** Whether every tracker and media server took the removal. */
+    private suspend fun markUnwatched(entry: WebsiteCalendarEntry): Boolean =
         if (entry.isMovie) {
-            progress.removeFromHistory(entry.seriesImdbId, videoId = entry.seriesImdbId)
+            progress.removeFromHistoryConfirmed(entry.seriesImdbId, videoId = entry.seriesImdbId)
         } else {
-            progress.removeFromHistory(
+            progress.removeFromHistoryConfirmed(
                 entry.seriesImdbId,
                 videoId = "${entry.seriesImdbId}:${entry.season}:${entry.episode}",
                 season = entry.season,
                 episode = entry.episode
             )
         }
-    }
 
     private fun completedProgress(entry: WebsiteCalendarEntry, type: String, videoId: String, now: Long) = WatchProgress(
         contentId = entry.seriesImdbId,

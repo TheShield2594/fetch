@@ -136,6 +136,18 @@ interface WatchProgressRepository {
     
     suspend fun removeProgress(contentId: String, season: Int? = null, episode: Int? = null)
 
+    /**
+     * [removeProgress] for [profileId] rather than whichever profile is active when the write
+     * runs. Trackers are signed in per profile, so their removal is skipped when [profileId]
+     * is no longer active; the local delete always goes to [profileId].
+     */
+    suspend fun removeProgress(
+        contentId: String,
+        season: Int?,
+        episode: Int?,
+        profileId: Int
+    ) = removeProgress(contentId, season, episode)
+
     suspend fun removeFromHistory(contentId: String, videoId: String? = null, season: Int? = null, episode: Int? = null)
 
     /**

@@ -178,18 +178,22 @@ internal fun HomeViewModel.observeLayoutPreferencesPipeline() {
     viewModelScope.launch {
         combine(
             baseLayoutUiPrefsFlow,
-            modernLayoutPrefsFlow
-        ) { basePrefs, modernPrefs ->
+            modernLayoutPrefsFlow,
+            profileManager.activeProfileId
+        ) { basePrefs, modernPrefs, profileId ->
             basePrefs.copy(
                 modernLandscapePostersEnabled = modernPrefs.landscapePosters,
                 modernHeroFullScreenBackdropEnabled = modernPrefs.fullScreenBackdrop,
                 homeImdbRatingsVisibility = modernPrefs.homeImdbRatingsVisibility,
                 alwaysShowLandscapeClearlogo = modernPrefs.alwaysShowLandscapeClearlogo,
                 detailImdbRatingsVisibility = modernPrefs.detailImdbRatingsVisibility,
-            )
+            ) to profileId
         }
+            // Keyed by profile too: the profile reset clears layoutPreferencesReady, and two
+            // profiles with identical layout settings must still set it again (#809).
             .distinctUntilChanged()
             .debounce(300)
+            .map { (prefs, _) -> prefs }
             .collectLatest { prefs ->
                 // Modern cards carry their own title treatment, so poster labels stay off on Home.
                 val effectivePosterLabelsEnabled = false
@@ -320,10 +324,9 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     spotlightDay = spotlightDay()
                 )
             }
-            // Compare by row structure only (keys + item counts), not by
-            // item content.  TMDB/meta enrichment changes item fields but
-            // not the row structure — the hero section reads enriched data
-            // via enrichedPreviews instead.
+            // Rows compare by reference, not content: the pipeline only swaps a row list when
+            // it changed (an equal rebuild keeps the old reference), so this stays cheap and
+            // still lets per-item writes such as MDBList ratings reach the carousel rows.
             .distinctUntilChanged { old, new ->
                 old.homeRows === new.homeRows
                     && old.becauseYouWatchedRows == new.becauseYouWatchedRows
@@ -337,11 +340,12 @@ internal fun HomeViewModel.observeModernHomePresentationPipeline() {
                     && old.showCatalogTypeSuffix == new.showCatalogTypeSuffix
                     && old.showFullReleaseDate == new.showFullReleaseDate
                     && old.showImdbRatings == new.showImdbRatings
+                    && old.detailImdbRatingsVisibility == new.detailImdbRatingsVisibility
                     && old.localeTag == new.localeTag
                     && old.contentFilter == new.contentFilter
                     && old.watchedStatus == new.watchedStatus
                     && old.spotlightDay == new.spotlightDay
-                    && old.catalogRows.size == new.catalogRows.size
+                    && old.catalogRows === new.catalogRows
             }
             .debounce {
                 // Use a longer debounce while catalogs are still loading to

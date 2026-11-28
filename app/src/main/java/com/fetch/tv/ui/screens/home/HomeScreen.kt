@@ -193,6 +193,10 @@ fun HomeScreen(
         }
     }
 
+    // The timeout log reads these when it fires, not as they were at launch.
+    val latestGateUiState = androidx.compose.runtime.rememberUpdatedState(uiState)
+    val latestGateCwResolved = androidx.compose.runtime.rememberUpdatedState(initialCwResolved)
+    val latestGateHasCatalogs = androidx.compose.runtime.rememberUpdatedState(hasCatalogContent)
     LaunchedEffect(Unit) {
         // Safety timeout — if catalogs and CW haven't loaded within this
         // window, show whatever is available.  Covers edge cases like
@@ -200,7 +204,8 @@ fun HomeScreen(
         // no addons at all.
         delay(HOME_STABLE_GATE_TIMEOUT_MS)
         if (!homeStableGateReleased) {
-            Log.d("HomeGate", "RELEASE timeout: isLoading=${uiState.isLoading} cwResolved=$initialCwResolved catalogs=$hasCatalogContent cwItems=${uiState.continueWatchingItems.size}")
+            val state = latestGateUiState.value
+            Log.d("HomeGate", "RELEASE timeout: isLoading=${state.isLoading} cwResolved=${latestGateCwResolved.value} catalogs=${latestGateHasCatalogs.value} cwItems=${state.continueWatchingItems.size}")
             homeStableGateReleased = true
         }
     }

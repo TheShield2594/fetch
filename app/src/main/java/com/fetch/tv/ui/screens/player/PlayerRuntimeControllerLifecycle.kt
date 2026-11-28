@@ -28,6 +28,9 @@ internal fun PlayerRuntimeController.releasePlayer(
     audioRouteChangeJob?.cancel()
     audioRouteChangeJob = null
 
+    stopMpvPlatformIntegration()
+    mpvStoppedForLifecycle = false
+    mpvLifecycleResumePositionMs = 0L
     try {
         currentMediaSession?.release()
         currentMediaSession = null

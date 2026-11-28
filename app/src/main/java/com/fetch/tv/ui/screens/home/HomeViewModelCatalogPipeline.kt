@@ -463,8 +463,11 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
 
     updateCatalogRow(key) { it.copy(isLoading = true) }
     _loadingCatalogs.update { it + key }
+    // A page fetched before a reload must not merge into the reloaded row: the reload bumps the
+    // generation and cancels the job (it is registered with the catalog loads).
+    val generation = catalogLoadGeneration
 
-    viewModelScope.launch {
+    val loadMoreJob = viewModelScope.launch {
         // Two installs of one addon share an id, so the row's base URL picks the right one.
         val addon = addonsCache.find { it.id == addonId && it.baseUrl == currentRow.addonBaseUrl }
             ?: addonsCache.find { it.id == addonId }
@@ -490,6 +493,11 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
             extraArgs = descriptor?.requiredBrowseExtraArgs().orEmpty(),
             supportsSkip = currentRow.supportsSkip
         ).collect { result ->
+            if (generation != catalogLoadGeneration) {
+                _loadingCatalogs.update { it - key }
+                updateCatalogRow(key) { it.copy(isLoading = false) }
+                return@collect
+            }
             when (result) {
                 is NetworkResult.Success -> {
                     updateCatalogRow(key) { latestRow ->
@@ -508,6 +516,14 @@ internal fun HomeViewModel.loadMoreCatalogItemsPipeline(catalogId: String, addon
             }
         }
     }
+    loadMoreJob.invokeOnCompletion { cause ->
+        if (cause == null) return@invokeOnCompletion
+        // Cancelled by a reload: free the key and stop the spinner, so the row can page again
+        // even when its reload fails and the old row stays on screen.
+        _loadingCatalogs.update { it - key }
+        updateCatalogRow(key) { it.copy(isLoading = false) }
+    }
+    registerCatalogLoadJob(loadMoreJob)
 }
 
 internal suspend fun HomeViewModel.updateCatalogRowsPipeline() {
@@ -786,7 +802,7 @@ private fun HomeViewModel.reconcileFullyWatchedFromLocalItems(
             } ?: return@forEach
             cacheResolvedIds.add(contentId)
             val watchedEpisodes = watchedEpisodesByContentId[contentId].orEmpty()
-            if (requiredEpisodes.isNotEmpty() && requiredEpisodes.all { it in watchedEpisodes }) {
+            if (isFullyWatchedAgainstAiredList(requiredEpisodes, watchedEpisodes)) {
                 add(contentId)
             }
         }

@@ -145,11 +145,17 @@ class TraktSettingsDataStore @Inject constructor(
         }
     }
 
-    /** Hides [dismissal]'s show from Up Next, replacing any earlier dismissal of it. */
-    suspend fun addNextUpDismissal(dismissal: NextUpDismissal) {
+    /**
+     * Hides [dismissal]'s show from Up Next for [profileId] (the active profile by default),
+     * replacing any earlier dismissal of it.
+     */
+    suspend fun addNextUpDismissal(
+        dismissal: NextUpDismissal,
+        profileId: Int = profileManager.currentProfileId()
+    ) {
         val contentId = dismissal.contentId.trim()
         if (contentId.isEmpty()) return
-        store(profileManager.currentProfileId()).edit { prefs ->
+        store(profileId).edit { prefs ->
             val current = prefs[dismissedNextUpKeysKey] ?: emptySet()
             prefs[dismissedNextUpKeysKey] = current
                 .filterNot { NextUpDismissal.contentIdOf(it) == contentId }

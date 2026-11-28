@@ -706,11 +706,17 @@ class WatchProgressRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) {
-        val profileId = profileManager.activeProfileId.value
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?) =
+        removeProgress(contentId, season, episode, profileManager.activeProfileId.value)
+
+    override suspend fun removeProgress(contentId: String, season: Int?, episode: Int?, profileId: Int) {
         supervisorScope {
+            // The trackers are the active profile's accounts: never send another profile's
+            // removal to them. Checked per provider, right before each call.
+            if (profileManager.activeProfileId.value != profileId) return@supervisorScope
             connectedProgressProviders().map { provider ->
                 async {
+                    if (profileManager.activeProfileId.value != profileId) return@async
                     provider.applyOptimisticRemoval(contentId, season, episode)
                     runSuspendCatching { provider.removeProgress(contentId, season, episode) }
                         .onFailure { error ->

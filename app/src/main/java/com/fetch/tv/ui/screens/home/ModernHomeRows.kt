@@ -849,8 +849,9 @@ internal fun ModernRowSection(
             snapshotFlow { expandedCatalogFocusKey.value }
                 .collect { expandedKey ->
                     if (expandedKey == null) return@collect
-                    // Find the index of the expanded item in this row
-                    val expandedIndex = row.items.list.indexOfFirst { item ->
+                    // Find the index of the expanded item in this row. The latest row, not the
+                    // one this effect started with: a reorder keeps the key and the count.
+                    val expandedIndex = currentRowState.value.items.list.indexOfFirst { item ->
                         when (val p = item.payload) {
                             is ModernPayload.Catalog -> p.focusKey == expandedKey
                             is ModernPayload.CollectionFolder -> p.focusKey == expandedKey

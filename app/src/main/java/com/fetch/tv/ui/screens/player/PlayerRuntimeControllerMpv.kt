@@ -62,6 +62,7 @@ internal fun PlayerRuntimeController.attachMpvView(view: FetchMpvSurfaceView?) {
         cancelPauseOverlay()
         startProgressUpdates()
         startWatchProgressSaving()
+        startMpvPlatformIntegration()
         updateMpvAvailableTracks()
         scheduleHideControls()
         // Started paused (#706): the scrobble starts when playback does, on resume.
@@ -214,6 +215,7 @@ internal fun PlayerRuntimeController.initializeMpvPlayer(
         cancelPauseOverlay()
         startProgressUpdates()
         startWatchProgressSaving()
+        startMpvPlatformIntegration()
         updateMpvAvailableTracks()
         scheduleHideControls()
         // Started paused (#706): the scrobble starts when playback does, on resume.
@@ -310,7 +312,10 @@ internal fun PlayerRuntimeController.pauseForLifecycle() {
 internal fun PlayerRuntimeController.stopForLifecycle() {
     // Hidden, not just covered by an overlay: coming back waits for the user to press play.
     resumePlaybackAfterTransientPause = false
-    if (isUsingMpvEngine()) return
+    if (isUsingMpvEngine()) {
+        stopMpvForLifecycle()
+        return
+    }
     val player = _exoPlayer ?: return
     if (player.playbackState == androidx.media3.common.Player.STATE_IDLE) return
     exoStoppedForLifecycle = true
@@ -320,6 +325,10 @@ internal fun PlayerRuntimeController.stopForLifecycle() {
 }
 
 internal fun PlayerRuntimeController.startForLifecycle() {
+    if (mpvStoppedForLifecycle) {
+        startMpvForLifecycle()
+        return
+    }
     if (!exoStoppedForLifecycle) return
     exoStoppedForLifecycle = false
     // resumeForLifecycle rebuilds the player for this case.
@@ -329,6 +338,46 @@ internal fun PlayerRuntimeController.startForLifecycle() {
     if (player.playbackState == androidx.media3.common.Player.STATE_IDLE) {
         player.prepare()
     }
+}
+
+/**
+ * mpv's counterpart of the ExoPlayer stop above (#766): the paused file is unloaded, which frees
+ * the decoder, the network connection and the demuxer cache, and [startMpvForLifecycle] loads it
+ * again, paused, where it was. The core itself stays, so the surface callbacks stay valid.
+ */
+private fun PlayerRuntimeController.stopMpvForLifecycle() {
+    val view = mpvView ?: return
+    if (isReleasingPlayer || mpvInitializationInProgress || currentStreamUrl.isBlank()) return
+    val state = _uiState.value
+    // An ended or failed playback has nothing to come back to; reloading it would replay the end.
+    if (state.playbackEnded || state.error != null) return
+    val position = if (isLiveForWatchProgress()) {
+        0L
+    } else {
+        view.currentPositionMs().takeIf { it > 0L && view.isPositionFromRequestedMedia() }
+            ?: _playbackTimeline.value.currentPosition
+    }
+    mpvStoppedForLifecycle = true
+    mpvLifecycleResumePositionMs = position.coerceAtLeast(0L)
+    // Nothing on screen is updated in the background, and an unloaded file must not read as idle.
+    stopProgressUpdates()
+    cancelStallWatchdog()
+    unregisterMpvEventRelay()
+    runCatching { view.stopForBackground() }
+        .onFailure { Log.w(PlayerRuntimeController.TAG, "mpv background stop failed: ${it.message}") }
+    mpvSessionPlayer?.refresh()
+}
+
+private fun PlayerRuntimeController.startMpvForLifecycle() {
+    mpvStoppedForLifecycle = false
+    val position = mpvLifecycleResumePositionMs
+    mpvLifecycleResumePositionMs = 0L
+    if (!isUsingMpvEngine() || isReleasingPlayer || currentStreamUrl.isBlank()) return
+    if (position > 0L) pendingSeekPosition = position
+    // Paused, as ExoPlayer comes back from its stop: pauseForLifecycle set userPausedManually.
+    userPausedManually = true
+    shouldEnforceAutoplayOnFirstReady = false
+    initializeMpvPlayer(currentStreamUrl, currentHeaders, allowEngineFailover = false)
 }
 
 /** The player the MediaSession drives: its play and pause take the remote's path (#705). */
@@ -364,6 +413,8 @@ internal fun PlayerRuntimeController.resumeForLifecycle() {
         // pauseForLifecycle stopped the tick; it would otherwise only restart on the next Play
         // press, leaving the timeline, tracks and server reporting frozen (TheShield2594/fetch#732).
         if (mpvView != null && !isReleasingPlayer) {
+            // The MediaSession was released for the background; media keys work again (#766).
+            if (currentStreamUrl.isNotBlank()) ensureMpvMediaSession()
             startProgressUpdates()
             if (resumeTransientPause && userPausedManually) {
                 // Only an overlay covered the player (it was never hidden): carry on playing.

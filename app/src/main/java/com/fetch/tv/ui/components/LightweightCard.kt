@@ -114,11 +114,15 @@ fun LightweightCard(
     val border = if (focused || pressed) focusedBorder else restingBorder
     val coroutineScope = rememberCoroutineScope()
     val pressInteraction = remember { PressInteraction.Press(Offset.Zero) }
+    // Set on this card's own OK key-down. A key-up without it (the press that closed a dialog
+    // over Home, or that started on another card before focus moved) must not open the card.
+    val selectDownSeen = remember { booleanArrayOf(false) }
 
     CompositionLocalProvider(LocalContentColor provides contentColorFor(containerColor)) {
         Box(
             modifier = modifier
                 .onFocusChanged {
+                    if (!it.isFocused) selectDownSeen[0] = false
                     if (!it.isFocused && pressed) {
                         coroutineScope.launch {
                             interactionSource.emit(PressInteraction.Release(pressInteraction))
@@ -130,13 +134,16 @@ fun LightweightCard(
                     if (!isSelectKey(native.keyCode)) return@onKeyEvent false
                     when (native.action) {
                         AndroidKeyEvent.ACTION_DOWN -> if (native.repeatCount == 0) {
+                            selectDownSeen[0] = true
                             coroutineScope.launch { interactionSource.emit(pressInteraction) }
                         }
                         AndroidKeyEvent.ACTION_UP -> {
                             coroutineScope.launch {
                                 interactionSource.emit(PressInteraction.Release(pressInteraction))
                             }
-                            onClick()
+                            val wasPressedHere = selectDownSeen[0]
+                            selectDownSeen[0] = false
+                            if (wasPressedHere && !native.isCanceled) onClick()
                         }
                     }
                     true

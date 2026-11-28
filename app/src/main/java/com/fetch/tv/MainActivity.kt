@@ -119,7 +119,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.metrics.performance.JankStats
 import androidx.metrics.performance.PerformanceMetricsState
 import androidx.navigation.NavHostController
@@ -162,6 +164,7 @@ import com.fetch.tv.ui.components.LocalAlwaysBackdropWithLogo
 import com.fetch.tv.ui.components.ProfileAvatarCircle
 import com.fetch.tv.core.lifecycle.AppForeground
 import com.fetch.tv.ui.navigation.FetchNavHost
+import com.fetch.tv.ui.navigation.rememberNavHostViewModelStoreOwner
 import com.fetch.tv.ui.navigation.RootBackAction
 import com.fetch.tv.ui.navigation.rootBackAction
 import com.fetch.tv.ui.navigation.Screen
@@ -757,6 +760,9 @@ open class MainActivity : ComponentActivity() {
                         Screen.Home.route
                     }
                     val navController = rememberNavController()
+                    // The NavHost's ViewModels belong to this branch: cleared when it leaves
+                    // composition (the profile picker), so no old Home keeps running (#809).
+                    val navViewModelStoreOwner = rememberNavHostViewModelStoreOwner(this@MainActivity)
                     var optimisticRoute by remember { mutableStateOf<String?>(null) }
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val actualRoute = navBackStackEntry?.destination?.route
@@ -1140,6 +1146,7 @@ open class MainActivity : ComponentActivity() {
                             FetchSidebarScaffold(
                                 longPressBackHeld = longPressBackHeld,
                                 navController = navController,
+                                navViewModelStoreOwner = navViewModelStoreOwner,
                                 startDestination = startDestination,
                                 currentRoute = currentRoute,
                                 rootRoutes = rootRoutes,
@@ -1495,6 +1502,7 @@ private fun SidebarFocusRecoveryEffect(
 private fun FetchSidebarScaffold(
     longPressBackHeld: MutableState<Boolean>,
     navController: NavHostController,
+    navViewModelStoreOwner: ViewModelStoreOwner,
     startDestination: String,
     currentRoute: String?,
     rootRoutes: Set<String>,
@@ -1788,7 +1796,8 @@ private fun FetchSidebarScaffold(
         ) {
             CompositionLocalProvider(
                 LocalSidebarExpanded provides (drawerState.currentValue == DrawerValue.Open),
-                LocalContentFocusRequester provides contentFocusRequester
+                LocalContentFocusRequester provides contentFocusRequester,
+                LocalViewModelStoreOwner provides navViewModelStoreOwner
             ) {
                 FetchNavHost(
                     navController = navController,

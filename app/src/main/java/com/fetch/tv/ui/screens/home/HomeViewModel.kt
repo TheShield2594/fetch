@@ -598,6 +598,9 @@ class HomeViewModel @Inject constructor(
                         it.copy(
                             layoutPreferencesReady = false,
                             continueWatchingItems = emptyList(),
+                            // Upcoming is the same pipeline's other half; left alone, the
+                            // previous profile's row stayed until the new final merge (#809).
+                            upcomingItems = emptyList(),
                             becauseYouWatchedRows = emptyList()
                         )
                     }
@@ -989,8 +992,22 @@ class HomeViewModel @Inject constructor(
             // A profile switch while this ran has already cleared Home for the new profile.
             if (items.isNotEmpty() && profileManager.currentProfileId() == profileId) {
                 val (mainItems, upcomingOnly) = splitUpcomingItems(items, sortMode)
-                _uiState.update { it.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly) }
-                _initialCwResolved.value = true
+                var restored = false
+                _uiState.update { state ->
+                    // Only a placeholder until the pipeline's first result: on slow storage this
+                    // can land after it, and must not put the older disk copy back over it.
+                    if (_initialCwResolved.value ||
+                        state.continueWatchingItems.isNotEmpty() ||
+                        state.upcomingItems.isNotEmpty()
+                    ) {
+                        restored = false
+                        state
+                    } else {
+                        restored = true
+                        state.copy(continueWatchingItems = mainItems, upcomingItems = upcomingOnly)
+                    }
+                }
+                if (restored) _initialCwResolved.value = true
             }
         }
         loadContinueWatchingPipeline()
@@ -1205,6 +1222,7 @@ class HomeViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        android.util.Log.d(TAG, "HomeViewModel cleared (profile ${profileManager.currentProfileId()})")
         // Leaving the app commits a removal still in its undo window. The view model's own scope
         // is already cancelled here, so the writes run on a scope of their own.
         commitPendingContinueWatchingRemoval(

@@ -34,8 +34,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -102,7 +105,9 @@ fun FetchFilterChip(
         }
     }
 
-    Box(modifier = modifier) {
+    // Where the chip sits on screen, so the panel can be sized to the room above or below it.
+    var anchorBounds by remember { mutableStateOf<Rect?>(null) }
+    Box(modifier = modifier.onGloballyPositioned { anchorBounds = it.boundsInWindow() }) {
         FetchChipSurface(
             selected = active,
             onClick = { onExpandedChange(!expanded) },
@@ -119,6 +124,7 @@ fun FetchFilterChip(
         if (expanded) {
             FetchFilterPanel(
                 options = options,
+                anchorBounds = anchorBounds,
                 onDismiss = { onExpandedChange(false) },
                 onSelect = { option ->
                     onExpandedChange(false)
@@ -168,12 +174,31 @@ private const val FILTER_PANEL_MAX_SCREEN_FRACTION = 0.55f
 @Composable
 private fun FetchFilterPanel(
     options: List<FetchFilterOption>,
+    anchorBounds: Rect?,
     onDismiss: () -> Unit,
     onSelect: (FetchFilterOption) -> Unit
 ) {
-    val gapPx = with(LocalDensity.current) { FetchTheme.spacing.xs.roundToPx() }
-    val positionProvider = remember(gapPx) { BelowAnchorPositionProvider(gapPx) }
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * FILTER_PANEL_MAX_SCREEN_FRACTION).dp
+    val density = LocalDensity.current
+    val gap = FetchTheme.spacing.xs
+    // Kept clear of the screen's top and bottom edges, as the screens' own content is.
+    val margin = FetchTheme.spacing.screen.vertical
+    val gapPx = with(density) { gap.roundToPx() }
+    val marginPx = with(density) { margin.roundToPx() }
+    val positionProvider = remember(gapPx, marginPx) { BelowAnchorPositionProvider(gapPx, marginPx) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    // No taller than the room on the roomier side of the chip, so it never runs off the screen
+    // or over the chip; the provider then opens it on the side it fits.
+    val roomHeight = anchorBounds?.let { bounds ->
+        with(density) {
+            val above = bounds.top.toDp() - gap - margin
+            val below = screenHeight - bounds.bottom.toDp() - gap - margin
+            maxOf(above, below)
+        }
+    }
+    val maxHeight = minOf(
+        screenHeight * FILTER_PANEL_MAX_SCREEN_FRACTION,
+        roomHeight ?: screenHeight
+    ).coerceAtLeast(FetchTheme.spacing.huge * 2)
     val selectedIndex = options.indexOfFirst { it.selected }.coerceAtLeast(0)
     val selectedFocusRequester = remember { FocusRequester() }
     val latestDismiss by rememberUpdatedState(onDismiss)
@@ -292,10 +317,13 @@ private fun FetchFilterOptionRow(
 }
 
 /**
- * Puts the panel under its chip, lined up with the chip's start edge and kept on screen. When
- * there is no room below, it opens above the chip instead.
+ * Puts the panel under its chip, lined up with the chip's start edge and kept on screen, [marginPx]
+ * from the top and bottom edges. When there is no room below, it opens above the chip instead.
  */
-private class BelowAnchorPositionProvider(private val gapPx: Int) : PopupPositionProvider {
+private class BelowAnchorPositionProvider(
+    private val gapPx: Int,
+    private val marginPx: Int
+) : PopupPositionProvider {
     override fun calculatePosition(
         anchorBounds: IntRect,
         windowSize: IntSize,
@@ -309,10 +337,10 @@ private class BelowAnchorPositionProvider(private val gapPx: Int) : PopupPositio
         }
         val x = start.coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
         val below = anchorBounds.bottom + gapPx
-        val y = if (below + popupContentSize.height <= windowSize.height) {
+        val y = if (below + popupContentSize.height <= windowSize.height - marginPx) {
             below
         } else {
-            (anchorBounds.top - gapPx - popupContentSize.height).coerceAtLeast(0)
+            (anchorBounds.top - gapPx - popupContentSize.height).coerceAtLeast(marginPx)
         }
         return IntOffset(x, y)
     }

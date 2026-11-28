@@ -83,4 +83,27 @@ class LibraryStoredFiltersTest {
         assertEquals("Western", f.viewModel.uiState.value.selectedGenre)
         assertEquals(StoredLibraryFilters(watchedFilter = "watched", genre = "Western"), f.storedState)
     }
+
+    @Test
+    fun `a restored genre waits through a list without it and comes back when one has it`() = runTest {
+        val f = LibraryViewModelTestFixture(storedFilters = StoredLibraryFilters(genre = "Western"))
+        fun entry(id: String, genres: List<String>) = com.fetch.tv.domain.model.LibraryEntry(
+            id = id, type = "movie", name = id, poster = null, background = null, logo = null,
+            description = null, releaseInfo = null, imdbRating = null, genres = genres,
+            addonBaseUrl = null, listKeys = setOf(f.tab.key)
+        )
+        // The previous profile's titles are on screen when the restore lands.
+        f.items.value = listOf(entry("old", listOf("Drama")))
+        runCurrent()
+        assertNull(f.viewModel.uiState.value.selectedGenre)
+
+        // Half of the new profile's library: still no Western.
+        f.items.value = listOf(entry("old", listOf("Drama")), entry("mixed", listOf("Comedy")))
+        runCurrent()
+        assertNull(f.viewModel.uiState.value.selectedGenre)
+
+        f.items.value = listOf(entry("new", listOf("Western")))
+        runCurrent()
+        assertEquals("Western", f.viewModel.uiState.value.selectedGenre)
+    }
 }

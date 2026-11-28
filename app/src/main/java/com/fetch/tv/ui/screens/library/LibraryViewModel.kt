@@ -663,11 +663,13 @@ class LibraryViewModel @Inject constructor(
         }
         // On a profile switch the list on screen can still be the previous profile's, which
         // may lack the genre or year; they go back on once this profile's titles arrive.
+        // An empty list keeps them unchecked, so they wait for a real list as well.
         val state = _uiState.value
-        val genreLost = com.fetch.tv.data.local.StoredLibraryFilterField.GENRE !in touched && genre != null && state.selectedGenre != genre
-        val yearLost = com.fetch.tv.data.local.StoredLibraryFilterField.YEAR !in touched && year != null && state.selectedYear != year
-        restoredFiltersAwaitingItems = if (genreLost || yearLost) {
-            RestoredFilters(genre.takeIf { genreLost }, year.takeIf { yearLost }, itemsAtRestore)
+        val unchecked = state.allItems.isEmpty()
+        val genreWaits = com.fetch.tv.data.local.StoredLibraryFilterField.GENRE !in touched && genre != null && (unchecked || state.selectedGenre != genre)
+        val yearWaits = com.fetch.tv.data.local.StoredLibraryFilterField.YEAR !in touched && year != null && (unchecked || state.selectedYear != year)
+        restoredFiltersAwaitingItems = if (genreWaits || yearWaits) {
+            RestoredFilters(genre.takeIf { genreWaits }, year.takeIf { yearWaits }, itemsAtRestore, RESTORED_FILTER_LIST_UPDATES)
         } else {
             null
         }
@@ -677,25 +679,50 @@ class LibraryViewModel @Inject constructor(
         /** Null for a filter that survived validation and needs nothing put back. */
         val genre: String?,
         val year: String?,
-        val itemsAtRestore: List<LibraryEntry>
+        val itemsAtRestore: List<LibraryEntry>,
+        /** List updates left before a filter the list never had is given up. */
+        val updatesLeft: Int
     )
 
-    /** Puts a restored genre and year back once the restored profile's own titles are in. */
+    /**
+     * Puts a restored genre and year back once a list that has them arrives. The library list
+     * joins saved titles and local lists as each loads, so the first list after a profile switch
+     * can still hold the previous profile's titles: each filter stays pending until it holds, a
+     * pick of that filter, or the next restore.
+     */
     private fun applyRestoredFiltersAwaitingItems(items: List<LibraryEntry>) {
         val pending = restoredFiltersAwaitingItems ?: return
         if (items === pending.itemsAtRestore) return
-        restoredFiltersAwaitingItems = null
-        val genre = pending.genre?.takeIf { com.fetch.tv.data.local.StoredLibraryFilterField.GENRE !in touchedSinceRestore }
-        val year = pending.year?.takeIf { com.fetch.tv.data.local.StoredLibraryFilterField.YEAR !in touchedSinceRestore }
-        if (genre == null && year == null) return
+        // Any pick ends the wait, so a filter never springs back after the user moved on.
+        val genre = pending.genre?.takeIf { touchedSinceRestore.isEmpty() }
+        val year = pending.year?.takeIf { touchedSinceRestore.isEmpty() }
+        if (genre == null && year == null) {
+            restoredFiltersAwaitingItems = null
+            return
+        }
         _uiState.update { current ->
             current.copy(
                 selectedGenre = genre ?: current.selectedGenre,
                 selectedYear = year ?: current.selectedYear
             ).withVisibleItems()
         }
+        val state = _uiState.value
+        val unchecked = state.allItems.isEmpty()
+        val genreStillPending = genre != null && (unchecked || state.selectedGenre != genre)
+        val yearStillPending = year != null && (unchecked || state.selectedYear != year)
+        val updatesLeft = if (unchecked) pending.updatesLeft else pending.updatesLeft - 1
+        restoredFiltersAwaitingItems = if ((genreStillPending || yearStillPending) && updatesLeft > 0) {
+            RestoredFilters(genre.takeIf { genreStillPending }, year.takeIf { yearStillPending }, items, updatesLeft)
+        } else {
+            null
+        }
     }
 
+
+    private companion object {
+        /** How many list updates a restored genre or year waits for its profile's titles. */
+        const val RESTORED_FILTER_LIST_UPDATES = 5
+    }
 
     private fun LibraryWatchedFilter.isRemembered(): Boolean =
         this == LibraryWatchedFilter.WATCHED || this == LibraryWatchedFilter.UNWATCHED
